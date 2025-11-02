@@ -1,8 +1,5 @@
-# BusIn for Students
-
-<!-- Intro image placeholder: replace the path below with your final image -->
-<!-- TODO: Replace the path below with your final image path -->
-<!-- ![Intro – Students using BusIn](assets/images/ADD_STUDENTS_INTRO_IMAGE_PATH_HERE.png) -->
+# BusIn for Students 
+![Intro – Students using BusIn](https://raw.githubusercontent.com/Joel-Fah/busin/refs/heads/main/assets/images/docs/busin_for_students.png)
 
 ## Why BusIn helps students
 BusIn makes getting to, from, and around campus simpler. Reserve a seat, track buses in real time, keep a digital ticket, and get timely updates—all in one place.

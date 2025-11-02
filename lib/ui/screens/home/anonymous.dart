@@ -113,7 +113,7 @@ class AnonymousHomePage extends StatelessWidget {
           ),
           const Gap(16.0),
           ListTile(
-            onTap: () => openStudentDocs(context, ''),
+            onTap: () => openStudentDocs(context, 'https://raw.githubusercontent.com/Joel-Fah/busin/refs/heads/main/lib/docs/busin_for_students.md'),
             leading: HugeIcon(
               icon: HugeIcons.strokeRoundedCatalogue,
               color: accentColor,
@@ -127,7 +127,7 @@ class AnonymousHomePage extends StatelessWidget {
           ),
           const Gap(8.0),
           ListTile(
-            onTap: () => openAdminDocs(context, ''),
+            onTap: () => openAdminDocs(context, 'https://raw.githubusercontent.com/Joel-Fah/busin/refs/heads/main/lib/docs/busin_for_admins.md'),
             leading: HugeIcon(
               icon: HugeIcons.strokeRoundedArchive01,
               color: accentColor,
