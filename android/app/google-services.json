@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "347667253561",
+    "project_id": "busin-46a56",
+    "storage_bucket": "busin-46a56.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:347667253561:android:ba7ceeb6746ceef82240e8",
+        "android_client_info": {
+          "package_name": "com.joelfah.busin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "347667253561-3bnof0b3pjt3c4an1rjq9iu5ek754dm4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDg0T21kKZcy9ZaUo3bYgLVLHV3PWMNMeg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "347667253561-3bnof0b3pjt3c4an1rjq9iu5ek754dm4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

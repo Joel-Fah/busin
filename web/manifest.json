@@ -4,7 +4,7 @@
     "start_url": ".",
     "display": "standalone",
     "background_color": "#FFFFFF",
-    "theme_color": "#FFFFFF",
+    "theme_color": "#002A33",
     "description": "A mobile app that aims at facilitating management of data of about students taking the bus. thereby providing the necessary analytics and features.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
