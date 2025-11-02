@@ -1,0 +1,52 @@
+{
+  "@@locale": "en",
+  "language_english": "English",
+  "language_french": "French",
+  "weekday_monday": "Monday",
+  "weekday_tuesday": "Tuesday",
+  "weekday_wednesday": "Wednesday",
+  "weekday_thursday": "Thursday",
+  "weekday_friday": "Friday",
+  "weekday_saturday": "Saturday",
+  "weekday_sunday": "Sunday",
+  "locale_popup_btn_tooltip": "Change Language",
+  "locale_popup_btn_label": "Language changed to {locale}",
+  "@locale_popup_btn_label": {
+    "description": "Indicates that the language has been successfully changed",
+    "placeholders": {
+      "locale": {
+        "type": "String",
+        "example": "French"
+      }
+    }
+  },
+  "onboarding_screen1_title": "Staring at the clock, waiting for the bus to leave, knowing I'll be up early tomorrow — becomes difficult to sleep with endless school work piling up too ... frrrrrrrr",
+  "onboarding_screen1_subtitle": "Na, e go pay off one day, sha.",
+  "onboarding_screen2_title": "Wanna live and contribute to a better bus experience as from now on?",
+  "onboarding_screen2_subtitle": "Hesitate no more...",
+  "onboarding_cta": "Get Started",
+  "authModal_Step1_title": "You're coming as a:",
+  "authModal_Step1_subtitle": "Select the profile that best fits you below",
+  "authModal_Step1_option1": "Student",
+  "authModal_Step1_option2": "Staff",
+  "authModal_Step1_cta1Proceed": "Proceed to Authentication",
+  "authModal_Step1_cta2Skip": "Just skip for now",
+  "authModal_Step2_subtitle": "Authentication happening within",
+  "authModal_Step2_title": "The ICT University Organization",
+  "authModal_Step2_instruction_slice1": "You can authenticate with your",
+  "authModal_Step2_instruction_slice2": "google account",
+  "authModal_Step2_instruction_details": "This means that only students and school admins having a valid access to their personal google account provided by The ICT University organization can log into BusIn.",
+  "authModal_Step2_instruction_detailsBullet1": "This helps us keep tract of our students’ data internally.",
+  "authModal_Step2_instruction_detailsBullet2": "Makes the authentication process friendly and quite easier for you.",
+  "authModal_Step2_cta1Back": "Back",
+  "authModal_Step2_cta2Login": "Login with Google",
+  "anonymousPage_appBar_title": "Anonymous User",
+  "anonymousPage_appBar_subtitle": "sign in now",
+  "anonymousPage_warningAlert": "You're not authenticated",
+  "anonymousPage_headline": "There’s surely a seat available for you",
+  "anonymousPage_listTitle": "What does BusIn has to offer?",
+  "anonymousPage_list_option1Title": "BusIn for students",
+  "anonymousPage_list_option1Subtitle": "Discover how BusIn improves students' engagement",
+  "anonymousPage_list_option2Title": "BusIn for administrators",
+  "anonymousPage_list_option2Subtitle": "Learn how BusIn serves the school administration"
+}
