@@ -1,7 +1,7 @@
 # BusIn for Admins
 
 <!-- Intro image placeholder: replace the path below with your final image -->
-![Intro – Admins using BusIn Console](<ADD_ADMINS_INTRO_IMAGE_PATH_HERE>)
+![Intro – BusIn also serves the school staff and administration](https://raw.githubusercontent.com/Joel-Fah/busin/refs/heads/main/assets/images/docs/busin_for_admins.png)
 
 ## Why BusIn helps admins
 BusIn streamlines campus transport operations—reducing no‑shows, improving capacity planning, and giving you real‑time oversight of vehicles, routes, and demand.
