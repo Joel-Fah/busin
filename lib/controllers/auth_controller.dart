@@ -25,6 +25,10 @@ class AuthController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxString? errorMessage = RxString('');
 
+  // Pending onboarding choice (applied only on first user creation)
+  UserRole? _pendingInitialRole;
+  AccountStatus? _pendingInitialStatus;
+
   StreamSubscription<fb_auth.User?>? _authSub;
   StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _userDocSub;
 
@@ -32,9 +36,10 @@ class AuthController extends GetxController {
   void onInit() {
     super.onInit();
     // Listen to Firebase auth state and sync with Firestore + local model
-    _authSub = _auth.authStateChanges().listen(_onAuthStateChanged, onError: (e, st) {
-      errorMessage?.value = e.toString();
-    });
+    _authSub =
+        _auth.authStateChanges().listen(_onAuthStateChanged, onError: (e, st) {
+          errorMessage?.value = e.toString();
+        });
   }
 
   @override
@@ -44,7 +49,14 @@ class AuthController extends GetxController {
     super.onClose();
   }
 
-  // --- Public API ---
+  // --- Public Methods ---
+
+  /// Set the initial role/status to be used when creating the user document
+  /// for the first time (on first login). Ignored if the user document exists.
+  void setFirstLoginProfile(UserRole role, AccountStatus status) {
+    _pendingInitialRole = role;
+    _pendingInitialStatus = status;
+  }
 
   Future<void> signInWithGoogle() async {
     isLoading.value = true;
@@ -73,11 +85,15 @@ class AuthController extends GetxController {
   }
 
   bool get isAuthenticated => currentUser.value != null;
+
   bool get isStudent => currentUser.value?.role == UserRole.student;
+
   bool get isStaff => currentUser.value?.role == UserRole.staff;
+
   bool get isAdmin => currentUser.value?.role == UserRole.admin;
 
   String get userDisplayName => currentUser.value?.name ?? '';
+
   String get userEmail => currentUser.value?.email ?? '';
 
   // --- Internals ---
@@ -98,12 +114,41 @@ class AuthController extends GetxController {
     // Create the user doc if not present
     final docSnap = await docRef.get();
     if (!docSnap.exists) {
-      // Default all new logins to Student; you can elevate via admin later.
-      final student = Student.fromFirebaseUser(
-        fbUser,
-        status: AccountStatus.verified,
-      );
-      await docRef.set(student.toMap());
+      final roleToUse = _pendingInitialRole ?? UserRole.student;
+      final statusToUse = _pendingInitialStatus ?? AccountStatus.verified;
+
+      BaseUser newUser;
+      switch (roleToUse) {
+        case UserRole.student:
+          newUser = Student.fromFirebaseUser(
+            fbUser,
+            status: statusToUse,
+          );
+          break;
+        case UserRole.staff:
+          newUser = Staff.fromFirebaseUser(
+            fbUser,
+            status: statusToUse,
+          );
+          break;
+        case UserRole.admin:
+          newUser = Admin.fromFirebaseUser(
+            fbUser,
+            status: statusToUse,
+          );
+          break;
+      }
+
+      await docRef.set(newUser.toBaseMap()
+        ..addAll(newUser is Student
+            ? (newUser).toMap()
+            : newUser is Staff
+            ? (newUser).toMap()
+            : (newUser as Admin).toMap()));
+
+      // Clear pending onboarding choice after first use
+      _pendingInitialRole = null;
+      _pendingInitialStatus = null;
     }
 
     // Subscribe to live updates for that user doc to keep state reactive
@@ -142,19 +187,21 @@ class AuthController extends GetxController {
   Future<void> updatePhone(String phone) async {
     final user = currentUser.value;
     if (user == null) return;
-    await _db.collection(kUsersCollection).doc(user.id).update({'phone': phone});
+    await _db.collection(kUsersCollection).doc(user.id).update(
+        {'phone': phone});
   }
 
   Future<void> setRole(UserRole role) async {
     final user = currentUser.value;
     if (user == null) return;
-    await _db.collection(kUsersCollection).doc(user.id).update({'role': role.name});
+    await _db.collection(kUsersCollection).doc(user.id).update(
+        {'role': role.name});
   }
 
   Future<void> setStatus(AccountStatus status) async {
     final user = currentUser.value;
     if (user == null) return;
-    await _db.collection(kUsersCollection).doc(user.id).update({'status': status.name});
+    await _db.collection(kUsersCollection).doc(user.id).update(
+        {'status': status.name});
   }
 }
-

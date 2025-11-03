@@ -1,4 +1,6 @@
+import 'package:busin/ui/components/widgets/loading_indicator.dart';
 import 'package:busin/utils/constants.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -54,20 +56,20 @@ Widget _buildMarkdown(BuildContext context, String data) {
     softLineBreak: true,
     onTapLink: (text, href, title) =>
         launchUrl(Uri.parse(href!), mode: LaunchMode.inAppWebView),
-    sizedImageBuilder: (config) => ClipRRect(
-      borderRadius: BorderRadius.circular(24),
-      child: Image.network(
-        config.uri.toString(),
-        fit: BoxFit.cover,
-        width: config.width,
-        height: config.height,
+    sizedImageBuilder: (config) => CachedNetworkImage(
+      imageUrl: config.uri.toString(),
+      fit: BoxFit.cover,
+      width: config.width,
+      height: config.height,
+      placeholder: (context, url) => Center(
+        child: LoadingIndicator(),
       ),
     ),
     listItemCrossAxisAlignment: MarkdownListItemCrossAxisAlignment.start,
   );
 }
 
-/// Public widget to render Markdown with the app styling defined in this file.
+/// Public widget to render Markdown with the app styling.
 class MarkdownStyledView extends StatelessWidget {
   final String data;
 

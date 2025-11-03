@@ -55,7 +55,7 @@ class AppTheme {
           return lightColor;
         }),
         shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-          RoundedRectangleBorder(borderRadius: borderRadius * 2),
+          RoundedRectangleBorder(borderRadius: borderRadius * 2.0),
         ),
         textStyle: WidgetStateProperty.all<TextStyle>(
           AppTextStyles.body.copyWith(
@@ -77,7 +77,7 @@ class AppTheme {
           return accentColor;
         }),
         shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-          RoundedRectangleBorder(borderRadius: borderRadius * 2),
+          RoundedRectangleBorder(borderRadius: borderRadius * 2.0),
         ),
         textStyle: WidgetStateProperty.all<TextStyle>(
           AppTextStyles.body.copyWith(
@@ -242,6 +242,7 @@ class AppTheme {
       backgroundColor: seedColor,
       systemOverlayStyle: SystemUiOverlayStyle.light,
       foregroundColor: lightColor,
+      titleTextStyle: AppTextStyles.h1.copyWith(color: seedColor, fontWeight: FontWeight.w600),
     ),
     iconTheme: IconThemeData(color: lightColor),
     highlightColor: seedPalette.shade50.withValues(alpha: 0.1),

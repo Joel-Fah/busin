@@ -46,15 +46,21 @@ Future<dynamic> buildLoadingIndicator(BuildContext context) {
 }
 
 class LoadingIndicator extends StatelessWidget {
-  const LoadingIndicator({super.key, this.size = 50.0});
+  const LoadingIndicator({
+    super.key,
+    this.size = 50.0,
+    this.leftDotColor,
+    this.rightDotColor,
+  });
 
   final double? size;
+  final Color? leftDotColor, rightDotColor;
 
   @override
   Widget build(BuildContext context) {
     return LoadingAnimationWidget.flickr(
-      leftDotColor: accentPalette.shade200,
-      rightDotColor: accentColor,
+      leftDotColor: leftDotColor ?? accentPalette.shade200,
+      rightDotColor: rightDotColor ?? accentColor,
       size: size ?? 50.0,
     );
   }

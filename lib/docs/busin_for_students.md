@@ -1,6 +1,8 @@
 # BusIn for Students 
 ![Intro – Students using BusIn](https://raw.githubusercontent.com/Joel-Fah/busin/refs/heads/main/assets/images/docs/busin_for_students.png)
 
+[Jump to: Getting started](#getting-started) • [Boarding checklist](#boarding-checklist) • [Passes & pricing](#passes--pricing) • [Troubleshooting](#troubleshooting) • [Appendix](#appendix)
+
 ## Why BusIn helps students
 BusIn makes getting to, from, and around campus simpler. Reserve a seat, track buses in real time, keep a digital ticket, and get timely updates—all in one place.
 
@@ -28,6 +30,14 @@ BusIn makes getting to, from, and around campus simpler. Reserve a seat, track b
 - Enable notifications and location for the best experience
 - Optionally add a payment method for paid routes/passes
 
+## Boarding checklist
+- [x] Install the latest version from your app store
+- [x] Sign in with your ICTU email (`@ictuniversity.edu.cm`)
+- [x] Enable `Profile > Settings > Notifications` for boarding alerts
+- [ ] Save your usual route and stop as Favorites
+- [ ] Check today’s departure time and seat availability
+- [ ] Keep your QR ticket brightness high before boarding
+
 ## Key screens
 - Home: next departures, favorites, active ticket
 - Routes & Schedule: search, filter, route details
@@ -35,12 +45,23 @@ BusIn makes getting to, from, and around campus simpler. Reserve a seat, track b
 - Ticket Wallet: active and past tickets/receipts
 - Profile & Settings: preferences, saved methods, help
 
+## Passes & pricing
+| Pass type        | Validity            | Typical price | Notes                                       |
+|:-----------------|:--------------------|:--------------|:--------------------------------------------|
+| Single ride      | One boarding        | 500 XAF       | Non‑refundable after departure               |
+| Day pass         | Calendar day        | 1,500 XAF     | Unlimited rides that day                     |
+| Semester pass    | Full semester term  | 25,000 XAF    | Best value; requires active student status   |
+
+Prices are indicative and may vary by route or promotions. Always check the in‑app price before confirming.
+
 ## Tips and best practices
 - Save your common routes as Favorites
 - Turn on notifications for boarding and gate updates
 - Download your ticket ahead of time if connectivity is limited
 - Keep your QR at reasonable brightness for faster scans
 - If your plans change, cancel early to free up seats for others
+
+> Tip: If your QR won’t scan immediately, increase screen brightness and hold the phone flat for the validator.
 
 ## Accessibility
 - Large text and high‑contrast modes supported by system settings
@@ -66,3 +87,16 @@ BusIn makes getting to, from, and around campus simpler. Reserve a seat, track b
 
 ## Need help?
 Check Help & Support in the app (Profile → Support) or contact your campus transport office.
+
+---
+
+## Appendix
+
+### Example ticket data (JSON)
+```json
+{
+  "route": "Campus Loop",
+  "seat": 12,
+  "paid": true
+}
+```
