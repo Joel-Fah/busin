@@ -32,7 +32,7 @@ class Student extends BaseUser {
       id: map['id'] as String,
       name: (map['name'] as String?)?.trim() ?? '',
       email: (map['email'] as String?)?.trim() ?? '',
-      status: AccountStatus.from((map['status'] as String?) ?? 'pending'),
+      status: AccountStatus.from((map['status'] as String?) ?? 'verified'),
       phone: (map['phone'] as String?)?.trim(),
       photoUrl: (map['photoUrl'] as String?)?.trim(),
       matricule: (map['matricule'] as String?)?.trim(),

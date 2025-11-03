@@ -11,7 +11,7 @@ final rootNavigatorKey = GlobalKey<NavigatorState>();
 final router = GoRouter(
   debugLogDiagnostics: true,
   navigatorKey: rootNavigatorKey,
-  initialLocation: AnonymousHomePage.routeName,
+  initialLocation: OnboardingPage.routeName,
   routes: [
     // Onboarding & Docs
     GoRoute(
