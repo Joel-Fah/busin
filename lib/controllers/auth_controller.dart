@@ -25,6 +25,11 @@ class AuthController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxString? errorMessage = RxString('');
 
+  // Bootstrapping gate: true once we handled the first auth state and doc load
+  final RxBool _bootstrapped = false.obs;
+  bool get isBootstrapped => _bootstrapped.value;
+  Stream<bool> get bootstrappedStream => _bootstrapped.stream;
+
   // Pending onboarding choice (applied only on first user creation)
   UserRole? _pendingInitialRole;
   AccountStatus? _pendingInitialStatus;
@@ -85,24 +90,23 @@ class AuthController extends GetxController {
   }
 
   bool get isAuthenticated => currentUser.value != null;
-
   bool get isStudent => currentUser.value?.role == UserRole.student;
-
   bool get isStaff => currentUser.value?.role == UserRole.staff;
-
   bool get isAdmin => currentUser.value?.role == UserRole.admin;
-
   String get userDisplayName => currentUser.value?.name ?? '';
-
   String get userEmail => currentUser.value?.email ?? '';
+  String get userProfileImage => currentUser.value?.photoUrl ?? '';
+  bool get isVerified => currentUser.value?.isVerified ?? false;
 
   // --- Internals ---
 
   Future<void> _onAuthStateChanged(fb_auth.User? fbUser) async {
+    _bootstrapped.value = false;
     _userDocSub?.cancel();
 
     if (fbUser == null) {
       currentUser.value = null;
+      _bootstrapped.value = true; // done bootstrapping for signed-out state
       return;
     }
 
@@ -139,30 +143,56 @@ class AuthController extends GetxController {
           break;
       }
 
-      await docRef.set(newUser.toBaseMap()
-        ..addAll(newUser is Student
-            ? (newUser).toMap()
-            : newUser is Staff
-            ? (newUser).toMap()
-            : (newUser as Admin).toMap()));
+      // Persist new user
+      Map<String, dynamic> initialMap;
+      if (newUser is Student) {
+        initialMap = newUser.toMap();
+      } else if (newUser is Staff) {
+        initialMap = newUser.toMap();
+      } else {
+        initialMap = (newUser as Admin).toMap();
+      }
+      await docRef.set(initialMap);
+
+      // Set current user immediately (without waiting for snapshot)
+      currentUser.value = _mapDocToUser(roleToUse, initialMap);
 
       // Clear pending onboarding choice after first use
       _pendingInitialRole = null;
       _pendingInitialStatus = null;
+
+      // Subscribe for future updates
+      _userDocSub = docRef.snapshots().listen(_onUserDoc, onError: (e, st) {
+        errorMessage?.value = e.toString();
+      });
+
+      await Future.delayed(const Duration(milliseconds: 100));
+      _bootstrapped.value = true;
+      return;
     }
 
-    // Subscribe to live updates for that user doc to keep state reactive
-    _userDocSub = docRef.snapshots().listen((snapshot) {
-      final data = snapshot.data();
-      if (data == null) {
-        currentUser.value = null;
-        return;
-      }
-      final role = UserRole.from((data[kRoleField] as String?) ?? 'student');
-      currentUser.value = _mapDocToUser(role, data);
-    }, onError: (e, st) {
+    // Doc exists: set current user immediately from the snapshot data
+    final data = docSnap.data()!;
+    final role = UserRole.from((data[kRoleField] as String?) ?? 'student');
+    currentUser.value = _mapDocToUser(role, data);
+
+    // Subscribe to live updates
+    _userDocSub = docRef.snapshots().listen(_onUserDoc, onError: (e, st) {
       errorMessage?.value = e.toString();
     });
+
+    await Future.delayed(const Duration(milliseconds: 100));
+    _bootstrapped.value = true;
+  }
+
+  void _onUserDoc(DocumentSnapshot<Map<String, dynamic>> snapshot) {
+    final data = snapshot.data();
+    if (data == null) {
+      currentUser.value = null;
+      return;
+    }
+    final role = UserRole.from((data[kRoleField] as String?) ?? 'student');
+    currentUser.value = _mapDocToUser(role, data);
   }
 
   BaseUser _mapDocToUser(UserRole role, Map<String, dynamic> data) {
@@ -187,21 +217,18 @@ class AuthController extends GetxController {
   Future<void> updatePhone(String phone) async {
     final user = currentUser.value;
     if (user == null) return;
-    await _db.collection(kUsersCollection).doc(user.id).update(
-        {'phone': phone});
+    await _db.collection(kUsersCollection).doc(user.id).update({'phone': phone});
   }
 
   Future<void> setRole(UserRole role) async {
     final user = currentUser.value;
     if (user == null) return;
-    await _db.collection(kUsersCollection).doc(user.id).update(
-        {'role': role.name});
+    await _db.collection(kUsersCollection).doc(user.id).update({'role': role.name});
   }
 
   Future<void> setStatus(AccountStatus status) async {
     final user = currentUser.value;
     if (user == null) return;
-    await _db.collection(kUsersCollection).doc(user.id).update(
-        {'status': status.name});
+    await _db.collection(kUsersCollection).doc(user.id).update({'status': status.name});
   }
 }

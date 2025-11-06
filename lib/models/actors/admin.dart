@@ -59,14 +59,14 @@ class Admin extends BaseUser {
   // --- subscription helpers ---
   bool get canReviewSubscriptions => hasScope('approve_subscription');
 
-  Subscription approve(Subscription s, {DateTime? startDate, DateTime? endDate}) {
+  BusSubscription approve(BusSubscription s, {DateTime? startDate, DateTime? endDate}) {
     if (!canReviewSubscriptions) {
       throw StateError('Admin lacks approve_subscription scope');
     }
     return s.approve(reviewerUserId: id, startDate: startDate, endDate: endDate);
   }
 
-  Subscription reject(Subscription s, {required String reason}) {
+  BusSubscription reject(BusSubscription s, {required String reason}) {
     if (!canReviewSubscriptions) {
       throw StateError('Admin lacks approve_subscription scope');
     }

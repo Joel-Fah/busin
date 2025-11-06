@@ -122,7 +122,12 @@ class AppTheme {
       backgroundColor: lightColor,
       systemOverlayStyle: SystemUiOverlayStyle.dark,
       foregroundColor: seedColor,
-      titleTextStyle: AppTextStyles.h1.copyWith(color: seedColor, fontWeight: FontWeight.w600),
+      titleTextStyle: AppTextStyles.title.copyWith(
+        color: seedColor,
+        fontWeight: FontWeight.w600,
+        fontSize: 48.0,
+      ),
+      toolbarHeight: 80.0,
     ),
     iconTheme: IconThemeData(color: seedColor),
     highlightColor: seedPalette.shade50.withValues(alpha: 0.1),
@@ -132,6 +137,30 @@ class AppTheme {
       subtitleTextStyle: AppTextStyles.body.copyWith(
         color: seedColor.withValues(alpha: 0.7),
       ),
+    ),
+    dividerColor: seedColor.withValues(alpha: 0.7),
+    dividerTheme: DividerThemeData(color: seedColor.withValues(alpha: 0.7)),
+    tabBarTheme: TabBarThemeData(
+      dividerHeight: 0.0,
+      labelPadding: EdgeInsetsGeometry.all(16.0),
+      labelStyle: AppTextStyles.body,
+      labelColor: lightColor,
+      unselectedLabelColor: lightColor.withValues(alpha: 0.35),
+      unselectedLabelStyle: AppTextStyles.body,
+      indicator: BoxDecoration(
+        borderRadius: borderRadius * 2.0,
+        color: seedPalette.shade50.withValues(alpha: 0.1),
+      ),
+      indicatorAnimation: TabIndicatorAnimation.elastic,
+      indicatorSize: TabBarIndicatorSize.tab,
+      splashBorderRadius: borderRadius * 2.0,
+      tabAlignment: TabAlignment.center,
+    ),
+    chipTheme: ChipThemeData(
+      backgroundColor: lightColor,
+      labelStyle: AppTextStyles.body.copyWith(fontSize: 14.0, color: seedColor),
+      shape: RoundedRectangleBorder(borderRadius: borderRadius * 2.0),
+      pressElevation: 0.0,
     ),
   );
 
@@ -242,7 +271,12 @@ class AppTheme {
       backgroundColor: seedColor,
       systemOverlayStyle: SystemUiOverlayStyle.light,
       foregroundColor: lightColor,
-      titleTextStyle: AppTextStyles.h1.copyWith(color: seedColor, fontWeight: FontWeight.w600),
+      titleTextStyle: AppTextStyles.title.copyWith(
+        color: lightColor,
+        fontWeight: FontWeight.w600,
+        fontSize: 48.0,
+      ),
+      toolbarHeight: 80.0,
     ),
     iconTheme: IconThemeData(color: lightColor),
     highlightColor: seedPalette.shade50.withValues(alpha: 0.1),
@@ -252,6 +286,31 @@ class AppTheme {
       subtitleTextStyle: AppTextStyles.body.copyWith(
         color: lightColor.withValues(alpha: 0.7),
       ),
+    ),
+    dividerColor: lightColor.withValues(alpha: 0.7),
+    dividerTheme: DividerThemeData(color: lightColor.withValues(alpha: 0.7)),
+    tabBarTheme: TabBarThemeData(
+      dividerHeight: 0.0,
+      labelPadding: EdgeInsetsGeometry.all(16.0),
+      labelStyle: AppTextStyles.body,
+      labelColor: lightColor,
+      unselectedLabelColor: lightColor.withValues(alpha: 0.35),
+      unselectedLabelStyle: AppTextStyles.body,
+      indicator: BoxDecoration(
+        borderRadius: borderRadius * 2.0,
+        color: seedPalette.shade50.withValues(alpha: 0.1),
+      ),
+      indicatorAnimation: TabIndicatorAnimation.elastic,
+      indicatorSize: TabBarIndicatorSize.tab,
+      splashBorderRadius: borderRadius * 2.0,
+      tabAlignment: TabAlignment.center,
+    ),
+    chipTheme: ChipThemeData(
+      backgroundColor: seedColor,
+      labelStyle: AppTextStyles.body.copyWith(fontSize: 14.0, color: lightColor,),
+      selectedColor: seedPalette.shade800,
+      shape: RoundedRectangleBorder(borderRadius: borderRadius * 2.0),
+      pressElevation: 0.0,
     ),
   );
 }

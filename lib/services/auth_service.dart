@@ -31,6 +31,11 @@ class AuthService {
     // Try lightweight/ silent sign-in first
     try {
       account = await _googleSignIn.attemptLightweightAuthentication();
+      if (kDebugMode) {
+        debugPrint(
+          '[AuthService] signInWithGoogle Success: ${account.toString()}',
+        );
+      }
     } catch (e) {
       account = null;
       if (kDebugMode) {
@@ -43,6 +48,11 @@ class AuthService {
     // If lightweight failed or returned null, use full interactive sign-in
     if (account == null) {
       account = await _googleSignIn.authenticate();
+      if (kDebugMode) {
+        debugPrint(
+          '[AuthService] signInWithGoogle Success: ${account.toString()}',
+        );
+      }
     }
 
     final GoogleSignInAuthentication gAuth = await account.authentication;

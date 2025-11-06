@@ -52,7 +52,7 @@ enum Semester {
 }
 
 /// Status of a subscription during its review lifecycle.
-enum SubscriptionStatus {
+enum BusSubscriptionStatus {
   pending,
   approved,
   rejected,
@@ -61,31 +61,31 @@ enum SubscriptionStatus {
   String get nameLower => name;
 
   String get label => switch (this) {
-    SubscriptionStatus.pending => 'Pending',
-    SubscriptionStatus.approved => 'Approved',
-    SubscriptionStatus.rejected => 'Rejected',
-    SubscriptionStatus.expired => 'Expired',
+    BusSubscriptionStatus.pending => 'Pending',
+    BusSubscriptionStatus.approved => 'Approved',
+    BusSubscriptionStatus.rejected => 'Rejected',
+    BusSubscriptionStatus.expired => 'Expired',
   };
 
-  bool get isPending => this == SubscriptionStatus.pending;
+  bool get isPending => this == BusSubscriptionStatus.pending;
 
-  bool get isApproved => this == SubscriptionStatus.approved;
+  bool get isApproved => this == BusSubscriptionStatus.approved;
 
-  bool get isRejected => this == SubscriptionStatus.rejected;
+  bool get isRejected => this == BusSubscriptionStatus.rejected;
 
-  bool get isExpired => this == SubscriptionStatus.expired;
+  bool get isExpired => this == BusSubscriptionStatus.expired;
 
-  static SubscriptionStatus from(String value) {
+  static BusSubscriptionStatus from(String value) {
     final v = value.trim().toLowerCase();
     switch (v) {
       case 'pending':
-        return SubscriptionStatus.pending;
+        return BusSubscriptionStatus.pending;
       case 'approved':
-        return SubscriptionStatus.approved;
+        return BusSubscriptionStatus.approved;
       case 'rejected':
-        return SubscriptionStatus.rejected;
+        return BusSubscriptionStatus.rejected;
       case 'expired':
-        return SubscriptionStatus.expired;
+        return BusSubscriptionStatus.expired;
       default:
         throw ArgumentError('Unknown subscription status: $value');
     }
@@ -118,12 +118,12 @@ class DateSpan {
 
 /// A weekly schedule preference for a subscription.
 /// Stores weekday as 1-6 (Mon-Sat) and times in HH:mm (24h) strings.
-class SubscriptionSchedule {
+class BusSubscriptionSchedule {
   final int weekday; // 1 (Mon) .. 6 (Sat)
   final String morningTime; // HH:mm
   final String closingTime; // HH:mm
 
-  const SubscriptionSchedule({
+  const BusSubscriptionSchedule({
     required this.weekday,
     required this.morningTime,
     required this.closingTime,
@@ -148,8 +148,8 @@ class SubscriptionSchedule {
     'closingTime': closingTime,
   };
 
-  factory SubscriptionSchedule.fromMap(Map<String, dynamic> map) =>
-      SubscriptionSchedule(
+  factory BusSubscriptionSchedule.fromMap(Map<String, dynamic> map) =>
+      BusSubscriptionSchedule(
         weekday: (map['weekday'] as num).toInt(),
         morningTime: map['morningTime'] as String,
         closingTime: map['closingTime'] as String,
@@ -157,13 +157,13 @@ class SubscriptionSchedule {
 }
 
 /// Subscription model tying a student to a semester and preferences.
-class Subscription {
+class BusSubscription {
   final String id;
   final String studentId;
   final Semester semester;
   final int year; // calendar year for the term (e.g., 2025 for Fall 2025)
 
-  final SubscriptionStatus status;
+  final BusSubscriptionStatus status;
   final String? proofOfPaymentUrl;
 
   final DateTime createdAt;
@@ -181,9 +181,11 @@ class Subscription {
   // Boarding preference
   final String? stopId; // chosen stop from predefined catalog
   final String? stopName; // denormalized label for convenience
-  final SubscriptionSchedule? schedule; // weekly preference
 
-  const Subscription({
+  // Weekly preferences (multiple days)
+  final List<BusSubscriptionSchedule> schedules;
+
+  const BusSubscription({
     required this.id,
     required this.studentId,
     required this.semester,
@@ -199,11 +201,10 @@ class Subscription {
     this.rejectionReason,
     this.stopId,
     this.stopName,
-    this.schedule,
+    this.schedules = const [],
   });
 
-  /// Create a new pending subscription, optionally deriving default dates.
-  factory Subscription.pending({
+  factory BusSubscription.pending({
     required String id,
     required String studentId,
     required Semester semester,
@@ -211,16 +212,16 @@ class Subscription {
     String? proofOfPaymentUrl,
     String? stopId,
     String? stopName,
-    SubscriptionSchedule? schedule,
+    List<BusSubscriptionSchedule>? schedules,
   }) {
     final now = DateTime.now();
     final span = semester.defaultSpanForYear(year);
-    return Subscription(
+    return BusSubscription(
       id: id,
       studentId: studentId,
       semester: semester,
       year: year,
-      status: SubscriptionStatus.pending,
+      status: BusSubscriptionStatus.pending,
       createdAt: now,
       updatedAt: now,
       startDate: span.start,
@@ -228,11 +229,10 @@ class Subscription {
       proofOfPaymentUrl: proofOfPaymentUrl,
       stopId: stopId,
       stopName: stopName,
-      schedule: schedule,
+      schedules: schedules ?? const [],
     );
   }
 
-  // --- derived ---
   bool get isWithinWindow =>
       DateSpan(startDate, endDate).contains(DateTime.now());
 
@@ -249,7 +249,6 @@ class Subscription {
 
   bool get hasStop => (stopId != null && stopId!.isNotEmpty);
 
-  // --- mapping ---
   Map<String, dynamic> toMap() => {
     'id': id,
     'studentId': studentId,
@@ -266,39 +265,54 @@ class Subscription {
     'rejectionReason': rejectionReason,
     'stopId': stopId,
     'stopName': stopName,
-    'schedule': schedule?.toMap(),
+    'schedules': schedules.map((s) => s.toMap()).toList(),
   };
 
-  factory Subscription.fromMap(Map<String, dynamic> map) => Subscription(
-    id: map['id'] as String,
-    studentId: map['studentId'] as String,
-    semester: Semester.from(map['semester'] as String),
-    year: (map['year'] as num).toInt(),
-    status: SubscriptionStatus.from(map['status'] as String),
-    proofOfPaymentUrl: map['proofOfPaymentUrl'] as String?,
-    createdAt: DateTime.parse(map['createdAt'] as String),
-    updatedAt: DateTime.parse(map['updatedAt'] as String),
-    startDate: DateTime.parse(map['startDate'] as String),
-    endDate: DateTime.parse(map['endDate'] as String),
-    reviewedByUserId: map['reviewedByUserId'] as String?,
-    reviewedAt: (map['reviewedAt'] as String?) != null
-        ? DateTime.parse(map['reviewedAt'] as String)
-        : null,
-    rejectionReason: map['rejectionReason'] as String?,
-    stopId: map['stopId'] as String?,
-    stopName: map['stopName'] as String?,
-    schedule: (map['schedule'] is Map<String, dynamic>)
-        ? SubscriptionSchedule.fromMap(map['schedule'] as Map<String, dynamic>)
-        : null,
-  );
+  factory BusSubscription.fromMap(Map<String, dynamic> map) {
+    // Backward compatibility: accept legacy single `schedule`
+    List<BusSubscriptionSchedule> parsedSchedules = const [];
+    final raw = map['schedules'];
+    if (raw is List) {
+      parsedSchedules = raw
+          .whereType<Map<String, dynamic>>()
+          .map(BusSubscriptionSchedule.fromMap)
+          .toList();
+    } else if (map['schedule'] is Map<String, dynamic>) {
+      parsedSchedules = [
+        BusSubscriptionSchedule.fromMap(
+          map['schedule'] as Map<String, dynamic>,
+        ),
+      ];
+    }
 
-  // --- state transitions ---
-  Subscription copyWith({
+    return BusSubscription(
+      id: map['id'] as String,
+      studentId: map['studentId'] as String,
+      semester: Semester.from(map['semester'] as String),
+      year: (map['year'] as num).toInt(),
+      status: BusSubscriptionStatus.from(map['status'] as String),
+      proofOfPaymentUrl: map['proofOfPaymentUrl'] as String?,
+      createdAt: DateTime.parse(map['createdAt'] as String),
+      updatedAt: DateTime.parse(map['updatedAt'] as String),
+      startDate: DateTime.parse(map['startDate'] as String),
+      endDate: DateTime.parse(map['endDate'] as String),
+      reviewedByUserId: map['reviewedByUserId'] as String?,
+      reviewedAt: (map['reviewedAt'] as String?) != null
+          ? DateTime.parse(map['reviewedAt'] as String)
+          : null,
+      rejectionReason: map['rejectionReason'] as String?,
+      stopId: map['stopId'] as String?,
+      stopName: map['stopName'] as String?,
+      schedules: parsedSchedules,
+    );
+  }
+
+  BusSubscription copyWith({
     String? id,
     String? studentId,
     Semester? semester,
     int? year,
-    SubscriptionStatus? status,
+    BusSubscriptionStatus? status,
     String? proofOfPaymentUrl,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -309,8 +323,8 @@ class Subscription {
     String? rejectionReason,
     String? stopId,
     String? stopName,
-    SubscriptionSchedule? schedule,
-  }) => Subscription(
+    List<BusSubscriptionSchedule>? schedules,
+  }) => BusSubscription(
     id: id ?? this.id,
     studentId: studentId ?? this.studentId,
     semester: semester ?? this.semester,
@@ -326,21 +340,21 @@ class Subscription {
     rejectionReason: rejectionReason ?? this.rejectionReason,
     stopId: stopId ?? this.stopId,
     stopName: stopName ?? this.stopName,
-    schedule: schedule ?? this.schedule,
+    schedules: schedules ?? this.schedules,
   );
 
-  Subscription withProof(String url) => copyWith(
+  BusSubscription withProof(String url) => copyWith(
     proofOfPaymentUrl: url,
-    status: SubscriptionStatus.pending,
+    status: BusSubscriptionStatus.pending,
     updatedAt: DateTime.now(),
   );
 
-  Subscription approve({
+  BusSubscription approve({
     required String reviewerUserId,
     DateTime? startDate,
     DateTime? endDate,
   }) => copyWith(
-    status: SubscriptionStatus.approved,
+    status: BusSubscriptionStatus.approved,
     reviewedByUserId: reviewerUserId,
     reviewedAt: DateTime.now(),
     updatedAt: DateTime.now(),
@@ -349,26 +363,80 @@ class Subscription {
     rejectionReason: null,
   );
 
-  Subscription reject({
+  BusSubscription reject({
     required String reviewerUserId,
     required String reason,
   }) => copyWith(
-    status: SubscriptionStatus.rejected,
+    status: BusSubscriptionStatus.rejected,
     reviewedByUserId: reviewerUserId,
     reviewedAt: DateTime.now(),
     updatedAt: DateTime.now(),
     rejectionReason: reason,
   );
 
-  Subscription expireIfPast([DateTime? now]) {
+  BusSubscription expireIfPast([DateTime? now]) {
     final t = now ?? DateTime.now();
     if (status.isApproved && t.isAfter(endDate)) {
-      return copyWith(status: SubscriptionStatus.expired, updatedAt: t);
+      return copyWith(status: BusSubscriptionStatus.expired, updatedAt: t);
     }
     return this;
   }
 
+  // Get semester year
+  String get semesterYear => '${semester.label} $year'.toUpperCase();
+
   @override
   String toString() =>
-      'Subscription(id: $id, studentId: $studentId, sem: ${semester.label} $year, status: ${status.label}, stop: $stopName, start: $startDate, end: $endDate)';
+      'Subscription(id: $id, studentId: $studentId, sem: ${semester.label} $year, status: ${status.label}, stop: $stopName, start: $startDate, end: $endDate, schedules: ${schedules.length})';
 }
+
+// Dummy data for subscriptions
+List<BusSubscription> dummySubscriptions = [
+  BusSubscription.pending(
+    id: 'sub_001',
+    studentId: 'stu_001',
+    semester: Semester.fall,
+    year: 2024,
+    proofOfPaymentUrl: 'https://example.com/proof1.jpg',
+    stopId: 'stop_01',
+    stopName: 'Main Gate',
+    schedules: [
+      BusSubscriptionSchedule(
+        weekday: 1,
+        morningTime: '07:30',
+        closingTime: '08:00',
+      ),
+      BusSubscriptionSchedule(
+        weekday: 3,
+        morningTime: '07:30',
+        closingTime: '08:00',
+      ),
+    ],
+  ),
+  BusSubscription.pending(
+    id: 'sub_002',
+    studentId: 'stu_002',
+    semester: Semester.spring,
+    year: 2025,
+    proofOfPaymentUrl: 'https://example.com/proof2.jpg',
+    stopId: 'stop_02',
+    stopName: 'Library Stop',
+    schedules: [
+      BusSubscriptionSchedule(
+        weekday: 2,
+        morningTime: '08:00',
+        closingTime: '08:30',
+      ),
+      BusSubscriptionSchedule(
+        weekday: 4,
+        morningTime: '08:00',
+        closingTime: '08:30',
+      ),
+      BusSubscriptionSchedule(
+        weekday: 6,
+        morningTime: '09:00',
+        closingTime: '09:30',
+      ),
+    ],
+  ),
+];
