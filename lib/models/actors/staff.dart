@@ -58,8 +58,8 @@ class Staff extends BaseUser {
   // --- subscription helpers ---
   bool get canReviewSubscriptions => hasPermission('verify_subscription');
 
-  Subscription approve(
-    Subscription s, {
+  BusSubscription approve(
+    BusSubscription s, {
     DateTime? startDate,
     DateTime? endDate,
   }) {
@@ -73,7 +73,7 @@ class Staff extends BaseUser {
     );
   }
 
-  Subscription reject(Subscription s, {required String reason}) {
+  BusSubscription reject(BusSubscription s, {required String reason}) {
     if (!canReviewSubscriptions) {
       throw StateError('Staff lacks verify_subscription permission');
     }

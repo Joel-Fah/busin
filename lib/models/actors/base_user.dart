@@ -25,11 +25,26 @@ abstract class BaseUser {
   bool get isVerified => status.isVerified;
 
   String get initials {
-    final n = name.trim().isNotEmpty ? name : email;
-    final parts = n.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
-    final first = parts.isNotEmpty ? parts.first[0] : '';
-    final last = parts.length > 1 ? parts.last[0] : '';
-    return (first + last).toUpperCase();
+    final n = name.trim().isNotEmpty ? name.trim() : email.trim();
+    if (n.isEmpty) return '??';
+    final parts = n.split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
+    final letters = parts.map((p) => p[0]).join();
+    if (letters.length >= 2) return letters.substring(0, 2).toUpperCase();
+    if (letters.length == 1) {
+      final first = letters;
+      final firstPart = parts.isNotEmpty ? parts.first : n;
+      final condensed = firstPart.replaceAll(RegExp(r'\s+'), '');
+      final second = condensed.length >= 2
+          ? condensed[1]
+          : (n.replaceAll(RegExp(r'\s+'), '').length >= 2
+                ? n.replaceAll(RegExp(r'\s+'), '')[1]
+                : first);
+      return (first + second).toUpperCase();
+    }
+    final condensed = n.replaceAll(RegExp(r'\s+'), '');
+    if (condensed.length >= 2) return condensed.substring(0, 2).toUpperCase();
+    if (condensed.length == 1) return (condensed + condensed).toUpperCase();
+    return '??';
   }
 
   /// Base map (subclasses can add/override fields on top of this).
@@ -54,7 +69,7 @@ abstract class BaseUser {
 
   static bool isGoogleOnly(fb_auth.User user) =>
       user.providerData.isNotEmpty &&
-          user.providerData.every((p) => p.providerId == 'google.com');
+      user.providerData.every((p) => p.providerId == 'google.com');
 
   /* Throws if user is not Google-only or not from the allowed org domain. */
   static void assertGoogleOrgOrThrow(fb_auth.User user) {

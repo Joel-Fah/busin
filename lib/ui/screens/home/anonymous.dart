@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:hugeicons/hugeicons.dart';
 
+import '../../components/widgets/home/appbar_list_tile.dart';
 import '../../components/widgets/primary_button.dart';
 import '../onboarding/auth_modal.dart';
 
@@ -19,44 +20,22 @@ class AnonymousHomePage extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 80.0,
-        title: IntrinsicWidth(
-          child: ListTile(
-            onTap: () async {
-              await showModalBottomSheet<void>(
-                context: context,
-                isScrollControlled: true,
-                builder: (ctx) => const AuthModalSheet(),
-              );
-            },
-            contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
-            leading: CircleAvatar(
-              radius: 24.0,
-              backgroundColor: seedPalette.shade50,
-              child: HugeIcon(icon: HugeIcons.strokeRoundedUser),
-            ),
-            title: Text(l10n.anonymousPage_appBar_title),
-            subtitle: Align(
-              alignment: AlignmentGeometry.centerLeft,
-              child: Ink(
-                padding: EdgeInsetsGeometry.symmetric(
-                  horizontal: 8.0,
-                  vertical: 2.0,
-                ),
-                decoration: BoxDecoration(
-                  color: warningColor.withValues(alpha: 0.1),
-                  borderRadius: borderRadius,
-                ),
-                child: Text(
-                  l10n.anonymousPage_appBar_subtitle,
-                  style: AppTextStyles.small.copyWith(
-                    color: warningColor,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
+        title: AppBarListTile(
+          onTap: () async {
+            await showModalBottomSheet<void>(
+              context: context,
+              isScrollControlled: true,
+              builder: (ctx) => const AuthModalSheet(),
+            );
+          },
+          leading: CircleAvatar(
+            radius: 24.0,
+            backgroundColor: seedPalette.shade50,
+            child: HugeIcon(icon: HugeIcons.strokeRoundedUser),
           ),
+          title: l10n.anonymousPage_appBar_title,
+          subtitle: l10n.anonymousPage_appBar_subtitle,
+          subtitleColor: warningColor,
         ),
       ),
       body: ListView(
@@ -113,7 +92,10 @@ class AnonymousHomePage extends StatelessWidget {
           ),
           const Gap(16.0),
           ListTile(
-            onTap: () => openStudentDocs(context, 'https://raw.githubusercontent.com/Joel-Fah/busin/refs/heads/main/lib/docs/busin_for_students.md'),
+            onTap: () => openStudentDocs(
+              context,
+              'https://raw.githubusercontent.com/Joel-Fah/busin/refs/heads/main/lib/docs/busin_for_students.md',
+            ),
             leading: HugeIcon(
               icon: HugeIcons.strokeRoundedCatalogue,
               color: accentColor,
@@ -127,7 +109,10 @@ class AnonymousHomePage extends StatelessWidget {
           ),
           const Gap(8.0),
           ListTile(
-            onTap: () => openAdminDocs(context, 'https://raw.githubusercontent.com/Joel-Fah/busin/refs/heads/main/lib/docs/busin_for_admins.md'),
+            onTap: () => openAdminDocs(
+              context,
+              'https://raw.githubusercontent.com/Joel-Fah/busin/refs/heads/main/lib/docs/busin_for_admins.md',
+            ),
             leading: HugeIcon(
               icon: HugeIcons.strokeRoundedArchive01,
               color: accentColor,

@@ -47,6 +47,7 @@ Widget _buildMarkdown(BuildContext context, String data) {
       fontSize: 18.0,
       fontWeight: FontWeight.w600,
     ),
+    tableBody: AppTextStyles.body,
   );
 
   return MarkdownBody(
@@ -61,8 +62,13 @@ Widget _buildMarkdown(BuildContext context, String data) {
       fit: BoxFit.cover,
       width: config.width,
       height: config.height,
-      placeholder: (context, url) => Center(
-        child: LoadingIndicator(),
+      placeholder: (context, url) => Container(
+        width: config.width,
+        height: config.height,
+        color: seedColor.withValues(alpha: 0.1),
+        child: Center(
+          child: LoadingIndicator(),
+        ),
       ),
     ),
     listItemCrossAxisAlignment: MarkdownListItemCrossAxisAlignment.start,
