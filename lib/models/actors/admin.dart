@@ -14,6 +14,8 @@ class Admin extends BaseUser {
     this.scopes = const [],
     super.phone,
     super.photoUrl,
+    super.createdAt,
+    super.lastSignInAt,
   }) : super(role: UserRole.admin);
 
   factory Admin.fromMap(Map<String, dynamic> map) {
@@ -24,6 +26,8 @@ class Admin extends BaseUser {
       status: AccountStatus.from((map['status'] as String?) ?? 'pending'),
       phone: (map['phone'] as String?)?.trim(),
       photoUrl: (map['photoUrl'] as String?)?.trim(),
+      createdAt: BaseUser.parseDate(map['createdAt']),
+      lastSignInAt: BaseUser.parseDate(map['lastSignInAt']),
       scopes: (map['scopes'] as List?)?.cast<String>() ?? const [],
     );
   }
@@ -48,6 +52,8 @@ class Admin extends BaseUser {
       status: status,
       phone: user.phoneNumber,
       photoUrl: user.photoURL,
+      createdAt: user.metadata.creationTime,
+      lastSignInAt: user.metadata.lastSignInTime,
       scopes: scopes,
     );
   }
@@ -81,6 +87,8 @@ class Admin extends BaseUser {
     String? phone,
     String? photoUrl,
     List<String>? scopes,
+    DateTime? createdAt,
+    DateTime? lastSignInAt,
   }) =>
       Admin(
         id: id ?? this.id,
@@ -89,11 +97,13 @@ class Admin extends BaseUser {
         status: status ?? this.status,
         phone: phone ?? this.phone,
         photoUrl: photoUrl ?? this.photoUrl,
+        createdAt: createdAt ?? this.createdAt,
+        lastSignInAt: lastSignInAt ?? this.lastSignInAt,
         scopes: scopes ?? this.scopes,
       );
 
   @override
   String toString() {
-    return 'Admin(id: $id, name: $name, email: $email, status: ${status.name}, scopes: $scopes)';
+    return 'Admin(id: $id, name: $name, email: $email, status: ${status.name}, scopes: $scopes, createdAt: $createdAt, lastSignInAt: $lastSignInAt)';
   }
 }

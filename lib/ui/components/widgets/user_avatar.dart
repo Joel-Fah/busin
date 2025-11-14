@@ -8,49 +8,65 @@ import '../../../controllers/auth_controller.dart';
 import '../../../utils/constants.dart';
 
 class UserAvatar extends StatelessWidget {
-  const UserAvatar({super.key});
+  const UserAvatar({super.key, this.tag, this.radius});
+
+  final String? tag;
+  final double? radius;
 
   @override
   Widget build(BuildContext context) {
     final AuthController authController = Get.find<AuthController>();
     return authController.userProfileImage.isEmpty
         ? CircleAvatar(
-      radius: 24.0,
-      backgroundColor: Colors.primaries.elementAt(
-        Random().nextInt(Colors.primaries.length),
-      ),
-      child: Text(
-        authController.currentUser.value!.initials,
-        style: AppTextStyles.h4.copyWith(color: lightColor),
-      ),
-    )
+            radius: radius ?? 24.0,
+            backgroundColor: Colors.primaries.elementAt(
+              Random().nextInt(Colors.primaries.length),
+            ),
+            child: Text(
+              authController.currentUser.value!.initials,
+              style: AppTextStyles.h4.copyWith(color: lightColor),
+            ),
+          )
         : CachedNetworkImage(
-      imageUrl: authController.userProfileImage,
-      fit: BoxFit.cover,
-      imageBuilder: (context, imageProvider) =>
-          CircleAvatar(radius: 24.0, backgroundImage: imageProvider),
-      placeholder: (context, url) =>
-          CircleAvatar(
-            radius: 24.0,
-            backgroundColor: Colors.primaries.elementAt(
-              Random().nextInt(Colors.primaries.length),
+            imageUrl: authController.userProfileImage,
+            fit: BoxFit.cover,
+            imageBuilder: (context, imageProvider) {
+              if (tag != null && tag!.isNotEmpty) {
+                return Hero(
+                  tag: tag!,
+                  child: CircleAvatar(
+                    radius: radius ?? 24.0,
+                    backgroundImage: imageProvider,
+                    // backgroundColor: Colors.transparent,
+                  ),
+                );
+              }
+              return CircleAvatar(
+                radius: radius ?? 24.0,
+                backgroundImage: imageProvider,
+                // backgroundColor: Colors.transparent,
+              );
+            },
+            placeholder: (context, url) => CircleAvatar(
+              radius: 24.0,
+              backgroundColor: Colors.primaries.elementAt(
+                Random().nextInt(Colors.primaries.length),
+              ),
+              child: Text(
+                authController.currentUser.value!.initials,
+                style: AppTextStyles.h4.copyWith(color: lightColor),
+              ),
             ),
-            child: Text(
-              authController.currentUser.value!.initials,
-              style: AppTextStyles.h4.copyWith(color: lightColor),
+            errorWidget: (context, url, error) => CircleAvatar(
+              radius: radius ?? 24.0,
+              backgroundColor: Colors.primaries.elementAt(
+                Random().nextInt(Colors.primaries.length),
+              ),
+              child: Text(
+                authController.currentUser.value!.initials,
+                style: AppTextStyles.h4.copyWith(color: lightColor),
+              ),
             ),
-          ),
-      errorWidget: (context, url, error) =>
-          CircleAvatar(
-            radius: 24.0,
-            backgroundColor: Colors.primaries.elementAt(
-              Random().nextInt(Colors.primaries.length),
-            ),
-            child: Text(
-              authController.currentUser.value!.initials,
-              style: AppTextStyles.h4.copyWith(color: lightColor),
-            ),
-          ),
-    );
+          );
   }
 }

@@ -47,6 +47,36 @@ String dateTimeFormatter(DateTime date) {
   return DateFormat('dd-MM-yyyy \'at\' HH:mm a').format(date);
 }
 
+// Calculate time ago
+String timeAgoFormatter(DateTime date) {
+  final Duration difference = DateTime.now().difference(date);
+  if (difference.inDays > 8) {
+    return dateFormatter(date);
+  } else if (difference.inDays >= 1) {
+    return '${difference.inDays} day${difference.inDays == 1 ? '' : 's'} ago';
+  } else if (difference.inHours >= 1) {
+    return '${difference.inHours} hour${difference.inHours == 1 ? '' : 's'} ago';
+  } else if (difference.inMinutes >= 1) {
+    return '${difference.inMinutes} minute${difference.inMinutes == 1 ? '' : 's'} ago';
+  } else {
+    return 'just now';
+  }
+}
+
+// Calculate time until
+String timeUntilFormatter(DateTime date) {
+  final Duration difference = date.difference(DateTime.now());
+  if (difference.inDays >= 1) {
+    return '${difference.inDays} day${difference.inDays == 1 ? '' : 's'} left';
+  } else if (difference.inHours >= 1) {
+    return '${difference.inHours} hour${difference.inHours == 1 ? '' : 's'} left';
+  } else if (difference.inMinutes >= 1) {
+    return '${difference.inMinutes} minute${difference.inMinutes == 1 ? '' : 's'} left';
+  } else {
+    return 'less than a minute left';
+  }
+}
+
 // Validators
 // email regex that allows abc@domain.com, abc+def@domain.com, abc.def@sub.domain.com
 const String emailRegex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$';
