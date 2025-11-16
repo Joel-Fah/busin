@@ -129,7 +129,6 @@ class AppTheme {
       backgroundColor: lightColor,
       systemOverlayStyle: SystemUiOverlayStyle.dark,
       foregroundColor: seedColor,
-      titleSpacing: 0.0,
       titleTextStyle: AppTextStyles.title.copyWith(
         color: seedColor,
         fontWeight: FontWeight.w600,
@@ -286,7 +285,6 @@ class AppTheme {
       backgroundColor: seedColor,
       systemOverlayStyle: SystemUiOverlayStyle.light,
       foregroundColor: lightColor,
-      titleSpacing: 0.0,
       titleTextStyle: AppTextStyles.title.copyWith(
         color: lightColor,
         fontWeight: FontWeight.w600,
