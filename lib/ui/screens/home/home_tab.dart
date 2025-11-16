@@ -2,6 +2,7 @@ import 'package:busin/controllers/auth_controller.dart';
 import 'package:busin/controllers/controllers.dart';
 import 'package:busin/models/scannings.dart';
 import 'package:busin/models/subscription.dart';
+import 'package:busin/ui/screens/profile/profile.dart';
 import 'package:busin/ui/screens/subscriptions/subscription_details.dart';
 import 'package:busin/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +21,7 @@ import '../../components/widgets/user_avatar.dart';
 
 class HomeTab extends StatelessWidget {
   const HomeTab({super.key});
+
   static const String routeName = '/home_tab';
 
   @override
@@ -35,8 +37,11 @@ class HomeTab extends StatelessWidget {
       backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: AppBarListTile(
-          onTap: () {},
-          leading: UserAvatar(),
+          onTap: () => context.pushNamed(
+            removeLeadingSlash(ProfilePage.routeName),
+            pathParameters: {'tag': authController.userProfileImage},
+          ),
+          leading: UserAvatar(tag: authController.userProfileImage),
           title: authController.userDisplayName,
           subtitle: authController.isVerified
               ? AccountStatus.verified.label

@@ -1,5 +1,6 @@
 import 'package:busin/models/actors/roles.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
+import 'package:cloud_firestore/cloud_firestore.dart' show Timestamp;
 
 abstract class BaseUser {
   final String id;
@@ -9,6 +10,8 @@ abstract class BaseUser {
   final String? photoUrl;
   final UserRole role;
   final AccountStatus status;
+  final DateTime? createdAt;
+  final DateTime? lastSignInAt;
 
   const BaseUser({
     required this.id,
@@ -18,6 +21,8 @@ abstract class BaseUser {
     required this.status,
     this.phone,
     this.photoUrl,
+    this.createdAt,
+    this.lastSignInAt,
   });
 
   // ----- utilities -----
@@ -56,6 +61,8 @@ abstract class BaseUser {
     'photoUrl': photoUrl,
     'role': role.name,
     'status': status.name,
+    'createdAt': createdAt?.toIso8601String(),
+    'lastSignInAt': lastSignInAt?.toIso8601String(),
   };
 
   /* ----- helpers for auth/domain/format ----- */
@@ -80,4 +87,24 @@ abstract class BaseUser {
       throw StateError('Only @ictuniversity.edu.cm accounts are allowed.');
     }
   }
+
+  /// Safe parse for date coming from map (String / int / DateTime / null)
+  static DateTime? parseDate(dynamic value) {
+    if (value == null) return null;
+    if (value is DateTime) return value;
+    if (value is Timestamp) return value.toDate();
+    if (value is String && value.isNotEmpty) {
+      return DateTime.tryParse(value);
+    }
+    if (value is int) {
+      // treat as millisecondsSinceEpoch if large enough
+      try {
+        if (value > 1000000000) return DateTime.fromMillisecondsSinceEpoch(value);
+      } catch (_) {}
+    }
+    return null;
+  }
+
+  /// Returns a short age (days since creation) if metadata available.
+  int? get accountAgeDays => createdAt == null ? null : DateTime.now().difference(createdAt!).inDays;
 }

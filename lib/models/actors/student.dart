@@ -23,6 +23,8 @@ class Student extends BaseUser {
     this.address,
     super.phone,
     super.photoUrl,
+    super.createdAt,
+    super.lastSignInAt,
   }) : super(role: UserRole.student);
 
   // ---- factories ----
@@ -35,6 +37,8 @@ class Student extends BaseUser {
       status: AccountStatus.from((map['status'] as String?) ?? 'verified'),
       phone: (map['phone'] as String?)?.trim(),
       photoUrl: (map['photoUrl'] as String?)?.trim(),
+      createdAt: BaseUser.parseDate(map['createdAt']),
+      lastSignInAt: BaseUser.parseDate(map['lastSignInAt']),
       matricule: (map['matricule'] as String?)?.trim(),
       department: (map['department'] as String?)?.trim(),
       program: (map['program'] as String?)?.trim(),
@@ -75,6 +79,8 @@ class Student extends BaseUser {
       status: status,
       phone: user.phoneNumber,
       photoUrl: user.photoURL,
+      createdAt: user.metadata.creationTime,
+      lastSignInAt: user.metadata.lastSignInTime,
       matricule: matricule,
       department: department,
       program: program,
@@ -104,6 +110,8 @@ class Student extends BaseUser {
     AccountStatus? status,
     String? phone,
     String? photoUrl,
+    DateTime? createdAt,
+    DateTime? lastSignInAt,
     String? matricule,
     String? department,
     String? program,
@@ -117,6 +125,8 @@ class Student extends BaseUser {
         status: status ?? this.status,
         phone: phone ?? this.phone,
         photoUrl: photoUrl ?? this.photoUrl,
+        createdAt: createdAt ?? this.createdAt,
+        lastSignInAt: lastSignInAt ?? this.lastSignInAt,
         matricule: matricule ?? this.matricule,
         department: department ?? this.department,
         program: program ?? this.program,
@@ -145,6 +155,6 @@ class Student extends BaseUser {
 
   @override
   String toString() {
-    return 'Student(id: $id, name: $name, email: $email, status: ${status.label}, matricule: $matricule, department: $department, program: $program, currentSubscriptionId: $currentSubscriptionId, address: $address)';
+    return 'Student(id: $id, name: $name, email: $email, status: ${status.label}, matricule: $matricule, department: $department, program: $program, currentSubscriptionId: $currentSubscriptionId, address: $address, createdAt: $createdAt, lastSignInAt: $lastSignInAt)';
   }
 }

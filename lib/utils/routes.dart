@@ -5,6 +5,7 @@ import 'package:busin/docs/docs.dart';
 import 'package:busin/ui/screens/home/home_tab.dart';
 import 'package:busin/ui/screens/home/scannings_tab.dart';
 import 'package:busin/ui/screens/home/subscriptions_tab.dart';
+import 'package:busin/ui/screens/profile/profile.dart';
 import 'package:busin/ui/screens/screens.dart';
 import 'package:busin/ui/screens/common/loading_page.dart';
 import 'package:busin/ui/screens/subscriptions/subscription_details.dart';
@@ -194,5 +195,16 @@ final router = GoRouter(
         return SubscriptionDetailsPage(subscriptionId: subscriptionId);
       },
     ),
+
+    // Profile
+    GoRoute(
+      parentNavigatorKey: rootNavigatorKey,
+      path: ProfilePage.routeName + '/:tag',
+      name: removeLeadingSlash(ProfilePage.routeName),
+      builder: (context, state) {
+        final tag = state.pathParameters['tag'];
+        return ProfilePage(tag: tag ?? '');
+      },
+    )
   ],
 );

@@ -15,6 +15,8 @@ class Staff extends BaseUser {
     this.permissions = const [],
     super.phone,
     super.photoUrl,
+    super.createdAt,
+    super.lastSignInAt,
   }) : super(role: UserRole.staff);
 
   factory Staff.fromMap(Map<String, dynamic> map) {
@@ -25,6 +27,8 @@ class Staff extends BaseUser {
       status: AccountStatus.from((map['status'] as String?) ?? 'pending'),
       phone: (map['phone'] as String?)?.trim(),
       photoUrl: (map['photoUrl'] as String?)?.trim(),
+      createdAt: BaseUser.parseDate(map['createdAt']),
+      lastSignInAt: BaseUser.parseDate(map['lastSignInAt']),
       permissions: (map['permissions'] as List?)?.cast<String>() ?? const [],
     );
   }
@@ -47,6 +51,8 @@ class Staff extends BaseUser {
       status: status,
       phone: user.phoneNumber,
       photoUrl: user.photoURL,
+      createdAt: user.metadata.creationTime,
+      lastSignInAt: user.metadata.lastSignInTime,
       permissions: permissions,
     );
   }
@@ -88,6 +94,8 @@ class Staff extends BaseUser {
     String? phone,
     String? photoUrl,
     String? staffId,
+    DateTime? createdAt,
+    DateTime? lastSignInAt,
     List<String>? permissions,
   }) => Staff(
     id: id ?? this.id,
@@ -96,11 +104,13 @@ class Staff extends BaseUser {
     status: status ?? this.status,
     phone: phone ?? this.phone,
     photoUrl: photoUrl ?? this.photoUrl,
+    createdAt: createdAt ?? this.createdAt,
+    lastSignInAt: lastSignInAt ?? this.lastSignInAt,
     permissions: permissions ?? this.permissions,
   );
 
   @override
   String toString() {
-    return 'Staff(id: $id, name: $name, email: $email, status: ${status.label}, permissions: $permissions)';
+    return 'Staff(id: $id, name: $name, email: $email, status: ${status.label}, permissions: $permissions, createdAt: $createdAt, lastSignInAt: $lastSignInAt)';
   }
 }
