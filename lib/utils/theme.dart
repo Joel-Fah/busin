@@ -89,22 +89,29 @@ class AppTheme {
     ),
     actionIconTheme: ActionIconThemeData(
       backButtonIconBuilder: (context) {
-        switch (Theme.of(context).platform) {
-          case TargetPlatform.android:
-            return const CircleAvatar(
-              radius: 28.0,
-              backgroundColor: Color(0xFFE5E5EA),
-              child: HugeIcon(
-                icon: HugeIcons.strokeRoundedArrowLeft01,
-                size: 20.0,
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Container(
+            width: 32.0,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: borderRadius * 8.0,
+              gradient: LinearGradient(
+                colors: [
+                  seedColor.withValues(alpha: 0.4),
+                  seedColor.withValues(alpha: 0.1),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-            );
-          default:
-            return const HugeIcon(
+            ),
+            child: HugeIcon(
               icon: HugeIcons.strokeRoundedArrowLeft01,
               size: 20.0,
-            );
-        }
+              color: seedColor,
+            ),
+          ),
+        );
       },
     ),
     tooltipTheme: TooltipThemeData(
@@ -122,6 +129,7 @@ class AppTheme {
       backgroundColor: lightColor,
       systemOverlayStyle: SystemUiOverlayStyle.dark,
       foregroundColor: seedColor,
+      titleSpacing: 0.0,
       titleTextStyle: AppTextStyles.title.copyWith(
         color: seedColor,
         fontWeight: FontWeight.w600,
@@ -238,22 +246,29 @@ class AppTheme {
     ),
     actionIconTheme: ActionIconThemeData(
       backButtonIconBuilder: (context) {
-        switch (Theme.of(context).platform) {
-          case TargetPlatform.android:
-            return const CircleAvatar(
-              radius: 28.0,
-              backgroundColor: Color(0xFFE5E5EA),
-              child: HugeIcon(
-                icon: HugeIcons.strokeRoundedArrowLeft01,
-                size: 20.0,
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Container(
+            width: 32.0,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: borderRadius * 8.0,
+              gradient: LinearGradient(
+                colors: [
+                  lightColor.withValues(alpha: 0.4),
+                  lightColor.withValues(alpha: 0.1),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-            );
-          default:
-            return const HugeIcon(
+            ),
+            child: HugeIcon(
               icon: HugeIcons.strokeRoundedArrowLeft01,
               size: 20.0,
-            );
-        }
+              color: lightColor,
+            ),
+          ),
+        );
       },
     ),
     tooltipTheme: TooltipThemeData(
@@ -271,6 +286,7 @@ class AppTheme {
       backgroundColor: seedColor,
       systemOverlayStyle: SystemUiOverlayStyle.light,
       foregroundColor: lightColor,
+      titleSpacing: 0.0,
       titleTextStyle: AppTextStyles.title.copyWith(
         color: lightColor,
         fontWeight: FontWeight.w600,
@@ -307,7 +323,10 @@ class AppTheme {
     ),
     chipTheme: ChipThemeData(
       backgroundColor: seedColor,
-      labelStyle: AppTextStyles.body.copyWith(fontSize: 14.0, color: lightColor,),
+      labelStyle: AppTextStyles.body.copyWith(
+        fontSize: 14.0,
+        color: lightColor,
+      ),
       selectedColor: seedPalette.shade800,
       shape: RoundedRectangleBorder(borderRadius: borderRadius * 2.0),
       pressElevation: 0.0,
