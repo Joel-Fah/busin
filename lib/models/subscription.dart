@@ -1,3 +1,6 @@
+import 'value_objects/bus_stop_selection.dart';
+import 'value_objects/review_observation.dart';
+
 /// Semester of a subscription. Kept simple for school project.
 enum Semester {
   fall,
@@ -179,11 +182,13 @@ class BusSubscription {
   final String? rejectionReason;
 
   // Boarding preference
-  final String? stopId; // chosen stop from predefined catalog
-  final String? stopName; // denormalized label for convenience
+  final BusStopSelection? stop;
 
   // Weekly preferences (multiple days)
   final List<BusSubscriptionSchedule> schedules;
+
+  // Review observation
+  final ReviewObservation? observation;
 
   const BusSubscription({
     required this.id,
@@ -199,8 +204,8 @@ class BusSubscription {
     this.reviewedByUserId,
     this.reviewedAt,
     this.rejectionReason,
-    this.stopId,
-    this.stopName,
+    this.stop,
+    this.observation,
     this.schedules = const [],
   });
 
@@ -210,8 +215,7 @@ class BusSubscription {
     required Semester semester,
     required int year,
     String? proofOfPaymentUrl,
-    String? stopId,
-    String? stopName,
+    BusStopSelection? stop,
     List<BusSubscriptionSchedule>? schedules,
   }) {
     final now = DateTime.now();
@@ -227,9 +231,9 @@ class BusSubscription {
       startDate: span.start,
       endDate: span.end,
       proofOfPaymentUrl: proofOfPaymentUrl,
-      stopId: stopId,
-      stopName: stopName,
+      stop: stop,
       schedules: schedules ?? const [],
+      observation: null,
     );
   }
 
@@ -247,7 +251,7 @@ class BusSubscription {
   bool get hasProof =>
       (proofOfPaymentUrl != null && proofOfPaymentUrl!.isNotEmpty);
 
-  bool get hasStop => (stopId != null && stopId!.isNotEmpty);
+  bool get hasStop => stop != null && stop!.isValid;
 
   Map<String, dynamic> toMap() => {
     'id': id,
@@ -263,8 +267,10 @@ class BusSubscription {
     'reviewedByUserId': reviewedByUserId,
     'reviewedAt': reviewedAt?.toIso8601String(),
     'rejectionReason': rejectionReason,
-    'stopId': stopId,
-    'stopName': stopName,
+    ...?observation?.toMap(),
+    ...?stop?.toMap(),
+    'stopId': stop?.id,
+    'stopName': stop?.name,
     'schedules': schedules.map((s) => s.toMap()).toList(),
   };
 
@@ -301,10 +307,30 @@ class BusSubscription {
           ? DateTime.parse(map['reviewedAt'] as String)
           : null,
       rejectionReason: map['rejectionReason'] as String?,
-      stopId: map['stopId'] as String?,
-      stopName: map['stopName'] as String?,
+      stop: _parseStop(map),
       schedules: parsedSchedules,
+      observation: _parseObservation(map),
     );
+  }
+
+  static ReviewObservation? _parseObservation(Map<String, dynamic> map) {
+    final reviewerId = map['reviewedByUserId'] as String?;
+    final reviewedAt = map['reviewedAt'] as String?;
+    final message = map['observation'] as String? ?? map['rejectionReason'] as String?;
+    if (reviewerId == null || reviewedAt == null) return null;
+    return ReviewObservation(
+      reviewerUserId: reviewerId,
+      observedAt: DateTime.parse(reviewedAt),
+      message: message,
+    );
+  }
+
+  static BusStopSelection? _parseStop(Map<String, dynamic> map) {
+    final stopId = map['stopId'] as String?;
+    final stopName = map['stopName'] as String?;
+    if (stopId == null || stopName == null) return null;
+    if (stopId.isEmpty || stopName.isEmpty) return null;
+    return BusStopSelection(id: stopId, name: stopName);
   }
 
   BusSubscription copyWith({
@@ -321,8 +347,8 @@ class BusSubscription {
     String? reviewedByUserId,
     DateTime? reviewedAt,
     String? rejectionReason,
-    String? stopId,
-    String? stopName,
+    BusStopSelection? stop,
+    ReviewObservation? observation,
     List<BusSubscriptionSchedule>? schedules,
   }) => BusSubscription(
     id: id ?? this.id,
@@ -338,8 +364,8 @@ class BusSubscription {
     reviewedByUserId: reviewedByUserId ?? this.reviewedByUserId,
     reviewedAt: reviewedAt ?? this.reviewedAt,
     rejectionReason: rejectionReason ?? this.rejectionReason,
-    stopId: stopId ?? this.stopId,
-    stopName: stopName ?? this.stopName,
+    stop: stop ?? this.stop,
+    observation: observation ?? this.observation,
     schedules: schedules ?? this.schedules,
   );
 
@@ -353,8 +379,14 @@ class BusSubscription {
     required String reviewerUserId,
     DateTime? startDate,
     DateTime? endDate,
+    String? observationMessage,
   }) => copyWith(
     status: BusSubscriptionStatus.approved,
+    observation: ReviewObservation(
+      reviewerUserId: reviewerUserId,
+      observedAt: DateTime.now(),
+      message: observationMessage,
+    ),
     reviewedByUserId: reviewerUserId,
     reviewedAt: DateTime.now(),
     updatedAt: DateTime.now(),
@@ -368,10 +400,14 @@ class BusSubscription {
     required String reason,
   }) => copyWith(
     status: BusSubscriptionStatus.rejected,
+    observation: ReviewObservation(
+      reviewerUserId: reviewerUserId,
+      observedAt: DateTime.now(),
+      message: reason,
+    ),
     reviewedByUserId: reviewerUserId,
     reviewedAt: DateTime.now(),
     updatedAt: DateTime.now(),
-    rejectionReason: reason,
   );
 
   BusSubscription expireIfPast([DateTime? now]) {
@@ -387,7 +423,7 @@ class BusSubscription {
 
   @override
   String toString() =>
-      'Subscription(id: $id, studentId: $studentId, sem: ${semester.label} $year, status: ${status.label}, stop: $stopName, start: $startDate, end: $endDate, schedules: ${schedules.length})';
+      'Subscription(id: $id, studentId: $studentId, sem: ${semester.label} $year, status: ${status.label}, stop: ${stop?.name}, start: $startDate, end: $endDate, schedules: ${schedules.length})';
 }
 
 // Dummy data for subscriptions
@@ -398,8 +434,7 @@ List<BusSubscription> dummySubscriptions = [
     semester: Semester.fall,
     year: 2024,
     proofOfPaymentUrl: 'https://example.com/proof1.jpg',
-    stopId: 'stop_01',
-    stopName: 'Main Gate',
+    stop: const BusStopSelection(id: 'stop_01', name: 'Main Gate'),
     schedules: [
       BusSubscriptionSchedule(
         weekday: 1,
@@ -419,8 +454,7 @@ List<BusSubscription> dummySubscriptions = [
     semester: Semester.spring,
     year: 2025,
     proofOfPaymentUrl: 'https://example.com/proof2.jpg',
-    stopId: 'stop_02',
-    stopName: 'Library Stop',
+    stop: const BusStopSelection(id: 'stop_02', name: 'Library Stop'),
     schedules: [
       BusSubscriptionSchedule(
         weekday: 2,

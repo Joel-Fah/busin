@@ -9,6 +9,7 @@ import 'package:busin/ui/screens/profile/profile.dart';
 import 'package:busin/ui/screens/screens.dart';
 import 'package:busin/ui/screens/common/loading_page.dart';
 import 'package:busin/ui/screens/subscriptions/subscription_details.dart';
+import 'package:busin/ui/screens/subscriptions/subscription_new.dart';
 import 'package:busin/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -195,6 +196,12 @@ final router = GoRouter(
         return SubscriptionDetailsPage(subscriptionId: subscriptionId);
       },
     ),
+    GoRoute(
+      parentNavigatorKey: rootNavigatorKey,
+      path: NewSubscriptionPage.routeName,
+      name: removeLeadingSlash(NewSubscriptionPage.routeName),
+      builder: (context, state) => NewSubscriptionPage(),
+    ),
 
     // Profile
     GoRoute(
@@ -205,6 +212,6 @@ final router = GoRouter(
         final tag = state.pathParameters['tag'];
         return ProfilePage(tag: tag ?? '');
       },
-    )
+    ),
   ],
 );

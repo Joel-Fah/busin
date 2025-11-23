@@ -12,6 +12,7 @@ import '../../../utils/utils.dart';
 
 class SubscriptionsTab extends StatefulWidget {
   const SubscriptionsTab({super.key});
+
   static const String routeName = '/subscriptions_tab';
 
   @override
@@ -43,7 +44,23 @@ class _SubscriptionsTabState extends State<SubscriptionsTab> {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      appBar: AppBar(title: const Text("Subscriptions")),
+      appBar: AppBar(
+        title: const Text("Subscriptions"),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: TextButton.icon(
+              style: TextButton.styleFrom(
+                overlayColor: accentColor.withValues(alpha: 0.1)
+              ),
+              onPressed: () {},
+              label: Text("New"),
+              icon: HugeIcon(icon: HugeIcons.strokeRoundedAdd01),
+              iconAlignment: IconAlignment.end,
+            ),
+          ),
+        ],
+      ),
       body: Column(
         spacing: 20.0,
         children: [
@@ -152,57 +169,65 @@ class _SubscriptionsTabState extends State<SubscriptionsTab> {
                     ],
                   ),
                   Expanded(
-                    child: ListView.separated(
-                      padding: EdgeInsets.symmetric(vertical: 4.0).copyWith(
-                        bottom:
-                            56 + 80 + MediaQuery.viewPaddingOf(context).bottom,
-                      ),
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      itemCount: filteredSubscriptions.length,
-                      separatorBuilder: (_, __) => const Gap(12.0),
-                      itemBuilder: (_, index) {
-                        final busSubscription = filteredSubscriptions[index];
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0,
-                            vertical: 8.0,
-                          ),
-                          child: CustomListTile(
-                            onTap: () {},
-                            topPillsBorderColor: themeController.isDark
-                                ? seedPalette.shade900
-                                : seedPalette.shade50,
-                            title: Text(
-                              busSubscription.semesterYear,
-                              style: Theme.of(context)
-                                  .listTileTheme
-                                  .titleTextStyle
-                                  ?.copyWith(color: accentColor),
+                    child:
+                        ListView.separated(
+                              padding: EdgeInsets.symmetric(vertical: 4.0)
+                                  .copyWith(
+                                    bottom:
+                                        56 +
+                                        80 +
+                                        MediaQuery.viewPaddingOf(
+                                          context,
+                                        ).bottom,
+                                  ),
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              itemCount: filteredSubscriptions.length,
+                              separatorBuilder: (_, __) => const Gap(12.0),
+                              itemBuilder: (_, index) {
+                                final busSubscription =
+                                    filteredSubscriptions[index];
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0,
+                                    vertical: 8.0,
+                                  ),
+                                  child: CustomListTile(
+                                    onTap: () {},
+                                    topPillsBorderColor: themeController.isDark
+                                        ? seedPalette.shade900
+                                        : seedPalette.shade50,
+                                    title: Text(
+                                      busSubscription.semesterYear,
+                                      style: Theme.of(context)
+                                          .listTileTheme
+                                          .titleTextStyle
+                                          ?.copyWith(color: accentColor),
+                                    ),
+                                    subtitle: Row(
+                                      spacing: 8.0,
+                                      children: [
+                                        Text(
+                                          "Start: ${dateFormatter(busSubscription.startDate)}",
+                                        ),
+                                        const Expanded(child: Divider()),
+                                        Text(
+                                          "End: ${dateFormatter(busSubscription.endDate)}",
+                                        ),
+                                      ],
+                                    ),
+                                    primaryPillLabel: "#${index + 2}",
+                                  ),
+                                );
+                              },
+                            )
+                            .animate()
+                            .fadeIn(duration: 380.ms, curve: Curves.easeOut)
+                            .slideY(
+                              begin: 0.1,
+                              end: 0,
+                              duration: 450.ms,
+                              curve: Curves.easeOut,
                             ),
-                            subtitle: Row(
-                              spacing: 8.0,
-                              children: [
-                                Text(
-                                  "Start: ${dateFormatter(busSubscription.startDate)}",
-                                ),
-                                const Expanded(child: Divider()),
-                                Text(
-                                  "End: ${dateFormatter(busSubscription.endDate)}",
-                                ),
-                              ],
-                            ),
-                            primaryPillLabel: "#${index + 2}",
-                          ),
-                        );
-                      },
-                    ).animate()
-                        .fadeIn(duration: 380.ms, curve: Curves.easeOut)
-                        .slideY(
-                      begin: 0.1,
-                      end: 0,
-                      duration: 450.ms,
-                      curve: Curves.easeOut,
-                    ),
                   ),
                 ],
               ),
