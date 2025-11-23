@@ -99,6 +99,8 @@ const String seat = 'assets/images/seat.png';
 const String ticket1 = 'assets/images/ticket1.png';
 const String ticket2 = 'assets/images/ticket2.png';
 const String verified = 'assets/images/verified.png';
+const String newSubscription = 'assets/images/new_subscription.png';
+const String subscriptionDetails = 'assets/images/subscription_details.jpg';
 
 // Icons & Flags
 const String googleIcon = 'assets/images/icons/google.svg';

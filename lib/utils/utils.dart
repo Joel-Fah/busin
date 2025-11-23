@@ -2,6 +2,7 @@ import 'package:busin/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../controllers/theme_controller.dart';
 

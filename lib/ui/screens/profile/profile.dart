@@ -6,14 +6,14 @@ import 'package:busin/controllers/subscriptions_controller.dart';
 import 'package:busin/models/scannings.dart';
 import 'package:busin/utils/constants.dart';
 import 'package:busin/utils/utils.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:dotted_border/dotted_border.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../components/widgets/list_subheading.dart';
 import '../../components/widgets/user_avatar.dart';
@@ -56,8 +56,7 @@ class ProfilePage extends StatelessWidget {
                       Colors
                           .primaries[Random().nextInt(Colors.primaries.length)]
                           .withValues(alpha: 0.1),
-                      Colors
-                          .primaries[Random().nextInt(Colors.accents.length)]
+                      Colors.primaries[Random().nextInt(Colors.accents.length)]
                           .withValues(alpha: 0.1),
                     ],
                   ),
@@ -159,7 +158,7 @@ class ProfilePage extends StatelessWidget {
                                 contentPadding: EdgeInsets.zero,
                                 title: Text(
                                   addThousandSeparator(
-                                    dummyScannings.length.toString() + '4323',
+                                    dummyScannings.length.toString(),
                                   ),
                                   style: AppTextStyles.h3,
                                 ),
@@ -201,52 +200,100 @@ class ProfilePage extends StatelessWidget {
                 ],
               ),
               const Gap(64.0),
-              ListSubHeading(
-                label: "Your data on BusIn",
-              ),
+              ListSubHeading(label: "Your data on BusIn"),
               const Gap(20.0),
               ListTile(
                 onTap: () {
                   HapticFeedback.mediumImpact();
                 },
-                leading: HugeIcon(icon: HugeIcons.strokeRoundedUser),
+                leading: HugeIcon(
+                  icon: HugeIcons.strokeRoundedUserList,
+                  color: themeController.isDark ? lightColor : seedColor,
+                ),
                 title: Text("Account info"),
-                trailing: HugeIcon(icon: HugeIcons.strokeRoundedArrowUpRight01),
+                trailing: HugeIcon(
+                  icon: HugeIcons.strokeRoundedArrowUpRight01,
+                  color: themeController.isDark ? lightColor : seedColor,
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Divider(
-                  color: greyColor,
-                  thickness: 0.5,
-                ),
+                child: Divider(color: greyColor, thickness: 0.5),
               ),
               ListTile(
                 onTap: () {
                   HapticFeedback.mediumImpact();
                 },
-                leading: HugeIcon(icon: HugeIcons.strokeRoundedAppleVisionPro),
+                leading: HugeIcon(
+                  icon: HugeIcons.strokeRoundedAppleVisionPro,
+                  color: themeController.isDark ? lightColor : seedColor,
+                ),
                 title: Text("Appearance"),
-                trailing: HugeIcon(icon: HugeIcons.strokeRoundedArrowUpRight01),
+                trailing: HugeIcon(
+                  icon: HugeIcons.strokeRoundedArrowUpRight01,
+                  color: themeController.isDark ? lightColor : seedColor,
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Divider(
-                  color: greyColor,
-                  thickness: 0.5,
-                ),
+                child: Divider(color: greyColor, thickness: 0.5),
               ),
               ListTile(
                 onTap: () {
                   HapticFeedback.mediumImpact();
                 },
-                leading: HugeIcon(icon: HugeIcons.strokeRoundedLegalHammer),
+                leading: HugeIcon(
+                  icon: HugeIcons.strokeRoundedAudit01,
+                  color: themeController.isDark ? lightColor : seedColor,
+                ),
                 title: Text("Legal"),
-                trailing: HugeIcon(icon: HugeIcons.strokeRoundedArrowUpRight01),
+                trailing: HugeIcon(
+                  icon: HugeIcons.strokeRoundedArrowUpRight01,
+                  color: themeController.isDark ? lightColor : seedColor,
+                ),
               ),
+              const Gap(64.0),
+              AppInfoBar(),
             ],
           ),
         ],
       ),
+    );
+  }
+}
+
+class AppInfoBar extends StatefulWidget {
+  const AppInfoBar({super.key});
+
+  @override
+  State<AppInfoBar> createState() => _AppInfoBarState();
+}
+
+class _AppInfoBarState extends State<AppInfoBar> {
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: PackageInfo.fromPlatform(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done &&
+            snapshot.hasData) {
+          final info = snapshot.data!;
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Text(
+              '©2025 - All rights reserved - ${info.appName} v${info.version}+${info.buildNumber}',
+              style: AppTextStyles.small,
+            ),
+          );
+        } else {
+          if (snapshot.hasError) {
+            if (kDebugMode) {
+              print('Error fetching package info: ${snapshot.error}');
+            }
+          }
+          return SizedBox.shrink();
+        }
+      },
     );
   }
 }

@@ -30,8 +30,6 @@ class SubscriptionDetailsPage extends StatelessWidget {
               children: [
                 _buildHeader(busSubscription),
                 const SizedBox(height: 16.0),
-                _buildDetailsSection(busSubscription),
-                const SizedBox(height: 16.0),
                 _buildScheduleSection(context, busSubscription),
               ],
             ),
@@ -68,23 +66,6 @@ class SubscriptionDetailsPage extends StatelessWidget {
               fontSize: 16.0,
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDetailsSection(BusSubscription subscription) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildDetailRow("Start Date", dateFormatter(subscription.startDate)),
-          _buildDetailRow("End Date", dateFormatter(subscription.endDate)),
-          if (subscription.stopName != null)
-            _buildDetailRow("Stop", subscription.stopName!),
-          if (subscription.hasProof)
-            _buildDetailRow("Proof of Payment", "Uploaded"),
         ],
       ),
     );
