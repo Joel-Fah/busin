@@ -11,7 +11,7 @@ class AppTheme {
     pageTransitionsTheme: PageTransitionsTheme(
       builders: Map<TargetPlatform, PageTransitionsBuilder>.fromIterable(
         TargetPlatform.values,
-        value: (_) => const PredictiveBackPageTransitionsBuilder(),
+        value: (_) => const CupertinoPageTransitionsBuilder(),
       ),
     ),
     textTheme: Typography().black.apply(
@@ -178,7 +178,7 @@ class AppTheme {
     pageTransitionsTheme: PageTransitionsTheme(
       builders: Map<TargetPlatform, PageTransitionsBuilder>.fromIterable(
         TargetPlatform.values,
-        value: (_) => const PredictiveBackPageTransitionsBuilder(),
+        value: (_) => const CupertinoPageTransitionsBuilder(),
       ),
     ),
     textTheme: Typography().white.apply(
