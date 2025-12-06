@@ -1,11 +1,11 @@
 import 'package:equatable/equatable.dart';
 
 /// Value object representing the stop a subscription is tied to.
-class BusStopSelection extends Equatable {
+class BusStop extends Equatable {
   final String id;
   final String name;
 
-  const BusStopSelection({required this.id, required this.name})
+  const BusStop({required this.id, required this.name})
       : assert(id != ''),
         assert(name != '');
 
@@ -16,21 +16,21 @@ class BusStopSelection extends Equatable {
         'stopName': name,
       };
 
-  factory BusStopSelection.fromMap(Map<String, dynamic> map) => BusStopSelection(
+  factory BusStop.fromMap(Map<String, dynamic> map) => BusStop(
         id: map['stopId'] as String,
         name: map['stopName'] as String,
       );
 
-  static BusStopSelection? maybeFromMap(Map<String, dynamic>? map) {
+  static BusStop? maybeFromMap(Map<String, dynamic>? map) {
     if (map == null) return null;
     final stopId = map['stopId'] as String?;
     final stopName = map['stopName'] as String?;
     if (stopId == null || stopName == null) return null;
     if (stopId.isEmpty || stopName.isEmpty) return null;
-    return BusStopSelection(id: stopId, name: stopName);
+    return BusStop(id: stopId, name: stopName);
   }
 
-  BusStopSelection copyWith({String? id, String? name}) => BusStopSelection(
+  BusStop copyWith({String? id, String? name}) => BusStop(
         id: id ?? this.id,
         name: name ?? this.name,
       );
@@ -39,3 +39,13 @@ class BusStopSelection extends Equatable {
   List<Object> get props => [id, name];
 }
 
+// Dummy bus stops
+List<BusStop> dummyBusStops = [
+  BusStop(id: 'stop_001', name: 'Shell Nsimeyong'),
+  BusStop(id: 'stop_002', name: 'Obili'),
+  BusStop(id: 'stop_003', name: 'Vogt'),
+  BusStop(id: 'stop_004', name: 'Poste Centrale'),
+  BusStop(id: 'stop_005', name: 'Bata Nlongkak'),
+  BusStop(id: 'stop_006', name: 'Etoudi Palais'),
+  BusStop(id: 'stop_007', name: 'ICT University (Campus)'),
+];

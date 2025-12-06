@@ -175,3 +175,36 @@ class AppTextStyles {
     fontVariations: [FontVariation('wght', 300)],
   );
 }
+
+// Input Borders
+class AppInputBorders {
+  static OutlineInputBorder border = OutlineInputBorder(
+    borderSide: BorderSide(color: seedColor, width: 1),
+    borderRadius: borderRadius * 2.25,
+  );
+
+  static OutlineInputBorder focusedBorder = OutlineInputBorder(
+    borderSide: BorderSide(color: seedColor, width: 1),
+    borderRadius: borderRadius * 2.25,
+  );
+
+  static OutlineInputBorder errorBorder = OutlineInputBorder(
+    borderSide: BorderSide(color: errorColor, width: 1),
+    borderRadius: borderRadius * 2.25,
+  );
+
+  static OutlineInputBorder focusedErrorBorder = OutlineInputBorder(
+    borderSide: BorderSide(color: errorColor, width: 1),
+    borderRadius: borderRadius * 2.25,
+  );
+
+  static OutlineInputBorder enabledBorder = OutlineInputBorder(
+    borderSide: BorderSide(color: seedColor, width: 1),
+    borderRadius: borderRadius * 2.25,
+  );
+
+  static OutlineInputBorder disabledBorder = OutlineInputBorder(
+    borderSide: BorderSide(color: greyColor, width: 1),
+    borderRadius: borderRadius * 2.25,
+  );
+}

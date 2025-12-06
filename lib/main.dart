@@ -38,6 +38,7 @@ Future<void> main() async {
   Get.put(AuthController());
   Get.put(OnboardingController());
   Get.put(BusSubscriptionsController());
+  Get.put(BusStopController());
 
   // locked orientation to portrait
   await SystemChrome.setPreferredOrientations([
