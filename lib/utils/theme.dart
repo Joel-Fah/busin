@@ -11,7 +11,7 @@ class AppTheme {
     pageTransitionsTheme: PageTransitionsTheme(
       builders: Map<TargetPlatform, PageTransitionsBuilder>.fromIterable(
         TargetPlatform.values,
-        value: (_) => const PredictiveBackPageTransitionsBuilder(),
+        value: (_) => const CupertinoPageTransitionsBuilder(),
       ),
     ),
     textTheme: Typography().black.apply(
@@ -169,6 +169,13 @@ class AppTheme {
       shape: RoundedRectangleBorder(borderRadius: borderRadius * 2.0),
       pressElevation: 0.0,
     ),
+    dropdownMenuTheme: DropdownMenuThemeData(
+      menuStyle: MenuStyle(
+        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+          RoundedRectangleBorder(borderRadius: borderRadius * 2.0),
+        ),
+      ),
+    ),
   );
 
   static ThemeData darkTheme = ThemeData.dark(useMaterial3: true).copyWith(
@@ -178,7 +185,7 @@ class AppTheme {
     pageTransitionsTheme: PageTransitionsTheme(
       builders: Map<TargetPlatform, PageTransitionsBuilder>.fromIterable(
         TargetPlatform.values,
-        value: (_) => const PredictiveBackPageTransitionsBuilder(),
+        value: (_) => const CupertinoPageTransitionsBuilder(),
       ),
     ),
     textTheme: Typography().white.apply(
@@ -328,6 +335,13 @@ class AppTheme {
       selectedColor: seedPalette.shade800,
       shape: RoundedRectangleBorder(borderRadius: borderRadius * 2.0),
       pressElevation: 0.0,
+    ),
+    dropdownMenuTheme: DropdownMenuThemeData(
+      menuStyle: MenuStyle(
+        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+          RoundedRectangleBorder(borderRadius: borderRadius * 2.0),
+        ),
+      ),
     ),
   );
 }

@@ -1,10 +1,12 @@
 import 'package:busin/controllers/controllers.dart';
 import 'package:busin/ui/components/widgets/custom_list_tile.dart';
+import 'package:busin/ui/screens/subscriptions/subscription_new.dart';
 import 'package:busin/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../models/subscription.dart';
@@ -53,7 +55,9 @@ class _SubscriptionsTabState extends State<SubscriptionsTab> {
               style: TextButton.styleFrom(
                 overlayColor: accentColor.withValues(alpha: 0.1)
               ),
-              onPressed: () {},
+              onPressed: () => context.pushNamed(
+                removeLeadingSlash(NewSubscriptionPage.routeName),
+              ),
               label: Text("New"),
               icon: HugeIcon(icon: HugeIcons.strokeRoundedAdd01),
               iconAlignment: IconAlignment.end,

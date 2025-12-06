@@ -182,7 +182,7 @@ class BusSubscription {
   final String? rejectionReason;
 
   // Boarding preference
-  final BusStopSelection? stop;
+  final BusStop? stop;
 
   // Weekly preferences (multiple days)
   final List<BusSubscriptionSchedule> schedules;
@@ -215,7 +215,7 @@ class BusSubscription {
     required Semester semester,
     required int year,
     String? proofOfPaymentUrl,
-    BusStopSelection? stop,
+    BusStop? stop,
     List<BusSubscriptionSchedule>? schedules,
   }) {
     final now = DateTime.now();
@@ -325,12 +325,12 @@ class BusSubscription {
     );
   }
 
-  static BusStopSelection? _parseStop(Map<String, dynamic> map) {
+  static BusStop? _parseStop(Map<String, dynamic> map) {
     final stopId = map['stopId'] as String?;
     final stopName = map['stopName'] as String?;
     if (stopId == null || stopName == null) return null;
     if (stopId.isEmpty || stopName.isEmpty) return null;
-    return BusStopSelection(id: stopId, name: stopName);
+    return BusStop(id: stopId, name: stopName);
   }
 
   BusSubscription copyWith({
@@ -347,7 +347,7 @@ class BusSubscription {
     String? reviewedByUserId,
     DateTime? reviewedAt,
     String? rejectionReason,
-    BusStopSelection? stop,
+    BusStop? stop,
     ReviewObservation? observation,
     List<BusSubscriptionSchedule>? schedules,
   }) => BusSubscription(
@@ -434,7 +434,7 @@ List<BusSubscription> dummySubscriptions = [
     semester: Semester.fall,
     year: 2024,
     proofOfPaymentUrl: 'https://example.com/proof1.jpg',
-    stop: const BusStopSelection(id: 'stop_01', name: 'Main Gate'),
+    stop: const BusStop(id: 'stop_01', name: 'Main Gate'),
     schedules: [
       BusSubscriptionSchedule(
         weekday: 1,
@@ -454,7 +454,7 @@ List<BusSubscription> dummySubscriptions = [
     semester: Semester.spring,
     year: 2025,
     proofOfPaymentUrl: 'https://example.com/proof2.jpg',
-    stop: const BusStopSelection(id: 'stop_02', name: 'Library Stop'),
+    stop: const BusStop(id: 'stop_02', name: 'Library Stop'),
     schedules: [
       BusSubscriptionSchedule(
         weekday: 2,
