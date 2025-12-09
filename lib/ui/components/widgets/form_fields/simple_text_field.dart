@@ -46,8 +46,11 @@ class SimpleTextFormField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ColoredBox(
-      color: seedPalette.shade50.withValues(alpha: 0.1),
+    return Container(
+      decoration: BoxDecoration(
+        color: seedPalette.shade50.withValues(alpha: 0.1),
+        borderRadius: borderRadius * 2.25,
+      ),
       child: TextFormField(
         controller: controller,
         scrollController: scrollController,
