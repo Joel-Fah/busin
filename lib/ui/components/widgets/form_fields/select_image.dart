@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -14,15 +13,15 @@ import '../default_snack_bar.dart';
 class ImageBox extends StatefulWidget {
   final Function(String) onImageSelected;
   final String label;
-  final int maxSizeInMB; // Maximum size in MB
-  final String? initialImageUrl; // Initial image URL for updates
+  final int maxSizeInMB;
+  final String? initialImageUrl;
 
   const ImageBox({
     super.key,
     required this.onImageSelected,
     required this.label,
-    this.maxSizeInMB = 2, // Default to 2MB
-    this.initialImageUrl, // Optional initial image URL
+    this.maxSizeInMB = 2,
+    this.initialImageUrl,
   });
 
   @override
@@ -64,7 +63,7 @@ class _ImageBoxState extends State<ImageBox> {
       final stream = provider.resolve(const ImageConfiguration());
       late ImageStreamListener listener;
       listener = ImageStreamListener(
-            (info, _) {
+        (info, _) {
           completer.complete(info);
         },
         onError: (error, stackTrace) {
@@ -90,16 +89,13 @@ class _ImageBoxState extends State<ImageBox> {
     try {
       final bytes = await file.readAsBytes();
       final decoded = await decodeImageFromList(bytes);
-      final ratio = decoded.height == 0
-          ? null
-          : decoded.width / decoded.height;
+      final ratio = decoded.height == 0 ? null : decoded.width / decoded.height;
       decoded.dispose();
       return ratio;
     } catch (_) {
       return null;
     }
   }
-
 
   Future<void> _pickImage() async {
     try {
@@ -170,18 +166,17 @@ class _ImageBoxState extends State<ImageBox> {
       type: MaterialType.transparency,
       color: Colors.transparent,
       borderRadius: borderRadius * 2.25,
-      // clipBehavior: Clip.hardEdge,
       child: InkWell(
         onTap: !_hasImage ? _pickImage : null,
         borderRadius: borderRadius * 2.25,
         child: DottedBorder(
-          options: const RoundedRectDottedBorderOptions(
-            radius: Radius.circular(20.0),
+          options: RoundedRectDottedBorderOptions(
+            radius: const Radius.circular(20.0),
             dashPattern: const [4, 6, 8, 10],
             strokeWidth: 1.5,
             strokeCap: StrokeCap.round,
-            padding: EdgeInsets.all(6.0),
-            color: seedColor,
+            padding: const EdgeInsets.all(6.0),
+            color: themeController.isDark ? seedPalette.shade50 : seedColor,
           ),
           child: Ink(
             decoration: BoxDecoration(
@@ -190,8 +185,8 @@ class _ImageBoxState extends State<ImageBox> {
               gradient: LinearGradient(
                 colors: themeController.isDark
                     ? [
-                        lightColor.withValues(alpha: 0.08),
-                        lightColor.withValues(alpha: 0.03),
+                        lightColor.withValues(alpha: 0.16),
+                        lightColor.withValues(alpha: 0.05),
                       ]
                     : [
                         seedPalette.shade50.withValues(alpha: 0.8),
@@ -200,115 +195,114 @@ class _ImageBoxState extends State<ImageBox> {
               ),
             ),
             child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: _hasImage ? 0 : 160.0,
-              ),
+              constraints: BoxConstraints(minHeight: _hasImage ? 0 : 160.0),
               child: ClipRRect(
                 borderRadius: borderRadius * 1.75,
                 clipBehavior: Clip.hardEdge,
                 child: _hasImage
                     ? LayoutBuilder(
-                  builder: (context, constraints) {
-                    final availableWidth = constraints.maxWidth.isFinite
-                        ? constraints.maxWidth
-                        : MediaQuery.of(context).size.width;
-                    final ratio = _imageAspectRatio;
-                    final height = ratio != null && ratio > 0
-                        ? availableWidth / ratio
-                        : 160.0;
+                        builder: (context, constraints) {
+                          final availableWidth = constraints.maxWidth.isFinite
+                              ? constraints.maxWidth
+                              : MediaQuery.of(context).size.width;
+                          final ratio = _imageAspectRatio;
+                          final height = ratio != null && ratio > 0
+                              ? availableWidth / ratio
+                              : 160.0;
 
-                    return SizedBox(
-                      width: double.infinity,
-                      height: height,
-                      child: Stack(
-                        children: [
-                          Positioned.fill(
-                            child: _selectedImage != null
-                                ? Image.file(
-                              _selectedImage!,
-                              fit: BoxFit.cover,
-                            )
-                                : Image.network(
-                              _imageUrl!,
-                              fit: BoxFit.cover,
-                              loadingBuilder:
-                                  (context, child, loadingProgress) {
-                                if (loadingProgress == null) {
-                                  return child;
-                                }
-                                return Center(
-                                  child: CircularProgressIndicator(
-                                    value:
-                                    loadingProgress
-                                        .expectedTotalBytes !=
-                                        null
-                                        ? loadingProgress
-                                        .cumulativeBytesLoaded /
-                                        loadingProgress
-                                            .expectedTotalBytes!
-                                        : null,
-                                  ),
-                                );
-                              },
-                              errorBuilder:
-                                  (context, error, stackTrace) {
-                                return Center(
-                                  child: Column(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.center,
+                          return SizedBox(
+                            width: double.infinity,
+                            height: height,
+                            child: Stack(
+                              children: [
+                                Positioned.fill(
+                                  child: _selectedImage != null
+                                      ? Image.file(
+                                          _selectedImage!,
+                                          fit: BoxFit.cover,
+                                        )
+                                      : Image.network(
+                                          _imageUrl!,
+                                          fit: BoxFit.cover,
+                                          loadingBuilder: (context, child, loadingProgress) {
+                                            if (loadingProgress == null) {
+                                              return child;
+                                            }
+                                            return Center(
+                                              child: CircularProgressIndicator(
+                                                value:
+                                                    loadingProgress
+                                                            .expectedTotalBytes !=
+                                                        null
+                                                    ? loadingProgress
+                                                              .cumulativeBytesLoaded /
+                                                          loadingProgress
+                                                              .expectedTotalBytes!
+                                                    : null,
+                                              ),
+                                            );
+                                          },
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                                return Center(
+                                                  child: Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      HugeIcon(
+                                                        icon: warningIcon,
+                                                        color: errorColor,
+                                                        size: 32,
+                                                      ),
+                                                      const Gap(8.0),
+                                                      Text(
+                                                        'Loading error',
+                                                        style: AppTextStyles
+                                                            .small
+                                                            .copyWith(
+                                                              color: errorColor,
+                                                            ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                );
+                                              },
+                                        ),
+                                ),
+                                Positioned(
+                                  bottom: 0.0,
+                                  right: 0.0,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      HugeIcon(
-                                        icon: warningIcon,
-                                        color: errorColor,
-                                        size: 32,
+                                      IconButton(
+                                        tooltip: 'Change',
+                                        onPressed: _pickImage,
+                                        color: accentColor,
+                                        icon: const HugeIcon(
+                                          icon: HugeIcons
+                                              .strokeRoundedCardExchange01,
+                                          size: 20,
+                                        ),
                                       ),
-                                      const Gap(8.0),
-                                      Text(
-                                        'Loading error',
-                                        style: AppTextStyles.small
-                                            .copyWith(
-                                          color: errorColor,
+                                      IconButton(
+                                        tooltip: 'Remove',
+                                        onPressed: _removeImage,
+                                        color: errorColor,
+                                        icon: const HugeIcon(
+                                          icon: HugeIcons.strokeRoundedDelete03,
+                                          size: 20,
                                         ),
                                       ),
                                     ],
                                   ),
-                                );
-                              },
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 0.0,
-                            right: 0.0,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  tooltip: 'Change',
-                                  onPressed: _pickImage,
-                                  color: accentColor,
-                                  icon: const HugeIcon(
-                                    icon:
-                                    HugeIcons.strokeRoundedCardExchange01,
-                                    size: 20,
-                                  ),
-                                ),
-                                IconButton(
-                                  tooltip: 'Remove',
-                                  onPressed: _removeImage,
-                                  color: errorColor,
-                                  icon: const HugeIcon(
-                                    icon: HugeIcons.strokeRoundedDelete03,
-                                    size: 20,
-                                  ),
                                 ),
                               ],
                             ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                )
+                          );
+                        },
+                      )
                     : Center(
                         child: Column(
                           spacing: 16.0,
@@ -316,7 +310,9 @@ class _ImageBoxState extends State<ImageBox> {
                           children: [
                             HugeIcon(
                               icon: HugeIcons.strokeRoundedImageAdd02,
-                              color: seedColor,
+                              color: themeController.isDark
+                                  ? lightColor
+                                  : seedColor,
                             ),
                             Column(
                               children: [
@@ -324,11 +320,13 @@ class _ImageBoxState extends State<ImageBox> {
                                 Text(
                                   '(.png, .jpg/.jpeg, .tiff | ${widget.maxSizeInMB}MB max)',
                                   style: AppTextStyles.small.copyWith(
-                                    color: greyColor,
+                                    color: themeController.isDark
+                                        ? lightColor.withValues(alpha: 0.5)
+                                        : greyColor,
                                   ),
                                 ),
                               ],
-                            )
+                            ),
                           ],
                         ),
                       ),

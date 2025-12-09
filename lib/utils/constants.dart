@@ -1,5 +1,11 @@
 import 'dart:ui';
 
+import 'package:busin/utils/utils.dart';
+import 'package:busin/utils/utils.dart';
+import 'package:busin/utils/utils.dart';
+import 'package:busin/utils/utils.dart';
+import 'package:busin/utils/utils.dart';
+import 'package:busin/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
@@ -179,12 +185,12 @@ class AppTextStyles {
 // Input Borders
 class AppInputBorders {
   static OutlineInputBorder border = OutlineInputBorder(
-    borderSide: BorderSide(color: seedColor, width: 1),
+    borderSide: BorderSide(color: themeController.isDark ? lightColor : seedColor, width: 1),
     borderRadius: borderRadius * 2.25,
   );
 
   static OutlineInputBorder focusedBorder = OutlineInputBorder(
-    borderSide: BorderSide(color: seedColor, width: 1),
+    borderSide: BorderSide(color: themeController.isDark ? lightColor : seedColor, width: 1),
     borderRadius: borderRadius * 2.25,
   );
 
@@ -199,7 +205,7 @@ class AppInputBorders {
   );
 
   static OutlineInputBorder enabledBorder = OutlineInputBorder(
-    borderSide: BorderSide(color: seedColor, width: 1),
+    borderSide: BorderSide(color: themeController.isDark ? lightColor : seedColor, width: 1),
     borderRadius: borderRadius * 2.25,
   );
 
