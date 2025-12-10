@@ -316,7 +316,8 @@ class BusSubscription {
   static ReviewObservation? _parseObservation(Map<String, dynamic> map) {
     final reviewerId = map['reviewedByUserId'] as String?;
     final reviewedAt = map['reviewedAt'] as String?;
-    final message = map['observation'] as String? ?? map['rejectionReason'] as String?;
+    final message =
+        map['observation'] as String? ?? map['rejectionReason'] as String?;
     if (reviewerId == null || reviewedAt == null) return null;
     return ReviewObservation(
       reviewerUserId: reviewerId,
@@ -423,7 +424,27 @@ class BusSubscription {
 
   @override
   String toString() =>
-      'Subscription(id: $id, studentId: $studentId, sem: ${semester.label} $year, status: ${status.label}, stop: ${stop?.name}, start: $startDate, end: $endDate, schedules: ${schedules.length})';
+      'BusSubscription['
+      'id: $id, '
+      'studentId: $studentId, '
+      'semester: ${semester.label}, '
+      'year: $year, '
+      'status: ${status.label}, '
+      'proofOfPaymentUrl: $proofOfPaymentUrl, '
+      'createdAt: $createdAt, '
+      'updatedAt: $updatedAt, '
+      'startDate: $startDate, '
+      'endDate: $endDate, '
+      'reviewedByUserId: $reviewedByUserId, '
+      'reviewedAt: $reviewedAt, '
+      'rejectionReason: $rejectionReason, '
+      'stop: ${stop?.name}, '
+      'stopId: ${stop?.id}, '
+      'schedules: ${schedules.length}, '
+      'observation: ${observation != null ? "present" : "null"}, '
+      'isWithinWindow: $isWithinWindow, '
+      'isCurrentlyActive: $isCurrentlyActive'
+      ']';
 }
 
 // Dummy data for subscriptions
