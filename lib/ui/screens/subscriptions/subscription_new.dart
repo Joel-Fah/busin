@@ -1,10 +1,14 @@
+import 'dart:io';
+
 import 'package:busin/controllers/bus_stop_controller.dart';
+import 'package:busin/controllers/subscriptions_controller.dart';
 import 'package:busin/models/subscription.dart';
 import 'package:busin/ui/components/widgets/default_snack_bar.dart';
 import 'package:busin/ui/components/widgets/form_fields/select_image.dart';
 import 'package:busin/ui/components/widgets/form_fields/simple_text_field.dart';
 import 'package:busin/utils/constants.dart';
 import 'package:busin/utils/utils.dart';
+import 'package:busin/utils/supabase_storage.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -12,8 +16,10 @@ import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:path/path.dart' as p;
 
 import '../../../models/value_objects/bus_stop_selection.dart';
+import '../../components/widgets/bus_loading_overlay.dart';
 
 // Schedule presets for quick selection
 enum _ScheduleMode { everyday, normalWeek, custom }
@@ -28,12 +34,17 @@ class NewSubscriptionPage extends StatefulWidget {
 }
 
 class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   int _currentStep = 0;
   static const TimeOfDay _minMorningTime = TimeOfDay(hour: 6, minute: 30);
   static const TimeOfDay _maxClosingTime = TimeOfDay(hour: 17, minute: 0);
 
   // GetX Controllers
   final BusStopController busStopController = Get.find<BusStopController>();
+  final BusSubscriptionsController subscriptionsController =
+      Get.find<BusSubscriptionsController>();
+
+  bool _isSubmitting = false;
 
   // Term
   late Semester _semester;
@@ -42,7 +53,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
   );
 
   // Proof (moved into stepper)
-  String? _proofUrl;
+  String? _proofPath;
 
   // Stops - curated list
   // final List<Map<String, String>> _availableStops = [
@@ -73,7 +84,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
     _applyScheduleMode(_scheduleMode);
 
     // keep proof url if passed via navigation or previous step
-    _proofUrl = null; // assume already handled elsewhere
+    _proofPath = null;
   }
 
   @override
@@ -245,7 +256,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
   bool _validateStep(int step) {
     switch (step) {
       case 0:
-        if (_proofUrl == null) {
+        if (_proofPath == null) {
           _showScheduleError('Upload a proof of payment.');
           return false;
         }
@@ -294,73 +305,105 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
     setState(() => _currentStep -= 1);
   }
 
-  void _submit() {
-    // Basic validation
+  void _submit() async {
+    if (_isSubmitting) return;
+    final isValid = _formKey.currentState?.validate() ?? false;
+    if (!isValid ||
+        _proofPath == null ||
+        _selectedStopId == null ||
+        _schedules.isEmpty) {
+      _showScheduleError('Fill out every step before submitting.');
+      return;
+    }
+
+    final stop = _findSelectedStop();
+    if (stop == null) {
+      _showScheduleError('Unable to resolve selected stop.');
+      return;
+    }
+
     final year = int.tryParse(_yearController.text) ?? DateTime.now().year;
-    if (_selectedStopId == null) {
+    var newSub = BusSubscription.pending(
+      id: '',
+      studentId: _currentStudentId,
+      semester: _semester,
+      year: year,
+      stop: stop,
+      schedules: _schedules,
+    );
+
+    setState(() => _isSubmitting = true);
+
+    String? proofUrl;
+    try {
+      final proofFile = File(_proofPath!);
+      if (!proofFile.existsSync()) {
+        throw Exception('Proof file not found. Please re-upload.');
+      }
+      final uniqueName =
+          '${DateTime.now().millisecondsSinceEpoch}_${p.basename(proofFile.path)}';
+      final objectPath = 'subscriptions/${_currentStudentId}/$uniqueName';
+      proofUrl = await uploadFileToSupabaseStorage(
+        file: proofFile,
+        bucket: 'busin-bucket',
+        objectPath: objectPath,
+      );
+    } catch (error) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
           buildSnackBar(
             backgroundColor: errorColor,
             prefixIcon: HugeIcon(
-              icon: HugeIcons.strokeRoundedDirectionRight02,
+              icon: HugeIcons.strokeRoundedAlert02,
               color: lightColor,
             ),
-            label: Text('Please select a preferred stop.'),
+            label: Text('Unable to upload proof: $error'),
           ),
         );
-      setState(() => _currentStep = 2);
+      setState(() => _isSubmitting = false);
       return;
     }
-    // Validate schedules times
-    for (var s in _schedules) {
-      if (!s.isValidTimes) {
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(
-            buildSnackBar(
-              backgroundColor: errorColor,
-              prefixIcon: HugeIcon(
-                icon: HugeIcons.strokeRoundedCalendarRemove02,
-                color: lightColor,
-              ),
-              label: Text('One or more schedule times are invalid.'),
+
+    try {
+      final saved = await subscriptionsController.createSubscription(
+        subscription: newSub,
+        proofUrl: proofUrl,
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          buildSnackBar(
+            backgroundColor: successColor,
+            prefixIcon: HugeIcon(
+              icon: HugeIcons.strokeRoundedTaskDone01,
+              color: lightColor,
             ),
-          );
-        setState(() => _currentStep = 3);
-        return;
+            label: const Text('Subscription created (pending review)'),
+          ),
+        );
+      context.pop(saved);
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          buildSnackBar(
+            backgroundColor: errorColor,
+            prefixIcon: HugeIcon(
+              icon: HugeIcons.strokeRoundedAlert02,
+              color: lightColor,
+            ),
+            label: Text('Failed to submit subscription: $error'),
+          ),
+        );
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
       }
     }
-
-    final stopMap = busStopController.stops.firstWhere(
-      (s) => s.id == _selectedStopId,
-    );
-
-    final newSub = BusSubscription.pending(
-      id: 'sub_${DateTime.now().millisecondsSinceEpoch}',
-      studentId: _currentStudentId,
-      semester: _semester,
-      year: year,
-      proofOfPaymentUrl: _proofUrl,
-      stop: stopMap,
-      schedules: _schedules,
-    );
-
-    // TODO: send newSub to API / persistence layer
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        buildSnackBar(
-          backgroundColor: successColor,
-          prefixIcon: HugeIcon(
-            icon: HugeIcons.strokeRoundedTaskDone01,
-            color: lightColor,
-          ),
-          label: Text('Subscription created (pending review)'),
-        ),
-      );
-    context.pop(newSub);
   }
 
   @override
@@ -370,818 +413,852 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
         appBar: AppBar(title: const Text('New Subscription')),
-        body: ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(vertical: 16.0),
+        body: Stack(
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Image.asset(newSubscription),
-            ),
-            Stepper(
-              currentStep: _currentStep,
-              onStepContinue: _onStepContinue,
-              onStepCancel: _onStepCancel,
-              onStepTapped: (index) {
-                if (index <= _currentStep) {
-                  setState(() => _currentStep = index);
-                }
-              },
-              physics: const ClampingScrollPhysics(),
-              controlsBuilder: (context, details) {
-                return Padding(
-                  padding: const EdgeInsets.only(top: 10.0),
-                  child: Row(
-                    children: [
-                      ElevatedButton(
-                        onPressed: details.onStepContinue,
-                        child: Text(
-                          _currentStep == 4 ? 'Submit' : 'Next',
-                          style: AppTextStyles.body,
-                        ),
-                      ),
-                      const Gap(8.0),
-                      TextButton(
-                        onPressed: details.onStepCancel,
-                        style: TextButton.styleFrom(
-                          overlayColor: accentColor.withValues(alpha: 0.1),
-                        ),
-                        child: const Text('Back', style: AppTextStyles.body),
-                      ),
-                    ],
-                  ),
-                );
-              },
-              steps: [
-                Step(
-                  stepStyle: StepStyle(
-                    color: _currentStep >= 0
-                        ? themeController.isDark
-                              ? seedPalette.shade800
-                              : seedColor
-                        : greyColor,
-                    indexStyle: AppTextStyles.body.copyWith(color: lightColor),
-                  ),
-                  title: Text(
-                    'Receipt',
-                    style: AppTextStyles.body.copyWith(
-                      color: _currentStep >= 0
-                          ? themeController.isDark
-                                ? lightColor
-                                : seedColor
-                          : greyColor,
-                    ),
-                  ),
-                  state: _currentStep > 0
-                      ? StepState.complete
-                      : StepState.indexed,
-                  isActive: _currentStep >= 0,
-                  content: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Proof of payment',
-                        style: AppTextStyles.body.copyWith(
-                          color: themeController.isDark
-                              ? seedPalette.shade50
-                              : greyColor,
-                          fontSize: 14.0,
-                        ),
-                      ),
-                      const Gap(8.0),
-                      ImageBox(
-                        onImageSelected: (filePath) => setState(() {
-                          _proofUrl = filePath;
-                        }),
-                        label: 'Upload a copy of your receipt',
-                      ),
-                    ],
-                  ),
+            ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Image.asset(newSubscription),
                 ),
-                Step(
-                  stepStyle: StepStyle(
-                    color: _currentStep >= 1
-                        ? themeController.isDark
-                              ? seedPalette.shade800
-                              : seedColor
-                        : greyColor,
-                    indexStyle: AppTextStyles.body.copyWith(color: lightColor),
-                  ),
-                  title: Text(
-                    'Semester',
-                    style: AppTextStyles.body.copyWith(
-                      color: _currentStep >= 1
-                          ? themeController.isDark
-                                ? lightColor
-                                : seedColor
-                          : greyColor,
-                    ),
-                  ),
-                  state: _currentStep > 1
-                      ? StepState.complete
-                      : StepState.indexed,
-                  isActive: _currentStep >= 1,
-                  content: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 8.0,
-                    children: [
-                      Wrap(
-                        spacing: 8.0,
-                        runSpacing: 8.0,
-                        children: Semester.values.map((s) {
-                          final selected = s == _semester;
-                          return ChoiceChip(
-                            label: Text(s.label, style: AppTextStyles.body),
-                            checkmarkColor: themeController.isDark
-                                ? lightColor
-                                : seedColor,
-                            selected: selected,
-                            onSelected: (_) => setState(() => _semester = s),
-                          );
-                        }).toList(),
-                      ),
-                      const Gap(8.0),
-                      SimpleTextFormField(
-                        controller: _yearController,
-                        hintText: "Subscription year",
-                        label: Text(
-                          "Subscription year",
-                          style: AppTextStyles.body.copyWith(
-                            color: themeController.isDark
-                                ? seedPalette.shade50
-                                : seedColor,
-                          ),
-                        ),
-                        keyboardType: TextInputType.number,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Builder(
-                          builder: (context) {
-                            final year =
-                                int.tryParse(_yearController.text) ??
-                                DateTime.now().year;
-                            final span = _semester.defaultSpanForYear(year);
-                            return Row(
-                              children: [
-                                HugeIcon(
-                                  icon: HugeIcons.strokeRoundedCalendar01,
-                                  size: 16.0,
-                                  color: themeController.isDark
-                                      ? seedPalette.shade50
-                                      : greyColor,
-                                ),
-                                const Gap(8.0),
-                                Text(
-                                  'From: ${dateFormatter(span.start)} — To: ${dateFormatter(span.end)}',
-                                  style: AppTextStyles.body.copyWith(
-                                    color: themeController.isDark
-                                        ? seedPalette.shade50
-                                        : greyColor,
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Step(
-                  stepStyle: StepStyle(
-                    color: _currentStep >= 2
-                        ? themeController.isDark
-                              ? seedPalette.shade800
-                              : seedColor
-                        : greyColor,
-                    indexStyle: AppTextStyles.body.copyWith(color: lightColor),
-                  ),
-                  title: Text(
-                    'Preferred stop',
-                    style: AppTextStyles.body.copyWith(
-                      color: _currentStep >= 2
-                          ? themeController.isDark
-                                ? lightColor
-                                : seedColor
-                          : greyColor,
-                    ),
-                  ),
-                  state: _currentStep > 2
-                      ? StepState.complete
-                      : StepState.indexed,
-                  isActive: _currentStep >= 2,
-                  content: Obx(() {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: DropdownButtonFormField<String>(
-                        initialValue: _selectedStopId,
-                        items: busStopController.stops
-                            .map(
-                              (s) => DropdownMenuItem(
-                                value: s.id,
-                                child: Text(
-                                  s.name,
-                                  style: AppTextStyles.body.copyWith(
-                                    color: themeController.isDark
-                                        ? lightColor
-                                        : seedColor,
-                                  ),
-                                ),
+                Form(
+                  key: _formKey,
+                  child: Stepper(
+                    currentStep: _currentStep,
+                    onStepContinue: _onStepContinue,
+                    onStepCancel: _onStepCancel,
+                    onStepTapped: (index) {
+                      if (index <= _currentStep) {
+                        setState(() => _currentStep = index);
+                      }
+                    },
+                    physics: const ClampingScrollPhysics(),
+                    controlsBuilder: (context, details) {
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 10.0),
+                        child: Row(
+                          children: [
+                            ElevatedButton(
+                              onPressed:
+                                  _isSubmitting ? null : details.onStepContinue,
+                              child: Text(
+                                _currentStep == 4 ? 'Submit' : 'Next',
+                                style: AppTextStyles.body,
                               ),
-                            )
-                            .toList(),
-                        style: AppTextStyles.body.copyWith(color: seedColor),
-                        dropdownColor: themeController.isDark
-                            ? seedPalette.shade800
-                            : seedPalette.shade50,
-                        onChanged: (v) => setState(() => _selectedStopId = v),
-                        icon: HugeIcon(
-                          icon: HugeIcons.strokeRoundedArrowDown01,
-                        ),
-                        borderRadius: borderRadius * 2.5,
-                        decoration: InputDecoration(
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 12.0,
-                            horizontal: 16.0,
-                          ),
-                          labelText: 'Select stop',
-                          labelStyle: AppTextStyles.body.copyWith(
-                            color: themeController.isDark
-                                ? lightColor
-                                : seedColor,
-                          ),
-                          hintText: "Select stop",
-                          hintStyle: AppTextStyles.body.copyWith(
-                            color: themeController.isDark
-                                ? lightColor.withValues(alpha: 0.6)
-                                : seedColor.withValues(alpha: 0.6),
-                          ),
-                          border: AppInputBorders.border,
-                          focusedBorder: AppInputBorders.focusedBorder,
-                          errorBorder: AppInputBorders.errorBorder,
-                          focusedErrorBorder:
-                              AppInputBorders.focusedErrorBorder,
-                          enabledBorder: AppInputBorders.enabledBorder,
-                          disabledBorder: AppInputBorders.disabledBorder,
-                        ),
-                      ),
-                    );
-                  }),
-                ),
-                Step(
-                  stepStyle: StepStyle(
-                    color: _currentStep >= 3
-                        ? themeController.isDark
-                              ? seedPalette.shade800
-                              : seedColor
-                        : greyColor,
-                    indexStyle: AppTextStyles.body.copyWith(color: lightColor),
-                  ),
-                  title: Text(
-                    'Weekly schedules',
-                    style: AppTextStyles.body.copyWith(
-                      color: _currentStep >= 3
-                          ? themeController.isDark
-                                ? lightColor
-                                : seedColor
-                          : greyColor,
-                    ),
-                  ),
-                  state: _currentStep > 3
-                      ? StepState.complete
-                      : StepState.indexed,
-                  isActive: _currentStep >= 3,
-                  content: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          ChoiceChip(
-                            label: Text('Everyday', style: AppTextStyles.body),
-                            selected: _scheduleMode == _ScheduleMode.everyday,
-                            onSelected: (_) =>
-                                _applyScheduleMode(_ScheduleMode.everyday),
-                            checkmarkColor: themeController.isDark
-                                ? lightColor
-                                : seedColor,
-                          ),
-                          const Gap(8.0),
-                          ChoiceChip(
-                            label: Text(
-                              'Normal week',
-                              style: AppTextStyles.body,
                             ),
-                            selected: _scheduleMode == _ScheduleMode.normalWeek,
-                            onSelected: (_) =>
-                                _applyScheduleMode(_ScheduleMode.normalWeek),
-                            checkmarkColor: themeController.isDark
-                                ? lightColor
-                                : seedColor,
-                          ),
-                          const Gap(8.0),
-                          ChoiceChip(
-                            label: Text('Custom', style: AppTextStyles.body),
-                            selected: _scheduleMode == _ScheduleMode.custom,
-                            onSelected: (_) =>
-                                _applyScheduleMode(_ScheduleMode.custom),
-                            checkmarkColor: themeController.isDark
-                                ? lightColor
-                                : seedColor,
-                          ),
-                        ],
-                      ),
-                      const Gap(8.0),
-                      if (_schedules.isEmpty)
-                        Container(
-                          decoration: BoxDecoration(
-                            color: themeController.isDark
-                                ? seedPalette.shade50.withValues(alpha: 0.1)
-                                : greyColor.withValues(alpha: 0.1),
-                            borderRadius: borderRadius * 2,
-                          ),
-                          child: DottedBorder(
-                            options: RoundedRectDottedBorderOptions(
-                              color: themeController.isDark
-                                  ? seedPalette.shade50
-                                  : greyColor,
-                              strokeWidth: 1.0,
-                              strokeCap: StrokeCap.round,
-                              dashPattern: const [4, 6, 8, 10],
-                              radius: const Radius.circular(16.0),
-                              padding: const EdgeInsets.all(20.0),
+                            const Gap(8.0),
+                            TextButton(
+                              onPressed: details.onStepCancel,
+                              style: TextButton.styleFrom(
+                                overlayColor: accentColor.withValues(alpha: 0.1),
+                              ),
+                              child: const Text('Back', style: AppTextStyles.body),
                             ),
-                            child: Text(
-                              'No schedules added. Add the days you take the bus.',
+                          ],
+                        ),
+                      );
+                    },
+                    steps: [
+                      Step(
+                        stepStyle: StepStyle(
+                          color: _currentStep >= 0
+                              ? themeController.isDark
+                                    ? seedPalette.shade800
+                                    : seedColor
+                              : greyColor,
+                          indexStyle: AppTextStyles.body.copyWith(color: lightColor),
+                        ),
+                        title: Text(
+                          'Receipt',
+                          style: AppTextStyles.body.copyWith(
+                            color: _currentStep >= 0
+                                ? themeController.isDark
+                                      ? lightColor
+                                      : seedColor
+                                : greyColor,
+                          ),
+                        ),
+                        state: _currentStep > 0
+                            ? StepState.complete
+                            : StepState.indexed,
+                        isActive: _currentStep >= 0,
+                        content: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Proof of payment',
                               style: AppTextStyles.body.copyWith(
                                 color: themeController.isDark
                                     ? seedPalette.shade50
                                     : greyColor,
+                                fontSize: 14.0,
                               ),
                             ),
+                            const Gap(8.0),
+                            ImageBox(
+                              onImageSelected: (filePath) => setState(() {
+                                _proofPath = filePath;
+                              }),
+                              label: 'Upload a copy of your receipt',
+                            ),
+                          ],
+                        ),
+                      ),
+                      Step(
+                        stepStyle: StepStyle(
+                          color: _currentStep >= 1
+                              ? themeController.isDark
+                                    ? seedPalette.shade800
+                                    : seedColor
+                              : greyColor,
+                          indexStyle: AppTextStyles.body.copyWith(color: lightColor),
+                        ),
+                        title: Text(
+                          'Semester',
+                          style: AppTextStyles.body.copyWith(
+                            color: _currentStep >= 1
+                                ? themeController.isDark
+                                      ? lightColor
+                                      : seedColor
+                                : greyColor,
                           ),
                         ),
-                      for (var i = 0; i < _schedules.length; i++)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4.0),
-                          child: Animate(
-                            key: ValueKey(_schedules[i].weekday),
-                            effects: const [
-                              FadeEffect(duration: Duration(milliseconds: 220)),
-                              SlideEffect(
-                                begin: Offset(0, 0.05),
-                                duration: Duration(milliseconds: 220),
-                              ),
-                            ],
-                            child: Container(
-                              padding: EdgeInsets.all(12.0).copyWith(top: 4.0),
-                              decoration: BoxDecoration(
-                                borderRadius: borderRadius * 2.5,
-                                color: themeController.isDark
-                                    ? seedPalette.shade50.withValues(alpha: 0.1)
-                                    : seedPalette.shade50.withValues(
-                                        alpha: 0.5,
-                                      ),
-                                border: Border.all(
-                                  color: themeController.isDark
-                                      ? seedPalette.shade600.withValues(
-                                          alpha: 0.3,
-                                        )
-                                      : seedPalette.shade800.withValues(
-                                          alpha: 0.15,
-                                        ),
-                                ),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    spacing: 8.0,
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          _weekdayLabelLong(
-                                            _schedules[i].weekday,
-                                          ),
-                                          style: AppTextStyles.h4,
-                                        ),
-                                      ),
-                                      IconButton(
-                                        tooltip:
-                                            'Remove ${_weekdayLabelLong(_schedules[i].weekday)}',
-                                        style: IconButton.styleFrom(
-                                          overlayColor: errorColor.withValues(
-                                            alpha: 0.12,
-                                          ),
-                                        ),
-                                        onPressed: () => _removeSchedule(i),
-                                        icon: const HugeIcon(
-                                          icon: HugeIcons.strokeRoundedDelete03,
-                                          color: errorColor,
-                                          size: 20.0,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    spacing: 8.0,
-                                    children: [
-                                      Expanded(
-                                        child: InkWell(
-                                          borderRadius: borderRadius * 1.5,
-                                          onTap: () => _editScheduleTime(
-                                            i,
-                                            morning: true,
-                                          ),
-                                          child: InputDecorator(
-                                            decoration: InputDecoration(
-                                              labelText: 'Morning',
-                                              labelStyle: AppTextStyles.body,
-                                              border: OutlineInputBorder(
-                                                borderRadius:
-                                                    borderRadius * 1.5,
-                                                borderSide: BorderSide(
-                                                  color: themeController.isDark
-                                                      ? seedPalette.shade50
-                                                      : seedColor,
-                                                ),
-                                              ),
-                                              contentPadding:
-                                                  EdgeInsets.symmetric(
-                                                    vertical: 8.0,
-                                                    horizontal: 10.0,
-                                                  ),
-                                            ),
-                                            child: Text(
-                                              _schedules[i].morningTime,
-                                              style: AppTextStyles.body,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: InkWell(
-                                          borderRadius: borderRadius * 1.5,
-                                          onTap: () => _editScheduleTime(
-                                            i,
-                                            morning: false,
-                                          ),
-                                          child: InputDecorator(
-                                            decoration: InputDecoration(
-                                              labelText: 'Close',
-                                              labelStyle: AppTextStyles.body,
-                                              border: OutlineInputBorder(
-                                                borderRadius:
-                                                    borderRadius * 1.5,
-                                                borderSide: BorderSide(
-                                                  color: themeController.isDark
-                                                      ? seedPalette.shade50
-                                                      : seedColor,
-                                                ),
-                                              ),
-                                              contentPadding:
-                                                  EdgeInsets.symmetric(
-                                                    vertical: 8.0,
-                                                    horizontal: 10.0,
-                                                  ),
-                                            ),
-                                            child: Text(
-                                              _schedules[i].closingTime,
-                                              style: AppTextStyles.body,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
+                        state: _currentStep > 1
+                            ? StepState.complete
+                            : StepState.indexed,
+                        isActive: _currentStep >= 1,
+                        content: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          spacing: 8.0,
+                          children: [
+                            Wrap(
+                              spacing: 8.0,
+                              runSpacing: 8.0,
+                              children: Semester.values.map((s) {
+                                final selected = s == _semester;
+                                return ChoiceChip(
+                                  label: Text(s.label, style: AppTextStyles.body),
+                                  checkmarkColor: themeController.isDark
+                                      ? lightColor
+                                      : seedColor,
+                                  selected: selected,
+                                  onSelected: (_) => setState(() => _semester = s),
+                                );
+                              }).toList(),
                             ),
-                          ),
-                        ),
-                      if (nextWeekday == null)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: Container(
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: infoColor.withValues(alpha: 0.1),
-                              borderRadius: borderRadius * 2,
-                            ),
-                            child: DottedBorder(
-                              options: RoundedRectDottedBorderOptions(
-                                color: themeController.isDark
-                                    ? seedPalette.shade50
-                                    : infoColor,
-                                strokeWidth: 1.0,
-                                strokeCap: StrokeCap.round,
-                                dashPattern: const [4, 6, 8, 10],
-                                radius: const Radius.circular(16.0),
-                                padding: const EdgeInsets.all(20.0),
-                              ),
-                              child: Text(
-                                'Maximum of 6 days reached (Mon–Sat).',
+                            const Gap(8.0),
+                            SimpleTextFormField(
+                              controller: _yearController,
+                              hintText: "Subscription year",
+                              label: Text(
+                                "Subscription year",
                                 style: AppTextStyles.body.copyWith(
                                   color: themeController.isDark
                                       ? seedPalette.shade50
-                                      : infoColor,
+                                      : seedColor,
                                 ),
                               ),
+                              keyboardType: TextInputType.number,
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Enter the subscription year';
+                                }
+                                final parsed = int.tryParse(value.trim());
+                                if (parsed == null || parsed < 2000) {
+                                  return 'Enter a valid year (>= 2000)';
+                                }
+                                return null;
+                              },
                             ),
-                          ),
-                        )
-                      else
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: TextButton.icon(
-                              onPressed: _addEmptySchedule,
-                              style: TextButton.styleFrom(
-                                overlayColor: accentColor.withValues(
-                                  alpha: 0.12,
-                                ),
-                              ),
-                              icon: const HugeIcon(
-                                icon: HugeIcons.strokeRoundedAdd01,
-                                size: 20.0,
-                              ),
-                              label: Text(
-                                'Add ${_weekdayLabelLong(nextWeekday)}',
-                                style: AppTextStyles.body,
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-                Step(
-                  stepStyle: StepStyle(
-                    color: _currentStep >= 4
-                        ? themeController.isDark
-                              ? seedPalette.shade800
-                              : seedColor
-                        : greyColor,
-                    indexStyle: AppTextStyles.body.copyWith(color: lightColor),
-                  ),
-                  title: Text(
-                    'Review & submit',
-                    style: AppTextStyles.body.copyWith(
-                      color: _currentStep >= 4
-                          ? themeController.isDark
-                                ? lightColor
-                                : seedColor
-                          : greyColor,
-                    ),
-                  ),
-                  state: _currentStep == 4
-                      ? StepState.editing
-                      : StepState.indexed,
-                  isActive: _currentStep >= 4,
-                  content: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(16.0),
-                        decoration: BoxDecoration(
-                          borderRadius: borderRadius * 2.5,
-                          color: themeController.isDark
-                              ? seedPalette.shade900
-                              : seedPalette.shade50.withValues(alpha: 0.65),
-                          border: Border.all(
-                            color: themeController.isDark
-                                ? seedPalette.shade700
-                                : seedPalette.shade800.withValues(alpha: 0.15),
-                          ),
-                        ),
-                        child: Table(
-                          columnWidths: const {
-                            0: FlexColumnWidth(2),
-                            1: FlexColumnWidth(2),
-                            2: FlexColumnWidth(2),
-                          },
-                          defaultVerticalAlignment:
-                              TableCellVerticalAlignment.middle,
-                          children: [
-                            TableRow(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 6.0,
-                                  ),
-                                  child: Text(
-                                    'Student',
-                                    style: AppTextStyles.body.copyWith(
-                                      color: themeController.isDark
-                                          ? seedPalette.shade50
-                                          : greyColor,
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 6.0,
-                                  ),
-                                  child: Text(
-                                    _currentStudentId,
-                                    style: AppTextStyles.h4,
-                                  ),
-                                ),
-                                const SizedBox(),
-                              ],
-                            ),
-                            TableRow(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 6.0,
-                                  ),
-                                  child: Text(
-                                    'Semester',
-                                    style: AppTextStyles.body.copyWith(
-                                      color: themeController.isDark
-                                          ? seedPalette.shade50
-                                          : greyColor,
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 6.0,
-                                  ),
-                                  child: Text(
-                                    '${_semester.label} ${_yearController.text}',
-                                    style: AppTextStyles.h4,
-                                  ),
-                                ),
-                                const SizedBox(),
-                              ],
-                            ),
-                            TableRow(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 6.0,
-                                  ),
-                                  child: Text(
-                                    'Stop',
-                                    style: AppTextStyles.body.copyWith(
-                                      color: themeController.isDark
-                                          ? seedPalette.shade50
-                                          : greyColor,
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 6.0,
-                                  ),
-                                  child: Obx(() {
-                                    return Text(
-                                      busStopController.stops
-                                          .firstWhere(
-                                            (e) => e.id == _selectedStopId,
-                                            orElse: () => BusStop(
-                                              id: 'none',
-                                              name: 'Not selected',
-                                            ),
-                                          )
-                                          .name,
-                                      style: AppTextStyles.h4,
-                                    );
-                                  }),
-                                ),
-                                const SizedBox(),
-                              ],
-                            ),
-                            TableRow(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 6.0,
-                                  ),
-                                  child: Text(
-                                    'Schedules',
-                                    style: AppTextStyles.body.copyWith(
-                                      color: themeController.isDark
-                                          ? seedPalette.shade50
-                                          : greyColor,
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 6.0,
-                                  ),
-                                  child: Text(
-                                    "${_schedules.length} day${_schedules.length > 1 ? 's' : ''}",
-                                    style: AppTextStyles.h4,
-                                  ),
-                                ),
-                                const SizedBox(),
-                              ],
-                            ),
-                            const TableRow(
-                              children: [Gap(16.0), SizedBox(), SizedBox()],
-                            ),
-                            TableRow(
-                              decoration: BoxDecoration(
-                                color: seedPalette.shade100.withValues(
-                                  alpha: 0.4,
-                                ),
-                                borderRadius: borderRadius * 1.5,
-                              ),
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    'Day',
-                                    style: AppTextStyles.body.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    'Morning',
-                                    style: AppTextStyles.body.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    'Close',
-                                    style: AppTextStyles.body.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            ..._schedules.map(
-                              (s) => TableRow(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                      _weekdayLabelLong(s.weekday),
-                                      style: AppTextStyles.body,
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                      s.morningTime,
-                                      style: AppTextStyles.body,
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                      s.closingTime,
-                                      style: AppTextStyles.body,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            if (_schedules.isEmpty)
-                              TableRow(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                      'No schedules added.',
-                                      style: AppTextStyles.body.copyWith(
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                              child: Builder(
+                                builder: (context) {
+                                  final year =
+                                      int.tryParse(_yearController.text) ??
+                                      DateTime.now().year;
+                                  final span = _semester.defaultSpanForYear(year);
+                                  return Row(
+                                    children: [
+                                      HugeIcon(
+                                        icon: HugeIcons.strokeRoundedCalendar01,
+                                        size: 16.0,
                                         color: themeController.isDark
                                             ? seedPalette.shade50
                                             : greyColor,
                                       ),
+                                      const Gap(8.0),
+                                      Text(
+                                        'From: ${dateFormatter(span.start)} — To: ${dateFormatter(span.end)}',
+                                        style: AppTextStyles.body.copyWith(
+                                          color: themeController.isDark
+                                              ? seedPalette.shade50
+                                              : greyColor,
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Step(
+                        stepStyle: StepStyle(
+                          color: _currentStep >= 2
+                              ? themeController.isDark
+                                    ? seedPalette.shade800
+                                    : seedColor
+                              : greyColor,
+                          indexStyle: AppTextStyles.body.copyWith(color: lightColor),
+                        ),
+                        title: Text(
+                          'Preferred stop',
+                          style: AppTextStyles.body.copyWith(
+                            color: _currentStep >= 2
+                                ? themeController.isDark
+                                      ? lightColor
+                                      : seedColor
+                                : greyColor,
+                          ),
+                        ),
+                        state: _currentStep > 2
+                            ? StepState.complete
+                            : StepState.indexed,
+                        isActive: _currentStep >= 2,
+                        content: GetX<BusStopController>(
+                          builder: (controller) {
+                            final stops = controller.stops.toList(growable: false);
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              child: DropdownButtonFormField<String>(
+                                value: _selectedStopId,
+                                items: stops
+                                    .map(
+                                      (s) => DropdownMenuItem(
+                                        value: s.id,
+                                        child: Text(
+                                          s.name,
+                                          style: AppTextStyles.body.copyWith(
+                                            color: themeController.isDark
+                                                ? lightColor
+                                                : seedColor,
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
+                                style:
+                                    AppTextStyles.body.copyWith(color: seedColor),
+                                dropdownColor: themeController.isDark
+                                    ? seedPalette.shade800
+                                    : seedPalette.shade50,
+                                onChanged: (v) => setState(() => _selectedStopId = v),
+                                autovalidateMode: AutovalidateMode.onUserInteraction,
+                                validator: (value) =>
+                                    value == null || value.isEmpty ? 'Select a stop' : null,
+                                icon: const HugeIcon(
+                                  icon: HugeIcons.strokeRoundedArrowDown01,
+                                ),
+                                borderRadius: borderRadius * 2.5,
+                                decoration: InputDecoration(
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 12.0,
+                                    horizontal: 16.0,
+                                  ),
+                                  labelText: 'Select stop',
+                                  labelStyle: AppTextStyles.body.copyWith(
+                                    color: themeController.isDark
+                                        ? lightColor
+                                        : seedColor,
+                                  ),
+                                  hintText: 'Select stop',
+                                  hintStyle: AppTextStyles.body.copyWith(
+                                    color: themeController.isDark
+                                        ? lightColor.withValues(alpha: 0.6)
+                                        : seedColor.withValues(alpha: 0.6),
+                                  ),
+                                  border: AppInputBorders.border,
+                                  focusedBorder: AppInputBorders.focusedBorder,
+                                  errorBorder: AppInputBorders.errorBorder,
+                                  focusedErrorBorder:
+                                      AppInputBorders.focusedErrorBorder,
+                                  enabledBorder: AppInputBorders.enabledBorder,
+                                  disabledBorder: AppInputBorders.disabledBorder,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      Step(
+                        stepStyle: StepStyle(
+                          color: _currentStep >= 3
+                              ? themeController.isDark
+                                    ? seedPalette.shade800
+                                    : seedColor
+                              : greyColor,
+                          indexStyle: AppTextStyles.body.copyWith(color: lightColor),
+                        ),
+                        title: Text(
+                          'Weekly schedules',
+                          style: AppTextStyles.body.copyWith(
+                            color: _currentStep >= 3
+                                ? themeController.isDark
+                                      ? lightColor
+                                      : seedColor
+                                : greyColor,
+                          ),
+                        ),
+                        state: _currentStep > 3
+                            ? StepState.complete
+                            : StepState.indexed,
+                        isActive: _currentStep >= 3,
+                        content: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                ChoiceChip(
+                                  label: Text('Everyday', style: AppTextStyles.body),
+                                  selected: _scheduleMode == _ScheduleMode.everyday,
+                                  onSelected: (_) =>
+                                      _applyScheduleMode(_ScheduleMode.everyday),
+                                  checkmarkColor: themeController.isDark
+                                      ? lightColor
+                                      : seedColor,
+                                ),
+                                const Gap(8.0),
+                                ChoiceChip(
+                                  label: Text(
+                                    'Normal week',
+                                    style: AppTextStyles.body,
+                                  ),
+                                  selected: _scheduleMode == _ScheduleMode.normalWeek,
+                                  onSelected: (_) =>
+                                      _applyScheduleMode(_ScheduleMode.normalWeek),
+                                  checkmarkColor: themeController.isDark
+                                      ? lightColor
+                                      : seedColor,
+                                ),
+                                const Gap(8.0),
+                                ChoiceChip(
+                                  label: Text('Custom', style: AppTextStyles.body),
+                                  selected: _scheduleMode == _ScheduleMode.custom,
+                                  onSelected: (_) =>
+                                      _applyScheduleMode(_ScheduleMode.custom),
+                                  checkmarkColor: themeController.isDark
+                                      ? lightColor
+                                      : seedColor,
+                                ),
+                              ],
+                            ),
+                            const Gap(8.0),
+                            if (_schedules.isEmpty)
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: themeController.isDark
+                                      ? seedPalette.shade50.withValues(alpha: 0.1)
+                                      : greyColor.withValues(alpha: 0.1),
+                                  borderRadius: borderRadius * 2,
+                                ),
+                                child: DottedBorder(
+                                  options: RoundedRectDottedBorderOptions(
+                                    color: themeController.isDark
+                                        ? seedPalette.shade50
+                                        : greyColor,
+                                    strokeWidth: 1.0,
+                                    strokeCap: StrokeCap.round,
+                                    dashPattern: const [4, 6, 8, 10],
+                                    radius: const Radius.circular(16.0),
+                                    padding: const EdgeInsets.all(20.0),
+                                  ),
+                                  child: Text(
+                                    'No schedules added. Add the days you take the bus.',
+                                    style: AppTextStyles.body.copyWith(
+                                      color: themeController.isDark
+                                          ? seedPalette.shade50
+                                          : greyColor,
                                     ),
                                   ),
-                                  const SizedBox(),
-                                  const SizedBox(),
-                                ],
+                                ),
+                              ),
+                            for (var i = 0; i < _schedules.length; i++)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                                child: Animate(
+                                  key: ValueKey(_schedules[i].weekday),
+                                  effects: const [
+                                    FadeEffect(duration: Duration(milliseconds: 220)),
+                                    SlideEffect(
+                                      begin: Offset(0, 0.05),
+                                      duration: Duration(milliseconds: 220),
+                                    ),
+                                  ],
+                                  child: Container(
+                                    padding: EdgeInsets.all(12.0).copyWith(top: 4.0),
+                                    decoration: BoxDecoration(
+                                      borderRadius: borderRadius * 2.5,
+                                      color: themeController.isDark
+                                          ? seedPalette.shade50.withValues(alpha: 0.1)
+                                          : seedPalette.shade50.withValues(
+                                              alpha: 0.5,
+                                            ),
+                                      border: Border.all(
+                                        color: themeController.isDark
+                                            ? seedPalette.shade600.withValues(
+                                                alpha: 0.3,
+                                              )
+                                            : seedPalette.shade800.withValues(
+                                                alpha: 0.15,
+                                              ),
+                                      ),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          spacing: 8.0,
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                _weekdayLabelLong(
+                                                  _schedules[i].weekday,
+                                                ),
+                                                style: AppTextStyles.h4,
+                                              ),
+                                            ),
+                                            IconButton(
+                                              tooltip:
+                                                  'Remove ${_weekdayLabelLong(_schedules[i].weekday)}',
+                                              style: IconButton.styleFrom(
+                                                overlayColor: errorColor.withValues(
+                                                  alpha: 0.12,
+                                                ),
+                                              ),
+                                              onPressed: () => _removeSchedule(i),
+                                              icon: const HugeIcon(
+                                                icon: HugeIcons.strokeRoundedDelete03,
+                                                color: errorColor,
+                                                size: 20.0,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          spacing: 8.0,
+                                          children: [
+                                            Expanded(
+                                              child: InkWell(
+                                                borderRadius: borderRadius * 1.5,
+                                                onTap: () => _editScheduleTime(
+                                                  i,
+                                                  morning: true,
+                                                ),
+                                                child: InputDecorator(
+                                                  decoration: InputDecoration(
+                                                    labelText: 'Morning',
+                                                    labelStyle: AppTextStyles.body,
+                                                    border: OutlineInputBorder(
+                                                      borderRadius:
+                                                          borderRadius * 1.5,
+                                                      borderSide: BorderSide(
+                                                        color: themeController.isDark
+                                                            ? seedPalette.shade50
+                                                            : seedColor,
+                                                      ),
+                                                    ),
+                                                    contentPadding:
+                                                        EdgeInsets.symmetric(
+                                                          vertical: 8.0,
+                                                          horizontal: 10.0,
+                                                        ),
+                                                  ),
+                                                  child: Text(
+                                                    _schedules[i].morningTime,
+                                                    style: AppTextStyles.body,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            Expanded(
+                                              child: InkWell(
+                                                borderRadius: borderRadius * 1.5,
+                                                onTap: () => _editScheduleTime(
+                                                  i,
+                                                  morning: false,
+                                                ),
+                                                child: InputDecorator(
+                                                  decoration: InputDecoration(
+                                                    labelText: 'Close',
+                                                    labelStyle: AppTextStyles.body,
+                                                    border: OutlineInputBorder(
+                                                      borderRadius:
+                                                          borderRadius * 1.5,
+                                                      borderSide: BorderSide(
+                                                        color: themeController.isDark
+                                                            ? seedPalette.shade50
+                                                            : seedColor,
+                                                      ),
+                                                    ),
+                                                    contentPadding:
+                                                        EdgeInsets.symmetric(
+                                                          vertical: 8.0,
+                                                          horizontal: 10.0,
+                                                        ),
+                                                  ),
+                                                  child: Text(
+                                                    _schedules[i].closingTime,
+                                                    style: AppTextStyles.body,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            if (nextWeekday == null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: Container(
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: infoColor.withValues(alpha: 0.1),
+                                    borderRadius: borderRadius * 2,
+                                  ),
+                                  child: DottedBorder(
+                                    options: RoundedRectDottedBorderOptions(
+                                      color: themeController.isDark
+                                          ? seedPalette.shade50
+                                          : infoColor,
+                                      strokeWidth: 1.0,
+                                      strokeCap: StrokeCap.round,
+                                      dashPattern: const [4, 6, 8, 10],
+                                      radius: const Radius.circular(16.0),
+                                      padding: const EdgeInsets.all(20.0),
+                                    ),
+                                    child: Text(
+                                      'Maximum of 6 days reached (Mon–Sat).',
+                                      style: AppTextStyles.body.copyWith(
+                                        color: themeController.isDark
+                                            ? seedPalette.shade50
+                                            : infoColor,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            else
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(top: 8.0),
+                                  child: TextButton.icon(
+                                    onPressed: _addEmptySchedule,
+                                    style: TextButton.styleFrom(
+                                      overlayColor: accentColor.withValues(
+                                        alpha: 0.12,
+                                      ),
+                                    ),
+                                    icon: const HugeIcon(
+                                      icon: HugeIcons.strokeRoundedAdd01,
+                                      size: 20.0,
+                                    ),
+                                    label: Text(
+                                      'Add ${_weekdayLabelLong(nextWeekday)}',
+                                      style: AppTextStyles.body,
+                                    ),
+                                  ),
+                                ),
                               ),
                           ],
                         ),
                       ),
-                      const Gap(12.0),
-                      Text(
-                        'Submit your subscription request for review. You will be notified once it has been processed.',
-                        style: AppTextStyles.body.copyWith(
-                          color: greyColor,
-                          fontSize: 13.0,
+                      Step(
+                        stepStyle: StepStyle(
+                          color: _currentStep >= 4
+                              ? themeController.isDark
+                                    ? seedPalette.shade800
+                                    : seedColor
+                              : greyColor,
+                          indexStyle: AppTextStyles.body.copyWith(color: lightColor),
+                        ),
+                        title: Text(
+                          'Review & submit',
+                          style: AppTextStyles.body.copyWith(
+                            color: _currentStep >= 4
+                                ? themeController.isDark
+                                      ? lightColor
+                                      : seedColor
+                                : greyColor,
+                          ),
+                        ),
+                        state: _currentStep == 4
+                            ? StepState.editing
+                            : StepState.indexed,
+                        isActive: _currentStep >= 4,
+                        content: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(16.0),
+                              decoration: BoxDecoration(
+                                borderRadius: borderRadius * 2.5,
+                                color: themeController.isDark
+                                    ? seedPalette.shade900
+                                    : seedPalette.shade50.withValues(alpha: 0.65),
+                                border: Border.all(
+                                  color: themeController.isDark
+                                      ? seedPalette.shade700
+                                      : seedPalette.shade800.withValues(alpha: 0.15),
+                                ),
+                              ),
+                              child: Table(
+                                columnWidths: const {
+                                  0: FlexColumnWidth(2),
+                                  1: FlexColumnWidth(2),
+                                  2: FlexColumnWidth(2),
+                                },
+                                defaultVerticalAlignment:
+                                    TableCellVerticalAlignment.middle,
+                                children: [
+                                  TableRow(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 6.0,
+                                        ),
+                                        child: Text(
+                                          'Student',
+                                          style: AppTextStyles.body.copyWith(
+                                            color: themeController.isDark
+                                                ? seedPalette.shade50
+                                                : greyColor,
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 6.0,
+                                        ),
+                                        child: Text(
+                                          _currentStudentId,
+                                          style: AppTextStyles.h4,
+                                        ),
+                                      ),
+                                      const SizedBox(),
+                                    ],
+                                  ),
+                                  TableRow(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 6.0,
+                                        ),
+                                        child: Text(
+                                          'Semester',
+                                          style: AppTextStyles.body.copyWith(
+                                            color: themeController.isDark
+                                                ? seedPalette.shade50
+                                                : greyColor,
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 6.0,
+                                        ),
+                                        child: Text(
+                                          '${_semester.label} ${_yearController.text}',
+                                          style: AppTextStyles.h4,
+                                        ),
+                                      ),
+                                      const SizedBox(),
+                                    ],
+                                  ),
+                                  TableRow(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 6.0,
+                                        ),
+                                        child: Text(
+                                          'Stop',
+                                          style: AppTextStyles.body.copyWith(
+                                            color: themeController.isDark
+                                                ? seedPalette.shade50
+                                                : greyColor,
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 6.0,
+                                        ),
+                                        child: GetBuilder<BusStopController>(
+                                          builder: (controller) {
+                                            BusStop? stop;
+                                            if (_selectedStopId != null) {
+                                              try {
+                                                stop = controller.stops.firstWhere(
+                                                  (s) => s.id == _selectedStopId,
+                                                );
+                                              } catch (_) {
+                                                stop = null;
+                                              }
+                                            }
+                                            return Text(
+                                              stop?.name ?? 'Not selected',
+                                              style: AppTextStyles.h4,
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                      const SizedBox(),
+                                    ],
+                                  ),
+                                  TableRow(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 6.0,
+                                        ),
+                                        child: Text(
+                                          'Schedules',
+                                          style: AppTextStyles.body.copyWith(
+                                            color: themeController.isDark
+                                                ? seedPalette.shade50
+                                                : greyColor,
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 6.0,
+                                        ),
+                                        child: Text(
+                                          "${_schedules.length} day${_schedules.length > 1 ? 's' : ''}",
+                                          style: AppTextStyles.h4,
+                                        ),
+                                      ),
+                                      const SizedBox(),
+                                    ],
+                                  ),
+                                  const TableRow(
+                                    children: [Gap(16.0), SizedBox(), SizedBox()],
+                                  ),
+                                  TableRow(
+                                    decoration: BoxDecoration(
+                                      color: seedPalette.shade100.withValues(
+                                        alpha: 0.4,
+                                      ),
+                                      borderRadius: borderRadius * 1.5,
+                                    ),
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text(
+                                          'Day',
+                                          style: AppTextStyles.body.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text(
+                                          'Morning',
+                                          style: AppTextStyles.body.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text(
+                                          'Close',
+                                          style: AppTextStyles.body.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  ..._schedules.map(
+                                    (s) => TableRow(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text(
+                                            _weekdayLabelLong(s.weekday),
+                                            style: AppTextStyles.body,
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text(
+                                            s.morningTime,
+                                            style: AppTextStyles.body,
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text(
+                                            s.closingTime,
+                                            style: AppTextStyles.body,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  if (_schedules.isEmpty)
+                                    TableRow(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text(
+                                            'No schedules added.',
+                                            style: AppTextStyles.body.copyWith(
+                                              color: themeController.isDark
+                                                  ? seedPalette.shade50
+                                                  : greyColor,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(),
+                                        const SizedBox(),
+                                      ],
+                                    ),
+                                ],
+                              ),
+                            ),
+                            const Gap(12.0),
+                            Text(
+                              'Submit your subscription request for review. You will be notified once it has been processed.',
+                              style: AppTextStyles.body.copyWith(
+                                color: greyColor,
+                                fontSize: 13.0,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
                 ),
               ],
+            ),
+            BusLoadingOverlay(
+              visible: _isSubmitting,
+              title: 'Submitting your subscription',
+              message: 'We are securing your seat on the bus...',
             ),
           ],
         ),
@@ -1205,6 +1282,16 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
         return 'Saturday';
       default:
         return 'Day';
+    }
+  }
+
+  BusStop? _findSelectedStop() {
+    if (_selectedStopId == null) return null;
+    try {
+      return busStopController.stops
+          .firstWhere((s) => s.id == _selectedStopId);
+    } catch (_) {
+      return null;
     }
   }
 }

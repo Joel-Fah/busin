@@ -1,11 +1,6 @@
 import 'dart:ui';
 
 import 'package:busin/utils/utils.dart';
-import 'package:busin/utils/utils.dart';
-import 'package:busin/utils/utils.dart';
-import 'package:busin/utils/utils.dart';
-import 'package:busin/utils/utils.dart';
-import 'package:busin/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
@@ -107,6 +102,7 @@ const String ticket2 = 'assets/images/ticket2.png';
 const String verified = 'assets/images/verified.png';
 const String newSubscription = 'assets/images/new_subscription.png';
 const String subscriptionDetails = 'assets/images/subscription_details.jpg';
+const String busLoader = 'assets/images/bus_loader.gif';
 
 // Icons & Flags
 const String googleIcon = 'assets/images/icons/google.svg';
@@ -185,12 +181,18 @@ class AppTextStyles {
 // Input Borders
 class AppInputBorders {
   static OutlineInputBorder border = OutlineInputBorder(
-    borderSide: BorderSide(color: themeController.isDark ? lightColor : seedColor, width: 1),
+    borderSide: BorderSide(
+      color: themeController.isDark ? lightColor : seedColor,
+      width: 1,
+    ),
     borderRadius: borderRadius * 2.25,
   );
 
   static OutlineInputBorder focusedBorder = OutlineInputBorder(
-    borderSide: BorderSide(color: themeController.isDark ? lightColor : seedColor, width: 1),
+    borderSide: BorderSide(
+      color: themeController.isDark ? lightColor : seedColor,
+      width: 1,
+    ),
     borderRadius: borderRadius * 2.25,
   );
 
@@ -205,7 +207,10 @@ class AppInputBorders {
   );
 
   static OutlineInputBorder enabledBorder = OutlineInputBorder(
-    borderSide: BorderSide(color: themeController.isDark ? lightColor : seedColor, width: 1),
+    borderSide: BorderSide(
+      color: themeController.isDark ? lightColor : seedColor,
+      width: 1,
+    ),
     borderRadius: borderRadius * 2.25,
   );
 
@@ -214,3 +219,6 @@ class AppInputBorders {
     borderRadius: borderRadius * 2.25,
   );
 }
+
+// Create a Cloudinary instance and set your cloud name.
+// var cloudinary=Cloudinary.fromStringUrl('cloudinary://${dotenv.env['CLOUDINARY_API_KEY']!}:${dotenv.env['CLOUDINARY_API_SECRET']!}@CLOUD_NAME');
