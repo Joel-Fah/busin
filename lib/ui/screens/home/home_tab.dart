@@ -26,189 +26,256 @@ class HomeTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // GetX Controllers
     final AuthController authController = Get.find<AuthController>();
     final BusSubscriptionsController busSubscriptionsController =
         Get.find<BusSubscriptionsController>();
-    final BusSubscription lastBusSubscription =
-        busSubscriptionsController.busSubscriptions.last;
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        title: AppBarListTile(
-          onTap: () => context.pushNamed(
-            removeLeadingSlash(ProfilePage.routeName),
-            pathParameters: {'tag': authController.userProfileImage},
+    return Obx(() {
+      final subscriptions = busSubscriptionsController.busSubscriptions;
+      final BusSubscription? lastBusSubscription = subscriptions.isNotEmpty
+          ? subscriptions.last
+          : null;
+
+      return Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          title: AppBarListTile(
+            onTap: () => context.pushNamed(
+              removeLeadingSlash(ProfilePage.routeName),
+              pathParameters: {'tag': authController.userProfileImage},
+            ),
+            leading: UserAvatar(tag: authController.userProfileImage),
+            title: authController.userDisplayName,
+            subtitle: authController.isVerified
+                ? AccountStatus.verified.label
+                : AccountStatus.pending.label,
+            subtitleColor: authController.isVerified ? successColor : infoColor,
           ),
-          leading: UserAvatar(tag: authController.userProfileImage),
-          title: authController.userDisplayName,
-          subtitle: authController.isVerified
-              ? AccountStatus.verified.label
-              : AccountStatus.pending.label,
-          subtitleColor: authController.isVerified ? successColor : infoColor,
         ),
-      ),
-      body: SizedBox(
-        height: mediaHeight(context),
-        child: Stack(
-          alignment: Alignment.bottomCenter,
-          children: [
-            Container(
-              height: mediaHeight(context) / 2,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(32.0)),
-                color: themeController.isDark
-                    ? seedPalette.shade900
-                    : seedPalette.shade50,
-              ),
-              child: ListView(
-                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 56.0)
-                    .copyWith(
-                      bottom:
-                          56 + 80 + MediaQuery.viewPaddingOf(context).bottom,
-                    ),
-                children: [
-                  Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Activity",
-                            style: AppTextStyles.title.copyWith(fontSize: 48.0),
-                          ),
-                          TextButton.icon(
-                            onPressed: () {},
-                            style: TextButton.styleFrom(
-                              overlayColor: accentColor.withValues(alpha: 0.1),
-                            ),
-                            iconAlignment: IconAlignment.end,
-                            icon: HugeIcon(
-                              icon: HugeIcons.strokeRoundedArrowUpRight02,
-                            ),
-                            label: Text(
-                              "View all",
-                              style: AppTextStyles.body.copyWith(
-                                fontSize: 14.0,
+        body: SizedBox(
+          height: mediaHeight(context),
+          child: Stack(
+            alignment: Alignment.bottomCenter,
+            children: [
+              Container(
+                height: mediaHeight(context) / 2,
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(32.0),
+                  ),
+                  color: themeController.isDark
+                      ? seedPalette.shade900
+                      : seedPalette.shade50,
+                ),
+                child: ListView(
+                  padding:
+                      EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 56.0,
+                      ).copyWith(
+                        bottom:
+                            56 + 80 + MediaQuery.viewPaddingOf(context).bottom,
+                      ),
+                  children: [
+                    Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Activity",
+                              style: AppTextStyles.title.copyWith(
+                                fontSize: 48.0,
                               ),
                             ),
-                          ),
-                        ],
-                      )
-                      .animate()
-                      .fadeIn(duration: 300.ms, curve: Curves.easeOut)
-                      .slideY(
-                        begin: 0.06,
-                        end: 0,
-                        duration: 360.ms,
-                        curve: Curves.easeOut,
-                      ),
-                  const Gap(20.0)
-                      .animate()
-                      .fadeIn(duration: 320.ms)
-                      .slideY(
-                        begin: 0.05,
-                        end: 0,
-                        duration: 380.ms,
-                        curve: Curves.easeOut,
-                      ),
-                  CustomListTile(
-                        onTap: () {
-                          HapticFeedback.mediumImpact();
-                          context.pushNamed(
-                            removeLeadingSlash(
-                              SubscriptionDetailsPage.routeName,
+                            TextButton.icon(
+                              onPressed: () {},
+                              style: TextButton.styleFrom(
+                                overlayColor: accentColor.withValues(
+                                  alpha: 0.1,
+                                ),
+                              ),
+                              iconAlignment: IconAlignment.end,
+                              icon: HugeIcon(
+                                icon: HugeIcons.strokeRoundedArrowUpRight02,
+                              ),
+                              label: Text(
+                                "View all",
+                                style: AppTextStyles.body.copyWith(
+                                  fontSize: 14.0,
+                                ),
+                              ),
                             ),
-                            pathParameters: {
-                              "subscriptionId": lastBusSubscription.id,
+                          ],
+                        )
+                        .animate()
+                        .fadeIn(duration: 300.ms, curve: Curves.easeOut)
+                        .slideY(
+                          begin: 0.06,
+                          end: 0,
+                          duration: 360.ms,
+                          curve: Curves.easeOut,
+                        ),
+                    const Gap(20.0)
+                        .animate()
+                        .fadeIn(duration: 320.ms)
+                        .slideY(
+                          begin: 0.05,
+                          end: 0,
+                          duration: 380.ms,
+                          curve: Curves.easeOut,
+                        ),
+                    if (lastBusSubscription != null)
+                      CustomListTile(
+                            onTap: () {
+                              HapticFeedback.mediumImpact();
+                              context.pushNamed(
+                                removeLeadingSlash(
+                                  SubscriptionDetailsPage.routeName,
+                                ),
+                                pathParameters: {
+                                  'subscriptionId': lastBusSubscription.id,
+                                },
+                              );
                             },
-                          );
-                        },
-                        title: Text(
-                          lastBusSubscription.semesterYear,
-                          style: Theme.of(context).listTileTheme.titleTextStyle
-                              ?.copyWith(color: accentColor),
-                        ),
-                        subtitle: Row(
-                          spacing: 8.0,
-                          children: [
-                            Text(
-                              "Start: ${dateFormatter(lastBusSubscription.startDate)}",
+                            title: Text(
+                              lastBusSubscription.semesterYear,
+                              style: Theme.of(context)
+                                  .listTileTheme
+                                  .titleTextStyle
+                                  ?.copyWith(color: accentColor),
                             ),
-                            Expanded(child: Divider()),
-                            Text(
-                              "End: ${dateFormatter(lastBusSubscription.endDate)}",
+                            subtitle: Row(
+                              spacing: 8.0,
+                              children: [
+                                Text(
+                                  'Start: ${dateFormatter(lastBusSubscription.startDate)}',
+                                ),
+                                const Expanded(child: Divider()),
+                                Text(
+                                  'End: ${dateFormatter(lastBusSubscription.endDate)}',
+                                ),
+                              ],
                             ),
-                          ],
+                            primaryPillLabel:
+                                '#${subscriptions.indexOf(lastBusSubscription) + 1}',
+                            secondaryPillLabel: 'Subscriptions',
+                          )
+                          .animate()
+                          .fadeIn(duration: 340.ms, curve: Curves.easeOut)
+                          .slideY(
+                            begin: 0.08,
+                            end: 0,
+                            duration: 400.ms,
+                            curve: Curves.easeOut,
+                          )
+                    else
+                      _EmptyStateCard(
+                        icon: HugeIcons.strokeRoundedBookmarkRemove02,
+                        title: 'No subscriptions yet',
+                        message:
+                            'Create your first bus subscription to see it here.',
+                      ),
+                    const Gap(20.0),
+                    CustomListTile(
+                          onTap: () {},
+                          primaryPillLabel:
+                              "#" +
+                              (dummyScannings.indexOf(dummyScannings.last) + 1)
+                                  .toString(),
+                          secondaryPillLabel: "Scannings",
+                          title: Text(
+                            dummyScannings.last.location,
+                            style: Theme.of(context)
+                                .listTileTheme
+                                .titleTextStyle
+                                ?.copyWith(color: accentColor),
+                          ),
+                          subtitle: Row(
+                            spacing: 8.0,
+                            children: [
+                              Text(
+                                "On: ${dateTimeFormatter(dummyScannings.last.scanTime)}",
+                              ),
+                              Expanded(child: Divider()),
+                              Text(dummyScannings.last.location),
+                            ],
+                          ),
+                        )
+                        .animate()
+                        .fadeIn(duration: 380.ms, curve: Curves.easeOut)
+                        .slideY(
+                          begin: 0.1,
+                          end: 0,
+                          duration: 450.ms,
+                          curve: Curves.easeOut,
                         ),
-                        primaryPillLabel:
-                            "#" +
-                            (busSubscriptionsController.busSubscriptions
-                                        .indexOf(lastBusSubscription) +
-                                    1)
-                                .toString(),
-                        secondaryPillLabel: "Subscriptions",
-                      )
+                  ],
+                ),
+              ),
+              Positioned(
+                top: -20.0,
+                left: 20.0,
+                right: -56.0,
+                child: IgnorePointer(
+                  child: Image.asset(bus)
                       .animate()
-                      .fadeIn(duration: 340.ms, curve: Curves.easeOut)
-                      .slideY(
-                        begin: 0.08,
-                        end: 0,
-                        duration: 400.ms,
+                      .fadeIn(duration: 420.ms, curve: Curves.easeOut)
+                      .slideX(
+                        begin: 0,
+                        end: -0.04,
+                        duration: 520.ms,
                         curve: Curves.easeOut,
                       ),
-                  const Gap(20.0),
-                  CustomListTile(
-                        onTap: () {},
-                        primaryPillLabel:
-                            "#" +
-                            (dummyScannings.indexOf(dummyScannings.last) + 1)
-                                .toString(),
-                        secondaryPillLabel: "Scannings",
-                        title: Text(
-                          dummyScannings.last.location,
-                          style: Theme.of(context).listTileTheme.titleTextStyle
-                              ?.copyWith(color: accentColor),
-                        ),
-                        subtitle: Row(
-                          spacing: 8.0,
-                          children: [
-                            Text(
-                              "On: ${dateTimeFormatter(dummyScannings.last.scanTime)}",
-                            ),
-                            Expanded(child: Divider()),
-                            Text(dummyScannings.last.location),
-                          ],
-                        ),
-                      )
-                      .animate()
-                      .fadeIn(duration: 380.ms, curve: Curves.easeOut)
-                      .slideY(
-                        begin: 0.1,
-                        end: 0,
-                        duration: 450.ms,
-                        curve: Curves.easeOut,
-                      ),
-                ],
+                ),
               ),
-            ),
-            Positioned(
-              top: -20.0,
-              left: 20.0,
-              right: -56.0,
-              child: IgnorePointer(
-                child: Image.asset(bus)
-                    .animate()
-                    .fadeIn(duration: 420.ms, curve: Curves.easeOut)
-                    .slideX(
-                      begin: 0,
-                      end: -0.04,
-                      duration: 520.ms,
-                      curve: Curves.easeOut,
-                    ),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
+      );
+    });
+  }
+}
+
+class _EmptyStateCard extends StatelessWidget {
+  const _EmptyStateCard({
+    required this.icon,
+    required this.title,
+    required this.message,
+  });
+
+  final List<List<dynamic>> icon;
+  final String title;
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      decoration: BoxDecoration(
+        borderRadius: borderRadius * 2,
+        color: themeController.isDark
+            ? seedPalette.shade800.withValues(alpha: 0.4)
+            : seedPalette.shade100,
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          HugeIcon(icon: icon, size: 32.0, color: accentColor),
+          const Gap(12.0),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: AppTextStyles.h4),
+                const Gap(4.0),
+                Text(
+                  message,
+                  style: AppTextStyles.body.copyWith(color: themeController.isDark ? seedPalette.shade50 : greyColor),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
