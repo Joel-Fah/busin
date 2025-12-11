@@ -62,6 +62,35 @@ class BusSubscriptionsController extends GetxController {
     }
   }
 
+  /// Refresh a specific subscription by fetching latest data from the server
+  /// and updating the local list
+  Future<BusSubscription?> refreshSubscription(String id) async {
+    try {
+      isBusy.value = true;
+      errorMessage.value = null;
+
+      final updatedSubscription = await _service.fetchSubscription(id);
+
+      if (updatedSubscription != null) {
+        // Update the subscription in the local list
+        final index = _busSubscriptions.indexWhere((sub) => sub.id == id);
+        if (index != -1) {
+          _busSubscriptions[index] = updatedSubscription;
+        } else {
+          // If not found in list, add it
+          _busSubscriptions.add(updatedSubscription);
+        }
+      }
+
+      return updatedSubscription;
+    } catch (e) {
+      errorMessage.value = e.toString();
+      rethrow;
+    } finally {
+      isBusy.value = false;
+    }
+  }
+
   Future<BusSubscription> createSubscription({
     required BusSubscription subscription,
     String? proofUrl,

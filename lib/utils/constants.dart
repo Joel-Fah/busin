@@ -103,6 +103,7 @@ const String verified = 'assets/images/verified.png';
 const String newSubscription = 'assets/images/new_subscription.png';
 const String subscriptionDetails = 'assets/images/subscription_details.jpg';
 const String busLoader = 'assets/images/bus_loader.gif';
+const String mapsBg = 'assets/images/maps_bg.jpg';
 
 // Icons & Flags
 const String googleIcon = 'assets/images/icons/google.svg';
