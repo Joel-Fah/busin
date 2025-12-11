@@ -267,10 +267,8 @@ class BusSubscription {
     'reviewedByUserId': reviewedByUserId,
     'reviewedAt': reviewedAt?.toIso8601String(),
     'rejectionReason': rejectionReason,
-    ...?observation?.toMap(),
-    ...?stop?.toMap(),
-    'stopId': stop?.id,
-    'stopName': stop?.name,
+    if (observation != null) 'observation': observation!.toMap(),
+    if (stop != null) 'stop': stop!.toMap(),
     'schedules': schedules.map((s) => s.toMap()).toList(),
   };
 
@@ -314,9 +312,15 @@ class BusSubscription {
   }
 
   static ReviewObservation? _parseObservation(Map<String, dynamic> map) {
+    // Try to parse from nested 'observation' object first
+    if (map['observation'] is Map<String, dynamic>) {
+      return ReviewObservation.fromMap(map['observation'] as Map<String, dynamic>);
+    }
+
+    // Backward compatibility: parse from top-level fields
     final reviewerId = map['reviewedByUserId'] as String?;
     final reviewedAt = map['reviewedAt'] as String?;
-    final message = map['observation'] as String? ?? map['rejectionReason'] as String?;
+    final message = map['rejectionReason'] as String?;
     if (reviewerId == null || reviewedAt == null) return null;
     return ReviewObservation(
       reviewerUserId: reviewerId,
@@ -326,6 +330,12 @@ class BusSubscription {
   }
 
   static BusStop? _parseStop(Map<String, dynamic> map) {
+    // Try to parse from nested 'stop' object first
+    if (map['stop'] is Map<String, dynamic>) {
+      return BusStop.fromMap(map['stop'] as Map<String, dynamic>);
+    }
+
+    // Backward compatibility: parse from top-level stopId/stopName fields
     final stopId = map['stopId'] as String?;
     final stopName = map['stopName'] as String?;
     if (stopId == null || stopName == null) return null;
@@ -423,7 +433,26 @@ class BusSubscription {
 
   @override
   String toString() =>
-      'Subscription(id: $id, studentId: $studentId, sem: ${semester.label} $year, status: ${status.label}, stop: ${stop?.name}, start: $startDate, end: $endDate, schedules: ${schedules.length})';
+      'BusSubscription['
+      'id: $id, '
+      'studentId: $studentId, '
+      'semester: ${semester.label}, '
+      'year: $year, '
+      'status: ${status.label}, '
+      'proofOfPaymentUrl: $proofOfPaymentUrl, '
+      'createdAt: $createdAt, '
+      'updatedAt: $updatedAt, '
+      'startDate: $startDate, '
+      'endDate: $endDate, '
+      'reviewedByUserId: $reviewedByUserId, '
+      'reviewedAt: $reviewedAt, '
+      'rejectionReason: $rejectionReason, '
+      'stop: ${stop != null ? "${stop!.name} (${stop!.id})" : "null"}, '
+      'schedules: ${schedules.length}, '
+      'observation: ${observation != null ? "present" : "null"}, '
+      'isWithinWindow: $isWithinWindow, '
+      'isCurrentlyActive: $isCurrentlyActive'
+      ']';
 }
 
 // Dummy data for subscriptions

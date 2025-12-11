@@ -106,6 +106,8 @@ class _HomePageState extends State<HomePage>
                           ),
                           child: TabBar(
                             tabs: _buildTabs(),
+                            isScrollable: authController.isAdmin ? false : true,
+                            tabAlignment: TabAlignment.center,
                             controller: _tabController,
                             physics: const BouncingScrollPhysics(),
                             padding: EdgeInsetsGeometry.all(12.0),
@@ -118,6 +120,7 @@ class _HomePageState extends State<HomePage>
                           ),
                         ),
                       ),
+                      if(authController.isAdmin)
                       SizedBox(
                         height: double.infinity,
                         width: 80.0,
