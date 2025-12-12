@@ -8,7 +8,7 @@ import '../../../controllers/auth_controller.dart';
 import '../../../utils/constants.dart';
 
 class UserAvatar extends StatelessWidget {
-  const UserAvatar({super.key, this.tag, this.radius});
+  const UserAvatar({super.key, this.tag, this.radius=24.0});
 
   final String? tag;
   final double? radius;
@@ -24,7 +24,7 @@ class UserAvatar extends StatelessWidget {
             ),
             child: Text(
               authController.currentUser.value!.initials,
-              style: AppTextStyles.h4.copyWith(color: lightColor),
+              style: radius! > 24.0 ? AppTextStyles.h2.copyWith(color: lightColor) : AppTextStyles.h4.copyWith(color: lightColor),
             ),
           )
         : CachedNetworkImage(
@@ -64,7 +64,7 @@ class UserAvatar extends StatelessWidget {
               ),
               child: Text(
                 authController.currentUser.value!.initials,
-                style: AppTextStyles.h4.copyWith(color: lightColor),
+                style: radius! > 24.0 ? AppTextStyles.h2.copyWith(color: lightColor) : AppTextStyles.h4.copyWith(color: lightColor),
               ),
             ),
           );

@@ -910,8 +910,16 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                                 child: InputDecorator(
                                                   decoration: InputDecoration(
                                                     labelText: 'Morning',
-                                                    labelStyle:
-                                                        AppTextStyles.body,
+                                                    labelStyle: AppTextStyles
+                                                        .body
+                                                        .copyWith(
+                                                          color:
+                                                              themeController
+                                                                  .isDark
+                                                              ? seedPalette
+                                                                    .shade50
+                                                              : seedColor,
+                                                        ),
                                                     border: OutlineInputBorder(
                                                       borderRadius:
                                                           borderRadius * 1.5,
@@ -924,6 +932,34 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                                             : seedColor,
                                                       ),
                                                     ),
+                                                    focusedBorder:
+                                                        OutlineInputBorder(
+                                                          borderRadius:
+                                                              borderRadius *
+                                                              1.5,
+                                                          borderSide: BorderSide(
+                                                            color:
+                                                                themeController
+                                                                    .isDark
+                                                                ? seedPalette
+                                                                      .shade50
+                                                                : seedColor,
+                                                          ),
+                                                        ),
+                                                    enabledBorder:
+                                                        OutlineInputBorder(
+                                                          borderRadius:
+                                                              borderRadius *
+                                                              1.5,
+                                                          borderSide: BorderSide(
+                                                            color:
+                                                                themeController
+                                                                    .isDark
+                                                                ? seedPalette
+                                                                      .shade50
+                                                                : seedColor,
+                                                          ),
+                                                        ),
                                                     contentPadding:
                                                         EdgeInsets.symmetric(
                                                           vertical: 8.0,
@@ -948,8 +984,16 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                                 child: InputDecorator(
                                                   decoration: InputDecoration(
                                                     labelText: 'Close',
-                                                    labelStyle:
-                                                        AppTextStyles.body,
+                                                    labelStyle: AppTextStyles
+                                                        .body
+                                                        .copyWith(
+                                                          color:
+                                                              themeController
+                                                                  .isDark
+                                                              ? seedPalette
+                                                                    .shade50
+                                                              : seedColor,
+                                                        ),
                                                     border: OutlineInputBorder(
                                                       borderRadius:
                                                           borderRadius * 1.5,
@@ -962,6 +1006,34 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                                             : seedColor,
                                                       ),
                                                     ),
+                                                    focusedBorder:
+                                                        OutlineInputBorder(
+                                                          borderRadius:
+                                                              borderRadius *
+                                                              1.5,
+                                                          borderSide: BorderSide(
+                                                            color:
+                                                                themeController
+                                                                    .isDark
+                                                                ? seedPalette
+                                                                      .shade50
+                                                                : seedColor,
+                                                          ),
+                                                        ),
+                                                    enabledBorder:
+                                                        OutlineInputBorder(
+                                                          borderRadius:
+                                                              borderRadius *
+                                                              1.5,
+                                                          borderSide: BorderSide(
+                                                            color:
+                                                                themeController
+                                                                    .isDark
+                                                                ? seedPalette
+                                                                      .shade50
+                                                                : seedColor,
+                                                          ),
+                                                        ),
                                                     contentPadding:
                                                         EdgeInsets.symmetric(
                                                           vertical: 8.0,
@@ -1092,7 +1164,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                       1: FlexColumnWidth(3),
                                     },
                                     defaultVerticalAlignment:
-                                    TableCellVerticalAlignment.middle,
+                                        TableCellVerticalAlignment.middle,
                                     children: [
                                       TableRow(
                                         children: [
@@ -1102,11 +1174,13 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                             ),
                                             child: Text(
                                               'Student',
-                                              style: AppTextStyles.body.copyWith(
-                                                color: themeController.isDark
-                                                    ? seedPalette.shade50
-                                                    : greyColor,
-                                              ),
+                                              style: AppTextStyles.body
+                                                  .copyWith(
+                                                    color:
+                                                        themeController.isDark
+                                                        ? seedPalette.shade50
+                                                        : greyColor,
+                                                  ),
                                             ),
                                           ),
                                           Padding(
@@ -1129,11 +1203,13 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                             ),
                                             child: Text(
                                               'Semester',
-                                              style: AppTextStyles.body.copyWith(
-                                                color: themeController.isDark
-                                                    ? seedPalette.shade50
-                                                    : greyColor,
-                                              ),
+                                              style: AppTextStyles.body
+                                                  .copyWith(
+                                                    color:
+                                                        themeController.isDark
+                                                        ? seedPalette.shade50
+                                                        : greyColor,
+                                                  ),
                                             ),
                                           ),
                                           Padding(
@@ -1156,11 +1232,13 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                             ),
                                             child: Text(
                                               'Stop',
-                                              style: AppTextStyles.body.copyWith(
-                                                color: themeController.isDark
-                                                    ? seedPalette.shade50
-                                                    : greyColor,
-                                              ),
+                                              style: AppTextStyles.body
+                                                  .copyWith(
+                                                    color:
+                                                        themeController.isDark
+                                                        ? seedPalette.shade50
+                                                        : greyColor,
+                                                  ),
                                             ),
                                           ),
                                           Padding(
@@ -1175,9 +1253,9 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                                     stop = controller.stops
                                                         .firstWhere(
                                                           (s) =>
-                                                      s.id ==
-                                                          _selectedStopId,
-                                                    );
+                                                              s.id ==
+                                                              _selectedStopId,
+                                                        );
                                                   } catch (_) {
                                                     stop = null;
                                                   }
@@ -1200,11 +1278,13 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                             ),
                                             child: Text(
                                               'Schedules',
-                                              style: AppTextStyles.body.copyWith(
-                                                color: themeController.isDark
-                                                    ? seedPalette.shade50
-                                                    : greyColor,
-                                              ),
+                                              style: AppTextStyles.body
+                                                  .copyWith(
+                                                    color:
+                                                        themeController.isDark
+                                                        ? seedPalette.shade50
+                                                        : greyColor,
+                                                  ),
                                             ),
                                           ),
                                           Padding(
@@ -1239,9 +1319,8 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                       ),
                                       TableRow(
                                         decoration: BoxDecoration(
-                                          color: seedPalette.shade100.withValues(
-                                            alpha: 0.4,
-                                          ),
+                                          color: seedPalette.shade100
+                                              .withValues(alpha: 0.4),
                                           borderRadius: borderRadius * 1.5,
                                         ),
                                         children: [
@@ -1249,27 +1328,30 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                             padding: const EdgeInsets.all(8.0),
                                             child: Text(
                                               'Day',
-                                              style: AppTextStyles.body.copyWith(
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                              style: AppTextStyles.body
+                                                  .copyWith(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
                                             ),
                                           ),
                                           Padding(
                                             padding: const EdgeInsets.all(8.0),
                                             child: Text(
                                               'Morning',
-                                              style: AppTextStyles.body.copyWith(
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                              style: AppTextStyles.body
+                                                  .copyWith(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
                                             ),
                                           ),
                                           Padding(
                                             padding: const EdgeInsets.all(8.0),
                                             child: Text(
                                               'Close',
-                                              style: AppTextStyles.body.copyWith(
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                              style: AppTextStyles.body
+                                                  .copyWith(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
                                             ),
                                           ),
                                         ],
@@ -1278,21 +1360,27 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                         (s) => TableRow(
                                           children: [
                                             Padding(
-                                              padding: const EdgeInsets.all(8.0),
+                                              padding: const EdgeInsets.all(
+                                                8.0,
+                                              ),
                                               child: Text(
                                                 _weekdayLabelLong(s.weekday),
                                                 style: AppTextStyles.body,
                                               ),
                                             ),
                                             Padding(
-                                              padding: const EdgeInsets.all(8.0),
+                                              padding: const EdgeInsets.all(
+                                                8.0,
+                                              ),
                                               child: Text(
                                                 s.morningTime,
                                                 style: AppTextStyles.body,
                                               ),
                                             ),
                                             Padding(
-                                              padding: const EdgeInsets.all(8.0),
+                                              padding: const EdgeInsets.all(
+                                                8.0,
+                                              ),
                                               child: Text(
                                                 s.closingTime,
                                                 style: AppTextStyles.body,
@@ -1305,14 +1393,18 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                         TableRow(
                                           children: [
                                             Padding(
-                                              padding: const EdgeInsets.all(8.0),
+                                              padding: const EdgeInsets.all(
+                                                8.0,
+                                              ),
                                               child: Text(
                                                 'No schedules added.',
-                                                style: AppTextStyles.body.copyWith(
-                                                  color: themeController.isDark
-                                                      ? seedPalette.shade50
-                                                      : greyColor,
-                                                ),
+                                                style: AppTextStyles.body
+                                                    .copyWith(
+                                                      color:
+                                                          themeController.isDark
+                                                          ? seedPalette.shade50
+                                                          : greyColor,
+                                                    ),
                                               ),
                                             ),
                                             const SizedBox(),
