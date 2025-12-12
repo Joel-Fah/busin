@@ -5,6 +5,7 @@ import 'package:busin/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -13,6 +14,7 @@ import '../../../models/actors/roles.dart';
 import '../../../utils/constants.dart';
 import '../../components/widgets/home/appbar_list_tile.dart';
 import '../../components/widgets/user_avatar.dart';
+import '../profile/profile.dart';
 
 class ScanningsTab extends StatelessWidget {
   const ScanningsTab({super.key});
@@ -26,8 +28,11 @@ class ScanningsTab extends StatelessWidget {
       backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: AppBarListTile(
-          onTap: () {},
-          leading: UserAvatar(),
+          onTap: () => context.pushNamed(
+            removeLeadingSlash(ProfilePage.routeName),
+            pathParameters: {'tag': authController.userProfileImage},
+          ),
+          leading: UserAvatar(tag: authController.userProfileImage,),
           title: authController.userDisplayName,
           subtitle: authController.isVerified
               ? AccountStatus.verified.label

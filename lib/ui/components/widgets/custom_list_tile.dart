@@ -16,11 +16,12 @@ class CustomListTile extends StatelessWidget {
     required this.title,
     required this.subtitle,
     this.secondaryPillLabel,
+    this.borderColor,
   });
 
   final void Function()? onTap;
   final bool? showBorder;
-  final Color? topPillsBorderColor, backgroundColor;
+  final Color? topPillsBorderColor, backgroundColor, borderColor;
   final String? primaryPillLabel, secondaryPillLabel;
   final Widget title, subtitle;
 
@@ -35,12 +36,14 @@ class CustomListTile extends StatelessWidget {
           type: MaterialType.transparency,
           child: Container(
             decoration: BoxDecoration(
-              color: backgroundColor ?? (themeController.isDark
-                  ? seedColor.withValues(alpha: 0.4)
-                  : seedPalette.shade100.withValues(alpha: 0.4)),
+              color:
+                  backgroundColor ??
+                  (themeController.isDark
+                      ? seedColor.withValues(alpha: 0.4)
+                      : seedPalette.shade100.withValues(alpha: 0.4)),
               borderRadius: borderRadius * 2.0,
               border: showBorder!
-                  ? Border.all(width: 2.0, color: successColor)
+                  ? Border.all(width: 2.0, color: borderColor ?? successColor)
                   : null,
             ),
             child: ListTile(

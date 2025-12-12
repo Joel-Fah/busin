@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:busin/generated/assets.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:busin/utils/utils.dart';
 import 'package:busin/utils/constants.dart';
@@ -45,9 +46,9 @@ class SubscriptionDetailsPage extends StatelessWidget {
                 color: errorColor,
                 size: 64,
               ),
-              const SizedBox(height: 16),
+              const Gap(16.0),
               Text('Subscription not found', style: AppTextStyles.h3),
-              const SizedBox(height: 8),
+              const Gap(8.0),
               Text(
                 'This subscription may have been deleted',
                 style: AppTextStyles.body.copyWith(color: greyColor),
@@ -312,7 +313,7 @@ class _SubscriptionDetailsContentState
                             },
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const Gap(8.0),
                         Expanded(
                           child: _ActionButton(
                             icon: subscription.isCurrentlyActive
@@ -326,9 +327,17 @@ class _SubscriptionDetailsContentState
                             },
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const Gap(8.0),
                         Expanded(
                           child: _ActionButton(
+                            foregroundColor: themeController.isDark ? lightColor : seedColor,
+                            gradient: LinearGradient(
+                              begin: Alignment.bottomRight,
+                              end: Alignment.topLeft,
+                              colors: themeController.isDark
+                                  ? [seedPalette.shade600, seedPalette.shade700]
+                                  : [seedPalette.shade100, seedPalette.shade200],
+                            ),
                             icon: HugeIcons.strokeRoundedShare08,
                             label: 'Share',
                             onTap: () {
@@ -340,7 +349,7 @@ class _SubscriptionDetailsContentState
                     ),
                   ),
 
-                  const SizedBox(height: 24),
+                  const Gap(24.0),
 
                   // Status & Dates section
                   _SectionContainer(
@@ -448,13 +457,13 @@ class _SubscriptionDetailsContentState
                               ],
                             ),
                             if (subscription.observation!.message != null) ...[
-                              const SizedBox(height: 12),
+                              const Gap(12.0),
                               Text(
                                 subscription.observation!.message!,
                                 style: AppTextStyles.body,
                               ),
                             ],
-                            const SizedBox(height: 8),
+                            const Gap(8.0),
                             Text(
                               'Reviewed on ${dateFormatter(subscription.observation!.observedAt)}',
                               style: AppTextStyles.small.copyWith(
@@ -489,8 +498,7 @@ class _SubscriptionDetailsContentState
                       ],
                     ),
                   ),
-
-                  const SizedBox(height: 40),
+                  const Gap(40.0),
                 ],
               ),
             ),
@@ -514,7 +522,7 @@ class _SubscriptionDetailsContentState
               size: 80,
               color: colorScheme.onSurfaceVariant,
             ),
-            const SizedBox(height: 16),
+            const Gap(16.0),
             Text(
               'No proof of payment',
               style: AppTextStyles.body.copyWith(
@@ -595,11 +603,13 @@ class _ActionButton extends StatelessWidget {
   final List<List<dynamic>> icon;
   final String label;
   final VoidCallback onTap;
+  final Color? foregroundColor;
+  final Gradient? gradient;
 
   const _ActionButton({
     required this.icon,
     required this.label,
-    required this.onTap,
+    required this.onTap, this.foregroundColor, this.gradient,
   });
 
   @override
@@ -613,11 +623,8 @@ class _ActionButton extends StatelessWidget {
       child: Ink(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
         decoration: BoxDecoration(
-          color: themeController.isDark
-              ? seedPalette.shade900
-              : seedPalette.shade50,
           borderRadius: borderRadius * 2.75,
-          gradient: LinearGradient(
+          gradient: gradient ?? LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: themeController.isDark
@@ -630,17 +637,17 @@ class _ActionButton extends StatelessWidget {
           children: [
             HugeIcon(
               icon: icon,
-              color: themeController.isDark ? accentColor : seedPalette.shade50,
+              color: foregroundColor ?? (themeController.isDark ? lightColor : seedPalette.shade50),
               strokeWidth: 1.8,
             ),
             const Gap(4.0),
             Text(
               label,
               style: AppTextStyles.small.copyWith(
-                color: themeController.isDark
-                    ? accentColor
-                    : seedPalette.shade50,
                 fontWeight: FontWeight.w600,
+                color: foregroundColor ?? (themeController.isDark
+                    ? lightColor
+                    : seedPalette.shade50),
               ),
             ),
           ],
@@ -665,7 +672,7 @@ class _SectionContainer extends StatelessWidget {
         color:
             backgroundColor ??
             (themeController.isDark
-                ? seedPalette.shade900
+                ? seedPalette.shade800
                 : seedPalette.shade50),
         borderRadius: borderRadius * 2.0,
       ),
@@ -694,7 +701,7 @@ class _InfoRow extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          HugeIcon(icon: icon, color: seedColor),
+          HugeIcon(icon: icon, color: themeController.isDark ? lightColor : seedColor),
           const Gap(12.0),
           Expanded(child: Text(label, style: AppTextStyles.body)),
           Text(
@@ -745,7 +752,6 @@ class _ScheduleRow extends StatelessWidget {
             child: Text(
               day,
               style: AppTextStyles.body.copyWith(
-                color: seedColor,
                 fontVariations: [FontVariation('wght', 500)],
               ),
             ),
@@ -790,11 +796,11 @@ class _MetadataRow extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          HugeIcon(icon: icon, color: greyColor, size: 18),
-          const SizedBox(width: 12),
-          Text(label, style: AppTextStyles.small.copyWith(color: greyColor)),
+          HugeIcon(icon: icon, color: themeController.isDark ? seedPalette.shade500 : greyColor, size: 18),
+          const Gap(12.0),
+          Text(label, style: AppTextStyles.small.copyWith(color: themeController.isDark ? seedPalette.shade500 : greyColor)),
           const Spacer(),
-          Text(value, style: AppTextStyles.small.copyWith(color: greyColor)),
+          Text(value, style: AppTextStyles.small.copyWith(color: themeController.isDark ? seedPalette.shade500 : greyColor)),
         ],
       ),
     );
@@ -809,7 +815,7 @@ class _Divider extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Divider(height: 1, color: seedColor.withValues(alpha: 0.1)),
+      child: Divider(height: 1, color: themeController.isDark ? seedPalette.shade50.withValues(alpha: 0.1) : seedColor.withValues(alpha: 0.1)),
     );
   }
 }
@@ -864,7 +870,7 @@ class _BusStopSectionState extends State<_BusStopSection> {
       child: Column(
         children: [
           _InfoRow(
-            icon: HugeIcons.strokeRoundedLocation01,
+            icon: HugeIcons.strokeRoundedLocation06,
             label: 'Bus stop',
             value: widget.stop.name,
           ),
@@ -888,15 +894,16 @@ class _BusStopSectionState extends State<_BusStopSection> {
                     bottom: 16,
                     right: 16,
                     child: Row(
+                      spacing: 4.0,
                       mainAxisSize: MainAxisSize.min,
                       children: List.generate(
                         pages.length,
-                        (index) => Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                          width: 8,
+                        (index) => AnimatedContainer(
+                          duration: duration,
+                          width: _currentPage == index ? 16 : 8,
                           height: 8,
                           decoration: BoxDecoration(
-                            shape: BoxShape.circle,
+                            borderRadius: borderRadius,
                             color: _currentPage == index
                                 ? accentColor
                                 : lightColor.withValues(alpha: 0.4),
@@ -925,7 +932,9 @@ class _MapView extends StatelessWidget {
 
     try {
       final uri = Uri.parse(stop.mapEmbedUrl!);
-      debugPrint('🗺️ Opening map URL: ${stop.mapEmbedUrl}');
+      if (kDebugMode) {
+        debugPrint('🗺️ Opening map URL: ${stop.mapEmbedUrl}');
+      }
 
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -947,7 +956,9 @@ class _MapView extends StatelessWidget {
         throw Exception('Could not launch URL');
       }
     } catch (e) {
-      debugPrint('❌ Error launching map: $e');
+      if (kDebugMode) {
+        debugPrint('❌ Error opening map URL: ${e.toString()}');
+      }
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -984,13 +995,6 @@ class _MapView extends StatelessWidget {
           Image.asset(
             mapsBg,
             fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Container(
-                color: themeController.isDark
-                    ? seedPalette.shade800
-                    : seedPalette.shade100,
-              );
-            },
           ),
 
           // Subtle gradient overlay
@@ -1000,8 +1004,8 @@ class _MapView extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Colors.black.withValues(alpha: 0.1),
-                  Colors.black.withValues(alpha: 0.3),
+                  seedColor.withValues(alpha: 0.2),
+                  seedColor.withValues(alpha: 0.5),
                 ],
               ),
             ),
@@ -1022,7 +1026,7 @@ class _MapView extends StatelessWidget {
                     vertical: 10,
                   ),
                   decoration: BoxDecoration(
-                    color: accentPalette.shade300,
+                    color: themeController.isDark ? accentColor : accentPalette.shade300,
                     borderRadius: borderRadius * 1.25,
                     boxShadow: [
                       BoxShadow(
@@ -1038,14 +1042,14 @@ class _MapView extends StatelessWidget {
                       HugeIcon(
                         icon: HugeIcons.strokeRoundedLocation01,
                         size: 18,
-                        color: darkColor,
+                        color: themeController.isDark ? lightColor : darkColor,
                       ),
                       const Gap(8),
                       Text(
                         'Tap to view on Google Maps',
                         style: AppTextStyles.body.copyWith(
                           fontSize: 14.0,
-                          color: darkColor,
+                          color: themeController.isDark ? lightColor : darkColor,
                         ),
                       ),
                     ],
@@ -1139,7 +1143,7 @@ class _PickupImageView extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: BoxDecoration(
-                color: seedColor,
+                color: themeController.isDark ? seedPalette.shade200 : seedColor,
                 borderRadius: borderRadius * 1.25,
                 boxShadow: [
                   BoxShadow(
@@ -1155,14 +1159,14 @@ class _PickupImageView extends StatelessWidget {
                   HugeIcon(
                     icon: HugeIcons.strokeRoundedImage02,
                     size: 18,
-                    color: lightColor,
+                    color: themeController.isDark ? seedColor : lightColor,
                   ),
                   const Gap(8),
                   Text(
                     'Pickup point preview',
                     style: AppTextStyles.body.copyWith(
                       fontSize: 14.0,
-                      color: lightColor,
+                      color: themeController.isDark ? seedColor : lightColor,
                     ),
                   ),
                 ],

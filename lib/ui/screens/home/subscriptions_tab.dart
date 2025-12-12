@@ -4,6 +4,7 @@ import 'package:busin/ui/components/widgets/primary_button.dart';
 import 'package:busin/ui/screens/subscriptions/subscription_new.dart';
 import 'package:busin/utils/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
@@ -16,6 +17,7 @@ import '../../../utils/utils.dart';
 import '../../components/widgets/home/appbar_list_tile.dart';
 import '../../components/widgets/user_avatar.dart';
 import '../profile/profile.dart';
+import '../subscriptions/subscription_details.dart';
 
 class SubscriptionsTab extends StatefulWidget {
   const SubscriptionsTab({super.key});
@@ -69,8 +71,9 @@ class _SubscriptionsTabState extends State<SubscriptionsTab> {
           ? remaining
           : remaining.where((sub) => sub.status == _selectedStatus).toList();
       final bool hasActive = subscriptions.any((sub) => sub.isCurrentlyActive);
-      final bool hasPending =
-          subscriptions.any((sub) => sub.status == BusSubscriptionStatus.pending);
+      final bool hasPending = subscriptions.any(
+        (sub) => sub.status == BusSubscriptionStatus.pending,
+      );
 
       return Scaffold(
         backgroundColor: Colors.transparent,
@@ -104,8 +107,17 @@ class _SubscriptionsTabState extends State<SubscriptionsTab> {
                 spacing: 12.0,
                 children: [
                   CustomListTile(
-                    onTap: () {},
+                    onTap: () {
+                      HapticFeedback.mediumImpact();
+                      context.pushNamed(
+                        removeLeadingSlash(SubscriptionDetailsPage.routeName),
+                        pathParameters: {
+                          'subscriptionId': latestSubscription.id,
+                        },
+                      );
+                    },
                     showBorder: true,
+                    borderColor: warningColor,
                     topPillsBorderColor: themeController.isDark
                         ? seedColor
                         : lightColor,
@@ -313,11 +325,8 @@ class _ActiveSubscriptionCTA extends StatelessWidget {
           Text(message, style: AppTextStyles.body.copyWith(color: accentColor)),
           SizedBox(
             width: double.infinity,
-            child: PrimaryButton.label(
-              onPressed: onPressed,
-              label: ctaLabel,
-            ),
-          )
+            child: PrimaryButton.label(onPressed: onPressed, label: ctaLabel),
+          ),
         ],
       ),
     );
@@ -401,8 +410,10 @@ class _SubscriptionsEmptyState extends StatelessWidget {
                     Text(
                       'Let’s get you started with a bus subscription so you can ride this semester.',
                       style: AppTextStyles.body.copyWith(
-                        color: themeController.isDark ? seedPalette.shade50 : greyColor,
-                      )
+                        color: themeController.isDark
+                            ? seedPalette.shade50
+                            : greyColor,
+                      ),
                     ),
                     const Gap(20.0),
                     SizedBox(
