@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:busin/controllers/auth_controller.dart';
 import 'package:busin/controllers/subscriptions_controller.dart';
 import 'package:busin/models/scannings.dart';
+import 'package:busin/ui/screens/profile/stops/stops.dart';
 import 'package:busin/utils/constants.dart';
 import 'package:busin/utils/utils.dart';
 import 'package:flutter/foundation.dart';
@@ -12,6 +13,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -247,6 +249,45 @@ class ProfilePage extends StatelessWidget {
                   color: themeController.isDark ? lightColor : seedColor,
                 ),
                 title: Text("Legal"),
+                trailing: HugeIcon(
+                  icon: HugeIcons.strokeRoundedArrowUpRight01,
+                  color: themeController.isDark ? lightColor : seedColor,
+                ),
+              ),
+              const Gap(24.0),
+              ListSubHeading(label: "Advanced Options"),
+              ListTile(
+                onTap: () {
+                  HapticFeedback.mediumImpact();
+                  context.pushNamed(
+                    removeLeadingSlash(BusStopsManagementPage.routeName),
+                  );
+                },
+                leading: HugeIcon(
+                  icon: HugeIcons.strokeRoundedDirections02,
+                  color: themeController.isDark ? lightColor : seedColor,
+                ),
+                title: Text("Stops Management"),
+                subtitle: Text("Manage places where the bus picks up students"),
+                trailing: HugeIcon(
+                  icon: HugeIcons.strokeRoundedArrowUpRight01,
+                  color: themeController.isDark ? lightColor : seedColor,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Divider(color: greyColor, thickness: 0.5),
+              ),
+              ListTile(
+                onTap: () {
+                  HapticFeedback.mediumImpact();
+                },
+                leading: HugeIcon(
+                  icon: HugeIcons.strokeRoundedCalendar02,
+                  color: themeController.isDark ? lightColor : seedColor,
+                ),
+                title: Text("Semester Management"),
+                subtitle: Text("Manage bus semesters duration and more"),
                 trailing: HugeIcon(
                   icon: HugeIcons.strokeRoundedArrowUpRight01,
                   color: themeController.isDark ? lightColor : seedColor,

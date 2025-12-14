@@ -208,6 +208,21 @@ class AuthController extends GetxController {
 
   // --- Utility methods over the user doc ---
 
+  /// Get user info from Firestore by user ID
+  /// Returns a properly typed BaseUser (Student, Staff, or Admin)
+  Future<BaseUser?> getUserById(String userId) async {
+    try {
+      final data = await _auth.getUserById(userId);
+      if (data == null) return null;
+
+      final role = UserRole.from((data[kRoleField] as String?) ?? 'student');
+      return _mapDocToUser(role, data);
+    } catch (e) {
+      errorMessage?.value = e.toString();
+      return null;
+    }
+  }
+
   Future<void> updateDisplayName(String name) async {
     final user = currentUser.value;
     if (user == null) return;

@@ -6,8 +6,10 @@ import 'package:busin/ui/screens/home/home_tab.dart';
 import 'package:busin/ui/screens/home/scannings_tab.dart';
 import 'package:busin/ui/screens/home/subscriptions_tab.dart';
 import 'package:busin/ui/screens/profile/profile.dart';
+import 'package:busin/ui/screens/profile/stops/stops.dart';
+import 'package:busin/ui/screens/profile/stops/stops_new.dart';
+import 'package:busin/ui/screens/profile/stops/stops_edit.dart';
 import 'package:busin/ui/screens/screens.dart';
-import 'package:busin/ui/screens/common/loading_page.dart';
 import 'package:busin/ui/screens/subscriptions/subscription_details.dart';
 import 'package:busin/ui/screens/subscriptions/subscription_new.dart';
 import 'package:busin/utils/utils.dart';
@@ -212,6 +214,29 @@ final router = GoRouter(
         final tag = state.pathParameters['tag'];
         return ProfilePage(tag: tag ?? '');
       },
+    ),
+    GoRoute(
+      parentNavigatorKey: rootNavigatorKey,
+      path: BusStopsManagementPage.routeName,
+      name: removeLeadingSlash(BusStopsManagementPage.routeName),
+      builder: (context, state) => const BusStopsManagementPage(),
+      routes: [
+        GoRoute(
+          parentNavigatorKey: rootNavigatorKey,
+          path: NewStopPage.routeName,
+          name: removeLeadingSlash(NewStopPage.routeName),
+          builder: (context, state) => const NewStopPage(),
+        ),
+        GoRoute(
+          parentNavigatorKey: rootNavigatorKey,
+          path: EditStopPage.routeName + '/:stopId',
+          name: removeLeadingSlash(EditStopPage.routeName),
+          builder: (context, state) {
+            final stopId = state.pathParameters['stopId']!;
+            return EditStopPage(stopId: stopId);
+          },
+        ),
+      ],
     ),
   ],
 );

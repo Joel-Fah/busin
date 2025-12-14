@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:busin/models/actors/base_user.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AuthService {
   AuthService._();
@@ -9,6 +10,7 @@ class AuthService {
   static final AuthService instance = AuthService._();
 
   final fb_auth.FirebaseAuth _auth = fb_auth.FirebaseAuth.instance;
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
 
   // Use the singleton GoogleSignIn instance
   final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
@@ -102,6 +104,25 @@ class AuthService {
     }
 
     return userCred;
+  }
+
+  /// Fetch user data from Firestore by user ID
+  Future<Map<String, dynamic>?> getUserById(String userId) async {
+    try {
+      final docSnap = await _db.collection('users').doc(userId).get();
+      if (!docSnap.exists) {
+        if (kDebugMode) {
+          debugPrint('[AuthService] getUserById: User not found for ID: $userId');
+        }
+        return null;
+      }
+      return docSnap.data();
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[AuthService] getUserById error: ${e.toString()}');
+      }
+      rethrow;
+    }
   }
 
   Future<void> signOut() async {

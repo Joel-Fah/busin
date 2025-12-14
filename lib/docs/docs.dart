@@ -2,7 +2,6 @@ import 'package:busin/ui/components/widgets/loading_indicator.dart';
 import 'package:busin/ui/components/widgets/secondary_button.dart';
 import 'package:busin/utils/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import 'package:busin/api/docs_api.dart';
 import 'package:busin/ui/components/widgets/markdown_styling.dart';

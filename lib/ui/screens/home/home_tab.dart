@@ -1,4 +1,3 @@
-import 'package:busin/controllers/auth_controller.dart';
 import 'package:busin/controllers/controllers.dart';
 import 'package:busin/models/scannings.dart';
 import 'package:busin/models/subscription.dart';

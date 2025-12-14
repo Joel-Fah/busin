@@ -53,7 +53,7 @@ Future<String> uploadFileToSupabaseStorage({
         '[SupabaseStorage] StorageException: code=${e.statusCode}, message=${e.message}',
       );
     }
-    final msg = e.message ?? 'Unknown error';
+    final msg = e.message;
     if (msg.contains('InvalidSignature')) {
       throw Exception(
         'Supabase rejected the credentials (InvalidSignature). Verify SUPABASE_URL points to your project and SUPABASE_PUBLISHABLE_KEY is the anon key with storage insert access.',

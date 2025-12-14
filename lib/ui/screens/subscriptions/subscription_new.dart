@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:busin/controllers/auth_controller.dart';
-import 'package:busin/controllers/bus_stop_controller.dart';
 import 'package:busin/controllers/subscriptions_controller.dart';
 import 'package:busin/models/subscription.dart';
 import 'package:busin/ui/components/widgets/default_snack_bar.dart';
@@ -19,6 +18,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:path/path.dart' as p;
 
+import '../../../controllers/bus_stops_controller.dart';
 import '../../../models/value_objects/bus_stop_selection.dart';
 import '../../components/widgets/bus_loading_overlay.dart';
 
@@ -39,7 +39,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
 
   // GetX Controllers
   final AuthController authController = Get.find<AuthController>();
-  final BusStopController busStopController = Get.find<BusStopController>();
+  final BusStopsController busStopController = Get.find<BusStopsController>();
   final BusSubscriptionsController subscriptionsController =
       Get.find<BusSubscriptionsController>();
 
@@ -642,9 +642,9 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                             ? StepState.complete
                             : StepState.indexed,
                         isActive: _currentStep >= 2,
-                        content: GetX<BusStopController>(
+                        content: GetX<BusStopsController>(
                           builder: (controller) {
-                            final stops = controller.stops.toList(
+                            final stops = controller.busStops.toList(
                               growable: false,
                             );
                             return Padding(
@@ -652,7 +652,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                 vertical: 8.0,
                               ),
                               child: DropdownButtonFormField<String>(
-                                value: _selectedStopId,
+                                initialValue: _selectedStopId,
                                 items: stops
                                     .map(
                                       (s) => DropdownMenuItem(
@@ -887,7 +887,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                               ),
                                               onPressed: () =>
                                                   _removeSchedule(i),
-                                              icon: const HugeIcon(
+                                              icon: HugeIcon(
                                                 icon: HugeIcons
                                                     .strokeRoundedDelete03,
                                                 color: errorColor,
@@ -1245,12 +1245,12 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                             padding: const EdgeInsets.symmetric(
                                               vertical: 6.0,
                                             ),
-                                            child: GetBuilder<BusStopController>(
+                                            child: GetBuilder<BusStopsController>(
                                               builder: (controller) {
                                                 BusStop? stop;
                                                 if (_selectedStopId != null) {
                                                   try {
-                                                    stop = controller.stops
+                                                    stop = controller.busStops
                                                         .firstWhere(
                                                           (s) =>
                                                               s.id ==
@@ -1465,7 +1465,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
   BusStop? _findSelectedStop() {
     if (_selectedStopId == null) return null;
     try {
-      return busStopController.stops.firstWhere((s) => s.id == _selectedStopId);
+      return busStopController.busStops.firstWhere((s) => s.id == _selectedStopId);
     } catch (_) {
       return null;
     }

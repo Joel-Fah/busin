@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'value_objects/bus_stop_selection.dart';
 import 'value_objects/review_observation.dart';
 
@@ -176,18 +177,13 @@ class BusSubscription {
   final DateTime startDate;
   final DateTime endDate;
 
-  // Review info (both approve/reject)
-  final String? reviewedByUserId; // admin/staff id
-  final DateTime? reviewedAt;
-  final String? rejectionReason;
-
   // Boarding preference
   final BusStop? stop;
 
   // Weekly preferences (multiple days)
   final List<BusSubscriptionSchedule> schedules;
 
-  // Review observation
+  // Review observation (contains reviewer info and message)
   final ReviewObservation? observation;
 
   const BusSubscription({
@@ -201,9 +197,6 @@ class BusSubscription {
     required this.startDate,
     required this.endDate,
     this.proofOfPaymentUrl,
-    this.reviewedByUserId,
-    this.reviewedAt,
-    this.rejectionReason,
     this.stop,
     this.observation,
     this.schedules = const [],
@@ -264,10 +257,7 @@ class BusSubscription {
     'updatedAt': updatedAt.toIso8601String(),
     'startDate': startDate.toIso8601String(),
     'endDate': endDate.toIso8601String(),
-    'reviewedByUserId': reviewedByUserId,
-    'reviewedAt': reviewedAt?.toIso8601String(),
-    'rejectionReason': rejectionReason,
-    if (observation != null) 'observation': observation!.toMap(),
+    if (observation != null) 'review': observation!.toMap(),
     if (stop != null) 'stop': stop!.toMap(),
     'schedules': schedules.map((s) => s.toMap()).toList(),
   };
@@ -296,19 +286,31 @@ class BusSubscription {
       year: (map['year'] as num).toInt(),
       status: BusSubscriptionStatus.from(map['status'] as String),
       proofOfPaymentUrl: map['proofOfPaymentUrl'] as String?,
-      createdAt: DateTime.parse(map['createdAt'] as String),
-      updatedAt: DateTime.parse(map['updatedAt'] as String),
-      startDate: DateTime.parse(map['startDate'] as String),
-      endDate: DateTime.parse(map['endDate'] as String),
-      reviewedByUserId: map['reviewedByUserId'] as String?,
-      reviewedAt: (map['reviewedAt'] as String?) != null
-          ? DateTime.parse(map['reviewedAt'] as String)
-          : null,
-      rejectionReason: map['rejectionReason'] as String?,
+      createdAt: _parseDateTime(map['createdAt']),
+      updatedAt: _parseDateTime(map['updatedAt']),
+      startDate: _parseDateTime(map['startDate']),
+      endDate: _parseDateTime(map['endDate']),
       stop: _parseStop(map),
       schedules: parsedSchedules,
       observation: _parseObservation(map),
     );
+  }
+
+  /// Helper method to parse DateTime from Firestore Timestamp or String
+  static DateTime _parseDateTime(dynamic value) {
+    if (value == null) {
+      return DateTime.now();
+    }
+    if (value is DateTime) {
+      return value;
+    }
+    if (value is Timestamp) {
+      return value.toDate();
+    }
+    if (value is String) {
+      return DateTime.parse(value);
+    }
+    throw ArgumentError('Cannot parse DateTime from type ${value.runtimeType}');
   }
 
   static ReviewObservation? _parseObservation(Map<String, dynamic> map) {
@@ -319,12 +321,12 @@ class BusSubscription {
 
     // Backward compatibility: parse from top-level fields
     final reviewerId = map['reviewedByUserId'] as String?;
-    final reviewedAt = map['reviewedAt'] as String?;
+    final reviewedAt = map['reviewedAt'];
     final message = map['rejectionReason'] as String?;
     if (reviewerId == null || reviewedAt == null) return null;
     return ReviewObservation(
       reviewerUserId: reviewerId,
-      observedAt: DateTime.parse(reviewedAt),
+      observedAt: _parseDateTime(reviewedAt),
       message: message,
     );
   }
@@ -332,7 +334,7 @@ class BusSubscription {
   static BusStop? _parseStop(Map<String, dynamic> map) {
     // Try to parse from nested 'stop' object first
     if (map['stop'] is Map<String, dynamic>) {
-      return BusStop.fromMap(map['stop'] as Map<String, dynamic>);
+      return BusStop.maybeFromMap(map['stop'] as Map<String, dynamic>);
     }
 
     // Backward compatibility: parse from top-level stopId/stopName fields
@@ -340,7 +342,18 @@ class BusSubscription {
     final stopName = map['stopName'] as String?;
     if (stopId == null || stopName == null) return null;
     if (stopId.isEmpty || stopName.isEmpty) return null;
-    return BusStop(id: stopId, name: stopName);
+
+    // Use maybeFromMap for proper parsing with defaults
+    return BusStop.maybeFromMap({
+      'stopId': stopId,
+      'stopName': stopName,
+      'pickupImageUrl': map['pickupImageUrl'],
+      'mapEmbedUrl': map['mapEmbedUrl'],
+      'createdAt': map['createdAt'],
+      'updatedAt': map['updatedAt'],
+      'createdBy': map['createdBy'] ?? '',
+      'updatedBy': map['updatedBy'],
+    });
   }
 
   BusSubscription copyWith({
@@ -354,9 +367,6 @@ class BusSubscription {
     DateTime? updatedAt,
     DateTime? startDate,
     DateTime? endDate,
-    String? reviewedByUserId,
-    DateTime? reviewedAt,
-    String? rejectionReason,
     BusStop? stop,
     ReviewObservation? observation,
     List<BusSubscriptionSchedule>? schedules,
@@ -371,9 +381,6 @@ class BusSubscription {
     updatedAt: updatedAt ?? this.updatedAt,
     startDate: startDate ?? this.startDate,
     endDate: endDate ?? this.endDate,
-    reviewedByUserId: reviewedByUserId ?? this.reviewedByUserId,
-    reviewedAt: reviewedAt ?? this.reviewedAt,
-    rejectionReason: rejectionReason ?? this.rejectionReason,
     stop: stop ?? this.stop,
     observation: observation ?? this.observation,
     schedules: schedules ?? this.schedules,
@@ -397,12 +404,9 @@ class BusSubscription {
       observedAt: DateTime.now(),
       message: observationMessage,
     ),
-    reviewedByUserId: reviewerUserId,
-    reviewedAt: DateTime.now(),
     updatedAt: DateTime.now(),
     startDate: startDate ?? this.startDate,
     endDate: endDate ?? this.endDate,
-    rejectionReason: null,
   );
 
   BusSubscription reject({
@@ -415,8 +419,6 @@ class BusSubscription {
       observedAt: DateTime.now(),
       message: reason,
     ),
-    reviewedByUserId: reviewerUserId,
-    reviewedAt: DateTime.now(),
     updatedAt: DateTime.now(),
   );
 
@@ -444,12 +446,9 @@ class BusSubscription {
       'updatedAt: $updatedAt, '
       'startDate: $startDate, '
       'endDate: $endDate, '
-      'reviewedByUserId: $reviewedByUserId, '
-      'reviewedAt: $reviewedAt, '
-      'rejectionReason: $rejectionReason, '
       'stop: ${stop != null ? "${stop!.name} (${stop!.id})" : "null"}, '
       'schedules: ${schedules.length}, '
-      'observation: ${observation != null ? "present" : "null"}, '
+      'observation: ${observation != null ? "present (reviewedBy: ${observation!.reviewerUserId}, at: ${observation!.observedAt})" : "null"}, '
       'isWithinWindow: $isWithinWindow, '
       'isCurrentlyActive: $isCurrentlyActive'
       ']';
@@ -463,7 +462,13 @@ List<BusSubscription> dummySubscriptions = [
     semester: Semester.fall,
     year: 2024,
     proofOfPaymentUrl: 'https://example.com/proof1.jpg',
-    stop: const BusStop(id: 'stop_01', name: 'Main Gate'),
+    stop: BusStop(
+      id: 'stop_01',
+      name: 'Main Gate',
+      createdAt: DateTime(2024, 1, 15),
+      updatedAt: DateTime(2024, 1, 15),
+      createdBy: 'admin_001',
+    ),
     schedules: [
       BusSubscriptionSchedule(
         weekday: 1,
@@ -483,7 +488,13 @@ List<BusSubscription> dummySubscriptions = [
     semester: Semester.spring,
     year: 2025,
     proofOfPaymentUrl: 'https://example.com/proof2.jpg',
-    stop: const BusStop(id: 'stop_02', name: 'Library Stop'),
+    stop: BusStop(
+      id: 'stop_02',
+      name: 'Library Stop',
+      createdAt: DateTime(2024, 2, 10),
+      updatedAt: DateTime(2024, 2, 10),
+      createdBy: 'admin_001',
+    ),
     schedules: [
       BusSubscriptionSchedule(
         weekday: 2,

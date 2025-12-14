@@ -135,6 +135,7 @@ class AppTheme {
         fontSize: 48.0,
       ),
       toolbarHeight: 80.0,
+      actionsPadding: EdgeInsets.only(right: 16.0),
     ),
     iconTheme: IconThemeData(color: seedColor),
     highlightColor: seedPalette.shade50.withValues(alpha: 0.1),
@@ -175,6 +176,68 @@ class AppTheme {
           RoundedRectangleBorder(borderRadius: borderRadius * 2.0),
         ),
       ),
+    ),
+    searchBarTheme: SearchBarThemeData(
+      backgroundColor: WidgetStateProperty.resolveWith<Color?>((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.focused)) {
+          return seedPalette.shade200;
+        }
+        if (states.contains(WidgetState.pressed)) {
+          return seedPalette.shade300;
+        }
+        return seedPalette.shade100;
+      }),
+      textStyle: WidgetStateProperty.all<TextStyle>(
+        AppTextStyles.body.copyWith(color: seedColor),
+      ),
+      hintStyle: WidgetStateProperty.all<TextStyle>(
+        AppTextStyles.body.copyWith(
+          color: greyColor.withValues(alpha: 0.7),
+          fontStyle: FontStyle.italic,
+        ),
+      ),
+      side: WidgetStateProperty.all<BorderSide>(
+        BorderSide(
+          color: seedPalette.shade400.withValues(alpha: 0.2),
+          width: 1.0,
+        ),
+      ),
+      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+        RoundedRectangleBorder(borderRadius: borderRadius * 2.25),
+      ),
+    ),
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      extendedTextStyle: AppTextStyles.body,
+      shape: RoundedRectangleBorder(borderRadius: borderRadius * 2.25),
+    ),
+    inputDecorationTheme: InputDecorationThemeData(
+      contentPadding: const EdgeInsets.symmetric(
+        vertical: 12.0,
+        horizontal: 16.0,
+      ),
+      errorStyle: AppTextStyles.small.copyWith(
+        color: errorColor,
+        fontSize: 14.0,
+      ),
+      hintStyle: AppTextStyles.body.copyWith(
+        color: greyColor,
+        fontStyle: FontStyle.italic
+      ),
+      labelStyle: AppTextStyles.body.copyWith(color: seedColor),
+      border: AppInputBorders.border,
+      focusedBorder: AppInputBorders.focusedBorder,
+      errorBorder: AppInputBorders.errorBorder,
+      focusedErrorBorder: AppInputBorders.focusedErrorBorder,
+      enabledBorder: AppInputBorders.enabledBorder,
+      disabledBorder: AppInputBorders.disabledBorder,
+    ),
+    dialogTheme: DialogThemeData(
+      shape: RoundedRectangleBorder(borderRadius: borderRadius * 2.0),
+      backgroundColor: seedPalette.shade100,
+      titleTextStyle: AppTextStyles.h2,
+      contentTextStyle: AppTextStyles.body,
     ),
   );
 
@@ -298,6 +361,7 @@ class AppTheme {
         fontSize: 48.0,
       ),
       toolbarHeight: 80.0,
+      actionsPadding: EdgeInsets.only(right: 16.0),
     ),
     iconTheme: IconThemeData(color: lightColor),
     highlightColor: seedPalette.shade50.withValues(alpha: 0.1),
@@ -342,6 +406,68 @@ class AppTheme {
           RoundedRectangleBorder(borderRadius: borderRadius * 2.0),
         ),
       ),
+    ),
+    searchBarTheme: SearchBarThemeData(
+      backgroundColor: WidgetStateProperty.resolveWith<Color?>((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.focused)) {
+          return seedPalette.shade800;
+        }
+        if (states.contains(WidgetState.pressed)) {
+          return seedPalette.shade700;
+        }
+        return seedPalette.shade900;
+      }),
+      textStyle: WidgetStateProperty.all<TextStyle>(
+        AppTextStyles.body.copyWith(color: lightColor),
+      ),
+      hintStyle: WidgetStateProperty.all<TextStyle>(
+        AppTextStyles.body.copyWith(
+          color: lightColor.withValues(alpha: 0.7),
+          fontStyle: FontStyle.italic,
+        ),
+      ),
+      side: WidgetStateProperty.all<BorderSide>(
+        BorderSide(
+          color: seedPalette.shade600.withValues(alpha: 0.2),
+          width: 1.0,
+        ),
+      ),
+      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+        RoundedRectangleBorder(borderRadius: borderRadius * 2.25),
+      ),
+    ),
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      extendedTextStyle: AppTextStyles.body,
+      shape: RoundedRectangleBorder(borderRadius: borderRadius * 2.25),
+    ),
+    inputDecorationTheme: InputDecorationThemeData(
+      contentPadding: const EdgeInsets.symmetric(
+        vertical: 12.0,
+        horizontal: 16.0,
+      ),
+      errorStyle: AppTextStyles.small.copyWith(
+        color: errorColor,
+        fontSize: 14.0,
+      ),
+      hintStyle: AppTextStyles.body.copyWith(
+          color: seedPalette.shade50,
+          fontStyle: FontStyle.italic
+      ),
+      labelStyle: AppTextStyles.body.copyWith(color: lightColor),
+      border: AppInputBorders.border,
+      focusedBorder: AppInputBorders.focusedBorder,
+      errorBorder: AppInputBorders.errorBorder,
+      focusedErrorBorder: AppInputBorders.focusedErrorBorder,
+      enabledBorder: AppInputBorders.enabledBorder,
+      disabledBorder: AppInputBorders.disabledBorder,
+    ),
+    dialogTheme: DialogThemeData(
+      shape: RoundedRectangleBorder(borderRadius: borderRadius * 2.0),
+      backgroundColor: seedPalette.shade900,
+      titleTextStyle: AppTextStyles.h2,
+      contentTextStyle: AppTextStyles.body,
     ),
   );
 }

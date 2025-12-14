@@ -11,7 +11,7 @@ import '../../../../utils/utils.dart';
 import '../default_snack_bar.dart';
 
 class ImageBox extends StatefulWidget {
-  final Function(String) onImageSelected;
+  final Function(String filePath) onImageSelected;
   final String label;
   final int maxSizeInMB;
   final String? initialImageUrl;
