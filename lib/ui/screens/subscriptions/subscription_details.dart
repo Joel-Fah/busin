@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:busin/generated/assets.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:busin/utils/utils.dart';
@@ -123,10 +124,6 @@ class _SubscriptionDetailsContentState
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: _handleRefresh,
-        color: accentColor,
-        backgroundColor: themeController.isDark
-            ? seedPalette.shade900
-            : seedPalette.shade50,
         child: CustomScrollView(
           slivers: [
             // Image with SliverAppBar - Dynamic title behavior
@@ -428,49 +425,59 @@ class _SubscriptionDetailsContentState
                   // Review info (if available)
                   if (subscription.observation != null)
                     _SectionContainer(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                HugeIcon(
-                                  icon: subscription.status.isRejected
-                                      ? HugeIcons.strokeRoundedCancelCircle
-                                      : HugeIcons
-                                            .strokeRoundedCheckmarkCircle02,
+                      backgroundColor: subscription.status.isRejected
+                          ? errorColor.withValues(alpha: 0.2)
+                          : successColor.withValues(alpha: 0.2),
+                      child: DottedBorder(
+                        options: RoundedRectDottedBorderOptions(
+                          color: subscription.status.isRejected
+                              ? errorColor
+                              : successColor,
+                          strokeWidth: 2,
+                          strokeCap: StrokeCap.round,
+                          dashPattern: const [4, 6, 8, 10],
+                          radius: Radius.circular(16.0)
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  HugeIcon(
+                                    icon: subscription.status.isRejected
+                                        ? HugeIcons.strokeRoundedCancelCircle
+                                        : HugeIcons
+                                              .strokeRoundedCheckmarkCircle02,
+                                  ),
+                                  const Gap(12.0),
+                                  Text(
+                                    subscription.status.isRejected
+                                        ? 'Rejection reason'
+                                        : 'Review observation',
+                                    style: AppTextStyles.h4,
+                                  ),
+                                ],
+                              ),
+                              if (subscription.observation!.message != null) ...[
+                                const Gap(12.0),
+                                Text(
+                                  subscription.observation!.message!,
+                                  style: AppTextStyles.body,
+                                ),
+                              ],
+                              const Gap(8.0),
+                              Text(
+                                'Reviewed on ${dateFormatter(subscription.observation!.observedAt)}',
+                                style: AppTextStyles.small.copyWith(
                                   color: subscription.status.isRejected
                                       ? errorColor
                                       : successColor,
-                                  size: 20,
                                 ),
-                                const Gap(12.0),
-                                Text(
-                                  subscription.status.isRejected
-                                      ? 'Rejection reason'
-                                      : 'Review observation',
-                                  style: AppTextStyles.h4.copyWith(
-                                    color: colorScheme.onSurfaceVariant,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            if (subscription.observation!.message != null) ...[
-                              const Gap(12.0),
-                              Text(
-                                subscription.observation!.message!,
-                                style: AppTextStyles.body,
                               ),
                             ],
-                            const Gap(8.0),
-                            Text(
-                              'Reviewed on ${dateFormatter(subscription.observation!.observedAt)}',
-                              style: AppTextStyles.small.copyWith(
-                                color: colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ),
                     ),

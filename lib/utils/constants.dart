@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:busin/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -15,10 +13,18 @@ const Color lightColor = Colors.white;
 const Color greyColor = const Color(0xFF8D8D8D);
 
 // States Colors
-const Color infoColor = Color(0xFF4285F4);
-const Color successColor = Color(0xFF0F9D58);
-const Color errorColor = Color(0xFFDB4437);
-const Color warningColor = Color(0xFFEAAB00);
+Color infoColor = themeController.isDark
+    ? Colors.lightBlueAccent
+    : Color(0xFF4285F4);
+Color successColor = themeController.isDark
+    ? Colors.greenAccent
+    : Color(0xFF0F9D58);
+Color errorColor = themeController.isDark
+    ? Colors.redAccent
+    : Color(0xFFDB4437);
+Color warningColor = themeController.isDark
+    ? Colors.amberAccent
+    : Color(0xFFEAAB00);
 
 // Gradients
 LinearGradient lightGradient = LinearGradient(
@@ -104,6 +110,7 @@ const String newSubscription = 'assets/images/new_subscription.png';
 const String subscriptionDetails = 'assets/images/subscription_details.jpg';
 const String busLoader = 'assets/images/bus_loader.gif';
 const String mapsBg = 'assets/images/maps_bg.jpg';
+const String busStop = 'assets/images/bus_stop.png';
 
 // Icons & Flags
 const String googleIcon = 'assets/images/icons/google.svg';
