@@ -9,6 +9,7 @@ import 'package:busin/ui/components/widgets/form_fields/simple_text_field.dart';
 import 'package:busin/utils/constants.dart';
 import 'package:busin/utils/utils.dart';
 import 'package:busin/utils/supabase_storage.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -17,6 +18,7 @@ import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:path/path.dart' as p;
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../controllers/bus_stops_controller.dart';
 import '../../../models/value_objects/bus_stop_selection.dart';
@@ -647,72 +649,85 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                             final stops = controller.busStops.toList(
                               growable: false,
                             );
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 8.0,
-                              ),
-                              child: DropdownButtonFormField<String>(
-                                initialValue: _selectedStopId,
-                                items: stops
-                                    .map(
-                                      (s) => DropdownMenuItem(
-                                        value: s.id,
-                                        child: Text(
-                                          s.name,
-                                          style: AppTextStyles.body.copyWith(
-                                            color: themeController.isDark
-                                                ? lightColor
-                                                : seedColor,
+                            final selectedStop = _findSelectedStop();
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 8.0,
+                                  ),
+                                  child: DropdownButtonFormField<String>(
+                                    initialValue: _selectedStopId,
+                                    items: stops
+                                        .map(
+                                          (s) => DropdownMenuItem(
+                                            value: s.id,
+                                            child: Text(
+                                              s.name,
+                                              style: AppTextStyles.body.copyWith(
+                                                color: themeController.isDark
+                                                    ? lightColor
+                                                    : seedColor,
+                                              ),
+                                            ),
                                           ),
-                                        ),
+                                        )
+                                        .toList(),
+                                    style: AppTextStyles.body.copyWith(
+                                      color: seedColor,
+                                    ),
+                                    dropdownColor: themeController.isDark
+                                        ? seedPalette.shade800
+                                        : seedPalette.shade50,
+                                    onChanged: (v) =>
+                                        setState(() => _selectedStopId = v),
+                                    autovalidateMode:
+                                        AutovalidateMode.onUserInteraction,
+                                    validator: (value) =>
+                                        value == null || value.isEmpty
+                                        ? 'Select a stop'
+                                        : null,
+                                    icon: const HugeIcon(
+                                      icon: HugeIcons.strokeRoundedArrowDown01,
+                                    ),
+                                    borderRadius: borderRadius * 2.5,
+                                    decoration: InputDecoration(
+                                      contentPadding: const EdgeInsets.symmetric(
+                                        vertical: 12.0,
+                                        horizontal: 16.0,
                                       ),
-                                    )
-                                    .toList(),
-                                style: AppTextStyles.body.copyWith(
-                                  color: seedColor,
-                                ),
-                                dropdownColor: themeController.isDark
-                                    ? seedPalette.shade800
-                                    : seedPalette.shade50,
-                                onChanged: (v) =>
-                                    setState(() => _selectedStopId = v),
-                                autovalidateMode:
-                                    AutovalidateMode.onUserInteraction,
-                                validator: (value) =>
-                                    value == null || value.isEmpty
-                                    ? 'Select a stop'
-                                    : null,
-                                icon: const HugeIcon(
-                                  icon: HugeIcons.strokeRoundedArrowDown01,
-                                ),
-                                borderRadius: borderRadius * 2.5,
-                                decoration: InputDecoration(
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 12.0,
-                                    horizontal: 16.0,
+                                      labelText: 'Select stop',
+                                      labelStyle: AppTextStyles.body.copyWith(
+                                        color: themeController.isDark
+                                            ? lightColor
+                                            : seedColor,
+                                      ),
+                                      hintText: 'Select stop',
+                                      hintStyle: AppTextStyles.body.copyWith(
+                                        color: themeController.isDark
+                                            ? lightColor.withValues(alpha: 0.6)
+                                            : seedColor.withValues(alpha: 0.6),
+                                      ),
+                                      border: AppInputBorders.border,
+                                      focusedBorder: AppInputBorders.focusedBorder,
+                                      errorBorder: AppInputBorders.errorBorder,
+                                      focusedErrorBorder:
+                                          AppInputBorders.focusedErrorBorder,
+                                      enabledBorder: AppInputBorders.enabledBorder,
+                                      disabledBorder:
+                                          AppInputBorders.disabledBorder,
+                                    ),
                                   ),
-                                  labelText: 'Select stop',
-                                  labelStyle: AppTextStyles.body.copyWith(
-                                    color: themeController.isDark
-                                        ? lightColor
-                                        : seedColor,
-                                  ),
-                                  hintText: 'Select stop',
-                                  hintStyle: AppTextStyles.body.copyWith(
-                                    color: themeController.isDark
-                                        ? lightColor.withValues(alpha: 0.6)
-                                        : seedColor.withValues(alpha: 0.6),
-                                  ),
-                                  border: AppInputBorders.border,
-                                  focusedBorder: AppInputBorders.focusedBorder,
-                                  errorBorder: AppInputBorders.errorBorder,
-                                  focusedErrorBorder:
-                                      AppInputBorders.focusedErrorBorder,
-                                  enabledBorder: AppInputBorders.enabledBorder,
-                                  disabledBorder:
-                                      AppInputBorders.disabledBorder,
                                 ),
-                              ),
+
+                                // Preview section
+                                if (selectedStop != null) ...[
+                                  const Gap(16.0),
+                                  _StopPreview(stop: selectedStop),
+                                ],
+                              ],
                             );
                           },
                         ),
@@ -1471,3 +1486,343 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
     }
   }
 }
+
+// Widget for stop preview with image and Google Maps button
+class _StopPreview extends StatelessWidget {
+  final BusStop stop;
+
+  const _StopPreview({required this.stop});
+
+  void _openInGoogleMaps(BuildContext context) async {
+    if (stop.mapEmbedUrl == null || stop.mapEmbedUrl!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        buildSnackBar(
+          backgroundColor: warningColor,
+          prefixIcon: const HugeIcon(
+            icon: HugeIcons.strokeRoundedAlert01,
+            color: lightColor,
+            size: 20,
+          ),
+          label: const Text('No map link available for this stop'),
+        ),
+      );
+      return;
+    }
+
+    try {
+      final uri = Uri.parse(stop.mapEmbedUrl!);
+
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            buildSnackBar(
+              backgroundColor: successColor,
+              prefixIcon: const HugeIcon(
+                icon: HugeIcons.strokeRoundedCheckmarkCircle02,
+                color: lightColor,
+                size: 20,
+              ),
+              label: const Text('Opened in Google Maps'),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          buildSnackBar(
+            backgroundColor: errorColor,
+            prefixIcon: const HugeIcon(
+              icon: HugeIcons.strokeRoundedAlert02,
+              color: lightColor,
+              size: 20,
+            ),
+            label: const Text('Could not open map link'),
+          ),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: borderRadius * 2.5,
+        border: Border.all(
+          color: themeController.isDark
+              ? seedPalette.shade700
+              : seedPalette.shade200,
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Image section with Google Maps button overlay
+          if (stop.hasImage || stop.hasMapEmbed)
+            ClipRRect(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+              child: Stack(
+                children: [
+                  // Image or map background
+                  if (stop.hasImage)
+                    CachedNetworkImage(
+                      imageUrl: stop.pickupImageUrl!,
+                      height: 200,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Container(
+                        height: 200,
+                        color: themeController.isDark
+                            ? seedPalette.shade900
+                            : seedPalette.shade100,
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: accentColor,
+                            strokeWidth: 2,
+                          ),
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        height: 200,
+                        color: themeController.isDark
+                            ? seedPalette.shade900
+                            : seedPalette.shade100,
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              HugeIcon(
+                                icon: HugeIcons.strokeRoundedImageNotFound02,
+                                color: greyColor,
+                                size: 48,
+                              ),
+                              const Gap(8.0),
+                              Text(
+                                'Image not available',
+                                style: AppTextStyles.small.copyWith(
+                                  color: greyColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    )
+                  else if (stop.hasMapEmbed)
+                    Container(
+                      height: 200,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: themeController.isDark
+                            ? seedPalette.shade900
+                            : seedPalette.shade100,
+                      ),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          Image.asset(mapsBg, fit: BoxFit.cover),
+                          Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  seedColor.withValues(alpha: 0.1),
+                                  seedColor.withValues(alpha: 0.3),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Center(
+                            child: HugeIcon(
+                              icon: HugeIcons.strokeRoundedMaps,
+                              color: lightColor,
+                              size: 64,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                  // Gradient overlay
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withValues(alpha: 0.5),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Google Maps button
+                  if (stop.hasMapEmbed)
+                    Positioned(
+                      bottom: 12,
+                      right: 12,
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () => _openInGoogleMaps(context),
+                          borderRadius: borderRadius * 2,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                              vertical: 10.0,
+                            ),
+                            decoration: BoxDecoration(
+                              color: lightColor.withValues(alpha: 0.95),
+                              borderRadius: borderRadius * 2,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.2),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                HugeIcon(
+                                  icon: HugeIcons.strokeRoundedMaps,
+                                  color: seedColor,
+                                  size: 18,
+                                ),
+                                const Gap(6.0),
+                                Text(
+                                  'View on Maps',
+                                  style: AppTextStyles.body.copyWith(
+                                    color: seedColor,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+
+          // Stop info section
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    HugeIcon(
+                      icon: HugeIcons.strokeRoundedLocation06,
+                      color: themeController.isDark
+                          ? seedPalette.shade50
+                          : seedColor,
+                      size: 20,
+                    ),
+                    const Gap(8.0),
+                    Expanded(
+                      child: Text(
+                        stop.name,
+                        style: AppTextStyles.h3,
+                      ),
+                    ),
+                  ],
+                ),
+                const Gap(12.0),
+                Row(
+                  spacing: 8.0,
+                  children: [
+                    if (stop.hasImage)
+                      _Badge(
+                        icon: HugeIcons.strokeRoundedImage02,
+                        label: 'Image',
+                        color: successColor,
+                      ),
+                    if (stop.hasMapEmbed)
+                      _Badge(
+                        icon: HugeIcons.strokeRoundedMaps,
+                        label: 'Map',
+                        color: infoColor,
+                      ),
+                    if (!stop.hasImage && !stop.hasMapEmbed)
+                      _Badge(
+                        icon: HugeIcons.strokeRoundedAlert01,
+                        label: 'No media',
+                        color: greyColor,
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Badge widget for stop features
+class _Badge extends StatelessWidget {
+  final dynamic icon;
+  final String label;
+  final Color color;
+
+  const _Badge({
+    required this.icon,
+    required this.label,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10.0,
+        vertical: 6.0,
+      ),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: borderRadius,
+        border: Border.all(
+          color: color.withValues(alpha: 0.3),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          HugeIcon(
+            icon: icon,
+            color: color,
+            size: 14,
+          ),
+          const Gap(4.0),
+          Text(
+            label,
+            style: AppTextStyles.small.copyWith(
+              color: color,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
