@@ -1,11 +1,12 @@
 import 'dart:io';
 
 import 'package:busin/controllers/auth_controller.dart';
+import 'package:busin/controllers/semester_controller.dart';
 import 'package:busin/controllers/subscriptions_controller.dart';
+import 'package:busin/models/semester_config.dart';
 import 'package:busin/models/subscription.dart';
 import 'package:busin/ui/components/widgets/default_snack_bar.dart';
 import 'package:busin/ui/components/widgets/form_fields/select_image.dart';
-import 'package:busin/ui/components/widgets/form_fields/simple_text_field.dart';
 import 'package:busin/utils/constants.dart';
 import 'package:busin/utils/utils.dart';
 import 'package:busin/utils/supabase_storage.dart';
@@ -23,6 +24,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../controllers/bus_stops_controller.dart';
 import '../../../models/value_objects/bus_stop_selection.dart';
 import '../../components/widgets/bus_loading_overlay.dart';
+import '../../components/widgets/loading_indicator.dart';
 
 // Schedule presets for quick selection
 enum _ScheduleMode { everyday, normalWeek, custom }
@@ -44,6 +46,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
   final BusStopsController busStopController = Get.find<BusStopsController>();
   final BusSubscriptionsController subscriptionsController =
       Get.find<BusSubscriptionsController>();
+  final SemesterController semesterController = Get.find<SemesterController>();
 
   // Form fields
   int _currentStep = 0;
@@ -56,23 +59,19 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
   List<BusSubscriptionSchedule> _schedules = [];
   _ScheduleMode _scheduleMode = _ScheduleMode.normalWeek;
 
-  // Term
-  late Semester _semester;
+  // Term - Use SemesterConfig from Firestore
+  SemesterConfig? _selectedSemesterConfig;
 
-  // Text Editing Controllers
-  final TextEditingController _yearController = TextEditingController(
-    text: DateTime.now().year.toString(),
-  );
-
+  // Text Editing Controllers - No longer need year controller
   // Validation
   bool _isSubmitting = false;
 
   @override
   void initState() {
     super.initState();
-    final now = DateTime.now();
-    _semester = _detectSemesterFromDate(now);
-    _yearController.text = now.year.toString();
+
+    // Load active semesters from Firestore
+    semesterController.fetchSemesters();
 
     // Default schedule mode -> normal week
     _applyScheduleMode(_scheduleMode);
@@ -83,16 +82,9 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
 
   @override
   void dispose() {
-    _yearController.dispose();
     super.dispose();
   }
 
-  Semester _detectSemesterFromDate(DateTime d) {
-    final m = d.month;
-    if (m >= 9) return Semester.fall; // Sep - Dec
-    if (m >= 6) return Semester.summer; // Jun - Aug
-    return Semester.spring; // Jan - May
-  }
 
   void _applyScheduleMode(_ScheduleMode mode) {
     const defaultStart = '07:00';
@@ -256,9 +248,8 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
         }
         return true;
       case 1:
-        final year = int.tryParse(_yearController.text);
-        if (year == null || year < 2000) {
-          _showScheduleError('Enter a valid subscription year.');
+        if (_selectedSemesterConfig == null) {
+          _showScheduleError('Please wait for active semester to load or contact administrator.');
           return false;
         }
         return true;
@@ -305,7 +296,8 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
     if (!isValid ||
         _proofPath == null ||
         _selectedStopId == null ||
-        _schedules.isEmpty) {
+        _schedules.isEmpty ||
+        _selectedSemesterConfig == null) {
       _showScheduleError('Fill out every step before submitting.');
       return;
     }
@@ -316,12 +308,11 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
       return;
     }
 
-    final year = int.tryParse(_yearController.text) ?? DateTime.now().year;
     var newSub = BusSubscription.pending(
       id: '',
       studentId: authController.currentUser.value!.id,
-      semester: _semester,
-      year: year,
+      semester: _selectedSemesterConfig!.semester,
+      year: _selectedSemesterConfig!.year,
       stop: stop,
       schedules: _schedules,
     );
@@ -534,89 +525,210 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                             ? StepState.complete
                             : StepState.indexed,
                         isActive: _currentStep >= 1,
-                        content: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          spacing: 8.0,
-                          children: [
-                            Wrap(
-                              spacing: 8.0,
-                              runSpacing: 8.0,
-                              children: Semester.values.map((s) {
-                                final selected = s == _semester;
-                                return ChoiceChip(
-                                  label: Text(
-                                    s.label,
-                                    style: AppTextStyles.body,
-                                  ),
-                                  checkmarkColor: themeController.isDark
-                                      ? lightColor
-                                      : seedColor,
-                                  selected: selected,
-                                  onSelected: (_) =>
-                                      setState(() => _semester = s),
-                                );
-                              }).toList(),
-                            ),
-                            const Gap(8.0),
-                            SimpleTextFormField(
-                              controller: _yearController,
-                              hintText: "Subscription year",
-                              label: Text(
-                                "Subscription year",
-                                style: AppTextStyles.body.copyWith(
-                                  color: themeController.isDark
-                                      ? seedPalette.shade50
-                                      : seedColor,
+                        content: GetX<SemesterController>(
+                          builder: (controller) {
+                            if (controller.isLoading.value &&
+                                controller.semesters.isEmpty) {
+                              return const Center(
+                                child: Padding(
+                                  padding: EdgeInsets.all(24.0),
+                                  child: LoadingIndicator(),
                                 ),
-                              ),
-                              keyboardType: TextInputType.number,
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return 'Enter the subscription year';
-                                }
-                                final parsed = int.tryParse(value.trim());
-                                if (parsed == null || parsed < 2000) {
-                                  return 'Enter a valid year (>= 2000)';
-                                }
-                                return null;
-                              },
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16.0,
-                              ),
-                              child: Builder(
-                                builder: (context) {
-                                  final year =
-                                      int.tryParse(_yearController.text) ??
-                                      DateTime.now().year;
-                                  final span = _semester.defaultSpanForYear(
-                                    year,
-                                  );
-                                  return Row(
+                              );
+                            }
+
+                            final activeSemester = controller.activeSemester.value;
+
+                            if (activeSemester == null) {
+                              return Container(
+                                padding: const EdgeInsets.all(16.0),
+                                decoration: BoxDecoration(
+                                  color: warningColor.withValues(alpha: 0.1),
+                                  borderRadius: borderRadius * 2,
+                                  border: Border.all(
+                                    color: warningColor.withValues(alpha: 0.3),
+                                  ),
+                                ),
+                                  child: Row(
                                     children: [
                                       HugeIcon(
-                                        icon: HugeIcons.strokeRoundedCalendar01,
-                                        size: 16.0,
-                                        color: themeController.isDark
-                                            ? seedPalette.shade50
-                                            : greyColor,
+                                        icon: HugeIcons.strokeRoundedAlert02,
+                                        color: warningColor,
                                       ),
-                                      const Gap(8.0),
-                                      Text(
-                                        'From: ${dateFormatter(span.start)} — To: ${dateFormatter(span.end)}',
+                                    const Gap(12.0),
+                                    Expanded(
+                                      child: Text(
+                                        'No active semester available. Please contact the administrator.',
                                         style: AppTextStyles.body.copyWith(
-                                          color: themeController.isDark
-                                              ? seedPalette.shade50
-                                              : greyColor,
+                                          color: warningColor,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+
+                            // Auto-select the active semester if not already selected
+                            if (_selectedSemesterConfig == null) {
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                setState(() {
+                                  _selectedSemesterConfig = activeSemester;
+                                });
+                              });
+                            }
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              spacing: 16.0,
+                              children: [
+                                // Active semester card
+                                Container(
+                                  padding: const EdgeInsets.all(16.0),
+                                  decoration: BoxDecoration(
+                                    gradient: themeController.isDark
+                                        ? darkGradient
+                                        : lightGradient,
+                                    borderRadius: borderRadius * 2.5,
+                                    border: Border.all(
+                                      color: successColor,
+                                      width: 2.0,
+                                    ),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    spacing: 12.0,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.all(8.0),
+                                            decoration: BoxDecoration(
+                                              color: successColor.withValues(alpha: 0.1),
+                                              borderRadius: borderRadius * 1.5,
+                                            ),
+                                            child: HugeIcon(
+                                              icon: HugeIcons.strokeRoundedCalendar02,
+                                              color: successColor,
+                                            ),
+                                          ),
+                                          const Gap(12.0),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  'Active Semester',
+                                                  style: AppTextStyles.small.copyWith(
+                                                    color: successColor,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  '${activeSemester.semester.label} ${activeSemester.year}',
+                                                  style: AppTextStyles.h3,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          if (_selectedSemesterConfig?.id == activeSemester.id)
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(
+                                                horizontal: 12.0,
+                                                vertical: 6.0,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: successColor,
+                                                borderRadius: borderRadius * 1.5,
+                                              ),
+                                              child: Text(
+                                                'Selected',
+                                                style: AppTextStyles.small.copyWith(
+                                                  color: lightColor,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                      const Divider(),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Row(
+                                            spacing: 8.0,
+                                            children: [
+                                              HugeIcon(
+                                                icon: HugeIcons.strokeRoundedCalendarCheckIn01,
+                                                size: 16.0,
+                                                color: themeController.isDark
+                                                    ? seedPalette.shade50
+                                                    : greyColor,
+                                              ),
+                                              Text(
+                                                dateFormatter(activeSemester.startDate),
+                                                style: AppTextStyles.body.copyWith(
+                                                  color: themeController.isDark
+                                                      ? seedPalette.shade50
+                                                      : greyColor,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Row(
+                                            spacing: 8.0,
+                                            children: [
+                                              HugeIcon(
+                                                icon: HugeIcons.strokeRoundedCalendarCheckOut01,
+                                                size: 16.0,
+                                                color: themeController.isDark
+                                                    ? seedPalette.shade50
+                                                    : greyColor,
+                                              ),
+                                              Text(
+                                                dateFormatter(activeSemester.endDate),
+                                                style: AppTextStyles.body.copyWith(
+                                                  color: themeController.isDark
+                                                      ? seedPalette.shade50
+                                                      : greyColor,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                // Info message
+                                Container(
+                                  padding: const EdgeInsets.all(12.0),
+                                  decoration: BoxDecoration(
+                                    color: infoColor.withValues(alpha: 0.1),
+                                    borderRadius: borderRadius * 1.5,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      HugeIcon(
+                                        icon: HugeIcons.strokeRoundedInformationCircle,
+                                        color: infoColor,
+                                        size: 20.0,
+                                      ),
+                                      const Gap(12.0),
+                                      Expanded(
+                                        child: Text(
+                                          'Your subscription will be valid for the active semester shown above.',
+                                          style: AppTextStyles.small.copyWith(
+                                            color: infoColor,
+                                          ),
                                         ),
                                       ),
                                     ],
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
                         ),
                       ),
                       Step(
@@ -1153,290 +1265,455 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                         isActive: _currentStep >= 4,
                         content: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
+                          spacing: 16.0,
                           children: [
-                            Container(
-                              padding: const EdgeInsets.all(16.0),
-                              decoration: BoxDecoration(
-                                borderRadius: borderRadius * 2.5,
-                                color: themeController.isDark
-                                    ? seedPalette.shade900
-                                    : seedPalette.shade50.withValues(
-                                        alpha: 0.65,
-                                      ),
-                                border: Border.all(
-                                  color: themeController.isDark
-                                      ? seedPalette.shade700
-                                      : seedPalette.shade800.withValues(
-                                          alpha: 0.15,
-                                        ),
+                            // Header with icon
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(12.0),
+                                  decoration: BoxDecoration(
+                                    gradient: themeController.isDark
+                                        ? darkGradient
+                                        : lightGradient,
+                                    borderRadius: borderRadius * 2,
+                                  ),
+                                  child: HugeIcon(
+                                    icon: HugeIcons.strokeRoundedFileValidation,
+                                    size: 28.0,
+                                  ),
                                 ),
-                              ),
-                              child: Column(
-                                children: [
-                                  Table(
-                                    columnWidths: const {
-                                      0: FlexColumnWidth(2),
-                                      1: FlexColumnWidth(3),
-                                    },
-                                    defaultVerticalAlignment:
-                                        TableCellVerticalAlignment.middle,
+                                const Gap(12.0),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      TableRow(
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              vertical: 6.0,
-                                            ),
-                                            child: Text(
-                                              'Student',
-                                              style: AppTextStyles.body
-                                                  .copyWith(
-                                                    color:
-                                                        themeController.isDark
-                                                        ? seedPalette.shade50
-                                                        : greyColor,
-                                                  ),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              vertical: 6.0,
-                                            ),
-                                            child: Text(
-                                              authController.userDisplayName,
-                                              style: AppTextStyles.h4,
-                                            ),
-                                          ),
-                                          const SizedBox(),
-                                        ],
+                                      Text(
+                                        'Review Your Subscription',
+                                        style: AppTextStyles.h3,
                                       ),
-                                      TableRow(
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              vertical: 6.0,
-                                            ),
-                                            child: Text(
-                                              'Semester',
-                                              style: AppTextStyles.body
-                                                  .copyWith(
-                                                    color:
-                                                        themeController.isDark
-                                                        ? seedPalette.shade50
-                                                        : greyColor,
-                                                  ),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              vertical: 6.0,
-                                            ),
-                                            child: Text(
-                                              '${_semester.label} ${_yearController.text}',
-                                              style: AppTextStyles.h4,
-                                            ),
-                                          ),
-                                          const SizedBox(),
-                                        ],
-                                      ),
-                                      TableRow(
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              vertical: 6.0,
-                                            ),
-                                            child: Text(
-                                              'Stop',
-                                              style: AppTextStyles.body
-                                                  .copyWith(
-                                                    color:
-                                                        themeController.isDark
-                                                        ? seedPalette.shade50
-                                                        : greyColor,
-                                                  ),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              vertical: 6.0,
-                                            ),
-                                            child: GetBuilder<BusStopsController>(
-                                              builder: (controller) {
-                                                BusStop? stop;
-                                                if (_selectedStopId != null) {
-                                                  try {
-                                                    stop = controller.busStops
-                                                        .firstWhere(
-                                                          (s) =>
-                                                              s.id ==
-                                                              _selectedStopId,
-                                                        );
-                                                  } catch (_) {
-                                                    stop = null;
-                                                  }
-                                                }
-                                                return Text(
-                                                  stop?.name ?? 'Not selected',
-                                                  style: AppTextStyles.h4,
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                          const SizedBox(),
-                                        ],
-                                      ),
-                                      TableRow(
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              vertical: 6.0,
-                                            ),
-                                            child: Text(
-                                              'Schedules',
-                                              style: AppTextStyles.body
-                                                  .copyWith(
-                                                    color:
-                                                        themeController.isDark
-                                                        ? seedPalette.shade50
-                                                        : greyColor,
-                                                  ),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              vertical: 6.0,
-                                            ),
-                                            child: Text(
-                                              "${_schedules.length} day${_schedules.length > 1 ? 's' : ''}",
-                                              style: AppTextStyles.h4,
-                                            ),
-                                          ),
-                                          const SizedBox(),
-                                        ],
+                                      Text(
+                                        'Please verify all details before submitting',
+                                        style: AppTextStyles.small.copyWith(
+                                          color: greyColor,
+                                        ),
                                       ),
                                     ],
                                   ),
-                                  Table(
-                                    columnWidths: const {
-                                      0: FlexColumnWidth(2),
-                                      1: FlexColumnWidth(2),
-                                      2: FlexColumnWidth(2),
-                                    },
-                                    defaultVerticalAlignment:
-                                        TableCellVerticalAlignment.middle,
+                                ),
+                              ],
+                            ),
+
+                            // Student Info Card
+                            Container(
+                              padding: const EdgeInsets.all(16.0),
+                              decoration: BoxDecoration(
+                                gradient: themeController.isDark
+                                    ? darkGradient
+                                    : lightGradient,
+                                borderRadius: borderRadius * 2.5,
+                                border: Border.all(
+                                  color: seedPalette.shade700,
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                spacing: 12.0,
+                                children: [
+                                  Row(
                                     children: [
-                                      const TableRow(
-                                        children: [
-                                          Gap(16.0),
-                                          SizedBox(),
-                                          SizedBox(),
-                                        ],
+                                      HugeIcon(
+                                        icon: HugeIcons.strokeRoundedUser,
                                       ),
-                                      TableRow(
-                                        decoration: BoxDecoration(
-                                          color: seedPalette.shade100
-                                              .withValues(alpha: 0.4),
-                                          borderRadius: borderRadius * 1.5,
-                                        ),
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Text(
-                                              'Day',
-                                              style: AppTextStyles.body
-                                                  .copyWith(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Text(
-                                              'Morning',
-                                              style: AppTextStyles.body
-                                                  .copyWith(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Text(
-                                              'Close',
-                                              style: AppTextStyles.body
-                                                  .copyWith(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      ..._schedules.map(
-                                        (s) => TableRow(
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsets.all(
-                                                8.0,
-                                              ),
-                                              child: Text(
-                                                _weekdayLabelLong(s.weekday),
-                                                style: AppTextStyles.body,
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding: const EdgeInsets.all(
-                                                8.0,
-                                              ),
-                                              child: Text(
-                                                s.morningTime,
-                                                style: AppTextStyles.body,
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding: const EdgeInsets.all(
-                                                8.0,
-                                              ),
-                                              child: Text(
-                                                s.closingTime,
-                                                style: AppTextStyles.body,
-                                              ),
-                                            ),
-                                          ],
+                                      const Gap(8.0),
+                                      Text(
+                                        'Student Information',
+                                        style: AppTextStyles.body.copyWith(
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                      if (_schedules.isEmpty)
-                                        TableRow(
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsets.all(
-                                                8.0,
-                                              ),
-                                              child: Text(
-                                                'No schedules added.',
-                                                style: AppTextStyles.body
-                                                    .copyWith(
-                                                      color:
-                                                          themeController.isDark
-                                                          ? seedPalette.shade50
-                                                          : greyColor,
-                                                    ),
-                                              ),
-                                            ),
-                                            const SizedBox(),
-                                            const SizedBox(),
-                                          ],
-                                        ),
                                     ],
+                                  ),
+                                  Divider(
+                                    color: seedPalette.shade700
+                                  ),
+                                  _SummaryRow(
+                                    icon: HugeIcons.strokeRoundedUserCircle,
+                                    label: 'Name',
+                                    value: authController.userDisplayName,
+                                  ),
+                                  _SummaryRow(
+                                    icon: HugeIcons.strokeRoundedMail01,
+                                    label: 'Email',
+                                    value: authController.currentUser.value?.email ?? 'N/A',
                                   ),
                                 ],
                               ),
                             ),
-                            const Gap(12.0),
-                            Text(
-                              'Submit your subscription request for review. You will be notified once it has been processed.',
-                              style: AppTextStyles.body.copyWith(
-                                color: greyColor,
-                                fontSize: 13.0,
+
+                            // Semester Card
+                            Container(
+                              padding: const EdgeInsets.all(16.0),
+                              decoration: BoxDecoration(
+                                gradient: themeController.isDark
+                                    ? darkGradient
+                                    : lightGradient,
+                                borderRadius: borderRadius * 2.5,
+                                border: Border.all(
+                                  color: successColor.withValues(alpha: 0.5),
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                spacing: 12.0,
+                                children: [
+                                  Row(
+                                    children: [
+                                      HugeIcon(
+                                        icon: HugeIcons.strokeRoundedCalendar02,
+                                        color: successColor,
+                                        size: 20.0,
+                                      ),
+                                      const Gap(8.0),
+                                      Text(
+                                        'Semester Details',
+                                        style: AppTextStyles.body.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color: successColor,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Divider(
+                                    color: successColor.withValues(alpha: 0.3),
+                                  ),
+                                  if (_selectedSemesterConfig != null) ...[
+                                    _SummaryRow(
+                                      icon: HugeIcons.strokeRoundedCalendar03,
+                                      label: 'Semester',
+                                      value: '${_selectedSemesterConfig!.semester.label} ${_selectedSemesterConfig!.year}',
+                                      valueColor: successColor,
+                                    ),
+                                    _SummaryRow(
+                                      icon: HugeIcons.strokeRoundedCalendarCheckIn01,
+                                      label: 'Start Date',
+                                      value: dateFormatter(_selectedSemesterConfig!.startDate),
+                                    ),
+                                    _SummaryRow(
+                                      icon: HugeIcons.strokeRoundedCalendarCheckOut01,
+                                      label: 'End Date',
+                                      value: dateFormatter(_selectedSemesterConfig!.endDate),
+                                    ),
+                                    _SummaryRow(
+                                      icon: HugeIcons.strokeRoundedTimer02,
+                                      label: 'Duration',
+                                      value: '${_selectedSemesterConfig!.durationInDays} days',
+                                    ),
+                                  ] else
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Text(
+                                        'No semester selected',
+                                        style: AppTextStyles.body.copyWith(
+                                          color: errorColor,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+
+                            // Bus Stop Card
+                            GetBuilder<BusStopsController>(
+                              builder: (controller) {
+                                BusStop? stop;
+                                if (_selectedStopId != null) {
+                                  try {
+                                    stop = controller.busStops.firstWhere(
+                                      (s) => s.id == _selectedStopId,
+                                    );
+                                  } catch (_) {
+                                    stop = null;
+                                  }
+                                }
+
+                                return Container(
+                                  padding: const EdgeInsets.all(16.0),
+                                  decoration: BoxDecoration(
+                                    gradient: themeController.isDark
+                                        ? darkGradient
+                                        : lightGradient,
+                                    borderRadius: borderRadius * 2.5,
+                                    border: Border.all(
+                                      color: infoColor.withValues(alpha: 0.5),
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    spacing: 12.0,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          HugeIcon(
+                                            icon: HugeIcons.strokeRoundedLocationUser04,
+                                            color: infoColor,
+                                            size: 20.0,
+                                          ),
+                                          const Gap(8.0),
+                                          Text(
+                                            'Pickup Stop',
+                                            style: AppTextStyles.body.copyWith(
+                                              fontWeight: FontWeight.bold,
+                                              color: infoColor,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Divider(
+                                        color: infoColor.withValues(alpha: 0.3),
+                                      ),
+                                      if (stop != null) ...[
+                                        _SummaryRow(
+                                          icon: HugeIcons.strokeRoundedLocation06,
+                                          label: 'Stop Name',
+                                          value: stop.name,
+                                          valueColor: infoColor,
+                                        ),
+                                      ] else
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                          child: Text(
+                                            'No stop selected',
+                                            style: AppTextStyles.body.copyWith(
+                                              color: errorColor,
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+
+                            // Schedules Card
+                            Container(
+                              padding: const EdgeInsets.all(16.0),
+                              decoration: BoxDecoration(
+                                gradient: themeController.isDark
+                                    ? darkGradient
+                                    : lightGradient,
+                                borderRadius: borderRadius * 2.5,
+                                border: Border.all(
+                                  color: warningColor.withValues(alpha: 0.5),
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                spacing: 12.0,
+                                children: [
+                                  Row(
+                                    children: [
+                                      HugeIcon(
+                                        icon: HugeIcons.strokeRoundedClock01,
+                                        color: warningColor,
+                                        size: 20.0,
+                                      ),
+                                      const Gap(8.0),
+                                      Expanded(
+                                        child: Text(
+                                          'Weekly Schedule',
+                                          style: AppTextStyles.body.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            color: warningColor,
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12.0,
+                                          vertical: 4.0,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: warningColor.withValues(alpha: 0.2),
+                                          borderRadius: borderRadius * 1.5,
+                                        ),
+                                        child: Text(
+                                          '${_schedules.length} day${_schedules.length != 1 ? 's' : ''}',
+                                          style: AppTextStyles.small.copyWith(
+                                            color: warningColor,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Divider(
+                                    color: warningColor.withValues(alpha: 0.3),
+                                  ),
+                                  if (_schedules.isNotEmpty) ...[
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: themeController.isDark
+                                            ? Colors.black.withValues(alpha: 0.2)
+                                            : Colors.white.withValues(alpha: 0.5),
+                                        borderRadius: borderRadius * 1.5,
+                                      ),
+                                      child: Table(
+                                        columnWidths: const {
+                                          0: FlexColumnWidth(2),
+                                          1: FlexColumnWidth(2),
+                                          2: FlexColumnWidth(2),
+                                        },
+                                        defaultVerticalAlignment:
+                                            TableCellVerticalAlignment.middle,
+                                        children: [
+                                          TableRow(
+                                            decoration: BoxDecoration(
+                                              color: warningColor.withValues(alpha: 0.1),
+                                              borderRadius: BorderRadius.only(
+                                                topLeft: (borderRadius * 1.5).topLeft,
+                                                topRight: (borderRadius * 1.5).topRight,
+                                              ),
+                                            ),
+                                            children: [
+                                              Padding(
+                                                padding: const EdgeInsets.all(12.0),
+                                                child: Text(
+                                                  'Day',
+                                                  style: AppTextStyles.body.copyWith(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsets.all(12.0),
+                                                child: Row(
+                                                  spacing: 4.0,
+                                                  children: [
+                                                    HugeIcon(
+                                                      icon: HugeIcons.strokeRoundedSun03,
+                                                      size: 16.0,
+                                                      color: warningColor,
+                                                    ),
+                                                    Text(
+                                                      'Morning',
+                                                      style: AppTextStyles.body.copyWith(
+                                                        fontWeight: FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsets.all(12.0),
+                                                child: Row(
+                                                  spacing: 4.0,
+                                                  children: [
+                                                    HugeIcon(
+                                                      icon: HugeIcons.strokeRoundedMoon02,
+                                                      size: 16.0,
+                                                      color: warningColor,
+                                                    ),
+                                                    Text(
+                                                      'Evening',
+                                                      style: AppTextStyles.body.copyWith(
+                                                        fontWeight: FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          ..._schedules.map(
+                                            (s) => TableRow(
+                                              children: [
+                                                Padding(
+                                                  padding: const EdgeInsets.all(12.0),
+                                                  child: Text(
+                                                    _weekdayLabelLong(s.weekday),
+                                                    style: AppTextStyles.body.copyWith(
+                                                      fontWeight: FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ),
+                                                Padding(
+                                                  padding: const EdgeInsets.all(12.0),
+                                                  child: Text(
+                                                    s.morningTime,
+                                                    style: AppTextStyles.body,
+                                                  ),
+                                                ),
+                                                Padding(
+                                                  padding: const EdgeInsets.all(12.0),
+                                                  child: Text(
+                                                    s.closingTime,
+                                                    style: AppTextStyles.body,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ] else
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Text(
+                                        'No schedules added',
+                                        style: AppTextStyles.body.copyWith(
+                                          color: errorColor,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+
+                            // Info Banner
+                            Container(
+                              padding: const EdgeInsets.all(16.0),
+                              decoration: BoxDecoration(
+                                color: infoColor.withValues(alpha: 0.1),
+                                borderRadius: borderRadius * 2,
+                                border: Border.all(
+                                  color: infoColor.withValues(alpha: 0.3),
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  HugeIcon(
+                                    icon: HugeIcons.strokeRoundedInformationCircle,
+                                    color: infoColor,
+                                    size: 24.0,
+                                  ),
+                                  const Gap(12.0),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      spacing: 4.0,
+                                      children: [
+                                        Text(
+                                          'Review Required',
+                                          style: AppTextStyles.body.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            color: infoColor,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Your subscription will be reviewed by our team. You will receive a notification once it has been approved or if any changes are needed.',
+                                          style: AppTextStyles.small.copyWith(
+                                            color: infoColor.withValues(alpha: 0.8),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
@@ -1495,7 +1772,7 @@ class _StopPreview extends StatelessWidget {
 
   void _openInGoogleMaps(BuildContext context) async {
     if (stop.mapEmbedUrl == null || stop.mapEmbedUrl!.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(
         buildSnackBar(
           backgroundColor: warningColor,
           prefixIcon: const HugeIcon(
@@ -1516,7 +1793,7 @@ class _StopPreview extends StatelessWidget {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
 
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+          ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(
             buildSnackBar(
               backgroundColor: successColor,
               prefixIcon: const HugeIcon(
@@ -1531,7 +1808,7 @@ class _StopPreview extends StatelessWidget {
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(
           buildSnackBar(
             backgroundColor: errorColor,
             prefixIcon: const HugeIcon(
@@ -1583,10 +1860,7 @@ class _StopPreview extends StatelessWidget {
                             ? seedPalette.shade900
                             : seedPalette.shade100,
                         child: Center(
-                          child: CircularProgressIndicator(
-                            color: accentColor,
-                            strokeWidth: 2,
-                          ),
+                          child: LoadingIndicator(),
                         ),
                       ),
                       errorWidget: (context, url, error) => Container(
@@ -1826,3 +2100,59 @@ class _Badge extends StatelessWidget {
   }
 }
 
+class _SummaryRow extends StatelessWidget {
+  final List<List<dynamic>> icon;
+  final String label;
+  final String value;
+  final Color? valueColor;
+  final bool isLink;
+
+  const _SummaryRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.valueColor,
+    this.isLink = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          HugeIcon(
+            icon: icon,
+            size: 18.0,
+            color: themeController.isDark
+                ? seedPalette.shade300
+                : seedColor.withValues(alpha: 0.7),
+          ),
+          const Gap(12.0),
+          Expanded(
+            flex: 2,
+            child: Text(
+              label,
+              style: AppTextStyles.small.copyWith(
+                color: greyColor,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(
+              value,
+              style: AppTextStyles.body.copyWith(
+                color: valueColor,
+                fontWeight: FontWeight.w600,
+                decoration: isLink ? TextDecoration.underline : null,
+              ),
+              textAlign: TextAlign.end,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

@@ -61,7 +61,7 @@ class _NewStopPageState extends State<NewStopPage> {
 
     if (createdStop != null) {
       context.pop();
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(
         buildSnackBar(
           prefixIcon: const Icon(Icons.check_circle, color: lightColor),
           label: const Text('Bus stop created successfully'),
@@ -69,7 +69,7 @@ class _NewStopPageState extends State<NewStopPage> {
         ),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(
         buildSnackBar(
           prefixIcon: const Icon(Icons.error, color: lightColor),
           label: Text(

@@ -175,7 +175,30 @@ class AppTheme {
         shape: WidgetStateProperty.all<RoundedRectangleBorder>(
           RoundedRectangleBorder(borderRadius: borderRadius * 2.0),
         ),
+        backgroundColor: WidgetStateProperty.all<Color>(seedPalette.shade50),
       ),
+      inputDecorationTheme: InputDecorationThemeData(
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 12.0,
+          horizontal: 16.0,
+        ),
+        errorStyle: AppTextStyles.small.copyWith(
+          color: errorColor,
+          fontSize: 14.0,
+        ),
+        hintStyle: AppTextStyles.body.copyWith(
+          color: greyColor,
+          fontStyle: FontStyle.italic,
+        ),
+        labelStyle: AppTextStyles.body.copyWith(color: seedColor),
+        border: AppInputBorders.border,
+        focusedBorder: AppInputBorders.focusedBorder,
+        errorBorder: AppInputBorders.errorBorder,
+        focusedErrorBorder: AppInputBorders.focusedErrorBorder,
+        enabledBorder: AppInputBorders.enabledBorder,
+        disabledBorder: AppInputBorders.disabledBorder,
+      ),
+      textStyle: AppTextStyles.body,
     ),
     searchBarTheme: SearchBarThemeData(
       backgroundColor: WidgetStateProperty.resolveWith<Color?>((
@@ -223,7 +246,7 @@ class AppTheme {
       ),
       hintStyle: AppTextStyles.body.copyWith(
         color: greyColor,
-        fontStyle: FontStyle.italic
+        fontStyle: FontStyle.italic,
       ),
       labelStyle: AppTextStyles.body.copyWith(color: seedColor),
       border: AppInputBorders.border,
@@ -238,6 +261,85 @@ class AppTheme {
       backgroundColor: seedPalette.shade100,
       titleTextStyle: AppTextStyles.h2,
       contentTextStyle: AppTextStyles.body,
+    ),
+    datePickerTheme: DatePickerThemeData(
+      backgroundColor: lightColor,
+      headerBackgroundColor: seedPalette.shade50,
+      headerForegroundColor: seedColor,
+      dayStyle: AppTextStyles.body,
+      weekdayStyle: AppTextStyles.body,
+      yearStyle: AppTextStyles.body,
+      headerHeadlineStyle: AppTextStyles.h3,
+      toggleButtonTextStyle: AppTextStyles.body,
+      headerHelpStyle: AppTextStyles.h4,
+      dayForegroundColor: WidgetStateProperty.resolveWith((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.disabled)) {
+          return greyColor;
+        }
+        if (states.contains(WidgetState.selected)) {
+          return lightColor;
+        }
+        return seedColor;
+      }),
+      dayOverlayColor: WidgetStatePropertyAll<Color>(
+        seedPalette.shade100.withValues(alpha: 0.5),
+      ),
+      dayBackgroundColor: WidgetStateProperty.resolveWith((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.selected)) {
+          return seedPalette.shade900;
+        }
+        if (states.contains(WidgetState.disabled)) {
+          return Colors.transparent;
+        }
+        return Colors.transparent;
+      }),
+      dayShape: WidgetStatePropertyAll<RoundedRectangleBorder>(
+        RoundedRectangleBorder(borderRadius: borderRadius * 1.25),
+      ),
+      todayBackgroundColor: WidgetStateProperty.resolveWith((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.selected)) {
+          return seedPalette.shade900;
+        }
+        return seedPalette.shade50;
+      }),
+      todayForegroundColor: WidgetStateProperty.resolveWith((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.selected)) {
+          return lightColor;
+        }
+        return seedColor;
+      }),
+      todayBorder: BorderSide(color: seedPalette.shade700),
+      cancelButtonStyle: ButtonStyle(
+        foregroundColor: WidgetStatePropertyAll<Color>(seedColor),
+        textStyle: WidgetStatePropertyAll<TextStyle>(AppTextStyles.body),
+      ),
+      confirmButtonStyle: ButtonStyle(
+        backgroundColor: WidgetStateProperty.resolveWith((
+          Set<WidgetState> states,
+        ) {
+          if (states.contains(WidgetState.disabled)) {
+            return greyColor;
+          }
+          return seedPalette.shade900;
+        }),
+        foregroundColor: WidgetStateProperty.resolveWith((
+          Set<WidgetState> states,
+        ) {
+          if (states.contains(WidgetState.disabled)) {
+            return lightColor.withValues(alpha: 0.5);
+          }
+          return lightColor;
+        }),
+        textStyle: WidgetStatePropertyAll<TextStyle>(AppTextStyles.body),
+      ),
     ),
   );
 
@@ -405,7 +507,30 @@ class AppTheme {
         shape: WidgetStateProperty.all<RoundedRectangleBorder>(
           RoundedRectangleBorder(borderRadius: borderRadius * 2.0),
         ),
+        backgroundColor: WidgetStateProperty.all<Color>(seedPalette.shade800),
       ),
+      inputDecorationTheme: InputDecorationThemeData(
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 12.0,
+          horizontal: 16.0,
+        ),
+        errorStyle: AppTextStyles.small.copyWith(
+          color: errorColor,
+          fontSize: 14.0,
+        ),
+        hintStyle: AppTextStyles.body.copyWith(
+          color: seedPalette.shade50,
+          fontStyle: FontStyle.italic,
+        ),
+        labelStyle: AppTextStyles.body.copyWith(color: lightColor),
+        border: AppInputBorders.border,
+        focusedBorder: AppInputBorders.focusedBorder,
+        errorBorder: AppInputBorders.errorBorder,
+        focusedErrorBorder: AppInputBorders.focusedErrorBorder,
+        enabledBorder: AppInputBorders.enabledBorder,
+        disabledBorder: AppInputBorders.disabledBorder,
+      ),
+      textStyle: AppTextStyles.body,
     ),
     searchBarTheme: SearchBarThemeData(
       backgroundColor: WidgetStateProperty.resolveWith<Color?>((
@@ -452,8 +577,8 @@ class AppTheme {
         fontSize: 14.0,
       ),
       hintStyle: AppTextStyles.body.copyWith(
-          color: seedPalette.shade50,
-          fontStyle: FontStyle.italic
+        color: seedPalette.shade50,
+        fontStyle: FontStyle.italic,
       ),
       labelStyle: AppTextStyles.body.copyWith(color: lightColor),
       border: AppInputBorders.border,
@@ -469,5 +594,84 @@ class AppTheme {
       titleTextStyle: AppTextStyles.h2,
       contentTextStyle: AppTextStyles.body,
     ),
+    datePickerTheme: DatePickerThemeData(
+      backgroundColor: seedColor,
+      headerBackgroundColor: seedPalette.shade800,
+      headerForegroundColor: lightColor,
+      dayStyle: AppTextStyles.body,
+      weekdayStyle: AppTextStyles.body,
+      yearStyle: AppTextStyles.body,
+      headerHeadlineStyle: AppTextStyles.h3,
+      toggleButtonTextStyle: AppTextStyles.body,
+      headerHelpStyle: AppTextStyles.h4,
+      dayForegroundColor: WidgetStateProperty.resolveWith((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.disabled)) {
+          return greyColor;
+        }
+        if (states.contains(WidgetState.selected)) {
+          return lightColor;
+        }
+        return lightColor;
+      }),
+      dayOverlayColor: WidgetStatePropertyAll<Color>(
+        seedPalette.shade800.withValues(alpha: 0.5),
+      ),
+      dayBackgroundColor: WidgetStateProperty.resolveWith((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.selected)) {
+          return seedPalette.shade600;
+        }
+        if (states.contains(WidgetState.disabled)) {
+          return Colors.transparent;
+        }
+        return Colors.transparent;
+      }),
+      dayShape: WidgetStatePropertyAll<RoundedRectangleBorder>(
+        RoundedRectangleBorder(borderRadius: borderRadius * 1.25),
+      ),
+      todayBackgroundColor: WidgetStateProperty.resolveWith((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.selected)) {
+          return seedPalette.shade600;
+        }
+        return seedPalette.shade800;
+      }),
+      todayForegroundColor: WidgetStateProperty.resolveWith((
+        Set<WidgetState> states,
+      ) {
+        if (states.contains(WidgetState.selected)) {
+          return lightColor;
+        }
+        return lightColor;
+      }),
+      todayBorder: BorderSide(color: seedPalette.shade500),
+      cancelButtonStyle: ButtonStyle(
+        foregroundColor: WidgetStatePropertyAll<Color>(lightColor),
+        textStyle: WidgetStatePropertyAll<TextStyle>(AppTextStyles.body),
+      ),
+      confirmButtonStyle: ButtonStyle(
+        backgroundColor: WidgetStateProperty.resolveWith((
+          Set<WidgetState> states,
+        ) {
+          if (states.contains(WidgetState.disabled)) {
+            return greyColor;
+          }
+          return seedPalette.shade600;
+        }),
+        foregroundColor: WidgetStateProperty.resolveWith((
+          Set<WidgetState> states,
+        ) {
+          if (states.contains(WidgetState.disabled)) {
+            return lightColor.withValues(alpha: 0.5);
+          }
+          return lightColor;
+        }),
+        textStyle: WidgetStatePropertyAll<TextStyle>(AppTextStyles.body),
+      ),
+    )
   );
 }

@@ -40,11 +40,11 @@ String addThousandSeparator(String price) {
 
 // Date & Time Formatters
 String dateFormatter(DateTime date) {
-  return DateFormat('dd-MM-yyyy').format(date);
+  return DateFormat('MMM dd, yyyy').format(date);
 }
 
 String dateTimeFormatter(DateTime date) {
-  return DateFormat('dd-MM-yyyy \'at\' HH:mm a').format(date);
+  return DateFormat('MMM dd, yyyy \'at\' HH:mm a').format(date);
 }
 
 // Calculate time ago

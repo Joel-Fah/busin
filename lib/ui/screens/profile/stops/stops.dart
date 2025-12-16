@@ -12,6 +12,7 @@ import '../../../../utils/constants.dart';
 import '../../../../utils/utils.dart';
 import '../../../components/widgets/bus_stop_card.dart';
 import '../../../components/widgets/default_snack_bar.dart';
+import '../../../components/widgets/loading_indicator.dart';
 
 class BusStopsManagementPage extends StatefulWidget {
   static const String routeName = '/bus-stops';
@@ -137,7 +138,7 @@ class _BusStopsManagementPageState extends State<BusStopsManagementPage> {
                 if (_busStopController.isLoading.value &&
                     _busStopController.busStops.isEmpty) {
                   return Center(
-                    child: CircularProgressIndicator(color: accentColor),
+                    child: LoadingIndicator(),
                   );
                 }
 
