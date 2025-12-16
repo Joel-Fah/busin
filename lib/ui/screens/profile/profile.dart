@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:busin/controllers/auth_controller.dart';
 import 'package:busin/controllers/subscriptions_controller.dart';
 import 'package:busin/models/scannings.dart';
+import 'package:busin/ui/screens/profile/semesters/semester.dart';
 import 'package:busin/ui/screens/profile/stops/stops.dart';
 import 'package:busin/utils/constants.dart';
 import 'package:busin/utils/utils.dart';
@@ -17,6 +18,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
+import '../../../controllers/semester_controller.dart';
 import '../../components/widgets/list_subheading.dart';
 import '../../components/widgets/user_avatar.dart';
 
@@ -32,6 +34,7 @@ class ProfilePage extends StatelessWidget {
     final AuthController authController = Get.find<AuthController>();
     final BusSubscriptionsController busSubscriptionsController =
         Get.find<BusSubscriptionsController>();
+    final SemesterController _semesterController = Get.find<SemesterController>();
 
     return Scaffold(
       appBar: AppBar(title: Text("Profile")),
@@ -281,13 +284,50 @@ class ProfilePage extends StatelessWidget {
               ListTile(
                 onTap: () {
                   HapticFeedback.mediumImpact();
+                  context.pushNamed(
+                    removeLeadingSlash(SemesterManagementPage.routeName),
+                  );
                 },
                 leading: HugeIcon(
                   icon: HugeIcons.strokeRoundedCalendar02,
                   color: themeController.isDark ? lightColor : seedColor,
                 ),
                 title: Text("Semester Management"),
-                subtitle: Text("Manage bus semesters duration and more"),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Manage bus semesters duration and more"),
+                    // Active semester indicator
+                    Obx(() {
+                      final active = _semesterController.activeSemester.value;
+                      if (active == null) return const SizedBox.shrink();
+
+                      return Container(
+                        padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+                        decoration: BoxDecoration(
+                          color: successColor.withValues(alpha: 0.1),
+                          borderRadius: borderRadius,
+                        ),
+                        child: Row(
+                          spacing: 8.0,
+                          children: [
+                            Text(
+                              '${active.semester.label} ${active.year}',
+                              style: AppTextStyles.small
+                                  .copyWith(color: successColor, fontWeight: FontWeight.w600),
+                            ),
+                            Expanded(child: Divider(color: successColor, thickness: 0.5,)),
+                            Text(
+                              '${dateFormatter(active.startDate)} - ${dateFormatter(active.endDate)}',
+                              style: AppTextStyles.small
+                                  .copyWith(color: successColor),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                  ],
+                ),
                 trailing: HugeIcon(
                   icon: HugeIcons.strokeRoundedArrowUpRight01,
                   color: themeController.isDark ? lightColor : seedColor,

@@ -19,6 +19,7 @@ import '../../../controllers/subscriptions_controller.dart';
 import '../../../models/subscription.dart';
 import '../../../models/value_objects/bus_stop_selection.dart';
 import '../../components/widgets/default_snack_bar.dart';
+import '../../components/widgets/loading_indicator.dart';
 
 class SubscriptionDetailsPage extends StatelessWidget {
   static const String routeName = '/subscription-details';
@@ -1113,10 +1114,7 @@ class _PickupImageView extends StatelessWidget {
                   ? seedPalette.shade800
                   : seedPalette.shade100,
               child: Center(
-                child: CircularProgressIndicator(
-                  color: accentColor,
-                  strokeWidth: 2,
-                ),
+                child: LoadingIndicator(),
               ),
             ),
             errorWidget: (context, url, error) => Container(
@@ -1213,7 +1211,7 @@ class _FullScreenImageViewer extends StatelessWidget {
                       imageUrl: imageUrl,
                       fit: BoxFit.contain,
                       placeholder: (context, url) => Center(
-                        child: CircularProgressIndicator(color: accentColor),
+                        child: LoadingIndicator(),
                       ),
                       errorWidget: (context, url, error) => Center(
                         child: HugeIcon(

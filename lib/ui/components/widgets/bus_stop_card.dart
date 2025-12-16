@@ -1,4 +1,5 @@
 import 'package:busin/controllers/auth_controller.dart';
+import 'package:busin/ui/components/widgets/loading_indicator.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -156,12 +157,7 @@ class BusStopCard extends StatelessWidget {
             color: themeController.isDark
                 ? seedPalette.shade900
                 : seedPalette.shade100,
-            child: Center(
-              child: CircularProgressIndicator(
-                color: accentColor,
-                strokeWidth: 2,
-              ),
-            ),
+            child: Center(child: LoadingIndicator()),
           ),
           errorWidget: (context, url, error) => Container(
             color: themeController.isDark

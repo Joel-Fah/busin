@@ -99,7 +99,7 @@ class _EditStopPageState extends State<EditStopPage> {
 
     if (success) {
       context.pop();
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(
         buildSnackBar(
           prefixIcon: const Icon(Icons.check_circle, color: lightColor),
           label: const Text('Bus stop updated successfully'),
@@ -107,7 +107,7 @@ class _EditStopPageState extends State<EditStopPage> {
         ),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(
         buildSnackBar(
           prefixIcon: const Icon(Icons.error, color: lightColor),
           label: Text(

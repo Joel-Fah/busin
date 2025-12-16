@@ -4,3 +4,4 @@ export 'auth_controller.dart';
 export 'onboarding_controller.dart';
 export 'subscriptions_controller.dart';
 export 'bus_stops_controller.dart';
+export 'semester_controller.dart';

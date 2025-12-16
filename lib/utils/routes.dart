@@ -6,6 +6,8 @@ import 'package:busin/ui/screens/home/home_tab.dart';
 import 'package:busin/ui/screens/home/scannings_tab.dart';
 import 'package:busin/ui/screens/home/subscriptions_tab.dart';
 import 'package:busin/ui/screens/profile/profile.dart';
+import 'package:busin/ui/screens/profile/semesters/semester.dart';
+import 'package:busin/ui/screens/profile/semesters/semester_form.dart';
 import 'package:busin/ui/screens/profile/stops/stops.dart';
 import 'package:busin/ui/screens/profile/stops/stops_new.dart';
 import 'package:busin/ui/screens/profile/stops/stops_edit.dart';
@@ -19,6 +21,7 @@ import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 
 import '../api/docs_api.dart';
+import '../models/semester_config.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -234,6 +237,23 @@ final router = GoRouter(
           builder: (context, state) {
             final stopId = state.pathParameters['stopId']!;
             return EditStopPage(stopId: stopId);
+          },
+        ),
+      ],
+    ),
+    GoRoute(
+      parentNavigatorKey: rootNavigatorKey,
+      path: SemesterManagementPage.routeName,
+      name: removeLeadingSlash(SemesterManagementPage.routeName),
+      builder: (context, state) => const SemesterManagementPage(),
+      routes: [
+        GoRoute(
+          parentNavigatorKey: rootNavigatorKey,
+          path: SemesterFormPage.routeName,
+          name: removeLeadingSlash(SemesterFormPage.routeName),
+          builder: (context, state) {
+            final semester = state.extra as SemesterConfig?;
+            return SemesterFormPage(semester: semester);
           },
         ),
       ],
