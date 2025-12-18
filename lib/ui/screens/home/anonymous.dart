@@ -7,7 +7,7 @@ import 'package:gap/gap.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../components/widgets/home/appbar_list_tile.dart';
-import '../../components/widgets/primary_button.dart';
+import '../../components/widgets/buttons/primary_button.dart';
 import '../onboarding/auth_modal.dart';
 
 class AnonymousHomePage extends StatelessWidget {

@@ -1,6 +1,6 @@
 import 'package:busin/l10n/app_localizations.dart';
-import 'package:busin/ui/components/widgets/primary_button.dart';
-import 'package:busin/ui/components/widgets/secondary_button.dart';
+import 'package:busin/ui/components/widgets/buttons/primary_button.dart';
+import 'package:busin/ui/components/widgets/buttons/tertiary_button.dart';
 import 'package:busin/ui/screens/home/home.dart';
 import 'package:busin/ui/screens/home/anonymous.dart';
 import 'package:busin/utils/utils.dart';
@@ -208,7 +208,7 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
                             ),
                             SizedBox(
                               width: double.infinity,
-                              child: SecondaryButton.icon(
+                              child: TertiaryButton.icon(
                                 onPressed:
                                 _isLoading ? null : _skipOnboarding,
                                 iconAlignment: IconAlignment.end,

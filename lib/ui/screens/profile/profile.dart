@@ -6,6 +6,7 @@ import 'package:busin/controllers/subscriptions_controller.dart';
 import 'package:busin/models/scannings.dart';
 import 'package:busin/ui/screens/profile/semesters/semester.dart';
 import 'package:busin/ui/screens/profile/stops/stops.dart';
+import 'package:busin/ui/screens/profile/subscriptions_admin.dart';
 import 'package:busin/utils/constants.dart';
 import 'package:busin/utils/utils.dart';
 import 'package:flutter/foundation.dart';
@@ -71,7 +72,7 @@ class ProfilePage extends StatelessWidget {
           ),
           ListView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(16.0).copyWith(bottom: 32.0),
             children: [
               Row(
                 spacing: 16.0,
@@ -258,7 +259,29 @@ class ProfilePage extends StatelessWidget {
                 ),
               ),
               const Gap(24.0),
-              ListSubHeading(label: "Advanced Options"),
+              ListSubHeading(label: "Bus Management"),
+              ListTile(
+                onTap: () {
+                  HapticFeedback.mediumImpact();
+                  context.pushNamed(
+                    removeLeadingSlash(SubscriptionsAdminPage.routeName),
+                  );
+                },
+                leading: HugeIcon(
+                  icon: HugeIcons.strokeRoundedStickyNote02,
+                  color: themeController.isDark ? lightColor : seedColor,
+                ),
+                title: Text("Subscriptions"),
+                subtitle: Text("Manage student bus subscriptions for each semester"),
+                trailing: HugeIcon(
+                  icon: HugeIcons.strokeRoundedArrowUpRight01,
+                  color: themeController.isDark ? lightColor : seedColor,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Divider(color: greyColor, thickness: 0.5),
+              ),
               ListTile(
                 onTap: () {
                   HapticFeedback.mediumImpact();
@@ -270,7 +293,7 @@ class ProfilePage extends StatelessWidget {
                   icon: HugeIcons.strokeRoundedDirections02,
                   color: themeController.isDark ? lightColor : seedColor,
                 ),
-                title: Text("Stops Management"),
+                title: Text("Bus Stops"),
                 subtitle: Text("Manage places where the bus picks up students"),
                 trailing: HugeIcon(
                   icon: HugeIcons.strokeRoundedArrowUpRight01,
@@ -292,7 +315,7 @@ class ProfilePage extends StatelessWidget {
                   icon: HugeIcons.strokeRoundedCalendar02,
                   color: themeController.isDark ? lightColor : seedColor,
                 ),
-                title: Text("Semester Management"),
+                title: Text("Semesters"),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

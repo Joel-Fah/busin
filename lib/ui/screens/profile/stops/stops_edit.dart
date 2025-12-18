@@ -3,7 +3,7 @@ import 'package:busin/models/value_objects/bus_stop_selection.dart';
 import 'package:busin/ui/components/widgets/default_snack_bar.dart';
 import 'package:busin/ui/components/widgets/form_fields/select_image.dart';
 import 'package:busin/ui/components/widgets/form_fields/simple_text_field.dart';
-import 'package:busin/ui/components/widgets/primary_button.dart';
+import 'package:busin/ui/components/widgets/buttons/primary_button.dart';
 import 'package:busin/utils/constants.dart';
 import 'package:busin/utils/utils.dart';
 import 'package:flutter/material.dart';

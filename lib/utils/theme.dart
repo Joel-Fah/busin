@@ -87,6 +87,70 @@ class AppTheme {
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
       ),
     ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: ButtonStyle(
+        alignment: Alignment.center,
+        side: WidgetStateProperty.resolveWith<BorderSide?>((
+          Set<WidgetState> states,
+        ) {
+          if (states.contains(WidgetState.disabled)) {
+            return BorderSide(
+              color: seedPalette.shade200,
+            );
+          }
+          return BorderSide(
+            color: accentColor,
+          );
+        }),
+        foregroundColor: WidgetStateProperty.resolveWith<Color?>((
+          Set<WidgetState> states,
+        ) {
+          if (states.contains(WidgetState.disabled)) {
+            return seedPalette.shade200;
+          }
+          return accentColor;
+        }),
+        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+          RoundedRectangleBorder(borderRadius: borderRadius * 2.0),
+        ),
+        textStyle: WidgetStateProperty.all<TextStyle>(
+          AppTextStyles.body.copyWith(
+            fontVariations: [FontVariation('wght', 500)],
+          ),
+        ),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: ButtonStyle(
+        alignment: Alignment.center,
+        backgroundColor: WidgetStateProperty.resolveWith<Color?>((
+          Set<WidgetState> states,
+        ) {
+          if (states.contains(WidgetState.disabled)) {
+            return seedPalette.shade200;
+          }
+          return accentColor;
+        }),
+        foregroundColor: WidgetStateProperty.resolveWith<Color?>((
+          Set<WidgetState> states,
+        ) {
+          if (states.contains(WidgetState.disabled)) {
+            return lightColor.withValues(alpha: 0.5);
+          }
+          return lightColor;
+        }),
+        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+          RoundedRectangleBorder(borderRadius: borderRadius * 2.0),
+        ),
+        textStyle: WidgetStateProperty.all<TextStyle>(
+          AppTextStyles.body.copyWith(
+            fontVariations: [FontVariation('wght', 500)],
+          ),
+        ),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+    ),
     actionIconTheme: ActionIconThemeData(
       backButtonIconBuilder: (context) {
         return Padding(
@@ -415,6 +479,70 @@ class AppTheme {
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
       ),
     ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: ButtonStyle(
+        alignment: Alignment.center,
+        side: WidgetStateProperty.resolveWith<BorderSide?>((
+          Set<WidgetState> states,
+        ) {
+          if (states.contains(WidgetState.disabled)) {
+            return BorderSide(
+              color: seedPalette.shade200,
+            );
+          }
+          return BorderSide(
+            color: accentColor,
+          );
+        }),
+        foregroundColor: WidgetStateProperty.resolveWith<Color?>((
+          Set<WidgetState> states,
+        ) {
+          if (states.contains(WidgetState.disabled)) {
+            return seedPalette.shade200;
+          }
+          return accentColor;
+        }),
+        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+          RoundedRectangleBorder(borderRadius: borderRadius * 2),
+        ),
+        textStyle: WidgetStateProperty.all<TextStyle>(
+          AppTextStyles.body.copyWith(
+            fontVariations: [FontVariation('wght', 500)],
+          ),
+        ),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: ButtonStyle(
+        alignment: Alignment.center,
+        backgroundColor: WidgetStateProperty.resolveWith<Color?>((
+          Set<WidgetState> states,
+        ) {
+          if (states.contains(WidgetState.disabled)) {
+            return seedPalette.shade200;
+          }
+          return accentColor;
+        }),
+        foregroundColor: WidgetStateProperty.resolveWith<Color?>((
+          Set<WidgetState> states,
+        ) {
+          if (states.contains(WidgetState.disabled)) {
+            return lightColor.withValues(alpha: 0.5);
+          }
+          return lightColor;
+        }),
+        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+          RoundedRectangleBorder(borderRadius: borderRadius * 2),
+        ),
+        textStyle: WidgetStateProperty.all<TextStyle>(
+          AppTextStyles.body.copyWith(
+            fontVariations: [FontVariation('wght', 500)],
+          ),
+        ),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+    ),
     actionIconTheme: ActionIconThemeData(
       backButtonIconBuilder: (context) {
         return Padding(
@@ -672,6 +800,6 @@ class AppTheme {
         }),
         textStyle: WidgetStatePropertyAll<TextStyle>(AppTextStyles.body),
       ),
-    )
+    ),
   );
 }

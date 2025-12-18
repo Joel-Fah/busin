@@ -11,6 +11,7 @@ import 'package:busin/ui/screens/profile/semesters/semester_form.dart';
 import 'package:busin/ui/screens/profile/stops/stops.dart';
 import 'package:busin/ui/screens/profile/stops/stops_new.dart';
 import 'package:busin/ui/screens/profile/stops/stops_edit.dart';
+import 'package:busin/ui/screens/profile/subscriptions_admin.dart';
 import 'package:busin/ui/screens/screens.dart';
 import 'package:busin/ui/screens/subscriptions/subscription_details.dart';
 import 'package:busin/ui/screens/subscriptions/subscription_new.dart';
@@ -257,6 +258,12 @@ final router = GoRouter(
           },
         ),
       ],
+    ),
+    GoRoute(
+      parentNavigatorKey: rootNavigatorKey,
+      path: SubscriptionsAdminPage.routeName,
+      name: removeLeadingSlash(SubscriptionsAdminPage.routeName),
+      builder: (context, state) => const SubscriptionsAdminPage(),
     ),
   ],
 );
