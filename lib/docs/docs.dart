@@ -1,5 +1,5 @@
 import 'package:busin/ui/components/widgets/loading_indicator.dart';
-import 'package:busin/ui/components/widgets/secondary_button.dart';
+import 'package:busin/ui/components/widgets/buttons/tertiary_button.dart';
 import 'package:busin/utils/utils.dart';
 import 'package:flutter/material.dart';
 
@@ -118,7 +118,7 @@ class _DocsPageState extends State<DocsPage> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
-              SecondaryButton.icon(
+              TertiaryButton.icon(
                 onPressed: _load,
                 icon: HugeIcon(
                   icon: HugeIcons.strokeRoundedRefresh,

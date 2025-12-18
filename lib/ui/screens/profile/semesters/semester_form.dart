@@ -10,7 +10,7 @@ import '../../../../models/subscription.dart';
 import '../../../../utils/constants.dart';
 import '../../../../utils/utils.dart';
 import '../../../components/widgets/default_snack_bar.dart';
-import '../../../components/widgets/primary_button.dart';
+import '../../../components/widgets/buttons/primary_button.dart';
 
 class SemesterFormPage extends StatefulWidget {
   final SemesterConfig? semester;
@@ -51,24 +51,28 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
 
   Future<void> _selectDate(BuildContext context, bool isStartDate) async {
     if (_selectedYear == null) {
-      ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(
-        buildSnackBar(
-          prefixIcon: const Icon(Icons.error, color: lightColor),
-          label: const Text('Please select a year first'),
-          backgroundColor: errorColor,
-        ),
-      );
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          buildSnackBar(
+            prefixIcon: const Icon(Icons.error, color: lightColor),
+            label: const Text('Please select a year first'),
+            backgroundColor: errorColor,
+          ),
+        );
       return;
     }
 
     if (_selectedSemester == null) {
-      ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(
-        buildSnackBar(
-          prefixIcon: const Icon(Icons.error, color: lightColor),
-          label: const Text('Please select a semester first'),
-          backgroundColor: errorColor,
-        ),
-      );
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          buildSnackBar(
+            prefixIcon: const Icon(Icons.error, color: lightColor),
+            label: const Text('Please select a semester first'),
+            backgroundColor: errorColor,
+          ),
+        );
       return;
     }
 
@@ -85,8 +89,8 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
       initialDate: initialDate.isBefore(firstDate)
           ? firstDate
           : initialDate.isAfter(lastDate)
-              ? lastDate
-              : initialDate,
+          ? lastDate
+          : initialDate,
       firstDate: firstDate,
       lastDate: lastDate,
     );
@@ -106,15 +110,21 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
       }
 
       // Validate date year for end date
-      if (!isStartDate && picked.year != _selectedYear && picked.year != _selectedYear! + 1) {
+      if (!isStartDate &&
+          picked.year != _selectedYear &&
+          picked.year != _selectedYear! + 1) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(
-          buildSnackBar(
-            prefixIcon: const Icon(Icons.error, color: lightColor),
-            label: Text('End date must be in $_selectedYear or ${_selectedYear! + 1}'),
-            backgroundColor: errorColor,
-          ),
-        );
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            buildSnackBar(
+              prefixIcon: const Icon(Icons.error, color: lightColor),
+              label: Text(
+                'End date must be in $_selectedYear or ${_selectedYear! + 1}',
+              ),
+              backgroundColor: errorColor,
+            ),
+          );
         return;
       }
 
@@ -136,95 +146,114 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
     if (!_formKey.currentState!.validate()) return;
 
     if (_selectedSemester == null) {
-      ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(
-        buildSnackBar(
-          prefixIcon: const Icon(Icons.error, color: lightColor),
-          label: const Text('Please select a semester'),
-          backgroundColor: errorColor,
-        ),
-      );
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          buildSnackBar(
+            prefixIcon: const Icon(Icons.error, color: lightColor),
+            label: const Text('Please select a semester'),
+            backgroundColor: errorColor,
+          ),
+        );
       return;
     }
 
     if (_selectedYear == null) {
-      ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(
-        buildSnackBar(
-          prefixIcon: const Icon(Icons.error, color: lightColor),
-          label: const Text('Please select a year'),
-          backgroundColor: errorColor,
-        ),
-      );
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          buildSnackBar(
+            prefixIcon: const Icon(Icons.error, color: lightColor),
+            label: const Text('Please select a year'),
+            backgroundColor: errorColor,
+          ),
+        );
       return;
     }
 
     if (_startDate == null || _endDate == null) {
-      ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(
-        buildSnackBar(
-          prefixIcon: const Icon(Icons.error, color: lightColor),
-          label: const Text('Please select start and end dates'),
-          backgroundColor: errorColor,
-        ),
-      );
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          buildSnackBar(
+            prefixIcon: const Icon(Icons.error, color: lightColor),
+            label: const Text('Please select start and end dates'),
+            backgroundColor: errorColor,
+          ),
+        );
       return;
     }
 
     if (_startDate!.isAfter(_endDate!)) {
-      ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(
-        buildSnackBar(
-          prefixIcon: const Icon(Icons.error, color: lightColor),
-          label: const Text('Start date must be before end date'),
-          backgroundColor: errorColor,
-        ),
-      );
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          buildSnackBar(
+            prefixIcon: const Icon(Icons.error, color: lightColor),
+            label: const Text('Start date must be before end date'),
+            backgroundColor: errorColor,
+          ),
+        );
       return;
     }
 
     // Validate that start date year matches selected year
     if (_startDate!.year != _selectedYear) {
-      ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(
-        buildSnackBar(
-          prefixIcon: const Icon(Icons.error, color: lightColor),
-          label: Text('Start date must be in $_selectedYear'),
-          backgroundColor: errorColor,
-        ),
-      );
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          buildSnackBar(
+            prefixIcon: const Icon(Icons.error, color: lightColor),
+            label: Text('Start date must be in $_selectedYear'),
+            backgroundColor: errorColor,
+          ),
+        );
       return;
     }
 
     // Validate that end date year matches selected year (or can be in next year for some semesters)
-    if (_endDate!.year != _selectedYear && _endDate!.year != _selectedYear! + 1) {
-      ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(
-        buildSnackBar(
-          prefixIcon: const Icon(Icons.error, color: lightColor),
-          label: Text('End date must be in $_selectedYear or ${_selectedYear! + 1}'),
-          backgroundColor: errorColor,
-        ),
-      );
+    if (_endDate!.year != _selectedYear &&
+        _endDate!.year != _selectedYear! + 1) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          buildSnackBar(
+            prefixIcon: const Icon(Icons.error, color: lightColor),
+            label: Text(
+              'End date must be in $_selectedYear or ${_selectedYear! + 1}',
+            ),
+            backgroundColor: errorColor,
+          ),
+        );
       return;
     }
 
     // Validate semester duration is reasonable (at least 30 days)
     final duration = _endDate!.difference(_startDate!).inDays;
     if (duration < 30) {
-      ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(
-        buildSnackBar(
-          prefixIcon: const Icon(Icons.error, color: lightColor),
-          label: const Text('Semester must be at least 30 days long'),
-          backgroundColor: errorColor,
-        ),
-      );
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          buildSnackBar(
+            prefixIcon: const Icon(Icons.error, color: lightColor),
+            label: const Text('Semester must be at least 30 days long'),
+            backgroundColor: errorColor,
+          ),
+        );
       return;
     }
 
     // Validate semester duration is reasonable (maximum 6 months)
     if (duration > 183) {
-      ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(
-        buildSnackBar(
-          prefixIcon: const Icon(Icons.error, color: lightColor),
-          label: const Text('Semester cannot be longer than 6 months'),
-          backgroundColor: errorColor,
-        ),
-      );
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          buildSnackBar(
+            prefixIcon: const Icon(Icons.error, color: lightColor),
+            label: const Text('Semester cannot be longer than 6 months'),
+            backgroundColor: errorColor,
+          ),
+        );
       return;
     }
 
@@ -260,31 +289,35 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
 
     if (result != null) {
       context.pop();
-      ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(
-        buildSnackBar(
-          prefixIcon: const Icon(Icons.check_circle, color: lightColor),
-          label: Text(
-            isEditing
-                ? 'Semester updated successfully'
-                : 'Semester created successfully',
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          buildSnackBar(
+            prefixIcon: const Icon(Icons.check_circle, color: lightColor),
+            label: Text(
+              isEditing
+                  ? 'Semester updated successfully'
+                  : 'Semester created successfully',
+            ),
+            backgroundColor: successColor,
           ),
-          backgroundColor: successColor,
-        ),
-      );
+        );
     } else {
-      ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(
-        buildSnackBar(
-          prefixIcon: const Icon(Icons.error, color: lightColor),
-          label: Text(
-            _semesterController.error.value.isNotEmpty
-                ? _semesterController.error.value
-                : isEditing
-                ? 'Failed to update semester'
-                : 'Failed to create semester',
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          buildSnackBar(
+            prefixIcon: const Icon(Icons.error, color: lightColor),
+            label: Text(
+              _semesterController.error.value.isNotEmpty
+                  ? _semesterController.error.value
+                  : isEditing
+                  ? 'Failed to update semester'
+                  : 'Failed to create semester',
+            ),
+            backgroundColor: errorColor,
           ),
-          backgroundColor: errorColor,
-        ),
-      );
+        );
     }
   }
 
@@ -360,10 +393,10 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
                       semester.label,
                       style: AppTextStyles.body.copyWith(
                         color: isSelected
-                            ? lightColor
-                            : isEnabled
-                            ? null
-                            : Colors.grey.shade900,
+                                  ? lightColor
+                                  : isEnabled
+                                      ? null
+                                      : themeController.isDark ? lightColor.withValues(alpha: 0.5) : Colors.grey.shade900,
                       ),
                     ),
                     selected: isSelected,
@@ -389,26 +422,29 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
                           }
                         : exists && !isEditing
                         ? (selected) {
-                            ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(
-                              buildSnackBar(
-                                prefixIcon: const HugeIcon(
-                                  icon: warningIcon,
-                                  color: lightColor,
+                            ScaffoldMessenger.of(context)
+                              ..hideCurrentSnackBar()
+                              ..showSnackBar(
+                                buildSnackBar(
+                                  prefixIcon: const HugeIcon(
+                                    icon: warningIcon,
+                                    color: seedColor,
+                                  ),
+                                  label: Text(
+                                    '${semester.label} is already registered for $_selectedYear',
+                                  ),
+                                  backgroundColor: warningColor,
+                                  foregroundColor: seedColor
                                 ),
-                                label: Text(
-                                  '${semester.label} is already registered for $_selectedYear',
-                                ),
-                                backgroundColor: warningColor,
-                              ),
-                            );
+                              );
                           }
                         : null,
                     side: BorderSide(
                       color: isSelected
-                          ? seedPalette.shade700
+                          ? themeController.isDark ? seedPalette.shade500 : seedPalette.shade700
                           : !exists
                           ? seedPalette.shade900
-                          : Colors.grey.shade900,
+                          : themeController.isDark ? Colors.grey.shade600 : Colors.grey.shade900,
                       width: isSelected ? 2.0 : 1.0,
                     ),
                     shape: RoundedRectangleBorder(
@@ -425,19 +461,19 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
                       }
                       if (states.contains(WidgetState.selected)) {
                         return themeController.isDark
-                            ? seedPalette.shade800
+                            ? seedPalette.shade700
                             : seedPalette.shade900;
                       }
                       if (states.contains(WidgetState.pressed)) {
                         return seedPalette.shade900.withValues(alpha: 0.2);
                       }
-                      return seedPalette.shade50;
+                      return themeController.isDark ? seedPalette.shade900 : seedPalette.shade50;
                     }),
                     avatar: exists
                         ? HugeIcon(
                             icon: HugeIcons.strokeRoundedUnavailable,
                             size: 20.0,
-                            color: Colors.grey.shade900,
+                            color: themeController.isDark ? lightColor.withValues(alpha: 0.5) : Colors.grey.shade900,
                           )
                         : null,
                   );
@@ -448,7 +484,10 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
                   padding: const EdgeInsets.only(top: 8.0, left: 12.0),
                   child: Text(
                     'Please select a semester',
-                    style: AppTextStyles.body.copyWith(color: errorColor, fontSize: 14.0),
+                    style: AppTextStyles.body.copyWith(
+                      color: errorColor,
+                      fontSize: 14.0,
+                    ),
                   ),
                 ),
               const Gap(16.0),
@@ -464,7 +503,8 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
                 runSpacing: 8.0,
                 children: List.generate(4, (index) {
                   final year = DateTime.now().year - 1 + index;
-                  final exists = !isEditing &&
+                  final exists =
+                      !isEditing &&
                       _selectedSemester != null &&
                       _semesterController.semesterExists(
                         _selectedSemester!.nameLower,
@@ -480,8 +520,8 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
                         color: isSelected
                             ? lightColor
                             : isEnabled
-                                ? null
-                                : Colors.grey.shade900,
+                            ? null
+                            : themeController.isDark ? lightColor.withValues(alpha: 0.5) : Colors.grey.shade900,
                       ),
                     ),
                     selected: isSelected,
@@ -492,8 +532,8 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
                                 _selectedYear = year;
                                 // Auto-fill dates based on default span
                                 if (_selectedSemester != null) {
-                                  final span =
-                                      _selectedSemester!.defaultSpanForYear(year);
+                                  final span = _selectedSemester!
+                                      .defaultSpanForYear(year);
                                   _startDate = span.start;
                                   _endDate = span.end;
                                 } else {
@@ -505,27 +545,29 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
                             }
                           }
                         : exists && !isEditing
-                            ? (selected) {
-                                ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(
-                                  buildSnackBar(
-                                    prefixIcon: const HugeIcon(
-                                      icon: warningIcon,
-                                      color: lightColor,
-                                    ),
-                                    label: Text(
-                                      '${_selectedSemester!.label} is already registered for $year',
-                                    ),
-                                    backgroundColor: warningColor,
+                        ? (selected) {
+                            ScaffoldMessenger.of(context)
+                              ..hideCurrentSnackBar()
+                              ..showSnackBar(
+                                buildSnackBar(
+                                  prefixIcon: const HugeIcon(
+                                    icon: warningIcon,
+                                    color: lightColor,
                                   ),
-                                );
-                              }
-                            : null,
+                                  label: Text(
+                                    '${_selectedSemester!.label} is already registered for $year',
+                                  ),
+                                  backgroundColor: warningColor,
+                                ),
+                              );
+                          }
+                        : null,
                     side: BorderSide(
                       color: isSelected
-                          ? seedPalette.shade700
+                          ? themeController.isDark ? seedPalette.shade500 : seedPalette.shade700
                           : !exists
-                              ? seedPalette.shade900
-                              : Colors.grey.shade900,
+                          ? seedPalette.shade900
+                          : themeController.isDark ? Colors.grey.shade600 : Colors.grey.shade900,
                       width: isSelected ? 2.0 : 1.0,
                     ),
                     shape: RoundedRectangleBorder(
@@ -536,27 +578,25 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
                       vertical: 4.0,
                     ),
                     checkmarkColor: lightColor,
-                    color: WidgetStateProperty.resolveWith<Color?>(
-                      (states) {
-                        if (states.contains(WidgetState.disabled)) {
-                          return greyColor.withValues(alpha: 0.2);
-                        }
-                        if (states.contains(WidgetState.selected)) {
-                          return themeController.isDark
-                              ? seedPalette.shade800
-                              : seedPalette.shade900;
-                        }
-                        if (states.contains(WidgetState.pressed)) {
-                          return seedPalette.shade900.withValues(alpha: 0.2);
-                        }
-                        return seedPalette.shade50;
-                      },
-                    ),
+                    color: WidgetStateProperty.resolveWith<Color?>((states) {
+                      if (states.contains(WidgetState.disabled)) {
+                        return greyColor.withValues(alpha: 0.2);
+                      }
+                      if (states.contains(WidgetState.selected)) {
+                        return themeController.isDark
+                            ? seedPalette.shade700
+                            : seedPalette.shade900;
+                      }
+                      if (states.contains(WidgetState.pressed)) {
+                        return seedPalette.shade900.withValues(alpha: 0.2);
+                      }
+                      return themeController.isDark ? seedPalette.shade900 : seedPalette.shade50;
+                    }),
                     avatar: exists
                         ? HugeIcon(
                             icon: HugeIcons.strokeRoundedUnavailable,
                             size: 20.0,
-                            color: Colors.grey.shade900,
+                      color: themeController.isDark ? lightColor.withValues(alpha: 0.5) : Colors.grey.shade900,
                           )
                         : null,
                   );
@@ -589,11 +629,11 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
                   padding: const EdgeInsets.all(16.0),
                   decoration: BoxDecoration(
                     color: themeController.isDark
-                        ? Colors.grey.shade800
+                        ? seedPalette.shade900
                         : seedPalette.shade50.withValues(alpha: 0.5),
                     border: Border.all(
                       color: themeController.isDark
-                          ? Colors.grey.shade700
+                          ? seedPalette.shade700
                           : seedPalette.shade900,
                     ),
                     borderRadius: borderRadius * 2,
@@ -637,11 +677,11 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
                   padding: const EdgeInsets.all(16.0),
                   decoration: BoxDecoration(
                     color: themeController.isDark
-                        ? Colors.grey.shade800
+                        ? seedPalette.shade900
                         : seedPalette.shade50.withValues(alpha: 0.5),
                     border: Border.all(
                       color: themeController.isDark
-                          ? Colors.grey.shade700
+                          ? seedPalette.shade700
                           : seedPalette.shade900,
                     ),
                     borderRadius: borderRadius * 2,

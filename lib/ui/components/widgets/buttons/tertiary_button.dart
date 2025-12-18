@@ -2,7 +2,7 @@ import 'package:busin/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class SecondaryButton extends StatelessWidget {
+class TertiaryButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final VoidCallback? onLongPress;
   final Color? bgColor;
@@ -14,7 +14,7 @@ class SecondaryButton extends StatelessWidget {
   final Widget? icon;
   final Widget? labelWidget;
 
-  const SecondaryButton._({
+  const TertiaryButton._({
     super.key,
     required this.onPressed,
     this.onLongPress,
@@ -26,7 +26,7 @@ class SecondaryButton extends StatelessWidget {
     this.iconAlignment,
   });
 
-  factory SecondaryButton.label({
+  factory TertiaryButton.label({
     Key? key,
     required String label,
     Color? labelColor,
@@ -35,7 +35,7 @@ class SecondaryButton extends StatelessWidget {
     VoidCallback? onLongPress,
     bool enableHaptics = true,
   }) {
-    return SecondaryButton._(
+    return TertiaryButton._(
       key: key,
       onPressed: onPressed,
       onLongPress: onLongPress,
@@ -45,7 +45,7 @@ class SecondaryButton extends StatelessWidget {
     );
   }
 
-  factory SecondaryButton.icon({
+  factory TertiaryButton.icon({
     Key? key,
     required Widget icon,
     required Widget label,
@@ -55,7 +55,7 @@ class SecondaryButton extends StatelessWidget {
     bool enableHaptics = true,
     IconAlignment iconAlignment = IconAlignment.start,
   }) {
-    return SecondaryButton._(
+    return TertiaryButton._(
       key: key,
       onPressed: onPressed,
       onLongPress: onLongPress,
@@ -67,7 +67,7 @@ class SecondaryButton extends StatelessWidget {
     );
   }
 
-  factory SecondaryButton.child({
+  factory TertiaryButton.child({
     Key? key,
     required Widget child,
     VoidCallback? onPressed,
@@ -75,7 +75,7 @@ class SecondaryButton extends StatelessWidget {
     Color? bgColor,
     bool enableHaptics = true,
   }) {
-    return SecondaryButton._(
+    return TertiaryButton._(
       key: key,
       onPressed: onPressed,
       onLongPress: onLongPress,

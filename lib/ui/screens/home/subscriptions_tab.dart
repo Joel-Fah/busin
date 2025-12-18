@@ -1,6 +1,6 @@
 import 'package:busin/controllers/controllers.dart';
 import 'package:busin/ui/components/widgets/custom_list_tile.dart';
-import 'package:busin/ui/components/widgets/primary_button.dart';
+import 'package:busin/ui/components/widgets/buttons/primary_button.dart';
 import 'package:busin/ui/screens/subscriptions/subscription_new.dart';
 import 'package:busin/utils/constants.dart';
 import 'package:flutter/material.dart';

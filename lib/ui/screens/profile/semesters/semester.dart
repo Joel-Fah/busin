@@ -632,8 +632,9 @@ class _SemesterCard extends StatelessWidget {
                   IconButton(
                     tooltip: 'Edit Semester',
                     onPressed: onEdit,
-                    icon: const HugeIcon(
+                    icon: HugeIcon(
                       icon: HugeIcons.strokeRoundedEdit02,
+                      color: themeController.isDark ? seedPalette.shade100 : seedColor,
                     ),
                   ),
                   IconButton(

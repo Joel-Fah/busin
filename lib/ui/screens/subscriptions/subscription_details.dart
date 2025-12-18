@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:busin/utils/utils.dart';
 import 'package:busin/utils/constants.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
@@ -15,7 +16,9 @@ import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../controllers/auth_controller.dart';
 import '../../../controllers/subscriptions_controller.dart';
+import '../../../models/actors/base_user.dart';
 import '../../../models/subscription.dart';
 import '../../../models/value_objects/bus_stop_selection.dart';
 import '../../components/widgets/default_snack_bar.dart';
@@ -347,7 +350,24 @@ class _SubscriptionDetailsContentState
                     ),
                   ),
 
-                  const Gap(24.0),
+                  // Student info section (Admin only)
+                  Obx(() {
+                    final authController = Get.find<AuthController>();
+                    final isAdmin = authController.isAdmin;
+
+                    if (!isAdmin) return const SizedBox.shrink();
+
+                    return Column(
+                      children: [
+                        const Gap(16.0),
+                        _StudentInfoSection(
+                          studentId: subscription.studentId,
+                        ),
+                      ],
+                    );
+                  }),
+
+                  const Gap(16.0),
 
                   // Status & Dates section
                   _SectionContainer(
@@ -506,7 +526,6 @@ class _SubscriptionDetailsContentState
                       ],
                     ),
                   ),
-                  const Gap(40.0),
                 ],
               ),
             ),
@@ -1180,6 +1199,175 @@ class _PickupImageView extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+// Student info section (Admin only)
+class _StudentInfoSection extends StatelessWidget {
+  final String studentId;
+
+  const _StudentInfoSection({required this.studentId});
+
+  @override
+  Widget build(BuildContext context) {
+    final authController = Get.find<AuthController>();
+
+    return FutureBuilder<BaseUser?>(
+      future: authController.getUserById(studentId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return _SectionContainer(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      HugeIcon(
+                        icon: HugeIcons.strokeRoundedUserCircle,
+                        color: themeController.isDark ? lightColor : seedColor,
+                      ),
+                      const Gap(12.0),
+                      Text(
+                        'Student Information',
+                        style: AppTextStyles.h3,
+                      ),
+                    ],
+                  ),
+                  const Gap(16.0),
+                  // Shimmer loading effect
+                  ...List.generate(
+                    3,
+                    (index) => Padding(
+                      padding: const EdgeInsets.only(bottom: 12.0),
+                      child: Container(
+                        height: 16,
+                        decoration: BoxDecoration(
+                          color: themeController.isDark
+                              ? seedColor.withValues(alpha: 0.2)
+                              : seedPalette.shade50.withValues(alpha: 0.5),
+                          borderRadius: borderRadius * 1.5,
+                        ),
+                      )
+                          .animate(
+                            onPlay: (controller) => controller.repeat(),
+                          )
+                          .shimmer(
+                            duration: const Duration(milliseconds: 1500),
+                            color: themeController.isDark
+                                ? lightColor.withValues(alpha: 0.2)
+                                : lightColor.withValues(alpha: 0.5),
+                          ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        if (snapshot.hasError || snapshot.data == null) {
+          return _SectionContainer(
+            backgroundColor: errorColor.withValues(alpha: 0.1),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  HugeIcon(
+                    icon: HugeIcons.strokeRoundedAlert02,
+                    color: errorColor,
+                  ),
+                  const Gap(12.0),
+                  Expanded(
+                    child: Text(
+                      'Failed to load student information',
+                      style: AppTextStyles.body.copyWith(color: errorColor),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        final student = snapshot.data!;
+
+        return _SectionContainer(
+          backgroundColor: seedPalette.shade100,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(
+                        color: seedPalette.shade700.withValues(alpha: 0.1),
+                        borderRadius: borderRadius * 1.5,
+                      ),
+                      child: HugeIcon(
+                        icon: HugeIcons.strokeRoundedUserCircle,
+                        color: seedColor,
+                      ),
+                    ),
+                    const Gap(12.0),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Student Information',
+                            style: AppTextStyles.h3,
+                          ),
+                          Text(
+                            'Subscriber details',
+                            style: AppTextStyles.small.copyWith(
+                              color: themeController.isDark
+                                  ? seedPalette.shade50.withValues(alpha: 0.7)
+                                  : greyColor.withValues(alpha: 0.7),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              _Divider(),
+              _InfoRow(
+                icon: HugeIcons.strokeRoundedUser,
+                label: 'Name',
+                value: student.name,
+              ),
+              _Divider(),
+              _InfoRow(
+                icon: HugeIcons.strokeRoundedMail02,
+                label: 'Email',
+                value: student.email,
+              ),
+              _Divider(),
+              _InfoRow(
+                icon: HugeIcons.strokeRoundedCheckmarkBadge02,
+                label: 'Status',
+                value: student.status.name.capitalize ?? student.status.name,
+                valueColor: student.isVerified ? successColor : warningColor,
+              ),
+              if (student.phone != null && student.phone!.isNotEmpty) ...[
+                _Divider(),
+                _InfoRow(
+                  icon: HugeIcons.strokeRoundedCall,
+                  label: 'Phone',
+                  value: student.phone!,
+                ),
+              ],
+            ],
+          ),
+        );
+      },
     );
   }
 }

@@ -49,6 +49,41 @@ class BusSubscriptionsController extends GetxController {
     );
   }
 
+  /// Start watching all subscriptions (for admin purposes)
+  void startWatchingAll() {
+    _watcher?.cancel();
+    _watcher = _service
+        .watchAllSubscriptions()
+        .listen(
+      (data) => _busSubscriptions.assignAll(data),
+      onError: (Object err) => errorMessage.value = err.toString(),
+    );
+  }
+
+  /// Approve a subscription
+  Future<void> approveSubscription({
+    required String subscriptionId,
+    required String reviewerId,
+  }) async {
+    await _guardedRequest(() => _service.approveSubscription(
+          subscriptionId: subscriptionId,
+          reviewerId: reviewerId,
+        ));
+  }
+
+  /// Reject a subscription
+  Future<void> rejectSubscription({
+    required String subscriptionId,
+    required String reviewerId,
+    required String reason,
+  }) async {
+    await _guardedRequest(() => _service.rejectSubscription(
+          subscriptionId: subscriptionId,
+          reviewerId: reviewerId,
+          reason: reason,
+        ));
+  }
+
   Future<void> refreshCurrentFilters() async {
     startWatching(studentId: _currentStudentId, status: _currentStatus);
   }

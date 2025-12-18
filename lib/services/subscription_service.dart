@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
 import '../models/subscription.dart';
+import '../models/value_objects/review_observation.dart';
 
 class SubscriptionService {
   SubscriptionService._();
@@ -91,6 +92,87 @@ class SubscriptionService {
         return BusSubscription.fromMap(data);
       }).toList();
     });
+  }
+
+  /// Watch all subscriptions for admin purposes
+  Stream<List<BusSubscription>> watchAllSubscriptions() {
+    return _collection
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        final data = Map<String, dynamic>.from(doc.data());
+        data['id'] = doc.id;
+        return BusSubscription.fromMap(data);
+      }).toList();
+    });
+  }
+
+  /// Approve a subscription
+  Future<void> approveSubscription({
+    required String subscriptionId,
+    required String reviewerId,
+  }) async {
+    try {
+      final subscription = await fetchSubscription(subscriptionId);
+      if (subscription == null) {
+        throw Exception('Subscription not found');
+      }
+
+      final approved = subscription.copyWith(
+        status: BusSubscriptionStatus.approved,
+        observation: ReviewObservation(
+          reviewerUserId: reviewerId,
+          observedAt: DateTime.now(),
+          message: 'Your bus subscription for ${subscription.semester.label} ${subscription.year} has been approved. Enjoy your ride throughout the semester',
+        ),
+        updatedAt: DateTime.now(),
+      );
+
+      await updateSubscription(approved);
+      if (kDebugMode) {
+        debugPrint('[SubscriptionService] Approved subscription $subscriptionId');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[SubscriptionService] approveSubscription error: $e');
+      }
+      rethrow;
+    }
+  }
+
+  /// Reject a subscription
+  Future<void> rejectSubscription({
+    required String subscriptionId,
+    required String reviewerId,
+    required String reason,
+  }) async {
+    try {
+      final subscription = await fetchSubscription(subscriptionId);
+      if (subscription == null) {
+        throw Exception('Subscription not found');
+      }
+
+      final rejected = subscription.copyWith(
+        status: BusSubscriptionStatus.rejected,
+        observation: ReviewObservation(
+          reviewerUserId: reviewerId,
+          observedAt: DateTime.now(),
+          message: reason,
+        ),
+        updatedAt: DateTime.now(),
+      );
+
+      await updateSubscription(rejected);
+      if (kDebugMode) {
+        debugPrint('[SubscriptionService] Rejected subscription $subscriptionId');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[SubscriptionService] rejectSubscription error: $e');
+      }
+      rethrow;
+    }
   }
 
   Future<BusSubscription?> fetchSubscription(String id) async {
