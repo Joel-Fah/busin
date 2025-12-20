@@ -27,9 +27,8 @@ class AnalyticsTab extends StatefulWidget {
 }
 
 class _AnalyticsTabState extends State<AnalyticsTab> {
-  final AnalyticsController _analyticsController = Get.put(
-    AnalyticsController(),
-  );
+  final AnalyticsController _analyticsController = Get.find<
+    AnalyticsController>();
 
   @override
   void initState() {
@@ -132,11 +131,10 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
           }
 
           return ListView(
-            padding: const EdgeInsets.all(16.0).copyWith(bottom: 100.0),
+            padding: const EdgeInsets.all(16.0).copyWith(bottom: 120.0),
             children: [
               // Quick Stats Grid with Trends
               _buildQuickStatsGrid(),
-              const Gap(24.0),
 
               // Subscription Status Overview
               Obx(
@@ -259,7 +257,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
               label: 'Pending Review',
               value: pending,
               total: total,
-              color: warningColor,
+              color: infoColor,
             ),
             _AnimatedProgressBar(
               label: 'Approved',
@@ -355,7 +353,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                             value: pending.toDouble(),
                             title:
                                 '${((pending / total) * 100).toStringAsFixed(0)}%',
-                            color: warningColor,
+                            color: infoColor,
                             radius: 50,
                             titleStyle: AppTextStyles.small.copyWith(
                               color: lightColor,
@@ -416,7 +414,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
               runSpacing: 8.0,
               children: [
                 _ChartLegendItem(
-                  color: warningColor,
+                  color: infoColor,
                   label: 'Pending',
                   value: pending.toString(),
                 ),
@@ -538,7 +536,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                           _MiniStat(
                             label: 'Pending',
                             value: pending.toString(),
-                            color: warningColor,
+                            color: infoColor,
                           ),
                           _MiniStat(
                             label: 'Approved',
@@ -872,7 +870,9 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: recentSubscriptions.take(5).length,
-                separatorBuilder: (context, index) => const Divider(),
+                separatorBuilder: (context, index) => const Divider(
+                  thickness: 0,
+                ),
                 itemBuilder: (context, index) {
                   final subscription = recentSubscriptions[index];
                   final status = subscription['status'] as String?;
@@ -1181,7 +1181,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
             icon: HugeIcons.strokeRoundedTicket02,
             title: 'Review Subscriptions',
             subtitle: 'Approve or reject pending subscriptions',
-            color: warningColor,
+            color: infoColor,
             onTap: () {
               context.pushNamed(
                 removeLeadingSlash(SubscriptionsAdminPage.routeName),
@@ -1220,7 +1220,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'pending':
-        return warningColor;
+        return infoColor;
       case 'approved':
         return successColor;
       case 'rejected':

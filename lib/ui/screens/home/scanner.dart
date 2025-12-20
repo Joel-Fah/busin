@@ -20,7 +20,7 @@ class ScannerPage extends StatefulWidget {
 }
 
 class _ScannerPageState extends State<ScannerPage> {
-  final ScannerController _scannerController = Get.put(ScannerController());
+  final ScannerController _scannerController = Get.find<ScannerController>();
   late MobileScannerController _mobileScannerController;
 
   @override

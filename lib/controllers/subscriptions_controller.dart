@@ -3,17 +3,22 @@ import 'dart:async';
 import 'package:busin/models/subscription.dart';
 import 'package:busin/services/subscription_service.dart';
 import 'package:get/get.dart';
+import 'package:flutter/foundation.dart';
+
+import 'auth_controller.dart';
 
 class BusSubscriptionsController extends GetxController {
   BusSubscriptionsController();
 
   final SubscriptionService _service = SubscriptionService.instance;
+  final AuthController _authController = Get.find<AuthController>();
 
   final RxList<BusSubscription> _busSubscriptions = <BusSubscription>[].obs;
   final RxBool isBusy = false.obs;
   final RxnString errorMessage = RxnString();
 
   List<BusSubscription> get busSubscriptions => _busSubscriptions;
+  bool get isStudent => _authController.isStudent;
 
   // Firebase collection
   static const String kSubscriptionsCollection = 'subscriptions';
@@ -25,13 +30,46 @@ class BusSubscriptionsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    startWatching();
+    // Start watching with proper filtering based on user role
+    _initializeWatching();
   }
 
   @override
   void onClose() {
     _watcher?.cancel();
     super.onClose();
+  }
+
+  /// Initialize watching based on user role
+  /// Students: Only watch their own subscriptions
+  /// Admins/Staff: Watch all subscriptions
+  void _initializeWatching() {
+    if (_authController.isStudent) {
+      // SECURITY: Students can ONLY see their own subscriptions
+      final studentId = _authController.userId;
+      if (studentId.isEmpty) {
+        if (kDebugMode) {
+          debugPrint('[BusSubscriptionsController] Warning: Student ID is empty, cannot watch subscriptions');
+        }
+        errorMessage.value = 'Unable to load subscriptions: User not properly authenticated';
+        return;
+      }
+      startWatching(studentId: studentId);
+      if (kDebugMode) {
+        debugPrint('[BusSubscriptionsController] Watching subscriptions for student: $studentId');
+      }
+    } else if (_authController.isAdmin || _authController.isStaff) {
+      // Admins and staff can see all subscriptions
+      startWatchingAll();
+      if (kDebugMode) {
+        debugPrint('[BusSubscriptionsController] Watching all subscriptions (Admin/Staff)');
+      }
+    } else {
+      // Fallback for unauthenticated or unknown roles
+      if (kDebugMode) {
+        debugPrint('[BusSubscriptionsController] Warning: Unknown user role, not watching subscriptions');
+      }
+    }
   }
 
   void startWatching({
@@ -59,6 +97,7 @@ class BusSubscriptionsController extends GetxController {
       onError: (Object err) => errorMessage.value = err.toString(),
     );
   }
+
 
   /// Approve a subscription
   Future<void> approveSubscription({
@@ -90,7 +129,12 @@ class BusSubscriptionsController extends GetxController {
 
   Future<BusSubscription?> fetchSubscriptionById(String id) async {
     try {
-      return await _service.fetchSubscription(id);
+      // For students, pass their ID for security validation
+      final requesterStudentId = _authController.isStudent ? _authController.userId : null;
+      return await _service.fetchSubscription(
+        id,
+        requesterStudentId: requesterStudentId,
+      );
     } catch (e) {
       errorMessage.value = e.toString();
       rethrow;
@@ -104,7 +148,12 @@ class BusSubscriptionsController extends GetxController {
       isBusy.value = true;
       errorMessage.value = null;
 
-      final updatedSubscription = await _service.fetchSubscription(id);
+      // For students, pass their ID for security validation
+      final requesterStudentId = _authController.isStudent ? _authController.userId : null;
+      final updatedSubscription = await _service.fetchSubscription(
+        id,
+        requesterStudentId: requesterStudentId,
+      );
 
       if (updatedSubscription != null) {
         // Update the subscription in the local list
@@ -133,6 +182,7 @@ class BusSubscriptionsController extends GetxController {
     return _guardedRequest(() => _service.createSubscription(
           subscription: subscription,
           proofUrl: proofUrl,
+          studentName: _authController.userDisplayName,
         ));
   }
 

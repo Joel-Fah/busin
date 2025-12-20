@@ -6,7 +6,6 @@ import 'package:busin/controllers/subscriptions_controller.dart';
 import 'package:busin/models/scannings.dart';
 import 'package:busin/ui/screens/profile/semesters/semester.dart';
 import 'package:busin/ui/screens/profile/stops/stops.dart';
-import 'package:busin/ui/screens/profile/subscriptions_admin.dart';
 import 'package:busin/utils/constants.dart';
 import 'package:busin/utils/utils.dart';
 import 'package:flutter/foundation.dart';
@@ -374,6 +373,41 @@ class ProfilePage extends StatelessWidget {
                   ),
                 ),
               ],
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Divider(color: greyColor, thickness: 0.5),
+              ),
+              ListTile(
+                onTap: () async {
+                  HapticFeedback.heavyImpact();
+                  await authController.signOut().then(
+                    (_) => snackBarKey.currentState
+                      ?..hideCurrentSnackBar()
+                      ..showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            "Signed out successfully",
+                            style: AppTextStyles.body.copyWith(
+                              color: lightColor,
+                            ),
+                          ),
+                          backgroundColor: successColor,
+                        ),
+                      ),
+                  );
+                },
+                splashColor: errorColor.withValues(alpha: 0.1),
+                leading: HugeIcon(
+                  icon: HugeIcons.strokeRoundedLogout01,
+                  color: errorColor,
+                ),
+                title: Text(
+                  "Sign out",
+                  style: Theme.of(
+                    context,
+                  ).listTileTheme.titleTextStyle?.copyWith(color: errorColor),
+                ),
+              ),
               const Gap(64.0),
               AppInfoBar(),
             ],

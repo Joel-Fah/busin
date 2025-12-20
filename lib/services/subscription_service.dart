@@ -96,14 +96,28 @@ class SubscriptionService {
     String? studentId,
     BusSubscriptionStatus? status,
   }) {
-    Query<Map<String, dynamic>> query =
-        _collection.orderBy('createdAt', descending: true);
-    if (studentId != null) {
-      query = query.where('studentId', isEqualTo: studentId);
+    // SECURITY CHECK: studentId should always be provided for student access
+    // This ensures students can only see their own subscriptions
+    if (studentId == null || studentId.isEmpty) {
+      if (kDebugMode) {
+        debugPrint('[SubscriptionService] WARNING: Attempting to watch subscriptions without studentId filter');
+      }
+      // Return empty stream to prevent unauthorized access
+      return Stream.value(<BusSubscription>[]);
     }
+
+    Query<Map<String, dynamic>> query = _collection
+        .where('studentId', isEqualTo: studentId)
+        .orderBy('createdAt', descending: true);
+
     if (status != null) {
       query = query.where('status', isEqualTo: status.nameLower);
     }
+
+    if (kDebugMode) {
+      debugPrint('[SubscriptionService] Watching subscriptions for student: $studentId');
+    }
+
     return query.snapshots().map((snapshot) {
       return snapshot.docs.map((doc) {
         final data = Map<String, dynamic>.from(doc.data());
@@ -113,6 +127,7 @@ class SubscriptionService {
     });
   }
 
+  /// Watch all subscriptions for admin purposes
   /// Watch all subscriptions for admin purposes
   Stream<List<BusSubscription>> watchAllSubscriptions() {
     return _collection
@@ -194,13 +209,31 @@ class SubscriptionService {
     }
   }
 
-  Future<BusSubscription?> fetchSubscription(String id) async {
+  Future<BusSubscription?> fetchSubscription(
+    String id, {
+    String? requesterStudentId,
+  }) async {
     try {
       final doc = await _collection.doc(id).get();
       if (!doc.exists || doc.data() == null) return null;
+
       final map = Map<String, dynamic>.from(doc.data()!);
       map['id'] = doc.id;
-      return BusSubscription.fromMap(map);
+      final subscription = BusSubscription.fromMap(map);
+
+      // SECURITY CHECK: If requesterStudentId is provided (student access),
+      // verify the subscription belongs to that student
+      if (requesterStudentId != null && requesterStudentId.isNotEmpty) {
+        if (subscription.studentId != requesterStudentId) {
+          if (kDebugMode) {
+            debugPrint('[SubscriptionService] SECURITY: Student $requesterStudentId attempted to access subscription ${subscription.id} belonging to ${subscription.studentId}');
+          }
+          // Return null to prevent unauthorized access
+          return null;
+        }
+      }
+
+      return subscription;
     } catch (e) {
       if (kDebugMode) {
         debugPrint('[SubscriptionService] fetchSubscription error: $e');

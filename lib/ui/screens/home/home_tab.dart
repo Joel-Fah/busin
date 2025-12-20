@@ -1,9 +1,9 @@
 import 'package:busin/controllers/controllers.dart';
-import 'package:busin/models/scannings.dart';
 import 'package:busin/models/subscription.dart';
 import 'package:busin/ui/screens/profile/profile.dart';
 import 'package:busin/ui/screens/subscriptions/subscription_details.dart';
 import 'package:busin/utils/utils.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -18,16 +18,45 @@ import '../../components/widgets/home/appbar_list_tile.dart';
 import '../../components/widgets/custom_list_tile.dart';
 import '../../components/widgets/user_avatar.dart';
 
-class HomeTab extends StatelessWidget {
+class HomeTab extends StatefulWidget {
   const HomeTab({super.key});
 
   static const String routeName = '/home_tab';
 
   @override
+  State<HomeTab> createState() => _HomeTabState();
+}
+
+class _HomeTabState extends State<HomeTab> {
+  final AuthController authController = Get.find<AuthController>();
+  final BusSubscriptionsController busSubscriptionsController =
+      Get.find<BusSubscriptionsController>();
+  final ScanningController scanningController = Get.find<ScanningController>();
+
+  @override
+  void initState() {
+    super.initState();
+    // Request location permission for students
+    if (authController.isStudent) {
+      _requestLocationPermission();
+    }
+  }
+
+  Future<void> _requestLocationPermission() async {
+    try {
+      await scanningController.requestLocationPermission();
+      if (kDebugMode) {
+        debugPrint('[HomeTab] Location permission requested for student');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[HomeTab] Error requesting location permission: $e');
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final AuthController authController = Get.find<AuthController>();
-    final BusSubscriptionsController busSubscriptionsController =
-        Get.find<BusSubscriptionsController>();
 
     return Obx(() {
       final subscriptions = busSubscriptionsController.busSubscriptions;
@@ -174,15 +203,21 @@ class HomeTab extends StatelessWidget {
                             'Create your first bus subscription to see it here.',
                       ),
                     const Gap(20.0),
-                    CustomListTile(
-                          onTap: () {},
-                          primaryPillLabel:
-                              "#" +
-                              (dummyScannings.indexOf(dummyScannings.last) + 1)
-                                  .toString(),
+                    // Last Scanning Activity
+                    Obx(() {
+                      final lastScan = scanningController.lastScan.value;
+
+                      if (lastScan != null) {
+                        return CustomListTile(
+                          onTap: () {
+                            // TODO: Navigate to scannings page
+                          },
+                          primaryPillLabel: '📍',
                           secondaryPillLabel: "Scannings",
                           title: Text(
-                            dummyScannings.last.location,
+                            lastScan.hasLocation
+                                ? lastScan.locationString
+                                : 'Location unavailable',
                             style: Theme.of(context)
                                 .listTileTheme
                                 .titleTextStyle
@@ -192,21 +227,41 @@ class HomeTab extends StatelessWidget {
                             spacing: 8.0,
                             children: [
                               Text(
-                                "On: ${dateTimeFormatter(dummyScannings.last.scanTime)}",
+                                "On: ${dateTimeFormatter(lastScan.scannedAt)}",
                               ),
-                              Expanded(child: Divider()),
-                              Text(dummyScannings.last.location),
+                              const Expanded(child: Divider()),
+                              if (lastScan.hasLocation)
+                                const HugeIcon(
+                                  icon: HugeIcons.strokeRoundedLocation01,
+                                  size: 14.0,
+                                ),
                             ],
                           ),
                         )
-                        .animate()
-                        .fadeIn(duration: 380.ms, curve: Curves.easeOut)
-                        .slideY(
-                          begin: 0.1,
-                          end: 0,
-                          duration: 450.ms,
-                          curve: Curves.easeOut,
-                        ),
+                            .animate()
+                            .fadeIn(duration: 380.ms, curve: Curves.easeOut)
+                            .slideY(
+                              begin: 0.1,
+                              end: 0,
+                              duration: 450.ms,
+                              curve: Curves.easeOut,
+                            );
+                      } else {
+                        return _EmptyStateCard(
+                          icon: HugeIcons.strokeRoundedQrCode,
+                          title: 'No scans yet',
+                          message: 'Your QR code hasn\'t been scanned yet.',
+                        )
+                            .animate()
+                            .fadeIn(duration: 380.ms, curve: Curves.easeOut)
+                            .slideY(
+                              begin: 0.1,
+                              end: 0,
+                              duration: 450.ms,
+                              curve: Curves.easeOut,
+                            );
+                      }
+                    }),
                   ],
                 ),
               ),

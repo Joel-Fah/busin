@@ -2,11 +2,14 @@ import 'package:get/get.dart';
 import 'package:flutter/foundation.dart';
 
 import '../services/scanner_service.dart';
+import 'scanning_controller.dart';
+import 'auth_controller.dart';
 
 class ScannerController extends GetxController {
   ScannerController();
 
   final ScannerService _service = ScannerService.instance;
+  final AuthController _authController = Get.find<AuthController>();
 
   final Rxn<ScanResult> currentScanResult = Rxn<ScanResult>();
   final RxBool isProcessing = false.obs;
@@ -41,6 +44,11 @@ class ScannerController extends GetxController {
         );
       }
 
+      // If scan is successful, create a scanning record
+      if (result.isValid && result.hasActiveSubscription && result.student != null) {
+        await _createScanningRecord(result);
+      }
+
       // Result persists until next scan or manual clear - no auto-clear
     } catch (e) {
       if (kDebugMode) {
@@ -49,6 +57,35 @@ class ScannerController extends GetxController {
       currentScanResult.value = ScanResult.invalid('Error: ${e.toString()}');
     } finally {
       isProcessing.value = false;
+    }
+  }
+
+  /// Create a scanning record in Firestore
+  Future<void> _createScanningRecord(ScanResult result) async {
+    try {
+      // Try to get ScanningController, or create one if it doesn't exist
+      ScanningController scanningController;
+      try {
+        scanningController = Get.find<ScanningController>();
+      } catch (e) {
+        scanningController = Get.put(ScanningController());
+      }
+
+      await scanningController.createScanning(
+        studentId: result.student!.id,
+        subscriptionId: result.subscription!.id,
+        deviceInfo: 'Scanner App - ${_authController.userDisplayName}',
+        notes: 'Scanned by ${_authController.userDisplayName}',
+      );
+
+      if (kDebugMode) {
+        debugPrint('[ScannerController] Scanning record created for student: ${result.student!.id}');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[ScannerController] _createScanningRecord error: $e');
+      }
+      // Don't fail the whole scan if recording fails
     }
   }
 
