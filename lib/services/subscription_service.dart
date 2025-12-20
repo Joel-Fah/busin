@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 
 import '../models/subscription.dart';
 import '../models/value_objects/review_observation.dart';
+import '../utils/id_generator.dart';
 
 class SubscriptionService {
   SubscriptionService._();
@@ -15,14 +16,32 @@ class SubscriptionService {
   Future<BusSubscription> createSubscription({
     required BusSubscription subscription,
     String? proofUrl,
+    String? studentName,
   }) async {
     try {
-      final docRef = subscription.id.isEmpty
-          ? _collection.doc()
-          : _collection.doc(subscription.id);
-      var payload = subscription.id == docRef.id
-          ? subscription
-          : subscription.copyWith(id: docRef.id);
+      // Generate custom ID if not provided
+      String customId;
+      if (subscription.id.isEmpty) {
+        // Generate custom subscription ID
+        // Format: SUB-{YEAR}{SEMESTER}-{INITIALS}-{TIMESTAMP}
+        final semesterCode = subscription.semester.name.substring(0, 1).toUpperCase(); // F, S, W, etc.
+        customId = IdGenerator.generateSubscriptionId(
+          studentName: studentName ?? 'Student',
+          year: subscription.year,
+          semester: semesterCode,
+        );
+
+        // Ensure uniqueness
+        customId = await IdGenerator.generateUniqueId(
+          collection: 'subscriptions',
+          baseId: customId,
+        );
+      } else {
+        customId = subscription.id;
+      }
+
+      final docRef = _collection.doc(customId);
+      var payload = subscription.copyWith(id: customId);
 
       if (proofUrl != null && proofUrl.isNotEmpty) {
         payload = payload.withProof(proofUrl);
@@ -31,7 +50,7 @@ class SubscriptionService {
       final map = payload.toMap();
       await docRef.set(map);
       if (kDebugMode) {
-        debugPrint('[SubscriptionService] Created subscription ${docRef.id}');
+        debugPrint('[SubscriptionService] Created subscription $customId');
       }
       return payload;
     } catch (e) {

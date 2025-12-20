@@ -54,4 +54,9 @@ class ReviewObservation {
     }
     throw ArgumentError('Cannot parse DateTime from type ${value.runtimeType}');
   }
+
+  @override
+  String toString() {
+    return 'ReviewObservation(reviewerUserId: $reviewerUserId, observedAt: $observedAt, message: $message)';
+  }
 }

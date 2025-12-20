@@ -117,7 +117,16 @@ class _SubscriptionsTabState extends State<SubscriptionsTab> {
                       );
                     },
                     showBorder: true,
-                    borderColor: warningColor,
+                    backgroundColor: latestSubscription.status.isRejected
+                      ? errorColor.withValues(alpha: 0.05)
+                      : latestSubscription.status.isPending
+                          ? infoColor.withValues(alpha: 0.05)
+                          : null,
+                    borderColor: latestSubscription.status.isApproved
+                      ? successColor
+                      : latestSubscription.status == BusSubscriptionStatus.pending
+                        ? infoColor
+                        : errorColor,
                     topPillsBorderColor: themeController.isDark
                         ? seedColor
                         : lightColor,
@@ -247,7 +256,15 @@ class _SubscriptionsTabState extends State<SubscriptionsTab> {
                                         vertical: 8.0,
                                       ),
                                       child: CustomListTile(
-                                        onTap: () {},
+                                        onTap: () {
+                                          HapticFeedback.mediumImpact();
+                                          context.pushNamed(
+                                            removeLeadingSlash(SubscriptionDetailsPage.routeName),
+                                            pathParameters: {
+                                              'subscriptionId': busSubscription.id,
+                                            },
+                                          );
+                                        },
                                         topPillsBorderColor:
                                             themeController.isDark
                                             ? seedPalette.shade900

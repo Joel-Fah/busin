@@ -1,9 +1,14 @@
+import 'package:busin/ui/screens/home/analytics_tab.dart';
+import 'package:busin/ui/screens/home/scanner.dart';
 import 'package:busin/ui/screens/home/scannings_tab.dart';
 import 'package:busin/ui/screens/home/subscriptions_tab.dart';
+import 'package:busin/ui/screens/profile/subscriptions_admin.dart';
 import 'package:busin/utils/constants.dart';
+import 'package:busin/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../controllers/auth_controller.dart';
@@ -70,6 +75,14 @@ class _HomePageState extends State<HomePage>
       });
     }
 
+    final List<Widget> _pages = [
+      if (authController.isStudent) HomeTab(),
+      if (authController.isAdmin) AnalyticsTab(),
+      if (authController.isStudent) SubscriptionsTab(),
+      if (authController.isAdmin) SubscriptionsAdminPage(),
+      ScanningsTab(),
+    ];
+
     return Scaffold(
       extendBody: true,
       body: Stack(
@@ -78,7 +91,7 @@ class _HomePageState extends State<HomePage>
           TabBarView(
             physics: const NeverScrollableScrollPhysics(),
             controller: _tabController,
-            children: [HomeTab(), SubscriptionsTab(), ScanningsTab()],
+            children: _pages,
           ),
           Positioned(
             bottom: MediaQuery.viewPaddingOf(context).bottom,
@@ -97,7 +110,7 @@ class _HomePageState extends State<HomePage>
                       Expanded(
                         child: Ink(
                           decoration: BoxDecoration(
-                            color: seedColor,
+                            color: themeController.isDark ? seedPalette.shade800 : seedColor,
                             borderRadius: borderRadius * 3.75,
                           ),
                           child: TabBar(
@@ -116,24 +129,29 @@ class _HomePageState extends State<HomePage>
                           ),
                         ),
                       ),
-                      if(authController.isAdmin)
-                      SizedBox(
-                        height: double.infinity,
-                        width: 80.0,
-                        child: IconButton.filled(
-                          onPressed: () {
-                            HapticFeedback.heavyImpact();
-                          },
-                          color: lightColor,
-                          style: IconButton.styleFrom(
-                            backgroundColor: accentColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: borderRadius * 3.25,
+                      if (authController.isAdmin)
+                        SizedBox(
+                          height: double.infinity,
+                          width: 80.0,
+                          child: IconButton.filled(
+                            onPressed: () {
+                              HapticFeedback.heavyImpact();
+                              context.pushNamed(
+                                removeLeadingSlash(ScannerPage.routeName),
+                              );
+                            },
+                            color: lightColor,
+                            style: IconButton.styleFrom(
+                              backgroundColor: accentColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: borderRadius * 3.25,
+                              ),
+                            ),
+                            icon: HugeIcon(
+                              icon: HugeIcons.strokeRoundedQrCode01,
                             ),
                           ),
-                          icon: HugeIcon(icon: HugeIcons.strokeRoundedQrCode01),
                         ),
-                      ),
                     ],
                   ),
                 ),

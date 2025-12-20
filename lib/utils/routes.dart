@@ -3,6 +3,7 @@ import 'package:busin/controllers/auth_controller.dart';
 import 'package:busin/controllers/onboarding_controller.dart';
 import 'package:busin/docs/docs.dart';
 import 'package:busin/ui/screens/home/home_tab.dart';
+import 'package:busin/ui/screens/home/scanner.dart';
 import 'package:busin/ui/screens/home/scannings_tab.dart';
 import 'package:busin/ui/screens/home/subscriptions_tab.dart';
 import 'package:busin/ui/screens/profile/profile.dart';
@@ -264,6 +265,14 @@ final router = GoRouter(
       path: SubscriptionsAdminPage.routeName,
       name: removeLeadingSlash(SubscriptionsAdminPage.routeName),
       builder: (context, state) => const SubscriptionsAdminPage(),
+    ),
+
+    // Scanner
+    GoRoute(
+      parentNavigatorKey: rootNavigatorKey,
+      path: ScannerPage.routeName,
+      name: removeLeadingSlash(ScannerPage.routeName),
+      builder: (context, state) => const ScannerPage(),
     ),
   ],
 );

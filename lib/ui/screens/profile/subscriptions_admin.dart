@@ -142,7 +142,7 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
-          title: const Text('Subscriptions Admin'),
+          title: const Text('Subscriptions'),
           actions: [
             IconButton(
               tooltip: 'Refresh',
@@ -151,221 +151,220 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
             ),
           ],
         ),
-        body: Padding(
+        body: ListView(
+          shrinkWrap: true,
           padding: const EdgeInsets.all(16.0).copyWith(bottom: 80.0),
-          child: Column(
-            children: [
-              // Search bar with filter
-              SearchBar(
-                controller: _searchController,
-                onChanged: (value) => _searchQuery.value = value,
-                leading: HugeIcon(
-                  icon: HugeIcons.strokeRoundedSearch01,
-                  color: themeController.isDark
-                      ? seedPalette.shade50
-                      : seedColor,
-                  strokeWidth: 2.0,
-                ),
-                trailing: [
-                  // Filter button
-                  IconButton(
-                    onPressed: _showFilterMenu,
-                    icon: Obx(() {
-                      final hasFilters =
-                          _selectedStatus.value != null ||
-                          _selectedYear.value != null ||
-                          _selectedSemester.value != null;
-                      return Badge(
-                        isLabelVisible: hasFilters,
-                        backgroundColor: accentColor,
-                        child: HugeIcon(
-                          icon: HugeIcons.strokeRoundedFilterHorizontal,
-                          color: themeController.isDark
-                              ? seedPalette.shade50
-                              : seedColor,
-                        ),
-                      );
-                    }),
-                  ),
-                  // Clear search
-                  Obx(() {
-                    if (_searchQuery.value.isEmpty) {
-                      return const SizedBox.shrink();
-                    }
-                    return IconButton(
-                      onPressed: () {
-                        _searchController.clear();
-                        _searchQuery.value = '';
-                      },
-                      icon: HugeIcon(
-                        icon: HugeIcons.strokeRoundedCancel01,
+          children: [
+            // Search bar with filter
+            SearchBar(
+              controller: _searchController,
+              onChanged: (value) => _searchQuery.value = value,
+              leading: HugeIcon(
+                icon: HugeIcons.strokeRoundedSearch01,
+                color: themeController.isDark
+                    ? seedPalette.shade50
+                    : seedColor,
+                strokeWidth: 2.0,
+              ),
+              trailing: [
+                // Filter button
+                IconButton(
+                  onPressed: _showFilterMenu,
+                  icon: Obx(() {
+                    final hasFilters =
+                        _selectedStatus.value != null ||
+                        _selectedYear.value != null ||
+                        _selectedSemester.value != null;
+                    return Badge(
+                      isLabelVisible: hasFilters,
+                      backgroundColor: accentColor,
+                      child: HugeIcon(
+                        icon: HugeIcons.strokeRoundedFilterHorizontal,
                         color: themeController.isDark
                             ? seedPalette.shade50
                             : seedColor,
                       ),
                     );
                   }),
-                ],
-                hintText: 'Search subscriptions...',
-              ),
-              const Gap(16.0),
-
-              // Stats section
-              Obx(() {
-                final subscriptions = _subscriptionsController.busSubscriptions;
-                final pending = subscriptions
-                    .where((s) => s.status == BusSubscriptionStatus.pending)
-                    .length;
-                final approved = subscriptions
-                    .where((s) => s.status == BusSubscriptionStatus.approved)
-                    .length;
-                final rejected = subscriptions
-                    .where((s) => s.status == BusSubscriptionStatus.rejected)
-                    .length;
-
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _StatItem(
-                      icon: HugeIcons.strokeRoundedLoading03,
-                      label: 'Pending',
-                      value: pending.toString(),
-                      color: infoColor,
-                    ),
-                    _StatItem(
-                      icon: HugeIcons.strokeRoundedCheckmarkBadge02,
-                      label: 'Approved',
-                      value: approved.toString(),
-                      color: successColor,
-                    ),
-                    _StatItem(
-                      icon: HugeIcons.strokeRoundedCancelCircle,
-                      label: 'Rejected',
-                      value: rejected.toString(),
-                      color: errorColor,
-                    ),
-                  ],
-                );
-              }),
-
-              const Gap(24.0),
-
-              // Subscriptions list
-              Expanded(
-                child: Obx(() {
-                  if (_subscriptionsController.isBusy.value &&
-                      _subscriptionsController.busSubscriptions.isEmpty) {
-                    return const Center(child: LoadingIndicator());
+                ),
+                // Clear search
+                Obx(() {
+                  if (_searchQuery.value.isEmpty) {
+                    return const SizedBox.shrink();
                   }
-
-                  if (_subscriptionsController.errorMessage.value != null) {
-                    return _ErrorWidget(
-                      message: _subscriptionsController.errorMessage.value!,
-                      onRetry: () =>
-                          _subscriptionsController.startWatchingAll(),
-                    );
-                  }
-
-                  final allSubscriptions = _filterSubscriptions(
-                    _subscriptionsController.busSubscriptions,
-                  );
-
-                  if (allSubscriptions.isEmpty) {
-                    return _EmptyWidget(
-                      hasSearch:
-                          _searchQuery.value.isNotEmpty ||
-                          _selectedStatus.value != null ||
-                          _selectedYear.value != null ||
-                          _selectedSemester.value != null,
-                    );
-                  }
-
-                  // Group subscriptions by status
-                  final pending = allSubscriptions
-                      .where((s) => s.status == BusSubscriptionStatus.pending)
-                      .toList();
-                  final approved = allSubscriptions
-                      .where((s) => s.status == BusSubscriptionStatus.approved)
-                      .toList();
-                  final rejected = allSubscriptions
-                      .where((s) => s.status == BusSubscriptionStatus.rejected)
-                      .toList();
-
-                  return ListView(
-                    children: [
-                      // Pending subscriptions (always visible)
-                      if (pending.isNotEmpty) ...[
-                        _SectionHeader(
-                          title: 'Pending Review',
-                          count: pending.length,
-                          color: infoColor,
-                        ),
-                        const Gap(28.0),
-                        ...pending.map(
-                          (sub) => _SubscriptionCard(
-                            subscription: sub,
-                            cachedUser: _userCache[sub.studentId],
-                            onTap: () => _showSubscriptionDetails(sub),
-                            onApprove: () => _approveSubscription(sub),
-                            onReject: () => _showRejectDialog(sub),
-                          ),
-                        ),
-                        const Gap(24.0),
-                      ] else ...[
-                        _EmptyStateCard(
-                          icon: HugeIcons.strokeRoundedCheckmarkCircle02,
-                          message: 'No pending subscriptions',
-                          color: successColor,
-                        ),
-                        const Gap(24.0),
-                      ],
-
-                      // Approved subscriptions (collapsible)
-                      if (approved.isNotEmpty) ...[
-                        _ExpandableSection(
-                          title: 'Approved',
-                          count: approved.length,
-                          color: successColor,
-                          isExpanded: _approvedExpanded,
-                          children: approved
-                              .map(
-                                (sub) => _SubscriptionCard(
-                                  subscription: sub,
-                                  cachedUser: _userCache[sub.studentId],
-                                  onTap: () => _showSubscriptionDetails(sub),
-                                  isReviewComplete: true,
-                                ),
-                              )
-                              .toList(),
-                        ),
-                        const Gap(16.0),
-                      ],
-
-                      // Rejected subscriptions (collapsible)
-                      if (rejected.isNotEmpty) ...[
-                        _ExpandableSection(
-                          title: 'Rejected',
-                          count: rejected.length,
-                          color: errorColor,
-                          isExpanded: _rejectedExpanded,
-                          children: rejected
-                              .map(
-                                (sub) => _SubscriptionCard(
-                                  subscription: sub,
-                                  cachedUser: _userCache[sub.studentId],
-                                  onTap: () => _showSubscriptionDetails(sub),
-                                  isReviewComplete: true,
-                                ),
-                              )
-                              .toList(),
-                        ),
-                      ],
-                    ],
+                  return IconButton(
+                    onPressed: () {
+                      _searchController.clear();
+                      _searchQuery.value = '';
+                    },
+                    icon: HugeIcon(
+                      icon: HugeIcons.strokeRoundedCancel01,
+                      color: themeController.isDark
+                          ? seedPalette.shade50
+                          : seedColor,
+                    ),
                   );
                 }),
-              ),
-            ],
-          ),
+              ],
+              hintText: 'Search subscriptions...',
+            ),
+            const Gap(16.0),
+
+            // Stats section
+            Obx(() {
+              final subscriptions = _subscriptionsController.busSubscriptions;
+              final pending = subscriptions
+                  .where((s) => s.status == BusSubscriptionStatus.pending)
+                  .length;
+              final approved = subscriptions
+                  .where((s) => s.status == BusSubscriptionStatus.approved)
+                  .length;
+              final rejected = subscriptions
+                  .where((s) => s.status == BusSubscriptionStatus.rejected)
+                  .length;
+
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _StatItem(
+                    icon: HugeIcons.strokeRoundedLoading03,
+                    label: 'Pending',
+                    value: pending.toString(),
+                    color: infoColor,
+                  ),
+                  _StatItem(
+                    icon: HugeIcons.strokeRoundedCheckmarkBadge02,
+                    label: 'Approved',
+                    value: approved.toString(),
+                    color: successColor,
+                  ),
+                  _StatItem(
+                    icon: HugeIcons.strokeRoundedCancelCircle,
+                    label: 'Rejected',
+                    value: rejected.toString(),
+                    color: errorColor,
+                  ),
+                ],
+              );
+            }),
+
+            const Gap(24.0),
+
+            // Subscriptions list
+            Obx(() {
+              if (_subscriptionsController.isBusy.value &&
+                  _subscriptionsController.busSubscriptions.isEmpty) {
+                return const Center(child: LoadingIndicator());
+              }
+
+              if (_subscriptionsController.errorMessage.value != null) {
+                return _ErrorWidget(
+                  message: _subscriptionsController.errorMessage.value!,
+                  onRetry: () =>
+                      _subscriptionsController.startWatchingAll(),
+                );
+              }
+
+              final allSubscriptions = _filterSubscriptions(
+                _subscriptionsController.busSubscriptions,
+              );
+
+              if (allSubscriptions.isEmpty) {
+                return _EmptyWidget(
+                  hasSearch:
+                      _searchQuery.value.isNotEmpty ||
+                      _selectedStatus.value != null ||
+                      _selectedYear.value != null ||
+                      _selectedSemester.value != null,
+                );
+              }
+
+              // Group subscriptions by status
+              final pending = allSubscriptions
+                  .where((s) => s.status == BusSubscriptionStatus.pending)
+                  .toList();
+              final approved = allSubscriptions
+                  .where((s) => s.status == BusSubscriptionStatus.approved)
+                  .toList();
+              final rejected = allSubscriptions
+                  .where((s) => s.status == BusSubscriptionStatus.rejected)
+                  .toList();
+
+              return ListView(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                children: [
+                  // Pending subscriptions (always visible)
+                  if (pending.isNotEmpty) ...[
+                    _SectionHeader(
+                      title: 'Pending Review',
+                      count: pending.length,
+                      color: infoColor,
+                    ),
+                    const Gap(28.0),
+                    ...pending.map(
+                      (sub) => _SubscriptionCard(
+                        subscription: sub,
+                        cachedUser: _userCache[sub.studentId],
+                        onTap: () => _showSubscriptionDetails(sub),
+                        onApprove: () => _approveSubscription(sub),
+                        onReject: () => _showRejectDialog(sub),
+                      ),
+                    ),
+                    const Gap(4.0),
+                  ] else ...[
+                    _EmptyStateCard(
+                      icon: HugeIcons.strokeRoundedCheckmarkCircle02,
+                      message: 'No pending subscriptions',
+                      color: infoColor,
+                    ),
+                    const Gap(24.0),
+                  ],
+
+                  // Approved subscriptions (collapsible)
+                  if (approved.isNotEmpty) ...[
+                    _ExpandableSection(
+                      title: 'Approved',
+                      count: approved.length,
+                      color: successColor,
+                      isExpanded: _approvedExpanded,
+                      children: approved
+                          .map(
+                            (sub) => _SubscriptionCard(
+                              subscription: sub,
+                              cachedUser: _userCache[sub.studentId],
+                              onTap: () => _showSubscriptionDetails(sub),
+                              isReviewComplete: true,
+                            ),
+                          )
+                          .toList(),
+                    ),
+                    const Gap(24.0),
+                  ],
+
+                  // Rejected subscriptions (collapsible)
+                  if (rejected.isNotEmpty) ...[
+                    _ExpandableSection(
+                      title: 'Rejected',
+                      count: rejected.length,
+                      color: errorColor,
+                      isExpanded: _rejectedExpanded,
+                      children: rejected
+                          .map(
+                            (sub) => _SubscriptionCard(
+                              subscription: sub,
+                              cachedUser: _userCache[sub.studentId],
+                              onTap: () => _showSubscriptionDetails(sub),
+                              isReviewComplete: true,
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ],
+                ],
+              );
+            }),
+          ],
         ),
       ),
     );
@@ -582,7 +581,7 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
           buildSnackBar(
             prefixIcon: HugeIcon(
               icon: HugeIcons.strokeRoundedCheckmarkCircle02,
-              color: successColor,
+              color: lightColor,
             ),
             label: Text(
               'Subscription approved successfully',
@@ -598,7 +597,7 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
           buildSnackBar(
             prefixIcon: HugeIcon(
               icon: HugeIcons.strokeRoundedAlert02,
-              color: errorColor,
+              color: lightColor,
             ),
             label: Text(
               'Failed to approve subscription: $e',
@@ -1259,7 +1258,7 @@ class _ExpandableSection extends StatelessWidget {
                     color: color,
                     size: 20,
                   ),
-                  const Gap(12.0),
+                  const Gap(16.0),
                   Expanded(
                     child: Text(
                       title,
@@ -1289,7 +1288,7 @@ class _ExpandableSection extends StatelessWidget {
               ),
             ),
           ),
-          if (isExpanded.value) ...[const Gap(12.0), ...children],
+          if (isExpanded.value) ...[const Gap(16.0), ...children],
         ],
       ),
     );
@@ -1335,6 +1334,7 @@ class _SubscriptionCard extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         Container(
+          margin: EdgeInsets.only(bottom: 24.0),
           decoration: BoxDecoration(
             color: themeController.isDark
                 ? seedColor.withValues(alpha: 0.4)
@@ -1545,21 +1545,25 @@ class _InfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      spacing: 8.0,
-      children: [
-        HugeIcon(icon: icon, size: 20.0),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: AppTextStyles.small.copyWith(color: Colors.grey),
+    return Expanded(
+      child: Row(
+        spacing: 8.0,
+        children: [
+          HugeIcon(icon: icon, size: 20.0),
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: AppTextStyles.small.copyWith(color: Colors.grey),
+                ),
+                Text(value, style: AppTextStyles.body, maxLines: 1, overflow: TextOverflow.ellipsis,),
+              ],
             ),
-            Text(value, style: AppTextStyles.body),
-          ],
-        ),
-      ],
+          ),
+        ],
+      ),
     );
   }
 }

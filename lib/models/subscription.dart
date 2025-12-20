@@ -315,8 +315,8 @@ class BusSubscription {
 
   static ReviewObservation? _parseObservation(Map<String, dynamic> map) {
     // Try to parse from nested 'observation' object first
-    if (map['observation'] is Map<String, dynamic>) {
-      return ReviewObservation.fromMap(map['observation'] as Map<String, dynamic>);
+    if (map['review'] is Map<String, dynamic>) {
+      return ReviewObservation.fromMap(map['review'] as Map<String, dynamic>);
     }
 
     // Backward compatibility: parse from top-level fields
@@ -448,7 +448,7 @@ class BusSubscription {
       'endDate: $endDate, '
       'stop: ${stop != null ? "${stop!.name} (${stop!.id})" : "null"}, '
       'schedules: ${schedules.length}, '
-      'observation: ${observation != null ? "present (reviewedBy: ${observation!.reviewerUserId}, at: ${observation!.observedAt})" : "null"}, '
+      'review: ${observation != null ? observation.toString() : "null"}, '
       'isWithinWindow: $isWithinWindow, '
       'isCurrentlyActive: $isCurrentlyActive'
       ']';
