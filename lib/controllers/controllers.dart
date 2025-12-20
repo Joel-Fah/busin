@@ -5,3 +5,7 @@ export 'onboarding_controller.dart';
 export 'subscriptions_controller.dart';
 export 'bus_stops_controller.dart';
 export 'semester_controller.dart';
+export 'analytics_controller.dart';
+export 'scanner_controller.dart';
+export 'users_controller.dart';
+export 'scanning_controller.dart';

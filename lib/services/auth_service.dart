@@ -3,6 +3,9 @@ import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:busin/models/actors/base_user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../utils/id_generator.dart';
+import '../models/actors/roles.dart';
+
 
 class AuthService {
   AuthService._();
@@ -120,6 +123,93 @@ class AuthService {
     } catch (e) {
       if (kDebugMode) {
         debugPrint('[AuthService] getUserById error: ${e.toString()}');
+      }
+      rethrow;
+    }
+  }
+
+  /// Create a new user document in Firestore with custom ID
+  /// Format: STU-{EMAIL_PREFIX}-{HASH} or ADM-{EMAIL_PREFIX}-{HASH}
+  Future<String> createUserDocument({
+    required String email,
+    required String name,
+    required UserRole role,
+    String? photoUrl,
+    String? phone,
+    String? matricule,
+    String? department,
+    String? program,
+    String? address,
+  }) async {
+    try {
+      // Generate custom ID based on role and email
+      final customId = role == UserRole.admin
+          ? IdGenerator.generateAdminId(email)
+          : IdGenerator.generateStudentId(email);
+
+      // Ensure uniqueness
+      final userId = await IdGenerator.generateUniqueId(
+        collection: 'users',
+        baseId: customId,
+      );
+
+      final now = DateTime.now();
+      final Map<String, dynamic> userData = {
+        'id': userId,
+        'email': email,
+        'name': name,
+        'role': role.name,
+        'status': AccountStatus.verified.name,
+        'photoUrl': photoUrl,
+        'phone': phone,
+        'createdAt': now.toIso8601String(),
+        'lastSignInAt': now.toIso8601String(),
+      };
+
+      // Add role-specific fields
+      if (role == UserRole.student) {
+        userData.addAll({
+          'matricule': matricule,
+          'department': department,
+          'program': program,
+          'address': address,
+          'subscriptionIds': <String>[],
+          'currentSubscriptionId': null,
+        });
+      }
+
+      await _db.collection('users').doc(userId).set(userData);
+
+      if (kDebugMode) {
+        debugPrint('[AuthService] Created user document: $userId');
+      }
+
+      return userId;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[AuthService] createUserDocument error: $e');
+      }
+      rethrow;
+    }
+  }
+
+  /// Update existing user document or create if not exists
+  Future<void> updateOrCreateUserDocument({
+    required String userId,
+    required Map<String, dynamic> userData,
+  }) async {
+    try {
+      await _db.collection('users').doc(userId).set(
+        userData,
+        SetOptions(merge: true),
+      );
+
+      if (kDebugMode) {
+        debugPrint('[AuthService] Updated/created user document: $userId');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[AuthService] updateOrCreateUserDocument error: $e');
       }
       rethrow;
     }

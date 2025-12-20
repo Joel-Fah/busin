@@ -298,57 +298,130 @@ class _SubscriptionDetailsContentState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Action buttons (Apple style)
+                  // Padding(
+                  //   padding: const EdgeInsets.symmetric(horizontal: 16),
+                  //   child: Row(
+                  //     children: [
+                  //       Expanded(
+                  //         child: _ActionButton(
+                  //           icon: HugeIcons.strokeRoundedEdit02,
+                  //           label: 'Edit',
+                  //           onTap: () {
+                  //             // TODO: Navigate to edit page
+                  //           },
+                  //         ),
+                  //       ),
+                  //       const Gap(8.0),
+                  //       Expanded(
+                  //         child: _ActionButton(
+                  //           icon: subscription.isCurrentlyActive
+                  //               ? HugeIcons.strokeRoundedPauseCircle
+                  //               : HugeIcons.strokeRoundedPlayCircle,
+                  //           label: subscription.isCurrentlyActive
+                  //               ? 'Pause'
+                  //               : 'Activate',
+                  //           onTap: () {
+                  //             // TODO: Handle activation
+                  //           },
+                  //         ),
+                  //       ),
+                  //       const Gap(8.0),
+                  //       Expanded(
+                  //         child: _ActionButton(
+                  //           foregroundColor: themeController.isDark ? lightColor : seedColor,
+                  //           gradient: LinearGradient(
+                  //             begin: Alignment.bottomRight,
+                  //             end: Alignment.topLeft,
+                  //             colors: themeController.isDark
+                  //                 ? [seedPalette.shade600, seedPalette.shade700]
+                  //                 : [seedPalette.shade100, seedPalette.shade200],
+                  //           ),
+                  //           icon: HugeIcons.strokeRoundedShare08,
+                  //           label: 'Share',
+                  //           onTap: () {
+                  //             // TODO: Share subscription
+                  //           },
+                  //         ),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
+
                   const Gap(16.0),
 
-                  // Action buttons (Apple style)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: _ActionButton(
-                            icon: HugeIcons.strokeRoundedEdit02,
-                            label: 'Edit',
-                            onTap: () {
-                              // TODO: Navigate to edit page
-                            },
+                  // Review info (if available)
+                  if (subscription.observation != null)
+                    _SectionContainer(
+                      backgroundColor: subscription.status.isRejected
+                          ? errorColor.withValues(alpha: 0.1)
+                          : successColor.withValues(alpha: 0.1),
+                      child: DottedBorder(
+                        options: RoundedRectDottedBorderOptions(
+                            color: subscription.status.isRejected
+                                ? errorColor
+                                : successColor,
+                            strokeWidth: 1.5,
+                            strokeCap: StrokeCap.round,
+                            dashPattern: const [4, 6, 8, 10],
+                            radius: Radius.circular(16.0)
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  HugeIcon(
+                                    icon: subscription.status.isRejected
+                                        ? HugeIcons.strokeRoundedCancelCircle
+                                        : HugeIcons
+                                        .strokeRoundedCheckmarkCircle02,
+                                    color: subscription.status.isRejected
+                                        ? errorColor
+                                        : successColor,
+                                  ),
+                                  const Gap(12.0),
+                                  Text(
+                                    subscription.status.isRejected
+                                        ? 'Rejection reason'
+                                        : 'Review observation',
+                                    style: AppTextStyles.h4.copyWith(
+                                      color: subscription.status.isRejected
+                                          ? errorColor
+                                          : successColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              if (subscription.observation!.message != null) ...[
+                                const Gap(12.0),
+                                Text(
+                                  subscription.observation!.message!,
+                                  style: AppTextStyles.body,
+                                ),
+                              ],
+                              const Gap(8.0),
+                              Divider(
+                                thickness: 0.5,
+                                color: subscription.status.isRejected
+                                    ? errorColor
+                                    : successColor,
+                              ),
+                              Text(
+                                'Reviewed on ${dateFormatter(subscription.observation!.observedAt)}',
+                                style: AppTextStyles.small.copyWith(
+                                  color: subscription.status.isRejected
+                                      ? errorColor
+                                      : successColor,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        const Gap(8.0),
-                        Expanded(
-                          child: _ActionButton(
-                            icon: subscription.isCurrentlyActive
-                                ? HugeIcons.strokeRoundedPauseCircle
-                                : HugeIcons.strokeRoundedPlayCircle,
-                            label: subscription.isCurrentlyActive
-                                ? 'Pause'
-                                : 'Activate',
-                            onTap: () {
-                              // TODO: Handle activation
-                            },
-                          ),
-                        ),
-                        const Gap(8.0),
-                        Expanded(
-                          child: _ActionButton(
-                            foregroundColor: themeController.isDark ? lightColor : seedColor,
-                            gradient: LinearGradient(
-                              begin: Alignment.bottomRight,
-                              end: Alignment.topLeft,
-                              colors: themeController.isDark
-                                  ? [seedPalette.shade600, seedPalette.shade700]
-                                  : [seedPalette.shade100, seedPalette.shade200],
-                            ),
-                            icon: HugeIcons.strokeRoundedShare08,
-                            label: 'Share',
-                            onTap: () {
-                              // TODO: Share subscription
-                            },
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
 
                   // Student info section (Admin only)
                   Obx(() {
@@ -443,68 +516,6 @@ class _SubscriptionDetailsContentState
 
                   const Gap(16.0),
 
-                  // Review info (if available)
-                  if (subscription.observation != null)
-                    _SectionContainer(
-                      backgroundColor: subscription.status.isRejected
-                          ? errorColor.withValues(alpha: 0.2)
-                          : successColor.withValues(alpha: 0.2),
-                      child: DottedBorder(
-                        options: RoundedRectDottedBorderOptions(
-                          color: subscription.status.isRejected
-                              ? errorColor
-                              : successColor,
-                          strokeWidth: 2,
-                          strokeCap: StrokeCap.round,
-                          dashPattern: const [4, 6, 8, 10],
-                          radius: Radius.circular(16.0)
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  HugeIcon(
-                                    icon: subscription.status.isRejected
-                                        ? HugeIcons.strokeRoundedCancelCircle
-                                        : HugeIcons
-                                              .strokeRoundedCheckmarkCircle02,
-                                  ),
-                                  const Gap(12.0),
-                                  Text(
-                                    subscription.status.isRejected
-                                        ? 'Rejection reason'
-                                        : 'Review observation',
-                                    style: AppTextStyles.h4,
-                                  ),
-                                ],
-                              ),
-                              if (subscription.observation!.message != null) ...[
-                                const Gap(12.0),
-                                Text(
-                                  subscription.observation!.message!,
-                                  style: AppTextStyles.body,
-                                ),
-                              ],
-                              const Gap(8.0),
-                              Text(
-                                'Reviewed on ${dateFormatter(subscription.observation!.observedAt)}',
-                                style: AppTextStyles.small.copyWith(
-                                  color: subscription.status.isRejected
-                                      ? errorColor
-                                      : successColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-
-                  const Gap(16.0),
-
                   // Metadata
                   _SectionContainer(
                     backgroundColor: Colors.transparent,
@@ -526,6 +537,7 @@ class _SubscriptionDetailsContentState
                       ],
                     ),
                   ),
+                  const Gap(24.0),
                 ],
               ),
             ),
@@ -636,7 +648,8 @@ class _ActionButton extends StatelessWidget {
   const _ActionButton({
     required this.icon,
     required this.label,
-    required this.onTap, this.foregroundColor, this.gradient,
+    required this.onTap, this.foregroundColor,
+    this.gradient,
   });
 
   @override

@@ -1,12 +1,20 @@
+import 'package:busin/ui/screens/home/analytics_tab.dart';
+import 'package:busin/ui/screens/home/people_tab.dart';
+import 'package:busin/ui/screens/home/scanner.dart';
 import 'package:busin/ui/screens/home/scannings_tab.dart';
 import 'package:busin/ui/screens/home/subscriptions_tab.dart';
+import 'package:busin/ui/screens/onboarding/verification.dart';
+import 'package:busin/ui/screens/profile/subscriptions_admin.dart';
 import 'package:busin/utils/constants.dart';
+import 'package:busin/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../controllers/auth_controller.dart';
+import '../../../models/actors/roles.dart';
 import 'home_tab.dart';
 
 class HomePage extends StatefulWidget {
@@ -29,7 +37,23 @@ class _HomePageState extends State<HomePage>
   @override
   void initState() {
     super.initState();
+
+    // Check if user is pending verification and redirect
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkVerificationStatus();
+    });
+
     _tabController = TabController(length: 3, vsync: this);
+  }
+
+  void _checkVerificationStatus() {
+    final user = authController.currentUser.value;
+    if (user != null &&
+        (user.role == UserRole.staff || user.role == UserRole.admin) &&
+        user.status == AccountStatus.pending) {
+      // User is pending verification, redirect to verification page
+      context.go(VerificationPage.routeName);
+    }
   }
 
   @override
@@ -40,12 +64,20 @@ class _HomePageState extends State<HomePage>
 
   @override
   Widget build(BuildContext context) {
-    final List<String> _tabLabels = ["Home", "Subscriptions", "Scannings"];
+    final List<String> _tabLabels = [
+      if (authController.isAdmin || authController.isStaff) "Analytics",
+      if (authController.isStudent) "Home",
+      "Subscriptions",
+      if (authController.isStudent) "Scannings",
+      if (authController.isAdmin || authController.isStaff) "People",
+    ];
 
     final List<List<List<dynamic>>> _tabIcons = [
-      HugeIcons.strokeRoundedHome01,
+      if (authController.isAdmin || authController.isStaff) HugeIcons.strokeRoundedDashboardSquare03,
+      if (authController.isStudent) HugeIcons.strokeRoundedHome01,
       HugeIcons.strokeRoundedStickyNote02,
-      HugeIcons.strokeRoundedUserIdVerification,
+      if (authController.isAdmin || authController.isStaff) HugeIcons.strokeRoundedUserMultiple,
+      if (authController.isStudent) HugeIcons.strokeRoundedUserIdVerification,
     ];
 
     List<Widget> _buildTabs() {
@@ -70,6 +102,15 @@ class _HomePageState extends State<HomePage>
       });
     }
 
+    final List<Widget> _pages = [
+      if (authController.isAdmin || authController.isStaff) AnalyticsTab(),
+      if (authController.isStudent) HomeTab(),
+      if (authController.isStudent) SubscriptionsTab(),
+      if (authController.isAdmin || authController.isStaff) SubscriptionsAdminPage(),
+      if (authController.isStudent) ScanningsTab(),
+      if (authController.isAdmin || authController.isStaff) PeopleTab(),
+    ];
+
     return Scaffold(
       extendBody: true,
       body: Stack(
@@ -78,7 +119,7 @@ class _HomePageState extends State<HomePage>
           TabBarView(
             physics: const NeverScrollableScrollPhysics(),
             controller: _tabController,
-            children: [HomeTab(), SubscriptionsTab(), ScanningsTab()],
+            children: _pages,
           ),
           Positioned(
             bottom: MediaQuery.viewPaddingOf(context).bottom,
@@ -97,12 +138,14 @@ class _HomePageState extends State<HomePage>
                       Expanded(
                         child: Ink(
                           decoration: BoxDecoration(
-                            color: seedColor,
+                            color: themeController.isDark
+                                ? seedPalette.shade800
+                                : seedColor,
                             borderRadius: borderRadius * 3.75,
                           ),
                           child: TabBar(
                             tabs: _buildTabs(),
-                            isScrollable: authController.isAdmin ? false : true,
+                            isScrollable: authController.isAdmin || authController.isStaff ? false : true,
                             tabAlignment: TabAlignment.center,
                             controller: _tabController,
                             physics: const BouncingScrollPhysics(),
@@ -116,24 +159,29 @@ class _HomePageState extends State<HomePage>
                           ),
                         ),
                       ),
-                      if(authController.isAdmin)
-                      SizedBox(
-                        height: double.infinity,
-                        width: 80.0,
-                        child: IconButton.filled(
-                          onPressed: () {
-                            HapticFeedback.heavyImpact();
-                          },
-                          color: lightColor,
-                          style: IconButton.styleFrom(
-                            backgroundColor: accentColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: borderRadius * 3.25,
+                      if (authController.isAdmin || authController.isStaff)
+                        SizedBox(
+                          height: double.infinity,
+                          width: 80.0,
+                          child: IconButton.filled(
+                            onPressed: () {
+                              HapticFeedback.heavyImpact();
+                              context.pushNamed(
+                                removeLeadingSlash(ScannerPage.routeName),
+                              );
+                            },
+                            color: lightColor,
+                            style: IconButton.styleFrom(
+                              backgroundColor: accentColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: borderRadius * 3.25,
+                              ),
+                            ),
+                            icon: HugeIcon(
+                              icon: HugeIcons.strokeRoundedQrCode01,
                             ),
                           ),
-                          icon: HugeIcon(icon: HugeIcons.strokeRoundedQrCode01),
                         ),
-                      ),
                     ],
                   ),
                 ),

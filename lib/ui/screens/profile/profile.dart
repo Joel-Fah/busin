@@ -6,7 +6,6 @@ import 'package:busin/controllers/subscriptions_controller.dart';
 import 'package:busin/models/scannings.dart';
 import 'package:busin/ui/screens/profile/semesters/semester.dart';
 import 'package:busin/ui/screens/profile/stops/stops.dart';
-import 'package:busin/ui/screens/profile/subscriptions_admin.dart';
 import 'package:busin/utils/constants.dart';
 import 'package:busin/utils/utils.dart';
 import 'package:flutter/foundation.dart';
@@ -35,7 +34,8 @@ class ProfilePage extends StatelessWidget {
     final AuthController authController = Get.find<AuthController>();
     final BusSubscriptionsController busSubscriptionsController =
         Get.find<BusSubscriptionsController>();
-    final SemesterController _semesterController = Get.find<SemesterController>();
+    final SemesterController _semesterController =
+        Get.find<SemesterController>();
 
     return Scaffold(
       appBar: AppBar(title: Text("Profile")),
@@ -258,102 +258,154 @@ class ProfilePage extends StatelessWidget {
                   color: themeController.isDark ? lightColor : seedColor,
                 ),
               ),
-              const Gap(24.0),
-              ListSubHeading(label: "Bus Management"),
-              ListTile(
-                onTap: () {
-                  HapticFeedback.mediumImpact();
-                  context.pushNamed(
-                    removeLeadingSlash(SubscriptionsAdminPage.routeName),
-                  );
-                },
-                leading: HugeIcon(
-                  icon: HugeIcons.strokeRoundedStickyNote02,
-                  color: themeController.isDark ? lightColor : seedColor,
+              if (authController.isAdmin) ...[
+                const Gap(24.0),
+                ListSubHeading(label: "Bus Management"),
+                // ListTile(
+                //   onTap: () {
+                //     HapticFeedback.mediumImpact();
+                //     context.pushNamed(
+                //       removeLeadingSlash(SubscriptionsAdminPage.routeName),
+                //     );
+                //   },
+                //   leading: HugeIcon(
+                //     icon: HugeIcons.strokeRoundedStickyNote02,
+                //     color: themeController.isDark ? lightColor : seedColor,
+                //   ),
+                //   title: Text("Subscriptions"),
+                //   subtitle: Text(
+                //     "Manage student bus subscriptions for each semester",
+                //   ),
+                //   trailing: HugeIcon(
+                //     icon: HugeIcons.strokeRoundedArrowUpRight01,
+                //     color: themeController.isDark ? lightColor : seedColor,
+                //   ),
+                // ),
+                // Padding(
+                //   padding: const EdgeInsets.all(8.0),
+                //   child: Divider(color: greyColor, thickness: 0.5),
+                // ),
+                ListTile(
+                  onTap: () {
+                    HapticFeedback.mediumImpact();
+                    context.pushNamed(
+                      removeLeadingSlash(BusStopsManagementPage.routeName),
+                    );
+                  },
+                  leading: HugeIcon(
+                    icon: HugeIcons.strokeRoundedDirections02,
+                    color: themeController.isDark ? lightColor : seedColor,
+                  ),
+                  title: Text("Bus Stops"),
+                  subtitle: Text(
+                    "Manage places where the bus picks up students",
+                  ),
+                  trailing: HugeIcon(
+                    icon: HugeIcons.strokeRoundedArrowUpRight01,
+                    color: themeController.isDark ? lightColor : seedColor,
+                  ),
                 ),
-                title: Text("Subscriptions"),
-                subtitle: Text("Manage student bus subscriptions for each semester"),
-                trailing: HugeIcon(
-                  icon: HugeIcons.strokeRoundedArrowUpRight01,
-                  color: themeController.isDark ? lightColor : seedColor,
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Divider(color: greyColor, thickness: 0.5),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Divider(color: greyColor, thickness: 0.5),
-              ),
-              ListTile(
-                onTap: () {
-                  HapticFeedback.mediumImpact();
-                  context.pushNamed(
-                    removeLeadingSlash(BusStopsManagementPage.routeName),
-                  );
-                },
-                leading: HugeIcon(
-                  icon: HugeIcons.strokeRoundedDirections02,
-                  color: themeController.isDark ? lightColor : seedColor,
-                ),
-                title: Text("Bus Stops"),
-                subtitle: Text("Manage places where the bus picks up students"),
-                trailing: HugeIcon(
-                  icon: HugeIcons.strokeRoundedArrowUpRight01,
-                  color: themeController.isDark ? lightColor : seedColor,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Divider(color: greyColor, thickness: 0.5),
-              ),
-              ListTile(
-                onTap: () {
-                  HapticFeedback.mediumImpact();
-                  context.pushNamed(
-                    removeLeadingSlash(SemesterManagementPage.routeName),
-                  );
-                },
-                leading: HugeIcon(
-                  icon: HugeIcons.strokeRoundedCalendar02,
-                  color: themeController.isDark ? lightColor : seedColor,
-                ),
-                title: Text("Semesters"),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Manage bus semesters duration and more"),
-                    // Active semester indicator
-                    Obx(() {
-                      final active = _semesterController.activeSemester.value;
-                      if (active == null) return const SizedBox.shrink();
+                ListTile(
+                  onTap: () {
+                    HapticFeedback.mediumImpact();
+                    context.pushNamed(
+                      removeLeadingSlash(SemesterManagementPage.routeName),
+                    );
+                  },
+                  leading: HugeIcon(
+                    icon: HugeIcons.strokeRoundedCalendar02,
+                    color: themeController.isDark ? lightColor : seedColor,
+                  ),
+                  title: Text("Semesters"),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Manage bus semesters duration and more"),
+                      // Active semester indicator
+                      Obx(() {
+                        final active = _semesterController.activeSemester.value;
+                        if (active == null) return const SizedBox.shrink();
 
-                      return Container(
-                        padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
-                        decoration: BoxDecoration(
-                          color: successColor.withValues(alpha: 0.1),
-                          borderRadius: borderRadius,
-                        ),
-                        child: Row(
-                          spacing: 8.0,
-                          children: [
-                            Text(
-                              '${active.semester.label} ${active.year}',
-                              style: AppTextStyles.small
-                                  .copyWith(color: successColor, fontWeight: FontWeight.w600),
-                            ),
-                            Expanded(child: Divider(color: successColor, thickness: 0.5,)),
-                            Text(
-                              '${dateFormatter(active.startDate)} - ${dateFormatter(active.endDate)}',
-                              style: AppTextStyles.small
-                                  .copyWith(color: successColor),
-                            ),
-                          ],
-                        ),
-                      );
-                    }),
-                  ],
+                        return Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 8.0,
+                            vertical: 2.0,
+                          ),
+                          decoration: BoxDecoration(
+                            color: successColor.withValues(alpha: 0.1),
+                            borderRadius: borderRadius,
+                          ),
+                          child: Row(
+                            spacing: 8.0,
+                            children: [
+                              Text(
+                                '${active.semester.label} ${active.year}',
+                                style: AppTextStyles.small.copyWith(
+                                  color: successColor,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              Expanded(
+                                child: Divider(
+                                  color: successColor,
+                                  thickness: 0.5,
+                                ),
+                              ),
+                              Text(
+                                '${dateFormatter(active.startDate)} - ${dateFormatter(active.endDate)}',
+                                style: AppTextStyles.small.copyWith(
+                                  color: successColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                  trailing: HugeIcon(
+                    icon: HugeIcons.strokeRoundedArrowUpRight01,
+                    color: themeController.isDark ? lightColor : seedColor,
+                  ),
                 ),
-                trailing: HugeIcon(
-                  icon: HugeIcons.strokeRoundedArrowUpRight01,
-                  color: themeController.isDark ? lightColor : seedColor,
+              ],
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Divider(color: greyColor, thickness: 0.5),
+              ),
+              ListTile(
+                onTap: () async {
+                  HapticFeedback.heavyImpact();
+                  await authController.signOut().then(
+                    (_) => snackBarKey.currentState
+                      ?..hideCurrentSnackBar()
+                      ..showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            "Signed out successfully",
+                            style: AppTextStyles.body.copyWith(
+                              color: lightColor,
+                            ),
+                          ),
+                          backgroundColor: successColor,
+                        ),
+                      ),
+                  );
+                },
+                splashColor: errorColor.withValues(alpha: 0.1),
+                leading: HugeIcon(
+                  icon: HugeIcons.strokeRoundedLogout01,
+                  color: errorColor,
+                ),
+                title: Text(
+                  "Sign out",
+                  style: Theme.of(
+                    context,
+                  ).listTileTheme.titleTextStyle?.copyWith(color: errorColor),
                 ),
               ),
               const Gap(64.0),

@@ -2,9 +2,12 @@ import 'dart:async';
 import 'package:busin/controllers/auth_controller.dart';
 import 'package:busin/controllers/onboarding_controller.dart';
 import 'package:busin/docs/docs.dart';
+import 'package:busin/models/actors/roles.dart';
 import 'package:busin/ui/screens/home/home_tab.dart';
+import 'package:busin/ui/screens/home/scanner.dart';
 import 'package:busin/ui/screens/home/scannings_tab.dart';
 import 'package:busin/ui/screens/home/subscriptions_tab.dart';
+import 'package:busin/ui/screens/onboarding/verification.dart';
 import 'package:busin/ui/screens/profile/profile.dart';
 import 'package:busin/ui/screens/profile/semesters/semester.dart';
 import 'package:busin/ui/screens/profile/semesters/semester_form.dart';
@@ -94,7 +97,18 @@ final router = GoRouter(
 
     // 2️⃣ If we're bootstrapped but *still on the loading page*, route properly now
     if (loc == LoadingPage.routeName) {
-      if (authed) return HomePage.routeName;
+      if (authed) {
+        final user = authController.currentUser.value;
+
+        // Check if staff/admin user is pending verification
+        if (user != null &&
+            (user.role.isStaff || user.role.isAdmin) &&
+            (user.status.isPending || user.status.isSuspended)) {
+          return VerificationPage.routeName;
+        }
+
+        return HomePage.routeName;
+      }
       if (onboardingDone) return AnonymousHomePage.routeName;
       return OnboardingPage.routeName;
     }
@@ -104,11 +118,31 @@ final router = GoRouter(
 
     // 4️⃣ Authenticated user
     if (authed) {
+      final user = authController.currentUser.value;
+
+      // Check if staff/admin user is pending verification
+      if (user != null &&
+          (user.role == UserRole.staff || user.role == UserRole.admin) &&
+          user.status == AccountStatus.pending) {
+        // Redirect to verification page if not already there
+        if (loc != VerificationPage.routeName) {
+          return VerificationPage.routeName;
+        }
+        return null;
+      }
+
+      // Keep verified users off verification page
+      if (loc == VerificationPage.routeName &&
+          user?.status == AccountStatus.verified) {
+        return HomePage.routeName;
+      }
+
       // Keep authed users off onboarding/anonymous pages
       if (loc == OnboardingPage.routeName ||
           loc == AnonymousHomePage.routeName) {
         return HomePage.routeName;
       }
+
       return null; // stay where they are
     }
 
@@ -139,6 +173,12 @@ final router = GoRouter(
       path: OnboardingPage.routeName,
       name: removeLeadingSlash(OnboardingPage.routeName),
       builder: (context, state) => const OnboardingPage(),
+    ),
+    GoRoute(
+      parentNavigatorKey: rootNavigatorKey,
+      path: VerificationPage.routeName,
+      name: removeLeadingSlash(VerificationPage.routeName),
+      builder: (context, state) => const VerificationPage(),
     ),
     GoRoute(
       parentNavigatorKey: rootNavigatorKey,
@@ -264,6 +304,14 @@ final router = GoRouter(
       path: SubscriptionsAdminPage.routeName,
       name: removeLeadingSlash(SubscriptionsAdminPage.routeName),
       builder: (context, state) => const SubscriptionsAdminPage(),
+    ),
+
+    // Scanner
+    GoRoute(
+      parentNavigatorKey: rootNavigatorKey,
+      path: ScannerPage.routeName,
+      name: removeLeadingSlash(ScannerPage.routeName),
+      builder: (context, state) => const ScannerPage(),
     ),
   ],
 );

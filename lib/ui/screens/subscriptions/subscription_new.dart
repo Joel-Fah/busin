@@ -85,7 +85,6 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
     super.dispose();
   }
 
-
   void _applyScheduleMode(_ScheduleMode mode) {
     const defaultStart = '07:00';
     const defaultEnd = '17:00';
@@ -249,7 +248,9 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
         return true;
       case 1:
         if (_selectedSemesterConfig == null) {
-          _showScheduleError('Please wait for active semester to load or contact administrator.');
+          _showScheduleError(
+            'Please wait for active semester to load or contact administrator.',
+          );
           return false;
         }
         return true;
@@ -537,7 +538,8 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                               );
                             }
 
-                            final activeSemester = controller.activeSemester.value;
+                            final activeSemester =
+                                controller.activeSemester.value;
 
                             if (activeSemester == null) {
                               return Container(
@@ -549,12 +551,12 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                     color: warningColor.withValues(alpha: 0.3),
                                   ),
                                 ),
-                                  child: Row(
-                                    children: [
-                                      HugeIcon(
-                                        icon: HugeIcons.strokeRoundedAlert02,
-                                        color: warningColor,
-                                      ),
+                                child: Row(
+                                  children: [
+                                    HugeIcon(
+                                      icon: HugeIcons.strokeRoundedAlert02,
+                                      color: warningColor,
+                                    ),
                                     const Gap(12.0),
                                     Expanded(
                                       child: Text(
@@ -596,7 +598,8 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                     ),
                                   ),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     spacing: 12.0,
                                     children: [
                                       Row(
@@ -604,24 +607,29 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                           Container(
                                             padding: const EdgeInsets.all(8.0),
                                             decoration: BoxDecoration(
-                                              color: successColor.withValues(alpha: 0.1),
+                                              color: successColor.withValues(
+                                                alpha: 0.1,
+                                              ),
                                               borderRadius: borderRadius * 1.5,
                                             ),
                                             child: HugeIcon(
-                                              icon: HugeIcons.strokeRoundedCalendar02,
+                                              icon: HugeIcons
+                                                  .strokeRoundedCalendar02,
                                               color: successColor,
                                             ),
                                           ),
                                           const Gap(12.0),
                                           Expanded(
                                             child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
                                                 Text(
                                                   'Active Semester',
-                                                  style: AppTextStyles.small.copyWith(
-                                                    color: successColor,
-                                                  ),
+                                                  style: AppTextStyles.small
+                                                      .copyWith(
+                                                        color: successColor,
+                                                      ),
                                                 ),
                                                 Text(
                                                   '${activeSemester.semester.label} ${activeSemester.year}',
@@ -630,47 +638,58 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                               ],
                                             ),
                                           ),
-                                          if (_selectedSemesterConfig?.id == activeSemester.id)
+                                          if (_selectedSemesterConfig?.id ==
+                                              activeSemester.id)
                                             Container(
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: 12.0,
-                                                vertical: 6.0,
-                                              ),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 12.0,
+                                                    vertical: 6.0,
+                                                  ),
                                               decoration: BoxDecoration(
                                                 color: successColor,
-                                                borderRadius: borderRadius * 1.5,
+                                                borderRadius:
+                                                    borderRadius * 1.5,
                                               ),
                                               child: Text(
                                                 'Selected',
-                                                style: AppTextStyles.small.copyWith(
-                                                  color: lightColor,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
+                                                style: AppTextStyles.small
+                                                    .copyWith(
+                                                      color: lightColor,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
                                               ),
                                             ),
                                         ],
                                       ),
                                       const Divider(),
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
                                           Row(
                                             spacing: 8.0,
                                             children: [
                                               HugeIcon(
-                                                icon: HugeIcons.strokeRoundedCalendarCheckIn01,
+                                                icon: HugeIcons
+                                                    .strokeRoundedCalendarCheckIn01,
                                                 size: 16.0,
                                                 color: themeController.isDark
                                                     ? seedPalette.shade50
                                                     : greyColor,
                                               ),
                                               Text(
-                                                dateFormatter(activeSemester.startDate),
-                                                style: AppTextStyles.body.copyWith(
-                                                  color: themeController.isDark
-                                                      ? seedPalette.shade50
-                                                      : greyColor,
+                                                dateFormatter(
+                                                  activeSemester.startDate,
                                                 ),
+                                                style: AppTextStyles.body
+                                                    .copyWith(
+                                                      color:
+                                                          themeController.isDark
+                                                          ? seedPalette.shade50
+                                                          : greyColor,
+                                                    ),
                                               ),
                                             ],
                                           ),
@@ -678,19 +697,24 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                             spacing: 8.0,
                                             children: [
                                               HugeIcon(
-                                                icon: HugeIcons.strokeRoundedCalendarCheckOut01,
+                                                icon: HugeIcons
+                                                    .strokeRoundedCalendarCheckOut01,
                                                 size: 16.0,
                                                 color: themeController.isDark
                                                     ? seedPalette.shade50
                                                     : greyColor,
                                               ),
                                               Text(
-                                                dateFormatter(activeSemester.endDate),
-                                                style: AppTextStyles.body.copyWith(
-                                                  color: themeController.isDark
-                                                      ? seedPalette.shade50
-                                                      : greyColor,
+                                                dateFormatter(
+                                                  activeSemester.endDate,
                                                 ),
+                                                style: AppTextStyles.body
+                                                    .copyWith(
+                                                      color:
+                                                          themeController.isDark
+                                                          ? seedPalette.shade50
+                                                          : greyColor,
+                                                    ),
                                               ),
                                             ],
                                           ),
@@ -710,7 +734,8 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                   child: Row(
                                     children: [
                                       HugeIcon(
-                                        icon: HugeIcons.strokeRoundedInformationCircle,
+                                        icon: HugeIcons
+                                            .strokeRoundedInformationCircle,
                                         color: infoColor,
                                         size: 20.0,
                                       ),
@@ -778,11 +803,14 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                             value: s.id,
                                             child: Text(
                                               s.name,
-                                              style: AppTextStyles.body.copyWith(
-                                                color: themeController.isDark
-                                                    ? lightColor
-                                                    : seedColor,
-                                              ),
+                                              style: AppTextStyles.body
+                                                  .copyWith(
+                                                    color:
+                                                        themeController.isDark
+                                                        ? lightColor
+                                                        : seedColor,
+                                                  ),
+                                              overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
                                         )
@@ -790,6 +818,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                     style: AppTextStyles.body.copyWith(
                                       color: seedColor,
                                     ),
+                                    isExpanded: true,
                                     dropdownColor: themeController.isDark
                                         ? seedPalette.shade800
                                         : seedPalette.shade50,
@@ -806,10 +835,11 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                     ),
                                     borderRadius: borderRadius * 2.5,
                                     decoration: InputDecoration(
-                                      contentPadding: const EdgeInsets.symmetric(
-                                        vertical: 12.0,
-                                        horizontal: 16.0,
-                                      ),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            vertical: 12.0,
+                                            horizontal: 16.0,
+                                          ),
                                       labelText: 'Select stop',
                                       labelStyle: AppTextStyles.body.copyWith(
                                         color: themeController.isDark
@@ -823,11 +853,13 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                             : seedColor.withValues(alpha: 0.6),
                                       ),
                                       border: AppInputBorders.border,
-                                      focusedBorder: AppInputBorders.focusedBorder,
+                                      focusedBorder:
+                                          AppInputBorders.focusedBorder,
                                       errorBorder: AppInputBorders.errorBorder,
                                       focusedErrorBorder:
                                           AppInputBorders.focusedErrorBorder,
-                                      enabledBorder: AppInputBorders.enabledBorder,
+                                      enabledBorder:
+                                          AppInputBorders.enabledBorder,
                                       disabledBorder:
                                           AppInputBorders.disabledBorder,
                                     ),
@@ -872,52 +904,57 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                         content: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
-                              children: [
-                                ChoiceChip(
-                                  label: Text(
-                                    'Everyday',
-                                    style: AppTextStyles.body,
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                children: [
+                                  ChoiceChip(
+                                    label: Text(
+                                      'Everyday',
+                                      style: AppTextStyles.body,
+                                    ),
+                                    selected:
+                                        _scheduleMode == _ScheduleMode.everyday,
+                                    onSelected: (_) => _applyScheduleMode(
+                                      _ScheduleMode.everyday,
+                                    ),
+                                    checkmarkColor: themeController.isDark
+                                        ? lightColor
+                                        : seedColor,
                                   ),
-                                  selected:
-                                      _scheduleMode == _ScheduleMode.everyday,
-                                  onSelected: (_) => _applyScheduleMode(
-                                    _ScheduleMode.everyday,
+                                  const Gap(8.0),
+                                  ChoiceChip(
+                                    label: Text(
+                                      'Normal week',
+                                      style: AppTextStyles.body,
+                                    ),
+                                    selected:
+                                        _scheduleMode ==
+                                        _ScheduleMode.normalWeek,
+                                    onSelected: (_) => _applyScheduleMode(
+                                      _ScheduleMode.normalWeek,
+                                    ),
+                                    checkmarkColor: themeController.isDark
+                                        ? lightColor
+                                        : seedColor,
                                   ),
-                                  checkmarkColor: themeController.isDark
-                                      ? lightColor
-                                      : seedColor,
-                                ),
-                                const Gap(8.0),
-                                ChoiceChip(
-                                  label: Text(
-                                    'Normal week',
-                                    style: AppTextStyles.body,
+                                  const Gap(8.0),
+                                  ChoiceChip(
+                                    label: Text(
+                                      'Custom',
+                                      style: AppTextStyles.body,
+                                    ),
+                                    selected:
+                                        _scheduleMode == _ScheduleMode.custom,
+                                    onSelected: (_) => _applyScheduleMode(
+                                      _ScheduleMode.custom,
+                                    ),
+                                    checkmarkColor: themeController.isDark
+                                        ? lightColor
+                                        : seedColor,
                                   ),
-                                  selected:
-                                      _scheduleMode == _ScheduleMode.normalWeek,
-                                  onSelected: (_) => _applyScheduleMode(
-                                    _ScheduleMode.normalWeek,
-                                  ),
-                                  checkmarkColor: themeController.isDark
-                                      ? lightColor
-                                      : seedColor,
-                                ),
-                                const Gap(8.0),
-                                ChoiceChip(
-                                  label: Text(
-                                    'Custom',
-                                    style: AppTextStyles.body,
-                                  ),
-                                  selected:
-                                      _scheduleMode == _ScheduleMode.custom,
-                                  onSelected: (_) =>
-                                      _applyScheduleMode(_ScheduleMode.custom),
-                                  checkmarkColor: themeController.isDark
-                                      ? lightColor
-                                      : seedColor,
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                             const Gap(8.0),
                             if (_schedules.isEmpty)
@@ -1286,7 +1323,8 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                 const Gap(12.0),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'Review Your Subscription',
@@ -1312,9 +1350,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                     ? darkGradient
                                     : lightGradient,
                                 borderRadius: borderRadius * 2.5,
-                                border: Border.all(
-                                  color: seedPalette.shade700,
-                                ),
+                                border: Border.all(color: seedPalette.shade700),
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1334,9 +1370,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                       ),
                                     ],
                                   ),
-                                  Divider(
-                                    color: seedPalette.shade700
-                                  ),
+                                  Divider(color: seedPalette.shade700),
                                   _SummaryRow(
                                     icon: HugeIcons.strokeRoundedUserCircle,
                                     label: 'Name',
@@ -1345,7 +1379,12 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                   _SummaryRow(
                                     icon: HugeIcons.strokeRoundedMail01,
                                     label: 'Email',
-                                    value: authController.currentUser.value?.email ?? 'N/A',
+                                    value:
+                                        authController
+                                            .currentUser
+                                            .value
+                                            ?.email ??
+                                        'N/A',
                                   ),
                                 ],
                               ),
@@ -1392,27 +1431,37 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                     _SummaryRow(
                                       icon: HugeIcons.strokeRoundedCalendar03,
                                       label: 'Semester',
-                                      value: '${_selectedSemesterConfig!.semester.label} ${_selectedSemesterConfig!.year}',
+                                      value:
+                                          '${_selectedSemesterConfig!.semester.label} ${_selectedSemesterConfig!.year}',
                                       valueColor: successColor,
                                     ),
                                     _SummaryRow(
-                                      icon: HugeIcons.strokeRoundedCalendarCheckIn01,
+                                      icon: HugeIcons
+                                          .strokeRoundedCalendarCheckIn01,
                                       label: 'Start Date',
-                                      value: dateFormatter(_selectedSemesterConfig!.startDate),
+                                      value: dateFormatter(
+                                        _selectedSemesterConfig!.startDate,
+                                      ),
                                     ),
                                     _SummaryRow(
-                                      icon: HugeIcons.strokeRoundedCalendarCheckOut01,
+                                      icon: HugeIcons
+                                          .strokeRoundedCalendarCheckOut01,
                                       label: 'End Date',
-                                      value: dateFormatter(_selectedSemesterConfig!.endDate),
+                                      value: dateFormatter(
+                                        _selectedSemesterConfig!.endDate,
+                                      ),
                                     ),
                                     _SummaryRow(
                                       icon: HugeIcons.strokeRoundedTimer02,
                                       label: 'Duration',
-                                      value: '${_selectedSemesterConfig!.durationInDays} days',
+                                      value:
+                                          '${_selectedSemesterConfig!.durationInDays} days',
                                     ),
                                   ] else
                                     Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 8.0,
+                                      ),
                                       child: Text(
                                         'No semester selected',
                                         style: AppTextStyles.body.copyWith(
@@ -1451,13 +1500,15 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                     ),
                                   ),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     spacing: 12.0,
                                     children: [
                                       Row(
                                         children: [
                                           HugeIcon(
-                                            icon: HugeIcons.strokeRoundedLocationUser04,
+                                            icon: HugeIcons
+                                                .strokeRoundedLocationUser04,
                                             color: infoColor,
                                             size: 20.0,
                                           ),
@@ -1476,14 +1527,17 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                       ),
                                       if (stop != null) ...[
                                         _SummaryRow(
-                                          icon: HugeIcons.strokeRoundedLocation06,
+                                          icon:
+                                              HugeIcons.strokeRoundedLocation06,
                                           label: 'Stop Name',
                                           value: stop.name,
                                           valueColor: infoColor,
                                         ),
                                       ] else
                                         Padding(
-                                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 8.0,
+                                          ),
                                           child: Text(
                                             'No stop selected',
                                             style: AppTextStyles.body.copyWith(
@@ -1537,7 +1591,9 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                           vertical: 4.0,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: warningColor.withValues(alpha: 0.2),
+                                          color: warningColor.withValues(
+                                            alpha: 0.2,
+                                          ),
                                           borderRadius: borderRadius * 1.5,
                                         ),
                                         child: Text(
@@ -1557,8 +1613,12 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                     Container(
                                       decoration: BoxDecoration(
                                         color: themeController.isDark
-                                            ? Colors.black.withValues(alpha: 0.2)
-                                            : Colors.white.withValues(alpha: 0.5),
+                                            ? Colors.black.withValues(
+                                                alpha: 0.2,
+                                              )
+                                            : Colors.white.withValues(
+                                                alpha: 0.5,
+                                              ),
                                         borderRadius: borderRadius * 1.5,
                                       ),
                                       child: Table(
@@ -1572,56 +1632,74 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                         children: [
                                           TableRow(
                                             decoration: BoxDecoration(
-                                              color: warningColor.withValues(alpha: 0.1),
+                                              color: warningColor.withValues(
+                                                alpha: 0.1,
+                                              ),
                                               borderRadius: BorderRadius.only(
-                                                topLeft: (borderRadius * 1.5).topLeft,
-                                                topRight: (borderRadius * 1.5).topRight,
+                                                topLeft: (borderRadius * 1.5)
+                                                    .topLeft,
+                                                topRight: (borderRadius * 1.5)
+                                                    .topRight,
                                               ),
                                             ),
                                             children: [
                                               Padding(
-                                                padding: const EdgeInsets.all(12.0),
+                                                padding: const EdgeInsets.all(
+                                                  12.0,
+                                                ),
                                                 child: Text(
                                                   'Day',
-                                                  style: AppTextStyles.body.copyWith(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
+                                                  style: AppTextStyles.body
+                                                      .copyWith(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
                                                 ),
                                               ),
                                               Padding(
-                                                padding: const EdgeInsets.all(12.0),
+                                                padding: const EdgeInsets.all(
+                                                  12.0,
+                                                ),
                                                 child: Row(
                                                   spacing: 4.0,
                                                   children: [
                                                     HugeIcon(
-                                                      icon: HugeIcons.strokeRoundedSun03,
+                                                      icon: HugeIcons
+                                                          .strokeRoundedSun03,
                                                       size: 16.0,
                                                       color: warningColor,
                                                     ),
                                                     Text(
                                                       'Morning',
-                                                      style: AppTextStyles.body.copyWith(
-                                                        fontWeight: FontWeight.bold,
-                                                      ),
+                                                      style: AppTextStyles.body
+                                                          .copyWith(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
                                                     ),
                                                   ],
                                                 ),
                                               ),
                                               Padding(
-                                                padding: const EdgeInsets.all(12.0),
+                                                padding: const EdgeInsets.all(
+                                                  12.0,
+                                                ),
                                                 child: Row(
                                                   spacing: 4.0,
                                                   children: [
                                                     HugeIcon(
-                                                      icon: HugeIcons.strokeRoundedMoon02,
+                                                      icon: HugeIcons
+                                                          .strokeRoundedMoon02,
                                                       size: 16.0,
                                                       color: warningColor,
                                                     ),
                                                     Text(
                                                       'Evening',
-                                                      style: AppTextStyles.body.copyWith(
-                                                        fontWeight: FontWeight.bold,
-                                                      ),
+                                                      style: AppTextStyles.body
+                                                          .copyWith(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
                                                     ),
                                                   ],
                                                 ),
@@ -1632,23 +1710,33 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                             (s) => TableRow(
                                               children: [
                                                 Padding(
-                                                  padding: const EdgeInsets.all(12.0),
+                                                  padding: const EdgeInsets.all(
+                                                    12.0,
+                                                  ),
                                                   child: Text(
-                                                    _weekdayLabelLong(s.weekday),
-                                                    style: AppTextStyles.body.copyWith(
-                                                      fontWeight: FontWeight.w600,
+                                                    _weekdayLabelLong(
+                                                      s.weekday,
                                                     ),
+                                                    style: AppTextStyles.body
+                                                        .copyWith(
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                        ),
                                                   ),
                                                 ),
                                                 Padding(
-                                                  padding: const EdgeInsets.all(12.0),
+                                                  padding: const EdgeInsets.all(
+                                                    12.0,
+                                                  ),
                                                   child: Text(
                                                     s.morningTime,
                                                     style: AppTextStyles.body,
                                                   ),
                                                 ),
                                                 Padding(
-                                                  padding: const EdgeInsets.all(12.0),
+                                                  padding: const EdgeInsets.all(
+                                                    12.0,
+                                                  ),
                                                   child: Text(
                                                     s.closingTime,
                                                     style: AppTextStyles.body,
@@ -1662,7 +1750,9 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                     ),
                                   ] else
                                     Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 8.0,
+                                      ),
                                       child: Text(
                                         'No schedules added',
                                         style: AppTextStyles.body.copyWith(
@@ -1687,14 +1777,16 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                               child: Row(
                                 children: [
                                   HugeIcon(
-                                    icon: HugeIcons.strokeRoundedInformationCircle,
+                                    icon: HugeIcons
+                                        .strokeRoundedInformationCircle,
                                     color: infoColor,
                                     size: 24.0,
                                   ),
                                   const Gap(12.0),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       spacing: 4.0,
                                       children: [
                                         Text(
@@ -1707,7 +1799,9 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                         Text(
                                           'Your subscription will be reviewed by our team. You will receive a notification once it has been approved or if any changes are needed.',
                                           style: AppTextStyles.small.copyWith(
-                                            color: infoColor.withValues(alpha: 0.8),
+                                            color: infoColor.withValues(
+                                              alpha: 0.8,
+                                            ),
                                           ),
                                         ),
                                       ],
@@ -1757,7 +1851,9 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
   BusStop? _findSelectedStop() {
     if (_selectedStopId == null) return null;
     try {
-      return busStopController.busStops.firstWhere((s) => s.id == _selectedStopId);
+      return busStopController.busStops.firstWhere(
+        (s) => s.id == _selectedStopId,
+      );
     } catch (_) {
       return null;
     }
@@ -1772,17 +1868,19 @@ class _StopPreview extends StatelessWidget {
 
   void _openInGoogleMaps(BuildContext context) async {
     if (stop.mapEmbedUrl == null || stop.mapEmbedUrl!.isEmpty) {
-      ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(
-        buildSnackBar(
-          backgroundColor: warningColor,
-          prefixIcon: const HugeIcon(
-            icon: HugeIcons.strokeRoundedAlert01,
-            color: lightColor,
-            size: 20,
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          buildSnackBar(
+            backgroundColor: warningColor,
+            prefixIcon: const HugeIcon(
+              icon: HugeIcons.strokeRoundedAlert01,
+              color: lightColor,
+              size: 20,
+            ),
+            label: const Text('No map link available for this stop'),
           ),
-          label: const Text('No map link available for this stop'),
-        ),
-      );
+        );
       return;
     }
 
@@ -1793,32 +1891,36 @@ class _StopPreview extends StatelessWidget {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
 
         if (context.mounted) {
-          ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(
-            buildSnackBar(
-              backgroundColor: successColor,
-              prefixIcon: const HugeIcon(
-                icon: HugeIcons.strokeRoundedCheckmarkCircle02,
-                color: lightColor,
-                size: 20,
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(
+              buildSnackBar(
+                backgroundColor: successColor,
+                prefixIcon: const HugeIcon(
+                  icon: HugeIcons.strokeRoundedCheckmarkCircle02,
+                  color: lightColor,
+                  size: 20,
+                ),
+                label: const Text('Opened in Google Maps'),
               ),
-              label: const Text('Opened in Google Maps'),
-            ),
-          );
+            );
         }
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(
-          buildSnackBar(
-            backgroundColor: errorColor,
-            prefixIcon: const HugeIcon(
-              icon: HugeIcons.strokeRoundedAlert02,
-              color: lightColor,
-              size: 20,
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            buildSnackBar(
+              backgroundColor: errorColor,
+              prefixIcon: const HugeIcon(
+                icon: HugeIcons.strokeRoundedAlert02,
+                color: lightColor,
+                size: 20,
+              ),
+              label: const Text('Could not open map link'),
             ),
-            label: const Text('Could not open map link'),
-          ),
-        );
+          );
       }
     }
   }
@@ -1859,9 +1961,7 @@ class _StopPreview extends StatelessWidget {
                         color: themeController.isDark
                             ? seedPalette.shade900
                             : seedPalette.shade100,
-                        child: Center(
-                          child: LoadingIndicator(),
-                        ),
+                        child: Center(child: LoadingIndicator()),
                       ),
                       errorWidget: (context, url, error) => Container(
                         height: 200,
@@ -2010,12 +2110,7 @@ class _StopPreview extends StatelessWidget {
                       size: 20,
                     ),
                     const Gap(8.0),
-                    Expanded(
-                      child: Text(
-                        stop.name,
-                        style: AppTextStyles.h3,
-                      ),
-                    ),
+                    Expanded(child: Text(stop.name, style: AppTextStyles.h3)),
                   ],
                 ),
                 const Gap(12.0),
@@ -2057,35 +2152,21 @@ class _Badge extends StatelessWidget {
   final String label;
   final Color color;
 
-  const _Badge({
-    required this.icon,
-    required this.label,
-    required this.color,
-  });
+  const _Badge({required this.icon, required this.label, required this.color});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 10.0,
-        vertical: 6.0,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
         borderRadius: borderRadius,
-        border: Border.all(
-          color: color.withValues(alpha: 0.3),
-          width: 1,
-        ),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          HugeIcon(
-            icon: icon,
-            color: color,
-            size: 14,
-          ),
+          HugeIcon(icon: icon, color: color, size: 14),
           const Gap(4.0),
           Text(
             label,
@@ -2134,9 +2215,7 @@ class _SummaryRow extends StatelessWidget {
             flex: 2,
             child: Text(
               label,
-              style: AppTextStyles.small.copyWith(
-                color: greyColor,
-              ),
+              style: AppTextStyles.small.copyWith(color: greyColor),
             ),
           ),
           Expanded(

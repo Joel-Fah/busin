@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/value_objects/bus_stop_selection.dart';
 import '../utils/supabase_storage.dart';
+import '../utils/id_generator.dart';
 
 class BusStopService {
   BusStopService._();
@@ -61,7 +62,8 @@ class BusStopService {
   }
 
   /// Helper method to upload image to Supabase storage
-  Future<String?> _uploadImage(String? localPath, String stopId) async {
+  /// Uses human-readable folder and file names based on stop name
+  Future<String?> _uploadImage(String? localPath, String stopName, String stopId) async {
     if (localPath == null || localPath.isEmpty) return null;
 
     // Check if it's already a URL (not a local file)
@@ -78,10 +80,17 @@ class BusStopService {
         return null;
       }
 
+      // Create human-readable folder name from stop name
+      final folderName = _slugifyForStorage(stopName);
+
+      // Create readable file name
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final extension = localPath.split('.').last;
-      // Upload in stops folder: stops/{stopId}/{timestamp}.{extension}
-      final objectPath = 'stops/$stopId/$timestamp.$extension';
+      final fileName = '${folderName}_$timestamp.$extension';
+
+      // Upload in stops folder: stops/{stop-name-slug}/{stop-name-slug}_{timestamp}.{extension}
+      // Example: stops/poste-centrale/poste-centrale_1734567890.jpg
+      final objectPath = 'stops/$folderName/$fileName';
 
       final publicUrl = await uploadFileToSupabaseStorage(
         file: file,
@@ -103,18 +112,37 @@ class BusStopService {
     }
   }
 
+  /// Convert stop name to URL-friendly slug for storage
+  /// Example: "Poste Centrale" -> "poste-centrale"
+  String _slugifyForStorage(String text) {
+    return text
+        .trim()
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^\w\s-]'), '') // Remove special chars
+        .replaceAll(RegExp(r'\s+'), '-') // Replace spaces with hyphens
+        .replaceAll(RegExp(r'-+'), '-'); // Replace multiple hyphens with single
+  }
+
   /// Create a new bus stop
   Future<BusStop> createBusStop(BusStop stop, String currentUserId) async {
     try {
-      // Generate document reference and ID
-      final docRef = _collection.doc();
-      final stopId = docRef.id;
+      // Generate custom ID based on stop name
+      // Format: STOP-{NAME_SLUG}-{SHORT_HASH}
+      final customId = IdGenerator.generateBusStopId(stop.name);
+
+      // Ensure uniqueness
+      final stopId = await IdGenerator.generateUniqueId(
+        collection: 'stops',
+        baseId: customId,
+      );
+
       final now = DateTime.now();
 
       // Upload image to Supabase if provided
+      // Pass stop name for human-readable folder/file names
       String? uploadedImageUrl;
       if (stop.pickupImageUrl != null && stop.pickupImageUrl!.isNotEmpty) {
-        uploadedImageUrl = await _uploadImage(stop.pickupImageUrl, stopId);
+        uploadedImageUrl = await _uploadImage(stop.pickupImageUrl, stop.name, stopId);
       }
 
       // Create stop with metadata
@@ -130,7 +158,7 @@ class BusStopService {
       );
 
       // Save to Firestore
-      await docRef.set(newStop.toMap());
+      await _collection.doc(stopId).set(newStop.toMap());
 
       if (kDebugMode) {
         debugPrint('[BusStopService] Created bus stop $stopId');
@@ -161,8 +189,8 @@ class BusStopService {
           newImageUrl.isNotEmpty &&
           !newImageUrl.startsWith('http://') &&
           !newImageUrl.startsWith('https://')) {
-        // Upload the new image
-        newImageUrl = await _uploadImage(newImageUrl, stop.id);
+        // Upload the new image with stop name for readable folder/file names
+        newImageUrl = await _uploadImage(newImageUrl, stop.name, stop.id);
 
         // Delete the old image if it exists and is different
         if (oldImageUrl != null && oldImageUrl != newImageUrl) {

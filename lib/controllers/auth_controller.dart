@@ -93,6 +93,7 @@ class AuthController extends GetxController {
   bool get isStudent => currentUser.value?.role == UserRole.student;
   bool get isStaff => currentUser.value?.role == UserRole.staff;
   bool get isAdmin => currentUser.value?.role == UserRole.admin;
+  String get userId => currentUser.value?.id ?? '';
   String get userDisplayName => currentUser.value?.name ?? '';
   String get userEmail => currentUser.value?.email ?? '';
   String get userProfileImage => currentUser.value?.photoUrl ?? '';
@@ -245,5 +246,43 @@ class AuthController extends GetxController {
     final user = currentUser.value;
     if (user == null) return;
     await _db.collection(kUsersCollection).doc(user.id).update({'status': status.name});
+  }
+
+  /// Reload current user data from Firestore
+  Future<void> reloadCurrentUser() async {
+    final user = currentUser.value;
+    if (user == null) return;
+
+    try {
+      final doc = await _db.collection(kUsersCollection).doc(user.id).get();
+      if (!doc.exists) return;
+
+      final data = doc.data();
+      if (data == null) return;
+
+      final role = UserRole.from((data[kRoleField] as String?) ?? 'student');
+      currentUser.value = _mapDocToUser(role, data);
+    } catch (e) {
+      errorMessage?.value = e.toString();
+      rethrow;
+    }
+  }
+
+  /// Update user role (e.g., upgrade staff to admin)
+  Future<void> updateUserRole(UserRole newRole) async {
+    final user = currentUser.value;
+    if (user == null) return;
+
+    try {
+      await _db.collection(kUsersCollection).doc(user.id).update({
+        'role': newRole.name,
+      });
+
+      // Reload user data to reflect the change
+      await reloadCurrentUser();
+    } catch (e) {
+      errorMessage?.value = e.toString();
+      rethrow;
+    }
   }
 }

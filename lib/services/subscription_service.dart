@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 
 import '../models/subscription.dart';
 import '../models/value_objects/review_observation.dart';
+import '../utils/id_generator.dart';
 
 class SubscriptionService {
   SubscriptionService._();
@@ -15,14 +16,32 @@ class SubscriptionService {
   Future<BusSubscription> createSubscription({
     required BusSubscription subscription,
     String? proofUrl,
+    String? studentName,
   }) async {
     try {
-      final docRef = subscription.id.isEmpty
-          ? _collection.doc()
-          : _collection.doc(subscription.id);
-      var payload = subscription.id == docRef.id
-          ? subscription
-          : subscription.copyWith(id: docRef.id);
+      // Generate custom ID if not provided
+      String customId;
+      if (subscription.id.isEmpty) {
+        // Generate custom subscription ID
+        // Format: SUB-{YEAR}{SEMESTER}-{INITIALS}-{TIMESTAMP}
+        final semesterCode = subscription.semester.name.substring(0, 1).toUpperCase(); // F, S, W, etc.
+        customId = IdGenerator.generateSubscriptionId(
+          studentName: studentName ?? 'Student',
+          year: subscription.year,
+          semester: semesterCode,
+        );
+
+        // Ensure uniqueness
+        customId = await IdGenerator.generateUniqueId(
+          collection: 'subscriptions',
+          baseId: customId,
+        );
+      } else {
+        customId = subscription.id;
+      }
+
+      final docRef = _collection.doc(customId);
+      var payload = subscription.copyWith(id: customId);
 
       if (proofUrl != null && proofUrl.isNotEmpty) {
         payload = payload.withProof(proofUrl);
@@ -31,7 +50,7 @@ class SubscriptionService {
       final map = payload.toMap();
       await docRef.set(map);
       if (kDebugMode) {
-        debugPrint('[SubscriptionService] Created subscription ${docRef.id}');
+        debugPrint('[SubscriptionService] Created subscription $customId');
       }
       return payload;
     } catch (e) {
@@ -77,14 +96,28 @@ class SubscriptionService {
     String? studentId,
     BusSubscriptionStatus? status,
   }) {
-    Query<Map<String, dynamic>> query =
-        _collection.orderBy('createdAt', descending: true);
-    if (studentId != null) {
-      query = query.where('studentId', isEqualTo: studentId);
+    // SECURITY CHECK: studentId should always be provided for student access
+    // This ensures students can only see their own subscriptions
+    if (studentId == null || studentId.isEmpty) {
+      if (kDebugMode) {
+        debugPrint('[SubscriptionService] WARNING: Attempting to watch subscriptions without studentId filter');
+      }
+      // Return empty stream to prevent unauthorized access
+      return Stream.value(<BusSubscription>[]);
     }
+
+    Query<Map<String, dynamic>> query = _collection
+        .where('studentId', isEqualTo: studentId)
+        .orderBy('createdAt', descending: true);
+
     if (status != null) {
       query = query.where('status', isEqualTo: status.nameLower);
     }
+
+    if (kDebugMode) {
+      debugPrint('[SubscriptionService] Watching subscriptions for student: $studentId');
+    }
+
     return query.snapshots().map((snapshot) {
       return snapshot.docs.map((doc) {
         final data = Map<String, dynamic>.from(doc.data());
@@ -94,6 +127,7 @@ class SubscriptionService {
     });
   }
 
+  /// Watch all subscriptions for admin purposes
   /// Watch all subscriptions for admin purposes
   Stream<List<BusSubscription>> watchAllSubscriptions() {
     return _collection
@@ -175,13 +209,31 @@ class SubscriptionService {
     }
   }
 
-  Future<BusSubscription?> fetchSubscription(String id) async {
+  Future<BusSubscription?> fetchSubscription(
+    String id, {
+    String? requesterStudentId,
+  }) async {
     try {
       final doc = await _collection.doc(id).get();
       if (!doc.exists || doc.data() == null) return null;
+
       final map = Map<String, dynamic>.from(doc.data()!);
       map['id'] = doc.id;
-      return BusSubscription.fromMap(map);
+      final subscription = BusSubscription.fromMap(map);
+
+      // SECURITY CHECK: If requesterStudentId is provided (student access),
+      // verify the subscription belongs to that student
+      if (requesterStudentId != null && requesterStudentId.isNotEmpty) {
+        if (subscription.studentId != requesterStudentId) {
+          if (kDebugMode) {
+            debugPrint('[SubscriptionService] SECURITY: Student $requesterStudentId attempted to access subscription ${subscription.id} belonging to ${subscription.studentId}');
+          }
+          // Return null to prevent unauthorized access
+          return null;
+        }
+      }
+
+      return subscription;
     } catch (e) {
       if (kDebugMode) {
         debugPrint('[SubscriptionService] fetchSubscription error: $e');
