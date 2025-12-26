@@ -9,6 +9,7 @@ import 'package:busin/utils/utils.dart';
 import 'package:busin/utils/constants.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
@@ -90,6 +91,8 @@ class _SubscriptionDetailsContentState
   late BusSubscription subscription;
   final BusSubscriptionsController _controller =
       Get.find<BusSubscriptionsController>();
+  final AuthController _authController = Get.find<AuthController>();
+  final _fabKey = GlobalKey<ExpandableFabState>();
 
   @override
   void initState() {
@@ -117,6 +120,229 @@ class _SubscriptionDetailsContentState
         );
       }
     }
+  }
+
+  Future<void> _handleApprove(BuildContext context) async {
+    // Close the FAB first
+    final state = _fabKey.currentState;
+    if (state != null) {
+      state.toggle();
+    }
+
+    try {
+      await _controller.approveSubscription(
+        subscriptionId: subscription.id,
+        reviewerId: _authController.userId,
+      );
+
+      if (mounted) {
+        // Refresh the subscription to get updated data
+        await _handleRefresh();
+
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            buildSnackBar(
+              backgroundColor: successColor,
+              prefixIcon: const HugeIcon(
+                icon: HugeIcons.strokeRoundedCheckmarkCircle02,
+                color: lightColor,
+              ),
+              label: const Text('Subscription approved successfully'),
+            ),
+          );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            buildSnackBar(
+              backgroundColor: errorColor,
+              prefixIcon: const HugeIcon(
+                icon: HugeIcons.strokeRoundedAlert02,
+                color: lightColor,
+              ),
+              label: Text('Failed to approve: ${e.toString()}'),
+            ),
+          );
+      }
+    }
+  }
+
+  Future<void> _handleReject(BuildContext context) async {
+    // Close the FAB first
+    final state = _fabKey.currentState;
+    if (state != null) {
+      state.toggle();
+    }
+
+    // Show rejection reason dialog
+    final reason = await _showRejectReasonDialog(context);
+    if (reason == null || reason.isEmpty) {
+      // User cancelled or didn't provide a reason
+      return;
+    }
+
+    try {
+      await _controller.rejectSubscription(
+        subscriptionId: subscription.id,
+        reviewerId: _authController.userId,
+        reason: reason,
+      );
+
+      if (mounted) {
+        // Refresh the subscription to get updated data
+        await _handleRefresh();
+
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            buildSnackBar(
+              backgroundColor: warningColor,
+              prefixIcon: const HugeIcon(
+                icon: HugeIcons.strokeRoundedCancelCircle,
+                color: lightColor,
+              ),
+              label: const Text('Subscription rejected'),
+            ),
+          );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            buildSnackBar(
+              backgroundColor: errorColor,
+              prefixIcon: const HugeIcon(
+                icon: HugeIcons.strokeRoundedAlert02,
+                color: lightColor,
+              ),
+              label: Text('Failed to reject: ${e.toString()}'),
+            ),
+          );
+      }
+    }
+  }
+
+  Future<String?> _showRejectReasonDialog(BuildContext context) async {
+    final TextEditingController reasonController = TextEditingController();
+
+    return showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            color: themeController.isDark
+                ? seedPalette.shade900
+                : lightColor,
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(24),
+            ),
+          ),
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Handle bar
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: greyColor.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Row(
+                children: [
+                  HugeIcon(
+                    icon: HugeIcons.strokeRoundedCancelCircle,
+                    color: errorColor,
+                  ),
+                  const Gap(12),
+                  const Expanded(
+                    child: Text(
+                      'Reject Subscription',
+                      style: AppTextStyles.h3,
+                    ),
+                  ),
+                ],
+              ),
+              const Gap(16),
+              Text(
+                'Please provide a reason for rejecting this subscription. This will be shown to the student.',
+                style: AppTextStyles.body.copyWith(
+                  color: greyColor,
+                ),
+              ),
+              const Gap(20),
+              TextFormField(
+                controller: reasonController,
+                maxLines: 4,
+                autofocus: true,
+                decoration: InputDecoration(
+                  labelText: 'Rejection Reason',
+                  hintText: 'Enter the reason for rejection...',
+                  border: OutlineInputBorder(
+                    borderRadius: borderRadius * 2,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: borderRadius * 2,
+                    borderSide: BorderSide(color: errorColor, width: 2),
+                  ),
+                ),
+              ),
+              const Gap(20),
+              Row(
+                spacing: 12,
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: TextButton.styleFrom(
+                        overlayColor: greyColor.withValues(alpha: 0.1),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: const Text('Cancel'),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        final reason = reasonController.text.trim();
+                        if (reason.isNotEmpty) {
+                          Navigator.of(context).pop(reason);
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: errorColor,
+                        foregroundColor: lightColor,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: const Text(
+                        'Reject Subscription',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -537,13 +763,93 @@ class _SubscriptionDetailsContentState
                       ],
                     ),
                   ),
-                  const Gap(24.0),
+                  const Gap(120.0),
                 ],
               ),
             ),
           ],
         ),
       ),
+      floatingActionButtonLocation: ExpandableFab.location,
+      floatingActionButton: (_authController.isAdmin || _authController.isStaff) &&
+              subscription.status == BusSubscriptionStatus.pending
+          ? ExpandableFab(
+              key: _fabKey,
+              type: ExpandableFabType.up,
+              distance: 70.0,
+              childrenAnimation: ExpandableFabAnimation.rotate,
+              overlayStyle: ExpandableFabOverlayStyle(
+                color: Colors.black.withValues(alpha: 0.5),
+                blur: 5,
+              ),
+              openButtonBuilder: RotateFloatingActionButtonBuilder(
+                child: const HugeIcon(
+                  icon: HugeIcons.strokeRoundedMenu03,
+                  color: lightColor,
+                ),
+                fabSize: ExpandableFabSize.regular,
+                backgroundColor: themeController.isDark
+                    ? seedPalette.shade800
+                    : seedColor,
+                foregroundColor: lightColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: borderRadius * 2.25,
+                )
+              ),
+              closeButtonBuilder: DefaultFloatingActionButtonBuilder(
+                child: const HugeIcon(
+                  icon: HugeIcons.strokeRoundedCancel01,
+                  color: lightColor,
+                ),
+                fabSize: ExpandableFabSize.regular,
+                backgroundColor: themeController.isDark
+                    ? seedPalette.shade800
+                    : seedColor,
+                foregroundColor: lightColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: borderRadius * 2.25,
+                )
+              ),
+              children: [
+                // Approve action
+                FloatingActionButton.extended(
+                  heroTag: 'approve',
+                  onPressed: () => _handleApprove(context),
+                  backgroundColor: successColor,
+                  foregroundColor: lightColor,
+                  icon: const HugeIcon(
+                    icon: HugeIcons.strokeRoundedCheckmarkCircle02,
+                    color: lightColor,
+                  ),
+                  label: const Text(
+                    'Approve',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: lightColor,
+                    ),
+                  ),
+                ),
+                // Reject action
+                FloatingActionButton.extended(
+                  heroTag: 'reject',
+                  onPressed: () => _handleReject(context),
+                  backgroundColor: errorColor,
+                  foregroundColor: lightColor,
+                  icon: const HugeIcon(
+                    icon: HugeIcons.strokeRoundedCancelCircle,
+                    color: lightColor,
+                  ),
+                  label: const Text(
+                    'Reject',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: lightColor,
+                    ),
+                  ),
+                ),
+              ],
+            )
+          : null,
     );
   }
 
@@ -1308,7 +1614,7 @@ class _StudentInfoSection extends StatelessWidget {
         final student = snapshot.data!;
 
         return _SectionContainer(
-          backgroundColor: seedPalette.shade100,
+          backgroundColor: themeController.isDark ? seedPalette.shade700 : seedPalette.shade100,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1319,12 +1625,12 @@ class _StudentInfoSection extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(8.0),
                       decoration: BoxDecoration(
-                        color: seedPalette.shade700.withValues(alpha: 0.1),
+                        color: themeController.isDark ? lightColor.withValues(alpha: 0.1) : seedPalette.shade700.withValues(alpha: 0.1),
                         borderRadius: borderRadius * 1.5,
                       ),
                       child: HugeIcon(
                         icon: HugeIcons.strokeRoundedUserCircle,
-                        color: seedColor,
+                        color: themeController.isDark ? lightColor : seedColor,
                       ),
                     ),
                     const Gap(12.0),
@@ -1395,9 +1701,8 @@ class _FullScreenImageViewer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.of(context).pop(),
+      onTap: () => context.pop(),
       child: Scaffold(
-        backgroundColor: Colors.transparent,
         body: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Stack(

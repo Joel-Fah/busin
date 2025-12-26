@@ -18,6 +18,7 @@ import '../../components/widgets/analytics_card.dart';
 import '../../components/widgets/loading_indicator.dart';
 import '../../components/widgets/stat_card.dart';
 import '../../components/widgets/user_avatar.dart';
+import '../profile/profile.dart';
 
 class AnalyticsTab extends StatefulWidget {
   const AnalyticsTab({super.key});
@@ -50,9 +51,12 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Analytics Dashboard',
-          style: AppTextStyles.h2.copyWith(fontWeight: FontWeight.bold),
+        title: FittedBox(
+          fit: BoxFit.contain,
+          child: Text(
+            'Analytics Dashboard',
+            // style: AppTextStyles.h2.copyWith(fontWeight: FontWeight.bold),
+          ),
         ),
         actions: [
           Obx(() {
@@ -84,11 +88,17 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                     icon: const HugeIcon(icon: HugeIcons.strokeRoundedRefresh),
                   );
           }),
-          Padding(
-            padding: const EdgeInsets.only(right: 8.0, left: 4.0),
-            child: UserAvatar(
-              tag: authController.userProfileImage,
-              radius: 24.0,
+          GestureDetector(
+            onTap: () => context.pushNamed(
+              removeLeadingSlash(ProfilePage.routeName),
+              pathParameters: {'tag': authController.userProfileImage},
+            ),
+            child: Padding(
+              padding: const EdgeInsets.only(right: 8.0, left: 4.0),
+              child: UserAvatar(
+                tag: authController.userProfileImage,
+                radius: 24.0,
+              ),
             ),
           ),
         ],
@@ -226,7 +236,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
           StatCard(
             title: 'Bus Stops',
             value: '${_analyticsController.totalBusStops}',
-            icon: HugeIcons.strokeRoundedLocation01,
+            icon: HugeIcons.strokeRoundedLocation06,
             color: warningColor,
             onTap: () {
               context.pushNamed(

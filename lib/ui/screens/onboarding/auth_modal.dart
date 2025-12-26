@@ -32,6 +32,7 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
 
   bool _isLoading = false;
   String _error = '';
+  bool _hasSavedRole = false;
 
   AuthController get _authController =>
       Get.isRegistered<AuthController>()
@@ -46,6 +47,20 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
   @override
   void initState() {
     super.initState();
+
+    // Check if there's a saved role
+    final savedRole = _authController.getLastUserRole();
+    if (savedRole != null) {
+      _hasSavedRole = true;
+      _selected = savedRole;
+      // Auto-navigate to the confirm page
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _pageController.jumpToPage(1);
+        }
+      });
+    }
+
     _pageController.addListener(() {
       final idx = (_pageController.page ?? _pageIndex.toDouble()).round();
       if (idx != _pageIndex) {
@@ -110,7 +125,7 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
     return PopScope(
       canPop: _pageIndex == 0,
       onPopInvokedWithResult: (didPop, result) {
-        if (!didPop && _pageIndex > 0) {
+        if (!didPop && _pageIndex > 0 && !_hasSavedRole) {
           _goBack();
         }
       },
@@ -161,7 +176,7 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
                         ),
                       ),
                       const Gap(16),
-                      if (_pageIndex == 1)
+                      if (_pageIndex == 1 && !_hasSavedRole)
                         Align(
                           alignment: Alignment.centerLeft,
                           child: TextButton.icon(
@@ -179,7 +194,7 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
                             ),
                           ),
                         ),
-                      if (_pageIndex == 1) const Gap(8),
+                      if (_pageIndex == 1 && !_hasSavedRole) const Gap(8),
                       if (_error.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(bottom: 8.0),
