@@ -26,13 +26,14 @@ class _PeopleTabState extends State<PeopleTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: themeController.isDark ? darkColor : lightColor,
       appBar: AppBar(
         backgroundColor: themeController.isDark ? seedColor : lightColor,
         elevation: 0,
-        title: Text(
-          'People',
-          style: AppTextStyles.h2.copyWith(fontWeight: FontWeight.bold),
+        title: FittedBox(
+          fit: BoxFit.contain,
+          child: Text(
+            'People',
+          ),
         ),
         actions: [
           // View mode toggle
@@ -569,11 +570,24 @@ class _UserListTileState extends State<_UserListTile> {
 
   Widget _buildRoleBadge() {
     final isAdmin = widget.user.role == UserRole.admin;
-    final color = isAdmin ? seedColor : accentColor;
+    final baseColor = isAdmin ? seedPalette.shade500 : accentColor;
     final icon = isAdmin
         ? HugeIcons.strokeRoundedUserStar01
         : HugeIcons.strokeRoundedUserMultiple;
     final label = isAdmin ? 'Admin' : 'Staff';
+
+    // Adjust colors based on theme for better visibility
+    final bgColor = themeController.isDark
+        ? baseColor.withValues(alpha: 0.25)
+        : baseColor.withValues(alpha: 0.15);
+
+    final borderColor = themeController.isDark
+        ? baseColor.withValues(alpha: 0.6)
+        : baseColor.withValues(alpha: 0.4);
+
+    final contentColor = themeController.isDark
+        ? baseColor.withValues(alpha: 0.95)
+        : baseColor;
 
     return Container(
       padding: const EdgeInsets.symmetric(
@@ -581,10 +595,10 @@ class _UserListTileState extends State<_UserListTile> {
         vertical: 2.0,
       ),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
+        color: bgColor,
         borderRadius: borderRadius * 0.8,
         border: Border.all(
-          color: color.withValues(alpha: 0.3),
+          color: borderColor,
           width: 1.0,
         ),
       ),
@@ -593,14 +607,14 @@ class _UserListTileState extends State<_UserListTile> {
         children: [
           HugeIcon(
             icon: icon,
-            color: color,
+            color: contentColor,
             size: 12.0,
           ),
           const Gap(4.0),
           Text(
             label,
             style: AppTextStyles.small.copyWith(
-              color: color,
+              color: contentColor,
               fontWeight: FontWeight.w600,
               fontSize: 11.0,
             ),

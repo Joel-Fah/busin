@@ -136,7 +136,6 @@ class _VerificationPageState extends State<VerificationPage> {
     final isVerified = userStatus == AccountStatus.verified;
 
     return Scaffold(
-      backgroundColor: themeController.isDark ? darkColor : lightColor,
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 48.0),
@@ -328,7 +327,7 @@ class _VerificationPageState extends State<VerificationPage> {
                   dottedColor: accentColor,
                   onPressed: _signOut,
                   icon: const HugeIcon(
-                    icon: HugeIcons.strokeRoundedLogout03,
+                    icon: HugeIcons.strokeRoundedLogout02,
                     size: 20.0,
                   ),
                   label: Text(
@@ -350,7 +349,7 @@ class _VerificationPageState extends State<VerificationPage> {
               style: AppTextStyles.small.copyWith(
                 color: themeController.isDark
                     ? lightColor.withValues(alpha: 0.5)
-                    : darkColor.withValues(alpha: 0.5),
+                    : greyColor.withValues(alpha: 0.5),
               ),
               textAlign: TextAlign.center,
             ).animate().fadeIn(duration: 400.ms, delay: 600.ms),

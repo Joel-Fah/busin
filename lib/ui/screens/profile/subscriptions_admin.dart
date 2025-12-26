@@ -142,7 +142,7 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
-          title: const Text('Subscriptions'),
+          title: FittedBox(fit: BoxFit.contain, child: const Text('Subscriptions')),
           actions: [
             IconButton(
               tooltip: 'Refresh',
@@ -161,9 +161,7 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
               onChanged: (value) => _searchQuery.value = value,
               leading: HugeIcon(
                 icon: HugeIcons.strokeRoundedSearch01,
-                color: themeController.isDark
-                    ? seedPalette.shade50
-                    : seedColor,
+                color: themeController.isDark ? seedPalette.shade50 : seedColor,
                 strokeWidth: 2.0,
               ),
               trailing: [
@@ -260,8 +258,7 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
               if (_subscriptionsController.errorMessage.value != null) {
                 return _ErrorWidget(
                   message: _subscriptionsController.errorMessage.value!,
-                  onRetry: () =>
-                      _subscriptionsController.startWatchingAll(),
+                  onRetry: () => _subscriptionsController.startWatchingAll(),
                 );
               }
 
@@ -305,7 +302,6 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
                     ...pending.map(
                       (sub) => _SubscriptionCard(
                         subscription: sub,
-                        cachedUser: _userCache[sub.studentId],
                         onTap: () => _showSubscriptionDetails(sub),
                         onApprove: () => _approveSubscription(sub),
                         onReject: () => _showRejectDialog(sub),
@@ -332,7 +328,6 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
                           .map(
                             (sub) => _SubscriptionCard(
                               subscription: sub,
-                              cachedUser: _userCache[sub.studentId],
                               onTap: () => _showSubscriptionDetails(sub),
                               isReviewComplete: true,
                             ),
@@ -353,7 +348,6 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
                           .map(
                             (sub) => _SubscriptionCard(
                               subscription: sub,
-                              cachedUser: _userCache[sub.studentId],
                               onTap: () => _showSubscriptionDetails(sub),
                               isReviewComplete: true,
                             ),
@@ -713,9 +707,20 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
                             FutureBuilder<BaseUser?>(
                               future: _getCachedUser(subscription.studentId),
                               builder: (context, snapshot) {
-                                final displayName =
-                                    snapshot.data?.name ??
-                                    subscription.studentId;
+                                // Get display name with proper fallbacks
+                                String displayName = subscription.studentId;
+                                final userData = snapshot.data;
+                                if (userData != null) {
+                                  final userName = userData.name;
+                                  final userEmail = userData.email;
+
+                                  if (userName.trim().isNotEmpty) {
+                                    displayName = userName;
+                                  } else if (userEmail.trim().isNotEmpty) {
+                                    // Extract username from email (part before @)
+                                    displayName = userEmail.split('@').first;
+                                  }
+                                }
 
                                 return Container(
                                   padding: const EdgeInsets.all(12.0),
@@ -1302,7 +1307,6 @@ class _SubscriptionCard extends StatelessWidget {
   final VoidCallback? onApprove;
   final VoidCallback? onReject;
   final bool isReviewComplete;
-  final BaseUser? cachedUser;
 
   const _SubscriptionCard({
     required this.subscription,
@@ -1310,11 +1314,12 @@ class _SubscriptionCard extends StatelessWidget {
     this.onApprove,
     this.onReject,
     this.isReviewComplete = false,
-    this.cachedUser,
   });
 
   @override
   Widget build(BuildContext context) {
+    final AuthController authController = Get.find<AuthController>();
+
     final statusColor = subscription.status == BusSubscriptionStatus.approved
         ? successColor
         : subscription.status == BusSubscriptionStatus.rejected
@@ -1327,206 +1332,231 @@ class _SubscriptionCard extends StatelessWidget {
         ? 'Rejected'
         : 'Pending';
 
-    final displayName = cachedUser?.name ?? subscription.studentId;
+    return FutureBuilder<BaseUser?>(
+      future: authController.getUserById(subscription.studentId),
+      builder: (context, snapshot) {
+        // Get display name with proper fallbacks
+        String displayName = subscription.studentId;
+        final userData = snapshot.data;
+        if (userData != null) {
+          final userName = userData.name;
+          final userEmail = userData.email;
 
-    return Stack(
-      alignment: Alignment.topLeft,
-      clipBehavior: Clip.none,
-      children: [
-        Container(
-          margin: EdgeInsets.only(bottom: 24.0),
-          decoration: BoxDecoration(
-            color: themeController.isDark
-                ? seedColor.withValues(alpha: 0.4)
-                : seedPalette.shade50.withValues(alpha: 0.5),
-            border: Border.all(color: statusColor, width: 1.5),
-            borderRadius: borderRadius * 2.0,
-          ),
-          child: Column(
-            children: [
-              // Header with ListTile
-              ListTile(
-                contentPadding: const EdgeInsets.all(10.0),
-                onTap: onTap,
-                leading: Container(
-                  padding: const EdgeInsets.all(8.0),
-                  decoration: BoxDecoration(
-                    color: statusColor.withValues(alpha: 0.15),
-                    borderRadius: borderRadius * 1.5,
-                  ),
-                  child: HugeIcon(
-                    icon: subscription.status == BusSubscriptionStatus.approved
-                        ? HugeIcons.strokeRoundedCheckmarkCircle02
-                        : subscription.status == BusSubscriptionStatus.rejected
-                        ? HugeIcons.strokeRoundedCancelCircle
-                        : HugeIcons.strokeRoundedLoading03,
-                    color: statusColor,
-                  ),
-                ),
-                title: Text(
-                  displayName,
-                  style: AppTextStyles.body.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                subtitle: Padding(
-                  padding: const EdgeInsets.only(top: 4.0),
-                  child: Text(
-                    "#${subscription.studentId}",
-                    style: AppTextStyles.small.copyWith(
-                      color: themeController.isDark
-                          ? seedPalette.shade50.withValues(alpha: 0.7)
-                          : greyColor.withValues(alpha: 0.7),
+          if (userName.trim().isNotEmpty) {
+            displayName = userName;
+          } else if (userEmail.trim().isNotEmpty) {
+            // Extract username from email (part before @)
+            displayName = userEmail.split('@').first;
+          }
+        }
+
+        return Stack(
+          alignment: Alignment.topLeft,
+          clipBehavior: Clip.none,
+          children: [
+            Container(
+              margin: EdgeInsets.only(bottom: 24.0),
+              decoration: BoxDecoration(
+                color: themeController.isDark
+                    ? seedColor.withValues(alpha: 0.4)
+                    : seedPalette.shade50.withValues(alpha: 0.5),
+                border: Border.all(color: statusColor, width: 1.5),
+                borderRadius: borderRadius * 2.0,
+              ),
+              child: Column(
+                children: [
+                  // Header with ListTile
+                  ListTile(
+                    contentPadding: const EdgeInsets.all(10.0),
+                    onTap: onTap,
+                    leading: Container(
+                      padding: const EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(
+                        color: statusColor.withValues(alpha: 0.15),
+                        borderRadius: borderRadius * 1.5,
+                      ),
+                      child: HugeIcon(
+                        icon:
+                            subscription.status ==
+                                BusSubscriptionStatus.approved
+                            ? HugeIcons.strokeRoundedCheckmarkCircle02
+                            : subscription.status ==
+                                  BusSubscriptionStatus.rejected
+                            ? HugeIcons.strokeRoundedCancelCircle
+                            : HugeIcons.strokeRoundedLoading03,
+                        color: statusColor,
+                      ),
+                    ),
+                    title: Text(
+                      displayName,
+                      style: AppTextStyles.body.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    subtitle: Padding(
+                      padding: const EdgeInsets.only(top: 4.0),
+                      child: Text(
+                        "#${subscription.studentId}",
+                        style: AppTextStyles.small.copyWith(
+                          color: themeController.isDark
+                              ? seedPalette.shade50.withValues(alpha: 0.7)
+                              : greyColor.withValues(alpha: 0.7),
+                        ),
+                      ),
+                    ),
+                    trailing: HugeIcon(
+                      icon: HugeIcons.strokeRoundedArrowRight01,
+                      color: themeController.isDark ? lightColor : seedColor,
                     ),
                   ),
-                ),
-                trailing: HugeIcon(
-                  icon: HugeIcons.strokeRoundedArrowRight01,
-                  color: themeController.isDark ? lightColor : seedColor,
-                ),
-              ),
 
-              // Divider
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Divider(
-                  height: 1,
-                  color: statusColor.withValues(alpha: 0.2),
-                ),
-              ),
+                  // Divider
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Divider(
+                      height: 1,
+                      color: statusColor.withValues(alpha: 0.2),
+                    ),
+                  ),
 
-              // Content
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  // Content
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
                       children: [
-                        _InfoRow(
-                          icon: HugeIcons.strokeRoundedCalendar03,
-                          label: 'Semester',
-                          value: subscription.semester.label,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            _InfoRow(
+                              icon: HugeIcons.strokeRoundedCalendar03,
+                              label: 'Semester',
+                              value: subscription.semester.label,
+                            ),
+                            _InfoRow(
+                              icon: HugeIcons.strokeRoundedCalendar04,
+                              label: 'Year',
+                              value: subscription.year.toString(),
+                            ),
+                            _InfoRow(
+                              icon: HugeIcons.strokeRoundedLocation06,
+                              label: 'Stop',
+                              value: subscription.stop?.name ?? 'N/A',
+                            ),
+                          ],
                         ),
-                        _InfoRow(
-                          icon: HugeIcons.strokeRoundedCalendar04,
-                          label: 'Year',
-                          value: subscription.year.toString(),
-                        ),
-                        _InfoRow(
-                          icon: HugeIcons.strokeRoundedLocation06,
-                          label: 'Stop',
-                          value: subscription.stop?.name ?? 'N/A',
-                        ),
-                      ],
-                    ),
 
-                    // Action buttons for pending subscriptions
-                    if (!isReviewComplete &&
-                        onApprove != null &&
-                        onReject != null) ...[
-                      const Gap(16.0),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: onReject,
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: errorColor,
-                                side: BorderSide(color: errorColor, width: 1.5),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 14.0,
+                        // Action buttons for pending subscriptions
+                        if (!isReviewComplete &&
+                            onApprove != null &&
+                            onReject != null) ...[
+                          const Gap(16.0),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: OutlinedButton.icon(
+                                  onPressed: onReject,
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: errorColor,
+                                    side: BorderSide(
+                                      color: errorColor,
+                                      width: 1.5,
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14.0,
+                                    ),
+                                  ),
+                                  icon: const HugeIcon(
+                                    icon: HugeIcons.strokeRoundedCancelCircle,
+                                  ),
+                                  label: const Text('Reject'),
                                 ),
                               ),
-                              icon: const HugeIcon(
-                                icon: HugeIcons.strokeRoundedCancelCircle,
-                              ),
-                              label: const Text('Reject'),
-                            ),
-                          ),
-                          const Gap(12.0),
-                          Expanded(
-                            flex: 2,
-                            child: FilledButton.icon(
-                              onPressed: onApprove,
-                              style: FilledButton.styleFrom(
-                                backgroundColor: successColor,
-                                foregroundColor: lightColor,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 14.0,
+                              const Gap(12.0),
+                              Expanded(
+                                flex: 2,
+                                child: FilledButton.icon(
+                                  onPressed: onApprove,
+                                  style: FilledButton.styleFrom(
+                                    backgroundColor: successColor,
+                                    foregroundColor: lightColor,
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14.0,
+                                    ),
+                                  ),
+                                  icon: const HugeIcon(
+                                    icon: HugeIcons
+                                        .strokeRoundedCheckmarkCircle02,
+                                    color: lightColor,
+                                  ),
+                                  label: const Text('Approve'),
                                 ),
                               ),
-                              icon: const HugeIcon(
-                                icon: HugeIcons.strokeRoundedCheckmarkCircle02,
-                                color: lightColor,
-                              ),
-                              label: const Text('Approve'),
-                            ),
+                            ],
                           ),
                         ],
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Top pills like CustomListTile
+            Positioned(
+              top: -14.0,
+              left: 8.0,
+              child: Row(
+                spacing: 6.0,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12.0,
+                      vertical: 4.0,
+                    ),
+                    decoration: BoxDecoration(
+                      color: statusColor,
+                      borderRadius: borderRadius * 2.0,
+                      border: Border.all(
+                        color: themeController.isDark ? seedColor : lightColor,
+                        width: 2.0,
                       ),
-                    ],
-                  ],
-                ),
+                    ),
+                    child: Text(
+                      statusLabel,
+                      style: AppTextStyles.small.copyWith(
+                        color: lightColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12.0,
+                      vertical: 4.0,
+                    ),
+                    decoration: BoxDecoration(
+                      color: themeController.isDark
+                          ? seedColor
+                          : seedPalette.shade100,
+                      borderRadius: borderRadius * 2.0,
+                      border: Border.all(
+                        color: statusColor,
+                        width: 1.0,
+                      ),
+                    ),
+                    child: Text(
+                      '${subscription.semester.label} ${subscription.year}',
+                      style: AppTextStyles.small.copyWith(
+                        color: themeController.isDark ? lightColor : seedColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
-        // Top pills like CustomListTile
-        Positioned(
-          top: -14.0,
-          left: 8.0,
-          child: Row(
-            spacing: 6.0,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12.0,
-                  vertical: 4.0,
-                ),
-                decoration: BoxDecoration(
-                  color: statusColor,
-                  borderRadius: borderRadius * 2.0,
-                  border: Border.all(
-                    color: themeController.isDark ? darkColor : lightColor,
-                    width: 2.0,
-                  ),
-                ),
-                child: Text(
-                  statusLabel,
-                  style: AppTextStyles.small.copyWith(
-                    color: lightColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12.0,
-                  vertical: 4.0,
-                ),
-                decoration: BoxDecoration(
-                  color: themeController.isDark
-                      ? seedColor.withValues(alpha: 0.8)
-                      : seedPalette.shade100,
-                  borderRadius: borderRadius * 2.0,
-                  border: Border.all(
-                    color: themeController.isDark ? darkColor : lightColor,
-                    width: 2.0,
-                  ),
-                ),
-                child: Text(
-                  '${subscription.semester.label} ${subscription.year}',
-                  style: AppTextStyles.small.copyWith(
-                    color: themeController.isDark ? lightColor : seedColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -1558,7 +1588,12 @@ class _InfoRow extends StatelessWidget {
                   label,
                   style: AppTextStyles.small.copyWith(color: Colors.grey),
                 ),
-                Text(value, style: AppTextStyles.body, maxLines: 1, overflow: TextOverflow.ellipsis,),
+                Text(
+                  value,
+                  style: AppTextStyles.body,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ],
             ),
           ),

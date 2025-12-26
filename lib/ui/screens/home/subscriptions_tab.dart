@@ -56,9 +56,13 @@ class _SubscriptionsTabState extends State<SubscriptionsTab> {
       if (subscriptions.isEmpty) {
         return _SubscriptionsEmptyState(
           ctaLabel: 'Subscribe now for ${_currentSemesterLabel}',
-          onCTA: () => context.pushNamed(
-            removeLeadingSlash(NewSubscriptionPage.routeName),
-          ),
+          onCTA: () async {
+            await context.pushNamed(
+              removeLeadingSlash(NewSubscriptionPage.routeName),
+            );
+            // Refresh subscriptions list when returning
+            await busSubscriptionsController.refreshCurrentFilters();
+          },
         );
       }
 
@@ -78,7 +82,10 @@ class _SubscriptionsTabState extends State<SubscriptionsTab> {
       return Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-          title: const Text('Subscriptions'),
+          title: FittedBox(
+            fit: BoxFit.contain,
+            child: const Text('Subscriptions'),
+          ),
           actions: [
             Padding(
               padding: const EdgeInsets.only(right: 8.0),
@@ -86,9 +93,13 @@ class _SubscriptionsTabState extends State<SubscriptionsTab> {
                 style: TextButton.styleFrom(
                   overlayColor: accentColor.withValues(alpha: 0.1),
                 ),
-                onPressed: () => context.pushNamed(
-                  removeLeadingSlash(NewSubscriptionPage.routeName),
-                ),
+                onPressed: () async {
+                  await context.pushNamed(
+                    removeLeadingSlash(NewSubscriptionPage.routeName),
+                  ) ;
+                  // Refresh subscriptions list when returning
+                  await busSubscriptionsController.refreshCurrentFilters();
+                },
                 label: const Text('New'),
                 icon: const HugeIcon(icon: HugeIcons.strokeRoundedAdd01),
                 iconAlignment: IconAlignment.end,
@@ -118,13 +129,14 @@ class _SubscriptionsTabState extends State<SubscriptionsTab> {
                     },
                     showBorder: true,
                     backgroundColor: latestSubscription.status.isRejected
-                      ? errorColor.withValues(alpha: 0.05)
-                      : latestSubscription.status.isPending
-                          ? infoColor.withValues(alpha: 0.05)
-                          : null,
+                        ? errorColor.withValues(alpha: 0.05)
+                        : latestSubscription.status.isPending
+                        ? infoColor.withValues(alpha: 0.05)
+                        : null,
                     borderColor: latestSubscription.status.isApproved
-                      ? successColor
-                      : latestSubscription.status == BusSubscriptionStatus.pending
+                        ? successColor
+                        : latestSubscription.status ==
+                              BusSubscriptionStatus.pending
                         ? infoColor
                         : errorColor,
                     topPillsBorderColor: themeController.isDark
@@ -153,11 +165,16 @@ class _SubscriptionsTabState extends State<SubscriptionsTab> {
                   if (!hasActive && !hasPending)
                     _ActiveSubscriptionCTA(
                       message:
-                          'You don’t have any subscription running currently. Maybe, subscribe now to the bus services for the ongoing semester',
+                          'You don\'t have any subscription running currently. Maybe, subscribe now to the bus services for the ongoing semester',
                       ctaLabel: 'Subscribe now for ${_currentSemesterLabel}',
-                      onPressed: () => context.pushNamed(
-                        removeLeadingSlash(NewSubscriptionPage.routeName),
-                      ),
+                      onPressed: () async {
+                        await context.pushNamed(
+                          removeLeadingSlash(NewSubscriptionPage.routeName),
+                        );
+                        // Refresh subscriptions list when returning
+                        await busSubscriptionsController
+                            .refreshCurrentFilters();
+                      },
                     ),
                 ],
               ),
@@ -259,9 +276,12 @@ class _SubscriptionsTabState extends State<SubscriptionsTab> {
                                         onTap: () {
                                           HapticFeedback.mediumImpact();
                                           context.pushNamed(
-                                            removeLeadingSlash(SubscriptionDetailsPage.routeName),
+                                            removeLeadingSlash(
+                                              SubscriptionDetailsPage.routeName,
+                                            ),
                                             pathParameters: {
-                                              'subscriptionId': busSubscription.id,
+                                              'subscriptionId':
+                                                  busSubscription.id,
                                             },
                                           );
                                         },

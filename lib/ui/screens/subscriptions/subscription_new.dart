@@ -359,6 +359,11 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
         proofUrl: proofUrl,
       );
       if (!mounted) return;
+
+      // Refresh the subscriptions list to ensure the new subscription appears
+      await subscriptionsController.refreshCurrentFilters();
+
+      if (!mounted) return;
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
@@ -423,6 +428,9 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                     },
                     physics: const ClampingScrollPhysics(),
                     controlsBuilder: (context, details) {
+                      // Show refresh button for semester (step 1) and stop (step 2) selection
+                      final bool showRefreshButton = _currentStep == 1 || _currentStep == 2;
+
                       return Padding(
                         padding: const EdgeInsets.only(top: 10.0),
                         child: Row(
@@ -449,6 +457,66 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                 style: AppTextStyles.body,
                               ),
                             ),
+                            if (showRefreshButton) ...[
+                              const Spacer(),
+                              IconButton(
+                                onPressed: _isSubmitting
+                                    ? null
+                                    : () async {
+                                        if (_currentStep == 1) {
+                                          // Refresh semesters
+                                          await semesterController.fetchSemesters();
+                                          if (mounted) {
+                                            ScaffoldMessenger.of(context)
+                                              ..hideCurrentSnackBar()
+                                              ..showSnackBar(
+                                                buildSnackBar(
+                                                  backgroundColor: successColor,
+                                                  prefixIcon: HugeIcon(
+                                                    icon: HugeIcons.strokeRoundedCheckmarkCircle02,
+                                                    color: lightColor,
+                                                  ),
+                                                  label: const Text('Semesters refreshed'),
+                                                ),
+                                              );
+                                          }
+                                        } else if (_currentStep == 2) {
+                                          // Refresh bus stops
+                                          await busStopController.fetchBusStops();
+                                          if (mounted) {
+                                            ScaffoldMessenger.of(context)
+                                              ..hideCurrentSnackBar()
+                                              ..showSnackBar(
+                                                buildSnackBar(
+                                                  backgroundColor: successColor,
+                                                  prefixIcon: HugeIcon(
+                                                    icon: HugeIcons.strokeRoundedCheckmarkCircle02,
+                                                    color: lightColor,
+                                                  ),
+                                                  label: const Text('Stops refreshed'),
+                                                ),
+                                              );
+                                          }
+                                        }
+                                      },
+                                icon: HugeIcon(
+                                  icon: HugeIcons.strokeRoundedRefresh,
+                                  color: _isSubmitting
+                                      ? greyColor
+                                      : themeController.isDark
+                                          ? seedPalette.shade50
+                                          : seedColor,
+                                ),
+                                tooltip: _currentStep == 1
+                                    ? 'Refresh semesters'
+                                    : 'Refresh stops',
+                                style: IconButton.styleFrom(
+                                  overlayColor: accentColor.withValues(
+                                    alpha: 0.1,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ],
                         ),
                       );
@@ -2215,7 +2283,7 @@ class _SummaryRow extends StatelessWidget {
             flex: 2,
             child: Text(
               label,
-              style: AppTextStyles.small.copyWith(color: greyColor),
+              style: AppTextStyles.small.copyWith(color: themeController.isDark ? seedPalette.shade50 : greyColor),
             ),
           ),
           Expanded(

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 
@@ -17,9 +18,13 @@ const String kUsersCollection = 'users';
 /// Keys inside a user document
 const String kRoleField = 'role';
 
+/// Local storage key for last user role
+const String kLastUserRoleKey = 'last_user_role';
+
 class AuthController extends GetxController {
   final _auth = AuthService.instance;
   final _db = FirebaseFirestore.instance;
+  final _storage = GetStorage();
 
   final Rxn<BaseUser> currentUser = Rxn<BaseUser>();
   final RxBool isLoading = false.obs;
@@ -61,6 +66,23 @@ class AuthController extends GetxController {
   void setFirstLoginProfile(UserRole role, AccountStatus status) {
     _pendingInitialRole = role;
     _pendingInitialStatus = status;
+  }
+
+  /// Save the user's role to local storage for future logins
+  Future<void> _saveLastUserRole(UserRole role) async {
+    await _storage.write(kLastUserRoleKey, role.name);
+  }
+
+  /// Get the last logged-in user's role from local storage
+  UserRole? getLastUserRole() {
+    final roleName = _storage.read(kLastUserRoleKey);
+    if (roleName == null) return null;
+    return UserRole.from(roleName);
+  }
+
+  /// Clear the saved user role from local storage
+  Future<void> clearLastUserRole() async {
+    await _storage.remove(kLastUserRoleKey);
   }
 
   Future<void> signInWithGoogle() async {
@@ -158,6 +180,9 @@ class AuthController extends GetxController {
       // Set current user immediately (without waiting for snapshot)
       currentUser.value = _mapDocToUser(roleToUse, initialMap);
 
+      // Save the role to local storage
+      await _saveLastUserRole(roleToUse);
+
       // Clear pending onboarding choice after first use
       _pendingInitialRole = null;
       _pendingInitialStatus = null;
@@ -176,6 +201,9 @@ class AuthController extends GetxController {
     final data = docSnap.data()!;
     final role = UserRole.from((data[kRoleField] as String?) ?? 'student');
     currentUser.value = _mapDocToUser(role, data);
+
+    // Save the role to local storage
+    await _saveLastUserRole(role);
 
     // Subscribe to live updates
     _userDocSub = docRef.snapshots().listen(_onUserDoc, onError: (e, st) {

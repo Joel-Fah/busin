@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:busin/controllers/auth_controller.dart';
 import 'package:busin/controllers/subscriptions_controller.dart';
 import 'package:busin/models/scannings.dart';
+import 'package:busin/ui/components/widgets/default_snack_bar.dart';
 import 'package:busin/ui/screens/profile/semesters/semester.dart';
 import 'package:busin/ui/screens/profile/stops/stops.dart';
 import 'package:busin/utils/constants.dart';
@@ -384,14 +385,13 @@ class ProfilePage extends StatelessWidget {
                     (_) => snackBarKey.currentState
                       ?..hideCurrentSnackBar()
                       ..showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            "Signed out successfully",
-                            style: AppTextStyles.body.copyWith(
-                              color: lightColor,
-                            ),
-                          ),
+                        buildSnackBar(
                           backgroundColor: successColor,
+                          prefixIcon: HugeIcon(
+                            icon: successIcon,
+                            color: lightColor,
+                          ),
+                          label: Text("Signed out successfully"),
                         ),
                       ),
                   );

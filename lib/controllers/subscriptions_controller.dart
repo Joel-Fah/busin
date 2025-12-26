@@ -32,6 +32,14 @@ class BusSubscriptionsController extends GetxController {
     super.onInit();
     // Start watching with proper filtering based on user role
     _initializeWatching();
+
+    // Re-initialize watching when user authentication state changes
+    ever(_authController.currentUser, (_) {
+      if (kDebugMode) {
+        debugPrint('[BusSubscriptionsController] Auth state changed, reinitializing...');
+      }
+      _initializeWatching();
+    });
   }
 
   @override
@@ -76,13 +84,27 @@ class BusSubscriptionsController extends GetxController {
     String? studentId,
     BusSubscriptionStatus? status,
   }) {
-    _currentStudentId = studentId;
+    // SECURITY: For students, always ensure we're using their ID
+    String? finalStudentId = studentId;
+    if (_authController.isStudent) {
+      finalStudentId = _authController.userId;
+      if (kDebugMode) {
+        debugPrint('[BusSubscriptionsController] SECURITY: Enforcing student filter for ${finalStudentId}');
+      }
+    }
+
+    _currentStudentId = finalStudentId;
     _currentStatus = status;
     _watcher?.cancel();
     _watcher = _service
-        .watchSubscriptions(studentId: studentId, status: status)
+        .watchSubscriptions(studentId: finalStudentId, status: status)
         .listen(
-      (data) => _busSubscriptions.assignAll(data),
+      (data) {
+        if (kDebugMode) {
+          debugPrint('[BusSubscriptionsController] Received ${data.length} subscriptions');
+        }
+        _busSubscriptions.assignAll(data);
+      },
       onError: (Object err) => errorMessage.value = err.toString(),
     );
   }
@@ -124,7 +146,15 @@ class BusSubscriptionsController extends GetxController {
   }
 
   Future<void> refreshCurrentFilters() async {
-    startWatching(studentId: _currentStudentId, status: _currentStatus);
+    // For students, always ensure their ID is used
+    if (_authController.isStudent) {
+      final studentId = _authController.userId;
+      startWatching(studentId: studentId, status: _currentStatus);
+    } else if (_authController.isAdmin || _authController.isStaff) {
+      startWatchingAll();
+    } else {
+      startWatching(studentId: _currentStudentId, status: _currentStatus);
+    }
   }
 
   Future<BusSubscription?> fetchSubscriptionById(String id) async {

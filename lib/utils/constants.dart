@@ -17,7 +17,7 @@ Color infoColor = themeController.isDark
     ? Colors.lightBlueAccent
     : Color(0xFF4285F4);
 Color successColor = themeController.isDark
-    ? Colors.greenAccent
+    ? Colors.green
     : Color(0xFF0F9D58);
 Color errorColor = themeController.isDark
     ? Colors.redAccent
