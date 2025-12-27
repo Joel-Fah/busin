@@ -23,6 +23,7 @@ class Student extends BaseUser {
     this.address,
     super.phone,
     super.photoUrl,
+    super.gender,
     super.createdAt,
     super.lastSignInAt,
   }) : super(role: UserRole.student);
@@ -37,6 +38,7 @@ class Student extends BaseUser {
       status: AccountStatus.from((map['status'] as String?) ?? 'verified'),
       phone: (map['phone'] as String?)?.trim(),
       photoUrl: (map['photoUrl'] as String?)?.trim(),
+      gender: Gender.fromString(map['gender'] as String?),
       createdAt: BaseUser.parseDate(map['createdAt']),
       lastSignInAt: BaseUser.parseDate(map['lastSignInAt']),
       matricule: (map['matricule'] as String?)?.trim(),

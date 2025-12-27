@@ -1448,7 +1448,8 @@ class _SubscriptionCard extends StatelessWidget {
                         // Action buttons for pending subscriptions
                         if (!isReviewComplete &&
                             onApprove != null &&
-                            onReject != null) ...[
+                            onReject != null
+                            && authController.isAdmin) ...[
                           const Gap(16.0),
                           Row(
                             children: [

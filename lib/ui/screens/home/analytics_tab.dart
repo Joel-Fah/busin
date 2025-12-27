@@ -28,8 +28,8 @@ class AnalyticsTab extends StatefulWidget {
 }
 
 class _AnalyticsTabState extends State<AnalyticsTab> {
-  final AnalyticsController _analyticsController = Get.find<
-    AnalyticsController>();
+  final AnalyticsController _analyticsController =
+      Get.find<AnalyticsController>();
 
   @override
   void initState() {
@@ -53,10 +53,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
       appBar: AppBar(
         title: FittedBox(
           fit: BoxFit.contain,
-          child: Text(
-            'Analytics Dashboard',
-            // style: AppTextStyles.h2.copyWith(fontWeight: FontWeight.bold),
-          ),
+          child: Text('Analytics Dashboard'),
         ),
         actions: [
           Obx(() {
@@ -729,9 +726,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                                     toY: entry.value.toDouble(),
                                     color: _getSemesterColor(entry.key),
                                     width: 20,
-                                    borderRadius: const BorderRadius.vertical(
-                                      top: Radius.circular(8.0),
-                                    ),
+                                    borderRadius: borderRadius * 4.0,
                                   ),
                                 ],
                               );
@@ -825,9 +820,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                                     toY: entry.value.toDouble(),
                                     color: accentColor,
                                     width: 24,
-                                    borderRadius: const BorderRadius.vertical(
-                                      top: Radius.circular(8.0),
-                                    ),
+                                    borderRadius: borderRadius * 4.0,
                                   ),
                                 ],
                               );
@@ -880,9 +873,8 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: recentSubscriptions.take(5).length,
-                separatorBuilder: (context, index) => const Divider(
-                  thickness: 0,
-                ),
+                separatorBuilder: (context, index) =>
+                    const Divider(thickness: 0),
                 itemBuilder: (context, index) {
                   final subscription = recentSubscriptions[index];
                   final status = subscription['status'] as String?;
@@ -1158,9 +1150,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                               toY: (stop['count'] as int).toDouble(),
                               color: _getRankColor(index + 1),
                               width: 24,
-                              borderRadius: const BorderRadius.vertical(
-                                top: Radius.circular(8.0),
-                              ),
+                              borderRadius: borderRadius * 4.0,
                             ),
                           ],
                         );
@@ -1503,6 +1493,7 @@ class _MiniStat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           value,
