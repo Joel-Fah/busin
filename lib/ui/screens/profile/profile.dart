@@ -5,6 +5,7 @@ import 'package:busin/controllers/auth_controller.dart';
 import 'package:busin/controllers/subscriptions_controller.dart';
 import 'package:busin/models/scannings.dart';
 import 'package:busin/ui/components/widgets/default_snack_bar.dart';
+import 'package:busin/ui/screens/profile/account_info.dart';
 import 'package:busin/ui/screens/profile/semesters/semester.dart';
 import 'package:busin/ui/screens/profile/stops/stops.dart';
 import 'package:busin/utils/constants.dart';
@@ -212,6 +213,9 @@ class ProfilePage extends StatelessWidget {
               ListTile(
                 onTap: () {
                   HapticFeedback.mediumImpact();
+                  context.pushNamed(
+                    removeLeadingSlash(AccountInfoPage.routeName),
+                  );
                 },
                 leading: HugeIcon(
                   icon: HugeIcons.strokeRoundedUserList,
@@ -223,69 +227,45 @@ class ProfilePage extends StatelessWidget {
                   color: themeController.isDark ? lightColor : seedColor,
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Divider(color: greyColor, thickness: 0.5),
-              ),
-              ListTile(
-                onTap: () {
-                  HapticFeedback.mediumImpact();
-                },
-                leading: HugeIcon(
-                  icon: HugeIcons.strokeRoundedAppleVisionPro,
-                  color: themeController.isDark ? lightColor : seedColor,
-                ),
-                title: Text("Appearance"),
-                trailing: HugeIcon(
-                  icon: HugeIcons.strokeRoundedArrowUpRight01,
-                  color: themeController.isDark ? lightColor : seedColor,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Divider(color: greyColor, thickness: 0.5),
-              ),
-              ListTile(
-                onTap: () {
-                  HapticFeedback.mediumImpact();
-                },
-                leading: HugeIcon(
-                  icon: HugeIcons.strokeRoundedAudit01,
-                  color: themeController.isDark ? lightColor : seedColor,
-                ),
-                title: Text("Legal"),
-                trailing: HugeIcon(
-                  icon: HugeIcons.strokeRoundedArrowUpRight01,
-                  color: themeController.isDark ? lightColor : seedColor,
-                ),
-              ),
-              if (authController.isAdmin) ...[
+              // Padding(
+              //   padding: const EdgeInsets.all(8.0),
+              //   child: Divider(color: greyColor, thickness: 0.5),
+              // ),
+              // ListTile(
+              //   onTap: () {
+              //     HapticFeedback.mediumImpact();
+              //   },
+              //   leading: HugeIcon(
+              //     icon: HugeIcons.strokeRoundedAppleVisionPro,
+              //     color: themeController.isDark ? lightColor : seedColor,
+              //   ),
+              //   title: Text("Appearance"),
+              //   trailing: HugeIcon(
+              //     icon: HugeIcons.strokeRoundedArrowUpRight01,
+              //     color: themeController.isDark ? lightColor : seedColor,
+              //   ),
+              // ),
+              // Padding(
+              //   padding: const EdgeInsets.all(8.0),
+              //   child: Divider(color: greyColor, thickness: 0.5),
+              // ),
+              // ListTile(
+              //   onTap: () {
+              //     HapticFeedback.mediumImpact();
+              //   },
+              //   leading: HugeIcon(
+              //     icon: HugeIcons.strokeRoundedAudit01,
+              //     color: themeController.isDark ? lightColor : seedColor,
+              //   ),
+              //   title: Text("Legal"),
+              //   trailing: HugeIcon(
+              //     icon: HugeIcons.strokeRoundedArrowUpRight01,
+              //     color: themeController.isDark ? lightColor : seedColor,
+              //   ),
+              // ),
+              if (authController.isAdmin || authController.isStaff) ...[
                 const Gap(24.0),
                 ListSubHeading(label: "Bus Management"),
-                // ListTile(
-                //   onTap: () {
-                //     HapticFeedback.mediumImpact();
-                //     context.pushNamed(
-                //       removeLeadingSlash(SubscriptionsAdminPage.routeName),
-                //     );
-                //   },
-                //   leading: HugeIcon(
-                //     icon: HugeIcons.strokeRoundedStickyNote02,
-                //     color: themeController.isDark ? lightColor : seedColor,
-                //   ),
-                //   title: Text("Subscriptions"),
-                //   subtitle: Text(
-                //     "Manage student bus subscriptions for each semester",
-                //   ),
-                //   trailing: HugeIcon(
-                //     icon: HugeIcons.strokeRoundedArrowUpRight01,
-                //     color: themeController.isDark ? lightColor : seedColor,
-                //   ),
-                // ),
-                // Padding(
-                //   padding: const EdgeInsets.all(8.0),
-                //   child: Divider(color: greyColor, thickness: 0.5),
-                // ),
                 ListTile(
                   onTap: () {
                     HapticFeedback.mediumImpact();

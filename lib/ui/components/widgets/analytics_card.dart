@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:gap/gap.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../utils/constants.dart';
@@ -76,7 +77,7 @@ class AnalyticsCard extends StatelessWidget {
               if (action != null) action!,
             ],
           ),
-          const SizedBox(height: 16.0),
+          const Gap(16.0),
           child,
         ],
       ),

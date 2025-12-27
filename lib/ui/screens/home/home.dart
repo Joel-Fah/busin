@@ -122,7 +122,7 @@ class _HomePageState extends State<HomePage>
             children: _pages,
           ),
           Positioned(
-            bottom: MediaQuery.viewPaddingOf(context).bottom,
+            bottom: MediaQuery.viewPaddingOf(context).bottom + 8.0,
             left: 0,
             right: 0,
             child: Material(

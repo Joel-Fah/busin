@@ -1,3 +1,4 @@
+import 'package:busin/utils/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
@@ -35,6 +36,7 @@ class _SemesterManagementPageState extends State<SemesterManagementPage> {
             onPressed: () => _semesterController.fetchSemesters(),
             icon: const HugeIcon(icon: HugeIcons.strokeRoundedRefresh),
           ),
+          if (authController.isAdmin)
           IconButton.filled(
             tooltip: "Add semester",
             style: IconButton.styleFrom(backgroundColor: accentColor),
@@ -626,7 +628,7 @@ class _SemesterCard extends StatelessWidget {
                 style: AppTextStyles.small.copyWith(color: statusColor),
               ),
               // actions: edit + delete
-              trailing: Row(
+              trailing: authController.isAdmin ? Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
@@ -649,7 +651,7 @@ class _SemesterCard extends StatelessWidget {
                     ),
                   ),
                 ],
-              ),
+              ) : null,
             ),
           ),
 

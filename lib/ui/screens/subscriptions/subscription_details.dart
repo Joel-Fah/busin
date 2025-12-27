@@ -771,7 +771,7 @@ class _SubscriptionDetailsContentState
         ),
       ),
       floatingActionButtonLocation: ExpandableFab.location,
-      floatingActionButton: (_authController.isAdmin || _authController.isStaff) &&
+      floatingActionButton: (_authController.isAdmin) &&
               subscription.status == BusSubscriptionStatus.pending
           ? ExpandableFab(
               key: _fabKey,

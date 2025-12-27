@@ -78,6 +78,11 @@ class _SubscriptionsTabState extends State<SubscriptionsTab> {
       final bool hasPending = subscriptions.any(
         (sub) => sub.status == BusSubscriptionStatus.pending,
       );
+      final bool hasApproved = subscriptions.any(
+        (sub) => sub.status == BusSubscriptionStatus.approved,
+      );
+      // Allow new subscription only if user doesn't have pending or approved subscriptions
+      final bool canSubmitNew = !hasPending && !hasApproved;
 
       return Scaffold(
         backgroundColor: Colors.transparent,
@@ -87,24 +92,25 @@ class _SubscriptionsTabState extends State<SubscriptionsTab> {
             child: const Text('Subscriptions'),
           ),
           actions: [
-            Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: TextButton.icon(
-                style: TextButton.styleFrom(
-                  overlayColor: accentColor.withValues(alpha: 0.1),
+            if (canSubmitNew)
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: TextButton.icon(
+                  style: TextButton.styleFrom(
+                    overlayColor: accentColor.withValues(alpha: 0.1),
+                  ),
+                  onPressed: () async {
+                    await context.pushNamed(
+                      removeLeadingSlash(NewSubscriptionPage.routeName),
+                    );
+                    // Refresh subscriptions list when returning
+                    await busSubscriptionsController.refreshCurrentFilters();
+                  },
+                  label: const Text('New'),
+                  icon: const HugeIcon(icon: HugeIcons.strokeRoundedAdd01),
+                  iconAlignment: IconAlignment.end,
                 ),
-                onPressed: () async {
-                  await context.pushNamed(
-                    removeLeadingSlash(NewSubscriptionPage.routeName),
-                  ) ;
-                  // Refresh subscriptions list when returning
-                  await busSubscriptionsController.refreshCurrentFilters();
-                },
-                label: const Text('New'),
-                icon: const HugeIcon(icon: HugeIcons.strokeRoundedAdd01),
-                iconAlignment: IconAlignment.end,
               ),
-            ),
           ],
         ),
         body: Column(
@@ -162,7 +168,7 @@ class _SubscriptionsTabState extends State<SubscriptionsTab> {
                     primaryPillLabel:
                         '#${subscriptions.indexOf(latestSubscription) + 1} - ${latestSubscription.status.label}',
                   ),
-                  if (!hasActive && !hasPending)
+                  if (!hasActive && !hasPending && canSubmitNew)
                     _ActiveSubscriptionCTA(
                       message:
                           'You don\'t have any subscription running currently. Maybe, subscribe now to the bus services for the ongoing semester',

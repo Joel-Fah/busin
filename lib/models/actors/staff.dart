@@ -15,6 +15,7 @@ class Staff extends BaseUser {
     this.permissions = const [],
     super.phone,
     super.photoUrl,
+    super.gender,
     super.createdAt,
     super.lastSignInAt,
   }) : super(role: UserRole.staff);
@@ -27,6 +28,7 @@ class Staff extends BaseUser {
       status: AccountStatus.from((map['status'] as String?) ?? 'pending'),
       phone: (map['phone'] as String?)?.trim(),
       photoUrl: (map['photoUrl'] as String?)?.trim(),
+      gender: Gender.fromString(map['gender'] as String?),
       createdAt: BaseUser.parseDate(map['createdAt']),
       lastSignInAt: BaseUser.parseDate(map['lastSignInAt']),
       permissions: (map['permissions'] as List?)?.cast<String>() ?? const [],

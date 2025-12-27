@@ -111,7 +111,7 @@ class BusStopCard extends StatelessWidget {
               ),
 
               // Action buttons
-              if (showActions) ...[
+              if (showActions && authController.isAdmin) ...[
                 const Gap(16.0),
                 Row(
                   spacing: 8.0,

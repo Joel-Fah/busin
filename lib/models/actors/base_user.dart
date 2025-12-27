@@ -2,6 +2,35 @@ import 'package:busin/models/actors/roles.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'package:cloud_firestore/cloud_firestore.dart' show Timestamp;
 
+enum Gender {
+  male,
+  female,
+  preferNotToSay;
+
+  String get label {
+    switch (this) {
+      case Gender.male:
+        return 'Male';
+      case Gender.female:
+        return 'Female';
+      case Gender.preferNotToSay:
+        return 'Prefer not to say';
+    }
+  }
+
+  static Gender fromString(String? value) {
+    if (value == null) return Gender.preferNotToSay;
+    switch (value.toLowerCase()) {
+      case 'male':
+        return Gender.male;
+      case 'female':
+        return Gender.female;
+      default:
+        return Gender.preferNotToSay;
+    }
+  }
+}
+
 abstract class BaseUser {
   final String id;
   final String name;
@@ -10,6 +39,7 @@ abstract class BaseUser {
   final String? photoUrl;
   final UserRole role;
   final AccountStatus status;
+  final Gender? gender;
   final DateTime? createdAt;
   final DateTime? lastSignInAt;
 
@@ -21,6 +51,7 @@ abstract class BaseUser {
     required this.status,
     this.phone,
     this.photoUrl,
+    this.gender,
     this.createdAt,
     this.lastSignInAt,
   });
@@ -61,6 +92,7 @@ abstract class BaseUser {
     'photoUrl': photoUrl,
     'role': role.name,
     'status': status.name,
+    'gender': gender?.name,
     'createdAt': createdAt?.toIso8601String(),
     'lastSignInAt': lastSignInAt?.toIso8601String(),
   };

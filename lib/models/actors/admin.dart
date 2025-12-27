@@ -14,6 +14,7 @@ class Admin extends BaseUser {
     this.scopes = const [],
     super.phone,
     super.photoUrl,
+    super.gender,
     super.createdAt,
     super.lastSignInAt,
   }) : super(role: UserRole.admin);
@@ -26,6 +27,7 @@ class Admin extends BaseUser {
       status: AccountStatus.from((map['status'] as String?) ?? 'pending'),
       phone: (map['phone'] as String?)?.trim(),
       photoUrl: (map['photoUrl'] as String?)?.trim(),
+      gender: Gender.fromString(map['gender'] as String?),
       createdAt: BaseUser.parseDate(map['createdAt']),
       lastSignInAt: BaseUser.parseDate(map['lastSignInAt']),
       scopes: (map['scopes'] as List?)?.cast<String>() ?? const [],

@@ -112,6 +112,11 @@ const String busLoader = 'assets/images/bus_loader.gif';
 const String mapsBg = 'assets/images/maps_bg.jpg';
 const String busStop = 'assets/images/bus_stop.png';
 const String semester = 'assets/images/semester.png';
+const String student = 'assets/images/student.png';
+const String studentMale = 'assets/images/student_male.png';
+const String studentFemale = 'assets/images/student_female.png';
+const String staff = 'assets/images/staff.png';
+const String admin = 'assets/images/admin.png';
 
 // Icons & Flags
 const String googleIcon = 'assets/images/icons/google.svg';

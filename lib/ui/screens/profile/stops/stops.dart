@@ -1,5 +1,6 @@
 import 'package:busin/ui/screens/profile/stops/stops_new.dart';
 import 'package:busin/ui/screens/profile/stops/stops_edit.dart';
+import 'package:busin/utils/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
@@ -47,6 +48,7 @@ class _BusStopsManagementPageState extends State<BusStopsManagementPage> {
               onPressed: () => _busStopController.fetchBusStops(),
               icon: const HugeIcon(icon: HugeIcons.strokeRoundedRefresh),
             ),
+            if (authController.isAdmin)
             IconButton.filled(
               tooltip: "New stop",
               style: IconButton.styleFrom(
