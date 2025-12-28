@@ -200,7 +200,7 @@ class _SubscriptionsTabState extends State<SubscriptionsTab> {
                     Row(
                       children: [
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
                           child: HugeIcon(
                             icon: HugeIcons.strokeRoundedFilterHorizontal,
                             color: themeController.isDark
@@ -384,10 +384,17 @@ class _EmptyListMessage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text(
-        message,
-        style: AppTextStyles.body.copyWith(color: greyColor),
-        textAlign: TextAlign.center,
+      child: Column(
+        spacing: 8.0,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          HugeIcon(icon: HugeIcons.strokeRoundedPackageSearch, color: greyColor, size: 64.0, strokeWidth: 1,),
+          Text(
+            message,
+            style: AppTextStyles.body.copyWith(color: greyColor),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:busin/ui/components/modals/welcome_modal.dart';
 import 'package:busin/ui/screens/home/analytics_tab.dart';
 import 'package:busin/ui/screens/home/people_tab.dart';
 import 'package:busin/ui/screens/home/scanner.dart';
@@ -38,9 +39,10 @@ class _HomePageState extends State<HomePage>
   void initState() {
     super.initState();
 
-    // Check if user is pending verification and redirect
+    // Check if user is pending verification and redirect, then show welcome modal
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkVerificationStatus();
+      _showWelcomeModal();
     });
 
     _tabController = TabController(length: 3, vsync: this);
@@ -53,6 +55,14 @@ class _HomePageState extends State<HomePage>
         user.status == AccountStatus.pending) {
       // User is pending verification, redirect to verification page
       context.go(VerificationPage.routeName);
+    }
+  }
+
+  Future<void> _showWelcomeModal() async {
+    // Only show if user is not pending verification
+    final user = authController.currentUser.value;
+    if (user != null && user.status != AccountStatus.pending) {
+      await WelcomeModal.showIfNeeded(context);
     }
   }
 

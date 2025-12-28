@@ -64,7 +64,7 @@ class _DocsPageState extends State<DocsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: FittedBox(fit: BoxFit.contain, child: Text(title)),
         actions: [
           IconButton(
             icon: HugeIcon(icon: HugeIcons.strokeRoundedRefresh),

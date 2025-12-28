@@ -123,6 +123,10 @@ const String googleIcon = 'assets/images/icons/google.svg';
 const String usaFlag = 'assets/images/flags/usa.png';
 const String franceFlag = 'assets/images/flags/france.png';
 
+// Announcements
+const String welcomeHeaderFr = 'assets/images/announcement/welcome_header_fr.svg';
+const String welcomeHeaderEn = 'assets/images/announcement/welcome_header_en.svg';
+
 /* ----------- Widgets ----------- */
 // BorderRadii
 BorderRadius borderRadius = BorderRadius.circular(8.0);

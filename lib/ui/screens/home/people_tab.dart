@@ -403,7 +403,6 @@ class _UserListTileState extends State<_UserListTile> {
       // Leading: User Avatar
       leading: UserAvatar(
         user: widget.user,
-        tag: 'user_${widget.user.id}',
         radius: 24.0,
       ),
       // Title: User Name
@@ -417,47 +416,61 @@ class _UserListTileState extends State<_UserListTile> {
         overflow: TextOverflow.ellipsis,
       ),
       // Subtitle: Wrap of stats
-      subtitle: Padding(
-        padding: const EdgeInsets.only(top: 4.0),
-        child: Wrap(
-          spacing: 12.0,
-          runSpacing: 4.0,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            // Role badge (for staff/admin differentiation)
-            if (widget.user.role != UserRole.student)
-              _buildRoleBadge(),
-            // Date joined
-            _buildStatChip(
-              icon: HugeIcons.strokeRoundedCalendar03,
-              label: _formatDate(widget.user.createdAt),
-              color: accentColor,
+      subtitle: Column(
+        spacing: 2.0,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            widget.user.email,
+            style: AppTextStyles.body.copyWith(
+              color: themeController.isDark
+                  ? lightColor.withValues(alpha: 0.6)
+                  : darkColor.withValues(alpha: 0.6),
+              fontSize: 13.0,
             ),
-            // Subscription count (if available and is student)
-            if (widget.user.role == UserRole.student &&
-                _subscriptionCount != null &&
-                _subscriptionCount! > 0)
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          Wrap(
+            spacing: 12.0,
+            runSpacing: 4.0,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              // Role badge (for staff/admin differentiation)
+              if (widget.user.role != UserRole.student)
+                _buildRoleBadge(),
+              // Date joined
               _buildStatChip(
-                icon: HugeIcons.strokeRoundedTicket01,
-                label: '$_subscriptionCount sub${_subscriptionCount! > 1 ? 's' : ''}',
-                color: successColor,
+                icon: HugeIcons.strokeRoundedCalendar03,
+                label: _formatDate(widget.user.createdAt),
+                color: accentColor,
               ),
-            // Scan count (if available)
-            if (_scanCount != null && _scanCount! > 0)
-              _buildStatChip(
-                icon: HugeIcons.strokeRoundedQrCode,
-                label: '$_scanCount scan${_scanCount! > 1 ? 's' : ''}',
-                color: seedColor,
-              ),
-            // Loading indicator for stats
-            if (_isLoadingStats)
-              const SizedBox(
-                height: 16.0,
-                width: 16.0,
-                child: CircularProgressIndicator(strokeWidth: 2.0),
-              ),
-          ],
-        ),
+              // Subscription count (if available and is student)
+              if (widget.user.role == UserRole.student &&
+                  _subscriptionCount != null &&
+                  _subscriptionCount! > 0)
+                _buildStatChip(
+                  icon: HugeIcons.strokeRoundedTicket01,
+                  label: '$_subscriptionCount sub${_subscriptionCount! > 1 ? 's' : ''}',
+                  color: successColor,
+                ),
+              // Scan count (if available)
+              if (_scanCount != null && _scanCount! > 0)
+                _buildStatChip(
+                  icon: HugeIcons.strokeRoundedQrCode,
+                  label: '$_scanCount scan${_scanCount! > 1 ? 's' : ''}',
+                  color: seedColor,
+                ),
+              // Loading indicator for stats
+              if (_isLoadingStats)
+                const SizedBox(
+                  height: 16.0,
+                  width: 16.0,
+                  child: CircularProgressIndicator(strokeWidth: 2.0),
+                ),
+            ],
+          ),
+        ],
       ),
       // Trailing: Action buttons for pending users or status indicator
       trailing: isCurrentUserAdmin && isPendingStaffOrAdmin
