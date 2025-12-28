@@ -65,6 +65,7 @@ dependencies:
   fl_chart: ^1.1.1
   geolocator: ^14.0.1
   flutter_expandable_fab: ^2.5.2
+  no_screenshot: ^0.3.1
 
 dev_dependencies:
   flutter_test:
@@ -140,6 +141,7 @@ flutter:
     - assets/images/flags/
     - assets/images/app/
     - assets/images/docs/
+    - assets/images/announcement/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

@@ -9,6 +9,8 @@ import 'package:busin/ui/screens/home/scannings_tab.dart';
 import 'package:busin/ui/screens/home/subscriptions_tab.dart';
 import 'package:busin/ui/screens/onboarding/verification.dart';
 import 'package:busin/ui/screens/profile/account_info.dart';
+import 'package:busin/ui/screens/profile/appearance.dart';
+import 'package:busin/ui/screens/profile/legal.dart';
 import 'package:busin/ui/screens/profile/profile.dart';
 import 'package:busin/ui/screens/profile/semesters/semester.dart';
 import 'package:busin/ui/screens/profile/semesters/semester_form.dart';
@@ -265,6 +267,18 @@ final router = GoRouter(
       path: AccountInfoPage.routeName,
       name: removeLeadingSlash(AccountInfoPage.routeName),
       builder: (context, state) => const AccountInfoPage(),
+    ),
+    GoRoute(
+      parentNavigatorKey: rootNavigatorKey,
+      path: AppearancePage.routeName,
+      name: removeLeadingSlash(AppearancePage.routeName),
+      builder: (context, state) => const AppearancePage(),
+    ),
+    GoRoute(
+      parentNavigatorKey: rootNavigatorKey,
+      path: LegalPage.routeName,
+      name: removeLeadingSlash(LegalPage.routeName),
+      builder: (context, state) => const LegalPage(),
     ),
     GoRoute(
       parentNavigatorKey: rootNavigatorKey,

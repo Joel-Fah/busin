@@ -55,8 +55,22 @@ Widget _buildMarkdown(BuildContext context, String data) {
     selectable: true,
     styleSheet: style,
     softLineBreak: true,
-    onTapLink: (text, href, title) =>
-        launchUrl(Uri.parse(href!), mode: LaunchMode.inAppWebView),
+    onTapLink: (text, href, title) async {
+      if (href != null) {
+        final uri = Uri.parse(href);
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        }
+      }
+    },
+    checkboxBuilder: (bool value) {
+      return Checkbox(
+        value: value,
+        onChanged: null, // Read-only checkboxes
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        visualDensity: VisualDensity.compact,
+      );
+    },
     sizedImageBuilder: (config) => CachedNetworkImage(
       imageUrl: config.uri.toString(),
       fit: BoxFit.cover,

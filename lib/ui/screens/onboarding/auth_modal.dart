@@ -29,10 +29,10 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
   final PageController _pageController = PageController();
   UserRole? _selected;
   int _pageIndex = 0;
+  bool _isSignUp = true; // true = sign up, false = login
 
   bool _isLoading = false;
   String _error = '';
-  bool _hasSavedRole = false;
 
   AuthController get _authController =>
       Get.isRegistered<AuthController>()
@@ -48,18 +48,6 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
   void initState() {
     super.initState();
 
-    // Check if there's a saved role
-    final savedRole = _authController.getLastUserRole();
-    if (savedRole != null) {
-      _hasSavedRole = true;
-      _selected = savedRole;
-      // Auto-navigate to the confirm page
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          _pageController.jumpToPage(1);
-        }
-      });
-    }
 
     _pageController.addListener(() {
       final idx = (_pageController.page ?? _pageIndex.toDouble()).round();
@@ -83,18 +71,35 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
     _pageController.previousPage(duration: 300.ms, curve: Curves.easeInOut);
   }
 
+  void _switchToLogin() {
+    setState(() {
+      _isSignUp = false;
+      _error = '';
+    });
+    _pageController.animateToPage(
+      1, // Go to login page
+      duration: 300.ms,
+      curve: Curves.easeInOut,
+    );
+  }
+
   Future<void> _handleGoogleSignIn() async {
     setState(() {
       _isLoading = true;
       _error = '';
     });
     try {
-      // Apply onboarding choice: Student => verified; Staff => pending
-      if (_selected == UserRole.student) {
-        _authController.setFirstLoginProfile(UserRole.student, AccountStatus.verified);
-      } else if (_selected == UserRole.staff) {
-        _authController.setFirstLoginProfile(UserRole.staff, AccountStatus.pending);
+      if (_isSignUp) {
+        // Sign up flow: Set role based on selection
+        if (_selected == UserRole.student) {
+          _authController.setFirstLoginProfile(
+              UserRole.student, AccountStatus.verified);
+        } else if (_selected == UserRole.staff) {
+          _authController.setFirstLoginProfile(
+              UserRole.staff, AccountStatus.pending);
+        }
       }
+      // For login, we don't set anything - the existing user data will be fetched
 
       await _authController.signInWithGoogle();
       _onboardingController.setOnboardingComplete(true);
@@ -125,7 +130,7 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
     return PopScope(
       canPop: _pageIndex == 0,
       onPopInvokedWithResult: (didPop, result) {
-        if (!didPop && _pageIndex > 0 && !_hasSavedRole) {
+        if (!didPop && _pageIndex > 0) {
           _goBack();
         }
       },
@@ -163,20 +168,22 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
-                        height: _pageIndex == 0
-                            ? mediaHeight(context) / 3
-                            : mediaHeight(context) / 2,
+                        height: mediaHeight(context) / 2.5,
                         child: PageView(
                           controller: _pageController,
                           physics: const NeverScrollableScrollPhysics(),
                           children: [
-                            _buildRoleSelectionPage(context),
-                            _buildConfirmPage(context),
+                            _buildInitialPage(context),
+                            _isSignUp
+                                ? _buildRoleSelectionPage(context)
+                                : _buildLoginPage(context),
+                            _buildSignUpConfirmPage(context),
                           ],
                         ),
                       ),
                       const Gap(16),
-                      if (_pageIndex == 1 && !_hasSavedRole)
+                      // Back button for pages 1 and 2
+                      if (_pageIndex > 0)
                         Align(
                           alignment: Alignment.centerLeft,
                           child: TextButton.icon(
@@ -189,12 +196,12 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
                               size: 20.0,
                             ),
                             label: Text(
-                              l10n.authModal_Step2_cta1Back,
+                              "Back",
                               style: AppTextStyles.body,
                             ),
                           ),
                         ),
-                      if (_pageIndex == 1 && !_hasSavedRole) const Gap(8),
+                      if (_pageIndex > 0) const Gap(8),
                       if (_error.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(bottom: 8.0),
@@ -206,78 +213,7 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
                             ),
                           ),
                         ),
-                      SizedBox(
-                        width: double.infinity,
-                        child: _pageIndex == 0
-                            ? Column(
-                          spacing: 8.0,
-                          children: [
-                            SizedBox(
-                              width: double.infinity,
-                              child: PrimaryButton.label(
-                                onPressed: (_selected == null || _isLoading)
-                                    ? null
-                                    : _goToNext,
-                                label: l10n.authModal_Step1_cta1Proceed,
-                              ),
-                            ),
-                            SizedBox(
-                              width: double.infinity,
-                              child: TertiaryButton.icon(
-                                onPressed:
-                                _isLoading ? null : _skipOnboarding,
-                                iconAlignment: IconAlignment.end,
-                                icon: HugeIcon(
-                                  icon: HugeIcons
-                                      .strokeRoundedArrowUpRight01,
-                                ),
-                                label: Text(
-                                  l10n.authModal_Step1_cta2Skip,
-                                  style: AppTextStyles.body.copyWith(
-                                    color: accentColor,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
-                            : PrimaryButton.icon(
-                          onPressed:
-                          _isLoading ? null : _handleGoogleSignIn,
-                          icon: SvgPicture.asset(googleIcon, width: 20.0),
-                          label: _isLoading
-                              ? Text(
-                            'Signing in...',
-                            style: AppTextStyles.body.copyWith(
-                              color: lightColor,
-                              fontVariations: [
-                                FontVariation('wght', 500),
-                              ],
-                            ),
-                          )
-                              : RichText(
-                            text: TextSpan(
-                              text: l10n.authModal_Step2_cta2Login,
-                              children: [
-                                TextSpan(
-                                  text: " (@ictuniversity.edu.cm)",
-                                  style: AppTextStyles.body.copyWith(
-                                    color: lightColor.withValues(
-                                      alpha: 0.5,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                              style: AppTextStyles.body.copyWith(
-                                color: lightColor,
-                                fontVariations: [
-                                  FontVariation('wght', 500),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                      _buildActionButtons(context, l10n),
                     ],
                   ),
                 ),
@@ -289,50 +225,228 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
     );
   }
 
-  Widget _buildRoleSelectionPage(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+  Widget _buildActionButtons(BuildContext context, AppLocalizations l10n) {
+    // Page 0: Initial choice (Login or Sign Up)
+    if (_pageIndex == 0) {
+      return Column(
+        spacing: 8.0,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: double.infinity,
+            child: PrimaryButton.icon(
+              onPressed: _isLoading ? null : _switchToLogin,
+              icon: SvgPicture.asset(googleIcon),
+              label: Text("Login with Google"),
+            ),
+          ),
+          SizedBox(
+            width: double.infinity,
+            child: TertiaryButton.label(
+              onPressed: _isLoading ? null : () => _goToNext(),
+              label: "New here? Sign Up",
+            ),
+          ),
+          SizedBox(
+            width: double.infinity,
+            child: TertiaryButton.icon(
+              onPressed: _isLoading ? null : _skipOnboarding,
+              iconAlignment: IconAlignment.end,
+              icon: HugeIcon(
+                icon: HugeIcons.strokeRoundedArrowUpRight01,
+              ),
+              label: Text(
+                "Skip for now",
+                style: AppTextStyles.body.copyWith(
+                  color: accentColor,
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    // Page 1: Login page OR Sign up role selection
+    if (_pageIndex == 1) {
+      if (_isSignUp) {
+        // Sign up flow - show proceed button
+        return SizedBox(
+          width: double.infinity,
+          child: PrimaryButton.label(
+            onPressed: (_selected == null || _isLoading) ? null : _goToNext,
+            label: "Continue",
+          ),
+        );
+      } else {
+        // Login flow - show Google sign in button
+        return SizedBox(
+          width: double.infinity,
+          child: PrimaryButton.icon(
+            onPressed: _isLoading ? null : _handleGoogleSignIn,
+            icon: SvgPicture.asset(googleIcon, width: 20.0),
+            label: _isLoading
+                ? Text(
+                    'Signing in...',
+                    style: AppTextStyles.body.copyWith(
+                      color: lightColor,
+                      fontVariations: [FontVariation('wght', 500)],
+                    ),
+                  )
+                : RichText(
+                    text: TextSpan(
+                      text: "Sign in with Google",
+                      children: [
+                        TextSpan(
+                          text: " (@ictuniversity.edu.cm)",
+                          style: AppTextStyles.body.copyWith(
+                            color: lightColor.withValues(alpha: 0.5),
+                          ),
+                        ),
+                      ],
+                      style: AppTextStyles.body.copyWith(
+                        color: lightColor,
+                        fontVariations: [FontVariation('wght', 500)],
+                      ),
+                    ),
+                  ),
+          ),
+        );
+      }
+    }
+
+    // Page 2: Sign up confirmation
+    return SizedBox(
+      width: double.infinity,
+      child: PrimaryButton.icon(
+        onPressed: _isLoading ? null : _handleGoogleSignIn,
+        icon: SvgPicture.asset(googleIcon, width: 20.0),
+        label: _isLoading
+            ? Text(
+                'Creating account...',
+                style: AppTextStyles.body.copyWith(
+                  color: lightColor,
+                  fontVariations: [FontVariation('wght', 500)],
+                ),
+              )
+            : RichText(
+                text: TextSpan(
+                  text: "Sign up with Google",
+                  children: [
+                    TextSpan(
+                      text: " (@ictuniversity.edu.cm)",
+                      style: AppTextStyles.body.copyWith(
+                        color: lightColor.withValues(alpha: 0.5),
+                      ),
+                    ),
+                  ],
+                  style: AppTextStyles.body.copyWith(
+                    color: lightColor,
+                    fontVariations: [FontVariation('wght', 500)],
+                  ),
+                ),
+              ),
+      ),
+    );
+  }
+
+  Widget _buildInitialPage(BuildContext context) {
     return ListView(
       physics: const NeverScrollableScrollPhysics(),
       children: [
+        themeController.isDark
+            ? Image.asset(ictULogo, height: 100.0)
+            : Image.asset(ictULogoHorizontal, width: 160.0),
+        const Gap(16.0),
         Text(
-          l10n.authModal_Step1_title,
-          style: AppTextStyles.title.copyWith(
-            fontVariations: [const FontVariation('wght', 400)],
+          "Welcome to BusIn",
+          style: AppTextStyles.h1.copyWith(
+            fontVariations: [FontVariation('wght', 500)],
           ),
+          textAlign: TextAlign.center,
         ),
-        const Gap(8),
-        Text(l10n.authModal_Step1_subtitle, style: AppTextStyles.body),
-        const Gap(12),
-        Row(
-          spacing: 16.0,
-          children: [
-            Expanded(
-              child: _RoleOption(
-                title: l10n.authModal_Step1_option1,
-                icon: HugeIcons.strokeRoundedUser,
-                selected: _selected == UserRole.student,
-                onTap: _isLoading
-                    ? null
-                    : () => setState(() => _selected = UserRole.student),
-              ),
-            ),
-            Expanded(
-              child: _RoleOption(
-                title: l10n.authModal_Step1_option2,
-                icon: HugeIcons.strokeRoundedSchoolTie,
-                selected: _selected == UserRole.staff,
-                onTap: _isLoading
-                    ? null
-                    : () => setState(() => _selected = UserRole.staff),
-              ),
-            ),
-          ],
+        const Gap(8.0),
+        Text(
+          "Your smart bus subscription manager",
+          style: AppTextStyles.body,
+          textAlign: TextAlign.center,
         ),
+        const Gap(16.0),
+        Text(
+          "Already have an account?",
+          style: AppTextStyles.body.copyWith(
+            color: themeController.isDark
+                ? lightColor.withValues(alpha: 0.7)
+                : greyColor,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const Gap(16.0),
       ],
     );
   }
 
-  Widget _buildConfirmPage(BuildContext context) {
+  Widget _buildLoginPage(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return ListView(
+      physics: const NeverScrollableScrollPhysics(),
+      children: [
+        themeController.isDark
+            ? Image.asset(ictULogo, height: 100.0)
+            : Image.asset(ictULogoHorizontal, width: 160.0),
+        const Gap(16.0),
+        Text(
+          "Welcome Back!",
+          style: AppTextStyles.h2.copyWith(
+            fontVariations: [FontVariation('wght', 500)],
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const Gap(8.0),
+        Text(
+          "Sign in to access your account",
+          style: AppTextStyles.body,
+          textAlign: TextAlign.center,
+        ),
+        const Gap(16.0),
+        Container(
+          padding: const EdgeInsets.all(16.0),
+          decoration: BoxDecoration(
+            color: themeController.isDark
+                ? seedPalette.shade300.withValues(alpha: 0.1)
+                : infoColor.withValues(alpha: 0.1),
+            borderRadius: borderRadius * 2,
+          ),
+          child: Row(
+            spacing: 16.0,
+            children: [
+              HugeIcon(
+                icon: infoIcon,
+                color: themeController.isDark
+                    ? seedPalette.shade300
+                    : infoColor,
+              ),
+              Expanded(
+                child: Text(
+                  "Use your ICT University email (@ictuniversity.edu.cm) to sign in",
+                  style: AppTextStyles.body.copyWith(
+                    color: themeController.isDark
+                        ? seedPalette.shade300
+                        : infoColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    )
+        .animate()
+        .fadeIn(duration: 300.ms)
+        .move(begin: const Offset(0, 12), curve: Curves.easeOut);
+  }
+
+  Widget _buildSignUpConfirmPage(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return ListView(
       physics: const NeverScrollableScrollPhysics(),
@@ -411,7 +525,7 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
           ),
         ),
         Padding(
-          padding: EdgeInsetsGeometry.symmetric(horizontal: 16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Row(
             spacing: 8.0,
             children: [
@@ -436,7 +550,7 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
           ),
         ),
         Padding(
-          padding: EdgeInsetsGeometry.symmetric(horizontal: 16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Row(
             spacing: 8.0,
             children: [
@@ -465,6 +579,49 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
         .animate()
         .fadeIn(duration: 300.ms)
         .move(begin: const Offset(0, 12), curve: Curves.easeOut);
+  }
+
+  Widget _buildRoleSelectionPage(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return ListView(
+      physics: const NeverScrollableScrollPhysics(),
+      children: [
+        Text(
+          l10n.authModal_Step1_title,
+          style: AppTextStyles.title.copyWith(
+            fontVariations: [const FontVariation('wght', 400)],
+          ),
+        ),
+        const Gap(8),
+        Text(l10n.authModal_Step1_subtitle, style: AppTextStyles.body),
+        const Gap(12),
+        Row(
+          spacing: 16.0,
+          children: [
+            Expanded(
+              child: _RoleOption(
+                title: l10n.authModal_Step1_option1,
+                icon: HugeIcons.strokeRoundedUser,
+                selected: _selected == UserRole.student,
+                onTap: _isLoading
+                    ? null
+                    : () => setState(() => _selected = UserRole.student),
+              ),
+            ),
+            Expanded(
+              child: _RoleOption(
+                title: l10n.authModal_Step1_option2,
+                icon: HugeIcons.strokeRoundedSchoolTie,
+                selected: _selected == UserRole.staff,
+                onTap: _isLoading
+                    ? null
+                    : () => setState(() => _selected = UserRole.staff),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
   }
 }
 

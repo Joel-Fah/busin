@@ -3,9 +3,13 @@ import 'dart:ui';
 
 import 'package:busin/controllers/auth_controller.dart';
 import 'package:busin/controllers/subscriptions_controller.dart';
+import 'package:busin/models/actors/base_user.dart';
+import 'package:busin/models/actors/student.dart';
 import 'package:busin/models/scannings.dart';
 import 'package:busin/ui/components/widgets/default_snack_bar.dart';
 import 'package:busin/ui/screens/profile/account_info.dart';
+import 'package:busin/ui/screens/profile/appearance.dart';
+import 'package:busin/ui/screens/profile/legal.dart';
 import 'package:busin/ui/screens/profile/semesters/semester.dart';
 import 'package:busin/ui/screens/profile/stops/stops.dart';
 import 'package:busin/utils/constants.dart';
@@ -210,59 +214,124 @@ class ProfilePage extends StatelessWidget {
               const Gap(64.0),
               ListSubHeading(label: "Your data on BusIn"),
               const Gap(20.0),
+              Obx(() {
+                final user = authController.currentUser.value;
+                final hasIncompleteInfo = _hasIncompleteInfo(user);
+
+                return Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    ListTile(
+                      onTap: () {
+                        HapticFeedback.mediumImpact();
+                        context.pushNamed(
+                          removeLeadingSlash(AccountInfoPage.routeName),
+                        );
+                      },
+                      leading: HugeIcon(
+                        icon: HugeIcons.strokeRoundedUserList,
+                        color: themeController.isDark ? lightColor : seedColor,
+                      ),
+                      title: Text("Account info"),
+                      subtitle: hasIncompleteInfo
+                          ? Text(
+                              "Complete your profile information",
+                              style: AppTextStyles.body.copyWith(
+                                fontSize: 14.0,
+                                color: warningColor,
+                              ),
+                            )
+                          : null,
+                      trailing: HugeIcon(
+                        icon: HugeIcons.strokeRoundedArrowUpRight01,
+                        color: themeController.isDark ? lightColor : seedColor,
+                      ),
+                    ),
+                    if (hasIncompleteInfo)
+                      Positioned(
+                        top: -8.0,
+                        right: 8.0,
+                        child:
+                            Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6.0,
+                                    vertical: 2.0,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: warningColor,
+                                    borderRadius: borderRadius * 0.75,
+                                  ),
+                                  child: Row(
+                                    spacing: 4.0,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      HugeIcon(
+                                        icon: HugeIcons.strokeRoundedAlert02,
+                                        color: lightColor,
+                                        size: 12.0,
+                                      ),
+                                      Text(
+                                        "Action required",
+                                        style: AppTextStyles.small.copyWith(
+                                          color: lightColor,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                                .animate(
+                                  onPlay: (controller) => controller.repeat(),
+                                )
+                                .shimmer(
+                                  duration: 2000.ms,
+                                  color: lightColor.withValues(alpha: 0.3),
+                                ),
+                      ),
+                  ],
+                );
+              }),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Divider(color: greyColor, thickness: 0.5),
+              ),
               ListTile(
                 onTap: () {
                   HapticFeedback.mediumImpact();
                   context.pushNamed(
-                    removeLeadingSlash(AccountInfoPage.routeName),
+                    removeLeadingSlash(AppearancePage.routeName),
                   );
                 },
                 leading: HugeIcon(
-                  icon: HugeIcons.strokeRoundedUserList,
+                  icon: HugeIcons.strokeRoundedAppleVisionPro,
                   color: themeController.isDark ? lightColor : seedColor,
                 ),
-                title: Text("Account info"),
+                title: Text("Appearance"),
                 trailing: HugeIcon(
                   icon: HugeIcons.strokeRoundedArrowUpRight01,
                   color: themeController.isDark ? lightColor : seedColor,
                 ),
               ),
-              // Padding(
-              //   padding: const EdgeInsets.all(8.0),
-              //   child: Divider(color: greyColor, thickness: 0.5),
-              // ),
-              // ListTile(
-              //   onTap: () {
-              //     HapticFeedback.mediumImpact();
-              //   },
-              //   leading: HugeIcon(
-              //     icon: HugeIcons.strokeRoundedAppleVisionPro,
-              //     color: themeController.isDark ? lightColor : seedColor,
-              //   ),
-              //   title: Text("Appearance"),
-              //   trailing: HugeIcon(
-              //     icon: HugeIcons.strokeRoundedArrowUpRight01,
-              //     color: themeController.isDark ? lightColor : seedColor,
-              //   ),
-              // ),
-              // Padding(
-              //   padding: const EdgeInsets.all(8.0),
-              //   child: Divider(color: greyColor, thickness: 0.5),
-              // ),
-              // ListTile(
-              //   onTap: () {
-              //     HapticFeedback.mediumImpact();
-              //   },
-              //   leading: HugeIcon(
-              //     icon: HugeIcons.strokeRoundedAudit01,
-              //     color: themeController.isDark ? lightColor : seedColor,
-              //   ),
-              //   title: Text("Legal"),
-              //   trailing: HugeIcon(
-              //     icon: HugeIcons.strokeRoundedArrowUpRight01,
-              //     color: themeController.isDark ? lightColor : seedColor,
-              //   ),
-              // ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Divider(color: greyColor, thickness: 0.5),
+              ),
+              ListTile(
+                onTap: () {
+                  HapticFeedback.mediumImpact();
+                  context.pushNamed(
+                    removeLeadingSlash(LegalPage.routeName),
+                  );
+                },
+                leading: HugeIcon(
+                  icon: HugeIcons.strokeRoundedAudit01,
+                  color: themeController.isDark ? lightColor : seedColor,
+                ),
+                title: Text("Legal"),
+                trailing: HugeIcon(
+                  icon: HugeIcons.strokeRoundedArrowUpRight01,
+                  color: themeController.isDark ? lightColor : seedColor,
+                ),
+              ),
               if (authController.isAdmin || authController.isStaff) ...[
                 const Gap(24.0),
                 ListSubHeading(label: "Bus Management"),
@@ -376,7 +445,7 @@ class ProfilePage extends StatelessWidget {
                       ),
                   );
                 },
-                splashColor: errorColor.withValues(alpha: 0.1),
+                splashColor: errorColor.withValues(alpha: 0.2),
                 leading: HugeIcon(
                   icon: HugeIcons.strokeRoundedLogout01,
                   color: errorColor,
@@ -396,6 +465,21 @@ class ProfilePage extends StatelessWidget {
       ),
     );
   }
+}
+
+// Helper function to check if user has incomplete profile information
+bool _hasIncompleteInfo(BaseUser? user) {
+  if (user == null) return false;
+
+  bool hasPhone = user.phone != null && user.phone!.isNotEmpty;
+
+  if (user is Student) {
+    bool hasAddress = user.address != null && user.address!.isNotEmpty;
+    bool hasMatricule = user.matricule != null && user.matricule!.isNotEmpty;
+    return !hasPhone || !hasAddress || !hasMatricule;
+  }
+
+  return !hasPhone;
 }
 
 class AppInfoBar extends StatefulWidget {
