@@ -24,10 +24,7 @@ class _LegalPageState extends State<LegalPage> {
   bool _loading = true;
   bool _usingFallback = false;
 
-  // API endpoint - Update this with your actual legal.md hosting URL
-  // For now, you can host this on GitHub raw, a CDN, or your own server
-  // Example GitHub raw URL: https://raw.githubusercontent.com/username/repo/main/lib/docs/legal.md
-  static const String _legalApiUrl = 'https://raw.githubusercontent.com/your-username/busin/main/lib/docs/legal.md';
+  static const String _legalApiUrl = 'https://raw.githubusercontent.com/Joel-Fah/busin/refs/heads/main/lib/docs/legal.md';
 
   @override
   void initState() {
@@ -180,7 +177,6 @@ class _LegalPageState extends State<LegalPage> {
   // Fallback legal content
   static const String _fallbackLegalContent = '''
 # Legal Information
-- [x] Hellooo
 
 **Last Updated:** December 28, 2025
 
