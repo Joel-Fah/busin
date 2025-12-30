@@ -26,6 +26,7 @@ class Student extends BaseUser {
     super.gender,
     super.createdAt,
     super.lastSignInAt,
+    super.updatedAt,
   }) : super(role: UserRole.student);
 
   // ---- factories ----
@@ -41,6 +42,7 @@ class Student extends BaseUser {
       gender: Gender.fromString(map['gender'] as String?),
       createdAt: BaseUser.parseDate(map['createdAt']),
       lastSignInAt: BaseUser.parseDate(map['lastSignInAt']),
+      updatedAt: BaseUser.parseDate(map['updatedAt']),
       matricule: (map['matricule'] as String?)?.trim(),
       department: (map['department'] as String?)?.trim(),
       program: (map['program'] as String?)?.trim(),
@@ -83,6 +85,7 @@ class Student extends BaseUser {
       photoUrl: user.photoURL,
       createdAt: user.metadata.creationTime,
       lastSignInAt: user.metadata.lastSignInTime,
+      updatedAt: user.metadata.creationTime, // Initially same as createdAt
       matricule: matricule,
       department: department,
       program: program,
@@ -112,8 +115,10 @@ class Student extends BaseUser {
     AccountStatus? status,
     String? phone,
     String? photoUrl,
+    Gender? gender,
     DateTime? createdAt,
     DateTime? lastSignInAt,
+    DateTime? updatedAt,
     String? matricule,
     String? department,
     String? program,
@@ -127,8 +132,10 @@ class Student extends BaseUser {
         status: status ?? this.status,
         phone: phone ?? this.phone,
         photoUrl: photoUrl ?? this.photoUrl,
+        gender: gender ?? this.gender,
         createdAt: createdAt ?? this.createdAt,
         lastSignInAt: lastSignInAt ?? this.lastSignInAt,
+        updatedAt: updatedAt ?? this.updatedAt,
         matricule: matricule ?? this.matricule,
         department: department ?? this.department,
         program: program ?? this.program,

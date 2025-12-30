@@ -44,6 +44,69 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get backButton => 'Retour';
+
+  @override
+  String get continueButton => 'Continuer';
+
+  @override
+  String get status => 'Statut';
+
+  @override
+  String get statusPending => 'Statut : En attente';
+
+  @override
+  String get statusApproved => 'Statut : Approuvé';
+
+  @override
+  String get statusRejected => 'Statut : Rejeté';
+
+  @override
+  String get roleStudent => 'Etudiant';
+
+  @override
+  String get roleStaff => 'Staff';
+
+  @override
+  String get roleAdmin => 'Admin';
+
+  @override
+  String get accountPending => 'En attente';
+
+  @override
+  String get accountVerified => 'Verifié';
+
+  @override
+  String get accountSuspended => 'Suspendu';
+
+  @override
+  String get subscriptions => 'Abonnements';
+
+  @override
+  String get scannings => 'Scans';
+
+  @override
+  String get joined => 'Rejoint';
+
+  @override
+  String get lastSignIn => 'Dernière connexion';
+
+  @override
+  String get lastUpdated => 'Dernière mise à jour';
+
+  @override
+  String get start => 'Début';
+
+  @override
+  String get end => 'Fin';
+
+  @override
+  String get cancel => 'Annuler';
+
+  @override
+  String get edit => 'Modifier';
+
+  @override
   String get onboarding_screen1_title =>
       'Regarder l\'horloge en attendant le départ du bus, sachant que je devrai me lever tôt demain... Difficile de dormir avec tous ces devoirs qui s\'accumulent… pffffffff';
 
@@ -141,4 +204,325 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get anonymousPage_list_option2Subtitle =>
       'Apprenez comment BusIn se met au service de l\'administration';
+
+  @override
+  String get authModal_initialPage_title => 'Bienvenue sur BusIn';
+
+  @override
+  String get authModal_initialPage_subtitle =>
+      'Votre gestionnaire intelligent d\'abonnement de bus';
+
+  @override
+  String get authModal_initialPage_question => 'Vous avez déjà un compte ?';
+
+  @override
+  String get authModal_actions_login => 'Se connecter avec Google';
+
+  @override
+  String get authModal_actions_signup => 'Nouveau ici ? S\'inscrire';
+
+  @override
+  String get authModal_actions_skip => 'Ignorer pour le moment';
+
+  @override
+  String get authModal_loginStep_title => 'Bon retour parmi nous !';
+
+  @override
+  String get authModal_loginStep_subtitle =>
+      'Nous sommes ravis de vous revoir. Connectez-vous pour continuer.';
+
+  @override
+  String get authModal_loginStep_info =>
+      'Utilisez votre addresse email (@ictuniversity.ed.cm) pour vous connecter en toute sécurité.';
+
+  @override
+  String get authModal_loginStep_ctaLogin => 'Se connecter avec Google';
+
+  @override
+  String get authModal_loginStep_ctaLoginLoading => 'Connexion ...';
+
+  @override
+  String get authModal_signupStep_ctaSignup => 'S\'inscrire avec Google';
+
+  @override
+  String get authModal_signupStep_ctaSignupLoading => 'Inscription ...';
+
+  @override
+  String get verificationPage_titlePending => 'Vérification en cours';
+
+  @override
+  String get verificationPage_titleRejected => 'Vérification refusée';
+
+  @override
+  String get verificationPage_titleComplete => 'Vérification terminée';
+
+  @override
+  String get verificationPage_descriptionRejected =>
+      'Votre demande de compte a été refusée par un administrateur. Veuillez contacter l\'assistance pour plus d\'informations.';
+
+  @override
+  String get verificationPage_descriptionPending =>
+      'Votre compte est en attente de validation. Vous serez averti(e) dès qu\'il sera validé.';
+
+  @override
+  String get verificationPage_descriptionComplete =>
+      'Votre compte a été validé ! Vous pouvez maintenant accéder à l\'application.';
+
+  @override
+  String get verificationPage_infoAlert_descriptionRejected =>
+      'Votre demande n\'a pas été approuvée. Vous pouvez réessayer en créant un nouveau compte ou en contactant un administrateur.';
+
+  @override
+  String get verificationPage_infoAlert_descriptionVerified =>
+      'Votre compte est prêt ! Cliquez ci-dessous pour accéder à l\'application.';
+
+  @override
+  String get verificationPage_infoAlert_descriptionPending =>
+      'Un administrateur examinera votre compte prochainement. Cela prend généralement moins de 24 heures.';
+
+  @override
+  String get verificationPage_ctaVerified => 'Continuer vers l\'application';
+
+  @override
+  String get verificationPage_ctaPending => 'Vérifier le statut';
+
+  @override
+  String get verificationPage_ctaPendingLoading => 'Vérification en cours...';
+
+  @override
+  String get verificationPage_ctaSignOut => 'Déconnexion';
+
+  @override
+  String get verificationPage_labelSupport =>
+      'Besoin d\'aide ? Contactez un administrateur.';
+
+  @override
+  String get verificationPage_rejectMessage => 'Votre compte a été refusé.';
+
+  @override
+  String get verificationPage_checkStatusError =>
+      'Erreur lors de la vérification du statut :';
+
+  @override
+  String get verificationPage_approvedMessage =>
+      'Compte vérifié ! Vous disposez désormais d\'un accès administrateur.';
+
+  @override
+  String get verificationPage_navigationError => 'Erreur de navigation :';
+
+  @override
+  String get verificationPage_signOutMessage => 'Déconnexion réussie.';
+
+  @override
+  String get welcomeModal_titleStudent => 'Bienvenue sur BusIn !';
+
+  @override
+  String get welcomeModal_messageStudent =>
+      'Salut ! Nous sommes ravis de vous accueillir. La gestion de vos abonnements de bus à ICT University est désormais beaucoup plus simple. Prêt à monter à bord ?';
+
+  @override
+  String get welcomeModal_ctaStudent => 'Allons-y !';
+
+  @override
+  String get welcomeModal_titleStaff =>
+      'Bienvenue sur le portail BusIn pour le personnel';
+
+  @override
+  String get welcomeModal_messageStaff =>
+      'Merci de rejoindre l\'équipe BusIn. Vous pouvez désormais scanner les codes QR étudiants et vérifier l\'accès aux bus. Simplifions la gestion des transports à ICT University.';
+
+  @override
+  String get welcomeModal_ctaStaff => 'Commencer';
+
+  @override
+  String get welcomeModal_titleAdmin =>
+      'Bienvenue sur le panneau d\'administration BusIn';
+
+  @override
+  String get welcomeModal_messageAdmin =>
+      'Bienvenue sur le tableau de bord de gestion BusIn. Vous avez un accès complet pour gérer les abonnements, les arrêts de bus, semestres, et superviser l\'ensemble du système de transport. Rationalisons les opérations de ICT University.';
+
+  @override
+  String get welcomeModal_ctaAdmin => 'Accéder au tableau de bord';
+
+  @override
+  String get homeNav_analyticsTab => 'Analyses';
+
+  @override
+  String get homeNav_studentHomeTab => 'Accueil';
+
+  @override
+  String get homeNav_subscriptionsTab => 'Abonnements';
+
+  @override
+  String get homeNav_scanningsTab => 'Scans';
+
+  @override
+  String get homeNav_peopleTab => 'Personnes';
+
+  @override
+  String get profilePage_appBar_title => 'Profil';
+
+  @override
+  String get profilePage_subHeading_yourData => 'Vos données sur BusIn';
+
+  @override
+  String get profilePage_listTile_accountInfo => 'Information du Compte';
+
+  @override
+  String get profilePage_accountInfo_subtitle => 'Complétez votre profil';
+
+  @override
+  String get profilePage_accountInfo_badge => 'Action requise';
+
+  @override
+  String get profilePage_listTile_appearance => 'Apparences';
+
+  @override
+  String get profilePage_listTile_legal => 'Légal';
+
+  @override
+  String get profilePage_subHeading_busManagement => 'Gestion des bus';
+
+  @override
+  String get profilePage_listTile_busStops => 'Arrêts de bus';
+
+  @override
+  String get profilePage_busStops_subtitle =>
+      'Gérer les lieux de prise en charge des élèves par le bus';
+
+  @override
+  String get profilePage_listTile_semesters => 'Semestres';
+
+  @override
+  String get profilePage_semesters_subtitle =>
+      'Gérer la durée des semestres de bus et plus encore';
+
+  @override
+  String get profilePage_listTile_signOut => 'Se déconnecter';
+
+  @override
+  String get profilePage_listTile_signOutMessage => 'Déconnexion réussie';
+
+  @override
+  String get profilePage_appInfo_rights => 'Tous droits réservés';
+
+  @override
+  String get loadingPage_label => 'Chargement de votre aventure...';
+
+  @override
+  String get accountInfoPage_missingLabel => 'Manquant : ';
+
+  @override
+  String get accountInfoPage_sectionHeader_google =>
+      'Informations du compte Google';
+
+  @override
+  String get accountInfoPage_googleSection_provider => 'Fournisseur';
+
+  @override
+  String get accountInfoPage_googleSection_displayName => 'Nom d\'affichage';
+
+  @override
+  String get accountInfoPage_googleSection_displayNameWarning =>
+      'Aucun nom d\'affichage défini. Utilisation du nom d\'utilisateur de l\'adresse e-mail par défaut. Mettez à jour votre compte Google pour définir un nom d\'affichage.';
+
+  @override
+  String get accountInfoPage_googleSection_email => 'Adresse e-mail';
+
+  @override
+  String get accountInfoPage_googleSection_accountStatus => 'Statut du compte';
+
+  @override
+  String get accountInfoPage_sectionHeader_contact => 'Informations de contact';
+
+  @override
+  String get accountInfoPage_sectionHeader_update =>
+      'Mettre à jour vos informations';
+
+  @override
+  String get accountInfoPage_editableField_phoneNumber => 'Numéro de téléphone';
+
+  @override
+  String get accountInfoPage_editableField_gender => 'Sexe';
+
+  @override
+  String get accountInfoPage_editableField_genderNotSpecified => 'Non spécifié';
+
+  @override
+  String get accountInfoPage_sectionHeader_studentInfo =>
+      'Informations sur l\'étudiant';
+
+  @override
+  String get accountInfoPage_sectionHeader_studentDetails =>
+      'Détails de l\'étudiant';
+
+  @override
+  String get accountInfoPage_editableField_studentID =>
+      'Numéro d\'étudiant (matricule)';
+
+  @override
+  String get accountInfoPage_editableField_department => 'Département';
+
+  @override
+  String get accountInfoPage_editableField_departmentNotProvided =>
+      'Non renseigné';
+
+  @override
+  String get accountInfoPage_editableField_program =>
+      'Programme (spécialisation)';
+
+  @override
+  String get accountInfoPage_editableField_programInstruction =>
+      'Veuillez d\'abord sélectionner un département';
+
+  @override
+  String get accountInfoPage_editableField_programNotProvided =>
+      'Non renseigné';
+
+  @override
+  String get accountInfoPage_editableField_streetAddress => 'Rue/Quartier';
+
+  @override
+  String get accountInfoPage_editableField_streetAddressHint =>
+      'Renseignez votre quartier ou rue';
+
+  @override
+  String get accountInfoPage_updateSuccessful =>
+      'Informations du compte mises à jour avec succès';
+
+  @override
+  String get accountInfoPage_updateFailed => 'Échec de la mise à jour :';
+
+  @override
+  String get accountInfoPage_ctaSaveChanges => 'Enregistrer les modifications';
+
+  @override
+  String get accountInfoPage_ctaSaveChangesLoading => 'Enregistrement...';
+
+  @override
+  String get accountInfoPage_roleBadge_labelStudent => 'Compte étudiant';
+
+  @override
+  String get accountInfoPage_roleBadge_descriptionStudent =>
+      'Souscrivez à un abonnement de bus et profitez pleinement de BusIn.';
+
+  @override
+  String get accountInfoPage_roleBadge_labelStaff => 'Membre du Staff';
+
+  @override
+  String get accountInfoPage_roleBadge_descriptionStaff =>
+      'Gérez les services de bus et aidez les étudiants à répondre à leurs besoins en matière de transport.';
+
+  @override
+  String get accountInfoPage_roleBadge_labelAdmin => 'Administrateur';
+
+  @override
+  String get accountInfoPage_roleBadge_descriptionAdmin =>
+      'Supervisez l\'ensemble du système de gestion des bus et assurez son bon fonctionnement.';
+
+  @override
+  String accountInfoPage_editableField_errorRequired(String field) {
+    return '$field est obligatoire';
+  }
 }

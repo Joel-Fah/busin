@@ -17,6 +17,7 @@ class Admin extends BaseUser {
     super.gender,
     super.createdAt,
     super.lastSignInAt,
+    super.updatedAt,
   }) : super(role: UserRole.admin);
 
   factory Admin.fromMap(Map<String, dynamic> map) {
@@ -30,6 +31,7 @@ class Admin extends BaseUser {
       gender: Gender.fromString(map['gender'] as String?),
       createdAt: BaseUser.parseDate(map['createdAt']),
       lastSignInAt: BaseUser.parseDate(map['lastSignInAt']),
+      updatedAt: BaseUser.parseDate(map['updatedAt']),
       scopes: (map['scopes'] as List?)?.cast<String>() ?? const [],
     );
   }
@@ -56,6 +58,7 @@ class Admin extends BaseUser {
       photoUrl: user.photoURL,
       createdAt: user.metadata.creationTime,
       lastSignInAt: user.metadata.lastSignInTime,
+      updatedAt: user.metadata.creationTime, // Initially same as createdAt
       scopes: scopes,
     );
   }
@@ -88,9 +91,11 @@ class Admin extends BaseUser {
     AccountStatus? status,
     String? phone,
     String? photoUrl,
+    Gender? gender,
     List<String>? scopes,
     DateTime? createdAt,
     DateTime? lastSignInAt,
+    DateTime? updatedAt,
   }) =>
       Admin(
         id: id ?? this.id,
@@ -99,8 +104,10 @@ class Admin extends BaseUser {
         status: status ?? this.status,
         phone: phone ?? this.phone,
         photoUrl: photoUrl ?? this.photoUrl,
+        gender: gender ?? this.gender,
         createdAt: createdAt ?? this.createdAt,
         lastSignInAt: lastSignInAt ?? this.lastSignInAt,
+        updatedAt: updatedAt ?? this.updatedAt,
         scopes: scopes ?? this.scopes,
       );
 

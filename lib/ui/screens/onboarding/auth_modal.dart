@@ -1,5 +1,6 @@
 import 'package:busin/l10n/app_localizations.dart';
 import 'package:busin/ui/components/widgets/buttons/primary_button.dart';
+import 'package:busin/ui/components/widgets/buttons/secondary_button.dart';
 import 'package:busin/ui/components/widgets/buttons/tertiary_button.dart';
 import 'package:busin/ui/screens/home/home.dart';
 import 'package:busin/ui/screens/home/anonymous.dart';
@@ -29,25 +30,23 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
   final PageController _pageController = PageController();
   UserRole? _selected;
   int _pageIndex = 0;
-  bool _isSignUp = true; // true = sign up, false = login
+  bool _isSignUp = true;
 
   bool _isLoading = false;
   String _error = '';
 
-  AuthController get _authController =>
-      Get.isRegistered<AuthController>()
-          ? Get.find<AuthController>()
-          : Get.put(AuthController(), permanent: true);
+  AuthController get _authController => Get.isRegistered<AuthController>()
+      ? Get.find<AuthController>()
+      : Get.put(AuthController(), permanent: true);
 
   OnboardingController get _onboardingController =>
       Get.isRegistered<OnboardingController>()
-          ? Get.find<OnboardingController>()
-          : Get.put(OnboardingController(), permanent: true);
+      ? Get.find<OnboardingController>()
+      : Get.put(OnboardingController(), permanent: true);
 
   @override
   void initState() {
     super.initState();
-
 
     _pageController.addListener(() {
       final idx = (_pageController.page ?? _pageIndex.toDouble()).round();
@@ -83,6 +82,18 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
     );
   }
 
+  void _switchToSignUp() {
+    setState(() {
+      _isSignUp = true;
+      _error = '';
+    });
+    _pageController.animateToPage(
+      1, // Go to sign up role selection page
+      duration: 300.ms,
+      curve: Curves.easeInOut,
+    );
+  }
+
   Future<void> _handleGoogleSignIn() async {
     setState(() {
       _isLoading = true;
@@ -93,10 +104,14 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
         // Sign up flow: Set role based on selection
         if (_selected == UserRole.student) {
           _authController.setFirstLoginProfile(
-              UserRole.student, AccountStatus.verified);
+            UserRole.student,
+            AccountStatus.verified,
+          );
         } else if (_selected == UserRole.staff) {
           _authController.setFirstLoginProfile(
-              UserRole.staff, AccountStatus.pending);
+            UserRole.staff,
+            AccountStatus.pending,
+          );
         }
       }
       // For login, we don't set anything - the existing user data will be fetched
@@ -168,7 +183,7 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
-                        height: mediaHeight(context) / 2.5,
+                        height: mediaHeight(context) / 2,
                         child: PageView(
                           controller: _pageController,
                           physics: const NeverScrollableScrollPhysics(),
@@ -196,7 +211,7 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
                               size: 20.0,
                             ),
                             label: Text(
-                              "Back",
+                              l10n.backButton,
                               style: AppTextStyles.body,
                             ),
                           ),
@@ -227,6 +242,7 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
 
   Widget _buildActionButtons(BuildContext context, AppLocalizations l10n) {
     // Page 0: Initial choice (Login or Sign Up)
+    final l10n = AppLocalizations.of(context)!;
     if (_pageIndex == 0) {
       return Column(
         spacing: 8.0,
@@ -237,14 +253,16 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
             child: PrimaryButton.icon(
               onPressed: _isLoading ? null : _switchToLogin,
               icon: SvgPicture.asset(googleIcon),
-              label: Text("Login with Google"),
+              label: Text(l10n.authModal_actions_login),
             ),
           ),
           SizedBox(
             width: double.infinity,
-            child: TertiaryButton.label(
-              onPressed: _isLoading ? null : () => _goToNext(),
-              label: "New here? Sign Up",
+            child: SecondaryButton.icon(
+              onPressed: _isLoading ? null : () => _switchToSignUp(),
+              icon: HugeIcon(icon: HugeIcons.strokeRoundedUserAdd01),
+              label: Text(l10n.authModal_actions_signup),
+              dottedColor: accentColor,
             ),
           ),
           SizedBox(
@@ -252,14 +270,10 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
             child: TertiaryButton.icon(
               onPressed: _isLoading ? null : _skipOnboarding,
               iconAlignment: IconAlignment.end,
-              icon: HugeIcon(
-                icon: HugeIcons.strokeRoundedArrowUpRight01,
-              ),
+              icon: HugeIcon(icon: HugeIcons.strokeRoundedArrowUpRight01),
               label: Text(
-                "Skip for now",
-                style: AppTextStyles.body.copyWith(
-                  color: accentColor,
-                ),
+                l10n.authModal_actions_skip,
+                style: AppTextStyles.body.copyWith(color: accentColor),
               ),
             ),
           ),
@@ -275,7 +289,7 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
           width: double.infinity,
           child: PrimaryButton.label(
             onPressed: (_selected == null || _isLoading) ? null : _goToNext,
-            label: "Continue",
+            label: l10n.continueButton,
           ),
         );
       } else {
@@ -287,7 +301,7 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
             icon: SvgPicture.asset(googleIcon, width: 20.0),
             label: _isLoading
                 ? Text(
-                    'Signing in...',
+                    l10n.authModal_loginStep_ctaLoginLoading,
                     style: AppTextStyles.body.copyWith(
                       color: lightColor,
                       fontVariations: [FontVariation('wght', 500)],
@@ -295,7 +309,7 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
                   )
                 : RichText(
                     text: TextSpan(
-                      text: "Sign in with Google",
+                      text: l10n.authModal_loginStep_ctaLogin,
                       children: [
                         TextSpan(
                           text: " (@ictuniversity.edu.cm)",
@@ -323,7 +337,7 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
         icon: SvgPicture.asset(googleIcon, width: 20.0),
         label: _isLoading
             ? Text(
-                'Creating account...',
+                l10n.authModal_signupStep_ctaSignupLoading,
                 style: AppTextStyles.body.copyWith(
                   color: lightColor,
                   fontVariations: [FontVariation('wght', 500)],
@@ -331,7 +345,7 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
               )
             : RichText(
                 text: TextSpan(
-                  text: "Sign up with Google",
+                  text: l10n.authModal_signupStep_ctaSignup,
                   children: [
                     TextSpan(
                       text: " (@ictuniversity.edu.cm)",
@@ -351,6 +365,7 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
   }
 
   Widget _buildInitialPage(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return ListView(
       physics: const NeverScrollableScrollPhysics(),
       children: [
@@ -359,7 +374,7 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
             : Image.asset(ictULogoHorizontal, width: 160.0),
         const Gap(16.0),
         Text(
-          "Welcome to BusIn",
+          l10n.authModal_initialPage_title,
           style: AppTextStyles.h1.copyWith(
             fontVariations: [FontVariation('wght', 500)],
           ),
@@ -367,13 +382,13 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
         ),
         const Gap(8.0),
         Text(
-          "Your smart bus subscription manager",
+          l10n.authModal_initialPage_subtitle,
           style: AppTextStyles.body,
           textAlign: TextAlign.center,
         ),
         const Gap(16.0),
         Text(
-          "Already have an account?",
+          l10n.authModal_initialPage_question,
           style: AppTextStyles.body.copyWith(
             color: themeController.isDark
                 ? lightColor.withValues(alpha: 0.7)
@@ -389,58 +404,58 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
   Widget _buildLoginPage(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return ListView(
-      physics: const NeverScrollableScrollPhysics(),
-      children: [
-        themeController.isDark
-            ? Image.asset(ictULogo, height: 100.0)
-            : Image.asset(ictULogoHorizontal, width: 160.0),
-        const Gap(16.0),
-        Text(
-          "Welcome Back!",
-          style: AppTextStyles.h2.copyWith(
-            fontVariations: [FontVariation('wght', 500)],
-          ),
-          textAlign: TextAlign.center,
-        ),
-        const Gap(8.0),
-        Text(
-          "Sign in to access your account",
-          style: AppTextStyles.body,
-          textAlign: TextAlign.center,
-        ),
-        const Gap(16.0),
-        Container(
-          padding: const EdgeInsets.all(16.0),
-          decoration: BoxDecoration(
-            color: themeController.isDark
-                ? seedPalette.shade300.withValues(alpha: 0.1)
-                : infoColor.withValues(alpha: 0.1),
-            borderRadius: borderRadius * 2,
-          ),
-          child: Row(
-            spacing: 16.0,
-            children: [
-              HugeIcon(
-                icon: infoIcon,
-                color: themeController.isDark
-                    ? seedPalette.shade300
-                    : infoColor,
+          physics: const NeverScrollableScrollPhysics(),
+          children: [
+            themeController.isDark
+                ? Image.asset(ictULogo, height: 100.0)
+                : Image.asset(ictULogoHorizontal, width: 160.0),
+            const Gap(16.0),
+            Text(
+              l10n.authModal_loginStep_title,
+              style: AppTextStyles.h2.copyWith(
+                fontVariations: [FontVariation('wght', 500)],
               ),
-              Expanded(
-                child: Text(
-                  "Use your ICT University email (@ictuniversity.edu.cm) to sign in",
-                  style: AppTextStyles.body.copyWith(
+              textAlign: TextAlign.center,
+            ),
+            const Gap(8.0),
+            Text(
+              l10n.authModal_loginStep_subtitle,
+              style: AppTextStyles.body,
+              textAlign: TextAlign.center,
+            ),
+            const Gap(16.0),
+            Container(
+              padding: const EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                color: themeController.isDark
+                    ? seedPalette.shade300.withValues(alpha: 0.1)
+                    : infoColor.withValues(alpha: 0.1),
+                borderRadius: borderRadius * 2,
+              ),
+              child: Row(
+                spacing: 16.0,
+                children: [
+                  HugeIcon(
+                    icon: infoIcon,
                     color: themeController.isDark
                         ? seedPalette.shade300
                         : infoColor,
                   ),
-                ),
+                  Expanded(
+                    child: Text(
+                      l10n.authModal_loginStep_info,
+                      style: AppTextStyles.body.copyWith(
+                        color: themeController.isDark
+                            ? seedPalette.shade300
+                            : infoColor,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
-      ],
-    )
+            ),
+          ],
+        )
         .animate()
         .fadeIn(duration: 300.ms)
         .move(begin: const Offset(0, 12), curve: Curves.easeOut);
@@ -449,133 +464,133 @@ class _AuthModalSheetState extends State<AuthModalSheet> {
   Widget _buildSignUpConfirmPage(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return ListView(
-      physics: const NeverScrollableScrollPhysics(),
-      children: [
-        themeController.isDark
-            ? Image.asset(ictULogo, height: 100.0)
-            : Image.asset(ictULogoHorizontal, width: 160.0),
-        const Gap(16.0),
-        Text(
-          l10n.authModal_Step2_subtitle,
-          style: AppTextStyles.body,
-          textAlign: TextAlign.center,
-        ),
-        Text(
-          l10n.authModal_Step2_title,
-          style: AppTextStyles.h2.copyWith(
-            fontVariations: [FontVariation('wght', 500)],
-          ),
-          textAlign: TextAlign.center,
-        ),
-        const Gap(16.0),
-        Container(
-          padding: const EdgeInsets.all(16.0),
-          decoration: BoxDecoration(
-            color: themeController.isDark
-                ? seedPalette.shade300.withValues(alpha: 0.1)
-                : infoColor.withValues(alpha: 0.1),
-            borderRadius: borderRadius * 2,
-          ),
-          child: Row(
-            spacing: 16.0,
-            children: [
-              HugeIcon(
-                icon: infoIcon,
-                color: themeController.isDark
-                    ? seedPalette.shade300
-                    : infoColor,
+          physics: const NeverScrollableScrollPhysics(),
+          children: [
+            themeController.isDark
+                ? Image.asset(ictULogo, height: 100.0)
+                : Image.asset(ictULogoHorizontal, width: 160.0),
+            const Gap(16.0),
+            Text(
+              l10n.authModal_Step2_subtitle,
+              style: AppTextStyles.body,
+              textAlign: TextAlign.center,
+            ),
+            Text(
+              l10n.authModal_Step2_title,
+              style: AppTextStyles.h2.copyWith(
+                fontVariations: [FontVariation('wght', 500)],
               ),
-              Expanded(
-                child: Text.rich(
-                  TextSpan(
-                    text: l10n.authModal_Step2_instruction_slice1,
-                    children: [
-                      TextSpan(
-                        text: " @ictuniversity.edu.cm ",
-                        style: AppTextStyles.body.copyWith(
-                          color: themeController.isDark
-                              ? seedPalette.shade300
-                              : infoColor,
-                          fontVariations: [FontVariation('wght', 500)],
-                        ),
-                      ),
-                      TextSpan(
-                        text: l10n.authModal_Step2_instruction_slice2,
-                      ),
-                    ],
-                  ),
-                  style: AppTextStyles.body.copyWith(
+              textAlign: TextAlign.center,
+            ),
+            const Gap(16.0),
+            Container(
+              padding: const EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                color: themeController.isDark
+                    ? seedPalette.shade300.withValues(alpha: 0.1)
+                    : infoColor.withValues(alpha: 0.1),
+                borderRadius: borderRadius * 2,
+              ),
+              child: Row(
+                spacing: 16.0,
+                children: [
+                  HugeIcon(
+                    icon: infoIcon,
                     color: themeController.isDark
                         ? seedPalette.shade300
                         : infoColor,
                   ),
-                ),
+                  Expanded(
+                    child: Text.rich(
+                      TextSpan(
+                        text: l10n.authModal_Step2_instruction_slice1,
+                        children: [
+                          TextSpan(
+                            text: " @ictuniversity.edu.cm ",
+                            style: AppTextStyles.body.copyWith(
+                              color: themeController.isDark
+                                  ? seedPalette.shade300
+                                  : infoColor,
+                              fontVariations: [FontVariation('wght', 500)],
+                            ),
+                          ),
+                          TextSpan(
+                            text: l10n.authModal_Step2_instruction_slice2,
+                          ),
+                        ],
+                      ),
+                      style: AppTextStyles.body.copyWith(
+                        color: themeController.isDark
+                            ? seedPalette.shade300
+                            : infoColor,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
-        const Gap(16.0),
-        Text(
-          l10n.authModal_Step2_instruction_details,
-          style: AppTextStyles.body.copyWith(
-            color: themeController.isDark
-                ? lightColor.withValues(alpha: 0.8)
-                : greyColor,
-            fontSize: 14.0,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Row(
-            spacing: 8.0,
-            children: [
-              CircleAvatar(
-                radius: 2.0,
-                backgroundColor: themeController.isDark
+            ),
+            const Gap(16.0),
+            Text(
+              l10n.authModal_Step2_instruction_details,
+              style: AppTextStyles.body.copyWith(
+                color: themeController.isDark
                     ? lightColor.withValues(alpha: 0.8)
                     : greyColor,
+                fontSize: 14.0,
               ),
-              Expanded(
-                child: Text(
-                  l10n.authModal_Step2_instruction_detailsBullet1,
-                  style: AppTextStyles.body.copyWith(
-                    color: themeController.isDark
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                spacing: 8.0,
+                children: [
+                  CircleAvatar(
+                    radius: 2.0,
+                    backgroundColor: themeController.isDark
                         ? lightColor.withValues(alpha: 0.8)
                         : greyColor,
-                    fontSize: 14.0,
                   ),
-                ),
+                  Expanded(
+                    child: Text(
+                      l10n.authModal_Step2_instruction_detailsBullet1,
+                      style: AppTextStyles.body.copyWith(
+                        color: themeController.isDark
+                            ? lightColor.withValues(alpha: 0.8)
+                            : greyColor,
+                        fontSize: 14.0,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Row(
-            spacing: 8.0,
-            children: [
-              CircleAvatar(
-                radius: 2.0,
-                backgroundColor: themeController.isDark
-                    ? lightColor.withValues(alpha: 0.75)
-                    : greyColor,
-              ),
-              Expanded(
-                child: Text(
-                  l10n.authModal_Step2_instruction_detailsBullet2,
-                  style: AppTextStyles.body.copyWith(
-                    color: themeController.isDark
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                spacing: 8.0,
+                children: [
+                  CircleAvatar(
+                    radius: 2.0,
+                    backgroundColor: themeController.isDark
                         ? lightColor.withValues(alpha: 0.75)
                         : greyColor,
-                    fontSize: 14.0,
                   ),
-                ),
+                  Expanded(
+                    child: Text(
+                      l10n.authModal_Step2_instruction_detailsBullet2,
+                      style: AppTextStyles.body.copyWith(
+                        color: themeController.isDark
+                            ? lightColor.withValues(alpha: 0.75)
+                            : greyColor,
+                        fontSize: 14.0,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
-      ],
-    )
+            ),
+          ],
+        )
         .animate()
         .fadeIn(duration: 300.ms)
         .move(begin: const Offset(0, 12), curve: Curves.easeOut);

@@ -1,3 +1,6 @@
+import 'package:busin/l10n/app_localizations.dart';
+import 'package:flutter/cupertino.dart';
+
 enum UserRole {
   student,
   staff,
@@ -11,6 +14,18 @@ enum UserRole {
         return 'Staff';
       case UserRole.admin:
         return 'Admin';
+    }
+  }
+
+  String getDisplayLabel(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (this) {
+      case UserRole.student:
+        return l10n.roleStudent;
+      case UserRole.staff:
+        return l10n.roleStaff;
+      case UserRole.admin:
+        return l10n.roleAdmin;
     }
   }
 
@@ -42,6 +57,18 @@ enum AccountStatus {
         return 'Verified';
       case AccountStatus.suspended:
         return 'Suspended';
+    }
+  }
+
+  String getDisplayLabel(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (this) {
+      case AccountStatus.pending:
+        return l10n.accountPending;
+      case AccountStatus.verified:
+        return l10n.accountVerified;
+      case AccountStatus.suspended:
+        return l10n.accountSuspended;
     }
   }
 

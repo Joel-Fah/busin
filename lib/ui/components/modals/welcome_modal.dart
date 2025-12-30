@@ -12,6 +12,8 @@ import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../l10n/app_localizations.dart';
+
 class WelcomeModal extends StatelessWidget {
   const WelcomeModal({super.key});
 
@@ -45,7 +47,7 @@ class WelcomeModal extends StatelessWidget {
         : welcomeHeaderEn;
 
     // Get user-specific welcome message
-    final welcomeData = _getWelcomeData(user?.role ?? UserRole.student);
+    final welcomeData = _getWelcomeData(user?.role ?? UserRole.student, context);
 
     return Container(
       decoration: BoxDecoration(
@@ -118,30 +120,28 @@ class WelcomeModal extends StatelessWidget {
   }
 
   /// Get welcome data based on user role
-  Map<String, String> _getWelcomeData(UserRole role) {
+  Map<String, String> _getWelcomeData(UserRole role, BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     switch (role) {
       case UserRole.student:
         return {
-          'title': 'Welcome to BusIn!',
-          'message':
-              'Hey there! We\'re excited to have you on board. Managing your bus subscriptions just got way easier. Ready to hop on?',
-          'cta': 'Let\'s Explore!',
+          'title': l10n.welcomeModal_titleStudent,
+          'message': l10n.welcomeModal_messageStudent,
+          'cta': l10n.welcomeModal_ctaStudent,
         };
 
       case UserRole.staff:
         return {
-          'title': 'Welcome to BusIn',
-          'message':
-              'Thank you for joining the BusIn team. You now have access to scan student QR codes and verify bus access. Let\'s make transportation management seamless.',
-          'cta': 'Get Started',
+          'title': l10n.welcomeModal_titleStaff,
+          'message': l10n.welcomeModal_messageStaff,
+          'cta': l10n.welcomeModal_ctaStaff,
         };
 
       case UserRole.admin:
         return {
-          'title': 'Welcome, Administrator',
-          'message':
-              'Welcome to the BusIn management dashboard. You have full access to manage subscriptions, bus stops, semesters, and oversee the entire transportation system. Let\'s streamline operations.',
-          'cta': 'Access Dashboard',
+          'title': l10n.welcomeModal_titleAdmin,
+          'message': l10n.welcomeModal_messageAdmin,
+          'cta': l10n.welcomeModal_ctaAdmin,
         };
     }
   }

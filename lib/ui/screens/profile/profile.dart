@@ -25,6 +25,7 @@ import 'package:hugeicons/hugeicons.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../controllers/semester_controller.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../components/widgets/list_subheading.dart';
 import '../../components/widgets/user_avatar.dart';
 
@@ -43,8 +44,12 @@ class ProfilePage extends StatelessWidget {
     final SemesterController _semesterController =
         Get.find<SemesterController>();
 
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
-      appBar: AppBar(title: Text("Profile")),
+      appBar: AppBar(
+        title: FittedBox(fit: BoxFit.contain, child: Text(l10n.profilePage_appBar_title)),
+      ),
       body: Stack(
         fit: StackFit.expand,
         children: [
@@ -124,7 +129,7 @@ class ProfilePage extends StatelessWidget {
                             children: [
                               TextSpan(
                                 text:
-                                    " (${authController.currentUser.value!.role.name})",
+                                    " (${authController.currentUser.value!.role.getDisplayLabel(context)})",
                                 style: AppTextStyles.body.copyWith(
                                   fontWeight: FontWeight.normal,
                                   fontVariations: [FontVariation('wght', 400)],
@@ -157,7 +162,7 @@ class ProfilePage extends StatelessWidget {
                                   style: AppTextStyles.h3,
                                 ),
                                 subtitle: Text(
-                                  "Subscriptions",
+                                  l10n.subscriptions,
                                   style: AppTextStyles.body.copyWith(
                                     fontSize: 14.0,
                                   ),
@@ -175,7 +180,7 @@ class ProfilePage extends StatelessWidget {
                                   style: AppTextStyles.h3,
                                 ),
                                 subtitle: Text(
-                                  "Scannings",
+                                  l10n.scannings,
                                   style: AppTextStyles.body.copyWith(
                                     fontSize: 14.0,
                                   ),
@@ -197,7 +202,7 @@ class ProfilePage extends StatelessWidget {
                                   style: AppTextStyles.h3,
                                 ),
                                 subtitle: Text(
-                                  "Joined",
+                                  l10n.joined,
                                   style: AppTextStyles.body.copyWith(
                                     fontSize: 14.0,
                                   ),
@@ -212,7 +217,7 @@ class ProfilePage extends StatelessWidget {
                 ],
               ),
               const Gap(64.0),
-              ListSubHeading(label: "Your data on BusIn"),
+              ListSubHeading(label: l10n.profilePage_subHeading_yourData),
               const Gap(20.0),
               Obx(() {
                 final user = authController.currentUser.value;
@@ -232,10 +237,10 @@ class ProfilePage extends StatelessWidget {
                         icon: HugeIcons.strokeRoundedUserList,
                         color: themeController.isDark ? lightColor : seedColor,
                       ),
-                      title: Text("Account info"),
+                      title: Text(l10n.profilePage_listTile_accountInfo),
                       subtitle: hasIncompleteInfo
                           ? Text(
-                              "Complete your profile information",
+                              l10n.profilePage_accountInfo_subtitle,
                               style: AppTextStyles.body.copyWith(
                                 fontSize: 14.0,
                                 color: warningColor,
@@ -267,13 +272,18 @@ class ProfilePage extends StatelessWidget {
                                     children: [
                                       HugeIcon(
                                         icon: HugeIcons.strokeRoundedAlert02,
-                                        color: lightColor,
+                                        color: themeController.isDark
+                                            ? seedColor
+                                            : lightColor,
                                         size: 12.0,
                                       ),
                                       Text(
-                                        "Action required",
-                                        style: AppTextStyles.small.copyWith(
-                                          color: lightColor,
+                                        l10n.profilePage_accountInfo_badge,
+                                        style: AppTextStyles.body.copyWith(
+                                          fontSize: 12.0,
+                                          color: themeController.isDark
+                                              ? seedColor
+                                              : lightColor,
                                         ),
                                       ),
                                     ],
@@ -305,7 +315,7 @@ class ProfilePage extends StatelessWidget {
                   icon: HugeIcons.strokeRoundedAppleVisionPro,
                   color: themeController.isDark ? lightColor : seedColor,
                 ),
-                title: Text("Appearance"),
+                title: Text(l10n.profilePage_listTile_appearance),
                 trailing: HugeIcon(
                   icon: HugeIcons.strokeRoundedArrowUpRight01,
                   color: themeController.isDark ? lightColor : seedColor,
@@ -318,15 +328,13 @@ class ProfilePage extends StatelessWidget {
               ListTile(
                 onTap: () {
                   HapticFeedback.mediumImpact();
-                  context.pushNamed(
-                    removeLeadingSlash(LegalPage.routeName),
-                  );
+                  context.pushNamed(removeLeadingSlash(LegalPage.routeName));
                 },
                 leading: HugeIcon(
                   icon: HugeIcons.strokeRoundedAudit01,
                   color: themeController.isDark ? lightColor : seedColor,
                 ),
-                title: Text("Legal"),
+                title: Text(l10n.profilePage_listTile_legal),
                 trailing: HugeIcon(
                   icon: HugeIcons.strokeRoundedArrowUpRight01,
                   color: themeController.isDark ? lightColor : seedColor,
@@ -334,7 +342,7 @@ class ProfilePage extends StatelessWidget {
               ),
               if (authController.isAdmin || authController.isStaff) ...[
                 const Gap(24.0),
-                ListSubHeading(label: "Bus Management"),
+                ListSubHeading(label: l10n.profilePage_subHeading_busManagement),
                 ListTile(
                   onTap: () {
                     HapticFeedback.mediumImpact();
@@ -346,9 +354,9 @@ class ProfilePage extends StatelessWidget {
                     icon: HugeIcons.strokeRoundedDirections02,
                     color: themeController.isDark ? lightColor : seedColor,
                   ),
-                  title: Text("Bus Stops"),
+                  title: Text(l10n.profilePage_listTile_busStops),
                   subtitle: Text(
-                    "Manage places where the bus picks up students",
+                    l10n.profilePage_busStops_subtitle,
                   ),
                   trailing: HugeIcon(
                     icon: HugeIcons.strokeRoundedArrowUpRight01,
@@ -370,11 +378,11 @@ class ProfilePage extends StatelessWidget {
                     icon: HugeIcons.strokeRoundedCalendar02,
                     color: themeController.isDark ? lightColor : seedColor,
                   ),
-                  title: Text("Semesters"),
+                  title: Text(l10n.profilePage_listTile_semesters),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Manage bus semesters duration and more"),
+                      Text(l10n.profilePage_semesters_subtitle),
                       // Active semester indicator
                       Obx(() {
                         final active = _semesterController.activeSemester.value;
@@ -440,7 +448,7 @@ class ProfilePage extends StatelessWidget {
                             icon: successIcon,
                             color: lightColor,
                           ),
-                          label: Text("Signed out successfully"),
+                          label: Text(l10n.verificationPage_signOutMessage),
                         ),
                       ),
                   );
@@ -451,7 +459,7 @@ class ProfilePage extends StatelessWidget {
                   color: errorColor,
                 ),
                 title: Text(
-                  "Sign out",
+                  l10n.profilePage_listTile_signOut,
                   style: Theme.of(
                     context,
                   ).listTileTheme.titleTextStyle?.copyWith(color: errorColor),
@@ -492,6 +500,7 @@ class AppInfoBar extends StatefulWidget {
 class _AppInfoBarState extends State<AppInfoBar> {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return FutureBuilder(
       future: PackageInfo.fromPlatform(),
       builder: (context, snapshot) {
@@ -501,14 +510,14 @@ class _AppInfoBarState extends State<AppInfoBar> {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Text(
-              '©2025 - All rights reserved - ${info.appName} v${info.version}+${info.buildNumber}',
+              '©2025 - ${l10n.profilePage_appInfo_rights} - ${info.appName} v${info.version}+${info.buildNumber}',
               style: AppTextStyles.small,
             ),
           );
         } else {
           if (snapshot.hasError) {
             if (kDebugMode) {
-              print('Error fetching package info: ${snapshot.error}');
+              debugPrint('Error fetching package info: ${snapshot.error}');
             }
           }
           return SizedBox.shrink();

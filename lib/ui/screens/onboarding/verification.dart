@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../controllers/auth_controller.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/actors/roles.dart';
 import '../../../utils/constants.dart';
 import '../../../utils/utils.dart';
@@ -35,6 +36,8 @@ class _VerificationPageState extends State<VerificationPage> {
   }
 
   Future<void> _checkVerificationStatus() async {
+    final l10n = AppLocalizations.of(context)!;
+
     setState(() {
       _isChecking = true;
     });
@@ -58,7 +61,7 @@ class _VerificationPageState extends State<VerificationPage> {
               buildSnackBar(
                 backgroundColor: errorColor,
                 prefixIcon: HugeIcon(icon: errorIcon, color: lightColor),
-                label: const Text('Your account has been rejected.'),
+                label: Text(l10n.verificationPage_rejectMessage),
               ),
             );
         }
@@ -66,12 +69,17 @@ class _VerificationPageState extends State<VerificationPage> {
       // If still pending, just update the UI
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error checking status: ${e.toString()}'),
-            backgroundColor: errorColor,
-          ),
-        );
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            buildSnackBar(
+              prefixIcon: HugeIcon(icon: errorIcon, color: lightColor),
+              label: Text(
+                '${l10n.verificationPage_checkStatusError} ${e.toString()}',
+              ),
+              backgroundColor: errorColor,
+            ),
+          );
       }
     } finally {
       if (mounted) {
@@ -83,6 +91,8 @@ class _VerificationPageState extends State<VerificationPage> {
   }
 
   Future<void> _handleVerified() async {
+    final l10n = AppLocalizations.of(context)!;
+
     try {
       if (mounted) {
         // Show success message
@@ -92,7 +102,7 @@ class _VerificationPageState extends State<VerificationPage> {
             buildSnackBar(
               backgroundColor: successColor,
               prefixIcon: HugeIcon(icon: successIcon, color: lightColor),
-              label: const Text('Account verified! You now have staff access.'),
+              label: Text(l10n.verificationPage_approvedMessage),
             ),
           );
 
@@ -106,7 +116,9 @@ class _VerificationPageState extends State<VerificationPage> {
           ..showSnackBar(
             buildSnackBar(
               prefixIcon: HugeIcon(icon: errorIcon, color: lightColor),
-              label: Text('Error navigating: ${e.toString()}'),
+              label: Text(
+                '${l10n.verificationPage_navigationError} ${e.toString()}',
+              ),
               backgroundColor: errorColor,
             ),
           );
@@ -115,6 +127,7 @@ class _VerificationPageState extends State<VerificationPage> {
   }
 
   Future<void> _signOut() async {
+    final l10n = AppLocalizations.of(context)!;
     await _authController.signOut().then((_) {
       snackBarKey.currentState
         ?..hideCurrentSnackBar()
@@ -122,7 +135,7 @@ class _VerificationPageState extends State<VerificationPage> {
           buildSnackBar(
             backgroundColor: successColor,
             prefixIcon: HugeIcon(icon: successIcon, color: lightColor),
-            label: const Text('Signed out successfully.'),
+            label: Text(l10n.verificationPage_signOutMessage),
           ),
         );
     });
@@ -134,6 +147,7 @@ class _VerificationPageState extends State<VerificationPage> {
     final isPending = userStatus == AccountStatus.pending;
     final isRejected = userStatus == AccountStatus.suspended;
     final isVerified = userStatus == AccountStatus.verified;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: SafeArea(
@@ -141,44 +155,17 @@ class _VerificationPageState extends State<VerificationPage> {
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 48.0),
           children: [
             // Logo or Icon
-            Container(
-                  padding: const EdgeInsets.all(32.0),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: [
-                        (isRejected ? errorColor : accentColor).withValues(alpha: 0.2),
-                        (isRejected ? errorColor : seedColor).withValues(alpha: 0.1),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                  ),
-                  child: HugeIcon(
-                    icon: isRejected
-                        ? HugeIcons.strokeRoundedCancelCircle
-                        : HugeIcons.strokeRoundedUserShield01,
-                    color: isRejected ? errorColor : accentColor,
-                    size: 64.0,
-                  ),
-                )
-                .animate()
-                .fadeIn(duration: 400.ms)
-                .scale(
-                  begin: const Offset(0.8, 0.8),
-                  end: const Offset(1, 1),
-                  duration: 500.ms,
-                  curve: Curves.easeOut,
-                ),
+            Image.asset(waiting, height: 160.0),
+
             const Gap(32.0),
 
             // Title
             Text(
                   isRejected
-                      ? 'Verification Rejected'
+                      ? l10n.verificationPage_titleRejected
                       : isPending
-                          ? 'Pending Verification'
-                          : 'Verification Complete',
+                      ? l10n.verificationPage_titlePending
+                      : l10n.verificationPage_titleComplete,
                   style: AppTextStyles.h1.copyWith(
                     fontWeight: FontWeight.bold,
                     fontSize: 32.0,
@@ -193,10 +180,10 @@ class _VerificationPageState extends State<VerificationPage> {
             // Description
             Text(
                   isRejected
-                      ? 'Your staff account request has been declined by an administrator. Please contact support for more information.'
+                      ? l10n.verificationPage_descriptionRejected
                       : isPending
-                          ? 'Your staff account is awaiting admin approval. You will be notified once your account has been verified.'
-                          : 'Your account has been verified! You can now access the application.',
+                      ? l10n.verificationPage_descriptionPending
+                      : l10n.verificationPage_descriptionComplete,
                   style: AppTextStyles.body.copyWith(
                     color: themeController.isDark
                         ? lightColor.withValues(alpha: 0.7)
@@ -214,11 +201,20 @@ class _VerificationPageState extends State<VerificationPage> {
             Container(
                   padding: const EdgeInsets.all(24.0),
                   decoration: BoxDecoration(
-                    color: (isRejected ? errorColor : isVerified ? successColor : infoColor)
-                        .withValues(alpha: 0.1),
+                    color:
+                        (isRejected
+                                ? errorColor
+                                : isVerified
+                                ? successColor
+                                : infoColor)
+                            .withValues(alpha: 0.1),
                     borderRadius: borderRadius * 2.75,
                     border: Border.all(
-                      color: isRejected ? errorColor : isVerified ? successColor : infoColor,
+                      color: isRejected
+                          ? errorColor
+                          : isVerified
+                          ? successColor
+                          : infoColor,
                       width: 1,
                     ),
                   ),
@@ -231,20 +227,28 @@ class _VerificationPageState extends State<VerificationPage> {
                             icon: isRejected
                                 ? HugeIcons.strokeRoundedCancelCircle
                                 : isVerified
-                                    ? HugeIcons.strokeRoundedCheckmarkCircle02
-                                    : HugeIcons.strokeRoundedClock01,
-                            color: isRejected ? errorColor : isVerified ? successColor : infoColor,
+                                ? HugeIcons.strokeRoundedCheckmarkCircle02
+                                : HugeIcons.strokeRoundedClock01,
+                            color: isRejected
+                                ? errorColor
+                                : isVerified
+                                ? successColor
+                                : infoColor,
                             size: 20.0,
                           ),
                           const Gap(8.0),
                           Text(
                             isRejected
-                                ? 'Status: Rejected'
+                                ? l10n.statusRejected
                                 : isVerified
-                                    ? 'Status: Verified'
-                                    : 'Status: Pending',
+                                ? l10n.statusApproved
+                                : l10n.statusPending,
                             style: AppTextStyles.h3.copyWith(
-                              color: isRejected ? errorColor : isVerified ? successColor : infoColor,
+                              color: isRejected
+                                  ? errorColor
+                                  : isVerified
+                                  ? successColor
+                                  : infoColor,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -253,12 +257,16 @@ class _VerificationPageState extends State<VerificationPage> {
                       const Gap(16.0),
                       Text(
                         isRejected
-                            ? 'Your request was not approved. You can try again by creating a new account or contact an administrator for assistance.'
+                            ? l10n.verificationPage_infoAlert_descriptionRejected
                             : isVerified
-                                ? 'Your account is ready! Click below to access the application.'
-                                : 'An admin will review your account shortly. This usually takes less than 24 hours.',
+                            ? l10n.verificationPage_infoAlert_descriptionVerified
+                            : l10n.verificationPage_infoAlert_descriptionPending,
                         style: AppTextStyles.body.copyWith(
-                          color: isRejected ? errorColor : isVerified ? successColor : infoColor,
+                          color: isRejected
+                              ? errorColor
+                              : isVerified
+                              ? successColor
+                              : infoColor,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -273,14 +281,15 @@ class _VerificationPageState extends State<VerificationPage> {
             // Action Button (Check Status or Continue)
             if (isVerified)
               PrimaryButton.icon(
-                    onPressed: () => context.goNamed(removeLeadingSlash(HomePage.routeName)),
+                    onPressed: () =>
+                        context.goNamed(removeLeadingSlash(HomePage.routeName)),
                     icon: const HugeIcon(
                       icon: HugeIcons.strokeRoundedArrowRight01,
                       color: lightColor,
                       size: 20.0,
                     ),
                     label: Text(
-                      'Continue to App',
+                      l10n.verificationPage_ctaVerified,
                       style: AppTextStyles.body.copyWith(
                         fontWeight: FontWeight.w600,
                         fontSize: 16.0,
@@ -310,7 +319,9 @@ class _VerificationPageState extends State<VerificationPage> {
                             size: 20.0,
                           ),
                     label: Text(
-                      _isChecking ? 'Checking...' : 'Check Status',
+                      _isChecking
+                          ? l10n.verificationPage_ctaPendingLoading
+                          : l10n.verificationPage_ctaPending,
                       style: AppTextStyles.body.copyWith(
                         fontWeight: FontWeight.w600,
                         fontSize: 16.0,
@@ -331,7 +342,7 @@ class _VerificationPageState extends State<VerificationPage> {
                     size: 20.0,
                   ),
                   label: Text(
-                    'Sign Out',
+                    l10n.verificationPage_ctaSignOut,
                     style: AppTextStyles.body.copyWith(
                       fontWeight: FontWeight.w600,
                       fontSize: 16.0,
@@ -345,7 +356,7 @@ class _VerificationPageState extends State<VerificationPage> {
 
             // Help Text
             Text(
-              'Need help? Contact an administrator.',
+              l10n.verificationPage_labelSupport,
               style: AppTextStyles.small.copyWith(
                 color: themeController.isDark
                     ? lightColor.withValues(alpha: 0.5)

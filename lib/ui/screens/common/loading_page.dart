@@ -1,3 +1,4 @@
+import 'package:busin/l10n/app_localizations.dart';
 import 'package:busin/utils/constants.dart';
 import 'package:busin/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ class LoadingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: Center(
         child: Column(
@@ -27,7 +29,7 @@ class LoadingPage extends StatelessWidget {
                 )
                 .shimmer(color: Colors.grey, duration: 2000.ms),
             Text(
-              'Loading your journey...',
+              l10n.loadingPage_label,
               style: AppTextStyles.body.copyWith(
                 color: themeController.isDark ? Colors.white70 : Colors.black87,
                 fontStyle: FontStyle.italic,

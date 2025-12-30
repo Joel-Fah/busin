@@ -42,6 +42,7 @@ abstract class BaseUser {
   final Gender? gender;
   final DateTime? createdAt;
   final DateTime? lastSignInAt;
+  final DateTime? updatedAt;
 
   const BaseUser({
     required this.id,
@@ -54,6 +55,7 @@ abstract class BaseUser {
     this.gender,
     this.createdAt,
     this.lastSignInAt,
+    this.updatedAt,
   });
 
   // ----- utilities -----
@@ -95,6 +97,7 @@ abstract class BaseUser {
     'gender': gender?.name,
     'createdAt': createdAt?.toIso8601String(),
     'lastSignInAt': lastSignInAt?.toIso8601String(),
+    'updatedAt': updatedAt?.toIso8601String(),
   };
 
   /* ----- helpers for auth/domain/format ----- */

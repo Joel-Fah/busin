@@ -313,4 +313,25 @@ class AuthController extends GetxController {
       rethrow;
     }
   }
+
+  /// Update user profile information
+  Future<void> updateUserProfile(Map<String, dynamic> updates) async {
+    final user = currentUser.value;
+    if (user == null) {
+      throw StateError('No authenticated user');
+    }
+
+    try {
+      await _auth.updateUserProfile(
+        userId: user.id,
+        updates: updates,
+      );
+
+      // Reload user data to reflect the changes
+      await reloadCurrentUser();
+    } catch (e) {
+      errorMessage?.value = e.toString();
+      rethrow;
+    }
+  }
 }
