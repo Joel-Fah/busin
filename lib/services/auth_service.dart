@@ -164,6 +164,7 @@ class AuthService {
         'phone': phone,
         'createdAt': now.toIso8601String(),
         'lastSignInAt': now.toIso8601String(),
+        'updatedAt': now.toIso8601String(),
       };
 
       // Add role-specific fields
@@ -210,6 +211,31 @@ class AuthService {
     } catch (e) {
       if (kDebugMode) {
         debugPrint('[AuthService] updateOrCreateUserDocument error: $e');
+      }
+      rethrow;
+    }
+  }
+
+  /// Update user profile information
+  Future<void> updateUserProfile({
+    required String userId,
+    required Map<String, dynamic> updates,
+  }) async {
+    try {
+      // Always update the updatedAt timestamp
+      final updateData = {
+        ...updates,
+        'updatedAt': DateTime.now().toIso8601String(),
+      };
+
+      await _db.collection('users').doc(userId).update(updateData);
+
+      if (kDebugMode) {
+        debugPrint('[AuthService] Updated user profile: $userId');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[AuthService] updateUserProfile error: $e');
       }
       rethrow;
     }

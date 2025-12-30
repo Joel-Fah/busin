@@ -117,9 +117,11 @@ const String studentMale = 'assets/images/student_male.png';
 const String studentFemale = 'assets/images/student_female.png';
 const String staff = 'assets/images/staff.png';
 const String admin = 'assets/images/admin.png';
+const String waiting = 'assets/images/waiting.png';
 
 // Icons & Flags
 const String googleIcon = 'assets/images/icons/google.svg';
+const String googleIconColor = 'assets/images/icons/google_color.svg';
 const String usaFlag = 'assets/images/flags/usa.png';
 const String franceFlag = 'assets/images/flags/france.png';
 
@@ -238,5 +240,25 @@ class AppInputBorders {
   );
 }
 
-// Create a Cloudinary instance and set your cloud name.
-// var cloudinary=Cloudinary.fromStringUrl('cloudinary://${dotenv.env['CLOUDINARY_API_KEY']!}:${dotenv.env['CLOUDINARY_API_SECRET']!}@CLOUD_NAME');
+// Departments
+const List<String> departments = ['ICT', 'BMS'];
+
+// Programs by department
+const Map<String, List<String>> programsByDepartment = {
+  'ICT': [
+    'Computer Science',
+    'Software Engineering',
+    'Cybersecurity',
+    'Data Science',
+    'Information Systems & Networking',
+    'ICT',
+  ],
+  'BMS': [
+    'Business Administration',
+    'Marketing and Communication',
+    'Human Resource Management',
+    'Finance and Accounting',
+    'International Business',
+    'Entrepreneurship and Innovation',
+  ],
+};

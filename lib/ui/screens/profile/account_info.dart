@@ -1,18 +1,20 @@
 import 'package:busin/controllers/auth_controller.dart';
+import 'package:busin/l10n/app_localizations.dart';
 import 'package:busin/models/actors/base_user.dart';
 import 'package:busin/models/actors/roles.dart';
 import 'package:busin/models/actors/student.dart';
 import 'package:busin/ui/components/widgets/buttons/primary_button.dart';
 import 'package:busin/ui/components/widgets/default_snack_bar.dart';
 import 'package:busin/ui/components/widgets/form_fields/simple_text_field.dart';
+import 'package:busin/ui/components/widgets/metadata_section.dart';
 import 'package:busin/ui/components/widgets/user_avatar.dart';
 import 'package:busin/utils/constants.dart';
 import 'package:busin/utils/utils.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -29,7 +31,6 @@ class AccountInfoPage extends StatefulWidget {
 class _AccountInfoPageState extends State<AccountInfoPage> {
   final AuthController _authController = Get.find<AuthController>();
   final _formKey = GlobalKey<FormState>();
-  final _db = FirebaseFirestore.instance;
 
   // Form controllers
   final _phoneController = TextEditingController();
@@ -44,84 +45,9 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
   bool _isEditMode = false;
   bool _isSaving = false;
 
-  // Departments
-  static const List<String> _departments = ['ICT', 'BMS'];
-
-  // Programs by department
-  static const Map<String, List<String>> _programsByDepartment = {
-    'ICT': [
-      'Computer Science',
-      'Software Engineering',
-      'Cybersecurity',
-      'Data Science',
-      'Information Systems & Networking',
-      'ICT',
-    ],
-    'BMS': [
-      'Business Administration',
-      'Marketing and Communication',
-      'Human Resource Management',
-      'Finance and Accounting',
-      'International Business',
-      'Entrepreneurship and Innovation',
-    ],
-  };
-
   List<String> get _availablePrograms {
     if (_selectedDepartment == null) return [];
-    return _programsByDepartment[_selectedDepartment] ?? [];
-  }
-
-  // Validation methods
-  String? _validatePhone(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'Phone number is required';
-    }
-
-    // Remove spaces and special characters
-    final cleanedPhone = value.replaceAll(RegExp(r'[\s\-\(\)]'), '');
-
-    // Cameroon phone number validation
-    // Format: +237XXXXXXXXX or 237XXXXXXXXX or 6XXXXXXXX or 2XXXXXXXX
-    final RegExp cameroonPhoneRegex = RegExp(r'^(\+?237|237)?[26]\d{8}$');
-
-    if (!cameroonPhoneRegex.hasMatch(cleanedPhone)) {
-      return 'Please enter a valid Cameroon phone number';
-    }
-
-    return null;
-  }
-
-  String? _validateMatricule(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'Student ID is required';
-    }
-
-    final matricule = value.trim().toUpperCase();
-
-    // Format: ICTU<year><4digits> = 12 characters
-    if (matricule.length != 12) {
-      return 'Student ID must be 12 characters long';
-    }
-
-    if (!matricule.startsWith('ICTU')) {
-      return 'Student ID must start with ICTU';
-    }
-
-    // Extract year (characters 4-7)
-    final yearPart = matricule.substring(4, 8);
-    final year = int.tryParse(yearPart);
-    if (year == null || year < 2000 || year > DateTime.now().year + 1) {
-      return 'Invalid year in Student ID';
-    }
-
-    // Extract digits (characters 8-11)
-    final digitsPart = matricule.substring(8, 12);
-    if (int.tryParse(digitsPart) == null) {
-      return 'Last 4 characters must be digits';
-    }
-
-    return null;
+    return programsByDepartment[_selectedDepartment] ?? [];
   }
 
   @override
@@ -160,6 +86,7 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
   }
 
   Future<void> _saveChanges() async {
+    final l10n = AppLocalizations.of(context)!;
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isSaving = true);
@@ -189,10 +116,8 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
         });
       }
 
-      await _db.collection('users').doc(user.id).update(updates);
-
-      // Reload user data
-      await _authController.reloadCurrentUser();
+      // Use auth controller's updateUserProfile method
+      await _authController.updateUserProfile(updates);
 
       if (!mounted) return;
 
@@ -205,7 +130,7 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
         ..showSnackBar(
           buildSnackBar(
             prefixIcon: const Icon(Icons.check_circle, color: lightColor),
-            label: const Text('Account information updated successfully'),
+            label: Text(l10n.accountInfoPage_updateSuccessful),
             backgroundColor: successColor,
           ),
         );
@@ -217,7 +142,7 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
         ..showSnackBar(
           buildSnackBar(
             prefixIcon: const Icon(Icons.error, color: lightColor),
-            label: Text('Failed to update: ${e.toString()}'),
+            label: Text('${l10n.accountInfoPage_updateFailed} ${e.toString()}'),
             backgroundColor: errorColor,
           ),
         );
@@ -255,21 +180,22 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
   }
 
   List<String> get _missingFields {
+    final l10n = AppLocalizations.of(context)!;
     final user = _authController.currentUser.value;
     if (user == null) return [];
 
     List<String> missing = [];
 
     if (user.phone == null || user.phone!.isEmpty) {
-      missing.add('Phone Number');
+      missing.add(l10n.accountInfoPage_editableField_phoneNumber);
     }
 
     if (user is Student) {
       if (user.matricule == null || user.matricule!.isEmpty) {
-        missing.add('Matricule');
+        missing.add(l10n.accountInfoPage_editableField_studentID);
       }
       if (user.address == null || user.address!.isEmpty) {
-        missing.add('Street Address');
+        missing.add(l10n.accountInfoPage_editableField_streetAddress);
       }
     }
 
@@ -298,6 +224,7 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return PopScope(
       canPop: !_isEditMode,
       onPopInvokedWithResult: (didPop, result) {
@@ -314,7 +241,7 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
           appBar: AppBar(
             title: FittedBox(
               fit: BoxFit.contain,
-              child: const Text('Account Information'),
+              child: Text(l10n.profilePage_listTile_accountInfo),
             ),
             bottom: _hasIncompleteInfo && !_isEditMode
                 ? PreferredSize(
@@ -354,11 +281,16 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
                                     title: Row(
                                       spacing: 4.0,
                                       children: [
-                                        const Text('Complete Your Profile'),
+                                        Text(
+                                          l10n.profilePage_accountInfo_subtitle,
+                                          style: AppTextStyles.h4.copyWith(
+                                            color: warningColor,
+                                          ),
+                                        ),
                                       ],
                                     ),
                                     subtitle: Text(
-                                      'Missing: ${_missingFields.join(', ')}',
+                                      '${l10n.accountInfoPage_missingLabel} ${_missingFields.join(', ')}',
                                     ),
                                   ),
                                 )
@@ -378,9 +310,9 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
                   color: _isEditMode ? errorColor : accentColor,
                 ),
                 onPressed: _isSaving ? null : _toggleEditMode,
-                tooltip: _isEditMode ? 'Cancel' : 'Edit',
+                tooltip: _isEditMode ? l10n.cancel : l10n.edit,
               ),
-              const Gap(8),
+              const Gap(8.0),
             ],
           ),
           body: Obx(() {
@@ -396,33 +328,42 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
                 children: [
                   // Google Account Info Section (Hidden in edit mode)
                   if (!_isEditMode) ...[
-                    _buildSectionHeader('Google Account Information'),
-                    const Gap(12),
+                    _buildSectionHeader(
+                      l10n.accountInfoPage_sectionHeader_google,
+                    ),
+                    const Gap(12.0),
                     _buildRoleBadge(
                       user.role,
                     ).animate().fadeIn(duration: 300.ms, delay: 10.ms),
-                    const Gap(12),
+                    const Gap(12.0),
                     _buildReadOnlyField(
-                      label: 'Provider',
+                      label: l10n.accountInfoPage_googleSection_provider,
+                      leading: Row(
+                        spacing: 4.0,
+                        children: [
+                          SvgPicture.asset(googleIconColor),
+                          Image.asset(ictULogo, width: 24),
+                        ],
+                      ),
                       value: _authProvider,
                       icon: HugeIcons.strokeRoundedGoogleDoc,
                     ).animate().fadeIn(duration: 300.ms, delay: 50.ms),
-                    const Gap(12),
+                    const Gap(12.0),
                     _buildReadOnlyField(
-                      label: 'Display name',
+                      label: l10n.accountInfoPage_googleSection_displayName,
                       value: user.name,
                       icon: HugeIcons.strokeRoundedUser,
                       showNameWarning: !_hasDisplayName,
                     ).animate().fadeIn(duration: 300.ms, delay: 100.ms),
-                    const Gap(12),
+                    const Gap(12.0),
                     _buildReadOnlyField(
-                      label: 'Email address',
+                      label: l10n.accountInfoPage_googleSection_email,
                       value: user.email,
                       icon: HugeIcons.strokeRoundedMail01,
                     ).animate().fadeIn(duration: 300.ms, delay: 150.ms),
-                    const Gap(12),
+                    const Gap(12.0),
                     _buildReadOnlyField(
-                      label: 'Account Status',
+                      label: l10n.accountInfoPage_googleSection_accountStatus,
                       value: user.status.label,
                       icon: HugeIcons.strokeRoundedCheckmarkBadge02,
                       valueColor: user.status.isVerified
@@ -431,24 +372,24 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
                       backgroundColor: successColor.withValues(alpha: 0.1),
                       borderColor: successColor,
                     ).animate().fadeIn(duration: 300.ms, delay: 200.ms),
-                    const Gap(32),
+                    const Gap(32.0),
                   ],
 
                   // Editable Fields Section
                   _buildSectionHeader(
                     _isEditMode
-                        ? 'Update Your Information'
-                        : 'Contact Information',
+                        ? l10n.accountInfoPage_sectionHeader_update
+                        : l10n.accountInfoPage_sectionHeader_contact,
                   ),
-                  const Gap(12),
+                  const Gap(12.0),
                   _buildEditableField(
                     controller: _phoneController,
-                    label: 'Phone Number',
+                    label: l10n.accountInfoPage_editableField_phoneNumber,
                     icon: HugeIcons.strokeRoundedSmartPhone01,
-                    hint: 'e.g., +237 6XX XXX XXX',
+                    hint: 'e.g., +237 6XX XXX XXX, 6XX XXX XXX',
                     keyboardType: TextInputType.phone,
                     required: true,
-                    validator: _validatePhone,
+                    validator: validatePhone,
                   ).animate().fadeIn(duration: 300.ms, delay: 300.ms),
                   const Gap(12),
                   _buildGenderSelector().animate().fadeIn(
@@ -457,34 +398,36 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
                   ),
 
                   if (user is Student) ...[
-                    const Gap(32),
+                    const Gap(32.0),
                     _buildSectionHeader(
-                      _isEditMode ? 'Student Details' : 'Student Information',
+                      _isEditMode
+                          ? l10n.accountInfoPage_sectionHeader_studentDetails
+                          : l10n.accountInfoPage_sectionHeader_studentInfo,
                     ),
-                    const Gap(12),
+                    const Gap(12.0),
                     _buildEditableField(
                       controller: _matriculeController,
-                      label: 'Student ID (Matricule)',
+                      label: l10n.accountInfoPage_editableField_studentID,
                       icon: HugeIcons.strokeRoundedIdVerified,
                       hint: 'e.g., ICTU20240001',
                       required: true,
-                      validator: _validateMatricule,
+                      validator: validateMatricule,
                       textCapitalization: TextCapitalization.characters,
                     ).animate().fadeIn(duration: 300.ms, delay: 350.ms),
-                    const Gap(12),
+                    const Gap(12.0),
                     _buildDepartmentSelector().animate().fadeIn(
                       duration: 300.ms,
                       delay: 400.ms,
                     ),
-                    const Gap(12),
+                    const Gap(12.0),
                     _buildProgramSelector().animate().fadeIn(
                       duration: 300.ms,
                       delay: 450.ms,
                     ),
-                    const Gap(12),
+                    const Gap(12.0),
                     _buildEditableField(
                       controller: _addressController,
-                      label: 'Street Address',
+                      label: l10n.accountInfoPage_editableField_streetAddress,
                       icon: HugeIcons.strokeRoundedLocation06,
                       textCapitalization: TextCapitalization.words,
                       hint: 'Enter your street address',
@@ -523,6 +466,15 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
                         .animate()
                         .fadeIn(duration: 300.ms, delay: 550.ms)
                         .slideY(begin: 0.2, end: 0, duration: 300.ms),
+
+                  // Metadata section
+                  if (!_isEditMode) ...[
+                    const Gap(24.0),
+                    _buildMetadataSection(
+                      user,
+                    ).animate().fadeIn(duration: 300.ms, delay: 600.ms),
+                  ],
+
                   const Gap(16),
                 ],
               ),
@@ -542,13 +494,13 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
     String badgeLabel;
     String badgeDescription;
     String roleImage;
+    final l10n = AppLocalizations.of(context)!;
 
     switch (role) {
       case UserRole.student:
         badgeColor = infoColor;
-        badgeLabel = 'Student Account';
-        badgeDescription =
-            'Make subscriptions to the bus service and make the most out of BusIn.';
+        badgeLabel = l10n.accountInfoPage_roleBadge_labelStudent;
+        badgeDescription = l10n.accountInfoPage_roleBadge_descriptionStudent;
 
         // Select image based on gender for students
         if (_selectedGender == Gender.male) {
@@ -561,16 +513,14 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
         break;
       case UserRole.staff:
         badgeColor = accentColor;
-        badgeLabel = 'Staff Member';
-        badgeDescription =
-            'Manage bus services and assist students with their transportation needs.';
+        badgeLabel = l10n.accountInfoPage_roleBadge_labelStaff;
+        badgeDescription = l10n.accountInfoPage_roleBadge_descriptionStaff;
         roleImage = staff;
         break;
       case UserRole.admin:
         badgeColor = successColor;
-        badgeLabel = 'Administrator';
-        badgeDescription =
-            'Oversee the entire bus management system and ensure smooth operations.';
+        badgeLabel = l10n.accountInfoPage_roleBadge_labelAdmin;
+        badgeDescription = l10n.accountInfoPage_roleBadge_descriptionAdmin;
         roleImage = admin;
         break;
     }
@@ -619,18 +569,24 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
     bool showNameWarning = false,
     Color? backgroundColor,
     Color? borderColor,
+    Widget? leading,
   }) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: backgroundColor ?? (themeController.isDark
-            ? lightColor.withValues(alpha: 0.1)
-            : greyColor.withValues(alpha: 0.05)),
+        color:
+            backgroundColor ??
+            (themeController.isDark
+                ? lightColor.withValues(alpha: 0.1)
+                : greyColor.withValues(alpha: 0.05)),
         borderRadius: borderRadius * 2.25,
         border: Border.all(
-          color: borderColor ?? (themeController.isDark
-              ? lightColor.withValues(alpha: 0.2)
-              : greyColor.withValues(alpha: 0.3)),
+          color:
+              borderColor ??
+              (themeController.isDark
+                  ? lightColor.withValues(alpha: 0.2)
+                  : greyColor.withValues(alpha: 0.3)),
           width: 1,
         ),
       ),
@@ -639,12 +595,15 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
         children: [
           Row(
             children: [
-              HugeIcon(
-                icon: icon,
-                color:
-                    valueColor ??
-                    (themeController.isDark ? seedPalette.shade50 : seedColor),
-              ),
+              leading ??
+                  HugeIcon(
+                    icon: icon,
+                    color:
+                        valueColor ??
+                        (themeController.isDark
+                            ? seedPalette.shade50
+                            : seedColor),
+                  ),
               const Gap(16),
               Expanded(
                 child: Column(
@@ -680,7 +639,7 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
                   const Gap(8),
                   Expanded(
                     child: Text(
-                      'No display name set. Using email username as fallback. Update your Google account to set a display name.',
+                      l10n.accountInfoPage_googleSection_displayNameWarning,
                       style: AppTextStyles.body.copyWith(
                         color: lightColor,
                         fontSize: 14.0,
@@ -709,15 +668,18 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
     Color? backgroundColor,
   }) {
     final hasValue = controller.text.isNotEmpty;
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       padding: _isEditMode ? EdgeInsets.zero : const EdgeInsets.all(16),
       decoration: _isEditMode
           ? null
           : BoxDecoration(
-              color: backgroundColor ?? (themeController.isDark
-                  ? lightColor.withValues(alpha: 0.1)
-                  : greyColor.withValues(alpha: 0.05)),
+              color:
+                  backgroundColor ??
+                  (themeController.isDark
+                      ? lightColor.withValues(alpha: 0.1)
+                      : greyColor.withValues(alpha: 0.05)),
               borderRadius: borderRadius * 2.25,
               border: Border.all(
                 color: themeController.isDark
@@ -743,7 +705,10 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
                   (required
                       ? (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return '$label is required';
+                            return l10n
+                                .accountInfoPage_editableField_errorRequired(
+                                  label,
+                                );
                           }
                           return null;
                         }
@@ -765,7 +730,9 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
                     children: [
                       Text(label, style: AppTextStyles.small),
                       Text(
-                        hasValue ? controller.text : 'Not provided',
+                        hasValue
+                            ? controller.text
+                            : l10n.accountInfoPage_editableField_departmentNotProvided,
                         style: AppTextStyles.body.copyWith(
                           fontStyle: hasValue
                               ? FontStyle.normal
@@ -782,6 +749,7 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
 
   Widget _buildGenderSelector() {
     final hasValue = _selectedGender != null;
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -790,6 +758,8 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
             ? (themeController.isDark
                   ? lightColor.withValues(alpha: 0.1)
                   : seedPalette.shade50.withValues(alpha: 0.5))
+            : themeController.isDark
+            ? Colors.pinkAccent.withValues(alpha: 0.1)
             : Colors.pink.withValues(alpha: 0.1),
         borderRadius: borderRadius * 2.25,
         border: Border.all(
@@ -797,6 +767,8 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
               ? (themeController.isDark
                     ? seedPalette.shade50.withValues(alpha: 0.4)
                     : seedColor)
+              : themeController.isDark
+              ? Colors.pinkAccent.shade200
               : Colors.pink.shade200,
         ),
       ),
@@ -804,7 +776,10 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
           ? Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Gender', style: AppTextStyles.body),
+                Text(
+                  l10n.accountInfoPage_editableField_gender,
+                  style: AppTextStyles.body,
+                ),
                 const Gap(8),
                 Wrap(
                   spacing: 8,
@@ -855,19 +830,30 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
               children: [
                 HugeIcon(
                   icon: HugeIcons.strokeRoundedFavourite,
-                  color: Colors.pink,
+                  color: themeController.isDark
+                      ? Colors.pinkAccent
+                      : Colors.pink,
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Gender', style: AppTextStyles.small),
                     Text(
-                      hasValue ? _selectedGender!.label : 'Not specified',
+                      l10n.accountInfoPage_editableField_gender,
+                      style: AppTextStyles.small,
+                    ),
+                    Text(
+                      hasValue
+                          ? _selectedGender!.label
+                          : l10n.accountInfoPage_editableField_genderNotSpecified,
                       style: AppTextStyles.body.copyWith(
                         fontStyle: hasValue
                             ? FontStyle.normal
                             : FontStyle.italic,
-                        color: hasValue ? Colors.pink : null,
+                        color: hasValue
+                            ? themeController.isDark
+                                  ? Colors.pinkAccent
+                                  : Colors.pink
+                            : null,
                       ),
                     ),
                   ],
@@ -879,6 +865,7 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
 
   Widget _buildDepartmentSelector() {
     final hasValue = _selectedDepartment != null;
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -905,12 +892,15 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
           ? Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Department', style: AppTextStyles.body),
+                Text(
+                  l10n.accountInfoPage_editableField_department,
+                  style: AppTextStyles.body,
+                ),
                 const Gap(8),
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
-                  children: _departments.map((department) {
+                  children: departments.map((department) {
                     final isSelected = _selectedDepartment == department;
                     return ChoiceChip(
                       label: Text(department),
@@ -969,9 +959,14 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Department', style: AppTextStyles.small),
                       Text(
-                        hasValue ? _selectedDepartment! : 'Not provided',
+                        l10n.accountInfoPage_editableField_department,
+                        style: AppTextStyles.small,
+                      ),
+                      Text(
+                        hasValue
+                            ? _selectedDepartment!
+                            : l10n.accountInfoPage_editableField_departmentNotProvided,
                         style: AppTextStyles.body.copyWith(
                           fontStyle: hasValue
                               ? FontStyle.normal
@@ -988,6 +983,7 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
 
   Widget _buildProgramSelector() {
     final hasValue = _selectedProgram != null;
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -1014,7 +1010,10 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
           ? Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Program (Major)', style: AppTextStyles.body),
+                Text(
+                  l10n.accountInfoPage_editableField_program,
+                  style: AppTextStyles.body,
+                ),
                 const Gap(8),
                 if (_selectedDepartment == null)
                   Container(
@@ -1032,7 +1031,7 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
                         const Gap(8),
                         Expanded(
                           child: Text(
-                            'Please select a department first',
+                            l10n.accountInfoPage_editableField_programInstruction,
                             style: AppTextStyles.small.copyWith(
                               color: infoColor,
                             ),
@@ -1101,9 +1100,14 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Program (Major)', style: AppTextStyles.small),
                       Text(
-                        hasValue ? _selectedProgram! : 'Not provided',
+                        l10n.accountInfoPage_editableField_program,
+                        style: AppTextStyles.small,
+                      ),
+                      Text(
+                        hasValue
+                            ? _selectedProgram!
+                            : l10n.accountInfoPage_editableField_programNotProvided,
                         style: AppTextStyles.body.copyWith(
                           fontStyle: hasValue
                               ? FontStyle.normal
@@ -1115,6 +1119,46 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
                 ),
               ],
             ),
+    );
+  }
+
+  Widget _buildMetadataSection(BaseUser user) {
+    final List<MetadataEntry> entries = [];
+    final l10n = AppLocalizations.of(context)!;
+
+    if (user.createdAt != null) {
+      entries.add(
+        MetadataEntry(
+          icon: HugeIcons.strokeRoundedCalendarAdd02,
+          label: l10n.joined,
+          dateTime: user.createdAt!,
+        ),
+      );
+    }
+
+    if (user.lastSignInAt != null) {
+      entries.add(
+        MetadataEntry(
+          icon: HugeIcons.strokeRoundedLogin01,
+          label: l10n.lastSignIn,
+          dateTime: user.lastSignInAt!,
+        ),
+      );
+    }
+
+    if (user.updatedAt != null) {
+      entries.add(
+        MetadataEntry(
+          icon: HugeIcons.strokeRoundedEdit02,
+          label: l10n.lastUpdated,
+          dateTime: user.updatedAt!,
+        ),
+      );
+    }
+
+    return MetadataSection(
+      entries: entries,
+      locale: localeController.locale.languageCode,
     );
   }
 }

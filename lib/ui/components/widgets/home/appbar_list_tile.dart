@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../l10n/app_localizations.dart';
 import '../../../../utils/constants.dart';
 
 class AppBarListTile extends StatelessWidget {
@@ -20,7 +19,6 @@ class AppBarListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     return IntrinsicWidth(
       child: ListTile(
         onTap: onTap,

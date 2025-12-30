@@ -18,6 +18,7 @@ class Staff extends BaseUser {
     super.gender,
     super.createdAt,
     super.lastSignInAt,
+    super.updatedAt,
   }) : super(role: UserRole.staff);
 
   factory Staff.fromMap(Map<String, dynamic> map) {
@@ -31,6 +32,7 @@ class Staff extends BaseUser {
       gender: Gender.fromString(map['gender'] as String?),
       createdAt: BaseUser.parseDate(map['createdAt']),
       lastSignInAt: BaseUser.parseDate(map['lastSignInAt']),
+      updatedAt: BaseUser.parseDate(map['updatedAt']),
       permissions: (map['permissions'] as List?)?.cast<String>() ?? const [],
     );
   }
@@ -55,6 +57,7 @@ class Staff extends BaseUser {
       photoUrl: user.photoURL,
       createdAt: user.metadata.creationTime,
       lastSignInAt: user.metadata.lastSignInTime,
+      updatedAt: user.metadata.creationTime, // Initially same as createdAt
       permissions: permissions,
     );
   }
@@ -95,9 +98,11 @@ class Staff extends BaseUser {
     AccountStatus? status,
     String? phone,
     String? photoUrl,
+    Gender? gender,
     String? staffId,
     DateTime? createdAt,
     DateTime? lastSignInAt,
+    DateTime? updatedAt,
     List<String>? permissions,
   }) => Staff(
     id: id ?? this.id,
@@ -106,8 +111,10 @@ class Staff extends BaseUser {
     status: status ?? this.status,
     phone: phone ?? this.phone,
     photoUrl: photoUrl ?? this.photoUrl,
+    gender: gender ?? this.gender,
     createdAt: createdAt ?? this.createdAt,
     lastSignInAt: lastSignInAt ?? this.lastSignInAt,
+    updatedAt: updatedAt ?? this.updatedAt,
     permissions: permissions ?? this.permissions,
   );
 

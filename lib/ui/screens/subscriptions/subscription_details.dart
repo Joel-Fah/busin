@@ -24,6 +24,7 @@ import '../../../models/subscription.dart';
 import '../../../models/value_objects/bus_stop_selection.dart';
 import '../../components/widgets/default_snack_bar.dart';
 import '../../components/widgets/loading_indicator.dart';
+import '../../components/widgets/metadata_section.dart';
 
 class SubscriptionDetailsPage extends StatelessWidget {
   static const String routeName = '/subscription-details';
@@ -743,22 +744,19 @@ class _SubscriptionDetailsContentState
                   const Gap(16.0),
 
                   // Metadata
-                  _SectionContainer(
-                    backgroundColor: Colors.transparent,
-                    child: Column(
-                      children: [
-                        _MetadataRow(
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: MetadataSection(
+                      entries: [
+                        MetadataEntry(
                           icon: HugeIcons.strokeRoundedCalendarAdd02,
                           label: 'Created',
-                          value: dateFormatter(subscription.createdAt),
-                          colorScheme: colorScheme,
+                          dateTime: subscription.createdAt,
                         ),
-                        _Divider(),
-                        _MetadataRow(
+                        MetadataEntry(
                           icon: HugeIcons.strokeRoundedEdit02,
                           label: 'Last updated',
-                          value: dateFormatter(subscription.updatedAt),
-                          colorScheme: colorScheme,
+                          dateTime: subscription.updatedAt,
                         ),
                       ],
                     ),
@@ -1123,35 +1121,6 @@ class _ScheduleRow extends StatelessWidget {
 }
 
 // Metadata row with smaller text
-class _MetadataRow extends StatelessWidget {
-  final List<List<dynamic>> icon;
-  final String label;
-  final String value;
-  final ColorScheme colorScheme;
-
-  const _MetadataRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.colorScheme,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          HugeIcon(icon: icon, color: themeController.isDark ? seedPalette.shade500 : greyColor, size: 18),
-          const Gap(12.0),
-          Text(label, style: AppTextStyles.small.copyWith(color: themeController.isDark ? seedPalette.shade500 : greyColor)),
-          const Spacer(),
-          Text(value, style: AppTextStyles.small.copyWith(color: themeController.isDark ? seedPalette.shade500 : greyColor)),
-        ],
-      ),
-    );
-  }
-}
 
 // Divider within sections
 class _Divider extends StatelessWidget {
