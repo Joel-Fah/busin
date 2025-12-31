@@ -32,6 +32,8 @@
   "end": "Fin",
   "cancel": "Annuler",
   "edit": "Modifier",
+  "refresh": "Rafraîchir",
+  "retry": "Réessayer",
   "onboarding_screen1_title": "Regarder l'horloge en attendant le départ du bus, sachant que je devrai me lever tôt demain... Difficile de dormir avec tous ces devoirs qui s'accumulent… pffffffff",
   "onboarding_screen1_subtitle": "Ça finira par payer un jour.",
   "onboarding_screen2_title": "Envie de vivre et de contribuer à une meilleure expérience de bus à partir de maintenant ?",
@@ -155,5 +157,22 @@
   "accountInfoPage_roleBadge_descriptionStaff": "Gérez les services de bus et aidez les étudiants à répondre à leurs besoins en matière de transport.",
   "accountInfoPage_roleBadge_labelAdmin": "Administrateur",
   "accountInfoPage_roleBadge_descriptionAdmin": "Supervisez l'ensemble du système de gestion des bus et assurez son bon fonctionnement.",
-  "accountInfoPage_editableField_errorRequired": "{field} est obligatoire"
+  "accountInfoPage_editableField_errorRequired": "{field} est obligatoire",
+  "appearance_appBar_title": "Apparence",
+  "appearance_listTile_theme": "Thème",
+  "appearance_listTile_language": "Langue",
+  "appearance_listTile_themeSystem": "Système",
+  "appearance_listTile_themeSystemSubtitle": "S'adapte automatiquement aux paramètres système",
+  "appearance_listTile_themeLight": "Lumineux",
+  "appearance_listTile_themeLightSubtitle": "Définit le thème de l'application sur clair avec des couleurs plus vives. Convient pour la journée.",
+  "appearance_listTile_themeDark": "Sombre",
+  "appearance_listTile_themeDarkSubtitle": "Définit le thème de l'application sur sombre avec des couleurs plus sombres. Confortable pour les yeux en faible luminosité",
+  "appearance_listTile_selected": "Sélectionné",
+  "legalPage_appBar_title": "Informations légales",
+
+  "legalPage_loadingInfo": "Chargement des informations légales...",
+
+  "legalPage_offlineContent": "Utilisation du contenu hors ligne",
+
+  "legalPage_loadingError": "Impossible de charger les informations légales les plus récentes. Affichage de la version en cache."
 }

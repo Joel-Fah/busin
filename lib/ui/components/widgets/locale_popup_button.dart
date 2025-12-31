@@ -41,7 +41,10 @@ class LocalePopupButton extends StatelessWidget {
             ..hideCurrentSnackBar()
             ..showSnackBar(
               buildSnackBar(
-                prefixIcon: HugeIcon(icon: infoIcon, color: lightColor),
+                prefixIcon: HugeIcon(
+                  icon: HugeIcons.strokeRoundedLanguageCircle,
+                  color: lightColor,
+                ),
                 label: Text(
                   AppLocalizations.of(
                     context,

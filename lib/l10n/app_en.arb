@@ -41,6 +41,8 @@
   "end": "End",
   "cancel": "Cancel",
   "edit": "Edit",
+  "refresh": "Refresh",
+  "retry": "Retry",
   "onboarding_screen1_title": "Staring at the clock, waiting for the bus to leave, knowing I'll be up early tomorrow — becomes difficult to sleep with endless school work piling up too ... frrrrrrrr",
   "onboarding_screen1_subtitle": "Na, e go pay off one day, sha.",
   "onboarding_screen2_title": "Wanna live and contribute to a better bus experience as from now on?",
@@ -173,5 +175,20 @@
         "example": "Phone Number"
       }
     }
-  }
+  },
+  "appearance_appBar_title": "Appearance",
+  "appearance_listTile_theme": "Theme",
+  "appearance_listTile_language": "Language",
+  "appearance_listTile_themeSystem": "System",
+  "appearance_listTile_themeSystemSubtitle": "Automatically adjust to system settings",
+  "appearance_listTile_themeLight": "Bright",
+  "appearance_listTile_themeLightSubtitle": "Sets the app’s theme to light with brighter colors. Suitable for daytime.",
+  "appearance_listTile_themeDark": "Dimmed",
+  "appearance_listTile_themeDarkSubtitle": "Sets the app’s theme to dark with darker colors. Easy on the eyes in low light",
+  "appearance_listTile_selected": "Selected",
+
+  "legalPage_appBar_title": "Legal Information",
+  "legalPage_loadingInfo": "Loading legal information...",
+  "legalPage_offlineContent": "Using offline content",
+  "legalPage_loadingError": "Could not load the latest legal information. Showing cached version."
 }

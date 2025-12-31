@@ -1,4 +1,5 @@
 import 'package:busin/api/legal_api.dart';
+import 'package:busin/l10n/app_localizations.dart';
 import 'package:busin/ui/components/widgets/buttons/tertiary_button.dart';
 import 'package:busin/ui/components/widgets/loading_indicator.dart';
 import 'package:busin/ui/components/widgets/markdown_styling.dart';
@@ -24,7 +25,8 @@ class _LegalPageState extends State<LegalPage> {
   bool _loading = true;
   bool _usingFallback = false;
 
-  static const String _legalApiUrl = 'https://raw.githubusercontent.com/Joel-Fah/busin/refs/heads/main/lib/docs/legal.md';
+  static const String _legalApiUrl =
+      'https://raw.githubusercontent.com/Joel-Fah/busin/refs/heads/main/lib/docs/legal.md';
 
   @override
   void initState() {
@@ -51,7 +53,9 @@ class _LegalPageState extends State<LegalPage> {
       // Use fallback content on error
       if (!mounted) return;
       setState(() {
-        _content = _fallbackLegalContent;
+        _content = localeController.locale.languageCode == 'en'
+            ? _fallbackLegalContentEn
+            : _fallbackLegalContentFr;
         _error = e.toString();
         _loading = false;
         _usingFallback = true;
@@ -61,25 +65,27 @@ class _LegalPageState extends State<LegalPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: FittedBox(fit: BoxFit.contain, child: const Text('Legal Information')),
+        title: FittedBox(
+          fit: BoxFit.contain,
+          child: Text(l10n.legalPage_appBar_title),
+        ),
         actions: [
           IconButton(
             icon: const HugeIcon(icon: HugeIcons.strokeRoundedRefresh),
             onPressed: _loading ? null : _load,
-            tooltip: 'Refresh',
+            tooltip: l10n.refresh,
           ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: _load,
-        child: _buildBody(),
-      ),
+      body: RefreshIndicator(onRefresh: _load, child: _buildBody()),
     );
   }
 
   Widget _buildBody() {
+    final l10n = AppLocalizations.of(context)!;
     if (_loading) {
       return Center(
         child: Column(
@@ -88,7 +94,7 @@ class _LegalPageState extends State<LegalPage> {
           children: [
             const LoadingIndicator(),
             Text(
-              'Loading legal information...',
+              l10n.legalPage_loadingInfo,
               style: AppTextStyles.body.copyWith(
                 color: themeController.isDark
                     ? lightColor.withValues(alpha: 0.75)
@@ -131,7 +137,7 @@ class _LegalPageState extends State<LegalPage> {
                     const SizedBox(width: 8.0),
                     Expanded(
                       child: Text(
-                        'Using Offline Content',
+                        l10n.legalPage_offlineContent,
                         style: AppTextStyles.body.copyWith(
                           fontWeight: FontWeight.bold,
                           color: warningColor,
@@ -141,7 +147,7 @@ class _LegalPageState extends State<LegalPage> {
                   ],
                 ),
                 Text(
-                  'Could not load the latest legal information. Showing cached version.',
+                  l10n.legalPage_loadingError,
                   style: AppTextStyles.small.copyWith(
                     color: themeController.isDark
                         ? lightColor.withValues(alpha: 0.7)
@@ -155,27 +161,23 @@ class _LegalPageState extends State<LegalPage> {
                     icon: HugeIcons.strokeRoundedRefresh,
                     size: 20.0,
                   ),
-                  label: const Text('Retry'),
+                  label: Text(l10n.retry),
                 ),
               ],
             ),
-          )
-              .animate()
-              .fadeIn(duration: 300.ms)
-              .slideY(begin: -0.1, end: 0),
+          ).animate().fadeIn(duration: 300.ms).slideY(begin: -0.1, end: 0),
 
         // Content
         if (_content != null)
-          MarkdownStyledView(data: _content!)
-              .animate()
-              .fadeIn(duration: 400.ms)
-              .slideY(begin: 0.1, end: 0),
+          MarkdownStyledView(
+            data: _content!,
+          ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.1, end: 0),
       ],
     );
   }
 
   // Fallback legal content
-  static const String _fallbackLegalContent = '''
+  static const String _fallbackLegalContentEn = '''
 # Legal Information
 
 **Last Updated:** December 28, 2025
@@ -405,5 +407,235 @@ This legal document is provided as a fallback and may not reflect the most curre
 
 **For the most up-to-date legal information, please visit the official BusIn website or contact university administration.**
 ''';
-}
 
+  static const String _fallbackLegalContentFr = '''
+  # Informations Légales
+
+**Dernière mise à jour :** 28 décembre 2025
+
+## Conditions Générales d'Utilisation
+
+### 1. Acceptation des Conditions
+
+En accédant et en utilisant BusIn (« l'Application »), vous acceptez d'être lié par les termes et conditions du présent accord. Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser l'Application.
+
+### 2. Description du Service
+
+BusIn est une application de gestion d'abonnement de bus conçue pour les étudiants et le personnel de l'ICT University, Cameroun. L'Application propose :
+
+- La gestion des abonnements de bus
+- Le contrôle d'accès par code QR
+- Le suivi d'abonnement en temps réel
+- Des outils administratifs pour le personnel
+
+### 3. Comptes Utilisateurs
+
+#### 3.1 Inscription
+- Les utilisateurs doivent s'inscrire avec une adresse e-mail valide de l'ICT University
+- Les utilisateurs sont responsables du maintien de la confidentialité de leurs identifiants de compte
+- Les utilisateurs doivent fournir des informations exactes et complètes
+
+#### 3.2 Types de Comptes
+- **Étudiant** : Pour les étudiants inscrits nécessitant les services de bus
+- **Personnel/Admin** : Pour le personnel universitaire autorisé gérant le système de bus
+
+### 4. Obligations de l'Utilisateur
+
+Les utilisateurs s'engagent à :
+- Fournir des informations personnelles exactes
+- Maintenir la sécurité de leur compte
+- Ne pas partager leur code QR ou l'accès à leur compte avec des tiers
+- Utiliser le service uniquement aux fins prévues
+- Se conformer à toutes les lois applicables et aux règlements de l'université
+
+### 5. Abonnements
+
+#### 5.1 Processus d'Abonnement
+- Les étudiants doivent soumettre une demande d'abonnement valide pour chaque semestre
+- Tous les abonnements nécessitent une approbation administrative
+- Les abonnements ne sont valables que pour la période semestrielle spécifiée
+
+#### 5.2 Paiement et Frais
+- Les frais d'abonnement sont déterminés par l'université
+- Le paiement doit être effectué avant l'activation de l'abonnement
+- Les politiques de remboursement sont soumises aux règlements de l'université
+
+### 6. Accès par Code QR
+
+- Chaque étudiant reçoit un code QR unique pour l'accès au bus
+- Les codes QR sont non transférables
+- Le partage ou la duplication des codes QR est strictement interdit
+- La perte ou la compromission d'un code QR doit être signalée immédiatement
+
+### 7. Collecte de Données et Confidentialité
+
+#### 7.1 Informations que nous collectons
+- Identification personnelle (nom, email, matricule étudiant)
+- Informations de contact (numéro de téléphone, adresse)
+- Historique des abonnements
+- Journaux de scan/accès
+- Données de localisation (pour les services de points de ramassage)
+
+#### 7.2 Utilisation des Données
+Vos données sont utilisées pour :
+- Gérer les abonnements de bus
+- Vérifier les droits d'accès
+- Améliorer la qualité du service
+- Communiquer des mises à jour importantes
+- Générer des statistiques d'utilisation
+
+#### 7.3 Protection des Données
+- Nous mettons en œuvre des mesures de sécurité conformes aux normes de l'industrie
+- Les données personnelles sont cryptées et stockées de manière sécurisée
+- L'accès aux données est limité au personnel autorisé uniquement
+
+#### 7.4 Partage des Données
+Nous ne vendons ni ne partageons vos informations personnelles avec des tiers, sauf :
+- Tel que requis par la loi
+- Avec l'administration de l'université à des fins légitimes
+- Avec des prestataires de services sous des accords de confidentialité stricts
+
+### 8. Propriété Intellectuelle
+
+Tout le contenu, les caractéristiques et les fonctionnalités de BusIn sont la propriété de l'ICT University et sont protégés par les lois internationales sur le droit d'auteur, les marques de commerce et autres lois sur la propriété intellectuelle.
+
+### 9. Conduite Prohibée
+
+Les utilisateurs ne doivent pas :
+- Violer les lois ou règlements
+- Enfreindre les droits d'autrui
+- Transmettre des codes malveillants ou des logiciels malveillants
+- Tenter d'obtenir un accès non autorisé
+- Entraver le fonctionnement de l'Application
+- Utiliser des systèmes automatisés pour accéder à l'Application
+- Usurper une identité ou une affiliation
+
+### 10. Modifications du Service
+
+Nous nous réservons le droit de :
+- Modifier ou interrompre les services à tout moment
+- Mettre à jour ces conditions sans préavis
+- Suspendre ou résilier des comptes en cas de violation
+
+### 11. Avis de Non-responsabilité
+
+#### 11.1 Disponibilité du Service
+- L'Application est fournie « en l'état » sans garantie
+- Nous ne garantissons pas un service ininterrompu
+- Les horaires et les itinéraires de bus peuvent changer sans préavis
+
+#### 11.2 Limitation de Responsabilité
+L'ICT University et BusIn ne sont pas responsables de :
+- L'interruption de service ou des erreurs
+- La perte de données ou des problèmes d'accès
+- Des dommages indirects ou consécutifs
+- Des problèmes découlant de la négligence de l'utilisateur
+
+### 12. Indemnisation
+
+Les utilisateurs acceptent d'indemniser et de dégager de toute responsabilité l'ICT University, son personnel et BusIn contre toute réclamation, dommage ou dépense découlant d'une mauvaise utilisation de l'Application ou de la violation de ces conditions.
+
+### 13. Résiliation
+
+#### 13.1 Par l'Utilisateur
+Les utilisateurs peuvent résilier leur compte à tout moment via les paramètres de l'Application.
+
+#### 13.2 Par Nous
+Nous pouvons suspendre ou résilier les comptes qui :
+- Violent ces conditions
+- Se livrent à des activités frauduleuses
+- Sont inactifs pendant de longues périodes
+- Présentent des risques pour la sécurité
+
+### 14. Loi Applicable
+
+Ces conditions sont régies par les lois de la République du Cameroun. Tout litige sera résolu devant les tribunaux du Cameroun.
+
+### 15. Coordonnées
+
+Pour toute question concernant ces conditions ou l'Application, contactez :
+
+**Email :** support@ictuniversity.edu.cm  
+**Adresse :** ICT University, Yaoundé, Cameroun
+
+---
+
+## Politique de Confidentialité
+
+### Collecte d'Informations
+
+Nous collectons les informations que vous fournissez directement :
+- Données d'inscription au compte
+- Informations de profil
+- Détails de l'abonnement
+- Préférences de communication
+
+### Collecte Automatisée
+
+Nous collectons automatiquement :
+- Informations sur l'appareil
+- Données de journalisation (logs)
+- Statistiques d'utilisation
+- Données de localisation (avec votre permission)
+
+### Cookies et Suivi
+
+L'Application peut utiliser des cookies et des technologies similaires pour améliorer l'expérience utilisateur et recueillir des analyses.
+
+### Vos Droits
+
+Vous avez le droit de :
+- Accéder à vos données personnelles
+- Corriger les informations inexactes
+- Demander la suppression des données
+- Vous désabonner des communications
+- Exporter vos données
+
+### Conservation des Données
+
+Nous conservons vos données pour :
+- Comptes actifs : Durée de l'inscription
+- Comptes inactifs : Jusqu'à 2 ans
+- Exigences légales : Tel que mandaté par la loi
+
+### Mesures de Sécurité
+
+- Chiffrement de bout en bout pour les données sensibles
+- Audits de sécurité réguliers
+- Stockage cloud sécurisé (Firebase/Supabase)
+- Contrôles d'accès et authentification
+
+### Confidentialité des Enfants
+
+BusIn est destiné aux étudiants universitaires (18+). Nous ne collectons pas sciemment de données auprès de mineurs.
+
+### Modifications de la Politique de Confidentialité
+
+Nous pouvons mettre à jour cette politique périodiquement. Les utilisateurs seront informés des changements importants.
+
+---
+
+## Politique d'Utilisation Acceptable
+
+### Utilisations Autorisées
+- Gérer les abonnements de bus
+- Accéder aux services de bus
+- Consulter l'historique personnel d'abonnement
+- Communiquer avec les administrateurs
+
+### Utilisations Interdites
+- Fraude ou fausse déclaration
+- Harcèlement ou abus
+- Manipulation du système
+- Tentatives d'accès non autorisé
+- Utilisation commerciale sans autorisation
+
+---
+
+## Avis de Non-responsabilité
+
+Ce document juridique est fourni à titre de secours et peut ne pas refléter les conditions les plus récentes. Veuillez vérifier les mises à jour lorsque la connexion est rétablie.
+
+**Pour les informations juridiques les plus à jour, veuillez consulter le site officiel de BusIn ou contacter l'administration de l'université.**
+  ''';
+}

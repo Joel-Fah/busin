@@ -107,6 +107,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get edit => 'Edit';
 
   @override
+  String get refresh => 'Refresh';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
   String get onboarding_screen1_title =>
       'Staring at the clock, waiting for the bus to leave, knowing I\'ll be up early tomorrow — becomes difficult to sleep with endless school work piling up too ... frrrrrrrr';
 
@@ -518,4 +524,50 @@ class AppLocalizationsEn extends AppLocalizations {
   String accountInfoPage_editableField_errorRequired(String field) {
     return '$field is required';
   }
+
+  @override
+  String get appearance_appBar_title => 'Appearance';
+
+  @override
+  String get appearance_listTile_theme => 'Theme';
+
+  @override
+  String get appearance_listTile_language => 'Language';
+
+  @override
+  String get appearance_listTile_themeSystem => 'System';
+
+  @override
+  String get appearance_listTile_themeSystemSubtitle =>
+      'Automatically adjust to system settings';
+
+  @override
+  String get appearance_listTile_themeLight => 'Bright';
+
+  @override
+  String get appearance_listTile_themeLightSubtitle =>
+      'Sets the app’s theme to light with brighter colors. Suitable for daytime.';
+
+  @override
+  String get appearance_listTile_themeDark => 'Dimmed';
+
+  @override
+  String get appearance_listTile_themeDarkSubtitle =>
+      'Sets the app’s theme to dark with darker colors. Easy on the eyes in low light';
+
+  @override
+  String get appearance_listTile_selected => 'Selected';
+
+  @override
+  String get legalPage_appBar_title => 'Legal Information';
+
+  @override
+  String get legalPage_loadingInfo => 'Loading legal information...';
+
+  @override
+  String get legalPage_offlineContent => 'Using offline content';
+
+  @override
+  String get legalPage_loadingError =>
+      'Could not load the latest legal information. Showing cached version.';
 }

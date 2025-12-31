@@ -107,6 +107,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get edit => 'Modifier';
 
   @override
+  String get refresh => 'Rafraîchir';
+
+  @override
+  String get retry => 'Réessayer';
+
+  @override
   String get onboarding_screen1_title =>
       'Regarder l\'horloge en attendant le départ du bus, sachant que je devrai me lever tôt demain... Difficile de dormir avec tous ces devoirs qui s\'accumulent… pffffffff';
 
@@ -525,4 +531,50 @@ class AppLocalizationsFr extends AppLocalizations {
   String accountInfoPage_editableField_errorRequired(String field) {
     return '$field est obligatoire';
   }
+
+  @override
+  String get appearance_appBar_title => 'Apparence';
+
+  @override
+  String get appearance_listTile_theme => 'Thème';
+
+  @override
+  String get appearance_listTile_language => 'Langue';
+
+  @override
+  String get appearance_listTile_themeSystem => 'Système';
+
+  @override
+  String get appearance_listTile_themeSystemSubtitle =>
+      'S\'adapte automatiquement aux paramètres système';
+
+  @override
+  String get appearance_listTile_themeLight => 'Lumineux';
+
+  @override
+  String get appearance_listTile_themeLightSubtitle =>
+      'Définit le thème de l\'application sur clair avec des couleurs plus vives. Convient pour la journée.';
+
+  @override
+  String get appearance_listTile_themeDark => 'Sombre';
+
+  @override
+  String get appearance_listTile_themeDarkSubtitle =>
+      'Définit le thème de l\'application sur sombre avec des couleurs plus sombres. Confortable pour les yeux en faible luminosité';
+
+  @override
+  String get appearance_listTile_selected => 'Sélectionné';
+
+  @override
+  String get legalPage_appBar_title => 'Informations légales';
+
+  @override
+  String get legalPage_loadingInfo => 'Chargement des informations légales...';
+
+  @override
+  String get legalPage_offlineContent => 'Utilisation du contenu hors ligne';
+
+  @override
+  String get legalPage_loadingError =>
+      'Impossible de charger les informations légales les plus récentes. Affichage de la version en cache.';
 }

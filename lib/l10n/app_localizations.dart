@@ -290,6 +290,18 @@ abstract class AppLocalizations {
   /// **'Edit'**
   String get edit;
 
+  /// No description provided for @refresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get refresh;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
   /// No description provided for @onboarding_screen1_title.
   ///
   /// In en, this message translates to:
@@ -1033,6 +1045,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{field} is required'**
   String accountInfoPage_editableField_errorRequired(String field);
+
+  /// No description provided for @appearance_appBar_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get appearance_appBar_title;
+
+  /// No description provided for @appearance_listTile_theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get appearance_listTile_theme;
+
+  /// No description provided for @appearance_listTile_language.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get appearance_listTile_language;
+
+  /// No description provided for @appearance_listTile_themeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get appearance_listTile_themeSystem;
+
+  /// No description provided for @appearance_listTile_themeSystemSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatically adjust to system settings'**
+  String get appearance_listTile_themeSystemSubtitle;
+
+  /// No description provided for @appearance_listTile_themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Bright'**
+  String get appearance_listTile_themeLight;
+
+  /// No description provided for @appearance_listTile_themeLightSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sets the app’s theme to light with brighter colors. Suitable for daytime.'**
+  String get appearance_listTile_themeLightSubtitle;
+
+  /// No description provided for @appearance_listTile_themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dimmed'**
+  String get appearance_listTile_themeDark;
+
+  /// No description provided for @appearance_listTile_themeDarkSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sets the app’s theme to dark with darker colors. Easy on the eyes in low light'**
+  String get appearance_listTile_themeDarkSubtitle;
+
+  /// No description provided for @appearance_listTile_selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected'**
+  String get appearance_listTile_selected;
+
+  /// No description provided for @legalPage_appBar_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal Information'**
+  String get legalPage_appBar_title;
+
+  /// No description provided for @legalPage_loadingInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading legal information...'**
+  String get legalPage_loadingInfo;
+
+  /// No description provided for @legalPage_offlineContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Using offline content'**
+  String get legalPage_offlineContent;
+
+  /// No description provided for @legalPage_loadingError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load the latest legal information. Showing cached version.'**
+  String get legalPage_loadingError;
 }
 
 class _AppLocalizationsDelegate
