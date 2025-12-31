@@ -186,7 +186,6 @@
   "appearance_listTile_themeDark": "Dimmed",
   "appearance_listTile_themeDarkSubtitle": "Sets the app’s theme to dark with darker colors. Easy on the eyes in low light",
   "appearance_listTile_selected": "Selected",
-
   "legalPage_appBar_title": "Legal Information",
   "legalPage_loadingInfo": "Loading legal information...",
   "legalPage_offlineContent": "Using offline content",

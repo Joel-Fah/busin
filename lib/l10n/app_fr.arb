@@ -169,10 +169,7 @@
   "appearance_listTile_themeDarkSubtitle": "Définit le thème de l'application sur sombre avec des couleurs plus sombres. Confortable pour les yeux en faible luminosité",
   "appearance_listTile_selected": "Sélectionné",
   "legalPage_appBar_title": "Informations légales",
-
   "legalPage_loadingInfo": "Chargement des informations légales...",
-
   "legalPage_offlineContent": "Utilisation du contenu hors ligne",
-
   "legalPage_loadingError": "Impossible de charger les informations légales les plus récentes. Affichage de la version en cache."
 }
