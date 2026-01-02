@@ -524,6 +524,24 @@ abstract class AppLocalizations {
   /// **'Add'**
   String get add;
 
+  /// No description provided for @users.
+  ///
+  /// In en, this message translates to:
+  /// **'user(s)'**
+  String get users;
+
+  /// No description provided for @change.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get change;
+
+  /// No description provided for @updatedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated by:'**
+  String get updatedBy;
+
   /// No description provided for @onboarding_screen1_title.
   ///
   /// In en, this message translates to:
@@ -2707,6 +2725,339 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No media'**
   String get newSubscriptionPage_stopPreview_noMedia;
+
+  /// No description provided for @newStopForm_handleSubmit_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Bus stop created successfully'**
+  String get newStopForm_handleSubmit_success;
+
+  /// No description provided for @newStopForm_handleSubmit_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to create bus stop'**
+  String get newStopForm_handleSubmit_failed;
+
+  /// No description provided for @newStopForm_appBar_title.
+  ///
+  /// In en, this message translates to:
+  /// **'New Bus Stop'**
+  String get newStopForm_appBar_title;
+
+  /// No description provided for @newStopForm_listTile_infoBubble.
+  ///
+  /// In en, this message translates to:
+  /// **'The form below allows you to create a new bus stop. This will be added to the list of available stops for users to select when subscribing to bus routes.'**
+  String get newStopForm_listTile_infoBubble;
+
+  /// No description provided for @newStopForm_stopDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Bus Stop Details'**
+  String get newStopForm_stopDetails;
+
+  /// No description provided for @newStopForm_stopDetails_image.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload a capture of the place (optional)'**
+  String get newStopForm_stopDetails_image;
+
+  /// No description provided for @newStopForm_stopDetails_nameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup place name *'**
+  String get newStopForm_stopDetails_nameLabel;
+
+  /// No description provided for @newStopForm_stopDetails_nameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Name of the place'**
+  String get newStopForm_stopDetails_nameHint;
+
+  /// No description provided for @newStopForm_stopDetails_nameValidator.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter the name of the bus stop'**
+  String get newStopForm_stopDetails_nameValidator;
+
+  /// No description provided for @newStopForm_stopDetails_mapsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Maps URL (optional)'**
+  String get newStopForm_stopDetails_mapsLabel;
+
+  /// No description provided for @newStopForm_stopDetails_mapsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A Google maps link to the place'**
+  String get newStopForm_stopDetails_mapsHint;
+
+  /// No description provided for @newStopForm_stopDetails_mapsValidator.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid Google Maps link'**
+  String get newStopForm_stopDetails_mapsValidator;
+
+  /// No description provided for @newStopForm_handleSubmit_labelLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Adding...'**
+  String get newStopForm_handleSubmit_labelLoading;
+
+  /// No description provided for @newStopForm_handleSubmit_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Add stop'**
+  String get newStopForm_handleSubmit_label;
+
+  /// No description provided for @editStopForm_handleSubmit_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Bus stop updated successfully'**
+  String get editStopForm_handleSubmit_success;
+
+  /// No description provided for @editStopForm_handleSubmit_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update bus stop'**
+  String get editStopForm_handleSubmit_failed;
+
+  /// No description provided for @editStopForm_appBar_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Bus Stop'**
+  String get editStopForm_appBar_title;
+
+  /// No description provided for @editStopForm_notFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Bus stop not found'**
+  String get editStopForm_notFound;
+
+  /// No description provided for @editStopForm_notFound_ctaLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Go Back'**
+  String get editStopForm_notFound_ctaLabel;
+
+  /// No description provided for @editStopForm_listTile_infoBubble.
+  ///
+  /// In en, this message translates to:
+  /// **'Update the information for this bus stop. Changes will be reflected for all users who have subscribed to this stop.'**
+  String get editStopForm_listTile_infoBubble;
+
+  /// No description provided for @editStopForm_metaData.
+  ///
+  /// In en, this message translates to:
+  /// **'Metadata'**
+  String get editStopForm_metaData;
+
+  /// No description provided for @editStopForm_handleSubmit_labelLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Updating...'**
+  String get editStopForm_handleSubmit_labelLoading;
+
+  /// No description provided for @editStopForm_handleSubmit_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Update stop'**
+  String get editStopForm_handleSubmit_label;
+
+  /// No description provided for @semesterFormPage_selectYear_null.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a year first'**
+  String get semesterFormPage_selectYear_null;
+
+  /// No description provided for @semesterFormPage_selectSemester_null.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a semester first'**
+  String get semesterFormPage_selectSemester_null;
+
+  /// No description provided for @semesterFormPage_pickedDate_null.
+  ///
+  /// In en, this message translates to:
+  /// **'Start date must be in'**
+  String get semesterFormPage_pickedDate_null;
+
+  /// Error message indicating that the end date must be within the selected years
+  ///
+  /// In en, this message translates to:
+  /// **'End date must be in {selectedYear1} or {selectedYear2}'**
+  String semesterFormPage_validateDate(
+    String selectedYear1,
+    String selectedYear2,
+  );
+
+  /// No description provided for @semesterFormPage_handleSubmit_yearNull.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a year'**
+  String get semesterFormPage_handleSubmit_yearNull;
+
+  /// No description provided for @semesterFormPage_handleSubmit_semesterNull.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a semester'**
+  String get semesterFormPage_handleSubmit_semesterNull;
+
+  /// No description provided for @semesterFormPage_handleSubmit_datesNull.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select start and end dates'**
+  String get semesterFormPage_handleSubmit_datesNull;
+
+  /// No description provided for @semesterFormPage_handleSubmit_startIsAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'Start date must be before end date'**
+  String get semesterFormPage_handleSubmit_startIsAfter;
+
+  /// No description provided for @semesterFormPage_handleSubmit_semesterDurationDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Semester must be at least 30 days long'**
+  String get semesterFormPage_handleSubmit_semesterDurationDays;
+
+  /// No description provided for @semesterFormPage_handleSubmit_semesterDurationMonths.
+  ///
+  /// In en, this message translates to:
+  /// **'Semester cannot be longer than 6 months'**
+  String get semesterFormPage_handleSubmit_semesterDurationMonths;
+
+  /// No description provided for @semesterFormPage_handleSubmit_successCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Semester created successfully'**
+  String get semesterFormPage_handleSubmit_successCreated;
+
+  /// No description provided for @semesterFormPage_handleSubmit_successUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Semester updated successfully'**
+  String get semesterFormPage_handleSubmit_successUpdated;
+
+  /// No description provided for @semesterFormPage_handleSubmit_failedCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to create semester'**
+  String get semesterFormPage_handleSubmit_failedCreated;
+
+  /// No description provided for @semesterFormPage_handleSubmit_failedUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update semester'**
+  String get semesterFormPage_handleSubmit_failedUpdated;
+
+  /// No description provided for @semesterFormPage_appBar_titleCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Semester'**
+  String get semesterFormPage_appBar_titleCreate;
+
+  /// No description provided for @semesterFormPage_appBar_titleEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Semester'**
+  String get semesterFormPage_appBar_titleEdit;
+
+  /// No description provided for @semesterFormPage_infoBanner_update.
+  ///
+  /// In en, this message translates to:
+  /// **'Update the date range for this semester. Changes will affect all subscriptions using these dates.'**
+  String get semesterFormPage_infoBanner_update;
+
+  /// No description provided for @semesterFormPage_infoBanner_create.
+  ///
+  /// In en, this message translates to:
+  /// **'Define the start and end dates for a semester. These dates will be used for subscription validity periods.'**
+  String get semesterFormPage_infoBanner_create;
+
+  /// No description provided for @semesterFormPage_sectionHeader_semesterDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Semester Details'**
+  String get semesterFormPage_sectionHeader_semesterDetails;
+
+  /// No description provided for @semesterFormPage_semesterDetails_type.
+  ///
+  /// In en, this message translates to:
+  /// **'Semester Type'**
+  String get semesterFormPage_semesterDetails_type;
+
+  /// No description provided for @semesterFormPage_semesterDetails_semesterSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'is already registered for'**
+  String get semesterFormPage_semesterDetails_semesterSelected;
+
+  /// No description provided for @semesterFormPage_sectionHeader_dateRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Date Range'**
+  String get semesterFormPage_sectionHeader_dateRange;
+
+  /// No description provided for @semesterFormPage_dateRange_startDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Date'**
+  String get semesterFormPage_dateRange_startDate;
+
+  /// No description provided for @semesterFormPage_dateRange_startDateHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select start date'**
+  String get semesterFormPage_dateRange_startDateHint;
+
+  /// No description provided for @semesterFormPage_dateRange_endDate.
+  ///
+  /// In en, this message translates to:
+  /// **'End Date'**
+  String get semesterFormPage_dateRange_endDate;
+
+  /// No description provided for @semesterFormPage_dateRange_endDateHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select end date'**
+  String get semesterFormPage_dateRange_endDateHint;
+
+  /// No description provided for @semesterFormPage_sectionHeader_durationPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get semesterFormPage_sectionHeader_durationPreview;
+
+  /// No description provided for @semesterFormPage_submit_update.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Semester'**
+  String get semesterFormPage_submit_update;
+
+  /// No description provided for @semesterFormPage_submit_create.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Semester'**
+  String get semesterFormPage_submit_create;
+
+  /// No description provided for @imageBox_sizeLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'The image size should not be more than'**
+  String get imageBox_sizeLimit;
+
+  /// No description provided for @imageBox_uploadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error during image upload:'**
+  String get imageBox_uploadError;
+
+  /// No description provided for @imageBox_loadingError.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading error'**
+  String get imageBox_loadingError;
 }
 
 class _AppLocalizationsDelegate

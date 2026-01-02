@@ -224,6 +224,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get add => 'Add';
 
   @override
+  String get users => 'user(s)';
+
+  @override
+  String get change => 'Change';
+
+  @override
+  String get updatedBy => 'Updated by:';
+
+  @override
   String get onboarding_screen1_title =>
       'Staring at the clock, waiting for the bus to leave, knowing I\'ll be up early tomorrow — becomes difficult to sleep with endless school work piling up too ... frrrrrrrr';
 
@@ -1461,4 +1470,196 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get newSubscriptionPage_stopPreview_noMedia => 'No media';
+
+  @override
+  String get newStopForm_handleSubmit_success =>
+      'Bus stop created successfully';
+
+  @override
+  String get newStopForm_handleSubmit_failed => 'Failed to create bus stop';
+
+  @override
+  String get newStopForm_appBar_title => 'New Bus Stop';
+
+  @override
+  String get newStopForm_listTile_infoBubble =>
+      'The form below allows you to create a new bus stop. This will be added to the list of available stops for users to select when subscribing to bus routes.';
+
+  @override
+  String get newStopForm_stopDetails => 'Bus Stop Details';
+
+  @override
+  String get newStopForm_stopDetails_image =>
+      'Upload a capture of the place (optional)';
+
+  @override
+  String get newStopForm_stopDetails_nameLabel => 'Pickup place name *';
+
+  @override
+  String get newStopForm_stopDetails_nameHint => 'Name of the place';
+
+  @override
+  String get newStopForm_stopDetails_nameValidator =>
+      'Please enter the name of the bus stop';
+
+  @override
+  String get newStopForm_stopDetails_mapsLabel => 'Maps URL (optional)';
+
+  @override
+  String get newStopForm_stopDetails_mapsHint =>
+      'A Google maps link to the place';
+
+  @override
+  String get newStopForm_stopDetails_mapsValidator =>
+      'Please enter a valid Google Maps link';
+
+  @override
+  String get newStopForm_handleSubmit_labelLoading => 'Adding...';
+
+  @override
+  String get newStopForm_handleSubmit_label => 'Add stop';
+
+  @override
+  String get editStopForm_handleSubmit_success =>
+      'Bus stop updated successfully';
+
+  @override
+  String get editStopForm_handleSubmit_failed => 'Failed to update bus stop';
+
+  @override
+  String get editStopForm_appBar_title => 'Edit Bus Stop';
+
+  @override
+  String get editStopForm_notFound => 'Bus stop not found';
+
+  @override
+  String get editStopForm_notFound_ctaLabel => 'Go Back';
+
+  @override
+  String get editStopForm_listTile_infoBubble =>
+      'Update the information for this bus stop. Changes will be reflected for all users who have subscribed to this stop.';
+
+  @override
+  String get editStopForm_metaData => 'Metadata';
+
+  @override
+  String get editStopForm_handleSubmit_labelLoading => 'Updating...';
+
+  @override
+  String get editStopForm_handleSubmit_label => 'Update stop';
+
+  @override
+  String get semesterFormPage_selectYear_null => 'Please select a year first';
+
+  @override
+  String get semesterFormPage_selectSemester_null =>
+      'Please select a semester first';
+
+  @override
+  String get semesterFormPage_pickedDate_null => 'Start date must be in';
+
+  @override
+  String semesterFormPage_validateDate(
+    String selectedYear1,
+    String selectedYear2,
+  ) {
+    return 'End date must be in $selectedYear1 or $selectedYear2';
+  }
+
+  @override
+  String get semesterFormPage_handleSubmit_yearNull => 'Please select a year';
+
+  @override
+  String get semesterFormPage_handleSubmit_semesterNull =>
+      'Please select a semester';
+
+  @override
+  String get semesterFormPage_handleSubmit_datesNull =>
+      'Please select start and end dates';
+
+  @override
+  String get semesterFormPage_handleSubmit_startIsAfter =>
+      'Start date must be before end date';
+
+  @override
+  String get semesterFormPage_handleSubmit_semesterDurationDays =>
+      'Semester must be at least 30 days long';
+
+  @override
+  String get semesterFormPage_handleSubmit_semesterDurationMonths =>
+      'Semester cannot be longer than 6 months';
+
+  @override
+  String get semesterFormPage_handleSubmit_successCreated =>
+      'Semester created successfully';
+
+  @override
+  String get semesterFormPage_handleSubmit_successUpdated =>
+      'Semester updated successfully';
+
+  @override
+  String get semesterFormPage_handleSubmit_failedCreated =>
+      'Failed to create semester';
+
+  @override
+  String get semesterFormPage_handleSubmit_failedUpdated =>
+      'Failed to update semester';
+
+  @override
+  String get semesterFormPage_appBar_titleCreate => 'Add Semester';
+
+  @override
+  String get semesterFormPage_appBar_titleEdit => 'Edit Semester';
+
+  @override
+  String get semesterFormPage_infoBanner_update =>
+      'Update the date range for this semester. Changes will affect all subscriptions using these dates.';
+
+  @override
+  String get semesterFormPage_infoBanner_create =>
+      'Define the start and end dates for a semester. These dates will be used for subscription validity periods.';
+
+  @override
+  String get semesterFormPage_sectionHeader_semesterDetails =>
+      'Semester Details';
+
+  @override
+  String get semesterFormPage_semesterDetails_type => 'Semester Type';
+
+  @override
+  String get semesterFormPage_semesterDetails_semesterSelected =>
+      'is already registered for';
+
+  @override
+  String get semesterFormPage_sectionHeader_dateRange => 'Date Range';
+
+  @override
+  String get semesterFormPage_dateRange_startDate => 'Start Date';
+
+  @override
+  String get semesterFormPage_dateRange_startDateHint => 'Select start date';
+
+  @override
+  String get semesterFormPage_dateRange_endDate => 'End Date';
+
+  @override
+  String get semesterFormPage_dateRange_endDateHint => 'Select end date';
+
+  @override
+  String get semesterFormPage_sectionHeader_durationPreview => 'Duration';
+
+  @override
+  String get semesterFormPage_submit_update => 'Update Semester';
+
+  @override
+  String get semesterFormPage_submit_create => 'Add Semester';
+
+  @override
+  String get imageBox_sizeLimit => 'The image size should not be more than';
+
+  @override
+  String get imageBox_uploadError => 'Error during image upload:';
+
+  @override
+  String get imageBox_loadingError => 'Loading error';
 }

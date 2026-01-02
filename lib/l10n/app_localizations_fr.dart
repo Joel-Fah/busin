@@ -224,6 +224,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get add => 'Ajouter';
 
   @override
+  String get users => 'utilisateur(s)';
+
+  @override
+  String get change => 'Changer';
+
+  @override
+  String get updatedBy => 'Modifié par:';
+
+  @override
   String get onboarding_screen1_title =>
       'Regarder l\'horloge en attendant le départ du bus, sachant que je devrai me lever tôt demain... Difficile de dormir avec tous ces devoirs qui s\'accumulent… pffffffff';
 
@@ -1501,4 +1510,206 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get newSubscriptionPage_stopPreview_noMedia => 'Aucun média';
+
+  @override
+  String get newStopForm_handleSubmit_success =>
+      'Arrêt de bus créé avec succès';
+
+  @override
+  String get newStopForm_handleSubmit_failed =>
+      'Échec de la création de l\'arrêt de bus';
+
+  @override
+  String get newStopForm_appBar_title => 'Nouvel arrêt de bus';
+
+  @override
+  String get newStopForm_listTile_infoBubble =>
+      'Le formulaire ci-dessous vous permet de créer un nouvel arrêt de bus. Celui-ci sera ajouté à la liste des arrêts disponibles pour les utilisateurs lors de leur inscription aux lignes de bus.';
+
+  @override
+  String get newStopForm_stopDetails => 'Détails de l\'arrêt de bus';
+
+  @override
+  String get newStopForm_stopDetails_image =>
+      'Télécharger une capture d\'écran du lieu (facultatif)';
+
+  @override
+  String get newStopForm_stopDetails_nameLabel =>
+      'Nom du lieu de prise en charge *';
+
+  @override
+  String get newStopForm_stopDetails_nameHint => 'Nom du lieu';
+
+  @override
+  String get newStopForm_stopDetails_nameValidator =>
+      'Veuillez saisir le nom de l\'arrêt de bus';
+
+  @override
+  String get newStopForm_stopDetails_mapsLabel =>
+      'URL de la carte (facultatif)';
+
+  @override
+  String get newStopForm_stopDetails_mapsHint =>
+      'Lien Google Maps vers le lieu';
+
+  @override
+  String get newStopForm_stopDetails_mapsValidator =>
+      'Veuillez saisir un lien Google Maps valide';
+
+  @override
+  String get newStopForm_handleSubmit_labelLoading => 'Ajout en cours...';
+
+  @override
+  String get newStopForm_handleSubmit_label => 'Ajouter l\'arrêt';
+
+  @override
+  String get editStopForm_handleSubmit_success =>
+      'Arrêt de bus mis à jour avec succès';
+
+  @override
+  String get editStopForm_handleSubmit_failed =>
+      'Échec de la mise à jour de l\'arrêt de bus';
+
+  @override
+  String get editStopForm_appBar_title => 'Modifier l\'arrêt de bus';
+
+  @override
+  String get editStopForm_notFound => 'Arrêt de bus introuvable';
+
+  @override
+  String get editStopForm_notFound_ctaLabel => 'Retour';
+
+  @override
+  String get editStopForm_listTile_infoBubble =>
+      'Mise à jour des informations de cet arrêt de bus. Les modifications seront visibles pour tous les utilisateurs abonnés à cet arrêt.';
+
+  @override
+  String get editStopForm_metaData => 'Métadonnées';
+
+  @override
+  String get editStopForm_handleSubmit_labelLoading =>
+      'Mise à jour en cours...';
+
+  @override
+  String get editStopForm_handleSubmit_label => 'Mise à jour de l\'arrêt';
+
+  @override
+  String get semesterFormPage_selectYear_null =>
+      'Veuillez d\'abord sélectionner une année';
+
+  @override
+  String get semesterFormPage_selectSemester_null =>
+      'Veuillez d\'abord sélectionner un semestre';
+
+  @override
+  String get semesterFormPage_pickedDate_null =>
+      'La date de début doit être comprise entre ';
+
+  @override
+  String semesterFormPage_validateDate(
+    String selectedYear1,
+    String selectedYear2,
+  ) {
+    return 'La date de fin doit être comprise entre $selectedYear1 et $selectedYear2';
+  }
+
+  @override
+  String get semesterFormPage_handleSubmit_yearNull =>
+      'Veuillez sélectionner une année';
+
+  @override
+  String get semesterFormPage_handleSubmit_semesterNull =>
+      'Veuillez sélectionner un semestre';
+
+  @override
+  String get semesterFormPage_handleSubmit_datesNull =>
+      'Veuillez sélectionner les dates de début et de fin';
+
+  @override
+  String get semesterFormPage_handleSubmit_startIsAfter =>
+      'La date de début doit être antérieure à la date de fin';
+
+  @override
+  String get semesterFormPage_handleSubmit_semesterDurationDays =>
+      'Le semestre doit durer au moins 30 jours';
+
+  @override
+  String get semesterFormPage_handleSubmit_semesterDurationMonths =>
+      'Le semestre ne peut pas durer plus de 6 mois';
+
+  @override
+  String get semesterFormPage_handleSubmit_successCreated =>
+      'Semestre créé avec succès';
+
+  @override
+  String get semesterFormPage_handleSubmit_successUpdated =>
+      'Semestre mis à jour avec succès';
+
+  @override
+  String get semesterFormPage_handleSubmit_failedCreated =>
+      'Échec de la création du semestre';
+
+  @override
+  String get semesterFormPage_handleSubmit_failedUpdated =>
+      'Échec de la mise à jour du semestre';
+
+  @override
+  String get semesterFormPage_appBar_titleCreate => 'Ajouter un semestre';
+
+  @override
+  String get semesterFormPage_appBar_titleEdit => 'Modifier un semestre';
+
+  @override
+  String get semesterFormPage_infoBanner_update =>
+      'Mettez à jour la plage de dates pour ce semestre. Les modifications affecteront tous les abonnements utilisant ces dates.';
+
+  @override
+  String get semesterFormPage_infoBanner_create =>
+      'Définissez les dates de début et de fin d\'un semestre. Ces dates seront utilisées pour les périodes de validité des abonnements.';
+
+  @override
+  String get semesterFormPage_sectionHeader_semesterDetails =>
+      'Détails du semestre';
+
+  @override
+  String get semesterFormPage_semesterDetails_type => 'Type de semestre';
+
+  @override
+  String get semesterFormPage_semesterDetails_semesterSelected =>
+      'est déjà enregistré pour';
+
+  @override
+  String get semesterFormPage_sectionHeader_dateRange => 'Plage de dates';
+
+  @override
+  String get semesterFormPage_dateRange_startDate => 'Date de début';
+
+  @override
+  String get semesterFormPage_dateRange_startDateHint =>
+      'Sélectionnez la date de début';
+
+  @override
+  String get semesterFormPage_dateRange_endDate => 'Date de fin';
+
+  @override
+  String get semesterFormPage_dateRange_endDateHint =>
+      'Sélectionnez la date de fin';
+
+  @override
+  String get semesterFormPage_sectionHeader_durationPreview => 'Durée';
+
+  @override
+  String get semesterFormPage_submit_update => 'Mettre à jour le semestre';
+
+  @override
+  String get semesterFormPage_submit_create => 'Ajouter le semestre';
+
+  @override
+  String get imageBox_sizeLimit => 'La taille de l\'image ne doit pas dépasser';
+
+  @override
+  String get imageBox_uploadError => 'Erreur lors du chargement de l\'image :';
+
+  @override
+  String get imageBox_loadingError => 'Erreur de chargement';
 }
