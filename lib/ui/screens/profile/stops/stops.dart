@@ -1,3 +1,4 @@
+import 'package:busin/l10n/app_localizations.dart';
 import 'package:busin/ui/screens/profile/stops/stops_new.dart';
 import 'package:busin/ui/screens/profile/stops/stops_edit.dart';
 import 'package:busin/utils/routes.dart';
@@ -36,28 +37,28 @@ class _BusStopsManagementPageState extends State<BusStopsManagementPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
-          title: const Text('Stops'),
+          title: Text(l10n.stopsPage_appBar_title),
           actions: [
             IconButton(
-              tooltip: 'Refresh',
+              tooltip: l10n.refresh,
               onPressed: () => _busStopController.fetchBusStops(),
               icon: const HugeIcon(icon: HugeIcons.strokeRoundedRefresh),
             ),
             if (authController.isAdmin)
-            IconButton.filled(
-              tooltip: "New stop",
-              style: IconButton.styleFrom(
-                backgroundColor: accentColor
+              IconButton.filled(
+                tooltip: l10n.stopsPage_appBar_actionsNew,
+                style: IconButton.styleFrom(backgroundColor: accentColor),
+                onPressed: () => context.pushNamed(
+                  removeLeadingSlash(NewStopPage.routeName),
+                ),
+                icon: HugeIcon(icon: HugeIcons.strokeRoundedAdd01),
               ),
-              onPressed: () =>
-                  context.pushNamed(removeLeadingSlash(NewStopPage.routeName)),
-              icon: HugeIcon(icon: HugeIcons.strokeRoundedAdd01),
-            ),
           ],
         ),
         body: Padding(
@@ -94,7 +95,7 @@ class _BusStopsManagementPageState extends State<BusStopsManagementPage> {
                     );
                   }),
                 ],
-                hintText: 'Filter bus stops...',
+                hintText: l10n.stopsPage_appBar_searchHint,
               ),
               const Gap(16.0),
 
@@ -112,20 +113,20 @@ class _BusStopsManagementPageState extends State<BusStopsManagementPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _StatItem(
-                      icon: HugeIcons.strokeRoundedLocation01,
-                      label: 'Total Stops',
+                      icon: HugeIcons.strokeRoundedLocation06,
+                      label: l10n.stopsPage_statItem_total,
                       value: total.toString(),
                       color: accentColor,
                     ),
                     _StatItem(
                       icon: HugeIcons.strokeRoundedImage02,
-                      label: 'With Images',
+                      label: l10n.stopsPage_statItem_withImages,
                       value: withImage.toString(),
                       color: successColor,
                     ),
                     _StatItem(
                       icon: HugeIcons.strokeRoundedMaps,
-                      label: 'With Maps',
+                      label: l10n.stopsPage_statItem_withMaps,
                       value: withMap.toString(),
                       color: infoColor,
                     ),
@@ -139,9 +140,7 @@ class _BusStopsManagementPageState extends State<BusStopsManagementPage> {
               Obx(() {
                 if (_busStopController.isLoading.value &&
                     _busStopController.busStops.isEmpty) {
-                  return Center(
-                    child: LoadingIndicator(),
-                  );
+                  return Center(child: LoadingIndicator());
                 }
 
                 if (_busStopController.error.value.isNotEmpty) {
@@ -159,7 +158,7 @@ class _BusStopsManagementPageState extends State<BusStopsManagementPage> {
                           ),
                           const Gap(16.0),
                           Text(
-                            'Error loading bus stops',
+                            l10n.stopsPage_loadingError,
                             style: AppTextStyles.h3,
                           ),
                           const Gap(8.0),
@@ -182,10 +181,7 @@ class _BusStopsManagementPageState extends State<BusStopsManagementPage> {
                               icon: HugeIcons.strokeRoundedRefresh,
                               size: 18,
                             ),
-                            label: const Text(
-                              'Retry',
-                              style: AppTextStyles.body,
-                            ),
+                            label: Text(l10n.retry, style: AppTextStyles.body),
                           ),
                         ],
                       ),
@@ -206,15 +202,15 @@ class _BusStopsManagementPageState extends State<BusStopsManagementPage> {
                         const Gap(16.0),
                         Text(
                           _busStopController.searchQuery.value.isEmpty
-                              ? 'No bus stops yet'
-                              : 'No bus stops found',
+                              ? l10n.stopsPage_emptyListMessageTitle
+                              : l10n.stopsPage_emptyQueryMessageTitle,
                           style: AppTextStyles.h3,
                         ),
                         const Gap(8.0),
                         Text(
                           _busStopController.searchQuery.value.isEmpty
-                              ? 'Add your first bus stop'
-                              : 'Try a different search query',
+                              ? l10n.stopsPage_emptyListMessageSubtitle
+                              : l10n.stopsPage_emptyQueryMessageSubtitle,
                           style: AppTextStyles.body.copyWith(color: greyColor),
                         ),
                       ],
@@ -261,6 +257,7 @@ class _BusStopsManagementPageState extends State<BusStopsManagementPage> {
   }
 
   void _showDeleteDialog(BusStop stop) {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -290,7 +287,7 @@ class _BusStopsManagementPageState extends State<BusStopsManagementPage> {
               padding: EdgeInsets.all(16.0),
               decoration: BoxDecoration(
                 borderRadius: borderRadius * 3,
-                gradient: themeController.isDark ? darkGradient : lightGradient
+                gradient: themeController.isDark ? darkGradient : lightGradient,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -317,12 +314,14 @@ class _BusStopsManagementPageState extends State<BusStopsManagementPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Delete Bus Stop',
+                              l10n.stopsPage_stopCard_deleteModalTitle,
                               style: AppTextStyles.h3,
                             ),
                             Text(
-                              'This action cannot be undone',
-                              style: AppTextStyles.small.copyWith(color: errorColor),
+                              l10n.stopsPage_stopCard_deleteModalMessage,
+                              style: AppTextStyles.small.copyWith(
+                                color: errorColor,
+                              ),
                             ),
                           ],
                         ),
@@ -374,21 +373,19 @@ class _BusStopsManagementPageState extends State<BusStopsManagementPage> {
                         const Gap(12.0),
                         _DetailRow(
                           icon: HugeIcons.strokeRoundedImage02,
-                          label: 'Image',
-                          value: stop.hasImage ? 'Yes' : 'No',
-                          valueColor: stop.hasImage ? lightColor : lightColor.withValues(alpha: 0.5),
+                          label: l10n.image,
+                          value: stop.hasImage ? l10n.yes : l10n.no,
                         ),
                         const Gap(8.0),
                         _DetailRow(
                           icon: HugeIcons.strokeRoundedMaps,
-                          label: 'Map',
-                          value: stop.hasMapEmbed ? 'Yes' : 'No',
-                          valueColor: stop.hasMapEmbed ? lightColor : lightColor.withValues(alpha: 0.5),
+                          label: l10n.map,
+                          value: stop.hasMapEmbed ? l10n.yes : l10n.no,
                         ),
                         const Gap(8.0),
                         _DetailRow(
                           icon: HugeIcons.strokeRoundedCalendar03,
-                          label: 'Created',
+                          label: l10n.createdAt,
                           value: dateTimeFormatter(stop.createdAt),
                         ),
                       ],
@@ -413,7 +410,7 @@ class _BusStopsManagementPageState extends State<BusStopsManagementPage> {
                         const Gap(12.0),
                         Expanded(
                           child: Text(
-                            'All data associated with this stop will be permanently deleted.',
+                            l10n.stopsPage_stopCard_deleteModalWarning,
                             style: AppTextStyles.small.copyWith(
                               color: warningColor,
                             ),
@@ -438,9 +435,14 @@ class _BusStopsManagementPageState extends State<BusStopsManagementPage> {
                                   : seedColor,
                             ),
                           ),
-                          child: Text('Cancel', style: AppTextStyles.body.copyWith(
-                            color: themeController.isDark ? lightColor : seedColor
-                          ),),
+                          child: Text(
+                            l10n.cancel,
+                            style: AppTextStyles.body.copyWith(
+                              color: themeController.isDark
+                                  ? lightColor
+                                  : seedColor,
+                            ),
+                          ),
                         ),
                       ),
                       const Gap(12.0),
@@ -448,33 +450,45 @@ class _BusStopsManagementPageState extends State<BusStopsManagementPage> {
                         flex: 2,
                         child: FilledButton.icon(
                           onPressed: () async {
-                            final success = await _busStopController.deleteBusStop(stop.id);
+                            final success = await _busStopController
+                                .deleteBusStop(stop.id);
 
                             if (context.mounted) {
                               context.pop();
 
                               if (success) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  buildSnackBar(
-                                    prefixIcon: const HugeIcon(
-                                      icon: HugeIcons.strokeRoundedCheckmarkCircle02,
-                                      color: lightColor,
+                                ScaffoldMessenger.of(context)
+                                  ..hideCurrentSnackBar()
+                                  ..showSnackBar(
+                                    buildSnackBar(
+                                      prefixIcon: const HugeIcon(
+                                        icon: HugeIcons
+                                            .strokeRoundedCheckmarkCircle02,
+                                        color: lightColor,
+                                      ),
+                                      label: Text(
+                                        l10n.stopsPage_stopCard_deleteSuccess(
+                                          stop.name,
+                                        ),
+                                      ),
+                                      backgroundColor: successColor,
                                     ),
-                                    label: Text('Bus stop "${stop.name}" deleted'),
-                                    backgroundColor: successColor,
-                                  ),
-                                );
+                                  );
                               } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  buildSnackBar(
-                                    prefixIcon: const HugeIcon(
-                                      icon: HugeIcons.strokeRoundedAlert02,
-                                      color: lightColor,
+                                ScaffoldMessenger.of(context)
+                                  ..hideCurrentSnackBar()
+                                  ..showSnackBar(
+                                    buildSnackBar(
+                                      prefixIcon: const HugeIcon(
+                                        icon: HugeIcons.strokeRoundedAlert02,
+                                        color: lightColor,
+                                      ),
+                                      label: Text(
+                                        l10n.stopsPage_stopCard_deleteError,
+                                      ),
+                                      backgroundColor: errorColor,
                                     ),
-                                    label: const Text('Failed to delete bus stop'),
-                                    backgroundColor: errorColor,
-                                  ),
-                                );
+                                  );
                               }
                             }
                           },
@@ -487,7 +501,10 @@ class _BusStopsManagementPageState extends State<BusStopsManagementPage> {
                             icon: HugeIcons.strokeRoundedDelete02,
                             color: lightColor,
                           ),
-                          label: const Text('Delete', style: AppTextStyles.body,),
+                          label: Text(
+                            l10n.delete,
+                            style: AppTextStyles.body,
+                          ),
                         ),
                       ),
                     ],
@@ -501,7 +518,6 @@ class _BusStopsManagementPageState extends State<BusStopsManagementPage> {
       ),
     );
   }
-
 }
 
 // Stats item widget
@@ -574,16 +590,12 @@ class _DetailRow extends StatelessWidget {
         HugeIcon(
           icon: icon,
           color: themeController.isDark ? lightColor : seedColor,
+          size: 20.0,
         ),
         const Gap(12.0),
         Text(label, style: AppTextStyles.body),
         const Spacer(),
-        Text(
-          value,
-          style: AppTextStyles.body.copyWith(
-            color: valueColor,
-          ),
-        ),
+        Text(value, style: AppTextStyles.body.copyWith(color: valueColor)),
       ],
     );
   }

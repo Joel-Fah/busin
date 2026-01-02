@@ -44,27 +44,27 @@ String addThousandSeparator(String price) {
 
 // Date & Time Formatters
 String dateFormatter(DateTime date) {
-  return DateFormat('MMM dd, yyyy').format(date);
+  return localeController.locale.languageCode == 'en'
+      ? DateFormat(
+          'MMM dd, yyyy',
+          localeController.locale.languageCode,
+        ).format(date)
+      : DateFormat(
+          'dd MMM yyyy',
+          localeController.locale.languageCode,
+        ).format(date);
 }
 
 String dateTimeFormatter(DateTime date) {
-  return DateFormat('MMM dd, yyyy \'at\' HH:mm a').format(date);
-}
-
-// Calculate time ago
-String timeAgoFormatter(DateTime date) {
-  final Duration difference = DateTime.now().difference(date);
-  if (difference.inDays > 8) {
-    return dateFormatter(date);
-  } else if (difference.inDays >= 1) {
-    return '${difference.inDays} day${difference.inDays == 1 ? '' : 's'} ago';
-  } else if (difference.inHours >= 1) {
-    return '${difference.inHours} hour${difference.inHours == 1 ? '' : 's'} ago';
-  } else if (difference.inMinutes >= 1) {
-    return '${difference.inMinutes} minute${difference.inMinutes == 1 ? '' : 's'} ago';
-  } else {
-    return 'just now';
-  }
+  return localeController.locale.languageCode == 'en'
+      ? DateFormat(
+          'MMM dd, yyyy \'at\' HH:mm a',
+          localeController.locale.languageCode,
+        ).format(date)
+      : DateFormat(
+          'dd MMM yyyy \'à\' HH:mm',
+          localeController.locale.languageCode,
+        ).format(date);
 }
 
 // Format date time relative to now (for metadata display)
@@ -93,20 +93,6 @@ String formatRelativeDateTime(DateTime dateTime, {String? locale}) {
   return timeago.format(dateTime, locale: locale ?? 'en');
 }
 
-// Calculate time until
-String timeUntilFormatter(DateTime date) {
-  final Duration difference = date.difference(DateTime.now());
-  if (difference.inDays >= 1) {
-    return '${difference.inDays} day${difference.inDays == 1 ? '' : 's'} left';
-  } else if (difference.inHours >= 1) {
-    return '${difference.inHours} hour${difference.inHours == 1 ? '' : 's'} left';
-  } else if (difference.inMinutes >= 1) {
-    return '${difference.inMinutes} minute${difference.inMinutes == 1 ? '' : 's'} left';
-  } else {
-    return 'less than a minute left';
-  }
-}
-
 // Validators
 // email regex that allows abc@domain.com, abc+def@domain.com, abc.def@sub.domain.com
 const String emailRegex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$';
@@ -129,7 +115,9 @@ List<String> weekdays(BuildContext context) {
 // Validation methods
 String? validatePhone(String? value) {
   if (value == null || value.trim().isEmpty) {
-    return 'Phone number is required';
+    return localeController.locale.languageCode == 'en'
+        ? 'Phone number is required'
+        : 'Le numéro de téléphone est requis';
   }
 
   // Remove spaces and special characters
@@ -140,39 +128,53 @@ String? validatePhone(String? value) {
   final RegExp cameroonPhoneRegex = RegExp(r'^(\+?237|237)?[26]\d{8}$');
 
   if (!cameroonPhoneRegex.hasMatch(cleanedPhone)) {
-    return 'Please enter a valid Cameroon phone number';
+    return localeController.locale.languageCode == 'en'
+        ? 'Please enter a valid Cameroon phone number'
+        : 'Veuillez entrer un numéro de téléphone camerounais valide';
   }
 
   return null;
 }
 
 String? validateMatricule(String? value) {
+  final bool isEnLocale = localeController.locale.languageCode == 'en';
+
   if (value == null || value.trim().isEmpty) {
-    return 'Student ID is required';
+    return isEnLocale
+        ? 'Student ID is required'
+        : 'Le matricule étudiant est requis';
   }
 
   final matricule = value.trim().toUpperCase();
 
   // Format: ICTU<year><4digits> = 12 characters
   if (matricule.length != 12) {
-    return 'Student ID must be 12 characters long';
+    return isEnLocale
+        ? 'Student ID must be 12 characters long'
+        : 'Le matricule étudiant doit contenir 12 caractères';
   }
 
   if (!matricule.startsWith('ICTU')) {
-    return 'Student ID must start with ICTU';
+    return isEnLocale
+        ? 'Student ID must start with ICTU'
+        : 'Le matricule étudiant doit commencer par ICTU';
   }
 
   // Extract year (characters 4-7)
   final yearPart = matricule.substring(4, 8);
   final year = int.tryParse(yearPart);
   if (year == null || year < 2000 || year > DateTime.now().year + 1) {
-    return 'Invalid year in Student ID';
+    return isEnLocale
+        ? 'Invalid year in Student ID'
+        : 'Année invalide dans le matricule étudiant';
   }
 
   // Extract digits (characters 8-11)
   final digitsPart = matricule.substring(8, 12);
   if (int.tryParse(digitsPart) == null) {
-    return 'Last 4 characters must be digits';
+    return isEnLocale
+        ? 'Last 4 characters must be digits'
+        : 'Les 4 derniers caractères doivent être des chiffres';
   }
 
   return null;

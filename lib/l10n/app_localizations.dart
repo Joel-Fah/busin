@@ -242,6 +242,30 @@ abstract class AppLocalizations {
   /// **'Subscriptions'**
   String get subscriptions;
 
+  /// No description provided for @subscriptionPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get subscriptionPending;
+
+  /// No description provided for @subscriptionApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get subscriptionApproved;
+
+  /// No description provided for @subscriptionRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get subscriptionRejected;
+
+  /// No description provided for @subscriptionExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get subscriptionExpired;
+
   /// No description provided for @scannings.
   ///
   /// In en, this message translates to:
@@ -289,6 +313,186 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Edit'**
   String get edit;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @refresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get refresh;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @yes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get yes;
+
+  /// No description provided for @no.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get no;
+
+  /// No description provided for @createdAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Created at'**
+  String get createdAt;
+
+  /// No description provided for @updatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated at'**
+  String get updatedAt;
+
+  /// No description provided for @map.
+  ///
+  /// In en, this message translates to:
+  /// **'Map'**
+  String get map;
+
+  /// No description provided for @image.
+  ///
+  /// In en, this message translates to:
+  /// **'Image'**
+  String get image;
+
+  /// No description provided for @unknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown user'**
+  String get unknown;
+
+  /// No description provided for @loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading...'**
+  String get loading;
+
+  /// No description provided for @by.
+  ///
+  /// In en, this message translates to:
+  /// **'By'**
+  String get by;
+
+  /// No description provided for @days.
+  ///
+  /// In en, this message translates to:
+  /// **'days'**
+  String get days;
+
+  /// No description provided for @newLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get newLabel;
+
+  /// No description provided for @viewAll.
+  ///
+  /// In en, this message translates to:
+  /// **'View all'**
+  String get viewAll;
+
+  /// No description provided for @userProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'User Profile'**
+  String get userProfile;
+
+  /// No description provided for @morning.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning'**
+  String get morning;
+
+  /// No description provided for @closing.
+  ///
+  /// In en, this message translates to:
+  /// **'Closing'**
+  String get closing;
+
+  /// No description provided for @close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
+
+  /// No description provided for @download.
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get download;
+
+  /// No description provided for @allLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get allLabel;
+
+  /// No description provided for @filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter'**
+  String get filter;
+
+  /// No description provided for @search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get search;
+
+  /// No description provided for @year.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get year;
+
+  /// No description provided for @semester.
+  ///
+  /// In en, this message translates to:
+  /// **'Semester'**
+  String get semester;
+
+  /// No description provided for @stop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get stop;
+
+  /// No description provided for @naLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'N/A'**
+  String get naLabel;
+
+  /// No description provided for @week.
+  ///
+  /// In en, this message translates to:
+  /// **'week'**
+  String get week;
+
+  /// No description provided for @monthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get monthly;
+
+  /// No description provided for @busStops.
+  ///
+  /// In en, this message translates to:
+  /// **'Bus Stops'**
+  String get busStops;
 
   /// No description provided for @onboarding_screen1_title.
   ///
@@ -1033,6 +1237,1104 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{field} is required'**
   String accountInfoPage_editableField_errorRequired(String field);
+
+  /// No description provided for @appearance_appBar_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get appearance_appBar_title;
+
+  /// No description provided for @appearance_listTile_theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get appearance_listTile_theme;
+
+  /// No description provided for @appearance_listTile_language.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get appearance_listTile_language;
+
+  /// No description provided for @appearance_listTile_themeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get appearance_listTile_themeSystem;
+
+  /// No description provided for @appearance_listTile_themeSystemSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatically adjust to system settings'**
+  String get appearance_listTile_themeSystemSubtitle;
+
+  /// No description provided for @appearance_listTile_themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Bright'**
+  String get appearance_listTile_themeLight;
+
+  /// No description provided for @appearance_listTile_themeLightSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sets the app’s theme to light with brighter colors. Suitable for daytime.'**
+  String get appearance_listTile_themeLightSubtitle;
+
+  /// No description provided for @appearance_listTile_themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dimmed'**
+  String get appearance_listTile_themeDark;
+
+  /// No description provided for @appearance_listTile_themeDarkSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sets the app’s theme to dark with darker colors. Easy on the eyes in low light'**
+  String get appearance_listTile_themeDarkSubtitle;
+
+  /// No description provided for @appearance_listTile_selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected'**
+  String get appearance_listTile_selected;
+
+  /// No description provided for @legalPage_appBar_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal Information'**
+  String get legalPage_appBar_title;
+
+  /// No description provided for @legalPage_loadingInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading legal information...'**
+  String get legalPage_loadingInfo;
+
+  /// No description provided for @legalPage_offlineContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Using offline content'**
+  String get legalPage_offlineContent;
+
+  /// No description provided for @legalPage_loadingError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load the latest legal information. Showing cached version.'**
+  String get legalPage_loadingError;
+
+  /// No description provided for @stopsPage_appBar_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Stops'**
+  String get stopsPage_appBar_title;
+
+  /// No description provided for @stopsPage_appBar_actionsNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New stop'**
+  String get stopsPage_appBar_actionsNew;
+
+  /// No description provided for @stopsPage_appBar_searchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter bus stops...'**
+  String get stopsPage_appBar_searchHint;
+
+  /// No description provided for @stopsPage_statItem_total.
+  ///
+  /// In en, this message translates to:
+  /// **'Total stops'**
+  String get stopsPage_statItem_total;
+
+  /// No description provided for @stopsPage_statItem_withImages.
+  ///
+  /// In en, this message translates to:
+  /// **'With images'**
+  String get stopsPage_statItem_withImages;
+
+  /// No description provided for @stopsPage_statItem_withMaps.
+  ///
+  /// In en, this message translates to:
+  /// **'With maps'**
+  String get stopsPage_statItem_withMaps;
+
+  /// No description provided for @stopsPage_loadingError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading bus stops'**
+  String get stopsPage_loadingError;
+
+  /// No description provided for @stopsPage_emptyListMessageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No bus stops yet'**
+  String get stopsPage_emptyListMessageTitle;
+
+  /// No description provided for @stopsPage_emptyQueryMessageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No bus stops found'**
+  String get stopsPage_emptyQueryMessageTitle;
+
+  /// No description provided for @stopsPage_emptyListMessageSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your first bus stop'**
+  String get stopsPage_emptyListMessageSubtitle;
+
+  /// No description provided for @stopsPage_emptyQueryMessageSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Try a different search query'**
+  String get stopsPage_emptyQueryMessageSubtitle;
+
+  /// No description provided for @stopsPage_stopCard_deleteModalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Bus Stop'**
+  String get stopsPage_stopCard_deleteModalTitle;
+
+  /// No description provided for @stopsPage_stopCard_deleteModalMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This action cannot be undone'**
+  String get stopsPage_stopCard_deleteModalMessage;
+
+  /// No description provided for @stopsPage_stopCard_deleteModalWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'All data associated with this stop will be permanently deleted.'**
+  String get stopsPage_stopCard_deleteModalWarning;
+
+  /// Confirmation message after successfully deleting a bus stop
+  ///
+  /// In en, this message translates to:
+  /// **'Bus stop \"{stop}\" removed successfully'**
+  String stopsPage_stopCard_deleteSuccess(String stop);
+
+  /// No description provided for @stopsPage_stopCard_deleteError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete bus stop'**
+  String get stopsPage_stopCard_deleteError;
+
+  /// No description provided for @stopsPage_stopCard_imageUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Image not available'**
+  String get stopsPage_stopCard_imageUnavailable;
+
+  /// No description provided for @stopsPage_stopCard_noPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'No preview available'**
+  String get stopsPage_stopCard_noPreview;
+
+  /// No description provided for @semestersPage_appBar_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Semesters'**
+  String get semestersPage_appBar_title;
+
+  /// No description provided for @semestersPage_appBar_actionsAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add semester'**
+  String get semestersPage_appBar_actionsAdd;
+
+  /// No description provided for @semestersPage_appBar_activeSemester.
+  ///
+  /// In en, this message translates to:
+  /// **'Active semester'**
+  String get semestersPage_appBar_activeSemester;
+
+  /// No description provided for @semestersPage_infoBubble.
+  ///
+  /// In en, this message translates to:
+  /// **'Define start and end dates for each semester. These dates will be used for subscription validity periods.'**
+  String get semestersPage_infoBubble;
+
+  /// No description provided for @semestersPage_statItem_total.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get semestersPage_statItem_total;
+
+  /// No description provided for @semestersPage_statItem_upcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get semestersPage_statItem_upcoming;
+
+  /// No description provided for @semestersPage_loadingError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading semesters'**
+  String get semestersPage_loadingError;
+
+  /// No description provided for @semestersPage_emptyList_title.
+  ///
+  /// In en, this message translates to:
+  /// **'No semesters configured'**
+  String get semestersPage_emptyList_title;
+
+  /// No description provided for @semestersPage_emptyList_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your first semester to get started'**
+  String get semestersPage_emptyList_subtitle;
+
+  /// No description provided for @semestersPage_handleDelete_successful.
+  ///
+  /// In en, this message translates to:
+  /// **'Semester deleted successfully'**
+  String get semestersPage_handleDelete_successful;
+
+  /// No description provided for @semestersPage_handleDelete_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete semester'**
+  String get semestersPage_handleDelete_failed;
+
+  /// No description provided for @semestersPage_handleDelete_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Semester'**
+  String get semestersPage_handleDelete_title;
+
+  /// No description provided for @semestersPage_handleDelete_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This action cannot be undone'**
+  String get semestersPage_handleDelete_subtitle;
+
+  /// No description provided for @semestersPage_detailRow_startDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Start date'**
+  String get semestersPage_detailRow_startDate;
+
+  /// No description provided for @semestersPage_detailRow_endDate.
+  ///
+  /// In en, this message translates to:
+  /// **'End date'**
+  String get semestersPage_detailRow_endDate;
+
+  /// No description provided for @semestersPage_detailRow_duration.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get semestersPage_detailRow_duration;
+
+  /// No description provided for @semestersPage_detailRow_statusActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get semestersPage_detailRow_statusActive;
+
+  /// No description provided for @semestersPage_detailRow_statusEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended'**
+  String get semestersPage_detailRow_statusEnded;
+
+  /// No description provided for @semestersPage_detailRow_statusUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get semestersPage_detailRow_statusUpcoming;
+
+  /// No description provided for @semestersPage_deleteModal_warning.
+  ///
+  /// In en, this message translates to:
+  /// **'All data associated with this semester will be permanently deleted.'**
+  String get semestersPage_deleteModal_warning;
+
+  /// No description provided for @homeTab_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Activity'**
+  String get homeTab_title;
+
+  /// No description provided for @homeTab_subscriptionTile_start.
+  ///
+  /// In en, this message translates to:
+  /// **'Start:'**
+  String get homeTab_subscriptionTile_start;
+
+  /// No description provided for @homeTab_subscriptionTile_end.
+  ///
+  /// In en, this message translates to:
+  /// **'End:'**
+  String get homeTab_subscriptionTile_end;
+
+  /// No description provided for @homeTab_emptySubscriptionCard_title.
+  ///
+  /// In en, this message translates to:
+  /// **'No subscriptions yet'**
+  String get homeTab_emptySubscriptionCard_title;
+
+  /// No description provided for @homeTab_emptySubscriptionCard_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your first bus subscription to see it here.'**
+  String get homeTab_emptySubscriptionCard_message;
+
+  /// No description provided for @homeTab_scanningsTile_on.
+  ///
+  /// In en, this message translates to:
+  /// **'On:'**
+  String get homeTab_scanningsTile_on;
+
+  /// No description provided for @homeTab_scanningsTile_titleUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Location unavailable'**
+  String get homeTab_scanningsTile_titleUnavailable;
+
+  /// No description provided for @homeTab_emptyScanningsCard_title.
+  ///
+  /// In en, this message translates to:
+  /// **'No scans yet'**
+  String get homeTab_emptyScanningsCard_title;
+
+  /// No description provided for @homeTab_emptyScanningsCard_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Your QR code hasn\'t been scanned yet.'**
+  String get homeTab_emptyScanningsCard_message;
+
+  /// No description provided for @subscriptionTab_emptyState_ctaLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribe now for'**
+  String get subscriptionTab_emptyState_ctaLabel;
+
+  /// No description provided for @subscriptionTab_activeCta_message.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t have any subscription running currently. Maybe, subscribe now to the bus services for the ongoing semester'**
+  String get subscriptionTab_activeCta_message;
+
+  /// No description provided for @subscriptionTab_emptyList_message.
+  ///
+  /// In en, this message translates to:
+  /// **'No other subscriptions yet.'**
+  String get subscriptionTab_emptyList_message;
+
+  /// Display message after applying a search filter
+  ///
+  /// In en, this message translates to:
+  /// **'No {status} subscriptions match the filter.'**
+  String subscriptionTab_emptyList_messageFilter(String status);
+
+  /// No description provided for @subscriptionTab_emptyState_supertitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Seems like it’s your first time around'**
+  String get subscriptionTab_emptyState_supertitle;
+
+  /// No description provided for @subscriptionTab_emptyState_title.
+  ///
+  /// In en, this message translates to:
+  /// **'You don’t have any subscriptions yet'**
+  String get subscriptionTab_emptyState_title;
+
+  /// No description provided for @subscriptionTab_emptyState_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Let’s get you started with a bus subscription so you can ride this semester.'**
+  String get subscriptionTab_emptyState_subtitle;
+
+  /// No description provided for @scanningsTab_screenshotsWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Hey! Screenshots aren\'t allowed here to keep your QR code safe'**
+  String get scanningsTab_screenshotsWarning;
+
+  /// No description provided for @subscriptionDetailPage_appBar_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription Details'**
+  String get subscriptionDetailPage_appBar_title;
+
+  /// No description provided for @subscriptionDetailPage_nullContent_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription not found'**
+  String get subscriptionDetailPage_nullContent_title;
+
+  /// No description provided for @subscriptionDetailPage_nullContent_message.
+  ///
+  /// In en, this message translates to:
+  /// **'The subscription you are looking for does not exist or has been removed.'**
+  String get subscriptionDetailPage_nullContent_message;
+
+  /// No description provided for @subscriptionDetailPage_handleRefresh_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to refresh:'**
+  String get subscriptionDetailPage_handleRefresh_error;
+
+  /// No description provided for @subscriptionDetailPage_handleApprove_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription approved'**
+  String get subscriptionDetailPage_handleApprove_success;
+
+  /// No description provided for @subscriptionDetailPage_handleApprove_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to approve subscription:'**
+  String get subscriptionDetailPage_handleApprove_error;
+
+  /// No description provided for @subscriptionDetailPage_handleReject_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription rejected'**
+  String get subscriptionDetailPage_handleReject_success;
+
+  /// No description provided for @subscriptionDetailPage_handleReject_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to reject subscription:'**
+  String get subscriptionDetailPage_handleReject_error;
+
+  /// No description provided for @subscriptionDetailPage_rejectDialog_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject Subscription'**
+  String get subscriptionDetailPage_rejectDialog_title;
+
+  /// No description provided for @subscriptionDetailPage_rejectDialog_instruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Please provide a reason for rejecting this subscription. This will be shown to the student.'**
+  String get subscriptionDetailPage_rejectDialog_instruction;
+
+  /// No description provided for @subscriptionDetailPage_rejectDialog_reasonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejection Reason'**
+  String get subscriptionDetailPage_rejectDialog_reasonLabel;
+
+  /// No description provided for @subscriptionDetailPage_rejectDialog_reasonValidatorEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Please provide a reason for rejection'**
+  String get subscriptionDetailPage_rejectDialog_reasonValidatorEmpty;
+
+  /// No description provided for @subscriptionDetailPage_rejectDialog_reasonValidatorLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason must be at least 10 characters long'**
+  String get subscriptionDetailPage_rejectDialog_reasonValidatorLength;
+
+  /// No description provided for @subscriptionDetailPage_rejectDialog_ctaReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject Subscription'**
+  String get subscriptionDetailPage_rejectDialog_ctaReject;
+
+  /// No description provided for @subscriptionDetailPage_reviewInfo_sectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review Information'**
+  String get subscriptionDetailPage_reviewInfo_sectionTitle;
+
+  /// No description provided for @subscriptionDetailPage_reviewInfo_reviewedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviewed on'**
+  String get subscriptionDetailPage_reviewInfo_reviewedOn;
+
+  /// No description provided for @subscriptionDetailPage_reviewInfo_reviewedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviewed by'**
+  String get subscriptionDetailPage_reviewInfo_reviewedBy;
+
+  /// No description provided for @subscriptionDetailPage_statusDates_startLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Date'**
+  String get subscriptionDetailPage_statusDates_startLabel;
+
+  /// No description provided for @subscriptionDetailPage_statusDates_endLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'End Date'**
+  String get subscriptionDetailPage_statusDates_endLabel;
+
+  /// No description provided for @subscriptionDetailPage_statusDates_durationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Time remaining'**
+  String get subscriptionDetailPage_statusDates_durationLabel;
+
+  /// No description provided for @subscriptionDetailPage_weeklySchedule_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly Schedule'**
+  String get subscriptionDetailPage_weeklySchedule_title;
+
+  /// No description provided for @subscriptionDetailPage_adminAction_approve.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get subscriptionDetailPage_adminAction_approve;
+
+  /// No description provided for @subscriptionDetailPage_adminAction_reject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get subscriptionDetailPage_adminAction_reject;
+
+  /// No description provided for @subscriptionDetailPage_paymentProof_placeholder.
+  ///
+  /// In en, this message translates to:
+  /// **'No proof of payment'**
+  String get subscriptionDetailPage_paymentProof_placeholder;
+
+  /// No description provided for @subscriptionDetailPage_statusLabel_approved.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription Approved'**
+  String get subscriptionDetailPage_statusLabel_approved;
+
+  /// No description provided for @subscriptionDetailPage_statusLabel_pending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Validation'**
+  String get subscriptionDetailPage_statusLabel_pending;
+
+  /// No description provided for @subscriptionDetailPage_statusLabel_rejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected Subscription'**
+  String get subscriptionDetailPage_statusLabel_rejected;
+
+  /// No description provided for @subscriptionDetailPage_statusLabel_expired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired Subscription'**
+  String get subscriptionDetailPage_statusLabel_expired;
+
+  /// No description provided for @subscriptionDetailPage_mapView_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Bus stop'**
+  String get subscriptionDetailPage_mapView_title;
+
+  /// No description provided for @subscriptionDetailPage_mapView_openMessageSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Opened in Google Maps'**
+  String get subscriptionDetailPage_mapView_openMessageSuccess;
+
+  /// No description provided for @subscriptionDetailPage_mapView_openMessageError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open Google Maps'**
+  String get subscriptionDetailPage_mapView_openMessageError;
+
+  /// No description provided for @subscriptionDetailPage_mapView_ctaLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to open on Google Maps'**
+  String get subscriptionDetailPage_mapView_ctaLabel;
+
+  /// No description provided for @subscriptionDetailPage_mapView_ctaTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in Google Maps'**
+  String get subscriptionDetailPage_mapView_ctaTooltip;
+
+  /// No description provided for @subscriptionDetailPage_mapView_pickupImageUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Image not available'**
+  String get subscriptionDetailPage_mapView_pickupImageUnavailable;
+
+  /// No description provided for @subscriptionDetailPage_mapView_pickupImagePreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup point preview'**
+  String get subscriptionDetailPage_mapView_pickupImagePreview;
+
+  /// No description provided for @subscriptionDetailPage_studentSection_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Student Information'**
+  String get subscriptionDetailPage_studentSection_title;
+
+  /// No description provided for @subscriptionDetailPage_studentSection_loadingError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load student information'**
+  String get subscriptionDetailPage_studentSection_loadingError;
+
+  /// No description provided for @subscriptionDetailPage_studentSection_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriber details'**
+  String get subscriptionDetailPage_studentSection_subtitle;
+
+  /// No description provided for @subscriptionDetailPage_studentSection_name.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get subscriptionDetailPage_studentSection_name;
+
+  /// No description provided for @subscriptionDetailPage_studentSection_email.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get subscriptionDetailPage_studentSection_email;
+
+  /// No description provided for @subscriptionDetailPage_studentSection_status.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get subscriptionDetailPage_studentSection_status;
+
+  /// No description provided for @subscriptionDetailPage_studentSection_phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Number'**
+  String get subscriptionDetailPage_studentSection_phone;
+
+  /// No description provided for @peopleTab_appBar_title.
+  ///
+  /// In en, this message translates to:
+  /// **'People'**
+  String get peopleTab_appBar_title;
+
+  /// No description provided for @peopleTab_loadingState.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading users...'**
+  String get peopleTab_loadingState;
+
+  /// No description provided for @peopleTab_loadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading users'**
+  String get peopleTab_loadError;
+
+  /// No description provided for @peopleTab_loadError_unknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown error'**
+  String get peopleTab_loadError_unknown;
+
+  /// No description provided for @peopleTab_emptyStudents_title.
+  ///
+  /// In en, this message translates to:
+  /// **'No Students Yet'**
+  String get peopleTab_emptyStudents_title;
+
+  /// No description provided for @peopleTab_emptyStaff_title.
+  ///
+  /// In en, this message translates to:
+  /// **'No Staff Yet'**
+  String get peopleTab_emptyStaff_title;
+
+  /// No description provided for @peopleTab_emptyStudents_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no students registered yet'**
+  String get peopleTab_emptyStudents_subtitle;
+
+  /// No description provided for @peopleTab_emptyStaff_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no staff members registered yet'**
+  String get peopleTab_emptyStaff_subtitle;
+
+  /// No description provided for @peopleTab_handleApprove_success.
+  ///
+  /// In en, this message translates to:
+  /// **'has been approved!'**
+  String get peopleTab_handleApprove_success;
+
+  /// No description provided for @peopleTab_handleApprove_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to approve user:'**
+  String get peopleTab_handleApprove_error;
+
+  /// No description provided for @peopleTab_handleReject_success.
+  ///
+  /// In en, this message translates to:
+  /// **'has been rejected!'**
+  String get peopleTab_handleReject_success;
+
+  /// No description provided for @peopleTab_handleReject_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to reject user:'**
+  String get peopleTab_handleReject_error;
+
+  /// No description provided for @subscriptionAdminTab_searchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search subscriptions...'**
+  String get subscriptionAdminTab_searchHint;
+
+  /// No description provided for @subscriptionAdminTab_subsList_pending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Review'**
+  String get subscriptionAdminTab_subsList_pending;
+
+  /// No description provided for @subscriptionAdminTab_subsList_emptyCard.
+  ///
+  /// In en, this message translates to:
+  /// **'No pending subscriptions'**
+  String get subscriptionAdminTab_subsList_emptyCard;
+
+  /// No description provided for @subscriptionAdminTab_filterMenu_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter Subscriptions'**
+  String get subscriptionAdminTab_filterMenu_title;
+
+  /// No description provided for @subscriptionAdminTab_filterMenu_ctaLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Filters'**
+  String get subscriptionAdminTab_filterMenu_ctaLabel;
+
+  /// No description provided for @subscriptionAdminTab_approveSub_exception.
+  ///
+  /// In en, this message translates to:
+  /// **'User not authenticated'**
+  String get subscriptionAdminTab_approveSub_exception;
+
+  /// No description provided for @subscriptionAdminTab_errorWidget_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading subscriptions'**
+  String get subscriptionAdminTab_errorWidget_message;
+
+  /// No description provided for @subscriptionAdminTab_emptyWidget_title.
+  ///
+  /// In en, this message translates to:
+  /// **'No subscriptions yet'**
+  String get subscriptionAdminTab_emptyWidget_title;
+
+  /// No description provided for @subscriptionAdminTab_emptyWidget_searchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No subscriptions found'**
+  String get subscriptionAdminTab_emptyWidget_searchTitle;
+
+  /// No description provided for @subscriptionAdminTab_emptyWidget_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions will appear here'**
+  String get subscriptionAdminTab_emptyWidget_subtitle;
+
+  /// No description provided for @subscriptionAdminTab_emptyWidget_searchSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Try adjusting your filters'**
+  String get subscriptionAdminTab_emptyWidget_searchSubtitle;
+
+  /// No description provided for @scannerPage_viewArea_pausedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanner paused'**
+  String get scannerPage_viewArea_pausedTitle;
+
+  /// No description provided for @scannerPage_infoBubble.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan student QR codes'**
+  String get scannerPage_infoBubble;
+
+  /// No description provided for @scannerPage_controls_toggleFlash.
+  ///
+  /// In en, this message translates to:
+  /// **'Toggle flash'**
+  String get scannerPage_controls_toggleFlash;
+
+  /// No description provided for @scannerPage_controls_pauseScanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause scanner'**
+  String get scannerPage_controls_pauseScanner;
+
+  /// No description provided for @scannerPage_controls_resumeScanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume scanner'**
+  String get scannerPage_controls_resumeScanner;
+
+  /// No description provided for @scannerPage_controls_resetScanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset scanner'**
+  String get scannerPage_controls_resetScanner;
+
+  /// No description provided for @scannerPage_idleState_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to scan'**
+  String get scannerPage_idleState_title;
+
+  /// No description provided for @scannerPage_idleState_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at a student\'s QR code to verify their bus access'**
+  String get scannerPage_idleState_subtitle;
+
+  /// No description provided for @scannerPage_progressingState_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Verifying...'**
+  String get scannerPage_progressingState_title;
+
+  /// No description provided for @scannerPage_progressingState_wait.
+  ///
+  /// In en, this message translates to:
+  /// **'Please wait'**
+  String get scannerPage_progressingState_wait;
+
+  /// No description provided for @scannerPage_resultState_statusGranted.
+  ///
+  /// In en, this message translates to:
+  /// **'ACCESS GRANTED'**
+  String get scannerPage_resultState_statusGranted;
+
+  /// No description provided for @scannerPage_resultState_statusDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'ACCESS DENIED'**
+  String get scannerPage_resultState_statusDenied;
+
+  /// No description provided for @scannerPage_resultState_errorUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown error'**
+  String get scannerPage_resultState_errorUnknown;
+
+  /// No description provided for @scannerPage_resultState_ctaLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Next Scan'**
+  String get scannerPage_resultState_ctaLabel;
+
+  /// No description provided for @scannerPage_compactInfo_email.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get scannerPage_compactInfo_email;
+
+  /// No description provided for @scannerPage_compactInfo_subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription'**
+  String get scannerPage_compactInfo_subscription;
+
+  /// No description provided for @scannerPage_compactInfo_busStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Bus Stop'**
+  String get scannerPage_compactInfo_busStop;
+
+  /// No description provided for @scannerPage_compactInfo_validity.
+  ///
+  /// In en, this message translates to:
+  /// **'Valid Until'**
+  String get scannerPage_compactInfo_validity;
+
+  /// No description provided for @scannerPage_compactInfo_emptySub.
+  ///
+  /// In en, this message translates to:
+  /// **'No active subscription found'**
+  String get scannerPage_compactInfo_emptySub;
+
+  /// No description provided for @scannerPage_errorCard_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get scannerPage_errorCard_title;
+
+  /// No description provided for @analyticsTab_appBar_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Analytics Dashboard'**
+  String get analyticsTab_appBar_title;
+
+  /// No description provided for @analyticsTab_appBar_actionNumView.
+  ///
+  /// In en, this message translates to:
+  /// **'Numerical View'**
+  String get analyticsTab_appBar_actionNumView;
+
+  /// No description provided for @analyticsTab_appBar_actionGraphView.
+  ///
+  /// In en, this message translates to:
+  /// **'Graphical View'**
+  String get analyticsTab_appBar_actionGraphView;
+
+  /// No description provided for @analyticsTab_loadingError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load analytics data'**
+  String get analyticsTab_loadingError;
+
+  /// No description provided for @analyticsTab_subStatusSection_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription Status Overview'**
+  String get analyticsTab_subStatusSection_title;
+
+  /// No description provided for @analyticsTab_subStatusSection_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Current distribution of subscription statuses'**
+  String get analyticsTab_subStatusSection_subtitle;
+
+  /// No description provided for @analyticsTab_subStatusSection_pendingReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Review'**
+  String get analyticsTab_subStatusSection_pendingReview;
+
+  /// No description provided for @analyticsTab_subStatusSection_approvalRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Approval Rate:'**
+  String get analyticsTab_subStatusSection_approvalRate;
+
+  /// No description provided for @analyticsTab_emptyData.
+  ///
+  /// In en, this message translates to:
+  /// **'No data available'**
+  String get analyticsTab_emptyData;
+
+  /// No description provided for @analyticsTab_semesterSection_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Semester Analytics'**
+  String get analyticsTab_semesterSection_title;
+
+  /// No description provided for @analyticsTab_semesterSection_chartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions by Semester'**
+  String get analyticsTab_semesterSection_chartTitle;
+
+  /// No description provided for @analyticsTab_semesterSection_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions per semester this year'**
+  String get analyticsTab_semesterSection_subtitle;
+
+  /// No description provided for @analyticsTab_semesterSection_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No semester data available for'**
+  String get analyticsTab_semesterSection_empty;
+
+  /// No description provided for @analyticsTab_subByYear_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions by Year'**
+  String get analyticsTab_subByYear_title;
+
+  /// No description provided for @analyticsTab_recentActivitySection_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Subscriptions'**
+  String get analyticsTab_recentActivitySection_title;
+
+  /// No description provided for @analyticsTab_recentActivitySection_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 10 submissions'**
+  String get analyticsTab_recentActivitySection_subtitle;
+
+  /// No description provided for @analyticsTab_recentActivitySection_noData.
+  ///
+  /// In en, this message translates to:
+  /// **'No recent subscription'**
+  String get analyticsTab_recentActivitySection_noData;
+
+  /// No description provided for @analyticsTab_topBusStopsSection_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Most Popular Bus Stops'**
+  String get analyticsTab_topBusStopsSection_title;
+
+  /// No description provided for @analyticsTab_topBusStopsSection_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Top 5 by subscription count'**
+  String get analyticsTab_topBusStopsSection_subtitle;
+
+  /// No description provided for @analyticsTab_topBusStopsSection_ctaLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage stops'**
+  String get analyticsTab_topBusStopsSection_ctaLabel;
+
+  /// No description provided for @analyticsTab_topBusStopsSection_noData.
+  ///
+  /// In en, this message translates to:
+  /// **'No bus stop data available'**
+  String get analyticsTab_topBusStopsSection_noData;
+
+  /// No description provided for @analyticsTab_quickActionsSection_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Actions'**
+  String get analyticsTab_quickActionsSection_title;
+
+  /// No description provided for @analyticsTab_quickActionsSection_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage your system efficiently'**
+  String get analyticsTab_quickActionsSection_subtitle;
+
+  /// No description provided for @analyticsTab_quickActionsSection_subscriptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Review Subscriptions'**
+  String get analyticsTab_quickActionsSection_subscriptions;
+
+  /// No description provided for @analyticsTab_quickActionsSection_subscriptionsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve or reject pending subscriptions'**
+  String get analyticsTab_quickActionsSection_subscriptionsSubtitle;
+
+  /// No description provided for @analyticsTab_quickActionsSection_busStops.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Bus Stops'**
+  String get analyticsTab_quickActionsSection_busStops;
+
+  /// No description provided for @analyticsTab_quickActionsSection_busStopsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add, edit, or remove bus stops'**
+  String get analyticsTab_quickActionsSection_busStopsSubtitle;
+
+  /// No description provided for @analyticsTab_quickActionsSection_semesters.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Semesters'**
+  String get analyticsTab_quickActionsSection_semesters;
+
+  /// No description provided for @analyticsTab_quickActionsSection_semestersSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure semester dates and settings'**
+  String get analyticsTab_quickActionsSection_semestersSubtitle;
 }
 
 class _AppLocalizationsDelegate

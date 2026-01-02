@@ -1,4 +1,5 @@
 import 'package:busin/controllers/auth_controller.dart';
+import 'package:busin/l10n/app_localizations.dart';
 import 'package:busin/ui/components/widgets/loading_indicator.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -31,13 +32,15 @@ class BusStopCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AuthController authController = Get.find<AuthController>();
+    final l10n = AppLocalizations.of(context)!;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Image section (full height preview)
-        Expanded(child: _buildImageSection()),
+        // Image section
+        Expanded(child: _buildImageSection(context)),
 
-        // Info and actions section (no background)
+        // Info and actions section
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -49,7 +52,8 @@ class BusStopCard extends StatelessWidget {
                 children: [
                   _MetaData(
                     icon: HugeIcons.strokeRoundedCalendar01,
-                    label: 'Created on ${dateTimeFormatter(stop.createdAt)}',
+                    label:
+                        '${l10n.createdAt} ${dateTimeFormatter(stop.createdAt)}',
                   ),
                   FutureBuilder(
                     future: authController.getUserById(stop.createdBy),
@@ -57,18 +61,18 @@ class BusStopCard extends StatelessWidget {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return _MetaData(
                           icon: HugeIcons.strokeRoundedUser,
-                          label: 'Loading...',
+                          label: l10n.loading,
                         );
                       } else if (snapshot.hasError) {
                         return _MetaData(
                           icon: HugeIcons.strokeRoundedUser,
-                          label: 'Unknown User',
+                          label: l10n.unknown,
                         );
                       } else {
-                        final userName = snapshot.data?.name ?? 'Unknown User';
+                        final userName = snapshot.data?.name ?? l10n.unknown;
                         return _MetaData(
                           icon: HugeIcons.strokeRoundedUser,
-                          label: 'By $userName',
+                          label: '${l10n.by} $userName',
                         );
                       }
                     },
@@ -98,13 +102,13 @@ class BusStopCard extends StatelessWidget {
                   if (stop.hasImage)
                     _FeatureBadge(
                       icon: HugeIcons.strokeRoundedImage02,
-                      label: 'Image',
+                      label: l10n.image,
                       color: successColor,
                     ),
                   if (stop.hasMapEmbed)
                     _FeatureBadge(
                       icon: HugeIcons.strokeRoundedMaps,
-                      label: 'Map',
+                      label: l10n.map,
                       color: infoColor,
                     ),
                 ],
@@ -123,12 +127,12 @@ class BusStopCard extends StatelessWidget {
                       children: [
                         _ActionButton(
                           icon: HugeIcons.strokeRoundedEdit02,
-                          label: 'Edit',
+                          label: l10n.edit,
                           onTap: onEdit,
                         ),
                         _ActionButton(
                           icon: HugeIcons.strokeRoundedDelete02,
-                          label: 'Delete',
+                          label: l10n.delete,
                           onTap: onDelete,
                           color: errorColor,
                         ),
@@ -144,7 +148,8 @@ class BusStopCard extends StatelessWidget {
     );
   }
 
-  Widget _buildImageSection() {
+  Widget _buildImageSection(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (stop.hasImage) {
       return Container(
         clipBehavior: Clip.hardEdge,
@@ -174,7 +179,7 @@ class BusStopCard extends StatelessWidget {
                   ),
                   const Gap(8.0),
                   Text(
-                    'Image not available',
+                    l10n.stopsPage_stopCard_imageUnavailable,
                     style: AppTextStyles.small.copyWith(color: greyColor),
                   ),
                 ],
@@ -239,7 +244,7 @@ class BusStopCard extends StatelessWidget {
             ),
             const Gap(12.0),
             Text(
-              'No preview available',
+              l10n.stopsPage_stopCard_noPreview,
               style: AppTextStyles.body.copyWith(color: greyColor),
             ),
           ],
@@ -269,7 +274,7 @@ class _ActionButton extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      borderRadius: borderRadius,
+      borderRadius: borderRadius * 2.0,
       overlayColor: WidgetStatePropertyAll(color?.withValues(alpha: 0.1)),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),

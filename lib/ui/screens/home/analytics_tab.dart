@@ -1,3 +1,4 @@
+import 'package:busin/l10n/app_localizations.dart';
 import 'package:busin/utils/routes.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -49,18 +50,19 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         title: FittedBox(
           fit: BoxFit.contain,
-          child: Text('Analytics Dashboard'),
+          child: Text(l10n.analyticsTab_appBar_title),
         ),
         actions: [
           Obx(() {
             return IconButton(
               tooltip: _analyticsController.showGraphical.value
-                  ? 'Numerical View'
-                  : 'Graphical View',
+                  ? l10n.analyticsTab_appBar_actionNumView
+                  : l10n.analyticsTab_appBar_actionGraphView,
               onPressed: () => _analyticsController.toggleView(),
               icon: HugeIcon(
                 icon: _analyticsController.showGraphical.value
@@ -80,7 +82,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                     ),
                   )
                 : IconButton(
-                    tooltip: 'Refresh Analytics',
+                    tooltip: l10n.refresh,
                     onPressed: _refreshAnalytics,
                     icon: const HugeIcon(icon: HugeIcons.strokeRoundedRefresh),
                   );
@@ -92,9 +94,12 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
             ),
             child: Padding(
               padding: const EdgeInsets.only(right: 8.0, left: 4.0),
-              child: UserAvatar(
-                tag: authController.userProfileImage,
-                radius: 24.0,
+              child: Tooltip(
+                message: l10n.userProfile,
+                child: UserAvatar(
+                  tag: authController.userProfileImage,
+                  radius: 24.0,
+                ),
               ),
             ),
           ),
@@ -119,7 +124,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                     size: 48.0,
                   ),
                   const Gap(16.0),
-                  Text('Failed to load analytics', style: AppTextStyles.h3),
+                  Text(l10n.analyticsTab_loadingError, style: AppTextStyles.h3),
                   const Gap(8.0),
                   Text(
                     _analyticsController.errorMessage.value!,
@@ -130,7 +135,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                   ElevatedButton.icon(
                     onPressed: _refreshAnalytics,
                     icon: const HugeIcon(icon: HugeIcons.strokeRoundedRefresh),
-                    label: const Text('Retry'),
+                    label: Text(l10n.retry),
                   ),
                 ],
               ),
@@ -185,6 +190,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
   }
 
   Widget _buildQuickStatsGrid() {
+    final l10n = AppLocalizations.of(context)!;
     return Obx(() {
       final data = _analyticsController.analyticsData.value;
 
@@ -197,22 +203,29 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
         childAspectRatio: 1,
         children: [
           StatCard(
-            title: 'Students',
+            title: _analyticsController.totalStudents > 1
+                ? "${l10n.roleStudent}s"
+                : l10n.roleStudent,
             value: '${_analyticsController.totalStudents}',
             icon: HugeIcons.strokeRoundedUserMultiple,
             color: infoColor,
-            trend: _getTrendText(data.studentsWeeklyChange, 'week'),
+            trend: _getTrendText(data.studentsWeeklyChange, l10n.week),
             subtitle:
-                'Monthly: ${_getTrendText(data.studentsMonthlyChange, '')}',
+                '${l10n.monthly}: ${_getTrendText(data.studentsMonthlyChange, '')}',
           ),
           StatCard(
-            title: 'Subscriptions',
+            title: _analyticsController.totalSubscriptions > 1
+                ? "${l10n.subscriptions}"
+                : l10n.subscriptions.substring(
+                    0,
+                    l10n.subscriptions.length - 1,
+                  ),
             value: '${_analyticsController.totalSubscriptions}',
             icon: HugeIcons.strokeRoundedTicket01,
             color: accentColor,
-            trend: _getTrendText(data.subscriptionsWeeklyChange, 'week'),
+            trend: _getTrendText(data.subscriptionsWeeklyChange, l10n.week),
             subtitle:
-                'Monthly: ${_getTrendText(data.subscriptionsMonthlyChange, '')}',
+                '${l10n.monthly}: ${_getTrendText(data.subscriptionsMonthlyChange, '')}',
             onTap: () {
               context.pushNamed(
                 removeLeadingSlash(SubscriptionsAdminPage.routeName),
@@ -220,9 +233,11 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
             },
           ),
           StatCard(
-            title: 'Semesters',
+            title: _analyticsController.totalSemesters > 1
+                ? "${l10n.semester}s"
+                : l10n.semester,
             value: '${_analyticsController.totalSemesters}',
-            icon: HugeIcons.strokeRoundedCalendar03,
+            icon: HugeIcons.strokeRoundedCalendar02,
             color: successColor,
             onTap: () {
               context.pushNamed(
@@ -231,7 +246,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
             },
           ),
           StatCard(
-            title: 'Bus Stops',
+            title: l10n.busStops,
             value: '${_analyticsController.totalBusStops}',
             icon: HugeIcons.strokeRoundedLocation06,
             color: warningColor,
@@ -247,6 +262,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
   }
 
   Widget _buildSubscriptionStatusSection() {
+    final l10n = AppLocalizations.of(context)!;
     return Obx(() {
       final pending = _analyticsController.pendingSubscriptions;
       final approved = _analyticsController.approvedSubscriptions;
@@ -255,31 +271,31 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
       final total = _analyticsController.totalSubscriptions;
 
       return AnalyticsCard(
-        title: 'Subscription Status Overview',
-        subtitle: 'Current distribution of subscription statuses',
+        title: l10n.analyticsTab_subStatusSection_title,
+        subtitle: l10n.analyticsTab_subStatusSection_subtitle,
         icon: HugeIcons.strokeRoundedAnalytics01,
         child: Column(
           children: [
             _AnimatedProgressBar(
-              label: 'Pending Review',
+              label: l10n.analyticsTab_subStatusSection_pendingReview,
               value: pending,
               total: total,
               color: infoColor,
             ),
             _AnimatedProgressBar(
-              label: 'Approved',
+              label: l10n.subscriptionApproved,
               value: approved,
               total: total,
               color: successColor,
             ),
             _AnimatedProgressBar(
-              label: 'Rejected',
+              label: l10n.subscriptionRejected,
               value: rejected,
               total: total,
               color: errorColor,
             ),
             _AnimatedProgressBar(
-              label: 'Expired',
+              label: l10n.subscriptionExpired,
               value: expired,
               total: total,
               color: greyColor,
@@ -301,7 +317,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                   const Gap(8.0),
                   Expanded(
                     child: Text(
-                      'Approval Rate: ${_analyticsController.approvalRate.toStringAsFixed(1)}%',
+                      '${l10n.analyticsTab_subStatusSection_approvalRate} ${_analyticsController.approvalRate.toStringAsFixed(1)}%',
                       style: AppTextStyles.body.copyWith(
                         color: infoColor,
                         fontWeight: FontWeight.w600,
@@ -318,6 +334,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
   }
 
   Widget _buildSubscriptionStatusChart() {
+    final l10n = AppLocalizations.of(context)!;
     return Obx(() {
       final pending = _analyticsController.pendingSubscriptions;
       final approved = _analyticsController.approvedSubscriptions;
@@ -327,14 +344,14 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
 
       if (total == 0) {
         return AnalyticsCard(
-          title: 'Subscription Status Overview',
-          subtitle: 'Current distribution of subscription statuses',
+          title: l10n.analyticsTab_subStatusSection_title,
+          subtitle: l10n.analyticsTab_subStatusSection_subtitle,
           icon: HugeIcons.strokeRoundedAnalytics01,
           child: Center(
             child: Padding(
               padding: const EdgeInsets.all(32.0),
               child: Text(
-                'No data available',
+                l10n.analyticsTab_emptyData,
                 style: AppTextStyles.body.copyWith(color: greyColor),
               ),
             ),
@@ -343,8 +360,8 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
       }
 
       return AnalyticsCard(
-        title: 'Subscription Status Overview',
-        subtitle: 'Current distribution of subscription statuses',
+        title: l10n.analyticsTab_subStatusSection_title,
+        subtitle: l10n.analyticsTab_subStatusSection_subtitle,
         icon: HugeIcons.strokeRoundedAnalytics01,
         child: Column(
           children: [
@@ -422,22 +439,22 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
               children: [
                 _ChartLegendItem(
                   color: infoColor,
-                  label: 'Pending',
+                  label: l10n.subscriptionPending,
                   value: pending.toString(),
                 ),
                 _ChartLegendItem(
                   color: successColor,
-                  label: 'Approved',
+                  label: l10n.subscriptionApproved,
                   value: approved.toString(),
                 ),
                 _ChartLegendItem(
                   color: errorColor,
-                  label: 'Rejected',
+                  label: l10n.subscriptionRejected,
                   value: rejected.toString(),
                 ),
                 _ChartLegendItem(
                   color: greyColor,
-                  label: 'Expired',
+                  label: l10n.subscriptionExpired,
                   value: expired.toString(),
                 ),
               ],
@@ -449,6 +466,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
   }
 
   Widget _buildSemesterAnalyticsSection() {
+    final l10n = AppLocalizations.of(context)!;
     return Obx(() {
       final semesterAnalytics =
           _analyticsController.analyticsData.value.semesterAnalytics;
@@ -456,14 +474,14 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
 
       if (semesterAnalytics.isEmpty) {
         return AnalyticsCard(
-          title: 'Semester Analytics - $currentYear',
-          subtitle: 'Subscriptions per semester this year',
+          title: '${l10n.analyticsTab_semesterSection_title} - $currentYear',
+          subtitle: l10n.analyticsTab_semesterSection_subtitle,
           icon: HugeIcons.strokeRoundedCalendar04,
           child: Center(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(
-                'No semester data available for $currentYear',
+                '${l10n.analyticsTab_semesterSection_empty} $currentYear',
                 style: AppTextStyles.body.copyWith(color: greyColor),
               ),
             ),
@@ -472,8 +490,8 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
       }
 
       return AnalyticsCard(
-        title: 'Semester Analytics - $currentYear',
-        subtitle: 'Subscriptions per semester this year',
+        title: '${l10n.analyticsTab_semesterSection_title} - $currentYear',
+        subtitle: l10n.analyticsTab_semesterSection_subtitle,
         icon: HugeIcons.strokeRoundedCalendar04,
         child: Column(
           children: semesterAnalytics.entries.map((entry) {
@@ -541,17 +559,17 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           _MiniStat(
-                            label: 'Pending',
+                            label: l10n.subscriptionPending,
                             value: pending.toString(),
                             color: infoColor,
                           ),
                           _MiniStat(
-                            label: 'Approved',
+                            label: l10n.subscriptionApproved,
                             value: approved.toString(),
                             color: successColor,
                           ),
                           _MiniStat(
-                            label: 'Rejected',
+                            label: l10n.subscriptionRejected,
                             value: rejected.toString(),
                             color: errorColor,
                           ),
@@ -570,6 +588,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
   }
 
   Widget _buildDistributionSection() {
+    final l10n = AppLocalizations.of(context)!;
     return Obx(() {
       final bySemester =
           _analyticsController.analyticsData.value.subscriptionsBySemester;
@@ -579,14 +598,14 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
       return Column(
         children: [
           AnalyticsCard(
-            title: 'Subscriptions by Semester',
+            title: l10n.analyticsTab_semesterSection_chartTitle,
             icon: HugeIcons.strokeRoundedCalendar02,
             child: bySemester.isEmpty
                 ? Center(
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Text(
-                        'No data available',
+                        l10n.analyticsTab_emptyData,
                         style: AppTextStyles.body.copyWith(color: greyColor),
                       ),
                     ),
@@ -608,14 +627,14 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
           ),
           const Gap(16.0),
           AnalyticsCard(
-            title: 'Subscriptions by Year',
+            title: l10n.analyticsTab_subByYear_title,
             icon: HugeIcons.strokeRoundedCalendarSetting01,
             child: byYear.isEmpty
                 ? Center(
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Text(
-                        'No data available',
+                        l10n.analyticsTab_emptyData,
                         style: AppTextStyles.body.copyWith(color: greyColor),
                       ),
                     ),
@@ -640,6 +659,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
   }
 
   Widget _buildDistributionCharts() {
+    final l10n = AppLocalizations.of(context)!;
     return Obx(() {
       final bySemester =
           _analyticsController.analyticsData.value.subscriptionsBySemester;
@@ -650,7 +670,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
         children: [
           if (bySemester.isNotEmpty)
             AnalyticsCard(
-              title: 'Subscriptions by Semester',
+              title: l10n.analyticsTab_semesterSection_chartTitle,
               icon: HugeIcons.strokeRoundedCalendar02,
               child: SizedBox(
                 height: 200,
@@ -693,7 +713,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                               leftTitles: AxisTitles(
                                 sideTitles: SideTitles(
                                   showTitles: true,
-                                  reservedSize: 40,
+                                  reservedSize: 40.0,
                                   getTitlesWidget: (value, meta) {
                                     return Text(
                                       value.toInt().toString(),
@@ -746,7 +766,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
           const Gap(16.0),
           if (byYear.isNotEmpty)
             AnalyticsCard(
-              title: 'Subscriptions by Year',
+              title: l10n.analyticsTab_subByYear_title,
               icon: HugeIcons.strokeRoundedCalendarSetting01,
               child: SizedBox(
                 height: 200,
@@ -843,13 +863,14 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
   }
 
   Widget _buildRecentActivitySection() {
+    final l10n = AppLocalizations.of(context)!;
     return Obx(() {
       final recentSubscriptions =
           _analyticsController.analyticsData.value.recentSubscriptions;
 
       return AnalyticsCard(
-        title: 'Recent Subscriptions',
-        subtitle: 'Last 10 submissions',
+        title: l10n.analyticsTab_recentActivitySection_title,
+        subtitle: l10n.analyticsTab_recentActivitySection_subtitle,
         icon: HugeIcons.strokeRoundedClock01,
         action: TextButton(
           onPressed: () {
@@ -857,14 +878,20 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
               removeLeadingSlash(SubscriptionsAdminPage.routeName),
             );
           },
-          child: const Text('View All'),
+          child: Row(
+            spacing: 4.0,
+            children: [
+              Text(l10n.viewAll, style: AppTextStyles.body),
+              HugeIcon(icon: HugeIcons.strokeRoundedArrowUpRight01, size: 20.0),
+            ],
+          ),
         ),
         child: recentSubscriptions.isEmpty
             ? Center(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
-                    'No recent subscriptions',
+                    l10n.analyticsTab_recentActivitySection_noData,
                     style: AppTextStyles.body.copyWith(color: greyColor),
                   ),
                 ),
@@ -889,6 +916,21 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                     }
                   }
 
+                  String _getSubscriptionDisplayLabel(String? status) {
+                    switch (status?.toLowerCase()) {
+                      case 'pending':
+                        return l10n.subscriptionPending;
+                      case 'approved':
+                        return l10n.subscriptionApproved;
+                      case 'rejected':
+                        return l10n.subscriptionRejected;
+                      case 'expired':
+                        return l10n.subscriptionExpired;
+                      default:
+                        return l10n.naLabel;
+                    }
+                  }
+
                   return ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: Container(
@@ -906,13 +948,13 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                       ),
                     ),
                     title: Text(
-                      '${semester?.toUpperCase() ?? 'N/A'} $year',
+                      '${semester?.toUpperCase() ?? l10n.naLabel} $year',
                       style: AppTextStyles.body.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     subtitle: Text(
-                      date != null ? dateFormatter(date) : 'N/A',
+                      date != null ? dateFormatter(date) : l10n.naLabel,
                       style: AppTextStyles.small,
                     ),
                     trailing: Container(
@@ -927,7 +969,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                         borderRadius: borderRadius,
                       ),
                       child: Text(
-                        status?.toUpperCase() ?? 'N/A',
+                        _getSubscriptionDisplayLabel(status).toUpperCase(),
                         style: AppTextStyles.small.copyWith(
                           color: _getStatusColor(status ?? ''),
                           fontWeight: FontWeight.bold,
@@ -942,12 +984,13 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
   }
 
   Widget _buildTopBusStopsSection() {
+    final l10n = AppLocalizations.of(context)!;
     return Obx(() {
       final topStops = _analyticsController.analyticsData.value.topBusStops;
 
       return AnalyticsCard(
-        title: 'Most Popular Bus Stops',
-        subtitle: 'Top 5 by subscription count',
+        title: l10n.analyticsTab_topBusStopsSection_title,
+        subtitle: l10n.analyticsTab_topBusStopsSection_subtitle,
         icon: HugeIcons.strokeRoundedLocation03,
         action: TextButton(
           onPressed: () {
@@ -955,14 +998,23 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
               removeLeadingSlash(BusStopsManagementPage.routeName),
             );
           },
-          child: const Text('Manage Stops'),
+          child: Row(
+            spacing: 4.0,
+            children: [
+              Text(
+                l10n.analyticsTab_topBusStopsSection_ctaLabel,
+                style: AppTextStyles.body,
+              ),
+              HugeIcon(icon: HugeIcons.strokeRoundedArrowUpRight01, size: 20.0),
+            ],
+          ),
         ),
         child: topStops.isEmpty
             ? Center(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
-                    'No bus stop data available',
+                    l10n.analyticsTab_topBusStopsSection_noData,
                     style: AppTextStyles.body.copyWith(color: greyColor),
                   ),
                 ),
@@ -1023,7 +1075,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                                     ),
                                   ),
                                   Text(
-                                    '$count subscriptions',
+                                    '$count ${l10n.subscriptions.replaceFirst(l10n.subscriptions[0], l10n.subscriptions[0].toLowerCase())}',
                                     style: AppTextStyles.small.copyWith(
                                       color: themeController.isDark
                                           ? lightColor.withValues(alpha: 0.6)
@@ -1051,19 +1103,20 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
   }
 
   Widget _buildTopBusStopsChart() {
+    final l10n = AppLocalizations.of(context)!;
     return Obx(() {
       final topStops = _analyticsController.analyticsData.value.topBusStops;
 
       if (topStops.isEmpty) {
         return AnalyticsCard(
-          title: 'Most Popular Bus Stops',
-          subtitle: 'Top 5 by subscription count',
+          title: l10n.analyticsTab_topBusStopsSection_title,
+          subtitle: l10n.analyticsTab_topBusStopsSection_subtitle,
           icon: HugeIcons.strokeRoundedLocation03,
           child: Center(
             child: Padding(
               padding: const EdgeInsets.all(32.0),
               child: Text(
-                'No bus stop data available',
+                l10n.analyticsTab_topBusStopsSection_noData,
                 style: AppTextStyles.body.copyWith(color: greyColor),
               ),
             ),
@@ -1072,8 +1125,8 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
       }
 
       return AnalyticsCard(
-        title: 'Most Popular Bus Stops',
-        subtitle: 'Top 5 by subscription count',
+        title: l10n.analyticsTab_topBusStopsSection_title,
+        subtitle: l10n.analyticsTab_topBusStopsSection_subtitle,
         icon: HugeIcons.strokeRoundedLocation03,
         action: TextButton(
           onPressed: () {
@@ -1081,10 +1134,19 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
               removeLeadingSlash(BusStopsManagementPage.routeName),
             );
           },
-          child: const Text('Manage Stops'),
+          child: Row(
+            spacing: 4.0,
+            children: [
+              Text(
+                l10n.analyticsTab_topBusStopsSection_ctaLabel,
+                style: AppTextStyles.body,
+              ),
+              HugeIcon(icon: HugeIcons.strokeRoundedArrowUpRight01, size: 20.0),
+            ],
+          ),
         ),
         child: SizedBox(
-          height: 250,
+          height: 250.0,
           child:
               BarChart(
                     BarChartData(
@@ -1171,16 +1233,18 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
   }
 
   Widget _buildQuickActionsSection() {
+    final l10n = AppLocalizations.of(context)!;
     return AnalyticsCard(
-      title: 'Quick Actions',
-      subtitle: 'Manage your system',
+      title: l10n.analyticsTab_quickActionsSection_title,
+      subtitle: l10n.analyticsTab_quickActionsSection_subtitle,
       icon: HugeIcons.strokeRoundedDashboardSpeed02,
       child: Column(
         children: [
           _QuickActionTile(
             icon: HugeIcons.strokeRoundedTicket02,
-            title: 'Review Subscriptions',
-            subtitle: 'Approve or reject pending subscriptions',
+            title: l10n.analyticsTab_quickActionsSection_subscriptions,
+            subtitle:
+                l10n.analyticsTab_quickActionsSection_subscriptionsSubtitle,
             color: infoColor,
             onTap: () {
               context.pushNamed(
@@ -1191,8 +1255,8 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
           const Gap(8.0),
           _QuickActionTile(
             icon: HugeIcons.strokeRoundedLocation04,
-            title: 'Manage Bus Stops',
-            subtitle: 'Add, edit, or remove bus stops',
+            title: l10n.analyticsTab_quickActionsSection_busStops,
+            subtitle: l10n.analyticsTab_quickActionsSection_busStopsSubtitle,
             color: accentColor,
             onTap: () {
               context.pushNamed(
@@ -1203,8 +1267,8 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
           const Gap(8.0),
           _QuickActionTile(
             icon: HugeIcons.strokeRoundedCalendar04,
-            title: 'Manage Semesters',
-            subtitle: 'Configure semester dates and settings',
+            title: l10n.analyticsTab_quickActionsSection_semesters,
+            subtitle: l10n.analyticsTab_quickActionsSection_semestersSubtitle,
             color: successColor,
             onTap: () {
               context.pushNamed(

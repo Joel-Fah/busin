@@ -1,4 +1,6 @@
+import 'package:busin/l10n/app_localizations.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'value_objects/bus_stop_selection.dart';
 import 'value_objects/review_observation.dart';
 
@@ -70,6 +72,17 @@ enum BusSubscriptionStatus {
     BusSubscriptionStatus.rejected => 'Rejected',
     BusSubscriptionStatus.expired => 'Expired',
   };
+
+  String getDisplayLabel(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return switch (this) {
+    BusSubscriptionStatus.pending => l10n.subscriptionPending,
+    BusSubscriptionStatus.approved => l10n.subscriptionApproved,
+    BusSubscriptionStatus.rejected => l10n.subscriptionRejected,
+    BusSubscriptionStatus.expired => l10n.subscriptionExpired,
+  };
+  }
 
   bool get isPending => this == BusSubscriptionStatus.pending;
 
@@ -453,64 +466,3 @@ class BusSubscription {
       'isCurrentlyActive: $isCurrentlyActive'
       ']';
 }
-
-// Dummy data for subscriptions
-List<BusSubscription> dummySubscriptions = [
-  BusSubscription.pending(
-    id: 'sub_001',
-    studentId: 'stu_001',
-    semester: Semester.fall,
-    year: 2024,
-    proofOfPaymentUrl: 'https://example.com/proof1.jpg',
-    stop: BusStop(
-      id: 'stop_01',
-      name: 'Main Gate',
-      createdAt: DateTime(2024, 1, 15),
-      updatedAt: DateTime(2024, 1, 15),
-      createdBy: 'admin_001',
-    ),
-    schedules: [
-      BusSubscriptionSchedule(
-        weekday: 1,
-        morningTime: '07:30',
-        closingTime: '08:00',
-      ),
-      BusSubscriptionSchedule(
-        weekday: 3,
-        morningTime: '07:30',
-        closingTime: '08:00',
-      ),
-    ],
-  ),
-  BusSubscription.pending(
-    id: 'sub_002',
-    studentId: 'stu_002',
-    semester: Semester.spring,
-    year: 2025,
-    proofOfPaymentUrl: 'https://example.com/proof2.jpg',
-    stop: BusStop(
-      id: 'stop_02',
-      name: 'Library Stop',
-      createdAt: DateTime(2024, 2, 10),
-      updatedAt: DateTime(2024, 2, 10),
-      createdBy: 'admin_001',
-    ),
-    schedules: [
-      BusSubscriptionSchedule(
-        weekday: 2,
-        morningTime: '08:00',
-        closingTime: '08:30',
-      ),
-      BusSubscriptionSchedule(
-        weekday: 4,
-        morningTime: '08:00',
-        closingTime: '08:30',
-      ),
-      BusSubscriptionSchedule(
-        weekday: 6,
-        morningTime: '09:00',
-        closingTime: '09:30',
-      ),
-    ],
-  ),
-];

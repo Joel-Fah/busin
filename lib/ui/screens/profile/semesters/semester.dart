@@ -1,3 +1,4 @@
+import 'package:busin/l10n/app_localizations.dart';
 import 'package:busin/utils/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -27,29 +28,32 @@ class _SemesterManagementPageState extends State<SemesterManagementPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Semesters'),
+        title: FittedBox(
+          fit: BoxFit.contain,
+          child: Text(l10n.semestersPage_appBar_title),
+        ),
         actions: [
           IconButton(
-            tooltip: 'Refresh',
+            tooltip: l10n.refresh,
             onPressed: () => _semesterController.fetchSemesters(),
             icon: const HugeIcon(icon: HugeIcons.strokeRoundedRefresh),
           ),
           if (authController.isAdmin)
-          IconButton.filled(
-            tooltip: "Add semester",
-            style: IconButton.styleFrom(backgroundColor: accentColor),
-            onPressed: () => context.pushNamed(
-              removeLeadingSlash(SemesterFormPage.routeName),
+            IconButton.filled(
+              tooltip: l10n.semestersPage_appBar_actionsAdd,
+              style: IconButton.styleFrom(backgroundColor: accentColor),
+              onPressed: () => context.pushNamed(
+                removeLeadingSlash(SemesterFormPage.routeName),
+              ),
+              icon: const HugeIcon(icon: HugeIcons.strokeRoundedAdd01),
             ),
-            icon: const HugeIcon(icon: HugeIcons.strokeRoundedAdd01),
-          ),
         ],
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(80.0),
-          child: // Active semester indicator
-          Obx(() {
+          child: Obx(() {
             final active = _semesterController.activeSemester.value;
             if (active == null) return const SizedBox.shrink();
 
@@ -67,7 +71,7 @@ class _SemesterManagementPageState extends State<SemesterManagementPage> {
                     color: successColor,
                   ),
                   subtitle: Text(
-                    'Active Semester',
+                    l10n.semestersPage_appBar_activeSemester,
                     style: AppTextStyles.small.copyWith(color: successColor),
                   ),
                   title: Text(
@@ -103,7 +107,7 @@ class _SemesterManagementPageState extends State<SemesterManagementPage> {
                   HugeIcon(icon: infoIcon, color: infoColor),
                   Expanded(
                     child: Text(
-                      'Define start and end dates for each semester. These dates will be used for subscription validity periods.',
+                      l10n.semestersPage_infoBubble,
                       style: AppTextStyles.body.copyWith(color: infoColor),
                     ),
                   ),
@@ -129,7 +133,7 @@ class _SemesterManagementPageState extends State<SemesterManagementPage> {
                 children: [
                   _StatItem(
                     icon: HugeIcons.strokeRoundedLayers01,
-                    label: 'Total',
+                    label: l10n.semestersPage_statItem_total,
                     value: total.toString(),
                     color: warningColor,
                   ),
@@ -141,7 +145,7 @@ class _SemesterManagementPageState extends State<SemesterManagementPage> {
                   ),
                   _StatItem(
                     icon: HugeIcons.strokeRoundedForward02,
-                    label: 'Upcoming',
+                    label: l10n.semestersPage_statItem_upcoming,
                     value: upcoming.toString(),
                     color: infoColor,
                   ),
@@ -154,10 +158,12 @@ class _SemesterManagementPageState extends State<SemesterManagementPage> {
             Obx(() {
               if (_semesterController.isLoading.value &&
                   _semesterController.semesters.isEmpty) {
-                return const Center(child: Padding(
-                  padding: EdgeInsets.only(top: 36.0),
-                  child: LoadingIndicator(),
-                ));
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 36.0),
+                    child: LoadingIndicator(),
+                  ),
+                );
               }
 
               if (_semesterController.error.value.isNotEmpty) {
@@ -171,7 +177,10 @@ class _SemesterManagementPageState extends State<SemesterManagementPage> {
                         size: 48.0,
                       ),
                       const Gap(16.0),
-                      Text('Error loading semesters', style: AppTextStyles.h3),
+                      Text(
+                        l10n.semestersPage_loadingError,
+                        style: AppTextStyles.h3,
+                      ),
                       const Gap(8.0),
                       Text(
                         _semesterController.error.value,
@@ -184,7 +193,7 @@ class _SemesterManagementPageState extends State<SemesterManagementPage> {
                         icon: const HugeIcon(
                           icon: HugeIcons.strokeRoundedRefresh,
                         ),
-                        label: const Text('Retry'),
+                        label: Text(l10n.retry),
                       ),
                     ],
                   ),
@@ -204,10 +213,13 @@ class _SemesterManagementPageState extends State<SemesterManagementPage> {
                           size: 48.0,
                         ),
                         const Gap(16.0),
-                        Text('No semesters configured', style: AppTextStyles.h3),
+                        Text(
+                          l10n.semestersPage_emptyList_title,
+                          style: AppTextStyles.h3,
+                        ),
                         const Gap(4.0),
                         Text(
-                          'Add your first semester to get started',
+                          l10n.semestersPage_emptyList_subtitle,
                           style: AppTextStyles.body.copyWith(color: greyColor),
                           textAlign: TextAlign.center,
                         ),
@@ -224,7 +236,10 @@ class _SemesterManagementPageState extends State<SemesterManagementPage> {
                           icon: const HugeIcon(
                             icon: HugeIcons.strokeRoundedAdd01,
                           ),
-                          label: const Text('Add Semester', style: AppTextStyles.body,),
+                          label: Text(
+                            l10n.semestersPage_appBar_actionsAdd,
+                            style: AppTextStyles.body,
+                          ),
                         ),
                       ],
                     ),
@@ -261,6 +276,7 @@ class _SemesterManagementPageState extends State<SemesterManagementPage> {
   }
 
   Future<void> _handleDelete(SemesterConfig semester) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await _showDeleteBottomSheet(semester);
     if (confirmed != true) return;
 
@@ -269,29 +285,34 @@ class _SemesterManagementPageState extends State<SemesterManagementPage> {
     if (!mounted) return;
 
     if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        buildSnackBar(
-          prefixIcon: const Icon(Icons.check_circle, color: lightColor),
-          label: const Text('Semester deleted successfully'),
-          backgroundColor: successColor,
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        buildSnackBar(
-          prefixIcon: const Icon(Icons.error, color: lightColor),
-          label: Text(
-            _semesterController.error.value.isNotEmpty
-                ? _semesterController.error.value
-                : 'Failed to delete semester',
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          buildSnackBar(
+            prefixIcon: const Icon(Icons.check_circle, color: lightColor),
+            label: Text(l10n.semestersPage_handleDelete_successful),
+            backgroundColor: successColor,
           ),
-          backgroundColor: errorColor,
-        ),
-      );
+        );
+    } else {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          buildSnackBar(
+            prefixIcon: const Icon(Icons.error, color: lightColor),
+            label: Text(
+              _semesterController.error.value.isNotEmpty
+                  ? _semesterController.error.value
+                  : l10n.semestersPage_handleDelete_failed,
+            ),
+            backgroundColor: errorColor,
+          ),
+        );
     }
   }
 
   Future<bool?> _showDeleteBottomSheet(SemesterConfig semester) {
+    final l10n = AppLocalizations.of(context)!;
     return showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
@@ -348,12 +369,14 @@ class _SemesterManagementPageState extends State<SemesterManagementPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Delete Semester',
+                              l10n.semestersPage_handleDelete_title,
                               style: AppTextStyles.h3,
                             ),
                             Text(
-                              'This action cannot be undone',
-                              style: AppTextStyles.small.copyWith(color: errorColor),
+                              l10n.semestersPage_handleDelete_subtitle,
+                              style: AppTextStyles.small.copyWith(
+                                color: errorColor,
+                              ),
                             ),
                           ],
                         ),
@@ -403,35 +426,35 @@ class _SemesterManagementPageState extends State<SemesterManagementPage> {
                         const Gap(12.0),
                         _DetailRow(
                           icon: HugeIcons.strokeRoundedCalendarCheckIn01,
-                          label: 'Start Date',
+                          label: l10n.semestersPage_detailRow_startDate,
                           value: dateFormatter(semester.startDate),
                         ),
                         const Gap(8.0),
                         _DetailRow(
                           icon: HugeIcons.strokeRoundedCalendarCheckOut01,
-                          label: 'End Date',
+                          label: l10n.semestersPage_detailRow_endDate,
                           value: dateFormatter(semester.endDate),
                         ),
                         const Gap(8.0),
                         _DetailRow(
                           icon: HugeIcons.strokeRoundedTimer02,
-                          label: 'Duration',
-                          value: '${semester.durationInDays} days',
+                          label: l10n.semestersPage_detailRow_duration,
+                          value: '${semester.durationInDays} ${l10n.days}',
                         ),
                         const Gap(8.0),
                         _DetailRow(
                           icon: HugeIcons.strokeRoundedInformationCircle,
-                          label: 'Status',
+                          label: l10n.status,
                           value: semester.isActive
-                              ? 'Active'
+                              ? l10n.semestersPage_detailRow_statusActive
                               : DateTime.now().isAfter(semester.endDate)
-                                  ? 'Ended'
-                                  : 'Upcoming',
+                              ? l10n.semestersPage_detailRow_statusEnded
+                              : l10n.semestersPage_detailRow_statusUpcoming,
                           valueColor: semester.isActive
                               ? successColor
                               : DateTime.now().isAfter(semester.endDate)
-                                  ? lightColor.withValues(alpha: 0.5)
-                                  : infoColor,
+                              ? lightColor.withValues(alpha: 0.5)
+                              : infoColor,
                         ),
                       ],
                     ),
@@ -455,7 +478,7 @@ class _SemesterManagementPageState extends State<SemesterManagementPage> {
                         const Gap(12.0),
                         Expanded(
                           child: Text(
-                            'All data associated with this semester will be permanently deleted.',
+                            l10n.semestersPage_deleteModal_warning,
                             style: AppTextStyles.small.copyWith(
                               color: warningColor,
                             ),
@@ -481,9 +504,11 @@ class _SemesterManagementPageState extends State<SemesterManagementPage> {
                             ),
                           ),
                           child: Text(
-                            'Cancel',
+                            l10n.cancel,
                             style: AppTextStyles.body.copyWith(
-                              color: themeController.isDark ? lightColor : seedColor,
+                              color: themeController.isDark
+                                  ? lightColor
+                                  : seedColor,
                             ),
                           ),
                         ),
@@ -502,7 +527,7 @@ class _SemesterManagementPageState extends State<SemesterManagementPage> {
                             icon: HugeIcons.strokeRoundedDelete02,
                             color: lightColor,
                           ),
-                          label: const Text('Delete', style: AppTextStyles.body),
+                          label: Text(l10n.delete, style: AppTextStyles.body),
                         ),
                       ),
                     ],
@@ -573,6 +598,7 @@ class _SemesterCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isActive = semester.isActive;
     final isPast = DateTime.now().isAfter(semester.endDate);
 
@@ -582,15 +608,15 @@ class _SemesterCard extends StatelessWidget {
 
     if (isActive) {
       statusColor = successColor;
-      statusLabel = 'Active';
+      statusLabel = l10n.semestersPage_detailRow_statusActive;
       statusIcon = HugeIcons.strokeRoundedCalendar02;
     } else if (isPast) {
       statusColor = Colors.transparent;
-      statusLabel = 'Ended';
+      statusLabel = l10n.semestersPage_detailRow_statusEnded;
       statusIcon = HugeIcons.strokeRoundedUnavailable;
     } else {
       statusColor = infoColor;
-      statusLabel = 'Upcoming';
+      statusLabel = l10n.semestersPage_detailRow_statusUpcoming;
       statusIcon = HugeIcons.strokeRoundedForward02;
     }
 
@@ -599,7 +625,9 @@ class _SemesterCard extends StatelessWidget {
         border: Border.all(
           color: isActive
               ? successColor
-              : isPast ? greyColor : infoColor,
+              : isPast
+              ? greyColor
+              : infoColor,
           width: isActive ? 2.0 : 1.0,
         ),
         borderRadius: borderRadius * 2.5,
@@ -608,7 +636,9 @@ class _SemesterCard extends StatelessWidget {
         children: [
           // Header
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0).copyWith(right: 0.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+            ).copyWith(right: 0.0),
             decoration: BoxDecoration(
               color: statusColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.only(
@@ -627,31 +657,34 @@ class _SemesterCard extends StatelessWidget {
                 statusLabel,
                 style: AppTextStyles.small.copyWith(color: statusColor),
               ),
-              // actions: edit + delete
-              trailing: authController.isAdmin ? Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    tooltip: 'Edit Semester',
-                    onPressed: onEdit,
-                    icon: HugeIcon(
-                      icon: HugeIcons.strokeRoundedEdit02,
-                      color: themeController.isDark ? seedPalette.shade100 : seedColor,
-                    ),
-                  ),
-                  IconButton(
-                    tooltip: 'Delete Semester',
-                    onPressed: onDelete,
-                    style: IconButton.styleFrom(
-                      overlayColor: errorColor.withValues(alpha: 0.1),
-                    ),
-                    color: errorColor,
-                    icon: const HugeIcon(
-                      icon: HugeIcons.strokeRoundedDelete02,
-                    ),
-                  ),
-                ],
-              ) : null,
+              trailing: authController.isAdmin
+                  ? Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          tooltip: l10n.edit,
+                          onPressed: onEdit,
+                          icon: HugeIcon(
+                            icon: HugeIcons.strokeRoundedEdit02,
+                            color: themeController.isDark
+                                ? seedPalette.shade100
+                                : seedColor,
+                          ),
+                        ),
+                        IconButton(
+                          tooltip: l10n.delete,
+                          onPressed: onDelete,
+                          style: IconButton.styleFrom(
+                            overlayColor: errorColor.withValues(alpha: 0.1),
+                          ),
+                          color: errorColor,
+                          icon: const HugeIcon(
+                            icon: HugeIcons.strokeRoundedDelete02,
+                          ),
+                        ),
+                      ],
+                    )
+                  : null,
             ),
           ),
 
@@ -663,18 +696,18 @@ class _SemesterCard extends StatelessWidget {
               children: [
                 _InfoRow(
                   icon: HugeIcons.strokeRoundedCalendarCheckIn01,
-                  label: 'Start Date',
+                  label: l10n.semestersPage_detailRow_startDate,
                   value: dateFormatter(semester.startDate),
                 ),
                 _InfoRow(
                   icon: HugeIcons.strokeRoundedCalendarCheckOut01,
-                  label: 'End Date',
+                  label: l10n.semestersPage_detailRow_endDate,
                   value: dateFormatter(semester.endDate),
                 ),
                 _InfoRow(
                   icon: HugeIcons.strokeRoundedTimer02,
-                  label: 'Duration',
-                  value: '${semester.durationInDays} days',
+                  label: l10n.semestersPage_detailRow_duration,
+                  value: '${semester.durationInDays} ${l10n.days}',
                 ),
               ],
             ),
@@ -692,7 +725,8 @@ class _InfoRow extends StatelessWidget {
 
   const _InfoRow({
     required this.label,
-    required this.value, required this.icon,
+    required this.value,
+    required this.icon,
   });
 
   @override
@@ -700,10 +734,7 @@ class _InfoRow extends StatelessWidget {
     return Row(
       spacing: 8.0,
       children: [
-        HugeIcon(
-          icon: icon,
-          size: 20.0
-        ),
+        HugeIcon(icon: icon, size: 20.0),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -739,16 +770,12 @@ class _DetailRow extends StatelessWidget {
         HugeIcon(
           icon: icon,
           color: themeController.isDark ? lightColor : seedColor,
+          size: 20.0,
         ),
         const Gap(12.0),
         Text(label, style: AppTextStyles.body),
         const Spacer(),
-        Text(
-          value,
-          style: AppTextStyles.body.copyWith(
-            color: valueColor,
-          ),
-        ),
+        Text(value, style: AppTextStyles.body.copyWith(color: valueColor)),
       ],
     );
   }

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:flutter/foundation.dart';
 
 import '../models/scannings.dart';
@@ -12,12 +13,16 @@ class ScanningController extends GetxController {
 
   final ScanningService _service = ScanningService.instance;
   final AuthController _authController = Get.find<AuthController>();
+  final GetStorage _storage = GetStorage();
 
   final RxList<Scanning> _scannings = <Scanning>[].obs;
   final Rxn<Scanning> lastScan = Rxn<Scanning>();
   final RxBool isBusy = false.obs;
   final RxnString errorMessage = RxnString();
   final RxBool hasLocationPermission = false.obs;
+
+  // Storage key for screenshot warning
+  static const String _screenshotWarningShownKey = 'screenshot_warning_shown';
 
   List<Scanning> get scannings => _scannings;
 
@@ -214,5 +219,18 @@ class ScanningController extends GetxController {
   /// Get current location
   Future<Map<String, double>?> getCurrentLocation() async {
     return await _service.getCurrentLocation();
+  }
+
+  /// Check if screenshot warning has already been shown
+  bool hasShownScreenshotWarning() {
+    return _storage.read<bool>(_screenshotWarningShownKey) ?? false;
+  }
+
+  /// Mark screenshot warning as shown
+  void markScreenshotWarningShown() {
+    _storage.write(_screenshotWarningShownKey, true);
+    if (kDebugMode) {
+      debugPrint('[ScanningController] Screenshot warning marked as shown');
+    }
   }
 }

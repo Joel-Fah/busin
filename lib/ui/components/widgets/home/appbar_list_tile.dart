@@ -1,3 +1,4 @@
+import 'package:busin/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../utils/constants.dart';
@@ -19,25 +20,29 @@ class AppBarListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IntrinsicWidth(
-      child: ListTile(
-        onTap: onTap,
-        contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
-        leading: leading,
-        title: Text(title),
-        subtitle: Align(
-          alignment: AlignmentGeometry.centerLeft,
-          child: Ink(
-            padding: EdgeInsetsGeometry.symmetric(horizontal: 8.0, vertical: 2.0),
-            decoration: BoxDecoration(
-              color: subtitleColor.withValues(alpha: 0.1),
-              borderRadius: borderRadius,
-            ),
-            child: Text(
-              subtitle,
-              style: AppTextStyles.small.copyWith(
-                color: subtitleColor,
-                fontWeight: FontWeight.w600,
+    final l10n = AppLocalizations.of(context)!;
+    return Tooltip(
+      message: l10n.userProfile,
+      child: IntrinsicWidth(
+        child: ListTile(
+          onTap: onTap,
+          contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+          leading: leading,
+          title: Text(title),
+          subtitle: Align(
+            alignment: AlignmentGeometry.centerLeft,
+            child: Ink(
+              padding: EdgeInsetsGeometry.symmetric(horizontal: 8.0, vertical: 2.0),
+              decoration: BoxDecoration(
+                color: subtitleColor.withValues(alpha: 0.1),
+                borderRadius: borderRadius,
+              ),
+              child: Text(
+                subtitle,
+                style: AppTextStyles.small.copyWith(
+                  color: subtitleColor,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ),

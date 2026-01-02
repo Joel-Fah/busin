@@ -11,6 +11,8 @@ import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:hugeicons/hugeicons.dart';
 
+import '../../../l10n/app_localizations.dart';
+
 class AppearancePage extends StatelessWidget {
   const AppearancePage({super.key});
 
@@ -18,20 +20,21 @@ class AppearancePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: FittedBox(fit: BoxFit.contain, child: const Text("Appearance")),
+        title: FittedBox(fit: BoxFit.contain, child: Text(l10n.appearance_appBar_title)),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         physics: const AlwaysScrollableScrollPhysics(),
         children:
             [
-                  const ListSubHeading(label: "Theme"),
+                  ListSubHeading(label: l10n.appearance_listTile_theme),
                   const Gap(12.0),
                   _ThemeSection(),
                   const Gap(24.0),
-                  const ListSubHeading(label: "Language"),
+                  ListSubHeading(label: l10n.appearance_listTile_language),
                   const Gap(12.0),
                   _LanguageSection(),
                 ]
@@ -46,6 +49,7 @@ class AppearancePage extends StatelessWidget {
 class _ThemeSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Obx(() {
       final currentMode = themeController.themeMode;
 
@@ -53,8 +57,8 @@ class _ThemeSection extends StatelessWidget {
         spacing: 12.0,
         children: [
           _ThemeTile(
-            title: "System",
-            subtitle: "Automatically adjust to system settings",
+            title: l10n.appearance_listTile_themeSystem,
+            subtitle: l10n.appearance_listTile_themeSystemSubtitle,
             imagePath: system,
             isSelected: currentMode == ThemeMode.system,
             onTap: () {
@@ -63,9 +67,8 @@ class _ThemeSection extends StatelessWidget {
             },
           ),
           _ThemeTile(
-            title: "Bright",
-            subtitle:
-                "Sets the app’s theme to light with brighter colors. Suitable for daytime.",
+            title: l10n.appearance_listTile_themeLight,
+            subtitle: l10n.appearance_listTile_themeLightSubtitle,
             imagePath: light,
             isSelected: currentMode == ThemeMode.light,
             onTap: () {
@@ -74,9 +77,8 @@ class _ThemeSection extends StatelessWidget {
             },
           ),
           _ThemeTile(
-            title: "Dimmed",
-            subtitle:
-                "Sets the app’s theme to dark with darker colors. Easy on the eyes in low light",
+            title: l10n.appearance_listTile_themeDark,
+            subtitle: l10n.appearance_listTile_themeDarkSubtitle,
             imagePath: dark,
             isSelected: currentMode == ThemeMode.dark,
             onTap: () {
@@ -107,6 +109,7 @@ class _ThemeTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -207,7 +210,7 @@ class _ThemeTile extends StatelessWidget {
                 ),
               ),
               child: Text(
-                "Selected",
+                l10n.appearance_listTile_selected,
                 style: AppTextStyles.small.copyWith(
                   color: seedColor,
                   fontWeight: FontWeight.bold,
@@ -225,9 +228,19 @@ class _LanguageSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final LocaleController localeController = Get.put(LocaleController());
 
+    String _getLabel(Locale locale) {
+      switch (locale.languageCode) {
+        case 'en':
+          return AppLocalizations.of(context)!.language_english;
+        case 'fr':
+          return AppLocalizations.of(context)!.language_french;
+        default:
+          return locale.languageCode;
+      }
+    }
+
     return Obx(() {
       final currentLocale = localeController.locale;
-
       return Stack(
         clipBehavior: Clip.none,
         children: [
@@ -252,7 +265,7 @@ class _LanguageSection extends StatelessWidget {
               return DropdownMenuItem<Locale>(
                 value: locale,
                 child: Text(
-                  _getLanguageName(locale.languageCode),
+                  _getLabel(locale),
                   style: AppTextStyles.body,
                 ),
               );
@@ -263,19 +276,23 @@ class _LanguageSection extends StatelessWidget {
 
               localeController.setLocale(locale);
 
-              // Show notification snackbar
-              ScaffoldMessenger.of(context).showSnackBar(
-                buildSnackBar(
-                  prefixIcon: HugeIcon(
-                    icon: HugeIcons.strokeRoundedLanguageCircle,
-                    color: lightColor,
+              // Show notification snack bar
+              ScaffoldMessenger.of(context)
+                ..hideCurrentSnackBar()
+                ..showSnackBar(
+                  buildSnackBar(
+                    prefixIcon: HugeIcon(
+                      icon: HugeIcons.strokeRoundedLanguageCircle,
+                      color: lightColor,
+                    ),
+                    label: Text(
+                      AppLocalizations.of(
+                        context,
+                      )!.locale_popup_btn_label(_getLabel(currentLocale)),
+                    ),
+                    backgroundColor: infoColor,
                   ),
-                  label: Text(
-                    'Language changed to ${_getLanguageName(locale.languageCode)}',
-                  ),
-                  backgroundColor: infoColor,
-                ),
-              );
+                );
             },
           ),
           // Flag stacked on the right
@@ -290,16 +307,5 @@ class _LanguageSection extends StatelessWidget {
         ],
       );
     });
-  }
-
-  String _getLanguageName(String languageCode) {
-    switch (languageCode) {
-      case 'en':
-        return 'English';
-      case 'fr':
-        return 'Français';
-      default:
-        return 'English';
-    }
   }
 }

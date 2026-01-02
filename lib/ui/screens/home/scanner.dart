@@ -1,7 +1,9 @@
+import 'package:busin/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
@@ -57,6 +59,7 @@ class _ScannerPageState extends State<ScannerPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: Column(
         children: [
@@ -88,7 +91,7 @@ class _ScannerPageState extends State<ScannerPage> {
                                   ),
                                   const Gap(16.0),
                                   Text(
-                                    'Scanner Paused',
+                                    l10n.scannerPage_viewArea_pausedTitle,
                                     style: AppTextStyles.h2.copyWith(
                                       color: seedPalette.shade50,
                                     ),
@@ -154,34 +157,45 @@ class _ScannerPageState extends State<ScannerPage> {
   }
 
   Widget _buildBackButton() {
-    return Material(
-          color: darkColor.withValues(alpha: 0.7),
-          borderRadius: borderRadius * 2.0,
-          child: InkWell(
-            onTap: () => Navigator.of(context).pop(),
-            borderRadius: borderRadius * 2.0,
-            child: Container(
-              padding: const EdgeInsets.all(12.0),
-              decoration: BoxDecoration(
+    final l10n = AppLocalizations.of(context)!;
+    return Tooltip(
+      message: l10n.backButton,
+      child:
+          Material(
+                color: darkColor.withValues(alpha: 0.7),
                 borderRadius: borderRadius * 2.0,
-                border: Border.all(
-                  color: lightColor.withValues(alpha: 0.3),
+                child: InkWell(
+                  onTap: () => context.pop(),
+                  borderRadius: borderRadius * 2.0,
+                  child: Container(
+                    padding: const EdgeInsets.all(12.0),
+                    decoration: BoxDecoration(
+                      borderRadius: borderRadius * 2.0,
+                      border: Border.all(
+                        color: lightColor.withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: const HugeIcon(
+                      icon: HugeIcons.strokeRoundedArrowLeft01,
+                      color: lightColor,
+                      size: 20.0,
+                    ),
+                  ),
                 ),
+              )
+              .animate()
+              .fadeIn(duration: 500.ms)
+              .slideX(
+                begin: -0.5,
+                end: 0,
+                duration: 500.ms,
+                curve: Curves.easeOut,
               ),
-              child: const HugeIcon(
-                icon: HugeIcons.strokeRoundedArrowLeft01,
-                color: lightColor,
-                size: 20.0,
-              ),
-            ),
-          ),
-        )
-        .animate()
-        .fadeIn(duration: 500.ms)
-        .slideX(begin: -0.5, end: 0, duration: 500.ms, curve: Curves.easeOut);
+    );
   }
 
   Widget _buildInfoBubble() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
           margin: const EdgeInsets.symmetric(horizontal: 16.0),
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
@@ -206,7 +220,7 @@ class _ScannerPageState extends State<ScannerPage> {
                 size: 20.0,
               ),
               Text(
-                'Scan student QR codes',
+                l10n.scannerPage_infoBubble,
                 style: AppTextStyles.body.copyWith(
                   fontSize: 14.0,
                   color: lightColor,
@@ -222,6 +236,7 @@ class _ScannerPageState extends State<ScannerPage> {
   }
 
   Widget _buildScannerControls() {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       children: [
         _ScannerControlButton(
@@ -229,7 +244,7 @@ class _ScannerPageState extends State<ScannerPage> {
               ? HugeIcons.strokeRoundedFlashOff
               : HugeIcons.strokeRoundedFlash,
           onTap: () => _mobileScannerController.toggleTorch(),
-          tooltip: 'Toggle Flash',
+          tooltip: l10n.scannerPage_controls_toggleFlash,
         ),
         const Gap(8.0),
         Obx(
@@ -239,8 +254,8 @@ class _ScannerPageState extends State<ScannerPage> {
                 : HugeIcons.strokeRoundedPlay,
             onTap: () => _scannerController.toggleScanner(),
             tooltip: _scannerController.isScannerActive.value
-                ? 'Pause Scanner'
-                : 'Resume Scanner',
+                ? l10n.scannerPage_controls_pauseScanner
+                : l10n.scannerPage_controls_resumeScanner,
           ),
         ),
         const Gap(8.0),
@@ -251,43 +266,48 @@ class _ScannerPageState extends State<ScannerPage> {
             _mobileScannerController.stop();
             _mobileScannerController.start();
           },
-          tooltip: 'Reset Scanner',
+          tooltip: l10n.scannerPage_controls_resetScanner,
         ),
       ],
     );
   }
 
   Widget _buildIdleState() {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
-      child:
-          Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Ready to Scan',
-                    style: AppTextStyles.h2.copyWith(
-                      fontWeight: FontWeight.bold,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32.0),
+        child:
+            Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      l10n.scannerPage_idleState_title,
+                      style: AppTextStyles.h2.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  const Gap(8.0),
-                  Text(
-                    'Point camera at QR code',
-                    style: AppTextStyles.body,
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              )
-              .animate()
-              .fadeIn(duration: 500.ms)
-              .scale(
-                begin: const Offset(0.9, 0.9),
-                end: const Offset(1.0, 1.0),
-                duration: 500.ms,
-              ),
+                    const Gap(8.0),
+                    Text(
+                      l10n.scannerPage_idleState_subtitle,
+                      style: AppTextStyles.body,
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                )
+                .animate()
+                .fadeIn(duration: 500.ms)
+                .scale(
+                  begin: const Offset(0.9, 0.9),
+                  end: const Offset(1.0, 1.0),
+                  duration: 500.ms,
+                ),
+      ),
     );
   }
 
   Widget _buildProcessingState() {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -304,12 +324,12 @@ class _ScannerPageState extends State<ScannerPage> {
               .rotate(duration: 1500.ms),
           const Gap(24.0),
           Text(
-            'Verifying...',
+            l10n.scannerPage_progressingState_title,
             style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.bold),
           ),
           const Gap(8.0),
           Text(
-            'Please wait',
+            l10n.scannerPage_progressingState_wait,
             style: AppTextStyles.body.copyWith(
               color: themeController.isDark
                   ? lightColor.withValues(alpha: 0.7)
@@ -322,12 +342,15 @@ class _ScannerPageState extends State<ScannerPage> {
   }
 
   Widget _buildResultState(ScanResult result) {
+    final l10n = AppLocalizations.of(context)!;
     final isGranted = result.isValid && result.hasActiveSubscription;
     final statusColor = isGranted ? successColor : errorColor;
     final statusIcon = isGranted
         ? HugeIcons.strokeRoundedCheckmarkCircle02
         : HugeIcons.strokeRoundedCancelCircle;
-    final statusText = isGranted ? 'ACCESS GRANTED' : 'ACCESS DENIED';
+    final statusText = isGranted
+        ? l10n.scannerPage_resultState_statusGranted
+        : l10n.scannerPage_resultState_statusDenied;
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
@@ -411,7 +434,11 @@ class _ScannerPageState extends State<ScannerPage> {
             if (result.student != null) ...[
               _buildCompactInfo(result),
             ] else ...[
-              _ErrorCard(message: result.errorMessage ?? 'Unknown error'),
+              _ErrorCard(
+                message:
+                    result.errorMessage ??
+                    l10n.scannerPage_resultState_errorUnknown,
+              ),
             ],
 
             const Gap(12.0),
@@ -440,8 +467,8 @@ class _ScannerPageState extends State<ScannerPage> {
                   color: lightColor,
                   size: 18.0,
                 ),
-                label: const Text(
-                  'Next Scan',
+                label: Text(
+                  l10n.scannerPage_resultState_ctaLabel,
                   style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w600),
                 ),
               ),
@@ -455,13 +482,14 @@ class _ScannerPageState extends State<ScannerPage> {
   Widget _buildCompactInfo(ScanResult result) {
     final subscription = result.subscription;
     final student = result.student!;
+    final l10n = AppLocalizations.of(context)!;
 
     return Column(
       children: [
         // Student Email
         _CompactInfoRow(
           icon: HugeIcons.strokeRoundedMail01,
-          label: 'Email',
+          label: l10n.scannerPage_compactInfo_email,
           value: student.email,
         ),
 
@@ -469,21 +497,21 @@ class _ScannerPageState extends State<ScannerPage> {
           const Gap(10.0),
           _CompactInfoRow(
             icon: HugeIcons.strokeRoundedTicket01,
-            label: 'Subscription',
+            label: l10n.scannerPage_compactInfo_subscription,
             value: '${subscription.semester.label} ${subscription.year}',
             valueColor: accentColor,
           ),
           const Gap(10.0),
           _CompactInfoRow(
             icon: HugeIcons.strokeRoundedLocation01,
-            label: 'Bus Stop',
+            label: l10n.scannerPage_compactInfo_busStop,
             value: subscription.stop?.name ?? 'N/A',
             valueColor: accentColor,
           ),
           const Gap(10.0),
           _CompactInfoRow(
             icon: HugeIcons.strokeRoundedCalendar03,
-            label: 'Valid Until',
+            label: l10n.scannerPage_compactInfo_validity,
             value: dateFormatter(subscription.endDate),
             valueColor: successColor,
           ),
@@ -505,7 +533,7 @@ class _ScannerPageState extends State<ScannerPage> {
                 const Gap(10.0),
                 Expanded(
                   child: Text(
-                    'No active subscription found',
+                    l10n.scannerPage_compactInfo_emptySub,
                     style: AppTextStyles.body.copyWith(
                       color: errorColor,
                       fontWeight: FontWeight.w600,
@@ -625,6 +653,7 @@ class _ErrorCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16.0),
@@ -645,7 +674,7 @@ class _ErrorCard extends StatelessWidget {
           ),
           const Gap(12.0),
           Text(
-            'Error',
+            l10n.scannerPage_errorCard_title,
             style: AppTextStyles.h3.copyWith(
               color: errorColor,
               fontWeight: FontWeight.bold,
@@ -666,4 +695,3 @@ class _ErrorCard extends StatelessWidget {
     );
   }
 }
-

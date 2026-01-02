@@ -572,7 +572,7 @@ class AppTheme {
     ),
     tooltipTheme: TooltipThemeData(
       decoration: BoxDecoration(
-        color: greyColor,
+        color: Colors.grey.shade700,
         borderRadius: borderRadius * 2,
       ),
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),

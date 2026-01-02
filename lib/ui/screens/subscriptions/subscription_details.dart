@@ -1,6 +1,8 @@
 import 'dart:ui';
 
 import 'package:busin/generated/assets.dart';
+import 'package:busin/l10n/app_localizations.dart';
+import 'package:busin/ui/components/widgets/form_fields/simple_text_field.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/foundation.dart';
@@ -35,6 +37,7 @@ class SubscriptionDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final BusSubscriptionsController busSubscriptionController =
         Get.find<BusSubscriptionsController>();
     final subscription = busSubscriptionController.getSubscriptionById(
@@ -43,7 +46,12 @@ class SubscriptionDetailsPage extends StatelessWidget {
 
     if (subscription == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Subscription Details')),
+        appBar: AppBar(
+          title: FittedBox(
+            fit: BoxFit.contain,
+            child: Text(l10n.subscriptionDetailPage_appBar_title),
+          ),
+        ),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -54,10 +62,13 @@ class SubscriptionDetailsPage extends StatelessWidget {
                 size: 64,
               ),
               const Gap(16.0),
-              Text('Subscription not found', style: AppTextStyles.h3),
+              Text(
+                l10n.subscriptionDetailPage_nullContent_title,
+                style: AppTextStyles.h3,
+              ),
               const Gap(8.0),
               Text(
-                'This subscription may have been deleted',
+                l10n.subscriptionDetailPage_nullContent_message,
                 style: AppTextStyles.body.copyWith(color: greyColor),
               ),
             ],
@@ -102,6 +113,7 @@ class _SubscriptionDetailsContentState
   }
 
   Future<void> _handleRefresh() async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       final refreshedSubscription = await _controller.refreshSubscription(
         widget.subscriptionId,
@@ -113,17 +125,23 @@ class _SubscriptionDetailsContentState
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to refresh: ${e.toString()}'),
-            backgroundColor: errorColor,
-          ),
-        );
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            buildSnackBar(
+              prefixIcon: HugeIcon(icon: errorIcon, color: lightColor),
+              label: Text(
+                '${l10n.subscriptionDetailPage_handleRefresh_error} ${e.toString()}',
+              ),
+              backgroundColor: errorColor,
+            ),
+          );
       }
     }
   }
 
   Future<void> _handleApprove(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
     // Close the FAB first
     final state = _fabKey.currentState;
     if (state != null) {
@@ -149,7 +167,7 @@ class _SubscriptionDetailsContentState
                 icon: HugeIcons.strokeRoundedCheckmarkCircle02,
                 color: lightColor,
               ),
-              label: const Text('Subscription approved successfully'),
+              label: Text(l10n.subscriptionDetailPage_handleApprove_success),
             ),
           );
       }
@@ -164,7 +182,9 @@ class _SubscriptionDetailsContentState
                 icon: HugeIcons.strokeRoundedAlert02,
                 color: lightColor,
               ),
-              label: Text('Failed to approve: ${e.toString()}'),
+              label: Text(
+                '${l10n.subscriptionDetailPage_handleApprove_error} ${e.toString()}',
+              ),
             ),
           );
       }
@@ -172,6 +192,7 @@ class _SubscriptionDetailsContentState
   }
 
   Future<void> _handleReject(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
     // Close the FAB first
     final state = _fabKey.currentState;
     if (state != null) {
@@ -205,7 +226,7 @@ class _SubscriptionDetailsContentState
                 icon: HugeIcons.strokeRoundedCancelCircle,
                 color: lightColor,
               ),
-              label: const Text('Subscription rejected'),
+              label: Text(l10n.subscriptionDetailPage_handleReject_success),
             ),
           );
       }
@@ -220,7 +241,9 @@ class _SubscriptionDetailsContentState
                 icon: HugeIcons.strokeRoundedAlert02,
                 color: lightColor,
               ),
-              label: Text('Failed to reject: ${e.toString()}'),
+              label: Text(
+                '${l10n.subscriptionDetailPage_handleReject_error} ${e.toString()}',
+              ),
             ),
           );
       }
@@ -228,6 +251,7 @@ class _SubscriptionDetailsContentState
   }
 
   Future<String?> _showRejectReasonDialog(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
     final TextEditingController reasonController = TextEditingController();
 
     return showModalBottomSheet<String>(
@@ -240,12 +264,8 @@ class _SubscriptionDetailsContentState
         ),
         child: Container(
           decoration: BoxDecoration(
-            color: themeController.isDark
-                ? seedPalette.shade900
-                : lightColor,
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(24),
-            ),
+            color: themeController.isDark ? seedPalette.shade900 : lightColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           ),
           padding: const EdgeInsets.all(24.0),
           child: Column(
@@ -255,8 +275,8 @@ class _SubscriptionDetailsContentState
               // Handle bar
               Center(
                 child: Container(
-                  width: 40,
-                  height: 4,
+                  width: 40.0,
+                  height: 4.0,
                   margin: const EdgeInsets.only(bottom: 20),
                   decoration: BoxDecoration(
                     color: greyColor.withValues(alpha: 0.3),
@@ -271,9 +291,9 @@ class _SubscriptionDetailsContentState
                     color: errorColor,
                   ),
                   const Gap(12),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Reject Subscription',
+                      l10n.subscriptionDetailPage_rejectDialog_title,
                       style: AppTextStyles.h3,
                     ),
                   ),
@@ -281,27 +301,35 @@ class _SubscriptionDetailsContentState
               ),
               const Gap(16),
               Text(
-                'Please provide a reason for rejecting this subscription. This will be shown to the student.',
+                l10n.subscriptionDetailPage_rejectDialog_instruction,
                 style: AppTextStyles.body.copyWith(
-                  color: greyColor,
+                  color: themeController.isDark
+                      ? seedPalette.shade50.withValues(alpha: 0.5)
+                      : greyColor,
                 ),
               ),
               const Gap(20),
-              TextFormField(
+              SimpleTextFormField(
                 controller: reasonController,
-                maxLines: 4,
                 autofocus: true,
-                decoration: InputDecoration(
-                  labelText: 'Rejection Reason',
-                  hintText: 'Enter the reason for rejection...',
-                  border: OutlineInputBorder(
-                    borderRadius: borderRadius * 2,
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: borderRadius * 2,
-                    borderSide: BorderSide(color: errorColor, width: 2),
-                  ),
+                hintText: l10n.subscriptionDetailPage_rejectDialog_reasonLabel,
+                label: Text(
+                  l10n.subscriptionDetailPage_rejectDialog_reasonLabel,
                 ),
+                maxLines: 4,
+                textCapitalization: TextCapitalization.sentences,
+                keyboardType: TextInputType.multiline,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return l10n.subscriptionDetailPage_rejectDialog_reasonValidatorEmpty;
+                  }
+
+                  // At least 10 characters
+                  if (value.trim().length < 10) {
+                    return l10n.subscriptionDetailPage_rejectDialog_reasonValidatorLength;
+                  }
+                  return null;
+                },
               ),
               const Gap(20),
               Row(
@@ -309,12 +337,12 @@ class _SubscriptionDetailsContentState
                 children: [
                   Expanded(
                     child: TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed: () => context.pop(),
                       style: TextButton.styleFrom(
                         overlayColor: greyColor.withValues(alpha: 0.1),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
-                      child: const Text('Cancel'),
+                      child: Text(l10n.cancel),
                     ),
                   ),
                   Expanded(
@@ -323,7 +351,7 @@ class _SubscriptionDetailsContentState
                       onPressed: () {
                         final reason = reasonController.text.trim();
                         if (reason.isNotEmpty) {
-                          Navigator.of(context).pop(reason);
+                          context.pop(reason);
                         }
                       },
                       style: ElevatedButton.styleFrom(
@@ -331,8 +359,8 @@ class _SubscriptionDetailsContentState
                         foregroundColor: lightColor,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
-                      child: const Text(
-                        'Reject Subscription',
+                      child: Text(
+                        l10n.subscriptionDetailPage_rejectDialog_ctaReject,
                         style: TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ),
@@ -348,6 +376,7 @@ class _SubscriptionDetailsContentState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final statusColor = _getStatusColor(subscription.status);
     final statusLabel = _getStatusLabel(subscription.status);
@@ -426,10 +455,6 @@ class _SubscriptionDetailsContentState
                                 ? CachedNetworkImage(
                                     imageUrl: subscription.proofOfPaymentUrl!,
                                     fit: BoxFit.cover,
-                                    maxWidthDiskCache: 1000,
-                                    maxHeightDiskCache: 1000,
-                                    memCacheWidth: 1000,
-                                    memCacheHeight: 1000,
                                     placeholder: (context, url) => Container(
                                       color: themeController.isDark
                                           ? seedPalette.shade900
@@ -574,7 +599,6 @@ class _SubscriptionDetailsContentState
                   //     ],
                   //   ),
                   // ),
-
                   const Gap(16.0),
 
                   // Review info (if available)
@@ -585,13 +609,13 @@ class _SubscriptionDetailsContentState
                           : successColor.withValues(alpha: 0.1),
                       child: DottedBorder(
                         options: RoundedRectDottedBorderOptions(
-                            color: subscription.status.isRejected
-                                ? errorColor
-                                : successColor,
-                            strokeWidth: 1.5,
-                            strokeCap: StrokeCap.round,
-                            dashPattern: const [4, 6, 8, 10],
-                            radius: Radius.circular(16.0)
+                          color: subscription.status.isRejected
+                              ? errorColor
+                              : successColor,
+                          strokeWidth: 1.5,
+                          strokeCap: StrokeCap.round,
+                          dashPattern: const [4, 6, 8, 10],
+                          radius: Radius.circular(16.0),
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(16),
@@ -604,7 +628,7 @@ class _SubscriptionDetailsContentState
                                     icon: subscription.status.isRejected
                                         ? HugeIcons.strokeRoundedCancelCircle
                                         : HugeIcons
-                                        .strokeRoundedCheckmarkCircle02,
+                                              .strokeRoundedCheckmarkCircle02,
                                     color: subscription.status.isRejected
                                         ? errorColor
                                         : successColor,
@@ -612,8 +636,8 @@ class _SubscriptionDetailsContentState
                                   const Gap(12.0),
                                   Text(
                                     subscription.status.isRejected
-                                        ? 'Rejection reason'
-                                        : 'Review observation',
+                                        ? l10n.subscriptionDetailPage_rejectDialog_reasonLabel
+                                        : l10n.subscriptionDetailPage_reviewInfo_sectionTitle,
                                     style: AppTextStyles.h4.copyWith(
                                       color: subscription.status.isRejected
                                           ? errorColor
@@ -622,7 +646,8 @@ class _SubscriptionDetailsContentState
                                   ),
                                 ],
                               ),
-                              if (subscription.observation!.message != null) ...[
+                              if (subscription.observation!.message !=
+                                  null) ...[
                                 const Gap(12.0),
                                 Text(
                                   subscription.observation!.message!,
@@ -637,7 +662,7 @@ class _SubscriptionDetailsContentState
                                     : successColor,
                               ),
                               Text(
-                                'Reviewed on ${dateFormatter(subscription.observation!.observedAt)}',
+                                '${l10n.subscriptionDetailPage_reviewInfo_reviewedOn} ${dateFormatter(subscription.observation!.observedAt)}',
                                 style: AppTextStyles.small.copyWith(
                                   color: subscription.status.isRejected
                                       ? errorColor
@@ -660,9 +685,7 @@ class _SubscriptionDetailsContentState
                     return Column(
                       children: [
                         const Gap(16.0),
-                        _StudentInfoSection(
-                          studentId: subscription.studentId,
-                        ),
+                        _StudentInfoSection(studentId: subscription.studentId),
                       ],
                     );
                   }),
@@ -675,19 +698,22 @@ class _SubscriptionDetailsContentState
                       children: [
                         _InfoRow(
                           icon: HugeIcons.strokeRoundedCalendar03,
-                          label: 'Start date',
+                          label: l10n
+                              .subscriptionDetailPage_statusDates_startLabel,
                           value: dateFormatter(subscription.startDate),
                         ),
                         _Divider(),
                         _InfoRow(
                           icon: HugeIcons.strokeRoundedCalendar04,
-                          label: 'End date',
+                          label:
+                              l10n.subscriptionDetailPage_statusDates_endLabel,
                           value: dateFormatter(subscription.endDate),
                         ),
                         _Divider(),
                         _InfoRow(
                           icon: HugeIcons.strokeRoundedHourglass,
-                          label: 'Time remaining',
+                          label: l10n
+                              .subscriptionDetailPage_statusDates_durationLabel,
                           value: _formatDuration(subscription.timeRemaining),
                           valueColor: accentColor,
                         ),
@@ -721,7 +747,7 @@ class _SubscriptionDetailsContentState
                                 ),
                                 const Gap(12.0),
                                 Text(
-                                  'Weekly schedule',
+                                  l10n.subscriptionDetailPage_weeklySchedule_title,
                                   style: AppTextStyles.h3,
                                 ),
                               ],
@@ -747,21 +773,25 @@ class _SubscriptionDetailsContentState
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: MetadataSection(
+                      locale: localeController.locale.languageCode,
                       entries: [
                         MetadataEntry(
                           icon: HugeIcons.strokeRoundedCalendarAdd02,
-                          label: 'Created',
+                          label: l10n.createdAt,
                           dateTime: subscription.createdAt,
                         ),
                         MetadataEntry(
                           icon: HugeIcons.strokeRoundedEdit02,
-                          label: 'Last updated',
+                          label: l10n.lastUpdated,
                           dateTime: subscription.updatedAt,
                         ),
                       ],
                     ),
                   ),
-                  const Gap(120.0),
+                  _authController.isAdmin &&
+                          subscription.status == BusSubscriptionStatus.pending
+                      ? const Gap(120.0)
+                      : const Gap(40.0),
                 ],
               ),
             ),
@@ -769,7 +799,8 @@ class _SubscriptionDetailsContentState
         ),
       ),
       floatingActionButtonLocation: ExpandableFab.location,
-      floatingActionButton: (_authController.isAdmin) &&
+      floatingActionButton:
+          (_authController.isAdmin) &&
               subscription.status == BusSubscriptionStatus.pending
           ? ExpandableFab(
               key: _fabKey,
@@ -792,7 +823,7 @@ class _SubscriptionDetailsContentState
                 foregroundColor: lightColor,
                 shape: RoundedRectangleBorder(
                   borderRadius: borderRadius * 2.25,
-                )
+                ),
               ),
               closeButtonBuilder: DefaultFloatingActionButtonBuilder(
                 child: const HugeIcon(
@@ -806,7 +837,7 @@ class _SubscriptionDetailsContentState
                 foregroundColor: lightColor,
                 shape: RoundedRectangleBorder(
                   borderRadius: borderRadius * 2.25,
-                )
+                ),
               ),
               children: [
                 // Approve action
@@ -819,8 +850,8 @@ class _SubscriptionDetailsContentState
                     icon: HugeIcons.strokeRoundedCheckmarkCircle02,
                     color: lightColor,
                   ),
-                  label: const Text(
-                    'Approve',
+                  label: Text(
+                    l10n.subscriptionDetailPage_adminAction_approve,
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       color: lightColor,
@@ -837,8 +868,8 @@ class _SubscriptionDetailsContentState
                     icon: HugeIcons.strokeRoundedCancelCircle,
                     color: lightColor,
                   ),
-                  label: const Text(
-                    'Reject',
+                  label: Text(
+                    l10n.subscriptionDetailPage_adminAction_reject,
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       color: lightColor,
@@ -852,6 +883,7 @@ class _SubscriptionDetailsContentState
   }
 
   Widget _buildImagePlaceholder(ColorScheme colorScheme) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       color: themeController.isDark
           ? seedPalette.shade900
@@ -867,7 +899,7 @@ class _SubscriptionDetailsContentState
             ),
             const Gap(16.0),
             Text(
-              'No proof of payment',
+              l10n.subscriptionDetailPage_paymentProof_placeholder,
               style: AppTextStyles.body.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
@@ -916,26 +948,29 @@ class _SubscriptionDetailsContentState
   }
 
   String _getStatusLabel(BusSubscriptionStatus status) {
+    final l10n = AppLocalizations.of(context)!;
     switch (status) {
       case BusSubscriptionStatus.approved:
-        return 'Subscription Approved';
+        return l10n.subscriptionDetailPage_statusLabel_approved;
       case BusSubscriptionStatus.pending:
-        return 'Pending Validation';
+        return l10n.subscriptionDetailPage_statusLabel_pending;
       case BusSubscriptionStatus.rejected:
-        return 'Rejected Subscription';
+        return l10n.subscriptionDetailPage_statusLabel_rejected;
       case BusSubscriptionStatus.expired:
-        return 'Expired Subscription';
+        return l10n.subscriptionDetailPage_statusLabel_expired;
     }
   }
 
   String _formatDuration(Duration duration) {
+    final l10n = AppLocalizations.of(context)!;
     if (duration.isNegative || duration == Duration.zero) {
-      return 'Expired';
+      return l10n.subscriptionExpired;
     }
     final days = duration.inDays;
-    if (days > 0) return '$days day${days > 1 ? "s" : ""}';
+    if (days > 0)
+      return '$days ${l10n.days.length > 1 ? l10n.days : l10n.days.substring(0, l10n.days.length - 1)}';
     final hours = duration.inHours;
-    if (hours > 0) return '$hours hour${hours > 1 ? "s" : ""}';
+    if (hours > 0) return '$hours hr${hours > 1 ? "s" : ""}';
     final minutes = duration.inMinutes;
     return '$minutes minute${minutes > 1 ? "s" : ""}';
   }
@@ -952,7 +987,8 @@ class _ActionButton extends StatelessWidget {
   const _ActionButton({
     required this.icon,
     required this.label,
-    required this.onTap, this.foregroundColor,
+    required this.onTap,
+    this.foregroundColor,
     this.gradient,
   });
 
@@ -968,20 +1004,24 @@ class _ActionButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
         decoration: BoxDecoration(
           borderRadius: borderRadius * 2.75,
-          gradient: gradient ?? LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: themeController.isDark
-                ? [seedPalette.shade800, seedPalette.shade900]
-                : [seedPalette.shade800, seedPalette.shade900],
-          ),
+          gradient:
+              gradient ??
+              LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: themeController.isDark
+                    ? [seedPalette.shade800, seedPalette.shade900]
+                    : [seedPalette.shade800, seedPalette.shade900],
+              ),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             HugeIcon(
               icon: icon,
-              color: foregroundColor ?? (themeController.isDark ? lightColor : seedPalette.shade50),
+              color:
+                  foregroundColor ??
+                  (themeController.isDark ? lightColor : seedPalette.shade50),
               strokeWidth: 1.8,
             ),
             const Gap(4.0),
@@ -989,9 +1029,9 @@ class _ActionButton extends StatelessWidget {
               label,
               style: AppTextStyles.small.copyWith(
                 fontWeight: FontWeight.w600,
-                color: foregroundColor ?? (themeController.isDark
-                    ? lightColor
-                    : seedPalette.shade50),
+                color:
+                    foregroundColor ??
+                    (themeController.isDark ? lightColor : seedPalette.shade50),
               ),
             ),
           ],
@@ -1045,7 +1085,10 @@ class _InfoRow extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          HugeIcon(icon: icon, color: themeController.isDark ? lightColor : seedColor),
+          HugeIcon(
+            icon: icon,
+            color: themeController.isDark ? lightColor : seedColor,
+          ),
           const Gap(12.0),
           Expanded(child: Text(label, style: AppTextStyles.body)),
           Text(
@@ -1069,13 +1112,14 @@ class _ScheduleRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final weekdays = [
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday',
+      l10n.weekday_monday,
+      l10n.weekday_tuesday,
+      l10n.weekday_wednesday,
+      l10n.weekday_thursday,
+      l10n.weekday_friday,
+      l10n.weekday_saturday,
     ];
     final day = weekdays[schedule.weekday - 1];
 
@@ -1103,14 +1147,14 @@ class _ScheduleRow extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Morning", style: AppTextStyles.small),
+              Text(l10n.morning, style: AppTextStyles.small),
               Text(schedule.morningTime, style: AppTextStyles.body),
             ],
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Closing", style: AppTextStyles.small),
+              Text(l10n.closing, style: AppTextStyles.small),
               Text(schedule.closingTime, style: AppTextStyles.body),
             ],
           ),
@@ -1130,7 +1174,12 @@ class _Divider extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Divider(height: 1, color: themeController.isDark ? seedPalette.shade50.withValues(alpha: 0.1) : seedColor.withValues(alpha: 0.1)),
+      child: Divider(
+        height: 1,
+        color: themeController.isDark
+            ? seedPalette.shade50.withValues(alpha: 0.1)
+            : seedColor.withValues(alpha: 0.1),
+      ),
     );
   }
 }
@@ -1157,6 +1206,7 @@ class _BusStopSectionState extends State<_BusStopSection> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final hasMap = widget.stop.hasMapEmbed;
     final hasImage = widget.stop.hasImage;
     final hasVisualContent = hasMap || hasImage;
@@ -1166,7 +1216,7 @@ class _BusStopSectionState extends State<_BusStopSection> {
       return _SectionContainer(
         child: _InfoRow(
           icon: HugeIcons.strokeRoundedLocation01,
-          label: 'Bus stop',
+          label: l10n.subscriptionDetailPage_mapView_title,
           value: widget.stop.name,
         ),
       );
@@ -1186,7 +1236,7 @@ class _BusStopSectionState extends State<_BusStopSection> {
         children: [
           _InfoRow(
             icon: HugeIcons.strokeRoundedLocation06,
-            label: 'Bus stop',
+            label: l10n.subscriptionDetailPage_mapView_title,
             value: widget.stop.name,
           ),
           const Gap(8.0),
@@ -1243,29 +1293,34 @@ class _MapView extends StatelessWidget {
   const _MapView({required this.stop});
 
   Future<void> _openInMaps(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
+
     if (!stop.hasMapEmbed) return;
 
     try {
       final uri = Uri.parse(stop.mapEmbedUrl!);
       if (kDebugMode) {
-        debugPrint('🗺️ Opening map URL: ${stop.mapEmbedUrl}');
+        debugPrint('Opening map URL: ${stop.mapEmbedUrl}');
       }
 
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
 
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            buildSnackBar(
-              prefixIcon: HugeIcon(
-                icon: HugeIcons.strokeRoundedCheckmarkCircle02,
-                color: lightColor,
-                size: 20,
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(
+              buildSnackBar(
+                prefixIcon: HugeIcon(
+                  icon: HugeIcons.strokeRoundedCheckmarkCircle02,
+                  color: lightColor,
+                ),
+                label: Text(
+                  l10n.subscriptionDetailPage_mapView_openMessageSuccess,
+                ),
+                backgroundColor: successColor,
               ),
-              label: const Text('Opened in Google Maps'),
-              backgroundColor: successColor,
-            ),
-          );
+            );
         }
       } else {
         throw Exception('Could not launch URL');
@@ -1276,23 +1331,25 @@ class _MapView extends StatelessWidget {
       }
 
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          buildSnackBar(
-            prefixIcon: HugeIcon(
-              icon: HugeIcons.strokeRoundedAlert02,
-              color: lightColor,
-              size: 20,
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            buildSnackBar(
+              prefixIcon: HugeIcon(
+                icon: HugeIcons.strokeRoundedAlert02,
+                color: lightColor,
+              ),
+              label: Text(l10n.subscriptionDetailPage_mapView_openMessageError),
+              backgroundColor: errorColor,
             ),
-            label: const Text('Could not open Google Maps'),
-            backgroundColor: errorColor,
-          ),
-        );
+          );
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
         color: themeController.isDark
@@ -1307,10 +1364,7 @@ class _MapView extends StatelessWidget {
         fit: StackFit.expand,
         children: [
           // Background map image
-          Image.asset(
-            mapsBg,
-            fit: BoxFit.cover,
-          ),
+          Image.asset(mapsBg, fit: BoxFit.cover),
 
           // Subtle gradient overlay
           Container(
@@ -1341,7 +1395,9 @@ class _MapView extends StatelessWidget {
                     vertical: 10,
                   ),
                   decoration: BoxDecoration(
-                    color: themeController.isDark ? accentColor : accentPalette.shade300,
+                    color: themeController.isDark
+                        ? accentColor
+                        : accentPalette.shade300,
                     borderRadius: borderRadius * 1.25,
                     boxShadow: [
                       BoxShadow(
@@ -1356,15 +1412,17 @@ class _MapView extends StatelessWidget {
                     children: [
                       HugeIcon(
                         icon: HugeIcons.strokeRoundedLocation01,
-                        size: 18,
+                        size: 18.0,
                         color: themeController.isDark ? lightColor : darkColor,
                       ),
                       const Gap(8),
                       Text(
-                        'Tap to view on Google Maps',
+                        l10n.subscriptionDetailPage_mapView_ctaLabel,
                         style: AppTextStyles.body.copyWith(
                           fontSize: 14.0,
-                          color: themeController.isDark ? lightColor : darkColor,
+                          color: themeController.isDark
+                              ? lightColor
+                              : darkColor,
                         ),
                       ),
                     ],
@@ -1379,7 +1437,7 @@ class _MapView extends StatelessWidget {
             top: 16,
             right: 16,
             child: IconButton.filledTonal(
-              tooltip: 'Open in Google Maps',
+              tooltip: l10n.subscriptionDetailPage_mapView_ctaTooltip,
               onPressed: () => _openInMaps(context),
               icon: HugeIcon(
                 icon: HugeIcons.strokeRoundedArrowUpRight01,
@@ -1405,6 +1463,7 @@ class _PickupImageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: const BoxDecoration(
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(16.0)),
@@ -1420,9 +1479,7 @@ class _PickupImageView extends StatelessWidget {
               color: themeController.isDark
                   ? seedPalette.shade800
                   : seedPalette.shade100,
-              child: Center(
-                child: LoadingIndicator(),
-              ),
+              child: Center(child: LoadingIndicator()),
             ),
             errorWidget: (context, url, error) => Container(
               color: themeController.isDark
@@ -1439,7 +1496,7 @@ class _PickupImageView extends StatelessWidget {
                     ),
                     const Gap(8.0),
                     Text(
-                      'Image not available',
+                      l10n.subscriptionDetailPage_mapView_pickupImageUnavailable,
                       style: AppTextStyles.small.copyWith(color: greyColor),
                     ),
                   ],
@@ -1455,7 +1512,9 @@ class _PickupImageView extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: BoxDecoration(
-                color: themeController.isDark ? seedPalette.shade200 : seedColor,
+                color: themeController.isDark
+                    ? seedPalette.shade200
+                    : seedColor,
                 borderRadius: borderRadius * 1.25,
                 boxShadow: [
                   BoxShadow(
@@ -1475,7 +1534,7 @@ class _PickupImageView extends StatelessWidget {
                   ),
                   const Gap(8),
                   Text(
-                    'Pickup point preview',
+                    l10n.subscriptionDetailPage_mapView_pickupImagePreview,
                     style: AppTextStyles.body.copyWith(
                       fontSize: 14.0,
                       color: themeController.isDark ? seedColor : lightColor,
@@ -1500,7 +1559,7 @@ class _StudentInfoSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authController = Get.find<AuthController>();
-
+    final l10n = AppLocalizations.of(context)!;
     return FutureBuilder<BaseUser?>(
       future: authController.getUserById(studentId),
       builder: (context, snapshot) {
@@ -1519,7 +1578,7 @@ class _StudentInfoSection extends StatelessWidget {
                       ),
                       const Gap(12.0),
                       Text(
-                        'Student Information',
+                        l10n.subscriptionDetailPage_studentSection_title,
                         style: AppTextStyles.h3,
                       ),
                     ],
@@ -1530,24 +1589,27 @@ class _StudentInfoSection extends StatelessWidget {
                     3,
                     (index) => Padding(
                       padding: const EdgeInsets.only(bottom: 12.0),
-                      child: Container(
-                        height: 16,
-                        decoration: BoxDecoration(
-                          color: themeController.isDark
-                              ? seedColor.withValues(alpha: 0.2)
-                              : seedPalette.shade50.withValues(alpha: 0.5),
-                          borderRadius: borderRadius * 1.5,
-                        ),
-                      )
-                          .animate(
-                            onPlay: (controller) => controller.repeat(),
-                          )
-                          .shimmer(
-                            duration: const Duration(milliseconds: 1500),
-                            color: themeController.isDark
-                                ? lightColor.withValues(alpha: 0.2)
-                                : lightColor.withValues(alpha: 0.5),
-                          ),
+                      child:
+                          Container(
+                                height: 16,
+                                decoration: BoxDecoration(
+                                  color: themeController.isDark
+                                      ? seedColor.withValues(alpha: 0.2)
+                                      : seedPalette.shade50.withValues(
+                                          alpha: 0.5,
+                                        ),
+                                  borderRadius: borderRadius * 1.5,
+                                ),
+                              )
+                              .animate(
+                                onPlay: (controller) => controller.repeat(),
+                              )
+                              .shimmer(
+                                duration: const Duration(milliseconds: 1500),
+                                color: themeController.isDark
+                                    ? lightColor.withValues(alpha: 0.2)
+                                    : lightColor.withValues(alpha: 0.5),
+                              ),
                     ),
                   ),
                 ],
@@ -1570,7 +1632,7 @@ class _StudentInfoSection extends StatelessWidget {
                   const Gap(12.0),
                   Expanded(
                     child: Text(
-                      'Failed to load student information',
+                      l10n.subscriptionDetailPage_studentSection_loadingError,
                       style: AppTextStyles.body.copyWith(color: errorColor),
                     ),
                   ),
@@ -1583,7 +1645,9 @@ class _StudentInfoSection extends StatelessWidget {
         final student = snapshot.data!;
 
         return _SectionContainer(
-          backgroundColor: themeController.isDark ? seedPalette.shade700 : seedPalette.shade100,
+          backgroundColor: themeController.isDark
+              ? seedPalette.shade700
+              : seedPalette.shade100,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1594,7 +1658,9 @@ class _StudentInfoSection extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(8.0),
                       decoration: BoxDecoration(
-                        color: themeController.isDark ? lightColor.withValues(alpha: 0.1) : seedPalette.shade700.withValues(alpha: 0.1),
+                        color: themeController.isDark
+                            ? lightColor.withValues(alpha: 0.1)
+                            : seedPalette.shade700.withValues(alpha: 0.1),
                         borderRadius: borderRadius * 1.5,
                       ),
                       child: HugeIcon(
@@ -1608,11 +1674,11 @@ class _StudentInfoSection extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Student Information',
+                            l10n.subscriptionDetailPage_studentSection_title,
                             style: AppTextStyles.h3,
                           ),
                           Text(
-                            'Subscriber details',
+                            l10n.subscriptionDetailPage_studentSection_subtitle,
                             style: AppTextStyles.small.copyWith(
                               color: themeController.isDark
                                   ? seedPalette.shade50.withValues(alpha: 0.7)
@@ -1628,19 +1694,19 @@ class _StudentInfoSection extends StatelessWidget {
               _Divider(),
               _InfoRow(
                 icon: HugeIcons.strokeRoundedUser,
-                label: 'Name',
+                label: l10n.subscriptionDetailPage_studentSection_name,
                 value: student.name,
               ),
               _Divider(),
               _InfoRow(
                 icon: HugeIcons.strokeRoundedMail02,
-                label: 'Email',
+                label: l10n.subscriptionDetailPage_studentSection_email,
                 value: student.email,
               ),
               _Divider(),
               _InfoRow(
                 icon: HugeIcons.strokeRoundedCheckmarkBadge02,
-                label: 'Status',
+                label: l10n.subscriptionDetailPage_studentSection_status,
                 value: student.status.name.capitalize ?? student.status.name,
                 valueColor: student.isVerified ? successColor : warningColor,
               ),
@@ -1648,7 +1714,7 @@ class _StudentInfoSection extends StatelessWidget {
                 _Divider(),
                 _InfoRow(
                   icon: HugeIcons.strokeRoundedCall,
-                  label: 'Phone',
+                  label: l10n.subscriptionDetailPage_studentSection_phone,
                   value: student.phone!,
                 ),
               ],
@@ -1669,6 +1735,7 @@ class _FullScreenImageViewer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: () => context.pop(),
       child: Scaffold(
@@ -1685,9 +1752,8 @@ class _FullScreenImageViewer extends StatelessWidget {
                     child: CachedNetworkImage(
                       imageUrl: imageUrl,
                       fit: BoxFit.contain,
-                      placeholder: (context, url) => Center(
-                        child: LoadingIndicator(),
-                      ),
+                      placeholder: (context, url) =>
+                          Center(child: LoadingIndicator()),
                       errorWidget: (context, url, error) => Center(
                         child: HugeIcon(
                           icon: HugeIcons.strokeRoundedImageNotFound02,
@@ -1706,7 +1772,7 @@ class _FullScreenImageViewer extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       IconButton.filledTonal(
-                        tooltip: 'Close',
+                        tooltip: l10n.close,
                         onPressed: () => context.pop(),
                         icon: const HugeIcon(
                           icon: HugeIcons.strokeRoundedCancel01,
@@ -1717,7 +1783,7 @@ class _FullScreenImageViewer extends StatelessWidget {
                         ),
                       ),
                       IconButton.filledTonal(
-                        tooltip: 'Download',
+                        tooltip: l10n.download,
                         onPressed: () {
                           // TODO: Download or share image
                         },

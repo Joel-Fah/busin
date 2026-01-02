@@ -10,7 +10,7 @@ const Color accentColor = Color(0xFFF5951F);
 // Neutrals
 const Color darkColor = Color(0xFF272727);
 const Color lightColor = Colors.white;
-const Color greyColor = const Color(0xFF8D8D8D);
+const Color greyColor = Color(0xFF8D8D8D);
 
 // States Colors
 Color infoColor = themeController.isDark

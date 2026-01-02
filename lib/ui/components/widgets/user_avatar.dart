@@ -67,13 +67,15 @@ class UserAvatar extends StatelessWidget {
               );
             },
             placeholder: (context, url) => CircleAvatar(
-              radius: 24.0,
+              radius: radius ?? 24.0,
               backgroundColor: Colors.primaries.elementAt(
                 displayUser.initials.hashCode.abs() % Colors.primaries.length,
               ),
               child: Text(
                 displayUser.initials,
-                style: AppTextStyles.h4.copyWith(color: lightColor),
+                style: radius! > 24.0
+                    ? AppTextStyles.h2.copyWith(color: lightColor)
+                    : AppTextStyles.h4.copyWith(color: lightColor),
               ),
             ),
             errorWidget: (context, url, error) => CircleAvatar(
