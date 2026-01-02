@@ -209,6 +209,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get busStops => 'Bus Stops';
 
   @override
+  String get submit => 'Submit';
+
+  @override
+  String get next => 'Next';
+
+  @override
+  String get selected => 'Selected';
+
+  @override
+  String get remove => 'Remove';
+
+  @override
+  String get add => 'Add';
+
+  @override
   String get onboarding_screen1_title =>
       'Staring at the clock, waiting for the bus to leave, knowing I\'ll be up early tomorrow — becomes difficult to sleep with endless school work piling up too ... frrrrrrrr';
 
@@ -1240,4 +1255,210 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get analyticsTab_quickActionsSection_semestersSubtitle =>
       'Configure semester dates and settings';
+
+  @override
+  String get newSubscriptionPage_scheduleTime_earlyError =>
+      'Earliest morning time is 6:30 AM.';
+
+  @override
+  String get newSubscriptionPage_scheduleTime_morningError =>
+      'Morning time must be <= closing time..';
+
+  @override
+  String get newSubscriptionPage_scheduleTime_latestError =>
+      'Latest close time is 5:00 PM.';
+
+  @override
+  String get newSubscriptionPage_scheduleTime_closingError =>
+      'Close time must be >= morning time.';
+
+  @override
+  String get newSubscriptionPage_validateStep_proofUpload =>
+      'Please upload a proof of payment to proceed.';
+
+  @override
+  String get newSubscriptionPage_validateStep_semester =>
+      'Please wait for active semester to load or contact administrator.';
+
+  @override
+  String get newSubscriptionPage_validateStep_stop =>
+      'Select a preferred stop to proceed.';
+
+  @override
+  String get newSubscriptionPage_validateStep_schedule =>
+      'Add at least one schedule.';
+
+  @override
+  String get newSubscriptionPage_validateStep_scheduleInvalid =>
+      'One or more schedule times are invalid.';
+
+  @override
+  String get newSubscriptionPage_submit_validateSteps =>
+      'Fill out every step before submitting.';
+
+  @override
+  String get newSubscriptionPage_submit_validateStop =>
+      'Unable to resolve selected stop.';
+
+  @override
+  String get newSubscriptionPage_validateStep_proofUploadException =>
+      'Proof file not found. Please re-upload.';
+
+  @override
+  String get newSubscriptionPage_validateStep_proofUploadMessage =>
+      'Unable to upload proof:';
+
+  @override
+  String get newSubscriptionPage_submit_success =>
+      'Subscription created (pending review)';
+
+  @override
+  String get newSubscriptionPage_submit_failed =>
+      'Failed to submit subscription:';
+
+  @override
+  String get newSubscriptionPage_appBar_title => 'New Subscription';
+
+  @override
+  String get newSubscriptionPage_semesterStep_refreshSuccess =>
+      'Semesters refreshed';
+
+  @override
+  String get newSubscriptionPage_stopStep_refreshSuccess => 'Stops refreshed';
+
+  @override
+  String get newSubscriptionPage_semesterStep_refresh => 'Refresh Semesters';
+
+  @override
+  String get newSubscriptionPage_stopStep_refresh => 'Refresh Stops';
+
+  @override
+  String get newSubscriptionPage_proofStep_title => 'Receipt';
+
+  @override
+  String get newSubscriptionPage_proofStep_subtitle => 'Proof of payment';
+
+  @override
+  String get newSubscriptionPage_proofStep_imageBox =>
+      'Upload a copy of your receipt';
+
+  @override
+  String get newSubscriptionPage_semesterStep_emptyActive =>
+      'No active semester available. Please contact the administrator.';
+
+  @override
+  String get newSubscriptionPage_semesterStep_activeSemester =>
+      'Active semester';
+
+  @override
+  String get newSubscriptionPage_semesterStep_infoBubble =>
+      'Your subscription will be valid for the active semester shown above.';
+
+  @override
+  String get newSubscriptionPage_stopStep_title => 'Preferred stop';
+
+  @override
+  String get newSubscriptionPage_stopStep_validatorEmpty =>
+      'Select a bus stop.';
+
+  @override
+  String get newSubscriptionPage_stopStep_label => 'Select stop';
+
+  @override
+  String get newSubscriptionPage_scheduleStep_title => 'Weekly schedules';
+
+  @override
+  String get newSubscriptionPage_scheduleStep_optionEveryday => 'Everyday';
+
+  @override
+  String get newSubscriptionPage_scheduleStep_optionNormal => 'Normal week';
+
+  @override
+  String get newSubscriptionPage_scheduleStep_optionCustom => 'Custom';
+
+  @override
+  String get newSubscriptionPage_scheduleStep_empty =>
+      'No schedules added. Add the days you take the bus.';
+
+  @override
+  String get newSubscriptionPage_scheduleStep_maxReached =>
+      'Maximum of 6 days reached (Mon - Sat).';
+
+  @override
+  String get newSubscriptionPage_reviewStep_title => 'Review & Submit';
+
+  @override
+  String get newSubscriptionPage_reviewStep_subtitle =>
+      'Review Your Subscription Details';
+
+  @override
+  String get newSubscriptionPage_reviewStep_description =>
+      'Please verify all details before submitting';
+
+  @override
+  String get newSubscriptionPage_reviewStep_studentInfo =>
+      'Student Information';
+
+  @override
+  String get newSubscriptionPage_reviewStep_studentName => 'Name';
+
+  @override
+  String get newSubscriptionPage_reviewStep_studentEmail => 'Email';
+
+  @override
+  String get newSubscriptionPage_reviewStep_semesterDetails =>
+      'Semester Details';
+
+  @override
+  String get newSubscriptionPage_reviewStep_semesterEmpty =>
+      'No semester selected';
+
+  @override
+  String get newSubscriptionPage_reviewStep_stopTitle => 'Pickup Stop';
+
+  @override
+  String get newSubscriptionPage_reviewStep_stopName => 'Stop Name';
+
+  @override
+  String get newSubscriptionPage_reviewStep_stopEmpty => 'No stop selected';
+
+  @override
+  String get newSubscriptionPage_reviewStep_weeklyScheduleTitle =>
+      'Weekly Schedule';
+
+  @override
+  String get newSubscriptionPage_reviewStep_weeklyScheduleDay => 'Day';
+
+  @override
+  String get newSubscriptionPage_reviewStep_weeklyScheduleEmpty =>
+      'No schedules added';
+
+  @override
+  String get newSubscriptionPage_reviewStep_infoBubbleTitle =>
+      'Review Required';
+
+  @override
+  String get newSubscriptionPage_reviewStep_infoBubbleDescription =>
+      'Your subscription will be reviewed by our team. You will receive a notification once it has been approved or if any changes are needed.';
+
+  @override
+  String get newSubscriptionPage_overlay_title =>
+      'Submitting your subscription...';
+
+  @override
+  String get newSubscriptionPage_overlay_subtitle =>
+      'We are securing your seat on the bus...';
+
+  @override
+  String get newSubscriptionPage_stopPreview_noLink =>
+      'No map link available for this stop.';
+
+  @override
+  String get newSubscriptionPage_stopPreview_noImage => 'Image not available';
+
+  @override
+  String get newSubscriptionPage_stopPreview_mapsCta => 'View on Google Maps';
+
+  @override
+  String get newSubscriptionPage_stopPreview_noMedia => 'No media';
 }

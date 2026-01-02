@@ -494,6 +494,36 @@ abstract class AppLocalizations {
   /// **'Bus Stops'**
   String get busStops;
 
+  /// No description provided for @submit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit'**
+  String get submit;
+
+  /// No description provided for @next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get next;
+
+  /// No description provided for @selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected'**
+  String get selected;
+
+  /// No description provided for @remove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get remove;
+
+  /// No description provided for @add.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get add;
+
   /// No description provided for @onboarding_screen1_title.
   ///
   /// In en, this message translates to:
@@ -2335,6 +2365,348 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Configure semester dates and settings'**
   String get analyticsTab_quickActionsSection_semestersSubtitle;
+
+  /// No description provided for @newSubscriptionPage_scheduleTime_earlyError.
+  ///
+  /// In en, this message translates to:
+  /// **'Earliest morning time is 6:30 AM.'**
+  String get newSubscriptionPage_scheduleTime_earlyError;
+
+  /// No description provided for @newSubscriptionPage_scheduleTime_morningError.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning time must be <= closing time..'**
+  String get newSubscriptionPage_scheduleTime_morningError;
+
+  /// No description provided for @newSubscriptionPage_scheduleTime_latestError.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest close time is 5:00 PM.'**
+  String get newSubscriptionPage_scheduleTime_latestError;
+
+  /// No description provided for @newSubscriptionPage_scheduleTime_closingError.
+  ///
+  /// In en, this message translates to:
+  /// **'Close time must be >= morning time.'**
+  String get newSubscriptionPage_scheduleTime_closingError;
+
+  /// No description provided for @newSubscriptionPage_validateStep_proofUpload.
+  ///
+  /// In en, this message translates to:
+  /// **'Please upload a proof of payment to proceed.'**
+  String get newSubscriptionPage_validateStep_proofUpload;
+
+  /// No description provided for @newSubscriptionPage_validateStep_semester.
+  ///
+  /// In en, this message translates to:
+  /// **'Please wait for active semester to load or contact administrator.'**
+  String get newSubscriptionPage_validateStep_semester;
+
+  /// No description provided for @newSubscriptionPage_validateStep_stop.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a preferred stop to proceed.'**
+  String get newSubscriptionPage_validateStep_stop;
+
+  /// No description provided for @newSubscriptionPage_validateStep_schedule.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least one schedule.'**
+  String get newSubscriptionPage_validateStep_schedule;
+
+  /// No description provided for @newSubscriptionPage_validateStep_scheduleInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'One or more schedule times are invalid.'**
+  String get newSubscriptionPage_validateStep_scheduleInvalid;
+
+  /// No description provided for @newSubscriptionPage_submit_validateSteps.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill out every step before submitting.'**
+  String get newSubscriptionPage_submit_validateSteps;
+
+  /// No description provided for @newSubscriptionPage_submit_validateStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to resolve selected stop.'**
+  String get newSubscriptionPage_submit_validateStop;
+
+  /// No description provided for @newSubscriptionPage_validateStep_proofUploadException.
+  ///
+  /// In en, this message translates to:
+  /// **'Proof file not found. Please re-upload.'**
+  String get newSubscriptionPage_validateStep_proofUploadException;
+
+  /// No description provided for @newSubscriptionPage_validateStep_proofUploadMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to upload proof:'**
+  String get newSubscriptionPage_validateStep_proofUploadMessage;
+
+  /// No description provided for @newSubscriptionPage_submit_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription created (pending review)'**
+  String get newSubscriptionPage_submit_success;
+
+  /// No description provided for @newSubscriptionPage_submit_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to submit subscription:'**
+  String get newSubscriptionPage_submit_failed;
+
+  /// No description provided for @newSubscriptionPage_appBar_title.
+  ///
+  /// In en, this message translates to:
+  /// **'New Subscription'**
+  String get newSubscriptionPage_appBar_title;
+
+  /// No description provided for @newSubscriptionPage_semesterStep_refreshSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Semesters refreshed'**
+  String get newSubscriptionPage_semesterStep_refreshSuccess;
+
+  /// No description provided for @newSubscriptionPage_stopStep_refreshSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Stops refreshed'**
+  String get newSubscriptionPage_stopStep_refreshSuccess;
+
+  /// No description provided for @newSubscriptionPage_semesterStep_refresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh Semesters'**
+  String get newSubscriptionPage_semesterStep_refresh;
+
+  /// No description provided for @newSubscriptionPage_stopStep_refresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh Stops'**
+  String get newSubscriptionPage_stopStep_refresh;
+
+  /// No description provided for @newSubscriptionPage_proofStep_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt'**
+  String get newSubscriptionPage_proofStep_title;
+
+  /// No description provided for @newSubscriptionPage_proofStep_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Proof of payment'**
+  String get newSubscriptionPage_proofStep_subtitle;
+
+  /// No description provided for @newSubscriptionPage_proofStep_imageBox.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload a copy of your receipt'**
+  String get newSubscriptionPage_proofStep_imageBox;
+
+  /// No description provided for @newSubscriptionPage_semesterStep_emptyActive.
+  ///
+  /// In en, this message translates to:
+  /// **'No active semester available. Please contact the administrator.'**
+  String get newSubscriptionPage_semesterStep_emptyActive;
+
+  /// No description provided for @newSubscriptionPage_semesterStep_activeSemester.
+  ///
+  /// In en, this message translates to:
+  /// **'Active semester'**
+  String get newSubscriptionPage_semesterStep_activeSemester;
+
+  /// No description provided for @newSubscriptionPage_semesterStep_infoBubble.
+  ///
+  /// In en, this message translates to:
+  /// **'Your subscription will be valid for the active semester shown above.'**
+  String get newSubscriptionPage_semesterStep_infoBubble;
+
+  /// No description provided for @newSubscriptionPage_stopStep_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferred stop'**
+  String get newSubscriptionPage_stopStep_title;
+
+  /// No description provided for @newSubscriptionPage_stopStep_validatorEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a bus stop.'**
+  String get newSubscriptionPage_stopStep_validatorEmpty;
+
+  /// No description provided for @newSubscriptionPage_stopStep_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Select stop'**
+  String get newSubscriptionPage_stopStep_label;
+
+  /// No description provided for @newSubscriptionPage_scheduleStep_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly schedules'**
+  String get newSubscriptionPage_scheduleStep_title;
+
+  /// No description provided for @newSubscriptionPage_scheduleStep_optionEveryday.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyday'**
+  String get newSubscriptionPage_scheduleStep_optionEveryday;
+
+  /// No description provided for @newSubscriptionPage_scheduleStep_optionNormal.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal week'**
+  String get newSubscriptionPage_scheduleStep_optionNormal;
+
+  /// No description provided for @newSubscriptionPage_scheduleStep_optionCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get newSubscriptionPage_scheduleStep_optionCustom;
+
+  /// No description provided for @newSubscriptionPage_scheduleStep_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No schedules added. Add the days you take the bus.'**
+  String get newSubscriptionPage_scheduleStep_empty;
+
+  /// No description provided for @newSubscriptionPage_scheduleStep_maxReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum of 6 days reached (Mon - Sat).'**
+  String get newSubscriptionPage_scheduleStep_maxReached;
+
+  /// No description provided for @newSubscriptionPage_reviewStep_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Review & Submit'**
+  String get newSubscriptionPage_reviewStep_title;
+
+  /// No description provided for @newSubscriptionPage_reviewStep_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review Your Subscription Details'**
+  String get newSubscriptionPage_reviewStep_subtitle;
+
+  /// No description provided for @newSubscriptionPage_reviewStep_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Please verify all details before submitting'**
+  String get newSubscriptionPage_reviewStep_description;
+
+  /// No description provided for @newSubscriptionPage_reviewStep_studentInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Student Information'**
+  String get newSubscriptionPage_reviewStep_studentInfo;
+
+  /// No description provided for @newSubscriptionPage_reviewStep_studentName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get newSubscriptionPage_reviewStep_studentName;
+
+  /// No description provided for @newSubscriptionPage_reviewStep_studentEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get newSubscriptionPage_reviewStep_studentEmail;
+
+  /// No description provided for @newSubscriptionPage_reviewStep_semesterDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Semester Details'**
+  String get newSubscriptionPage_reviewStep_semesterDetails;
+
+  /// No description provided for @newSubscriptionPage_reviewStep_semesterEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No semester selected'**
+  String get newSubscriptionPage_reviewStep_semesterEmpty;
+
+  /// No description provided for @newSubscriptionPage_reviewStep_stopTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pickup Stop'**
+  String get newSubscriptionPage_reviewStep_stopTitle;
+
+  /// No description provided for @newSubscriptionPage_reviewStep_stopName.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop Name'**
+  String get newSubscriptionPage_reviewStep_stopName;
+
+  /// No description provided for @newSubscriptionPage_reviewStep_stopEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No stop selected'**
+  String get newSubscriptionPage_reviewStep_stopEmpty;
+
+  /// No description provided for @newSubscriptionPage_reviewStep_weeklyScheduleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly Schedule'**
+  String get newSubscriptionPage_reviewStep_weeklyScheduleTitle;
+
+  /// No description provided for @newSubscriptionPage_reviewStep_weeklyScheduleDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get newSubscriptionPage_reviewStep_weeklyScheduleDay;
+
+  /// No description provided for @newSubscriptionPage_reviewStep_weeklyScheduleEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No schedules added'**
+  String get newSubscriptionPage_reviewStep_weeklyScheduleEmpty;
+
+  /// No description provided for @newSubscriptionPage_reviewStep_infoBubbleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review Required'**
+  String get newSubscriptionPage_reviewStep_infoBubbleTitle;
+
+  /// No description provided for @newSubscriptionPage_reviewStep_infoBubbleDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Your subscription will be reviewed by our team. You will receive a notification once it has been approved or if any changes are needed.'**
+  String get newSubscriptionPage_reviewStep_infoBubbleDescription;
+
+  /// No description provided for @newSubscriptionPage_overlay_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitting your subscription...'**
+  String get newSubscriptionPage_overlay_title;
+
+  /// No description provided for @newSubscriptionPage_overlay_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We are securing your seat on the bus...'**
+  String get newSubscriptionPage_overlay_subtitle;
+
+  /// No description provided for @newSubscriptionPage_stopPreview_noLink.
+  ///
+  /// In en, this message translates to:
+  /// **'No map link available for this stop.'**
+  String get newSubscriptionPage_stopPreview_noLink;
+
+  /// No description provided for @newSubscriptionPage_stopPreview_noImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Image not available'**
+  String get newSubscriptionPage_stopPreview_noImage;
+
+  /// No description provided for @newSubscriptionPage_stopPreview_mapsCta.
+  ///
+  /// In en, this message translates to:
+  /// **'View on Google Maps'**
+  String get newSubscriptionPage_stopPreview_mapsCta;
+
+  /// No description provided for @newSubscriptionPage_stopPreview_noMedia.
+  ///
+  /// In en, this message translates to:
+  /// **'No media'**
+  String get newSubscriptionPage_stopPreview_noMedia;
 }
 
 class _AppLocalizationsDelegate

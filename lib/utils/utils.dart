@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
-import '../controllers/theme_controller.dart';
 
 // Globals
 final GlobalKey<ScaffoldMessengerState> snackBarKey =

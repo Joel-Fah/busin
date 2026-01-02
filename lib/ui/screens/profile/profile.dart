@@ -6,7 +6,6 @@ import 'package:busin/controllers/scanning_controller.dart';
 import 'package:busin/controllers/subscriptions_controller.dart';
 import 'package:busin/models/actors/base_user.dart';
 import 'package:busin/models/actors/student.dart';
-import 'package:busin/models/scannings.dart';
 import 'package:busin/ui/components/widgets/default_snack_bar.dart';
 import 'package:busin/ui/screens/profile/account_info.dart';
 import 'package:busin/ui/screens/profile/appearance.dart';

@@ -209,6 +209,21 @@ class AppLocalizationsFr extends AppLocalizations {
   String get busStops => 'Arrêts de bus';
 
   @override
+  String get submit => 'Soumettre';
+
+  @override
+  String get next => 'Suivant';
+
+  @override
+  String get selected => 'Sélectionné';
+
+  @override
+  String get remove => 'Retirer';
+
+  @override
+  String get add => 'Ajouter';
+
+  @override
   String get onboarding_screen1_title =>
       'Regarder l\'horloge en attendant le départ du bus, sachant que je devrai me lever tôt demain... Difficile de dormir avec tous ces devoirs qui s\'accumulent… pffffffff';
 
@@ -1274,4 +1289,216 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get analyticsTab_quickActionsSection_semestersSubtitle =>
       'Configurer les dates et les paramètres des semestres';
+
+  @override
+  String get newSubscriptionPage_scheduleTime_earlyError =>
+      'Le premier créneau disponible le matin est 6h30.';
+
+  @override
+  String get newSubscriptionPage_scheduleTime_morningError =>
+      'L\'heure du matin doit être inférieure ou égale à l\'heure de fermeture.';
+
+  @override
+  String get newSubscriptionPage_scheduleTime_latestError =>
+      'L\'heure de fermeture la plus tardive est 17h00.';
+
+  @override
+  String get newSubscriptionPage_scheduleTime_closingError =>
+      'L\'heure de fermeture doit être supérieure ou égale à l\'heure du matin.';
+
+  @override
+  String get newSubscriptionPage_validateStep_proofUpload =>
+      'Veuillez télécharger une preuve de paiement pour continuer.';
+
+  @override
+  String get newSubscriptionPage_validateStep_semester =>
+      'Veuillez patienter pendant le chargement du semestre actif ou contacter l\'administrateur.';
+
+  @override
+  String get newSubscriptionPage_validateStep_stop =>
+      'Sélectionnez un arrêt pour continuer.';
+
+  @override
+  String get newSubscriptionPage_validateStep_schedule =>
+      'Ajoutez au moins un horaire.';
+
+  @override
+  String get newSubscriptionPage_validateStep_scheduleInvalid =>
+      'Une ou plusieurs heures de planification sont invalides.';
+
+  @override
+  String get newSubscriptionPage_submit_validateSteps =>
+      'Veuillez remplir chaque étape avant de soumettre.';
+
+  @override
+  String get newSubscriptionPage_submit_validateStop =>
+      'Impossible de résoudre l\'étape sélectionnée.';
+
+  @override
+  String get newSubscriptionPage_validateStep_proofUploadException =>
+      'Fichier de preuve introuvable. Veuillez le télécharger à nouveau.';
+
+  @override
+  String get newSubscriptionPage_validateStep_proofUploadMessage =>
+      'Impossible de télécharger la preuve :';
+
+  @override
+  String get newSubscriptionPage_submit_success =>
+      'Abonnement créé (en attente de validation)';
+
+  @override
+  String get newSubscriptionPage_submit_failed =>
+      'Échec de la soumission de l\'abonnement :';
+
+  @override
+  String get newSubscriptionPage_appBar_title => 'Nouvel abonnement';
+
+  @override
+  String get newSubscriptionPage_semesterStep_refreshSuccess =>
+      'Semestres actualisés';
+
+  @override
+  String get newSubscriptionPage_stopStep_refreshSuccess =>
+      'Abonnements actualisés';
+
+  @override
+  String get newSubscriptionPage_semesterStep_refresh =>
+      'Actualiser les semestres';
+
+  @override
+  String get newSubscriptionPage_stopStep_refresh =>
+      'Actualiser les abonnements';
+
+  @override
+  String get newSubscriptionPage_proofStep_title => 'Reçu';
+
+  @override
+  String get newSubscriptionPage_proofStep_subtitle => 'Preuve de paiement';
+
+  @override
+  String get newSubscriptionPage_proofStep_imageBox =>
+      'Télécharger une copie de votre reçu';
+
+  @override
+  String get newSubscriptionPage_semesterStep_emptyActive =>
+      'Aucun semestre actif disponible. Veuillez contacter l\'administrateur.';
+
+  @override
+  String get newSubscriptionPage_semesterStep_activeSemester =>
+      'Semestre actif';
+
+  @override
+  String get newSubscriptionPage_semesterStep_infoBubble =>
+      'Votre abonnement sera valable pour le semestre actif indiqué ci-dessus.';
+
+  @override
+  String get newSubscriptionPage_stopStep_title => 'Arrêt préféré';
+
+  @override
+  String get newSubscriptionPage_stopStep_validatorEmpty =>
+      'Sélectionnez un arrêt de bus.';
+
+  @override
+  String get newSubscriptionPage_stopStep_label => 'Sélectionnez un arrêt';
+
+  @override
+  String get newSubscriptionPage_scheduleStep_title => 'Horaires hebdomadaires';
+
+  @override
+  String get newSubscriptionPage_scheduleStep_optionEveryday =>
+      'Tous les jours';
+
+  @override
+  String get newSubscriptionPage_scheduleStep_optionNormal => 'Semaine normale';
+
+  @override
+  String get newSubscriptionPage_scheduleStep_optionCustom => 'Personnalisé';
+
+  @override
+  String get newSubscriptionPage_scheduleStep_empty =>
+      'Aucun horaire ajouté. Ajoutez les jours où vous prenez le bus.';
+
+  @override
+  String get newSubscriptionPage_scheduleStep_maxReached =>
+      'Maximum de 6 jours atteint (lun. - sam.).';
+
+  @override
+  String get newSubscriptionPage_reviewStep_title => 'Vérifier et soumettre';
+
+  @override
+  String get newSubscriptionPage_reviewStep_subtitle =>
+      'Vérifiez les détails de votre abonnement';
+
+  @override
+  String get newSubscriptionPage_reviewStep_description =>
+      'Veuillez vérifier tous les détails avant de soumettre';
+
+  @override
+  String get newSubscriptionPage_reviewStep_studentInfo =>
+      'Informations sur l\'étudiant';
+
+  @override
+  String get newSubscriptionPage_reviewStep_studentName => 'Nom';
+
+  @override
+  String get newSubscriptionPage_reviewStep_studentEmail => 'Adresse e-mail';
+
+  @override
+  String get newSubscriptionPage_reviewStep_semesterDetails =>
+      'Détails du semestre';
+
+  @override
+  String get newSubscriptionPage_reviewStep_semesterEmpty =>
+      'Aucun semestre sélectionné';
+
+  @override
+  String get newSubscriptionPage_reviewStep_stopTitle => 'Point de retrait';
+
+  @override
+  String get newSubscriptionPage_reviewStep_stopName =>
+      'Nom du point de retrait';
+
+  @override
+  String get newSubscriptionPage_reviewStep_stopEmpty =>
+      'Aucun point de retrait sélectionné';
+
+  @override
+  String get newSubscriptionPage_reviewStep_weeklyScheduleTitle =>
+      'Horaire hebdomadaire';
+
+  @override
+  String get newSubscriptionPage_reviewStep_weeklyScheduleDay => 'Jour';
+
+  @override
+  String get newSubscriptionPage_reviewStep_weeklyScheduleEmpty =>
+      'Aucun horaire ajouté';
+
+  @override
+  String get newSubscriptionPage_reviewStep_infoBubbleTitle =>
+      'Vérification requise';
+
+  @override
+  String get newSubscriptionPage_reviewStep_infoBubbleDescription =>
+      'Votre abonnement sera examiné par notre équipe. Vous recevrez une notification une fois approuvé ou si des modifications sont nécessaires.';
+
+  @override
+  String get newSubscriptionPage_overlay_title =>
+      'Envoi de votre abonnement...';
+
+  @override
+  String get newSubscriptionPage_overlay_subtitle =>
+      'Nous réservons votre place dans le bus...';
+
+  @override
+  String get newSubscriptionPage_stopPreview_noLink =>
+      'Aucun lien vers la carte disponible pour cet arrêt.';
+
+  @override
+  String get newSubscriptionPage_stopPreview_noImage => 'Image non disponible';
+
+  @override
+  String get newSubscriptionPage_stopPreview_mapsCta => 'Voir sur Google Maps';
+
+  @override
+  String get newSubscriptionPage_stopPreview_noMedia => 'Aucun média';
 }
