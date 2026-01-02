@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:busin/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -98,6 +99,7 @@ class _ImageBoxState extends State<ImageBox> {
   }
 
   Future<void> _pickImage() async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       final picker = ImagePicker();
       final pickedFile = await picker.pickImage(source: ImageSource.gallery);
@@ -115,7 +117,7 @@ class _ImageBoxState extends State<ImageBox> {
                 backgroundColor: errorColor,
                 prefixIcon: HugeIcon(icon: errorIcon, color: lightColor),
                 label: Text(
-                  'The image size should not be more than ${widget.maxSizeInMB}MB',
+                  '${l10n.imageBox_sizeLimit} ${widget.maxSizeInMB}MB',
                 ),
               ),
             );
@@ -141,7 +143,7 @@ class _ImageBoxState extends State<ImageBox> {
             buildSnackBar(
               backgroundColor: errorColor,
               prefixIcon: HugeIcon(icon: errorIcon, color: lightColor),
-              label: Text('Error during image upload: $e'),
+              label: Text('${l10n.imageBox_uploadError} $e'),
             ),
           );
       }
@@ -162,6 +164,7 @@ class _ImageBoxState extends State<ImageBox> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Material(
       type: MaterialType.transparency,
       color: Colors.transparent,
@@ -257,7 +260,7 @@ class _ImageBoxState extends State<ImageBox> {
                                                       ),
                                                       const Gap(8.0),
                                                       Text(
-                                                        'Loading error',
+                                                        l10n.imageBox_loadingError,
                                                         style: AppTextStyles
                                                             .small
                                                             .copyWith(
@@ -277,7 +280,7 @@ class _ImageBoxState extends State<ImageBox> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       IconButton(
-                                        tooltip: 'Change',
+                                        tooltip: l10n.change,
                                         onPressed: _pickImage,
                                         color: accentColor,
                                         icon: const HugeIcon(
@@ -287,7 +290,7 @@ class _ImageBoxState extends State<ImageBox> {
                                         ),
                                       ),
                                       IconButton(
-                                        tooltip: 'Remove',
+                                        tooltip: l10n.remove,
                                         onPressed: _removeImage,
                                         color: errorColor,
                                         icon: const HugeIcon(

@@ -449,10 +449,51 @@ class AnalyticsService {
   /// Fetch semester analytics for current year
   Future<Map<String, Map<String, dynamic>>> _fetchSemesterAnalytics() async {
     try {
-      final currentYear = DateTime.now().year;
+      final now = DateTime.now();
+      final currentYear = now.year;
+
+      // Fetch semester configurations to get actual date ranges
+      final semesterConfigsSnapshot = await _db
+          .collection('semesters')
+          .get();
+
+      // Find semesters that are active or relevant to current period
+      // This includes semesters that span across years (e.g., Fall 2025 - Feb 2026)
+      final relevantSemesters = <String, Map<String, dynamic>>{};
+
+      for (var doc in semesterConfigsSnapshot.docs) {
+        final data = doc.data();
+        final semesterName = data['semester'] as String?;
+        final year = data['year'] as int?;
+        final startDate = _parseDateTime(data['startDate']);
+        final endDate = _parseDateTime(data['endDate']);
+
+        if (semesterName != null && year != null) {
+          // Include semester if:
+          // 1. It's currently active (now is between start and end)
+          // 2. It belongs to current year
+          // 3. It spans into current year (even if it started in previous year)
+          // 4. It starts in current year (even if it ends in next year)
+          final isActive = !now.isBefore(startDate) && !now.isAfter(endDate);
+          final belongsToCurrentYear = year == currentYear;
+          final spansIntoCurrentYear = startDate.year < currentYear && endDate.year >= currentYear;
+          final startsInCurrentYear = startDate.year == currentYear;
+
+          if (isActive || belongsToCurrentYear || spansIntoCurrentYear || startsInCurrentYear) {
+            final key = '${semesterName}_$year';
+            relevantSemesters[key] = {
+              'semester': semesterName,
+              'year': year,
+              'startDate': startDate,
+              'endDate': endDate,
+            };
+          }
+        }
+      }
+
+      // Fetch all subscriptions
       final subscriptionsSnapshot = await _db
           .collection('subscriptions')
-          .where('year', isEqualTo: currentYear)
           .get();
 
       Map<String, Map<String, dynamic>> analytics = {};
@@ -460,27 +501,36 @@ class AnalyticsService {
       for (var doc in subscriptionsSnapshot.docs) {
         final data = doc.data();
         final semester = data['semester'] as String?;
+        final year = data['year'] as int?;
         final status = data['status'] as String?;
 
-        if (semester != null) {
-          if (!analytics.containsKey(semester)) {
-            analytics[semester] = {
-              'total': 0,
-              'pending': 0,
-              'approved': 0,
-              'rejected': 0,
-              'expired': 0,
-            };
-          }
+        if (semester != null && year != null) {
+          final key = '${semester}_$year';
 
-          analytics[semester]!['total'] =
-              (analytics[semester]!['total'] as int) + 1;
+          // Only include if this semester is in our relevant list
+          if (relevantSemesters.containsKey(key)) {
+            if (!analytics.containsKey(semester)) {
+              analytics[semester] = {
+                'total': 0,
+                'pending': 0,
+                'approved': 0,
+                'rejected': 0,
+                'expired': 0,
+                'year': year,
+                'startDate': relevantSemesters[key]!['startDate'],
+                'endDate': relevantSemesters[key]!['endDate'],
+              };
+            }
 
-          if (status != null) {
-            final statusKey = status.toLowerCase();
-            if (analytics[semester]!.containsKey(statusKey)) {
-              analytics[semester]![statusKey] =
-                  (analytics[semester]![statusKey] as int) + 1;
+            analytics[semester]!['total'] =
+                (analytics[semester]!['total'] as int) + 1;
+
+            if (status != null) {
+              final statusKey = status.toLowerCase();
+              if (analytics[semester]!.containsKey(statusKey)) {
+                analytics[semester]![statusKey] =
+                    (analytics[semester]![statusKey] as int) + 1;
+              }
             }
           }
         }
@@ -493,5 +543,22 @@ class AnalyticsService {
       }
       return {};
     }
+  }
+
+  /// Helper method to parse DateTime from Firestore Timestamp or String
+  static DateTime _parseDateTime(dynamic value) {
+    if (value == null) {
+      return DateTime.now();
+    }
+    if (value is DateTime) {
+      return value;
+    }
+    if (value is Timestamp) {
+      return value.toDate();
+    }
+    if (value is String) {
+      return DateTime.parse(value);
+    }
+    throw ArgumentError('Cannot parse DateTime from type ${value.runtimeType}');
   }
 }

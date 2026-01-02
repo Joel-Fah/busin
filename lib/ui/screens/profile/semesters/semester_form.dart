@@ -1,3 +1,4 @@
+import 'package:busin/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
@@ -50,13 +51,14 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
   }
 
   Future<void> _selectDate(BuildContext context, bool isStartDate) async {
+    final l10n = AppLocalizations.of(context)!;
     if (_selectedYear == null) {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
           buildSnackBar(
             prefixIcon: const Icon(Icons.error, color: lightColor),
-            label: const Text('Please select a year first'),
+            label: Text(l10n.semesterFormPage_selectYear_null),
             backgroundColor: errorColor,
           ),
         );
@@ -69,7 +71,7 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
         ..showSnackBar(
           buildSnackBar(
             prefixIcon: const Icon(Icons.error, color: lightColor),
-            label: const Text('Please select a semester first'),
+            label: Text(l10n.semesterFormPage_selectSemester_null),
             backgroundColor: errorColor,
           ),
         );
@@ -99,13 +101,17 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
       // Validate date year for start date
       if (isStartDate && picked.year != _selectedYear) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          buildSnackBar(
-            prefixIcon: const Icon(Icons.error, color: lightColor),
-            label: Text('Start date must be in $_selectedYear'),
-            backgroundColor: errorColor,
-          ),
-        );
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            buildSnackBar(
+              prefixIcon: HugeIcon(icon: errorIcon, color: lightColor),
+              label: Text(
+                '${l10n.semesterFormPage_pickedDate_null} $_selectedYear',
+              ),
+              backgroundColor: errorColor,
+            ),
+          );
         return;
       }
 
@@ -118,9 +124,12 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
           ..hideCurrentSnackBar()
           ..showSnackBar(
             buildSnackBar(
-              prefixIcon: const Icon(Icons.error, color: lightColor),
+              prefixIcon: const HugeIcon(icon: errorIcon, color: lightColor),
               label: Text(
-                'End date must be in $_selectedYear or ${_selectedYear! + 1}',
+                l10n.semesterFormPage_validateDate(
+                  _selectedYear.toString(),
+                  (_selectedYear! + 1).toString(),
+                ),
               ),
               backgroundColor: errorColor,
             ),
@@ -143,28 +152,29 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
   }
 
   Future<void> _handleSubmit() async {
+    final l10n = AppLocalizations.of(context)!;
     if (!_formKey.currentState!.validate()) return;
-
-    if (_selectedSemester == null) {
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          buildSnackBar(
-            prefixIcon: const Icon(Icons.error, color: lightColor),
-            label: const Text('Please select a semester'),
-            backgroundColor: errorColor,
-          ),
-        );
-      return;
-    }
 
     if (_selectedYear == null) {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
           buildSnackBar(
-            prefixIcon: const Icon(Icons.error, color: lightColor),
-            label: const Text('Please select a year'),
+            prefixIcon: const HugeIcon(icon: errorIcon, color: lightColor),
+            label: Text(l10n.semesterFormPage_handleSubmit_yearNull),
+            backgroundColor: errorColor,
+          ),
+        );
+      return;
+    }
+
+    if (_selectedSemester == null) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          buildSnackBar(
+            prefixIcon: const HugeIcon(icon: errorIcon, color: lightColor),
+            label: Text(l10n.semesterFormPage_handleSubmit_semesterNull),
             backgroundColor: errorColor,
           ),
         );
@@ -176,8 +186,8 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
         ..hideCurrentSnackBar()
         ..showSnackBar(
           buildSnackBar(
-            prefixIcon: const Icon(Icons.error, color: lightColor),
-            label: const Text('Please select start and end dates'),
+            prefixIcon: const HugeIcon(icon: errorIcon, color: lightColor),
+            label: Text(l10n.semesterFormPage_handleSubmit_datesNull),
             backgroundColor: errorColor,
           ),
         );
@@ -189,8 +199,8 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
         ..hideCurrentSnackBar()
         ..showSnackBar(
           buildSnackBar(
-            prefixIcon: const Icon(Icons.error, color: lightColor),
-            label: const Text('Start date must be before end date'),
+            prefixIcon: const HugeIcon(icon: errorIcon, color: lightColor),
+            label: Text(l10n.semesterFormPage_handleSubmit_startIsAfter),
             backgroundColor: errorColor,
           ),
         );
@@ -203,8 +213,10 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
         ..hideCurrentSnackBar()
         ..showSnackBar(
           buildSnackBar(
-            prefixIcon: const Icon(Icons.error, color: lightColor),
-            label: Text('Start date must be in $_selectedYear'),
+            prefixIcon: const HugeIcon(icon: errorIcon, color: lightColor),
+            label: Text(
+              '${l10n.semesterFormPage_pickedDate_null} $_selectedYear',
+            ),
             backgroundColor: errorColor,
           ),
         );
@@ -218,9 +230,12 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
         ..hideCurrentSnackBar()
         ..showSnackBar(
           buildSnackBar(
-            prefixIcon: const Icon(Icons.error, color: lightColor),
+            prefixIcon: const HugeIcon(icon: errorIcon, color: lightColor),
             label: Text(
-              'End date must be in $_selectedYear or ${_selectedYear! + 1}',
+              l10n.semesterFormPage_validateDate(
+                _selectedYear.toString(),
+                (_selectedYear! + 1).toString(),
+              ),
             ),
             backgroundColor: errorColor,
           ),
@@ -235,8 +250,10 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
         ..hideCurrentSnackBar()
         ..showSnackBar(
           buildSnackBar(
-            prefixIcon: const Icon(Icons.error, color: lightColor),
-            label: const Text('Semester must be at least 30 days long'),
+            prefixIcon: const HugeIcon(icon: errorIcon, color: lightColor),
+            label: Text(
+              l10n.semesterFormPage_handleSubmit_semesterDurationDays,
+            ),
             backgroundColor: errorColor,
           ),
         );
@@ -249,8 +266,10 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
         ..hideCurrentSnackBar()
         ..showSnackBar(
           buildSnackBar(
-            prefixIcon: const Icon(Icons.error, color: lightColor),
-            label: const Text('Semester cannot be longer than 6 months'),
+            prefixIcon: const HugeIcon(icon: errorIcon, color: lightColor),
+            label: Text(
+              l10n.semesterFormPage_handleSubmit_semesterDurationMonths,
+            ),
             backgroundColor: errorColor,
           ),
         );
@@ -296,8 +315,8 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
             prefixIcon: const Icon(Icons.check_circle, color: lightColor),
             label: Text(
               isEditing
-                  ? 'Semester updated successfully'
-                  : 'Semester created successfully',
+                  ? l10n.semesterFormPage_handleSubmit_successUpdated
+                  : l10n.semesterFormPage_handleSubmit_successCreated,
             ),
             backgroundColor: successColor,
           ),
@@ -312,8 +331,8 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
               _semesterController.error.value.isNotEmpty
                   ? _semesterController.error.value
                   : isEditing
-                  ? 'Failed to update semester'
-                  : 'Failed to create semester',
+                  ? l10n.semesterFormPage_handleSubmit_failedUpdated
+                  : l10n.semesterFormPage_handleSubmit_failedCreated,
             ),
             backgroundColor: errorColor,
           ),
@@ -323,11 +342,19 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: Text(isEditing ? 'Edit Semester' : 'Add Semester'),
+          title: FittedBox(
+            fit: BoxFit.contain,
+            child: Text(
+              isEditing
+                  ? l10n.semesterFormPage_appBar_titleEdit
+                  : l10n.semesterFormPage_appBar_titleCreate,
+            ),
+          ),
         ),
         body: Form(
           key: _formKey,
@@ -353,8 +380,8 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
                     Expanded(
                       child: Text(
                         isEditing
-                            ? 'Update the date range for this semester. Changes will affect all subscriptions using these dates.'
-                            : 'Define the start and end dates for a semester. These dates will be used for subscription validity periods.',
+                            ? l10n.semesterFormPage_infoBanner_update
+                            : l10n.semesterFormPage_infoBanner_create,
                         style: AppTextStyles.body.copyWith(color: infoColor),
                       ),
                     ),
@@ -364,12 +391,15 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
               const Gap(24.0),
 
               // Form title
-              Text('Semester Details', style: AppTextStyles.h2),
+              Text(
+                l10n.semesterFormPage_sectionHeader_semesterDetails,
+                style: AppTextStyles.h2,
+              ),
               const Gap(16.0),
 
               // Semester selection
               Text(
-                'Semester Type',
+                l10n.semesterFormPage_semesterDetails_type,
                 style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600),
               ),
               const Gap(8.0),
@@ -393,10 +423,12 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
                       semester.label,
                       style: AppTextStyles.body.copyWith(
                         color: isSelected
-                                  ? lightColor
-                                  : isEnabled
-                                      ? null
-                                      : themeController.isDark ? lightColor.withValues(alpha: 0.5) : Colors.grey.shade900,
+                            ? lightColor
+                            : isEnabled
+                            ? null
+                            : themeController.isDark
+                            ? lightColor.withValues(alpha: 0.5)
+                            : Colors.grey.shade900,
                       ),
                     ),
                     selected: isSelected,
@@ -431,20 +463,24 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
                                     color: seedColor,
                                   ),
                                   label: Text(
-                                    '${semester.label} is already registered for $_selectedYear',
+                                    '${semester.label} ${l10n.semesterFormPage_semesterDetails_semesterSelected} $_selectedYear',
                                   ),
                                   backgroundColor: warningColor,
-                                  foregroundColor: seedColor
+                                  foregroundColor: seedColor,
                                 ),
                               );
                           }
                         : null,
                     side: BorderSide(
                       color: isSelected
-                          ? themeController.isDark ? seedPalette.shade500 : seedPalette.shade700
+                          ? themeController.isDark
+                                ? seedPalette.shade500
+                                : seedPalette.shade700
                           : !exists
                           ? seedPalette.shade900
-                          : themeController.isDark ? Colors.grey.shade600 : Colors.grey.shade900,
+                          : themeController.isDark
+                          ? Colors.grey.shade600
+                          : Colors.grey.shade900,
                       width: isSelected ? 2.0 : 1.0,
                     ),
                     shape: RoundedRectangleBorder(
@@ -467,13 +503,17 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
                       if (states.contains(WidgetState.pressed)) {
                         return seedPalette.shade900.withValues(alpha: 0.2);
                       }
-                      return themeController.isDark ? seedPalette.shade900 : seedPalette.shade50;
+                      return themeController.isDark
+                          ? seedPalette.shade900
+                          : seedPalette.shade50;
                     }),
                     avatar: exists
                         ? HugeIcon(
                             icon: HugeIcons.strokeRoundedUnavailable,
                             size: 20.0,
-                            color: themeController.isDark ? lightColor.withValues(alpha: 0.5) : Colors.grey.shade900,
+                            color: themeController.isDark
+                                ? lightColor.withValues(alpha: 0.5)
+                                : Colors.grey.shade900,
                           )
                         : null,
                   );
@@ -483,7 +523,7 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0, left: 12.0),
                   child: Text(
-                    'Please select a semester',
+                    l10n.semesterFormPage_handleSubmit_semesterNull,
                     style: AppTextStyles.body.copyWith(
                       color: errorColor,
                       fontSize: 14.0,
@@ -494,7 +534,7 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
 
               // Year selection
               Text(
-                'Year',
+                l10n.year,
                 style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600),
               ),
               const Gap(8.0),
@@ -521,7 +561,9 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
                             ? lightColor
                             : isEnabled
                             ? null
-                            : themeController.isDark ? lightColor.withValues(alpha: 0.5) : Colors.grey.shade900,
+                            : themeController.isDark
+                            ? lightColor.withValues(alpha: 0.5)
+                            : Colors.grey.shade900,
                       ),
                     ),
                     selected: isSelected,
@@ -555,7 +597,7 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
                                     color: lightColor,
                                   ),
                                   label: Text(
-                                    '${_selectedSemester!.label} is already registered for $year',
+                                    '${_selectedSemester!.label} ${l10n.semesterFormPage_semesterDetails_semesterSelected} $year',
                                   ),
                                   backgroundColor: warningColor,
                                 ),
@@ -564,10 +606,14 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
                         : null,
                     side: BorderSide(
                       color: isSelected
-                          ? themeController.isDark ? seedPalette.shade500 : seedPalette.shade700
+                          ? themeController.isDark
+                                ? seedPalette.shade500
+                                : seedPalette.shade700
                           : !exists
                           ? seedPalette.shade900
-                          : themeController.isDark ? Colors.grey.shade600 : Colors.grey.shade900,
+                          : themeController.isDark
+                          ? Colors.grey.shade600
+                          : Colors.grey.shade900,
                       width: isSelected ? 2.0 : 1.0,
                     ),
                     shape: RoundedRectangleBorder(
@@ -590,13 +636,17 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
                       if (states.contains(WidgetState.pressed)) {
                         return seedPalette.shade900.withValues(alpha: 0.2);
                       }
-                      return themeController.isDark ? seedPalette.shade900 : seedPalette.shade50;
+                      return themeController.isDark
+                          ? seedPalette.shade900
+                          : seedPalette.shade50;
                     }),
                     avatar: exists
                         ? HugeIcon(
                             icon: HugeIcons.strokeRoundedUnavailable,
                             size: 20.0,
-                      color: themeController.isDark ? lightColor.withValues(alpha: 0.5) : Colors.grey.shade900,
+                            color: themeController.isDark
+                                ? lightColor.withValues(alpha: 0.5)
+                                : Colors.grey.shade900,
                           )
                         : null,
                   );
@@ -606,19 +656,22 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0, left: 12.0),
                   child: Text(
-                    'Please select a year',
+                    l10n.semesterFormPage_handleSubmit_yearNull,
                     style: AppTextStyles.small.copyWith(color: errorColor),
                   ),
                 ),
               const Gap(24.0),
 
               // Date range
-              Text('Date Range', style: AppTextStyles.h2),
+              Text(
+                l10n.semesterFormPage_sectionHeader_dateRange,
+                style: AppTextStyles.h2,
+              ),
               const Gap(16.0),
 
               // Start date
               Text(
-                'Start Date',
+                l10n.semesterFormPage_dateRange_startDate,
                 style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600),
               ),
               const Gap(8.0),
@@ -648,7 +701,7 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
                         child: Text(
                           _startDate != null
                               ? dateFormatter(_startDate!)
-                              : 'Select start date',
+                              : l10n.semesterFormPage_dateRange_startDateHint,
                           style: AppTextStyles.body.copyWith(
                             color: _startDate != null ? null : Colors.grey,
                           ),
@@ -666,7 +719,7 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
 
               // End date
               Text(
-                'End Date',
+                l10n.semesterFormPage_dateRange_endDate,
                 style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600),
               ),
               const Gap(8.0),
@@ -696,7 +749,7 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
                         child: Text(
                           _endDate != null
                               ? dateFormatter(_endDate!)
-                              : 'Select end date',
+                              : l10n.semesterFormPage_dateRange_endDateHint,
                           style: AppTextStyles.body.copyWith(
                             color: _endDate != null ? null : Colors.grey,
                           ),
@@ -732,13 +785,15 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Duration',
+                              l10n.semesterFormPage_sectionHeader_durationPreview,
                               style: AppTextStyles.small.copyWith(
                                 color: infoColor,
                               ),
                             ),
                             Text(
-                              '${_endDate!.difference(_startDate!).inDays} days',
+                              _endDate!.difference(_startDate!).inDays > 1
+                                  ? '${_endDate!.difference(_startDate!).inDays} ${l10n.days}'
+                                  : '${_endDate!.difference(_startDate!).inDays} ${l10n.days.substring(0, l10n.days.length - 1)}',
                               style: AppTextStyles.h3.copyWith(
                                 color: infoColor,
                               ),
@@ -753,7 +808,9 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
 
               // Submit button
               PrimaryButton.label(
-                label: isEditing ? 'Update Semester' : 'Create Semester',
+                label: isEditing
+                    ? l10n.semesterFormPage_submit_update
+                    : l10n.semesterFormPage_submit_create,
                 onPressed: _isSubmitting ? null : _handleSubmit,
                 bgColor: _isSubmitting ? Colors.grey : null,
               ),

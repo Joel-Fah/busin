@@ -474,7 +474,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
 
       if (semesterAnalytics.isEmpty) {
         return AnalyticsCard(
-          title: '${l10n.analyticsTab_semesterSection_title} - $currentYear',
+          title: l10n.analyticsTab_semesterSection_title,
           subtitle: l10n.analyticsTab_semesterSection_subtitle,
           icon: HugeIcons.strokeRoundedCalendar04,
           child: Center(
@@ -490,7 +490,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
       }
 
       return AnalyticsCard(
-        title: '${l10n.analyticsTab_semesterSection_title} - $currentYear',
+        title: l10n.analyticsTab_semesterSection_title,
         subtitle: l10n.analyticsTab_semesterSection_subtitle,
         icon: HugeIcons.strokeRoundedCalendar04,
         child: Column(
@@ -501,6 +501,19 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
             final pending = data['pending'] as int;
             final approved = data['approved'] as int;
             final rejected = data['rejected'] as int;
+            final year = data['year'] as int?;
+            final startDate = data['startDate'] as DateTime?;
+            final endDate = data['endDate'] as DateTime?;
+
+            // Format date range
+            String dateRange = '';
+            if (startDate != null && endDate != null) {
+              final startFormatted = '${_getMonthAbbreviation(startDate.month)} ${startDate.year}';
+              final endFormatted = '${_getMonthAbbreviation(endDate.month)} ${endDate.year}';
+              dateRange = '$startFormatted - $endFormatted';
+            } else if (year != null) {
+              dateRange = year.toString();
+            }
 
             return Container(
                   margin: const EdgeInsets.only(bottom: 16.0),
@@ -545,6 +558,14 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
+                                if (dateRange.isNotEmpty)
+                                  Text(
+                                    dateRange,
+                                    style: AppTextStyles.small.copyWith(
+                                      color: greyColor,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
                                 Text(
                                   'Total: $total subscriptions',
                                   style: AppTextStyles.small,
@@ -585,6 +606,15 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
         ),
       );
     });
+  }
+
+  /// Helper method to get month abbreviation
+  String _getMonthAbbreviation(int month) {
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    return month >= 1 && month <= 12 ? months[month - 1] : '';
   }
 
   Widget _buildDistributionSection() {

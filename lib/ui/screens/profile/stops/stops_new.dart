@@ -10,6 +10,8 @@ import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
+import '../../../../l10n/app_localizations.dart';
+
 class NewStopPage extends StatefulWidget {
   const NewStopPage({super.key});
 
@@ -42,6 +44,7 @@ class _NewStopPageState extends State<NewStopPage> {
   }
 
   Future<void> _handleSubmit() async {
+    final l10n = AppLocalizations.of(context)!;
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isSubmitting = true);
@@ -61,34 +64,44 @@ class _NewStopPageState extends State<NewStopPage> {
 
     if (createdStop != null) {
       context.pop();
-      ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(
-        buildSnackBar(
-          prefixIcon: const Icon(Icons.check_circle, color: lightColor),
-          label: const Text('Bus stop created successfully'),
-          backgroundColor: successColor,
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(
-        buildSnackBar(
-          prefixIcon: const Icon(Icons.error, color: lightColor),
-          label: Text(
-            _busStopsController.error.value.isNotEmpty
-                ? _busStopsController.error.value
-                : 'Failed to create bus stop',
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          buildSnackBar(
+            prefixIcon: const Icon(Icons.check_circle, color: lightColor),
+            label: Text(l10n.newStopForm_handleSubmit_success),
+            backgroundColor: successColor,
           ),
-          backgroundColor: errorColor,
-        ),
-      );
+        );
+    } else {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          buildSnackBar(
+            prefixIcon: const Icon(Icons.error, color: lightColor),
+            label: Text(
+              _busStopsController.error.value.isNotEmpty
+                  ? _busStopsController.error.value
+                  : l10n.newStopForm_handleSubmit_failed,
+            ),
+            backgroundColor: errorColor,
+          ),
+        );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
-        appBar: AppBar(title: const Text('New Bus Stop')),
+        appBar: AppBar(
+          title: FittedBox(
+            fit: BoxFit.contain,
+            child: Text(l10n.newStopForm_appBar_title),
+          ),
+        ),
         body: Form(
           key: _formKey,
           child: ListView(
@@ -109,7 +122,7 @@ class _NewStopPageState extends State<NewStopPage> {
                     HugeIcon(icon: infoIcon, color: infoColor),
                     Expanded(
                       child: Text(
-                        'The form below allows you to create a new bus stop. This will be added to the list of available stops for users to select when subscribing to bus routes.',
+                        l10n.newStopForm_listTile_infoBubble,
                         style: AppTextStyles.body.copyWith(color: infoColor),
                       ),
                     ),
@@ -117,7 +130,7 @@ class _NewStopPageState extends State<NewStopPage> {
                 ),
               ),
               const Gap(24.0),
-              Text('Bus Stop Details', style: AppTextStyles.h2),
+              Text(l10n.newStopForm_stopDetails, style: AppTextStyles.h2),
               const Gap(16.0),
               ImageBox(
                 onImageSelected: (filePath) {
@@ -125,16 +138,16 @@ class _NewStopPageState extends State<NewStopPage> {
                     _pickupImageUrl = filePath;
                   });
                 },
-                label: "Upload a capture of the place (optional)",
+                label: l10n.newStopForm_stopDetails_image,
               ),
               const Gap(16.0),
               SimpleTextFormField(
                 controller: _nameController,
-                hintText: "Name of the place",
-                label: const Text("Pickup place name *"),
+                hintText: l10n.newStopForm_stopDetails_nameLabel,
+                label: Text(l10n.newStopForm_stopDetails_nameHint),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Please enter the name of the bus stop';
+                    return l10n.newStopForm_stopDetails_nameValidator;
                   }
                   return null;
                 },
@@ -144,8 +157,8 @@ class _NewStopPageState extends State<NewStopPage> {
               const Gap(16.0),
               SimpleTextFormField(
                 controller: _mapEmbedController,
-                hintText: "A Google maps link to the place",
-                label: const Text("Maps URL (optional)"),
+                hintText: l10n.newStopForm_stopDetails_mapsLabel,
+                label: Text(l10n.newStopForm_stopDetails_mapsHint),
                 validator: (value) {
                   if (value != null && value.trim().isNotEmpty) {
                     final urlPattern = RegExp(
@@ -153,7 +166,7 @@ class _NewStopPageState extends State<NewStopPage> {
                       caseSensitive: false,
                     );
                     if (!urlPattern.hasMatch(value.trim())) {
-                      return 'Please enter a valid Google Maps link';
+                      return l10n.newStopForm_stopDetails_mapsValidator;
                     }
                   }
                   return null;
@@ -169,8 +182,8 @@ class _NewStopPageState extends State<NewStopPage> {
                       ? null
                       : _handleSubmit,
                   label: _isSubmitting || _busStopsController.isLoading.value
-                      ? "Adding..."
-                      : "Add stop",
+                      ? l10n.newStopForm_handleSubmit_labelLoading
+                      : l10n.newStopForm_handleSubmit_label,
                 ),
               ),
             ],

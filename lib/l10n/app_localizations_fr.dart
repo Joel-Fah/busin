@@ -209,6 +209,30 @@ class AppLocalizationsFr extends AppLocalizations {
   String get busStops => 'Arrêts de bus';
 
   @override
+  String get submit => 'Soumettre';
+
+  @override
+  String get next => 'Suivant';
+
+  @override
+  String get selected => 'Sélectionné';
+
+  @override
+  String get remove => 'Retirer';
+
+  @override
+  String get add => 'Ajouter';
+
+  @override
+  String get users => 'utilisateur(s)';
+
+  @override
+  String get change => 'Changer';
+
+  @override
+  String get updatedBy => 'Modifié par:';
+
+  @override
   String get onboarding_screen1_title =>
       'Regarder l\'horloge en attendant le départ du bus, sachant que je devrai me lever tôt demain... Difficile de dormir avec tous ces devoirs qui s\'accumulent… pffffffff';
 
@@ -1274,4 +1298,418 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get analyticsTab_quickActionsSection_semestersSubtitle =>
       'Configurer les dates et les paramètres des semestres';
+
+  @override
+  String get newSubscriptionPage_scheduleTime_earlyError =>
+      'Le premier créneau disponible le matin est 6h30.';
+
+  @override
+  String get newSubscriptionPage_scheduleTime_morningError =>
+      'L\'heure du matin doit être inférieure ou égale à l\'heure de fermeture.';
+
+  @override
+  String get newSubscriptionPage_scheduleTime_latestError =>
+      'L\'heure de fermeture la plus tardive est 17h00.';
+
+  @override
+  String get newSubscriptionPage_scheduleTime_closingError =>
+      'L\'heure de fermeture doit être supérieure ou égale à l\'heure du matin.';
+
+  @override
+  String get newSubscriptionPage_validateStep_proofUpload =>
+      'Veuillez télécharger une preuve de paiement pour continuer.';
+
+  @override
+  String get newSubscriptionPage_validateStep_semester =>
+      'Veuillez patienter pendant le chargement du semestre actif ou contacter l\'administrateur.';
+
+  @override
+  String get newSubscriptionPage_validateStep_stop =>
+      'Sélectionnez un arrêt pour continuer.';
+
+  @override
+  String get newSubscriptionPage_validateStep_schedule =>
+      'Ajoutez au moins un horaire.';
+
+  @override
+  String get newSubscriptionPage_validateStep_scheduleInvalid =>
+      'Une ou plusieurs heures de planification sont invalides.';
+
+  @override
+  String get newSubscriptionPage_submit_validateSteps =>
+      'Veuillez remplir chaque étape avant de soumettre.';
+
+  @override
+  String get newSubscriptionPage_submit_validateStop =>
+      'Impossible de résoudre l\'étape sélectionnée.';
+
+  @override
+  String get newSubscriptionPage_validateStep_proofUploadException =>
+      'Fichier de preuve introuvable. Veuillez le télécharger à nouveau.';
+
+  @override
+  String get newSubscriptionPage_validateStep_proofUploadMessage =>
+      'Impossible de télécharger la preuve :';
+
+  @override
+  String get newSubscriptionPage_submit_success =>
+      'Abonnement créé (en attente de validation)';
+
+  @override
+  String get newSubscriptionPage_submit_failed =>
+      'Échec de la soumission de l\'abonnement :';
+
+  @override
+  String get newSubscriptionPage_appBar_title => 'Nouvel abonnement';
+
+  @override
+  String get newSubscriptionPage_semesterStep_refreshSuccess =>
+      'Semestres actualisés';
+
+  @override
+  String get newSubscriptionPage_stopStep_refreshSuccess =>
+      'Abonnements actualisés';
+
+  @override
+  String get newSubscriptionPage_semesterStep_refresh =>
+      'Actualiser les semestres';
+
+  @override
+  String get newSubscriptionPage_stopStep_refresh =>
+      'Actualiser les abonnements';
+
+  @override
+  String get newSubscriptionPage_proofStep_title => 'Reçu';
+
+  @override
+  String get newSubscriptionPage_proofStep_subtitle => 'Preuve de paiement';
+
+  @override
+  String get newSubscriptionPage_proofStep_imageBox =>
+      'Télécharger une copie de votre reçu';
+
+  @override
+  String get newSubscriptionPage_semesterStep_emptyActive =>
+      'Aucun semestre actif disponible. Veuillez contacter l\'administrateur.';
+
+  @override
+  String get newSubscriptionPage_semesterStep_activeSemester =>
+      'Semestre actif';
+
+  @override
+  String get newSubscriptionPage_semesterStep_infoBubble =>
+      'Votre abonnement sera valable pour le semestre actif indiqué ci-dessus.';
+
+  @override
+  String get newSubscriptionPage_stopStep_title => 'Arrêt préféré';
+
+  @override
+  String get newSubscriptionPage_stopStep_validatorEmpty =>
+      'Sélectionnez un arrêt de bus.';
+
+  @override
+  String get newSubscriptionPage_stopStep_label => 'Sélectionnez un arrêt';
+
+  @override
+  String get newSubscriptionPage_scheduleStep_title => 'Horaires hebdomadaires';
+
+  @override
+  String get newSubscriptionPage_scheduleStep_optionEveryday =>
+      'Tous les jours';
+
+  @override
+  String get newSubscriptionPage_scheduleStep_optionNormal => 'Semaine normale';
+
+  @override
+  String get newSubscriptionPage_scheduleStep_optionCustom => 'Personnalisé';
+
+  @override
+  String get newSubscriptionPage_scheduleStep_empty =>
+      'Aucun horaire ajouté. Ajoutez les jours où vous prenez le bus.';
+
+  @override
+  String get newSubscriptionPage_scheduleStep_maxReached =>
+      'Maximum de 6 jours atteint (lun. - sam.).';
+
+  @override
+  String get newSubscriptionPage_reviewStep_title => 'Vérifier et soumettre';
+
+  @override
+  String get newSubscriptionPage_reviewStep_subtitle =>
+      'Vérifiez les détails de votre abonnement';
+
+  @override
+  String get newSubscriptionPage_reviewStep_description =>
+      'Veuillez vérifier tous les détails avant de soumettre';
+
+  @override
+  String get newSubscriptionPage_reviewStep_studentInfo =>
+      'Informations sur l\'étudiant';
+
+  @override
+  String get newSubscriptionPage_reviewStep_studentName => 'Nom';
+
+  @override
+  String get newSubscriptionPage_reviewStep_studentEmail => 'Adresse e-mail';
+
+  @override
+  String get newSubscriptionPage_reviewStep_semesterDetails =>
+      'Détails du semestre';
+
+  @override
+  String get newSubscriptionPage_reviewStep_semesterEmpty =>
+      'Aucun semestre sélectionné';
+
+  @override
+  String get newSubscriptionPage_reviewStep_stopTitle => 'Point de retrait';
+
+  @override
+  String get newSubscriptionPage_reviewStep_stopName =>
+      'Nom du point de retrait';
+
+  @override
+  String get newSubscriptionPage_reviewStep_stopEmpty =>
+      'Aucun point de retrait sélectionné';
+
+  @override
+  String get newSubscriptionPage_reviewStep_weeklyScheduleTitle =>
+      'Horaire hebdomadaire';
+
+  @override
+  String get newSubscriptionPage_reviewStep_weeklyScheduleDay => 'Jour';
+
+  @override
+  String get newSubscriptionPage_reviewStep_weeklyScheduleEmpty =>
+      'Aucun horaire ajouté';
+
+  @override
+  String get newSubscriptionPage_reviewStep_infoBubbleTitle =>
+      'Vérification requise';
+
+  @override
+  String get newSubscriptionPage_reviewStep_infoBubbleDescription =>
+      'Votre abonnement sera examiné par notre équipe. Vous recevrez une notification une fois approuvé ou si des modifications sont nécessaires.';
+
+  @override
+  String get newSubscriptionPage_overlay_title =>
+      'Envoi de votre abonnement...';
+
+  @override
+  String get newSubscriptionPage_overlay_subtitle =>
+      'Nous réservons votre place dans le bus...';
+
+  @override
+  String get newSubscriptionPage_stopPreview_noLink =>
+      'Aucun lien vers la carte disponible pour cet arrêt.';
+
+  @override
+  String get newSubscriptionPage_stopPreview_noImage => 'Image non disponible';
+
+  @override
+  String get newSubscriptionPage_stopPreview_mapsCta => 'Voir sur Google Maps';
+
+  @override
+  String get newSubscriptionPage_stopPreview_noMedia => 'Aucun média';
+
+  @override
+  String get newStopForm_handleSubmit_success =>
+      'Arrêt de bus créé avec succès';
+
+  @override
+  String get newStopForm_handleSubmit_failed =>
+      'Échec de la création de l\'arrêt de bus';
+
+  @override
+  String get newStopForm_appBar_title => 'Nouvel arrêt de bus';
+
+  @override
+  String get newStopForm_listTile_infoBubble =>
+      'Le formulaire ci-dessous vous permet de créer un nouvel arrêt de bus. Celui-ci sera ajouté à la liste des arrêts disponibles pour les utilisateurs lors de leur inscription aux lignes de bus.';
+
+  @override
+  String get newStopForm_stopDetails => 'Détails de l\'arrêt de bus';
+
+  @override
+  String get newStopForm_stopDetails_image =>
+      'Télécharger une capture d\'écran du lieu (facultatif)';
+
+  @override
+  String get newStopForm_stopDetails_nameLabel =>
+      'Nom du lieu de prise en charge *';
+
+  @override
+  String get newStopForm_stopDetails_nameHint => 'Nom du lieu';
+
+  @override
+  String get newStopForm_stopDetails_nameValidator =>
+      'Veuillez saisir le nom de l\'arrêt de bus';
+
+  @override
+  String get newStopForm_stopDetails_mapsLabel =>
+      'URL de la carte (facultatif)';
+
+  @override
+  String get newStopForm_stopDetails_mapsHint =>
+      'Lien Google Maps vers le lieu';
+
+  @override
+  String get newStopForm_stopDetails_mapsValidator =>
+      'Veuillez saisir un lien Google Maps valide';
+
+  @override
+  String get newStopForm_handleSubmit_labelLoading => 'Ajout en cours...';
+
+  @override
+  String get newStopForm_handleSubmit_label => 'Ajouter l\'arrêt';
+
+  @override
+  String get editStopForm_handleSubmit_success =>
+      'Arrêt de bus mis à jour avec succès';
+
+  @override
+  String get editStopForm_handleSubmit_failed =>
+      'Échec de la mise à jour de l\'arrêt de bus';
+
+  @override
+  String get editStopForm_appBar_title => 'Modifier l\'arrêt de bus';
+
+  @override
+  String get editStopForm_notFound => 'Arrêt de bus introuvable';
+
+  @override
+  String get editStopForm_notFound_ctaLabel => 'Retour';
+
+  @override
+  String get editStopForm_listTile_infoBubble =>
+      'Mise à jour des informations de cet arrêt de bus. Les modifications seront visibles pour tous les utilisateurs abonnés à cet arrêt.';
+
+  @override
+  String get editStopForm_metaData => 'Métadonnées';
+
+  @override
+  String get editStopForm_handleSubmit_labelLoading =>
+      'Mise à jour en cours...';
+
+  @override
+  String get editStopForm_handleSubmit_label => 'Mise à jour de l\'arrêt';
+
+  @override
+  String get semesterFormPage_selectYear_null =>
+      'Veuillez d\'abord sélectionner une année';
+
+  @override
+  String get semesterFormPage_selectSemester_null =>
+      'Veuillez d\'abord sélectionner un semestre';
+
+  @override
+  String get semesterFormPage_pickedDate_null =>
+      'La date de début doit être comprise entre ';
+
+  @override
+  String semesterFormPage_validateDate(
+    String selectedYear1,
+    String selectedYear2,
+  ) {
+    return 'La date de fin doit être comprise entre $selectedYear1 et $selectedYear2';
+  }
+
+  @override
+  String get semesterFormPage_handleSubmit_yearNull =>
+      'Veuillez sélectionner une année';
+
+  @override
+  String get semesterFormPage_handleSubmit_semesterNull =>
+      'Veuillez sélectionner un semestre';
+
+  @override
+  String get semesterFormPage_handleSubmit_datesNull =>
+      'Veuillez sélectionner les dates de début et de fin';
+
+  @override
+  String get semesterFormPage_handleSubmit_startIsAfter =>
+      'La date de début doit être antérieure à la date de fin';
+
+  @override
+  String get semesterFormPage_handleSubmit_semesterDurationDays =>
+      'Le semestre doit durer au moins 30 jours';
+
+  @override
+  String get semesterFormPage_handleSubmit_semesterDurationMonths =>
+      'Le semestre ne peut pas durer plus de 6 mois';
+
+  @override
+  String get semesterFormPage_handleSubmit_successCreated =>
+      'Semestre créé avec succès';
+
+  @override
+  String get semesterFormPage_handleSubmit_successUpdated =>
+      'Semestre mis à jour avec succès';
+
+  @override
+  String get semesterFormPage_handleSubmit_failedCreated =>
+      'Échec de la création du semestre';
+
+  @override
+  String get semesterFormPage_handleSubmit_failedUpdated =>
+      'Échec de la mise à jour du semestre';
+
+  @override
+  String get semesterFormPage_appBar_titleCreate => 'Ajouter un semestre';
+
+  @override
+  String get semesterFormPage_appBar_titleEdit => 'Modifier un semestre';
+
+  @override
+  String get semesterFormPage_infoBanner_update =>
+      'Mettez à jour la plage de dates pour ce semestre. Les modifications affecteront tous les abonnements utilisant ces dates.';
+
+  @override
+  String get semesterFormPage_infoBanner_create =>
+      'Définissez les dates de début et de fin d\'un semestre. Ces dates seront utilisées pour les périodes de validité des abonnements.';
+
+  @override
+  String get semesterFormPage_sectionHeader_semesterDetails =>
+      'Détails du semestre';
+
+  @override
+  String get semesterFormPage_semesterDetails_type => 'Type de semestre';
+
+  @override
+  String get semesterFormPage_semesterDetails_semesterSelected =>
+      'est déjà enregistré pour';
+
+  @override
+  String get semesterFormPage_sectionHeader_dateRange => 'Plage de dates';
+
+  @override
+  String get semesterFormPage_dateRange_startDate => 'Date de début';
+
+  @override
+  String get semesterFormPage_dateRange_startDateHint =>
+      'Sélectionnez la date de début';
+
+  @override
+  String get semesterFormPage_dateRange_endDate => 'Date de fin';
+
+  @override
+  String get semesterFormPage_dateRange_endDateHint =>
+      'Sélectionnez la date de fin';
+
+  @override
+  String get semesterFormPage_sectionHeader_durationPreview => 'Durée';
+
+  @override
+  String get semesterFormPage_submit_update => 'Mettre à jour le semestre';
+
+  @override
+  String get semesterFormPage_submit_create => 'Ajouter le semestre';
+
+  @override
+  String get imageBox_sizeLimit => 'La taille de l\'image ne doit pas dépasser';
+
+  @override
+  String get imageBox_uploadError => 'Erreur lors du chargement de l\'image :';
+
+  @override
+  String get imageBox_loadingError => 'Erreur de chargement';
 }

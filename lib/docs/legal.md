@@ -1,4 +1,4 @@
-![BusIn Logo](https://raw.githubusercontent.com/Joel-Fah/busin/543d1ce3d115c33139a10afd3179bb835da8af7f/assets/images/logo/orange.svg)
+![BusIn Logo](https://raw.githubusercontent.com/Joel-Fah/busin/refs/heads/main/assets/images/logo/orange.png)
 
 # Legal Information
 

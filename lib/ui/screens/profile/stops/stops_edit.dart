@@ -1,4 +1,5 @@
 import 'package:busin/controllers/bus_stops_controller.dart';
+import 'package:busin/l10n/app_localizations.dart';
 import 'package:busin/models/value_objects/bus_stop_selection.dart';
 import 'package:busin/ui/components/widgets/default_snack_bar.dart';
 import 'package:busin/ui/components/widgets/form_fields/select_image.dart';
@@ -76,6 +77,7 @@ class _EditStopPageState extends State<EditStopPage> {
   }
 
   Future<void> _handleSubmit() async {
+    final l10n = AppLocalizations.of(context)!;
     if (!_formKey.currentState!.validate()) return;
     if (_currentStop == null) return;
 
@@ -99,51 +101,66 @@ class _EditStopPageState extends State<EditStopPage> {
 
     if (success) {
       context.pop();
-      ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(
-        buildSnackBar(
-          prefixIcon: const Icon(Icons.check_circle, color: lightColor),
-          label: const Text('Bus stop updated successfully'),
-          backgroundColor: successColor,
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context)..hideCurrentSnackBar()..showSnackBar(
-        buildSnackBar(
-          prefixIcon: const Icon(Icons.error, color: lightColor),
-          label: Text(
-            _busStopsController.error.value.isNotEmpty
-                ? _busStopsController.error.value
-                : 'Failed to update bus stop',
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          buildSnackBar(
+            prefixIcon: const Icon(Icons.check_circle, color: lightColor),
+            label: Text(l10n.editStopForm_handleSubmit_success),
+            backgroundColor: successColor,
           ),
-          backgroundColor: errorColor,
-        ),
-      );
+        );
+    } else {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          buildSnackBar(
+            prefixIcon: const Icon(Icons.error, color: lightColor),
+            label: Text(
+              _busStopsController.error.value.isNotEmpty
+                  ? _busStopsController.error.value
+                  : l10n.editStopForm_handleSubmit_failed,
+            ),
+            backgroundColor: errorColor,
+          ),
+        );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Edit Bus Stop')),
+        appBar: AppBar(
+          title: FittedBox(
+            fit: BoxFit.contain,
+            child: Text(l10n.editStopForm_appBar_title),
+          ),
+        ),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     if (_currentStop == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Edit Bus Stop')),
+        appBar: AppBar(
+          title: FittedBox(
+            fit: BoxFit.contain,
+            child: Text(l10n.editStopForm_appBar_title),
+          ),
+        ),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const HugeIcon(icon: HugeIcons.strokeRoundedAlert02, size: 64.0),
               const Gap(16.0),
-              Text('Bus stop not found', style: AppTextStyles.h3),
+              Text(l10n.editStopForm_notFound, style: AppTextStyles.h3),
               const Gap(24.0),
               PrimaryButton.label(
                 onPressed: () => context.pop(),
-                label: 'Go Back',
+                label: l10n.editStopForm_notFound_ctaLabel,
               ),
             ],
           ),
@@ -154,7 +171,12 @@ class _EditStopPageState extends State<EditStopPage> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
-        appBar: AppBar(title: const Text('Edit Bus Stop')),
+        appBar: AppBar(
+          title: FittedBox(
+            fit: BoxFit.contain,
+            child: Text(l10n.editStopForm_appBar_title),
+          ),
+        ),
         body: Form(
           key: _formKey,
           child: ListView(
@@ -175,7 +197,7 @@ class _EditStopPageState extends State<EditStopPage> {
                     HugeIcon(icon: infoIcon, color: infoColor),
                     Expanded(
                       child: Text(
-                        'Update the information for this bus stop. Changes will be reflected for all users who have subscribed to this stop.',
+                        l10n.editStopForm_listTile_infoBubble,
                         style: AppTextStyles.body.copyWith(color: infoColor),
                       ),
                     ),
@@ -183,7 +205,7 @@ class _EditStopPageState extends State<EditStopPage> {
                 ),
               ),
               const Gap(24.0),
-              Text('Bus Stop Details', style: AppTextStyles.h2),
+              Text(l10n.newStopForm_stopDetails, style: AppTextStyles.h2),
               const Gap(16.0),
               ImageBox(
                 initialImageUrl: _currentStop!.pickupImageUrl,
@@ -192,16 +214,16 @@ class _EditStopPageState extends State<EditStopPage> {
                     _pickupImageUrl = filePath;
                   });
                 },
-                label: "Upload a capture of the place (optional)",
+                label: l10n.newStopForm_stopDetails_image,
               ),
               const Gap(16.0),
               SimpleTextFormField(
                 controller: _nameController,
-                hintText: "Name of the place",
-                label: const Text("Pickup place name *"),
+                hintText: l10n.newStopForm_stopDetails_nameHint,
+                label: Text(l10n.newStopForm_stopDetails_nameLabel),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Please enter the name of the bus stop';
+                    return l10n.newStopForm_stopDetails_nameValidator;
                   }
                   return null;
                 },
@@ -211,8 +233,8 @@ class _EditStopPageState extends State<EditStopPage> {
               const Gap(16.0),
               SimpleTextFormField(
                 controller: _mapEmbedController,
-                hintText: "A Google maps link to the place",
-                label: const Text("Maps URL (optional)"),
+                hintText: l10n.newStopForm_stopDetails_mapsHint,
+                label: Text(l10n.newStopForm_stopDetails_mapsLabel),
                 validator: (value) {
                   if (value != null && value.trim().isNotEmpty) {
                     final urlPattern = RegExp(
@@ -220,7 +242,7 @@ class _EditStopPageState extends State<EditStopPage> {
                       caseSensitive: false,
                     );
                     if (!urlPattern.hasMatch(value.trim())) {
-                      return 'Please enter a valid Google Maps link';
+                      return l10n.newStopForm_stopDetails_mapsValidator;
                     }
                   }
                   return null;
@@ -239,7 +261,7 @@ class _EditStopPageState extends State<EditStopPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Metadata',
+                      l10n.editStopForm_metaData,
                       style: AppTextStyles.small.copyWith(
                         fontWeight: FontWeight.bold,
                         color: warningColor,
@@ -256,7 +278,7 @@ class _EditStopPageState extends State<EditStopPage> {
                         const Gap(8.0),
                         Expanded(
                           child: Text(
-                            'Created: ${dateTimeFormatter(_currentStop!.createdAt)}',
+                            '${l10n.createdAt} ${dateTimeFormatter(_currentStop!.createdAt)}',
                             style: AppTextStyles.small.copyWith(
                               color: warningColor,
                             ),
@@ -275,7 +297,7 @@ class _EditStopPageState extends State<EditStopPage> {
                         const Gap(8.0),
                         Expanded(
                           child: Text(
-                            'Last updated: ${dateTimeFormatter(_currentStop!.updatedAt)}',
+                            '${l10n.lastUpdated} ${dateTimeFormatter(_currentStop!.updatedAt)}',
                             style: AppTextStyles.small.copyWith(
                               color: warningColor,
                             ),
@@ -294,7 +316,7 @@ class _EditStopPageState extends State<EditStopPage> {
                           const Gap(8.0),
                           Expanded(
                             child: Text(
-                              'Updated by: ${_currentStop!.updatedBy.length} user(s)',
+                              '${l10n.updatedBy} ${_currentStop!.updatedBy.length} ${l10n.users}',
                               style: AppTextStyles.small,
                             ),
                           ),
@@ -312,8 +334,8 @@ class _EditStopPageState extends State<EditStopPage> {
                       ? null
                       : _handleSubmit,
                   label: _isSubmitting || _busStopsController.isLoading.value
-                      ? "Updating..."
-                      : "Update stop",
+                      ? l10n.editStopForm_handleSubmit_label
+                      : l10n.editStopForm_handleSubmit_label,
                 ),
               ),
             ],

@@ -96,23 +96,20 @@ class _SubscriptionsTabState extends State<SubscriptionsTab> {
           ),
           actions: [
             if (canSubmitNew)
-              Padding(
-                padding: const EdgeInsets.only(right: 8.0),
-                child: TextButton.icon(
-                  style: TextButton.styleFrom(
-                    overlayColor: accentColor.withValues(alpha: 0.1),
-                  ),
-                  onPressed: () async {
-                    await context.pushNamed(
-                      removeLeadingSlash(NewSubscriptionPage.routeName),
-                    );
-                    // Refresh subscriptions list when returning
-                    await busSubscriptionsController.refreshCurrentFilters();
-                  },
-                  label: Text(l10n.newLabel),
-                  icon: const HugeIcon(icon: HugeIcons.strokeRoundedAdd01),
-                  iconAlignment: IconAlignment.end,
+              TextButton.icon(
+                style: TextButton.styleFrom(
+                  overlayColor: accentColor.withValues(alpha: 0.1),
                 ),
+                onPressed: () async {
+                  await context.pushNamed(
+                    removeLeadingSlash(NewSubscriptionPage.routeName),
+                  );
+                  // Refresh subscriptions list when returning
+                  await busSubscriptionsController.refreshCurrentFilters();
+                },
+                label: Text(l10n.newLabel),
+                icon: const HugeIcon(icon: HugeIcons.strokeRoundedAdd01),
+                iconAlignment: IconAlignment.end,
               ),
           ],
         ),

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:busin/controllers/auth_controller.dart';
 import 'package:busin/controllers/semester_controller.dart';
 import 'package:busin/controllers/subscriptions_controller.dart';
+import 'package:busin/l10n/app_localizations.dart';
 import 'package:busin/models/semester_config.dart';
 import 'package:busin/models/subscription.dart';
 import 'package:busin/ui/components/widgets/default_snack_bar.dart';
@@ -192,6 +193,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
   }
 
   void _editScheduleTime(int index, {bool morning = true}) async {
+    final l10n = AppLocalizations.of(context)!;
     final s = _schedules[index];
     final current = morning ? s.morningTime : s.closingTime;
     final picked = await _pickTime(context, current);
@@ -199,20 +201,20 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
 
     if (morning) {
       if (_isBefore(picked, _minMorningTime)) {
-        _showScheduleError('Earliest morning time is 6:30 AM.');
+        _showScheduleError(l10n.newSubscriptionPage_scheduleTime_earlyError);
         return;
       }
       if (_isAfter(picked, _timeOfDayFromString(s.closingTime))) {
-        _showScheduleError('Morning time must be <= closing time.');
+        _showScheduleError(l10n.newSubscriptionPage_scheduleTime_morningError);
         return;
       }
     } else {
       if (_isAfter(picked, _maxClosingTime)) {
-        _showScheduleError('Latest close time is 5:00 PM.');
+        _showScheduleError(l10n.newSubscriptionPage_scheduleTime_latestError);
         return;
       }
       if (_isBefore(picked, _timeOfDayFromString(s.morningTime))) {
-        _showScheduleError('Close time must be >= morning time.');
+        _showScheduleError(l10n.newSubscriptionPage_scheduleTime_closingError);
         return;
       }
     }
@@ -239,35 +241,36 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
   }
 
   bool _validateStep(int step) {
+    final l10n = AppLocalizations.of(context)!;
     switch (step) {
       case 0:
         if (_proofPath == null) {
-          _showScheduleError('Upload a proof of payment.');
+          _showScheduleError(l10n.newSubscriptionPage_validateStep_proofUpload);
           return false;
         }
         return true;
       case 1:
         if (_selectedSemesterConfig == null) {
-          _showScheduleError(
-            'Please wait for active semester to load or contact administrator.',
-          );
+          _showScheduleError(l10n.newSubscriptionPage_validateStep_semester);
           return false;
         }
         return true;
       case 2:
         if (_selectedStopId == null) {
-          _showScheduleError('Select a preferred stop.');
+          _showScheduleError(l10n.newSubscriptionPage_validateStep_stop);
           return false;
         }
         return true;
       case 3:
         if (_schedules.isEmpty) {
-          _showScheduleError('Add at least one schedule.');
+          _showScheduleError(l10n.newSubscriptionPage_validateStep_schedule);
           return false;
         }
         for (final s in _schedules) {
           if (!s.isValidTimes) {
-            _showScheduleError('One or more schedule times are invalid.');
+            _showScheduleError(
+              l10n.newSubscriptionPage_validateStep_scheduleInvalid,
+            );
             return false;
           }
         }
@@ -292,6 +295,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
   }
 
   void _submit() async {
+    final l10n = AppLocalizations.of(context)!;
     if (_isSubmitting) return;
     final isValid = _formKey.currentState?.validate() ?? false;
     if (!isValid ||
@@ -299,13 +303,13 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
         _selectedStopId == null ||
         _schedules.isEmpty ||
         _selectedSemesterConfig == null) {
-      _showScheduleError('Fill out every step before submitting.');
+      _showScheduleError(l10n.newSubscriptionPage_submit_validateSteps);
       return;
     }
 
     final stop = _findSelectedStop();
     if (stop == null) {
-      _showScheduleError('Unable to resolve selected stop.');
+      _showScheduleError(l10n.newSubscriptionPage_submit_validateStop);
       return;
     }
 
@@ -324,7 +328,9 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
     try {
       final proofFile = File(_proofPath!);
       if (!proofFile.existsSync()) {
-        throw Exception('Proof file not found. Please re-upload.');
+        throw Exception(
+          l10n.newSubscriptionPage_validateStep_proofUploadException,
+        );
       }
       final uniqueName =
           '${DateTime.now().millisecondsSinceEpoch}_${p.basename(proofFile.path)}';
@@ -346,7 +352,9 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
               icon: HugeIcons.strokeRoundedAlert02,
               color: lightColor,
             ),
-            label: Text('Unable to upload proof: $error'),
+            label: Text(
+              '${l10n.newSubscriptionPage_validateStep_proofUploadMessage} $error',
+            ),
           ),
         );
       setState(() => _isSubmitting = false);
@@ -373,7 +381,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
               icon: HugeIcons.strokeRoundedTaskDone01,
               color: lightColor,
             ),
-            label: const Text('Subscription created (pending review)'),
+            label: Text(l10n.newSubscriptionPage_submit_success),
           ),
         );
       context.pop(saved);
@@ -388,7 +396,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
               icon: HugeIcons.strokeRoundedAlert02,
               color: lightColor,
             ),
-            label: Text('Failed to submit subscription: $error'),
+            label: Text('${l10n.newSubscriptionPage_submit_failed} $error'),
           ),
         );
     } finally {
@@ -400,11 +408,17 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final nextWeekday = _nextAvailableWeekday();
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
-        appBar: AppBar(title: const Text('New Subscription')),
+        appBar: AppBar(
+          title: FittedBox(
+            fit: BoxFit.contain,
+            child: Text(l10n.newSubscriptionPage_appBar_title),
+          ),
+        ),
         body: Stack(
           children: [
             ListView(
@@ -429,7 +443,8 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                     physics: const ClampingScrollPhysics(),
                     controlsBuilder: (context, details) {
                       // Show refresh button for semester (step 1) and stop (step 2) selection
-                      final bool showRefreshButton = _currentStep == 1 || _currentStep == 2;
+                      final bool showRefreshButton =
+                          _currentStep == 1 || _currentStep == 2;
 
                       return Padding(
                         padding: const EdgeInsets.only(top: 10.0),
@@ -440,7 +455,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                   ? null
                                   : details.onStepContinue,
                               child: Text(
-                                _currentStep == 4 ? 'Submit' : 'Next',
+                                _currentStep == 4 ? l10n.submit : l10n.next,
                                 style: AppTextStyles.body,
                               ),
                             ),
@@ -452,8 +467,8 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                   alpha: 0.1,
                                 ),
                               ),
-                              child: const Text(
-                                'Back',
+                              child: Text(
+                                l10n.backButton,
                                 style: AppTextStyles.body,
                               ),
                             ),
@@ -465,7 +480,8 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                     : () async {
                                         if (_currentStep == 1) {
                                           // Refresh semesters
-                                          await semesterController.fetchSemesters();
+                                          await semesterController
+                                              .fetchSemesters();
                                           if (mounted) {
                                             ScaffoldMessenger.of(context)
                                               ..hideCurrentSnackBar()
@@ -473,16 +489,20 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                                 buildSnackBar(
                                                   backgroundColor: successColor,
                                                   prefixIcon: HugeIcon(
-                                                    icon: HugeIcons.strokeRoundedCheckmarkCircle02,
+                                                    icon: HugeIcons
+                                                        .strokeRoundedCheckmarkCircle02,
                                                     color: lightColor,
                                                   ),
-                                                  label: const Text('Semesters refreshed'),
+                                                  label: Text(
+                                                    l10n.newSubscriptionPage_semesterStep_refreshSuccess,
+                                                  ),
                                                 ),
                                               );
                                           }
                                         } else if (_currentStep == 2) {
                                           // Refresh bus stops
-                                          await busStopController.fetchBusStops();
+                                          await busStopController
+                                              .fetchBusStops();
                                           if (mounted) {
                                             ScaffoldMessenger.of(context)
                                               ..hideCurrentSnackBar()
@@ -490,10 +510,13 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                                 buildSnackBar(
                                                   backgroundColor: successColor,
                                                   prefixIcon: HugeIcon(
-                                                    icon: HugeIcons.strokeRoundedCheckmarkCircle02,
+                                                    icon: HugeIcons
+                                                        .strokeRoundedCheckmarkCircle02,
                                                     color: lightColor,
                                                   ),
-                                                  label: const Text('Stops refreshed'),
+                                                  label: Text(
+                                                    l10n.newSubscriptionPage_stopStep_refreshSuccess,
+                                                  ),
                                                 ),
                                               );
                                           }
@@ -504,12 +527,12 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                   color: _isSubmitting
                                       ? greyColor
                                       : themeController.isDark
-                                          ? seedPalette.shade50
-                                          : seedColor,
+                                      ? seedPalette.shade50
+                                      : seedColor,
                                 ),
                                 tooltip: _currentStep == 1
-                                    ? 'Refresh semesters'
-                                    : 'Refresh stops',
+                                    ? l10n.newSubscriptionPage_semesterStep_refresh
+                                    : l10n.newSubscriptionPage_stopStep_refresh,
                                 style: IconButton.styleFrom(
                                   overlayColor: accentColor.withValues(
                                     alpha: 0.1,
@@ -534,7 +557,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                           ),
                         ),
                         title: Text(
-                          'Receipt',
+                          l10n.newSubscriptionPage_proofStep_title,
                           style: AppTextStyles.body.copyWith(
                             color: _currentStep >= 0
                                 ? themeController.isDark
@@ -551,7 +574,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Proof of payment',
+                              l10n.newSubscriptionPage_proofStep_subtitle,
                               style: AppTextStyles.body.copyWith(
                                 color: themeController.isDark
                                     ? seedPalette.shade50
@@ -564,7 +587,8 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                               onImageSelected: (filePath) => setState(() {
                                 _proofPath = filePath;
                               }),
-                              label: 'Upload a copy of your receipt',
+                              label:
+                                  l10n.newSubscriptionPage_proofStep_imageBox,
                             ),
                           ],
                         ),
@@ -581,7 +605,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                           ),
                         ),
                         title: Text(
-                          'Semester',
+                          l10n.semester,
                           style: AppTextStyles.body.copyWith(
                             color: _currentStep >= 1
                                 ? themeController.isDark
@@ -628,7 +652,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                     const Gap(12.0),
                                     Expanded(
                                       child: Text(
-                                        'No active semester available. Please contact the administrator.',
+                                        l10n.newSubscriptionPage_semesterStep_emptyActive,
                                         style: AppTextStyles.body.copyWith(
                                           color: warningColor,
                                         ),
@@ -693,7 +717,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                  'Active Semester',
+                                                  l10n.newSubscriptionPage_semesterStep_activeSemester,
                                                   style: AppTextStyles.small
                                                       .copyWith(
                                                         color: successColor,
@@ -720,7 +744,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                                     borderRadius * 1.5,
                                               ),
                                               child: Text(
-                                                'Selected',
+                                                l10n.selected,
                                                 style: AppTextStyles.small
                                                     .copyWith(
                                                       color: lightColor,
@@ -810,7 +834,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                       const Gap(12.0),
                                       Expanded(
                                         child: Text(
-                                          'Your subscription will be valid for the active semester shown above.',
+                                          l10n.newSubscriptionPage_semesterStep_infoBubble,
                                           style: AppTextStyles.small.copyWith(
                                             color: infoColor,
                                           ),
@@ -836,7 +860,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                           ),
                         ),
                         title: Text(
-                          'Preferred stop',
+                          l10n.newSubscriptionPage_stopStep_title,
                           style: AppTextStyles.body.copyWith(
                             color: _currentStep >= 2
                                 ? themeController.isDark
@@ -896,7 +920,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                         AutovalidateMode.onUserInteraction,
                                     validator: (value) =>
                                         value == null || value.isEmpty
-                                        ? 'Select a stop'
+                                        ? l10n.newSubscriptionPage_stopStep_validatorEmpty
                                         : null,
                                     icon: const HugeIcon(
                                       icon: HugeIcons.strokeRoundedArrowDown01,
@@ -908,13 +932,15 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                             vertical: 12.0,
                                             horizontal: 16.0,
                                           ),
-                                      labelText: 'Select stop',
+                                      labelText: l10n
+                                          .newSubscriptionPage_stopStep_label,
                                       labelStyle: AppTextStyles.body.copyWith(
                                         color: themeController.isDark
                                             ? lightColor
                                             : seedColor,
                                       ),
-                                      hintText: 'Select stop',
+                                      hintText: l10n
+                                          .newSubscriptionPage_stopStep_label,
                                       hintStyle: AppTextStyles.body.copyWith(
                                         color: themeController.isDark
                                             ? lightColor.withValues(alpha: 0.6)
@@ -956,7 +982,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                           ),
                         ),
                         title: Text(
-                          'Weekly schedules',
+                          l10n.newSubscriptionPage_scheduleStep_title,
                           style: AppTextStyles.body.copyWith(
                             color: _currentStep >= 3
                                 ? themeController.isDark
@@ -978,7 +1004,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                 children: [
                                   ChoiceChip(
                                     label: Text(
-                                      'Everyday',
+                                      l10n.newSubscriptionPage_scheduleStep_optionEveryday,
                                       style: AppTextStyles.body,
                                     ),
                                     selected:
@@ -993,7 +1019,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                   const Gap(8.0),
                                   ChoiceChip(
                                     label: Text(
-                                      'Normal week',
+                                      l10n.newSubscriptionPage_scheduleStep_optionNormal,
                                       style: AppTextStyles.body,
                                     ),
                                     selected:
@@ -1009,7 +1035,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                   const Gap(8.0),
                                   ChoiceChip(
                                     label: Text(
-                                      'Custom',
+                                      l10n.newSubscriptionPage_scheduleStep_optionCustom,
                                       style: AppTextStyles.body,
                                     ),
                                     selected:
@@ -1047,7 +1073,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                     padding: const EdgeInsets.all(20.0),
                                   ),
                                   child: Text(
-                                    'No schedules added. Add the days you take the bus.',
+                                    l10n.newSubscriptionPage_scheduleStep_empty,
                                     style: AppTextStyles.body.copyWith(
                                       color: themeController.isDark
                                           ? seedPalette.shade50
@@ -1106,13 +1132,14 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                               child: Text(
                                                 _weekdayLabelLong(
                                                   _schedules[i].weekday,
+                                                  context,
                                                 ),
                                                 style: AppTextStyles.h4,
                                               ),
                                             ),
                                             IconButton(
                                               tooltip:
-                                                  'Remove ${_weekdayLabelLong(_schedules[i].weekday)}',
+                                                  '${l10n.remove} ${_weekdayLabelLong(_schedules[i].weekday, context)}',
                                               style: IconButton.styleFrom(
                                                 overlayColor: errorColor
                                                     .withValues(alpha: 0.12),
@@ -1141,7 +1168,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                                 ),
                                                 child: InputDecorator(
                                                   decoration: InputDecoration(
-                                                    labelText: 'Morning',
+                                                    labelText: l10n.morning,
                                                     labelStyle: AppTextStyles
                                                         .body
                                                         .copyWith(
@@ -1215,7 +1242,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                                 ),
                                                 child: InputDecorator(
                                                   decoration: InputDecoration(
-                                                    labelText: 'Close',
+                                                    labelText: l10n.closing,
                                                     labelStyle: AppTextStyles
                                                         .body
                                                         .copyWith(
@@ -1307,7 +1334,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                       padding: const EdgeInsets.all(20.0),
                                     ),
                                     child: Text(
-                                      'Maximum of 6 days reached (Mon–Sat).',
+                                      l10n.newSubscriptionPage_scheduleStep_maxReached,
                                       style: AppTextStyles.body.copyWith(
                                         color: themeController.isDark
                                             ? seedPalette.shade50
@@ -1334,7 +1361,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                       size: 20.0,
                                     ),
                                     label: Text(
-                                      'Add ${_weekdayLabelLong(nextWeekday)}',
+                                      '${l10n.add} ${_weekdayLabelLong(nextWeekday, context)}',
                                       style: AppTextStyles.body,
                                     ),
                                   ),
@@ -1355,7 +1382,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                           ),
                         ),
                         title: Text(
-                          'Review & submit',
+                          l10n.newSubscriptionPage_reviewStep_title,
                           style: AppTextStyles.body.copyWith(
                             color: _currentStep >= 4
                                 ? themeController.isDark
@@ -1395,11 +1422,11 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Review Your Subscription',
+                                        l10n.newSubscriptionPage_reviewStep_subtitle,
                                         style: AppTextStyles.h3,
                                       ),
                                       Text(
-                                        'Please verify all details before submitting',
+                                        l10n.newSubscriptionPage_reviewStep_description,
                                         style: AppTextStyles.small.copyWith(
                                           color: greyColor,
                                         ),
@@ -1431,7 +1458,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                       ),
                                       const Gap(8.0),
                                       Text(
-                                        'Student Information',
+                                        l10n.newSubscriptionPage_reviewStep_studentInfo,
                                         style: AppTextStyles.body.copyWith(
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -1441,18 +1468,20 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                   Divider(color: seedPalette.shade700),
                                   _SummaryRow(
                                     icon: HugeIcons.strokeRoundedUserCircle,
-                                    label: 'Name',
+                                    label: l10n
+                                        .newSubscriptionPage_reviewStep_studentName,
                                     value: authController.userDisplayName,
                                   ),
                                   _SummaryRow(
                                     icon: HugeIcons.strokeRoundedMail01,
-                                    label: 'Email',
+                                    label: l10n
+                                        .newSubscriptionPage_reviewStep_studentEmail,
                                     value:
                                         authController
                                             .currentUser
                                             .value
                                             ?.email ??
-                                        'N/A',
+                                        l10n.naLabel,
                                   ),
                                 ],
                               ),
@@ -1484,7 +1513,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                       ),
                                       const Gap(8.0),
                                       Text(
-                                        'Semester Details',
+                                        l10n.newSubscriptionPage_reviewStep_semesterDetails,
                                         style: AppTextStyles.body.copyWith(
                                           fontWeight: FontWeight.bold,
                                           color: successColor,
@@ -1498,7 +1527,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                   if (_selectedSemesterConfig != null) ...[
                                     _SummaryRow(
                                       icon: HugeIcons.strokeRoundedCalendar03,
-                                      label: 'Semester',
+                                      label: l10n.semester,
                                       value:
                                           '${_selectedSemesterConfig!.semester.label} ${_selectedSemesterConfig!.year}',
                                       valueColor: successColor,
@@ -1506,7 +1535,8 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                     _SummaryRow(
                                       icon: HugeIcons
                                           .strokeRoundedCalendarCheckIn01,
-                                      label: 'Start Date',
+                                      label: l10n
+                                          .semestersPage_detailRow_startDate,
                                       value: dateFormatter(
                                         _selectedSemesterConfig!.startDate,
                                       ),
@@ -1514,16 +1544,22 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                     _SummaryRow(
                                       icon: HugeIcons
                                           .strokeRoundedCalendarCheckOut01,
-                                      label: 'End Date',
+                                      label:
+                                          l10n.semestersPage_detailRow_endDate,
                                       value: dateFormatter(
                                         _selectedSemesterConfig!.endDate,
                                       ),
                                     ),
                                     _SummaryRow(
                                       icon: HugeIcons.strokeRoundedTimer02,
-                                      label: 'Duration',
+                                      label:
+                                          l10n.semestersPage_detailRow_duration,
                                       value:
-                                          '${_selectedSemesterConfig!.durationInDays} days',
+                                          _selectedSemesterConfig!
+                                                  .durationInDays >
+                                              1
+                                          ? '${_selectedSemesterConfig!.durationInDays} ${l10n.days}'
+                                          : '${_selectedSemesterConfig!.durationInDays} ${l10n.days.substring(0, l10n.days.length - 1)}',
                                     ),
                                   ] else
                                     Padding(
@@ -1531,7 +1567,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                         vertical: 8.0,
                                       ),
                                       child: Text(
-                                        'No semester selected',
+                                        l10n.newSubscriptionPage_reviewStep_semesterEmpty,
                                         style: AppTextStyles.body.copyWith(
                                           color: errorColor,
                                         ),
@@ -1582,7 +1618,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                           ),
                                           const Gap(8.0),
                                           Text(
-                                            'Pickup Stop',
+                                            l10n.newSubscriptionPage_reviewStep_stopTitle,
                                             style: AppTextStyles.body.copyWith(
                                               fontWeight: FontWeight.bold,
                                               color: infoColor,
@@ -1597,7 +1633,8 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                         _SummaryRow(
                                           icon:
                                               HugeIcons.strokeRoundedLocation06,
-                                          label: 'Stop Name',
+                                          label: l10n
+                                              .newSubscriptionPage_reviewStep_stopName,
                                           value: stop.name,
                                           valueColor: infoColor,
                                         ),
@@ -1607,7 +1644,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                             vertical: 8.0,
                                           ),
                                           child: Text(
-                                            'No stop selected',
+                                            l10n.newSubscriptionPage_reviewStep_stopEmpty,
                                             style: AppTextStyles.body.copyWith(
                                               color: errorColor,
                                             ),
@@ -1646,7 +1683,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                       const Gap(8.0),
                                       Expanded(
                                         child: Text(
-                                          'Weekly Schedule',
+                                          l10n.newSubscriptionPage_reviewStep_weeklyScheduleTitle,
                                           style: AppTextStyles.body.copyWith(
                                             fontWeight: FontWeight.bold,
                                             color: warningColor,
@@ -1665,7 +1702,9 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                           borderRadius: borderRadius * 1.5,
                                         ),
                                         child: Text(
-                                          '${_schedules.length} day${_schedules.length != 1 ? 's' : ''}',
+                                          _schedules.length > 1
+                                              ? "${_schedules.length} ${l10n.days}"
+                                              : "${_schedules.length} ${l10n.days.substring(0, l10n.days.length - 1)}",
                                           style: AppTextStyles.small.copyWith(
                                             color: warningColor,
                                             fontWeight: FontWeight.bold,
@@ -1716,7 +1755,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                                   12.0,
                                                 ),
                                                 child: Text(
-                                                  'Day',
+                                                  l10n.newSubscriptionPage_reviewStep_weeklyScheduleDay,
                                                   style: AppTextStyles.body
                                                       .copyWith(
                                                         fontWeight:
@@ -1738,7 +1777,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                                       color: warningColor,
                                                     ),
                                                     Text(
-                                                      'Morning',
+                                                      l10n.morning,
                                                       style: AppTextStyles.body
                                                           .copyWith(
                                                             fontWeight:
@@ -1762,7 +1801,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                                       color: warningColor,
                                                     ),
                                                     Text(
-                                                      'Evening',
+                                                      l10n.closing,
                                                       style: AppTextStyles.body
                                                           .copyWith(
                                                             fontWeight:
@@ -1784,6 +1823,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                                   child: Text(
                                                     _weekdayLabelLong(
                                                       s.weekday,
+                                                      context,
                                                     ),
                                                     style: AppTextStyles.body
                                                         .copyWith(
@@ -1822,7 +1862,7 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                         vertical: 8.0,
                                       ),
                                       child: Text(
-                                        'No schedules added',
+                                        l10n.newSubscriptionPage_reviewStep_weeklyScheduleEmpty,
                                         style: AppTextStyles.body.copyWith(
                                           color: errorColor,
                                         ),
@@ -1858,14 +1898,14 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
                                       spacing: 4.0,
                                       children: [
                                         Text(
-                                          'Review Required',
+                                          l10n.newSubscriptionPage_reviewStep_infoBubbleTitle,
                                           style: AppTextStyles.body.copyWith(
                                             fontWeight: FontWeight.bold,
                                             color: infoColor,
                                           ),
                                         ),
                                         Text(
-                                          'Your subscription will be reviewed by our team. You will receive a notification once it has been approved or if any changes are needed.',
+                                          l10n.newSubscriptionPage_reviewStep_infoBubbleDescription,
                                           style: AppTextStyles.small.copyWith(
                                             color: infoColor.withValues(
                                               alpha: 0.8,
@@ -1888,8 +1928,8 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
             ),
             BusLoadingOverlay(
               visible: _isSubmitting,
-              title: 'Submitting your subscription',
-              message: 'We are securing your seat on the bus...',
+              title: l10n.newSubscriptionPage_overlay_title,
+              message: l10n.newSubscriptionPage_overlay_subtitle,
             ),
           ],
         ),
@@ -1897,20 +1937,21 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
     );
   }
 
-  static String _weekdayLabelLong(int w) {
+  static String _weekdayLabelLong(int w, BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     switch (w) {
       case 1:
-        return 'Monday';
+        return l10n.weekday_monday;
       case 2:
-        return 'Tuesday';
+        return l10n.weekday_tuesday;
       case 3:
-        return 'Wednesday';
+        return l10n.weekday_wednesday;
       case 4:
-        return 'Thursday';
+        return l10n.weekday_thursday;
       case 5:
-        return 'Friday';
+        return l10n.weekday_friday;
       case 6:
-        return 'Saturday';
+        return l10n.weekday_saturday;
       default:
         return 'Day';
     }
@@ -1935,6 +1976,7 @@ class _StopPreview extends StatelessWidget {
   const _StopPreview({required this.stop});
 
   void _openInGoogleMaps(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
     if (stop.mapEmbedUrl == null || stop.mapEmbedUrl!.isEmpty) {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
@@ -1946,7 +1988,7 @@ class _StopPreview extends StatelessWidget {
               color: lightColor,
               size: 20,
             ),
-            label: const Text('No map link available for this stop'),
+            label: Text(l10n.newSubscriptionPage_stopPreview_noLink),
           ),
         );
       return;
@@ -1969,7 +2011,9 @@ class _StopPreview extends StatelessWidget {
                   color: lightColor,
                   size: 20,
                 ),
-                label: const Text('Opened in Google Maps'),
+                label: Text(
+                  l10n.subscriptionDetailPage_mapView_openMessageSuccess,
+                ),
               ),
             );
         }
@@ -1986,7 +2030,7 @@ class _StopPreview extends StatelessWidget {
                 color: lightColor,
                 size: 20,
               ),
-              label: const Text('Could not open map link'),
+              label: Text(l10n.subscriptionDetailPage_mapView_openMessageError),
             ),
           );
       }
@@ -1995,6 +2039,7 @@ class _StopPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
         borderRadius: borderRadius * 2.5,
@@ -2047,7 +2092,7 @@ class _StopPreview extends StatelessWidget {
                               ),
                               const Gap(8.0),
                               Text(
-                                'Image not available',
+                                l10n.newSubscriptionPage_stopPreview_noImage,
                                 style: AppTextStyles.small.copyWith(
                                   color: greyColor,
                                 ),
@@ -2059,7 +2104,7 @@ class _StopPreview extends StatelessWidget {
                     )
                   else if (stop.hasMapEmbed)
                     Container(
-                      height: 200,
+                      height: 200.0,
                       width: double.infinity,
                       decoration: BoxDecoration(
                         color: themeController.isDark
@@ -2086,7 +2131,7 @@ class _StopPreview extends StatelessWidget {
                             child: HugeIcon(
                               icon: HugeIcons.strokeRoundedMaps,
                               color: lightColor,
-                              size: 64,
+                              size: 64.0,
                             ),
                           ),
                         ],
@@ -2145,7 +2190,7 @@ class _StopPreview extends StatelessWidget {
                                 ),
                                 const Gap(6.0),
                                 Text(
-                                  'View on Maps',
+                                  l10n.newSubscriptionPage_stopPreview_mapsCta,
                                   style: AppTextStyles.body.copyWith(
                                     color: seedColor,
                                     fontWeight: FontWeight.w600,
@@ -2188,19 +2233,19 @@ class _StopPreview extends StatelessWidget {
                     if (stop.hasImage)
                       _Badge(
                         icon: HugeIcons.strokeRoundedImage02,
-                        label: 'Image',
+                        label: l10n.image,
                         color: successColor,
                       ),
                     if (stop.hasMapEmbed)
                       _Badge(
                         icon: HugeIcons.strokeRoundedMaps,
-                        label: 'Map',
+                        label: l10n.map,
                         color: infoColor,
                       ),
                     if (!stop.hasImage && !stop.hasMapEmbed)
                       _Badge(
                         icon: HugeIcons.strokeRoundedAlert01,
-                        label: 'No media',
+                        label: l10n.newSubscriptionPage_stopPreview_noMedia,
                         color: greyColor,
                       ),
                   ],
@@ -2283,7 +2328,9 @@ class _SummaryRow extends StatelessWidget {
             flex: 2,
             child: Text(
               label,
-              style: AppTextStyles.small.copyWith(color: themeController.isDark ? seedPalette.shade50 : greyColor),
+              style: AppTextStyles.small.copyWith(
+                color: themeController.isDark ? seedPalette.shade50 : greyColor,
+              ),
             ),
           ),
           Expanded(
