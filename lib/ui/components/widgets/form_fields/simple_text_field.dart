@@ -25,6 +25,7 @@ class SimpleTextFormField extends StatelessWidget {
     this.onFieldSubmitted,
     required this.label,
     this.readOnly,
+    this.autofocus
   });
 
   final TextEditingController controller;
@@ -38,7 +39,7 @@ class SimpleTextFormField extends StatelessWidget {
   final Function(String value)? onChanged;
   final String? Function(String? value)? validator;
   final Widget? prefixIcon, suffix;
-  final bool? enabled, readOnly;
+  final bool? enabled, readOnly, autofocus;
   final int? minLines, maxLines;
   final TextInputAction? textInputAction;
   final FocusNode? focusNode;
@@ -55,6 +56,7 @@ class SimpleTextFormField extends StatelessWidget {
         controller: controller,
         scrollController: scrollController,
         enabled: enabled,
+        autofocus: autofocus ?? false,
         readOnly: readOnly ?? false,
         focusNode: focusNode,
         style: AppTextStyles.body,

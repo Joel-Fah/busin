@@ -1,3 +1,4 @@
+import 'package:busin/ui/components/widgets/default_snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gap/gap.dart';
@@ -7,6 +8,7 @@ import 'package:intl/intl.dart';
 
 import '../../../controllers/users_controller.dart';
 import '../../../controllers/auth_controller.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/actors/base_user.dart';
 import '../../../models/actors/roles.dart';
 import '../../../utils/constants.dart';
@@ -25,20 +27,20 @@ class _PeopleTabState extends State<PeopleTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: themeController.isDark ? seedColor : lightColor,
         elevation: 0,
         title: FittedBox(
           fit: BoxFit.contain,
-          child: Text(
-            'People',
-          ),
+          child: Text(l10n.peopleTab_appBar_title),
         ),
         actions: [
           // View mode toggle
           Obx(() {
-            final isStudentView = _usersController.currentViewMode.value.isStudent;
+            final isStudentView =
+                _usersController.currentViewMode.value.isStudent;
             final userCount = _usersController.users.length;
 
             return Container(
@@ -53,18 +55,22 @@ class _PeopleTabState extends State<PeopleTab> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   _ViewToggleButton(
-                    label: 'Students',
+                    label: isStudentView && userCount > 1
+                        ? "${l10n.roleStudent}s"
+                        : l10n.roleStudent,
                     icon: HugeIcons.strokeRoundedStudentCard,
                     isSelected: isStudentView,
                     count: isStudentView ? userCount : null,
-                    onTap: () => _usersController.switchViewMode(UserRole.student),
+                    onTap: () =>
+                        _usersController.switchViewMode(UserRole.student),
                   ),
                   _ViewToggleButton(
-                    label: 'Staff',
+                    label: l10n.roleStaff,
                     icon: HugeIcons.strokeRoundedUserMultiple,
                     isSelected: !isStudentView,
                     count: !isStudentView ? userCount : null,
-                    onTap: () => _usersController.switchViewMode(UserRole.staff),
+                    onTap: () =>
+                        _usersController.switchViewMode(UserRole.staff),
                   ),
                 ],
               ),
@@ -82,11 +88,9 @@ class _PeopleTabState extends State<PeopleTab> {
                     ),
                   )
                 : IconButton(
-                    icon: const HugeIcon(
-                      icon: HugeIcons.strokeRoundedRefresh,
-                    ),
+                    icon: const HugeIcon(icon: HugeIcons.strokeRoundedRefresh),
                     onPressed: () => _usersController.refreshUsers(),
-                    tooltip: 'Refresh',
+                    tooltip: l10n.refresh,
                   );
           }),
         ],
@@ -110,6 +114,7 @@ class _PeopleTabState extends State<PeopleTab> {
   }
 
   Widget _buildLoadingState() {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -117,7 +122,7 @@ class _PeopleTabState extends State<PeopleTab> {
           const CircularProgressIndicator(),
           const Gap(16.0),
           Text(
-            'Loading users...',
+            l10n.peopleTab_loadingState,
             style: AppTextStyles.body.copyWith(
               color: themeController.isDark
                   ? lightColor.withValues(alpha: 0.6)
@@ -130,6 +135,7 @@ class _PeopleTabState extends State<PeopleTab> {
   }
 
   Widget _buildErrorState() {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -143,7 +149,7 @@ class _PeopleTabState extends State<PeopleTab> {
             ),
             const Gap(16.0),
             Text(
-              'Error Loading Users',
+              l10n.peopleTab_loadError,
               style: AppTextStyles.h3.copyWith(
                 color: errorColor,
                 fontWeight: FontWeight.bold,
@@ -151,7 +157,8 @@ class _PeopleTabState extends State<PeopleTab> {
             ),
             const Gap(8.0),
             Text(
-              _usersController.errorMessage.value ?? 'Unknown error',
+              _usersController.errorMessage.value ??
+                  l10n.peopleTab_loadError_unknown,
               style: AppTextStyles.body,
               textAlign: TextAlign.center,
             ),
@@ -162,7 +169,7 @@ class _PeopleTabState extends State<PeopleTab> {
                 icon: HugeIcons.strokeRoundedRefresh,
                 color: lightColor,
               ),
-              label: const Text('Retry'),
+              label: Text(l10n.retry),
               style: ElevatedButton.styleFrom(
                 backgroundColor: accentColor,
                 foregroundColor: lightColor,
@@ -175,7 +182,9 @@ class _PeopleTabState extends State<PeopleTab> {
   }
 
   Widget _buildEmptyState() {
-    final isStudentView = _usersController.currentViewMode.value == UserRole.student;
+    final l10n = AppLocalizations.of(context)!;
+    final isStudentView =
+        _usersController.currentViewMode.value == UserRole.student;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -193,16 +202,16 @@ class _PeopleTabState extends State<PeopleTab> {
             ),
             const Gap(16.0),
             Text(
-              isStudentView ? 'No Students Yet' : 'No Staff Yet',
-              style: AppTextStyles.h3.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              isStudentView
+                  ? l10n.peopleTab_emptyStudents_title
+                  : l10n.peopleTab_emptyStaff_title,
+              style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.bold),
             ),
             const Gap(8.0),
             Text(
               isStudentView
-                  ? 'There are no students registered yet'
-                  : 'There are no staff members registered yet',
+                  ? l10n.peopleTab_emptyStudents_subtitle
+                  : l10n.peopleTab_emptyStaff_subtitle,
               style: AppTextStyles.body.copyWith(
                 color: themeController.isDark
                     ? lightColor.withValues(alpha: 0.6)
@@ -220,10 +229,10 @@ class _PeopleTabState extends State<PeopleTab> {
     return RefreshIndicator(
       onRefresh: () => _usersController.refreshUsers(),
       child: ListView.separated(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
         itemCount: _usersController.users.length,
         separatorBuilder: (context, index) => Divider(
-          height: 1,
+          height: 1.0,
           indent: 72.0,
           color: themeController.isDark
               ? lightColor.withValues(alpha: 0.1)
@@ -231,10 +240,7 @@ class _PeopleTabState extends State<PeopleTab> {
         ),
         itemBuilder: (context, index) {
           final user = _usersController.users[index];
-          return _UserListTile(
-            user: user,
-            usersController: _usersController,
-          )
+          return _UserListTile(user: user, usersController: _usersController)
               .animate()
               .fadeIn(duration: 300.ms, delay: (index * 50).ms)
               .slideX(
@@ -268,18 +274,13 @@ class _ViewToggleButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: isSelected
-          ? accentColor
-          : Colors.transparent,
+      color: isSelected ? accentColor : Colors.transparent,
       borderRadius: borderRadius * 2.0,
       child: InkWell(
         onTap: onTap,
         borderRadius: borderRadius * 2.0,
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 12.0,
-            vertical: 8.0,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -335,12 +336,9 @@ class _ViewToggleButton extends StatelessWidget {
   }
 }
 
-// User list tile widget (WhatsApp style)
+// User list tile widget
 class _UserListTile extends StatefulWidget {
-  const _UserListTile({
-    required this.user,
-    required this.usersController,
-  });
+  const _UserListTile({required this.user, required this.usersController});
 
   final BaseUser user;
   final UsersController usersController;
@@ -368,8 +366,12 @@ class _UserListTileState extends State<_UserListTile> {
     });
 
     try {
-      final subCount = await widget.usersController.getUserSubscriptionCount(widget.user.id);
-      final scanCount = await widget.usersController.getUserScanCount(widget.user.id);
+      final subCount = await widget.usersController.getUserSubscriptionCount(
+        widget.user.id,
+      );
+      final scanCount = await widget.usersController.getUserScanCount(
+        widget.user.id,
+      );
 
       if (mounted) {
         setState(() {
@@ -391,20 +393,18 @@ class _UserListTileState extends State<_UserListTile> {
   Widget build(BuildContext context) {
     final authController = Get.find<AuthController>();
     final isCurrentUserAdmin = authController.isAdmin;
-    final isPendingStaffOrAdmin = (widget.user.role == UserRole.staff ||
-                                   widget.user.role == UserRole.admin) &&
-                                   widget.user.status == AccountStatus.pending;
+    final isPendingStaffOrAdmin =
+        (widget.user.role == UserRole.staff ||
+            widget.user.role == UserRole.admin) &&
+        widget.user.status == AccountStatus.pending;
 
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(
-        horizontal: 16.0,
+        horizontal: 0.0,
         vertical: 8.0,
       ),
       // Leading: User Avatar
-      leading: UserAvatar(
-        user: widget.user,
-        radius: 24.0,
-      ),
+      leading: UserAvatar(user: widget.user, radius: 24.0),
       // Title: User Name
       title: Text(
         widget.user.name,
@@ -437,12 +437,11 @@ class _UserListTileState extends State<_UserListTile> {
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               // Role badge (for staff/admin differentiation)
-              if (widget.user.role != UserRole.student)
-                _buildRoleBadge(),
+              if (widget.user.role != UserRole.student) _buildRoleBadge(),
               // Date joined
               _buildStatChip(
                 icon: HugeIcons.strokeRoundedCalendar03,
-                label: _formatDate(widget.user.createdAt),
+                label: formatRelativeDateTime(widget.user.createdAt!),
                 color: accentColor,
               ),
               // Subscription count (if available and is student)
@@ -451,7 +450,9 @@ class _UserListTileState extends State<_UserListTile> {
                   _subscriptionCount! > 0)
                 _buildStatChip(
                   icon: HugeIcons.strokeRoundedTicket01,
-                  label: '$_subscriptionCount sub${_subscriptionCount! > 1 ? 's' : ''}',
+                  label: localeController.locale.languageCode == 'en'
+                      ? '$_subscriptionCount sub${_subscriptionCount! > 1 ? 's' : ''}'
+                      : '$_subscriptionCount abo${_subscriptionCount! > 1 ? 's' : ''}',
                   color: successColor,
                 ),
               // Scan count (if available)
@@ -459,7 +460,7 @@ class _UserListTileState extends State<_UserListTile> {
                 _buildStatChip(
                   icon: HugeIcons.strokeRoundedQrCode,
                   label: '$_scanCount scan${_scanCount! > 1 ? 's' : ''}',
-                  color: seedColor,
+                  color: infoColor,
                 ),
               // Loading indicator for stats
               if (_isLoadingStats)
@@ -483,6 +484,7 @@ class _UserListTileState extends State<_UserListTile> {
   }
 
   Widget _buildApprovalActions() {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -494,12 +496,9 @@ class _UserListTileState extends State<_UserListTile> {
             size: 20.0,
           ),
           onPressed: () => _handleReject(),
-          tooltip: 'Reject',
+          tooltip: l10n.subscriptionDetailPage_adminAction_reject,
           padding: const EdgeInsets.all(8.0),
-          constraints: const BoxConstraints(
-            minWidth: 36.0,
-            minHeight: 36.0,
-          ),
+          constraints: const BoxConstraints(minWidth: 36.0, minHeight: 36.0),
         ),
         const Gap(4.0),
         // Approve button
@@ -510,18 +509,16 @@ class _UserListTileState extends State<_UserListTile> {
             size: 20.0,
           ),
           onPressed: () => _handleApprove(),
-          tooltip: 'Approve',
+          tooltip: l10n.subscriptionDetailPage_adminAction_approve,
           padding: const EdgeInsets.all(8.0),
-          constraints: const BoxConstraints(
-            minWidth: 36.0,
-            minHeight: 36.0,
-          ),
+          constraints: const BoxConstraints(minWidth: 36.0, minHeight: 36.0),
         ),
       ],
     );
   }
 
   Future<void> _handleApprove() async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       // Update user status to verified
       await widget.usersController.updateUserStatus(
@@ -530,28 +527,37 @@ class _UserListTileState extends State<_UserListTile> {
       );
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${widget.user.name} has been approved!'),
-            backgroundColor: successColor,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            buildSnackBar(
+              prefixIcon: HugeIcon(icon: successIcon, color: lightColor),
+              label: Text(
+                '${widget.user.name} ${l10n.peopleTab_handleApprove_success}',
+              ),
+              backgroundColor: successColor,
+            ),
+          );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to approve user: ${e.toString()}'),
-            backgroundColor: errorColor,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            buildSnackBar(
+              prefixIcon: HugeIcon(icon: errorIcon, color: lightColor),
+              label: Text(
+                '${l10n.peopleTab_handleApprove_error} ${e.toString()}',
+              ),
+              backgroundColor: errorColor,
+            ),
+          );
       }
     }
   }
 
   Future<void> _handleReject() async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       // Update user status to suspended (rejected)
       await widget.usersController.updateUserStatus(
@@ -560,34 +566,43 @@ class _UserListTileState extends State<_UserListTile> {
       );
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${widget.user.name} has been rejected.'),
-            backgroundColor: errorColor,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            buildSnackBar(
+              prefixIcon: HugeIcon(icon: successIcon, color: lightColor),
+              label: Text(
+                '${widget.user.name} ${l10n.peopleTab_handleReject_success}',
+              ),
+              backgroundColor: successColor,
+            ),
+          );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to reject user: ${e.toString()}'),
-            backgroundColor: errorColor,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            buildSnackBar(
+              prefixIcon: HugeIcon(icon: errorIcon, color: lightColor),
+              label: Text(
+                '${l10n.peopleTab_handleReject_error} ${e.toString()}',
+              ),
+              backgroundColor: errorColor,
+            ),
+          );
       }
     }
   }
 
   Widget _buildRoleBadge() {
+    final l10n = AppLocalizations.of(context)!;
     final isAdmin = widget.user.role == UserRole.admin;
     final baseColor = isAdmin ? seedPalette.shade500 : accentColor;
     final icon = isAdmin
         ? HugeIcons.strokeRoundedUserStar01
         : HugeIcons.strokeRoundedUserMultiple;
-    final label = isAdmin ? 'Admin' : 'Staff';
+    final label = isAdmin ? l10n.roleAdmin : l10n.roleStaff;
 
     // Adjust colors based on theme for better visibility
     final bgColor = themeController.isDark
@@ -603,26 +618,16 @@ class _UserListTileState extends State<_UserListTile> {
         : baseColor;
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 6.0,
-        vertical: 2.0,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 2.0),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: borderRadius * 0.8,
-        border: Border.all(
-          color: borderColor,
-          width: 1.0,
-        ),
+        border: Border.all(color: borderColor, width: 1.0),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          HugeIcon(
-            icon: icon,
-            color: contentColor,
-            size: 12.0,
-          ),
+          HugeIcon(icon: icon, color: contentColor, size: 12.0),
           const Gap(4.0),
           Text(
             label,
@@ -645,11 +650,7 @@ class _UserListTileState extends State<_UserListTile> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        HugeIcon(
-          icon: icon,
-          color: color,
-          size: 14.0,
-        ),
+        HugeIcon(icon: icon, color: color, size: 14.0),
         const Gap(4.0),
         Text(
           label,
@@ -668,14 +669,11 @@ class _UserListTileState extends State<_UserListTile> {
     final color = widget.user.status == AccountStatus.verified
         ? successColor
         : widget.user.status == AccountStatus.pending
-            ? warningColor
-            : errorColor;
+        ? warningColor
+        : errorColor;
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 8.0,
-        vertical: 4.0,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.15),
         borderRadius: borderRadius,
@@ -690,25 +688,4 @@ class _UserListTileState extends State<_UserListTile> {
       ),
     );
   }
-
-  String _formatDate(DateTime? date) {
-    if (date == null) return 'Unknown';
-    final now = DateTime.now();
-    final difference = now.difference(date);
-
-    if (difference.inDays < 1) {
-      return 'Today';
-    } else if (difference.inDays < 2) {
-      return 'Yesterday';
-    } else if (difference.inDays < 7) {
-      return '${difference.inDays}d ago';
-    } else if (difference.inDays < 30) {
-      return '${(difference.inDays / 7).floor()}w ago';
-    } else if (difference.inDays < 365) {
-      return DateFormat('MMM d').format(date);
-    } else {
-      return DateFormat('MMM d, yyyy').format(date);
-    }
-  }
 }
-

@@ -1,4 +1,5 @@
 import 'package:busin/controllers/controllers.dart';
+import 'package:busin/l10n/app_localizations.dart';
 import 'package:busin/ui/components/widgets/custom_list_tile.dart';
 import 'package:busin/ui/components/widgets/buttons/primary_button.dart';
 import 'package:busin/ui/screens/subscriptions/subscription_new.dart';
@@ -46,6 +47,7 @@ class _SubscriptionsTabState extends State<SubscriptionsTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final BusSubscriptionsController busSubscriptionsController =
         Get.find<BusSubscriptionsController>();
 
@@ -55,7 +57,8 @@ class _SubscriptionsTabState extends State<SubscriptionsTab> {
 
       if (subscriptions.isEmpty) {
         return _SubscriptionsEmptyState(
-          ctaLabel: 'Subscribe now for ${_currentSemesterLabel}',
+          ctaLabel:
+              '${l10n.subscriptionTab_emptyState_ctaLabel} ${_currentSemesterLabel}',
           onCTA: () async {
             await context.pushNamed(
               removeLeadingSlash(NewSubscriptionPage.routeName),
@@ -89,7 +92,7 @@ class _SubscriptionsTabState extends State<SubscriptionsTab> {
         appBar: AppBar(
           title: FittedBox(
             fit: BoxFit.contain,
-            child: const Text('Subscriptions'),
+            child: Text(l10n.subscriptions),
           ),
           actions: [
             if (canSubmitNew)
@@ -106,7 +109,7 @@ class _SubscriptionsTabState extends State<SubscriptionsTab> {
                     // Refresh subscriptions list when returning
                     await busSubscriptionsController.refreshCurrentFilters();
                   },
-                  label: const Text('New'),
+                  label: Text(l10n.newLabel),
                   icon: const HugeIcon(icon: HugeIcons.strokeRoundedAdd01),
                   iconAlignment: IconAlignment.end,
                 ),
@@ -157,22 +160,22 @@ class _SubscriptionsTabState extends State<SubscriptionsTab> {
                       spacing: 8.0,
                       children: [
                         Text(
-                          'Start: ${dateFormatter(latestSubscription.startDate)}',
+                          '${l10n.homeTab_subscriptionTile_start} ${dateFormatter(latestSubscription.startDate)}',
                         ),
                         const Expanded(child: Divider()),
                         Text(
-                          'End: ${dateFormatter(latestSubscription.endDate)}',
+                          '${l10n.homeTab_subscriptionTile_end} ${dateFormatter(latestSubscription.endDate)}',
                         ),
                       ],
                     ),
                     primaryPillLabel:
-                        '#${subscriptions.indexOf(latestSubscription) + 1} - ${latestSubscription.status.label}',
+                        '#${subscriptions.indexOf(latestSubscription) + 1} - ${latestSubscription.status.getDisplayLabel(context)}',
                   ),
                   if (!hasActive && !hasPending && canSubmitNew)
                     _ActiveSubscriptionCTA(
-                      message:
-                          'You don\'t have any subscription running currently. Maybe, subscribe now to the bus services for the ongoing semester',
-                      ctaLabel: 'Subscribe now for ${_currentSemesterLabel}',
+                      message: l10n.subscriptionTab_activeCta_message,
+                      ctaLabel:
+                          '${l10n.subscriptionTab_emptyState_ctaLabel} ${_currentSemesterLabel}',
                       onPressed: () async {
                         await context.pushNamed(
                           removeLeadingSlash(NewSubscriptionPage.routeName),
@@ -221,8 +224,11 @@ class _SubscriptionsTabState extends State<SubscriptionsTab> {
                               children: BusSubscriptionStatus.values
                                   .map((status) {
                                     return ChoiceChip(
-                                      label: Text(status.label),
+                                      label: Text(
+                                        status.getDisplayLabel(context),
+                                      ),
                                       selected: _selectedStatus == status,
+                                      checkmarkColor: lightColor,
                                       onSelected: (selected) {
                                         setState(() {
                                           _selectedStatus = selected
@@ -253,8 +259,12 @@ class _SubscriptionsTabState extends State<SubscriptionsTab> {
                       child: filteredSubscriptions.isEmpty
                           ? _EmptyListMessage(
                               message: _selectedStatus == null
-                                  ? 'No other subscriptions yet.'
-                                  : 'No ${_selectedStatus!.label.toLowerCase()} subscriptions match the filter.',
+                                  ? l10n.subscriptionTab_emptyList_message
+                                  : l10n.subscriptionTab_emptyList_messageFilter(
+                                      _selectedStatus!
+                                          .getDisplayLabel(context)
+                                          .toLowerCase(),
+                                    ),
                             )
                           : ListView.separated(
                                   padding: EdgeInsets.symmetric(vertical: 4.0)
@@ -306,11 +316,11 @@ class _SubscriptionsTabState extends State<SubscriptionsTab> {
                                           spacing: 8.0,
                                           children: [
                                             Text(
-                                              'Start: ${dateFormatter(busSubscription.startDate)}',
+                                              '${l10n.homeTab_subscriptionTile_start} ${dateFormatter(busSubscription.startDate)}',
                                             ),
                                             const Expanded(child: Divider()),
                                             Text(
-                                              'End: ${dateFormatter(busSubscription.endDate)}',
+                                              '${l10n.homeTab_subscriptionTile_end} ${dateFormatter(busSubscription.endDate)}',
                                             ),
                                           ],
                                         ),
@@ -388,10 +398,21 @@ class _EmptyListMessage extends StatelessWidget {
         spacing: 8.0,
         mainAxisSize: MainAxisSize.min,
         children: [
-          HugeIcon(icon: HugeIcons.strokeRoundedPackageSearch, color: greyColor, size: 64.0, strokeWidth: 1,),
+          HugeIcon(
+            icon: HugeIcons.strokeRoundedPackageSearch,
+            color: themeController.isDark
+                ? seedPalette.shade50.withValues(alpha: 0.5)
+                : greyColor,
+            size: 64.0,
+            strokeWidth: 1,
+          ),
           Text(
             message,
-            style: AppTextStyles.body.copyWith(color: greyColor),
+            style: AppTextStyles.body.copyWith(
+              color: themeController.isDark
+                  ? seedPalette.shade50.withValues(alpha: 0.5)
+                  : greyColor,
+            ),
             textAlign: TextAlign.center,
           ),
         ],
@@ -409,6 +430,7 @@ class _SubscriptionsEmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AuthController authController = Get.find<AuthController>();
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         title: AppBarListTile(
@@ -448,17 +470,17 @@ class _SubscriptionsEmptyState extends StatelessWidget {
                 child: ListView(
                   children: [
                     Text(
-                      'Seems like it’s your first time around',
+                      l10n.subscriptionTab_emptyState_supertitle,
                       style: AppTextStyles.body.copyWith(color: accentColor),
                     ),
                     const Gap(8.0),
                     Text(
-                      'You don’t have any subscriptions yet',
+                      l10n.subscriptionTab_emptyState_title,
                       style: AppTextStyles.title,
                     ),
                     const Gap(16.0),
                     Text(
-                      'Let’s get you started with a bus subscription so you can ride this semester.',
+                      l10n.subscriptionTab_emptyState_subtitle,
                       style: AppTextStyles.body.copyWith(
                         color: themeController.isDark
                             ? seedPalette.shade50

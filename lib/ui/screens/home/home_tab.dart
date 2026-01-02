@@ -1,9 +1,9 @@
 import 'package:busin/controllers/controllers.dart';
+import 'package:busin/l10n/app_localizations.dart';
 import 'package:busin/models/subscription.dart';
 import 'package:busin/ui/screens/profile/profile.dart';
 import 'package:busin/ui/screens/subscriptions/subscription_details.dart';
 import 'package:busin/utils/utils.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -18,45 +18,21 @@ import '../../components/widgets/home/appbar_list_tile.dart';
 import '../../components/widgets/custom_list_tile.dart';
 import '../../components/widgets/user_avatar.dart';
 
-class HomeTab extends StatefulWidget {
+class HomeTab extends StatelessWidget {
   const HomeTab({super.key});
 
   static const String routeName = '/home_tab';
 
   @override
-  State<HomeTab> createState() => _HomeTabState();
-}
-
-class _HomeTabState extends State<HomeTab> {
-  final AuthController authController = Get.find<AuthController>();
-  final BusSubscriptionsController busSubscriptionsController =
-      Get.find<BusSubscriptionsController>();
-  final ScanningController scanningController = Get.find<ScanningController>();
-
-  @override
-  void initState() {
-    super.initState();
-    // Request location permission for students
-    if (authController.isStudent) {
-      _requestLocationPermission();
-    }
-  }
-
-  Future<void> _requestLocationPermission() async {
-    try {
-      await scanningController.requestLocationPermission();
-      if (kDebugMode) {
-        debugPrint('[HomeTab] Location permission requested for student');
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        debugPrint('[HomeTab] Error requesting location permission: $e');
-      }
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    // GetX Controllers
+    final AuthController authController = Get.find<AuthController>();
+    final BusSubscriptionsController busSubscriptionsController =
+        Get.find<BusSubscriptionsController>();
+    final ScanningController scanningController =
+        Get.find<ScanningController>();
 
     return Obx(() {
       final subscriptions = busSubscriptionsController.busSubscriptions;
@@ -65,7 +41,6 @@ class _HomeTabState extends State<HomeTab> {
           : null;
 
       return Scaffold(
-        backgroundColor: Colors.transparent,
         appBar: AppBar(
           title: AppBarListTile(
             onTap: () => context.pushNamed(
@@ -105,34 +80,9 @@ class _HomeTabState extends State<HomeTab> {
                             56 + 80 + MediaQuery.viewPaddingOf(context).bottom,
                       ),
                   children: [
-                    Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Activity",
-                              style: AppTextStyles.title.copyWith(
-                                fontSize: 48.0,
-                              ),
-                            ),
-                            TextButton.icon(
-                              onPressed: () {},
-                              style: TextButton.styleFrom(
-                                overlayColor: accentColor.withValues(
-                                  alpha: 0.1,
-                                ),
-                              ),
-                              iconAlignment: IconAlignment.end,
-                              icon: HugeIcon(
-                                icon: HugeIcons.strokeRoundedArrowUpRight02,
-                              ),
-                              label: Text(
-                                "View all",
-                                style: AppTextStyles.body.copyWith(
-                                  fontSize: 14.0,
-                                ),
-                              ),
-                            ),
-                          ],
+                    Text(
+                          l10n.homeTab_title,
+                          style: AppTextStyles.title.copyWith(fontSize: 48.0),
                         )
                         .animate()
                         .fadeIn(duration: 300.ms, curve: Curves.easeOut)
@@ -175,17 +125,17 @@ class _HomeTabState extends State<HomeTab> {
                               spacing: 8.0,
                               children: [
                                 Text(
-                                  'Start: ${dateFormatter(lastBusSubscription.startDate)}',
+                                  '${l10n.homeTab_subscriptionTile_start} ${dateFormatter(lastBusSubscription.startDate)}',
                                 ),
                                 const Expanded(child: Divider()),
                                 Text(
-                                  'End: ${dateFormatter(lastBusSubscription.endDate)}',
+                                  '${l10n.homeTab_subscriptionTile_end} ${dateFormatter(lastBusSubscription.endDate)}',
                                 ),
                               ],
                             ),
                             primaryPillLabel:
                                 '#${subscriptions.indexOf(lastBusSubscription) + 1}',
-                            secondaryPillLabel: 'Subscriptions',
+                            secondaryPillLabel: l10n.subscriptions,
                           )
                           .animate()
                           .fadeIn(duration: 340.ms, curve: Curves.easeOut)
@@ -198,46 +148,47 @@ class _HomeTabState extends State<HomeTab> {
                     else
                       _EmptyStateCard(
                         icon: HugeIcons.strokeRoundedBookmarkRemove02,
-                        title: 'No subscriptions yet',
-                        message:
-                            'Create your first bus subscription to see it here.',
+                        title: l10n.homeTab_emptySubscriptionCard_title,
+                        message: l10n.homeTab_emptySubscriptionCard_message,
                       ),
                     const Gap(20.0),
                     // Last Scanning Activity
                     Obx(() {
+                      final scannings = scanningController.scannings;
                       final lastScan = scanningController.lastScan.value;
 
                       if (lastScan != null) {
                         return CustomListTile(
-                          onTap: () {
-                            // TODO: Navigate to scannings page
-                          },
-                          primaryPillLabel: '📍',
-                          secondaryPillLabel: "Scannings",
-                          title: Text(
-                            lastScan.hasLocation
-                                ? lastScan.locationString
-                                : 'Location unavailable',
-                            style: Theme.of(context)
-                                .listTileTheme
-                                .titleTextStyle
-                                ?.copyWith(color: accentColor),
-                          ),
-                          subtitle: Row(
-                            spacing: 8.0,
-                            children: [
-                              Text(
-                                "On: ${dateTimeFormatter(lastScan.scannedAt)}",
+                              onTap: () {
+                                // TODO: Navigate to scannings page
+                              },
+                              primaryPillLabel:
+                                  '#${scannings.indexOf(lastScan) + 1}',
+                              secondaryPillLabel: l10n.scannings,
+                              title: Text(
+                                lastScan.hasLocation
+                                    ? lastScan.locationString
+                                    : l10n.homeTab_scanningsTile_titleUnavailable,
+                                style: Theme.of(context)
+                                    .listTileTheme
+                                    .titleTextStyle
+                                    ?.copyWith(color: accentColor),
                               ),
-                              const Expanded(child: Divider()),
-                              if (lastScan.hasLocation)
-                                const HugeIcon(
-                                  icon: HugeIcons.strokeRoundedLocation01,
-                                  size: 14.0,
-                                ),
-                            ],
-                          ),
-                        )
+                              subtitle: Row(
+                                spacing: 8.0,
+                                children: [
+                                  Text(
+                                    "${l10n.homeTab_scanningsTile_on} ${dateTimeFormatter(lastScan.scannedAt)}",
+                                  ),
+                                  const Expanded(child: Divider()),
+                                  if (lastScan.hasLocation)
+                                    const HugeIcon(
+                                      icon: HugeIcons.strokeRoundedLocation01,
+                                      size: 14.0,
+                                    ),
+                                ],
+                              ),
+                            )
                             .animate()
                             .fadeIn(duration: 380.ms, curve: Curves.easeOut)
                             .slideY(
@@ -248,10 +199,10 @@ class _HomeTabState extends State<HomeTab> {
                             );
                       } else {
                         return _EmptyStateCard(
-                          icon: HugeIcons.strokeRoundedQrCode,
-                          title: 'No scans yet',
-                          message: 'Your QR code hasn\'t been scanned yet.',
-                        )
+                              icon: HugeIcons.strokeRoundedQrCode,
+                              title: l10n.homeTab_emptyScanningsCard_title,
+                              message: l10n.homeTab_emptyScanningsCard_message,
+                            )
                             .animate()
                             .fadeIn(duration: 380.ms, curve: Curves.easeOut)
                             .slideY(
@@ -324,7 +275,11 @@ class _EmptyStateCard extends StatelessWidget {
                 const Gap(4.0),
                 Text(
                   message,
-                  style: AppTextStyles.body.copyWith(color: themeController.isDark ? seedPalette.shade50 : greyColor),
+                  style: AppTextStyles.body.copyWith(
+                    color: themeController.isDark
+                        ? seedPalette.shade50
+                        : greyColor,
+                  ),
                 ),
               ],
             ),

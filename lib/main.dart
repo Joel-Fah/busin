@@ -14,6 +14,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 import 'firebase_options.dart';
 import 'l10n/app_localizations.dart';
@@ -87,6 +88,10 @@ Future<void> main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+
+  // Time ago locales
+  timeago.setDefaultLocale('en');
+  timeago.setLocaleMessages('fr', timeago.FrMessages());
 
   runApp(MyApp());
 }

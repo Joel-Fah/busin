@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:busin/controllers/auth_controller.dart';
+import 'package:busin/controllers/scanning_controller.dart';
 import 'package:busin/controllers/subscriptions_controller.dart';
 import 'package:busin/models/actors/base_user.dart';
 import 'package:busin/models/actors/student.dart';
@@ -41,6 +42,7 @@ class ProfilePage extends StatelessWidget {
     final AuthController authController = Get.find<AuthController>();
     final BusSubscriptionsController busSubscriptionsController =
         Get.find<BusSubscriptionsController>();
+    final ScanningController scanningController = Get.find<ScanningController>();
     final SemesterController _semesterController =
         Get.find<SemesterController>();
 
@@ -162,7 +164,9 @@ class ProfilePage extends StatelessWidget {
                                   style: AppTextStyles.h3,
                                 ),
                                 subtitle: Text(
-                                  l10n.subscriptions,
+                                  busSubscriptionsController
+                                      .busSubscriptions
+                                      .length > 1 ? l10n.subscriptions : l10n.subscriptions.substring(0, l10n.subscriptions.length-1),
                                   style: AppTextStyles.body.copyWith(
                                     fontSize: 14.0,
                                   ),
@@ -175,12 +179,14 @@ class ProfilePage extends StatelessWidget {
                                 contentPadding: EdgeInsets.zero,
                                 title: Text(
                                   addThousandSeparator(
-                                    dummyScannings.length.toString(),
+                                    scanningController.scannings.length.toString()
                                   ),
                                   style: AppTextStyles.h3,
                                 ),
                                 subtitle: Text(
-                                  l10n.scannings,
+                                  scanningController
+                                      .scannings
+                                      .length > 1 ? l10n.scannings : l10n.scannings.substring(0, l10n.scannings.length-1),
                                   style: AppTextStyles.body.copyWith(
                                     fontSize: 14.0,
                                   ),

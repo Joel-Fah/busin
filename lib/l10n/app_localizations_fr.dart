@@ -83,6 +83,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get subscriptions => 'Abonnements';
 
   @override
+  String get subscriptionPending => 'En attente';
+
+  @override
+  String get subscriptionApproved => 'Accepté';
+
+  @override
+  String get subscriptionRejected => 'Rejeté';
+
+  @override
+  String get subscriptionExpired => 'Expiré';
+
+  @override
   String get scannings => 'Scans';
 
   @override
@@ -107,10 +119,94 @@ class AppLocalizationsFr extends AppLocalizations {
   String get edit => 'Modifier';
 
   @override
+  String get delete => 'Supprimer';
+
+  @override
   String get refresh => 'Rafraîchir';
 
   @override
   String get retry => 'Réessayer';
+
+  @override
+  String get yes => 'Oui';
+
+  @override
+  String get no => 'Non';
+
+  @override
+  String get createdAt => 'Créé le';
+
+  @override
+  String get updatedAt => 'Modifié le';
+
+  @override
+  String get map => 'Carte';
+
+  @override
+  String get image => 'Image';
+
+  @override
+  String get unknown => 'Inconnu';
+
+  @override
+  String get loading => 'Chargement...';
+
+  @override
+  String get by => 'Par';
+
+  @override
+  String get days => 'jours';
+
+  @override
+  String get newLabel => 'Nouveau';
+
+  @override
+  String get viewAll => 'Tout voir';
+
+  @override
+  String get userProfile => 'Profil Utilisateur';
+
+  @override
+  String get morning => 'Matin';
+
+  @override
+  String get closing => 'Clôture';
+
+  @override
+  String get close => 'Fermer';
+
+  @override
+  String get download => 'Télécharger';
+
+  @override
+  String get allLabel => 'Tous';
+
+  @override
+  String get filter => 'Filtrer';
+
+  @override
+  String get search => 'Rechercher';
+
+  @override
+  String get year => 'Année';
+
+  @override
+  String get semester => 'Semestre';
+
+  @override
+  String get stop => 'Arrêt';
+
+  @override
+  String get naLabel => 'R.A.S';
+
+  @override
+  String get week => 'semaine';
+
+  @override
+  String get monthly => 'Mensuel';
+
+  @override
+  String get busStops => 'Arrêts de bus';
 
   @override
   String get onboarding_screen1_title =>
@@ -577,4 +673,605 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get legalPage_loadingError =>
       'Impossible de charger les informations légales les plus récentes. Affichage de la version en cache.';
+
+  @override
+  String get stopsPage_appBar_title => 'Arrêts';
+
+  @override
+  String get stopsPage_appBar_actionsNew => 'Nouvel arrêt';
+
+  @override
+  String get stopsPage_appBar_searchHint => 'Filtrer les arrêts de bus...';
+
+  @override
+  String get stopsPage_statItem_total => 'Arrêts totaux';
+
+  @override
+  String get stopsPage_statItem_withImages => 'Avec images';
+
+  @override
+  String get stopsPage_statItem_withMaps => 'Avec cartes';
+
+  @override
+  String get stopsPage_loadingError =>
+      'Erreur lors du chargement des arrêts de bus';
+
+  @override
+  String get stopsPage_emptyListMessageTitle =>
+      'Aucun arrêt de bus pour le moment';
+
+  @override
+  String get stopsPage_emptyQueryMessageTitle => 'Aucun arrêt de bus trouvé';
+
+  @override
+  String get stopsPage_emptyListMessageSubtitle =>
+      'Ajoutez votre premier arrêt de bus';
+
+  @override
+  String get stopsPage_emptyQueryMessageSubtitle =>
+      'Essayez une autre requête de recherche';
+
+  @override
+  String get stopsPage_stopCard_deleteModalTitle => 'Supprimer l\'arrêt de bus';
+
+  @override
+  String get stopsPage_stopCard_deleteModalMessage =>
+      'Cette action est irréversible';
+
+  @override
+  String get stopsPage_stopCard_deleteModalWarning =>
+      'Toutes les données associées à cet arrêt seront définitivement supprimées.';
+
+  @override
+  String stopsPage_stopCard_deleteSuccess(String stop) {
+    return 'Arrêt de bus «$stop» supprimé avec succès.';
+  }
+
+  @override
+  String get stopsPage_stopCard_deleteError =>
+      'Échec de la suppression de l\'arrêt de bus';
+
+  @override
+  String get stopsPage_stopCard_imageUnavailable => 'Image indisponible';
+
+  @override
+  String get stopsPage_stopCard_noPreview => 'Aucun aperçu disponible';
+
+  @override
+  String get semestersPage_appBar_title => 'Semestres';
+
+  @override
+  String get semestersPage_appBar_actionsAdd => 'Ajouter un semestre';
+
+  @override
+  String get semestersPage_appBar_activeSemester => 'Semestre actif';
+
+  @override
+  String get semestersPage_infoBubble =>
+      'Définissez les dates de début et de fin de chaque semestre. Ces dates seront utilisées pour les périodes de validité de l\'abonnement.';
+
+  @override
+  String get semestersPage_statItem_total => 'Total';
+
+  @override
+  String get semestersPage_statItem_upcoming => 'À venir';
+
+  @override
+  String get semestersPage_loadingError =>
+      'Erreur lors du chargement des semestres';
+
+  @override
+  String get semestersPage_emptyList_title => 'Aucun semestre configuré';
+
+  @override
+  String get semestersPage_emptyList_subtitle =>
+      'Ajoutez votre premier semestre pour commencer';
+
+  @override
+  String get semestersPage_handleDelete_successful =>
+      'Semestre supprimé avec succès';
+
+  @override
+  String get semestersPage_handleDelete_failed =>
+      'Échec de la suppression du semestre';
+
+  @override
+  String get semestersPage_handleDelete_title => 'Supprimer le semestre';
+
+  @override
+  String get semestersPage_handleDelete_subtitle =>
+      'Cette action est irréversible';
+
+  @override
+  String get semestersPage_detailRow_startDate => 'Date de début';
+
+  @override
+  String get semestersPage_detailRow_endDate => 'Date de fin';
+
+  @override
+  String get semestersPage_detailRow_duration => 'Durée';
+
+  @override
+  String get semestersPage_detailRow_statusActive => 'Actif';
+
+  @override
+  String get semestersPage_detailRow_statusEnded => 'Terminé';
+
+  @override
+  String get semestersPage_detailRow_statusUpcoming => 'À venir';
+
+  @override
+  String get semestersPage_deleteModal_warning =>
+      'Toutes les données associées à ce semestre seront définitivement supprimées.';
+
+  @override
+  String get homeTab_title => 'Activité récente';
+
+  @override
+  String get homeTab_subscriptionTile_start => 'Début :';
+
+  @override
+  String get homeTab_subscriptionTile_end => 'Fin :';
+
+  @override
+  String get homeTab_emptySubscriptionCard_title =>
+      'Aucun abonnement pour le moment';
+
+  @override
+  String get homeTab_emptySubscriptionCard_message =>
+      'Créez votre premier abonnement de bus pour le voir ici.';
+
+  @override
+  String get homeTab_scanningsTile_on => 'Le :';
+
+  @override
+  String get homeTab_scanningsTile_titleUnavailable =>
+      'Emplacement indisponbile';
+
+  @override
+  String get homeTab_emptyScanningsCard_title => 'Aucun scan pour le moment';
+
+  @override
+  String get homeTab_emptyScanningsCard_message =>
+      'Votre code QR n\'a pas encore été scanné.';
+
+  @override
+  String get subscriptionTab_emptyState_ctaLabel =>
+      'Abonnez-vous maintenant pour';
+
+  @override
+  String get subscriptionTab_activeCta_message =>
+      'Vous n\'avez actuellement aucun abonnement. Vous pourriez vous abonner dès maintenant aux services de bus pour le semestre en cours.';
+
+  @override
+  String get subscriptionTab_emptyList_message =>
+      'Aucun autre abonnement pour le moment.';
+
+  @override
+  String subscriptionTab_emptyList_messageFilter(String status) {
+    return 'Aucun abonnement $status ne correspond au filtre.';
+  }
+
+  @override
+  String get subscriptionTab_emptyState_supertitle =>
+      'On dirait que c\'est votre première fois ici';
+
+  @override
+  String get subscriptionTab_emptyState_title =>
+      'Vous n\'avez pas encore d\'abonnement';
+
+  @override
+  String get subscriptionTab_emptyState_subtitle =>
+      'Commençons par un abonnement de bus pour que vous puissiez voyager ce semestre.';
+
+  @override
+  String get scanningsTab_screenshotsWarning =>
+      'Attention ! Les captures d\'écran ne sont pas autorisées ici afin de protéger votre code QR.';
+
+  @override
+  String get subscriptionDetailPage_appBar_title => 'Détails de l\'abonnement';
+
+  @override
+  String get subscriptionDetailPage_nullContent_title =>
+      'Abonnement introuvable';
+
+  @override
+  String get subscriptionDetailPage_nullContent_message =>
+      'L\'abonnement que vous recherchez n\'existe pas ou a été supprimé.';
+
+  @override
+  String get subscriptionDetailPage_handleRefresh_error =>
+      'Échec de l\'actualisation :';
+
+  @override
+  String get subscriptionDetailPage_handleApprove_success =>
+      'Abonnement approuvé';
+
+  @override
+  String get subscriptionDetailPage_handleApprove_error =>
+      'Échec de l\'approbation de l\'abonnement:';
+
+  @override
+  String get subscriptionDetailPage_handleReject_success =>
+      'Abonnement refusé :';
+
+  @override
+  String get subscriptionDetailPage_handleReject_error =>
+      'Échec du refus de l\'abonnement:';
+
+  @override
+  String get subscriptionDetailPage_rejectDialog_title =>
+      'Refuser l\'abonnement';
+
+  @override
+  String get subscriptionDetailPage_rejectDialog_instruction =>
+      'Veuillez indiquer le motif du refus de cet abonnement. Ce motif sera affiché à l\'étudiant.';
+
+  @override
+  String get subscriptionDetailPage_rejectDialog_reasonLabel =>
+      'Motif du refus';
+
+  @override
+  String get subscriptionDetailPage_rejectDialog_reasonValidatorEmpty =>
+      'Veuillez indiquer le motif du refus';
+
+  @override
+  String get subscriptionDetailPage_rejectDialog_reasonValidatorLength =>
+      'Le motif doit comporter au moins 10 caractères';
+
+  @override
+  String get subscriptionDetailPage_rejectDialog_ctaReject =>
+      'Refuser l\'abonnement';
+
+  @override
+  String get subscriptionDetailPage_reviewInfo_sectionTitle =>
+      'Informations de révision';
+
+  @override
+  String get subscriptionDetailPage_reviewInfo_reviewedOn => 'Révisé le';
+
+  @override
+  String get subscriptionDetailPage_reviewInfo_reviewedBy => 'Révisé par';
+
+  @override
+  String get subscriptionDetailPage_statusDates_startLabel => 'Date de début';
+
+  @override
+  String get subscriptionDetailPage_statusDates_endLabel => 'Date de fin';
+
+  @override
+  String get subscriptionDetailPage_statusDates_durationLabel =>
+      'Temps restant';
+
+  @override
+  String get subscriptionDetailPage_weeklySchedule_title =>
+      'Planning hebdomadaire';
+
+  @override
+  String get subscriptionDetailPage_adminAction_approve => 'Approuver';
+
+  @override
+  String get subscriptionDetailPage_adminAction_reject => 'Refuser';
+
+  @override
+  String get subscriptionDetailPage_paymentProof_placeholder =>
+      'Aucune preuve de paiement';
+
+  @override
+  String get subscriptionDetailPage_statusLabel_approved =>
+      'Abonnement approuvé';
+
+  @override
+  String get subscriptionDetailPage_statusLabel_pending =>
+      'Validation en attente';
+
+  @override
+  String get subscriptionDetailPage_statusLabel_rejected => 'Abonnement refusé';
+
+  @override
+  String get subscriptionDetailPage_statusLabel_expired => 'Abonnement expiré';
+
+  @override
+  String get subscriptionDetailPage_mapView_title => 'Arrêt bus';
+
+  @override
+  String get subscriptionDetailPage_mapView_openMessageSuccess =>
+      'Ouvert dans Google Maps';
+
+  @override
+  String get subscriptionDetailPage_mapView_openMessageError =>
+      'Impossible d\'ouvrir Google Maps';
+
+  @override
+  String get subscriptionDetailPage_mapView_ctaLabel =>
+      'Appuyez pour ouvrir dans Google Maps';
+
+  @override
+  String get subscriptionDetailPage_mapView_ctaTooltip =>
+      'Ouvrir dans Google Maps';
+
+  @override
+  String get subscriptionDetailPage_mapView_pickupImageUnavailable =>
+      'Image non disponible';
+
+  @override
+  String get subscriptionDetailPage_mapView_pickupImagePreview =>
+      'Aperçu du point de retrait';
+
+  @override
+  String get subscriptionDetailPage_studentSection_title =>
+      'Informations sur l\'étudiant';
+
+  @override
+  String get subscriptionDetailPage_studentSection_loadingError =>
+      'Échec du chargement des informations de l\'étudiant';
+
+  @override
+  String get subscriptionDetailPage_studentSection_subtitle =>
+      'Détails de l\'abonné';
+
+  @override
+  String get subscriptionDetailPage_studentSection_name => 'Nom';
+
+  @override
+  String get subscriptionDetailPage_studentSection_email => 'Adresse e-mail';
+
+  @override
+  String get subscriptionDetailPage_studentSection_status => 'Statut';
+
+  @override
+  String get subscriptionDetailPage_studentSection_phone =>
+      'Numéro de téléphone';
+
+  @override
+  String get peopleTab_appBar_title => 'Personnes';
+
+  @override
+  String get peopleTab_loadingState => 'Chargement des utilisateurs...';
+
+  @override
+  String get peopleTab_loadError =>
+      'Erreur lors du chargement des utilisateurs';
+
+  @override
+  String get peopleTab_loadError_unknown => 'Erreur inconnue';
+
+  @override
+  String get peopleTab_emptyStudents_title => 'Aucun étudiant pour le moment';
+
+  @override
+  String get peopleTab_emptyStaff_title =>
+      'Aucun membre du personnel pour le moment';
+
+  @override
+  String get peopleTab_emptyStudents_subtitle =>
+      'Aucun étudiant inscrit pour le moment';
+
+  @override
+  String get peopleTab_emptyStaff_subtitle =>
+      'Aucun membre du personnel inscrit pour le moment';
+
+  @override
+  String get peopleTab_handleApprove_success => 'a été approuvé !';
+
+  @override
+  String get peopleTab_handleApprove_error =>
+      'Échec de l\'approbation de l\'utilisateur :';
+
+  @override
+  String get peopleTab_handleReject_success => 'a été rejeté !';
+
+  @override
+  String get peopleTab_handleReject_error =>
+      'Échec du refus de l\'utilisateur :';
+
+  @override
+  String get subscriptionAdminTab_searchHint => 'Rechercher les abonnements...';
+
+  @override
+  String get subscriptionAdminTab_subsList_pending =>
+      'En attente de validation';
+
+  @override
+  String get subscriptionAdminTab_subsList_emptyCard =>
+      'Aucun abonnement en attente';
+
+  @override
+  String get subscriptionAdminTab_filterMenu_title => 'Filtrer les abonnements';
+
+  @override
+  String get subscriptionAdminTab_filterMenu_ctaLabel => 'Effacer les filtres';
+
+  @override
+  String get subscriptionAdminTab_approveSub_exception =>
+      'Utilisateur non authentifié';
+
+  @override
+  String get subscriptionAdminTab_errorWidget_message =>
+      'Erreur lors du chargement des abonnements';
+
+  @override
+  String get subscriptionAdminTab_emptyWidget_title =>
+      'Aucun abonnement pour le moment';
+
+  @override
+  String get subscriptionAdminTab_emptyWidget_searchTitle =>
+      'Aucun abonnement trouvé';
+
+  @override
+  String get subscriptionAdminTab_emptyWidget_subtitle =>
+      'Les abonnements apparaîtront ici';
+
+  @override
+  String get subscriptionAdminTab_emptyWidget_searchSubtitle =>
+      'Essayez d\'ajuster vos filtres';
+
+  @override
+  String get scannerPage_viewArea_pausedTitle => 'Scanner en pause';
+
+  @override
+  String get scannerPage_infoBubble => 'Scanner les codes QR des étudiants';
+
+  @override
+  String get scannerPage_controls_toggleFlash => 'Basculer le flash';
+
+  @override
+  String get scannerPage_controls_pauseScanner => 'Mettre le scanner en pause';
+
+  @override
+  String get scannerPage_controls_resumeScanner => 'Reprendre le scanner';
+
+  @override
+  String get scannerPage_controls_resetScanner => 'Réinitialiser le scanner';
+
+  @override
+  String get scannerPage_idleState_title => 'Prêt à scanner';
+
+  @override
+  String get scannerPage_idleState_subtitle =>
+      'Pointez la caméra vers le code QR d\'un élève pour vérifier son accès au bus';
+
+  @override
+  String get scannerPage_progressingState_title => 'Vérification en cours...';
+
+  @override
+  String get scannerPage_progressingState_wait => 'Veuillez patienter';
+
+  @override
+  String get scannerPage_resultState_statusGranted => 'ACCÈS AUTORISÉ';
+
+  @override
+  String get scannerPage_resultState_statusDenied => 'ACCÈS REFUSÉ';
+
+  @override
+  String get scannerPage_resultState_errorUnknown => 'Erreur inconnue';
+
+  @override
+  String get scannerPage_resultState_ctaLabel => 'Numérisation suivante';
+
+  @override
+  String get scannerPage_compactInfo_email => 'Courriel';
+
+  @override
+  String get scannerPage_compactInfo_subscription => 'Abonnement';
+
+  @override
+  String get scannerPage_compactInfo_busStop => 'Arrêt de bus';
+
+  @override
+  String get scannerPage_compactInfo_validity => 'Valide jusqu\'au';
+
+  @override
+  String get scannerPage_compactInfo_emptySub =>
+      'Aucun abonnement actif trouvé';
+
+  @override
+  String get scannerPage_errorCard_title => 'Erreur';
+
+  @override
+  String get analyticsTab_appBar_title => 'Tableau de bord analytique';
+
+  @override
+  String get analyticsTab_appBar_actionNumView => 'Vue numérique';
+
+  @override
+  String get analyticsTab_appBar_actionGraphView => 'Vue graphique';
+
+  @override
+  String get analyticsTab_loadingError =>
+      'Échec du chargement des données analytiques';
+
+  @override
+  String get analyticsTab_subStatusSection_title =>
+      'Aperçu du statut d\'abonnement';
+
+  @override
+  String get analyticsTab_subStatusSection_subtitle =>
+      'Répartition actuelle des statuts d\'abonnement';
+
+  @override
+  String get analyticsTab_subStatusSection_pendingReview =>
+      'En attente d\'examen';
+
+  @override
+  String get analyticsTab_subStatusSection_approvalRate =>
+      'Taux d\'approbation :';
+
+  @override
+  String get analyticsTab_emptyData => 'Aucune donnée disponible';
+
+  @override
+  String get analyticsTab_semesterSection_title => 'Analyse semestrielle';
+
+  @override
+  String get analyticsTab_semesterSection_chartTitle =>
+      'Abonnements par semestre';
+
+  @override
+  String get analyticsTab_semesterSection_subtitle =>
+      'Abonnements par semestre cette année';
+
+  @override
+  String get analyticsTab_semesterSection_empty =>
+      'Données semestrielles indisponibles pour';
+
+  @override
+  String get analyticsTab_subByYear_title => 'Abonnements par année';
+
+  @override
+  String get analyticsTab_recentActivitySection_title => 'Abonnements récents';
+
+  @override
+  String get analyticsTab_recentActivitySection_subtitle =>
+      '10 dernières soumissions';
+
+  @override
+  String get analyticsTab_recentActivitySection_noData =>
+      'Aucun abonnement récent';
+
+  @override
+  String get analyticsTab_topBusStopsSection_title =>
+      'Arrêts de bus les plus populaires';
+
+  @override
+  String get analyticsTab_topBusStopsSection_subtitle =>
+      'Top 5 par nombre d\'abonnements';
+
+  @override
+  String get analyticsTab_topBusStopsSection_ctaLabel => 'Gérer les arrêts';
+
+  @override
+  String get analyticsTab_topBusStopsSection_noData =>
+      'Données d\'arrêts de bus indisponibles';
+
+  @override
+  String get analyticsTab_quickActionsSection_title => 'Actions rapides';
+
+  @override
+  String get analyticsTab_quickActionsSection_subtitle =>
+      'Gérez votre système efficacement';
+
+  @override
+  String get analyticsTab_quickActionsSection_subscriptions =>
+      'Consulter les abonnements';
+
+  @override
+  String get analyticsTab_quickActionsSection_subscriptionsSubtitle =>
+      'Approuver ou refuser les abonnements en attente';
+
+  @override
+  String get analyticsTab_quickActionsSection_busStops =>
+      'Gérer les arrêts de bus';
+
+  @override
+  String get analyticsTab_quickActionsSection_busStopsSubtitle =>
+      'Ajouter, modifier ou supprimer des arrêts de bus';
+
+  @override
+  String get analyticsTab_quickActionsSection_semesters =>
+      'Gérer les semestres';
+
+  @override
+  String get analyticsTab_quickActionsSection_semestersSubtitle =>
+      'Configurer les dates et les paramètres des semestres';
 }

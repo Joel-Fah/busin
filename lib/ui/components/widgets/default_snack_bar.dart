@@ -14,9 +14,12 @@ SnackBar buildSnackBar({
     shape: RoundedRectangleBorder(borderRadius: borderRadius * 2.25),
     backgroundColor: backgroundColor ?? infoColor,
     showCloseIcon: true,
+    closeIconColor: foregroundColor ?? null,
     padding: const EdgeInsets.all(10.0),
     content: Material(
-      textStyle: AppTextStyles.body.copyWith(color: foregroundColor ?? lightColor),
+      textStyle: AppTextStyles.body.copyWith(
+        color: foregroundColor ?? lightColor,
+      ),
       color: foregroundColor ?? lightColor,
       type: MaterialType.transparency,
       child: Animate(
@@ -27,7 +30,9 @@ SnackBar buildSnackBar({
             Ink(
               decoration: BoxDecoration(
                 borderRadius: borderRadius * 1.75,
-                color: foregroundColor?.withValues(alpha: 0.1) ?? lightColor.withValues(alpha: 0.1),
+                color:
+                    foregroundColor?.withValues(alpha: 0.1) ??
+                    lightColor.withValues(alpha: 0.1),
               ),
               padding: const EdgeInsets.all(12.0),
               child: prefixIcon,

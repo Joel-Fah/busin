@@ -1,3 +1,4 @@
+import 'package:busin/l10n/app_localizations.dart';
 import 'package:busin/ui/components/widgets/form_fields/simple_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -137,15 +138,19 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
-          title: FittedBox(fit: BoxFit.contain, child: const Text('Subscriptions')),
+          title: FittedBox(
+            fit: BoxFit.contain,
+            child: Text(l10n.subscriptions),
+          ),
           actions: [
             IconButton(
-              tooltip: 'Refresh',
+              tooltip: l10n.refresh,
               onPressed: () => _subscriptionsController.startWatchingAll(),
               icon: const HugeIcon(icon: HugeIcons.strokeRoundedRefresh),
             ),
@@ -204,7 +209,7 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
                   );
                 }),
               ],
-              hintText: 'Search subscriptions...',
+              hintText: l10n.subscriptionAdminTab_searchHint,
             ),
             const Gap(16.0),
 
@@ -220,27 +225,36 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
               final rejected = subscriptions
                   .where((s) => s.status == BusSubscriptionStatus.rejected)
                   .length;
+              final expired = subscriptions
+                  .where((s) => s.status == BusSubscriptionStatus.expired)
+                  .length;
 
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _StatItem(
                     icon: HugeIcons.strokeRoundedLoading03,
-                    label: 'Pending',
+                    label: l10n.subscriptionPending,
                     value: pending.toString(),
                     color: infoColor,
                   ),
                   _StatItem(
                     icon: HugeIcons.strokeRoundedCheckmarkBadge02,
-                    label: 'Approved',
+                    label: l10n.subscriptionApproved,
                     value: approved.toString(),
                     color: successColor,
                   ),
                   _StatItem(
                     icon: HugeIcons.strokeRoundedCancelCircle,
-                    label: 'Rejected',
+                    label: l10n.subscriptionRejected,
                     value: rejected.toString(),
                     color: errorColor,
+                  ),
+                  _StatItem(
+                    icon: HugeIcons.strokeRoundedTimeQuarterPass,
+                    label: l10n.subscriptionExpired,
+                    value: expired.toString(),
+                    color: greyColor,
                   ),
                 ],
               );
@@ -294,7 +308,7 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
                   // Pending subscriptions (always visible)
                   if (pending.isNotEmpty) ...[
                     _SectionHeader(
-                      title: 'Pending Review',
+                      title: l10n.subscriptionAdminTab_subsList_pending,
                       count: pending.length,
                       color: infoColor,
                     ),
@@ -311,7 +325,7 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
                   ] else ...[
                     _EmptyStateCard(
                       icon: HugeIcons.strokeRoundedCheckmarkCircle02,
-                      message: 'No pending subscriptions',
+                      message: l10n.subscriptionAdminTab_subsList_emptyCard,
                       color: infoColor,
                     ),
                     const Gap(24.0),
@@ -320,7 +334,7 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
                   // Approved subscriptions (collapsible)
                   if (approved.isNotEmpty) ...[
                     _ExpandableSection(
-                      title: 'Approved',
+                      title: l10n.subscriptionApproved,
                       count: approved.length,
                       color: successColor,
                       isExpanded: _approvedExpanded,
@@ -340,7 +354,7 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
                   // Rejected subscriptions (collapsible)
                   if (rejected.isNotEmpty) ...[
                     _ExpandableSection(
-                      title: 'Rejected',
+                      title: l10n.subscriptionRejected,
                       count: rejected.length,
                       color: errorColor,
                       isExpanded: _rejectedExpanded,
@@ -365,6 +379,7 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
   }
 
   void _showFilterMenu() {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -404,12 +419,15 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Filter Subscriptions', style: AppTextStyles.h2),
+                    Text(
+                      l10n.subscriptionAdminTab_filterMenu_title,
+                      style: AppTextStyles.h2,
+                    ),
                     const Gap(24.0),
 
                     // Status filter
                     Text(
-                      'Status',
+                      l10n.status,
                       style: AppTextStyles.body.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -422,13 +440,14 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
                           FilterChip(
                             label: const Text('All'),
                             selected: _selectedStatus.value == null,
+                            checkmarkColor: lightColor,
                             onSelected: (selected) {
                               if (selected) _selectedStatus.value = null;
                             },
                           ),
                           ...BusSubscriptionStatus.values.map((status) {
                             return FilterChip(
-                              label: Text(status.name),
+                              label: Text(status.getDisplayLabel(context)),
                               selected:
                                   _selectedStatus.value == status.nameLower,
                               onSelected: (selected) {
@@ -445,7 +464,7 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
 
                     // Year filter
                     Text(
-                      'Year',
+                      l10n.year,
                       style: AppTextStyles.body.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -463,7 +482,7 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
                         spacing: 8.0,
                         children: [
                           FilterChip(
-                            label: const Text('All'),
+                            label: Text(l10n.allLabel),
                             selected: _selectedYear.value == null,
                             onSelected: (selected) {
                               if (selected) _selectedYear.value = null;
@@ -485,7 +504,7 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
 
                     // Semester filter
                     Text(
-                      'Semester',
+                      l10n.semester,
                       style: AppTextStyles.body.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -502,7 +521,7 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
                         spacing: 8.0,
                         children: [
                           FilterChip(
-                            label: const Text('All'),
+                            label: Text(l10n.allLabel),
                             selected: _selectedSemester.value == null,
                             onSelected: (selected) {
                               if (selected) _selectedSemester.value = null;
@@ -538,7 +557,9 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
                           icon: HugeIcons.strokeRoundedFilterRemove,
                           color: lightColor,
                         ),
-                        label: const Text('Clear Filters'),
+                        label: Text(
+                          l10n.subscriptionAdminTab_filterMenu_ctaLabel,
+                        ),
                       ),
                     ),
                   ],
@@ -559,10 +580,11 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
   }
 
   void _approveSubscription(BusSubscription subscription) async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       final currentUser = _authController.currentUser.value;
       if (currentUser == null) {
-        throw Exception('User not authenticated');
+        throw Exception(l10n.subscriptionAdminTab_approveSub_exception);
       }
 
       await _subscriptionsController.approveSubscription(
@@ -571,35 +593,39 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
       );
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          buildSnackBar(
-            prefixIcon: HugeIcon(
-              icon: HugeIcons.strokeRoundedCheckmarkCircle02,
-              color: lightColor,
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            buildSnackBar(
+              prefixIcon: HugeIcon(
+                icon: HugeIcons.strokeRoundedCheckmarkCircle02,
+                color: lightColor,
+              ),
+              label: Text(
+                l10n.subscriptionDetailPage_handleApprove_success,
+                style: AppTextStyles.body.copyWith(color: lightColor),
+              ),
+              backgroundColor: successColor,
             ),
-            label: Text(
-              'Subscription approved successfully',
-              style: AppTextStyles.body.copyWith(color: lightColor),
-            ),
-            backgroundColor: successColor,
-          ),
-        );
+          );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          buildSnackBar(
-            prefixIcon: HugeIcon(
-              icon: HugeIcons.strokeRoundedAlert02,
-              color: lightColor,
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            buildSnackBar(
+              prefixIcon: HugeIcon(
+                icon: HugeIcons.strokeRoundedAlert02,
+                color: lightColor,
+              ),
+              label: Text(
+                '${l10n.subscriptionDetailPage_handleApprove_error} $e',
+                style: AppTextStyles.body.copyWith(color: lightColor),
+              ),
+              backgroundColor: errorColor,
             ),
-            label: Text(
-              'Failed to approve subscription: $e',
-              style: AppTextStyles.body.copyWith(color: lightColor),
-            ),
-            backgroundColor: errorColor,
-          ),
-        );
+          );
       }
     }
   }
@@ -607,6 +633,7 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
   void _showRejectDialog(BusSubscription subscription) {
     final reasonController = TextEditingController();
     final formKey = GlobalKey<FormState>();
+    final l10n = AppLocalizations.of(context)!;
 
     showModalBottomSheet(
       context: context,
@@ -680,12 +707,12 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Reject Subscription',
+                                        l10n.subscriptionDetailPage_rejectDialog_title,
                                         style: AppTextStyles.h3,
                                       ),
                                       const Gap(4.0),
                                       Text(
-                                        'Provide a reason for rejection',
+                                        l10n.subscriptionDetailPage_rejectDialog_instruction,
                                         style: AppTextStyles.small.copyWith(
                                           color: themeController.isDark
                                               ? seedPalette.shade50.withValues(
@@ -887,19 +914,25 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
                       // Reason input
                       SimpleTextFormField(
                         controller: reasonController,
-                        hintText: "Enter the reason for rejection...",
-                        label: Text('Rejection Reason'),
+                        hintText: l10n
+                            .subscriptionDetailPage_rejectDialog_reasonLabel,
+                        label: Text(
+                          l10n.subscriptionDetailPage_rejectDialog_reasonLabel,
+                        ),
                         keyboardType: TextInputType.multiline,
                         textCapitalization: TextCapitalization.sentences,
                         maxLines: 4,
+                        autofocus: true,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return 'Please provide a reason for rejection';
+                            return l10n
+                                .subscriptionDetailPage_rejectDialog_reasonValidatorEmpty;
                           }
 
                           // At least 10 characters
                           if (value.trim().length < 10) {
-                            return 'Reason must be at least 10 characters long';
+                            return l10n
+                                .subscriptionDetailPage_rejectDialog_reasonValidatorLength;
                           }
                           return null;
                         },
@@ -923,7 +956,7 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
                                 ),
                               ),
                               onPressed: () => Navigator.of(context).pop(),
-                              child: const Text('Cancel'),
+                              child: Text(l10n.cancel),
                             ),
                           ),
                           const Gap(12.0),
@@ -944,7 +977,9 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
                                   final currentUser =
                                       _authController.currentUser.value;
                                   if (currentUser == null) {
-                                    throw Exception('User not authenticated');
+                                    throw Exception(
+                                      l10n.subscriptionAdminTab_approveSub_exception,
+                                    );
                                   }
 
                                   await _subscriptionsController
@@ -955,41 +990,46 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
                                       );
 
                                   if (context.mounted) {
-                                    Navigator.of(context).pop();
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      buildSnackBar(
-                                        prefixIcon: HugeIcon(
-                                          icon: HugeIcons
-                                              .strokeRoundedCheckmarkCircle02,
-                                          color: lightColor,
-                                        ),
-                                        label: Text(
-                                          'Subscription rejected',
-                                          style: AppTextStyles.body.copyWith(
+                                    context.pop();
+                                    ScaffoldMessenger.of(context)
+                                      ..hideCurrentSnackBar()
+                                      ..showSnackBar(
+                                        buildSnackBar(
+                                          prefixIcon: HugeIcon(
+                                            icon: HugeIcons
+                                                .strokeRoundedCheckmarkCircle02,
                                             color: lightColor,
                                           ),
+                                          label: Text(
+                                            l10n.subscriptionDetailPage_handleReject_success,
+                                            style: AppTextStyles.body.copyWith(
+                                              color: lightColor,
+                                            ),
+                                          ),
+                                          backgroundColor: errorColor,
                                         ),
-                                        backgroundColor: errorColor,
-                                      ),
-                                    );
+                                      );
                                   }
                                 } catch (e) {
                                   if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      buildSnackBar(
-                                        prefixIcon: HugeIcon(
-                                          icon: HugeIcons.strokeRoundedAlert02,
-                                          color: lightColor,
-                                        ),
-                                        label: Text(
-                                          'Failed to reject subscription: $e',
-                                          style: AppTextStyles.body.copyWith(
+                                    ScaffoldMessenger.of(context)
+                                      ..hideCurrentSnackBar()
+                                      ..showSnackBar(
+                                        buildSnackBar(
+                                          prefixIcon: HugeIcon(
+                                            icon:
+                                                HugeIcons.strokeRoundedAlert02,
                                             color: lightColor,
                                           ),
+                                          label: Text(
+                                            '${l10n.subscriptionDetailPage_handleReject_error} $e',
+                                            style: AppTextStyles.body.copyWith(
+                                              color: lightColor,
+                                            ),
+                                          ),
+                                          backgroundColor: errorColor,
                                         ),
-                                        backgroundColor: errorColor,
-                                      ),
-                                    );
+                                      );
                                   }
                                 }
                               },
@@ -997,7 +1037,9 @@ class _SubscriptionsAdminPageState extends State<SubscriptionsAdminPage> {
                                 icon: HugeIcons.strokeRoundedCancelCircle,
                                 color: lightColor,
                               ),
-                              label: const Text('Reject'),
+                              label: Text(
+                                l10n.subscriptionDetailPage_adminAction_reject,
+                              ),
                             ),
                           ),
                         ],
@@ -1066,6 +1108,7 @@ class _ErrorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -1076,7 +1119,10 @@ class _ErrorWidget extends StatelessWidget {
             size: 64,
           ),
           const Gap(16.0),
-          Text('Error loading subscriptions', style: AppTextStyles.h3),
+          Text(
+            l10n.subscriptionAdminTab_errorWidget_message,
+            style: AppTextStyles.h3,
+          ),
           const Gap(8.0),
           Text(
             message,
@@ -1098,7 +1144,7 @@ class _ErrorWidget extends StatelessWidget {
               size: 18,
               color: lightColor,
             ),
-            label: const Text('Retry'),
+            label: Text(l10n.retry),
           ),
         ],
       ),
@@ -1114,6 +1160,7 @@ class _EmptyWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -1121,14 +1168,16 @@ class _EmptyWidget extends StatelessWidget {
           Image.asset(newSubscription, width: 200.0),
           const Gap(16.0),
           Text(
-            hasSearch ? 'No subscriptions found' : 'No subscriptions yet',
+            hasSearch
+                ? l10n.subscriptionAdminTab_emptyWidget_searchTitle
+                : l10n.subscriptionAdminTab_emptyWidget_title,
             style: AppTextStyles.h3,
           ),
           const Gap(8.0),
           Text(
             hasSearch
-                ? 'Try adjusting your filters'
-                : 'Subscriptions will appear here',
+                ? l10n.subscriptionAdminTab_emptyWidget_searchSubtitle
+                : l10n.subscriptionAdminTab_emptyWidget_subtitle,
             style: AppTextStyles.body.copyWith(color: greyColor),
           ),
         ],
@@ -1318,19 +1367,24 @@ class _SubscriptionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final AuthController authController = Get.find<AuthController>();
 
     final statusColor = subscription.status == BusSubscriptionStatus.approved
         ? successColor
         : subscription.status == BusSubscriptionStatus.rejected
         ? errorColor
+        : subscription.status == BusSubscriptionStatus.expired
+        ? greyColor
         : infoColor;
 
     final statusLabel = subscription.status == BusSubscriptionStatus.approved
-        ? 'Approved'
+        ? l10n.subscriptionApproved
         : subscription.status == BusSubscriptionStatus.rejected
-        ? 'Rejected'
-        : 'Pending';
+        ? l10n.subscriptionRejected
+        : subscription.status == BusSubscriptionStatus.expired
+        ? l10n.subscriptionExpired
+        : l10n.subscriptionPending;
 
     return FutureBuilder<BaseUser?>(
       future: authController.getUserById(subscription.studentId),
@@ -1429,18 +1483,18 @@ class _SubscriptionCard extends StatelessWidget {
                           children: [
                             _InfoRow(
                               icon: HugeIcons.strokeRoundedCalendar03,
-                              label: 'Semester',
+                              label: l10n.semester,
                               value: subscription.semester.label,
                             ),
                             _InfoRow(
                               icon: HugeIcons.strokeRoundedCalendar04,
-                              label: 'Year',
+                              label: l10n.year,
                               value: subscription.year.toString(),
                             ),
                             _InfoRow(
                               icon: HugeIcons.strokeRoundedLocation06,
-                              label: 'Stop',
-                              value: subscription.stop?.name ?? 'N/A',
+                              label: l10n.stop,
+                              value: subscription.stop?.name ?? l10n.naLabel,
                             ),
                           ],
                         ),
@@ -1448,8 +1502,8 @@ class _SubscriptionCard extends StatelessWidget {
                         // Action buttons for pending subscriptions
                         if (!isReviewComplete &&
                             onApprove != null &&
-                            onReject != null
-                            && authController.isAdmin) ...[
+                            onReject != null &&
+                            authController.isAdmin) ...[
                           const Gap(16.0),
                           Row(
                             children: [
@@ -1469,7 +1523,9 @@ class _SubscriptionCard extends StatelessWidget {
                                   icon: const HugeIcon(
                                     icon: HugeIcons.strokeRoundedCancelCircle,
                                   ),
-                                  label: const Text('Reject'),
+                                  label: Text(
+                                    l10n.subscriptionDetailPage_adminAction_reject,
+                                  ),
                                 ),
                               ),
                               const Gap(12.0),
@@ -1489,7 +1545,9 @@ class _SubscriptionCard extends StatelessWidget {
                                         .strokeRoundedCheckmarkCircle02,
                                     color: lightColor,
                                   ),
-                                  label: const Text('Approve'),
+                                  label: Text(
+                                    l10n.subscriptionDetailPage_adminAction_approve,
+                                  ),
                                 ),
                               ),
                             ],
@@ -1539,10 +1597,7 @@ class _SubscriptionCard extends StatelessWidget {
                           ? seedColor
                           : seedPalette.shade100,
                       borderRadius: borderRadius * 2.0,
-                      border: Border.all(
-                        color: statusColor,
-                        width: 1.0,
-                      ),
+                      border: Border.all(color: statusColor, width: 1.0),
                     ),
                     child: Text(
                       '${subscription.semester.label} ${subscription.year}',
