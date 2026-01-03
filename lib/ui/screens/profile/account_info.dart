@@ -324,7 +324,9 @@ class _AccountInfoPageState extends State<AccountInfoPage> {
             return Form(
               key: _formKey,
               child: ListView(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16.0).copyWith(
+                  bottom: 32.0
+                ),
                 children: [
                   // Google Account Info Section (Hidden in edit mode)
                   if (!_isEditMode) ...[

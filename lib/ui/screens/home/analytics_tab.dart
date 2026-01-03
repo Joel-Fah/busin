@@ -208,7 +208,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                 : l10n.roleStudent,
             value: '${_analyticsController.totalStudents}',
             icon: HugeIcons.strokeRoundedUserMultiple,
-            color: infoColor,
+            color: infoColor ,
             trend: _getTrendText(data.studentsWeeklyChange, l10n.week),
             subtitle:
                 '${l10n.monthly}: ${_getTrendText(data.studentsMonthlyChange, '')}',
@@ -935,8 +935,22 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                 itemBuilder: (context, index) {
                   final subscription = recentSubscriptions[index];
                   final status = subscription['status'] as String?;
-                  final semester = subscription['semester'] as String?;
-                  final year = subscription['year'] as int?;
+
+                  // Handle both old and new format for semester
+                  String? semester;
+                  int? year;
+
+                  if (subscription['semester'] is Map) {
+                    // New format: semester is embedded object
+                    final semesterData = subscription['semester'] as Map<String, dynamic>;
+                    semester = semesterData['semester'] as String?;
+                    year = semesterData['year'] as int?;
+                  } else if (subscription['semester'] is String) {
+                    // Legacy format: semester is string
+                    semester = subscription['semester'] as String?;
+                    year = subscription['year'] as int?;
+                  }
+
                   final createdAt = subscription['createdAt'];
 
                   DateTime? date;

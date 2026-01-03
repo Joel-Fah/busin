@@ -10,8 +10,7 @@ class SubscriptionService {
 
   static final SubscriptionService instance = SubscriptionService._();
 
-  final _collection =
-      FirebaseFirestore.instance.collection('subscriptions');
+  final _collection = FirebaseFirestore.instance.collection('subscriptions');
 
   Future<BusSubscription> createSubscription({
     required BusSubscription subscription,
@@ -24,7 +23,9 @@ class SubscriptionService {
       if (subscription.id.isEmpty) {
         // Generate custom subscription ID
         // Format: SUB-{YEAR}{SEMESTER}-{INITIALS}-{TIMESTAMP}
-        final semesterCode = subscription.semester.name.substring(0, 1).toUpperCase(); // F, S, W, etc.
+        final semesterCode = subscription.semester.name
+            .substring(0, 1)
+            .toUpperCase(); // F, S, W, etc.
         customId = IdGenerator.generateSubscriptionId(
           studentName: studentName ?? 'Student',
           year: subscription.year,
@@ -63,12 +64,12 @@ class SubscriptionService {
 
   Future<void> updateSubscription(BusSubscription subscription) async {
     try {
-      final map = subscription
-          .copyWith(updatedAt: DateTime.now())
-          .toMap();
+      final map = subscription.copyWith(updatedAt: DateTime.now()).toMap();
       await _collection.doc(subscription.id).update(map);
       if (kDebugMode) {
-        debugPrint('[SubscriptionService] Updated subscription ${subscription.id}');
+        debugPrint(
+          '[SubscriptionService] Updated subscription ${subscription.id}',
+        );
       }
     } catch (e) {
       if (kDebugMode) {
@@ -100,7 +101,9 @@ class SubscriptionService {
     // This ensures students can only see their own subscriptions
     if (studentId == null || studentId.isEmpty) {
       if (kDebugMode) {
-        debugPrint('[SubscriptionService] WARNING: Attempting to watch subscriptions without studentId filter');
+        debugPrint(
+          '[SubscriptionService] WARNING: Attempting to watch subscriptions without studentId filter',
+        );
       }
       // Return empty stream to prevent unauthorized access
       return Stream.value(<BusSubscription>[]);
@@ -115,7 +118,9 @@ class SubscriptionService {
     }
 
     if (kDebugMode) {
-      debugPrint('[SubscriptionService] Watching subscriptions for student: $studentId');
+      debugPrint(
+        '[SubscriptionService] Watching subscriptions for student: $studentId',
+      );
     }
 
     return query.snapshots().map((snapshot) {
@@ -128,12 +133,10 @@ class SubscriptionService {
   }
 
   /// Watch all subscriptions for admin purposes
-  /// Watch all subscriptions for admin purposes
   Stream<List<BusSubscription>> watchAllSubscriptions() {
-    return _collection
-        .orderBy('createdAt', descending: true)
-        .snapshots()
-        .map((snapshot) {
+    return _collection.orderBy('createdAt', descending: true).snapshots().map((
+      snapshot,
+    ) {
       return snapshot.docs.map((doc) {
         final data = Map<String, dynamic>.from(doc.data());
         data['id'] = doc.id;
@@ -158,14 +161,17 @@ class SubscriptionService {
         observation: ReviewObservation(
           reviewerUserId: reviewerId,
           observedAt: DateTime.now(),
-          message: 'Your bus subscription for ${subscription.semester.label} ${subscription.year} has been approved. Enjoy your ride throughout the semester',
+          message:
+              'Your bus subscription for ${subscription.semester.label} ${subscription.year} has been approved. Enjoy your ride throughout the semester',
         ),
         updatedAt: DateTime.now(),
       );
 
       await updateSubscription(approved);
       if (kDebugMode) {
-        debugPrint('[SubscriptionService] Approved subscription $subscriptionId');
+        debugPrint(
+          '[SubscriptionService] Approved subscription $subscriptionId',
+        );
       }
     } catch (e) {
       if (kDebugMode) {
@@ -199,7 +205,9 @@ class SubscriptionService {
 
       await updateSubscription(rejected);
       if (kDebugMode) {
-        debugPrint('[SubscriptionService] Rejected subscription $subscriptionId');
+        debugPrint(
+          '[SubscriptionService] Rejected subscription $subscriptionId',
+        );
       }
     } catch (e) {
       if (kDebugMode) {
@@ -226,7 +234,9 @@ class SubscriptionService {
       if (requesterStudentId != null && requesterStudentId.isNotEmpty) {
         if (subscription.studentId != requesterStudentId) {
           if (kDebugMode) {
-            debugPrint('[SubscriptionService] SECURITY: Student $requesterStudentId attempted to access subscription ${subscription.id} belonging to ${subscription.studentId}');
+            debugPrint(
+              '[SubscriptionService] SECURITY: Student $requesterStudentId attempted to access subscription ${subscription.id} belonging to ${subscription.studentId}',
+            );
           }
           // Return null to prevent unauthorized access
           return null;

@@ -118,17 +118,100 @@ class ScanningService {
 
   /// Get scannings for a specific student
   Stream<List<Scanning>> streamStudentScannings(String studentId) {
-    return _collection
-        .where('studentId', isEqualTo: studentId)
-        .orderBy('scannedAt', descending: true)
-        .snapshots()
-        .map((snapshot) {
-          return snapshot.docs.map((doc) {
-            final data = Map<String, dynamic>.from(doc.data());
-            data['id'] = doc.id;
-            return Scanning.fromMap(data);
-          }).toList();
-        });
+    if (kDebugMode) {
+      debugPrint('[ScanningService] ========== CREATING STREAM ==========');
+      debugPrint('[ScanningService] Student ID: $studentId');
+      debugPrint('[ScanningService] Collection: scannings');
+      debugPrint('[ScanningService] Query: where(studentId == $studentId).orderBy(scannedAt, desc)');
+    }
+
+    try {
+      return _collection
+          .where('studentId', isEqualTo: studentId)
+          .orderBy('scannedAt', descending: true)
+          .snapshots()
+          .handleError((error) {
+            if (kDebugMode) {
+              debugPrint('[ScanningService] ❌❌❌ STREAM ERROR ❌❌❌');
+              debugPrint('[ScanningService] Error: $error');
+              debugPrint('[ScanningService] Error Type: ${error.runtimeType}');
+              debugPrint('[ScanningService] This might be due to missing Firestore index');
+              debugPrint('[ScanningService] Create composite index: studentId (Asc) + scannedAt (Desc)');
+              debugPrint('[ScanningService] ========================================');
+            }
+          })
+          .map((snapshot) {
+            if (kDebugMode) {
+              debugPrint('[ScanningService] ========== SNAPSHOT RECEIVED ==========');
+              debugPrint('[ScanningService] Timestamp: ${DateTime.now()}');
+              debugPrint('[ScanningService] Number of documents: ${snapshot.docs.length}');
+              debugPrint('[ScanningService] Snapshot metadata:');
+              debugPrint('[ScanningService]   - isFromCache: ${snapshot.metadata.isFromCache}');
+              debugPrint('[ScanningService]   - hasPendingWrites: ${snapshot.metadata.hasPendingWrites}');
+
+              if (snapshot.docs.isNotEmpty) {
+                debugPrint('[ScanningService] First document data:');
+                final firstDoc = snapshot.docs.first;
+                debugPrint('[ScanningService]   - Doc ID: ${firstDoc.id}');
+                debugPrint('[ScanningService]   - Doc Data: ${firstDoc.data()}');
+              } else {
+                debugPrint('[ScanningService] ⚠️⚠️⚠️ EMPTY SNAPSHOT ⚠️⚠️⚠️');
+                debugPrint('[ScanningService] No documents found for studentId: $studentId');
+                debugPrint('[ScanningService] Please verify:');
+                debugPrint('[ScanningService]   1. Scans exist in Firestore "scannings" collection');
+                debugPrint('[ScanningService]   2. Documents have field "studentId" = "$studentId"');
+                debugPrint('[ScanningService]   3. Field name spelling is correct (case-sensitive)');
+              }
+            }
+
+            final scannings = snapshot.docs.map((doc) {
+              final data = Map<String, dynamic>.from(doc.data());
+              data['id'] = doc.id;
+
+              if (kDebugMode && snapshot.docs.indexOf(doc) == 0) {
+                debugPrint('[ScanningService] Parsing first document to Scanning object...');
+              }
+
+              return Scanning.fromMap(data);
+            }).toList();
+
+            // Sort manually if needed
+            scannings.sort((a, b) => b.scannedAt.compareTo(a.scannedAt));
+
+            if (kDebugMode) {
+              debugPrint('[ScanningService] ✅ Returning ${scannings.length} scanning(s)');
+              debugPrint('[ScanningService] ========================================');
+            }
+
+            return scannings;
+          });
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[ScanningService] ❌ EXCEPTION while setting up stream: $e');
+        debugPrint('[ScanningService] Attempting fallback without orderBy...');
+      }
+
+      // Return a stream without orderBy if index doesn't exist
+      return _collection
+          .where('studentId', isEqualTo: studentId)
+          .snapshots()
+          .map((snapshot) {
+            if (kDebugMode) {
+              debugPrint('[ScanningService] Fallback: Received ${snapshot.docs.length} documents (no orderBy)');
+            }
+
+            final scannings = snapshot.docs.map((doc) {
+              final data = Map<String, dynamic>.from(doc.data());
+              data['id'] = doc.id;
+              return Scanning.fromMap(data);
+            }).toList();
+
+            // Sort manually
+            scannings.sort((a, b) => b.scannedAt.compareTo(a.scannedAt));
+
+            return scannings;
+          });
+    }
   }
 
   /// Get last scan for a student
@@ -201,6 +284,21 @@ class ScanningService {
     } catch (e) {
       if (kDebugMode) {
         debugPrint('[ScanningService] getStudentScanCount error: $e');
+      }
+      return 0;
+    }
+  }
+
+  /// Get total scan count performed by a staff member
+  Future<int> getStaffScanCount(String staffId) async {
+    try {
+      final snapshot = await _collection
+          .where('scannedBy', isEqualTo: staffId)
+          .get();
+      return snapshot.docs.length;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[ScanningService] getStaffScanCount error: $e');
       }
       return 0;
     }

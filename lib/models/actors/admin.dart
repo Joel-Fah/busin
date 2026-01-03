@@ -36,10 +36,7 @@ class Admin extends BaseUser {
     );
   }
 
-  Map<String, dynamic> toMap() => {
-        ...toBaseMap(),
-        'scopes': scopes,
-      };
+  Map<String, dynamic> toMap() => {...toBaseMap(), 'scopes': scopes};
 
   factory Admin.fromFirebaseUser(
     fb_auth.User user, {
@@ -58,7 +55,8 @@ class Admin extends BaseUser {
       photoUrl: user.photoURL,
       createdAt: user.metadata.creationTime,
       lastSignInAt: user.metadata.lastSignInTime,
-      updatedAt: user.metadata.creationTime, // Initially same as createdAt
+      updatedAt: user.metadata.creationTime,
+      // Initially same as createdAt
       scopes: scopes,
     );
   }
@@ -70,11 +68,11 @@ class Admin extends BaseUser {
   // --- subscription helpers ---
   bool get canReviewSubscriptions => hasScope('approve_subscription');
 
-  BusSubscription approve(BusSubscription s, {DateTime? startDate, DateTime? endDate}) {
+  BusSubscription approve(BusSubscription s) {
     if (!canReviewSubscriptions) {
       throw StateError('Admin lacks approve_subscription scope');
     }
-    return s.approve(reviewerUserId: id, startDate: startDate, endDate: endDate);
+    return s.approve(reviewerUserId: id);
   }
 
   BusSubscription reject(BusSubscription s, {required String reason}) {
@@ -96,20 +94,19 @@ class Admin extends BaseUser {
     DateTime? createdAt,
     DateTime? lastSignInAt,
     DateTime? updatedAt,
-  }) =>
-      Admin(
-        id: id ?? this.id,
-        name: name ?? this.name,
-        email: email ?? this.email,
-        status: status ?? this.status,
-        phone: phone ?? this.phone,
-        photoUrl: photoUrl ?? this.photoUrl,
-        gender: gender ?? this.gender,
-        createdAt: createdAt ?? this.createdAt,
-        lastSignInAt: lastSignInAt ?? this.lastSignInAt,
-        updatedAt: updatedAt ?? this.updatedAt,
-        scopes: scopes ?? this.scopes,
-      );
+  }) => Admin(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    email: email ?? this.email,
+    status: status ?? this.status,
+    phone: phone ?? this.phone,
+    photoUrl: photoUrl ?? this.photoUrl,
+    gender: gender ?? this.gender,
+    createdAt: createdAt ?? this.createdAt,
+    lastSignInAt: lastSignInAt ?? this.lastSignInAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    scopes: scopes ?? this.scopes,
+  );
 
   @override
   String toString() {

@@ -6,13 +6,11 @@ import 'package:flutter/foundation.dart';
 
 import '../models/scannings.dart';
 import '../services/scanning_service.dart';
-import 'auth_controller.dart';
 
 class ScanningController extends GetxController {
   ScanningController();
 
   final ScanningService _service = ScanningService.instance;
-  final AuthController _authController = Get.find<AuthController>();
   final GetStorage _storage = GetStorage();
 
   final RxList<Scanning> _scannings = <Scanning>[].obs;
@@ -21,12 +19,13 @@ class ScanningController extends GetxController {
   final RxnString errorMessage = RxnString();
   final RxBool hasLocationPermission = false.obs;
 
+  // Flag to prevent multiple initializations
+  bool _isWatchingInitialized = false;
+
   // Storage key for screenshot warning
   static const String _screenshotWarningShownKey = 'screenshot_warning_shown';
 
   List<Scanning> get scannings => _scannings;
-
-  String get currentUserId => _authController.userId;
 
   StreamSubscription<List<Scanning>>? _watcher;
 
@@ -34,7 +33,10 @@ class ScanningController extends GetxController {
   void onInit() {
     super.onInit();
     _checkLocationPermission();
-    _initializeWatching();
+
+    if (kDebugMode) {
+      debugPrint('[ScanningController] onInit called - waiting for initialize() to be called with user data');
+    }
   }
 
   @override
@@ -52,46 +54,131 @@ class ScanningController extends GetxController {
     }
   }
 
-  /// Initialize watching based on user role
-  void _initializeWatching() {
-    if (_authController.isStudent) {
-      // Students see only their own scans
-      final studentId = _authController.userId;
-      if (studentId.isEmpty) {
-        if (kDebugMode) {
-          debugPrint('[ScanningController] Warning: Student ID is empty');
-        }
-        return;
+  /// Initialize watching with user data from AuthController
+  /// This should be called from AuthController when user data is ready
+  void initialize({
+    required String userId,
+    required bool isStudent,
+    required bool isAdmin,
+    required bool isStaff,
+  }) {
+    // Prevent multiple initializations
+    if (_isWatchingInitialized) {
+      if (kDebugMode) {
+        debugPrint('[ScanningController] ⚠️ Already initialized, skipping');
       }
-      startWatchingStudent(studentId);
-      _loadLastScan(studentId);
-    } else if (_authController.isAdmin || _authController.isStaff) {
-      // Admins and staff can see all scans
+      return;
+    }
+
+    if (kDebugMode) {
+      debugPrint('[ScanningController] ========== INITIALIZING WITH USER DATA ==========');
+      debugPrint('[ScanningController] User ID: $userId');
+      debugPrint('[ScanningController] Is Student: $isStudent');
+      debugPrint('[ScanningController] Is Admin: $isAdmin');
+      debugPrint('[ScanningController] Is Staff: $isStaff');
+    }
+
+    if (userId.isEmpty) {
+      if (kDebugMode) {
+        debugPrint('[ScanningController] ❌ ERROR: User ID is empty!');
+      }
+      return;
+    }
+
+    if (isStudent) {
+      if (kDebugMode) {
+        debugPrint('[ScanningController] ✅ Starting watch for student: $userId');
+      }
+      startWatchingStudent(userId);
+      _loadLastScan(userId);
+      _isWatchingInitialized = true;
+    } else if (isAdmin || isStaff) {
+      if (kDebugMode) {
+        debugPrint('[ScanningController] ✅ Starting watch for admin/staff (all scans)');
+      }
       startWatchingAll();
+      _isWatchingInitialized = true;
+    } else {
+      if (kDebugMode) {
+        debugPrint('[ScanningController] ⚠️ WARNING: Unknown user role, no watching initialized');
+      }
     }
   }
 
   /// Start watching scans for a specific student
   void startWatchingStudent(String studentId) {
     _watcher?.cancel();
+
+    if (kDebugMode) {
+      debugPrint('[ScanningController] ========== SETTING UP STREAM ==========');
+      debugPrint('[ScanningController] Student ID: $studentId');
+      debugPrint('[ScanningController] Timestamp: ${DateTime.now()}');
+    }
+
     _watcher = _service
         .streamStudentScannings(studentId)
         .listen(
           (data) {
-            _scannings.assignAll(data);
             if (kDebugMode) {
-              debugPrint(
-                '[ScanningController] Loaded ${data.length} scans for student $studentId',
-              );
+              debugPrint('[ScanningController] ========== STREAM DATA RECEIVED ==========');
+              debugPrint('[ScanningController] Timestamp: ${DateTime.now()}');
+              debugPrint('[ScanningController] Number of scans: ${data.length}');
+
+              if (data.isNotEmpty) {
+                debugPrint('[ScanningController] First scan details:');
+                debugPrint('[ScanningController]   - ID: ${data.first.id}');
+                debugPrint('[ScanningController]   - Student ID: ${data.first.studentId}');
+                debugPrint('[ScanningController]   - Scanned At: ${data.first.scannedAt}');
+                debugPrint('[ScanningController]   - Has Location: ${data.first.hasLocation}');
+                if (data.first.hasLocation) {
+                  debugPrint('[ScanningController]   - Location: ${data.first.locationString}');
+                }
+              } else {
+                debugPrint('[ScanningController] ⚠️ No scans in the list!');
+                debugPrint('[ScanningController] This could mean:');
+                debugPrint('[ScanningController]   1. No scans exist in Firestore for this student');
+                debugPrint('[ScanningController]   2. Firestore query is not returning data');
+                debugPrint('[ScanningController]   3. studentId mismatch in Firestore documents');
+              }
+            }
+
+            _scannings.assignAll(data);
+
+            // Update last scan with the most recent one
+            if (data.isNotEmpty) {
+              lastScan.value = data.first;
+              if (kDebugMode) {
+                debugPrint('[ScanningController] ✅ lastScan.value updated: ${data.first.id}');
+                debugPrint('[ScanningController] lastScan.value is now: ${lastScan.value?.id}');
+              }
+            } else {
+              lastScan.value = null;
+              if (kDebugMode) {
+                debugPrint('[ScanningController] ⚠️ lastScan.value set to null (no scans)');
+              }
+            }
+
+            if (kDebugMode) {
+              debugPrint('[ScanningController] Current _scannings list length: ${_scannings.length}');
+              debugPrint('[ScanningController] Current lastScan: ${lastScan.value?.id ?? "null"}');
+              debugPrint('[ScanningController] ========================================');
             }
           },
           onError: (Object err) {
             errorMessage.value = err.toString();
             if (kDebugMode) {
-              debugPrint('[ScanningController] Error watching scans: $err');
+              debugPrint('[ScanningController] ❌❌❌ ERROR IN STREAM ❌❌❌');
+              debugPrint('[ScanningController] Error: $err');
+              debugPrint('[ScanningController] Error Type: ${err.runtimeType}');
+              debugPrint('[ScanningController] ========================================');
             }
           },
         );
+
+    if (kDebugMode) {
+      debugPrint('[ScanningController] ✅ Stream listener attached successfully');
+      debugPrint('[ScanningController] ========================================');
+    }
   }
 
   /// Start watching all scans (admin/staff only)
@@ -131,16 +218,15 @@ class ScanningController extends GetxController {
   }
 
   /// Refresh last scan
-  Future<void> refreshLastScan() async {
-    if (_authController.isStudent) {
-      await _loadLastScan(_authController.userId);
-    }
+  Future<void> refreshLastScan(String studentId) async {
+    await _loadLastScan(studentId);
   }
 
   /// Create a new scanning record (called from scanner)
   Future<Scanning?> createScanning({
     required String studentId,
     required String subscriptionId,
+    required String scannedBy,
     String? deviceInfo,
     String? notes,
   }) async {
@@ -151,15 +237,11 @@ class ScanningController extends GetxController {
       final scanning = await _service.createScanning(
         studentId: studentId,
         subscriptionId: subscriptionId,
-        scannedBy: _authController.userId,
+        scannedBy: scannedBy,
         deviceInfo: deviceInfo,
         notes: notes,
       );
 
-      // Update last scan if it's the current student
-      if (studentId == _authController.userId) {
-        lastScan.value = scanning;
-      }
 
       if (kDebugMode) {
         debugPrint('[ScanningController] Scanning created: ${scanning.id}');

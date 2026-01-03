@@ -3,11 +3,13 @@ import 'package:busin/l10n/app_localizations.dart';
 import 'package:busin/utils/constants.dart';
 import 'package:busin/utils/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gap/gap.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../components/widgets/home/appbar_list_tile.dart';
 import '../../components/widgets/buttons/primary_button.dart';
+import '../../components/widgets/locale_popup_button.dart';
 import '../onboarding/auth_modal.dart';
 
 class AnonymousHomePage extends StatelessWidget {
@@ -37,6 +39,18 @@ class AnonymousHomePage extends StatelessWidget {
           subtitle: l10n.anonymousPage_appBar_subtitle,
           subtitleColor: warningColor,
         ),
+        actions: [
+          Container(
+            padding: EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              color: seedPalette.shade800,
+              borderRadius: borderRadius * 2.0
+            ),
+            child: LocalePopupButton().animate()
+                .fadeIn(duration: 500.ms, curve: Curves.easeOut)
+                .slideY(begin: -0.2, end: 0, duration: 500.ms),
+          ),
+        ],
       ),
       body: ListView(
         physics: const AlwaysScrollableScrollPhysics(),

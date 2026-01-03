@@ -135,6 +135,22 @@ String? validatePhone(String? value) {
   return null;
 }
 
+/// Mask GPS coordinates for privacy
+/// Replaces digits after the second decimal place with asterisks
+///
+/// Example:
+/// - Input: "3.8667°N, 11.5167°E"
+/// - Output: "3.86***°N, 11.51***°E"
+///
+/// This preserves the general area (~1.1km precision) while
+/// preventing exact location tracking
+String maskCoordinates(String coordinates) {
+  return coordinates.replaceAllMapped(
+    RegExp(r'(\d+\.\d{2})\d+'),
+    (match) => '${match.group(1)}***',
+  );
+}
+
 String? validateMatricule(String? value) {
   final bool isEnLocale = localeController.locale.languageCode == 'en';
 
