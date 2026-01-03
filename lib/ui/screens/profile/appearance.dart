@@ -23,7 +23,10 @@ class AppearancePage extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: FittedBox(fit: BoxFit.contain, child: Text(l10n.appearance_appBar_title)),
+        title: FittedBox(
+          fit: BoxFit.contain,
+          child: Text(l10n.appearance_appBar_title),
+        ),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
@@ -231,9 +234,9 @@ class _LanguageSection extends StatelessWidget {
     String _getLabel(Locale locale) {
       switch (locale.languageCode) {
         case 'en':
-          return AppLocalizations.of(context)!.language_english;
-        case 'fr':
           return AppLocalizations.of(context)!.language_french;
+        case 'fr':
+          return AppLocalizations.of(context)!.language_english;
         default:
           return locale.languageCode;
       }
@@ -265,7 +268,9 @@ class _LanguageSection extends StatelessWidget {
               return DropdownMenuItem<Locale>(
                 value: locale,
                 child: Text(
-                  _getLabel(locale),
+                  locale.languageCode == 'en'
+                      ? AppLocalizations.of(context)!.language_english
+                      : AppLocalizations.of(context)!.language_french,
                   style: AppTextStyles.body,
                 ),
               );

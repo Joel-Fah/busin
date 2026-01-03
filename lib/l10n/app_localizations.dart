@@ -542,6 +542,24 @@ abstract class AppLocalizations {
   /// **'Updated by:'**
   String get updatedBy;
 
+  /// No description provided for @today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get today;
+
+  /// No description provided for @yesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get yesterday;
+
+  /// No description provided for @error.
+  ///
+  /// In en, this message translates to:
+  /// **'Error:'**
+  String get error;
+
   /// No description provided for @onboarding_screen1_title.
   ///
   /// In en, this message translates to:
@@ -3058,6 +3076,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Loading error'**
   String get imageBox_loadingError;
+
+  /// No description provided for @peopleTab_emptySearchState_title.
+  ///
+  /// In en, this message translates to:
+  /// **'No results found'**
+  String get peopleTab_emptySearchState_title;
+
+  /// No description provided for @peopleTab_emptySearchState_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Try adjusting your search'**
+  String get peopleTab_emptySearchState_subtitle;
+
+  /// No description provided for @peopleTab_handlePromote_onlyAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Only admins can promote/demote staff members'**
+  String get peopleTab_handlePromote_onlyAdmin;
+
+  /// No description provided for @peopleTab_handlePromote_successPromote.
+  ///
+  /// In en, this message translates to:
+  /// **'has been promoted to Admin'**
+  String get peopleTab_handlePromote_successPromote;
+
+  /// No description provided for @peopleTab_handlePromote_successDemote.
+  ///
+  /// In en, this message translates to:
+  /// **'has been demoted to Staff'**
+  String get peopleTab_handlePromote_successDemote;
+
+  /// No description provided for @peopleTab_promoteModal_titlePromote.
+  ///
+  /// In en, this message translates to:
+  /// **'Promote to Admin'**
+  String get peopleTab_promoteModal_titlePromote;
+
+  /// No description provided for @peopleTab_promoteModal_titleDemote.
+  ///
+  /// In en, this message translates to:
+  /// **'Demote to Staff'**
+  String get peopleTab_promoteModal_titleDemote;
+
+  /// No description provided for @peopleTab_promoteModal_infoWarningTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Important Information'**
+  String get peopleTab_promoteModal_infoWarningTitle;
+
+  /// No description provided for @peopleTab_promoteModal_infoWarningSubtitlePromote.
+  ///
+  /// In en, this message translates to:
+  /// **'This user will gain full administrative access:'**
+  String get peopleTab_promoteModal_infoWarningSubtitlePromote;
+
+  /// No description provided for @peopleTab_promoteModal_infoWarningSubtitleDemote.
+  ///
+  /// In en, this message translates to:
+  /// **'This user will lose administrative access:'**
+  String get peopleTab_promoteModal_infoWarningSubtitleDemote;
+
+  /// No description provided for @peopleTab_promoteModal_ctaPromote.
+  ///
+  /// In en, this message translates to:
+  /// **'Promote'**
+  String get peopleTab_promoteModal_ctaPromote;
+
+  /// No description provided for @peopleTab_promoteModal_ctaDemote.
+  ///
+  /// In en, this message translates to:
+  /// **'Demote'**
+  String get peopleTab_promoteModal_ctaDemote;
+
+  /// No description provided for @peopleTab_accessList_promote1.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage all subscriptions'**
+  String get peopleTab_accessList_promote1;
+
+  /// No description provided for @peopleTab_accessList_promote2.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve/Reject staff members'**
+  String get peopleTab_accessList_promote2;
+
+  /// No description provided for @peopleTab_accessList_promote3.
+  ///
+  /// In en, this message translates to:
+  /// **'Promote/Demote staff members'**
+  String get peopleTab_accessList_promote3;
+
+  /// No description provided for @peopleTab_accessList_promote4.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage semesters and bus stops'**
+  String get peopleTab_accessList_promote4;
+
+  /// No description provided for @peopleTab_accessList_promote5.
+  ///
+  /// In en, this message translates to:
+  /// **'View all analytics'**
+  String get peopleTab_accessList_promote5;
+
+  /// No description provided for @peopleTab_accessList_promote6.
+  ///
+  /// In en, this message translates to:
+  /// **'Full system access'**
+  String get peopleTab_accessList_promote6;
+
+  /// No description provided for @peopleTab_accessList_demote1.
+  ///
+  /// In en, this message translates to:
+  /// **'Can only verify subscriptions'**
+  String get peopleTab_accessList_demote1;
+
+  /// No description provided for @peopleTab_accessList_demote2.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot approve staff members'**
+  String get peopleTab_accessList_demote2;
+
+  /// No description provided for @peopleTab_accessList_demote3.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot promote/demote users'**
+  String get peopleTab_accessList_demote3;
+
+  /// No description provided for @peopleTab_accessList_demote4.
+  ///
+  /// In en, this message translates to:
+  /// **'Limited management access'**
+  String get peopleTab_accessList_demote4;
+
+  /// No description provided for @peopleTab_accessList_demote5.
+  ///
+  /// In en, this message translates to:
+  /// **'Restricted analytics view'**
+  String get peopleTab_accessList_demote5;
 }
 
 class _AppLocalizationsDelegate

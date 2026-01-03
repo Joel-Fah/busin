@@ -186,6 +186,42 @@ class UsersController extends GetxController {
     }
   }
 
+  /// Get staff scan count (number of scans performed by staff member) with caching
+  Future<int> getStaffScanCount(String staffId) async {
+    // Check cache first
+    if (_scanCountCache.containsKey(staffId)) {
+      return _scanCountCache[staffId]!;
+    }
+
+    try {
+      final count = await _service.getStaffScanCount(staffId);
+      _scanCountCache[staffId] = count;
+      return count;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[UsersController] getStaffScanCount error: $e');
+      }
+      return 0;
+    }
+  }
+
+  /// Update user role (promote/demote staff <-> admin)
+  Future<void> updateUserRole(String userId, UserRole newRole) async {
+    try {
+      await _service.updateUserRole(userId, newRole);
+      if (kDebugMode) {
+        debugPrint('[UsersController] Updated user $userId role to ${newRole.name}');
+      }
+      // Refresh to show updated role
+      await refreshUsers();
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[UsersController] updateUserRole error: $e');
+      }
+      rethrow;
+    }
+  }
+
   /// Clear cache
   void clearCache() {
     _subscriptionCountCache.clear();

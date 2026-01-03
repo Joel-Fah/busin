@@ -27,6 +27,7 @@ class HomeTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
+
     // GetX Controllers
     final AuthController authController = Get.find<AuthController>();
     final BusSubscriptionsController busSubscriptionsController =
@@ -133,8 +134,7 @@ class HomeTab extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            primaryPillLabel:
-                                '#${subscriptions.indexOf(lastBusSubscription) + 1}',
+                            primaryPillLabel: '#${subscriptions.length}',
                             secondaryPillLabel: l10n.subscriptions,
                           )
                           .animate()
@@ -162,31 +162,19 @@ class HomeTab extends StatelessWidget {
                               onTap: () {
                                 // TODO: Navigate to scannings page
                               },
-                              primaryPillLabel:
-                                  '#${scannings.indexOf(lastScan) + 1}',
+                              primaryPillLabel: '#${scannings.length}',
                               secondaryPillLabel: l10n.scannings,
                               title: Text(
                                 lastScan.hasLocation
-                                    ? lastScan.locationString
+                                    ? maskCoordinates(lastScan.locationString)
                                     : l10n.homeTab_scanningsTile_titleUnavailable,
                                 style: Theme.of(context)
                                     .listTileTheme
                                     .titleTextStyle
                                     ?.copyWith(color: accentColor),
                               ),
-                              subtitle: Row(
-                                spacing: 8.0,
-                                children: [
-                                  Text(
-                                    "${l10n.homeTab_scanningsTile_on} ${dateTimeFormatter(lastScan.scannedAt)}",
-                                  ),
-                                  const Expanded(child: Divider()),
-                                  if (lastScan.hasLocation)
-                                    const HugeIcon(
-                                      icon: HugeIcons.strokeRoundedLocation01,
-                                      size: 14.0,
-                                    ),
-                                ],
+                              subtitle: Text(
+                                dateTimeFormatter(lastScan.scannedAt),
                               ),
                             )
                             .animate()

@@ -233,6 +233,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get updatedBy => 'Modifié par:';
 
   @override
+  String get today => 'Aujourd\'hui';
+
+  @override
+  String get yesterday => 'Hier';
+
+  @override
+  String get error => 'Erreur :';
+
+  @override
   String get onboarding_screen1_title =>
       'Regarder l\'horloge en attendant le départ du bus, sachant que je devrai me lever tôt demain... Difficile de dormir avec tous ces devoirs qui s\'accumulent… pffffffff';
 
@@ -1712,4 +1721,87 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get imageBox_loadingError => 'Erreur de chargement';
+
+  @override
+  String get peopleTab_emptySearchState_title => 'Aucun résultat trouvé';
+
+  @override
+  String get peopleTab_emptySearchState_subtitle =>
+      'Veuillez ajuster votre recherche';
+
+  @override
+  String get peopleTab_handlePromote_onlyAdmin =>
+      'Seuls les administrateurs peuvent promouvoir/rétrograder les membres du personnel';
+
+  @override
+  String get peopleTab_handlePromote_successPromote =>
+      'a été promu administrateur';
+
+  @override
+  String get peopleTab_handlePromote_successDemote =>
+      'a été rétrogradé en membre du personnel';
+
+  @override
+  String get peopleTab_promoteModal_titlePromote => 'Promouvoir administrateur';
+
+  @override
+  String get peopleTab_promoteModal_titleDemote =>
+      'Rétrograder membre du personnel';
+
+  @override
+  String get peopleTab_promoteModal_infoWarningTitle =>
+      'Information importante';
+
+  @override
+  String get peopleTab_promoteModal_infoWarningSubtitlePromote =>
+      'Cet utilisateur bénéficiera d\'un accès administrateur complet :';
+
+  @override
+  String get peopleTab_promoteModal_infoWarningSubtitleDemote =>
+      'Cet utilisateur perdra ses droits d\'administrateur :';
+
+  @override
+  String get peopleTab_promoteModal_ctaPromote => 'Promouvoir';
+
+  @override
+  String get peopleTab_promoteModal_ctaDemote => 'Rétrograder';
+
+  @override
+  String get peopleTab_accessList_promote1 => 'Gérer tous les abonnements';
+
+  @override
+  String get peopleTab_accessList_promote2 =>
+      'Approuver/Refuser les membres du personnel';
+
+  @override
+  String get peopleTab_accessList_promote3 =>
+      'Promouvoir/Rétrograder les membres du personnel';
+
+  @override
+  String get peopleTab_accessList_promote4 =>
+      'Gérer les semestres et les arrêts de bus';
+
+  @override
+  String get peopleTab_accessList_promote5 => 'Consulter toutes les analyses';
+
+  @override
+  String get peopleTab_accessList_promote6 => 'Accès complet au système';
+
+  @override
+  String get peopleTab_accessList_demote1 =>
+      'Vérifier uniquement les abonnements';
+
+  @override
+  String get peopleTab_accessList_demote2 =>
+      'Impossible d\'approuver les membres du personnel';
+
+  @override
+  String get peopleTab_accessList_demote3 =>
+      'Impossible de promouvoir/rétrograder les utilisateurs';
+
+  @override
+  String get peopleTab_accessList_demote4 => 'Accès à la gestion limité';
+
+  @override
+  String get peopleTab_accessList_demote5 => 'Affichage restreint des analyses';
 }

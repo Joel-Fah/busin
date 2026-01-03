@@ -172,8 +172,21 @@ class AnalyticsService {
       for (var doc in snapshot.docs) {
         final data = doc.data();
         final status = data['status'] as String?;
-        final semester = data['semester'] as String?;
-        final year = data['year'] as int?;
+
+        // Handle both old and new format
+        String? semester;
+        int? year;
+
+        if (data['semester'] is Map) {
+          // New format: semester is embedded object
+          final semesterData = data['semester'] as Map<String, dynamic>;
+          semester = semesterData['semester'] as String?;
+          year = semesterData['year'] as int?;
+        } else if (data['semester'] is String) {
+          // Legacy format: semester is string
+          semester = data['semester'] as String?;
+          year = data['year'] as int?;
+        }
 
         // Count by status
         if (status != null) {
@@ -500,8 +513,29 @@ class AnalyticsService {
 
       for (var doc in subscriptionsSnapshot.docs) {
         final data = doc.data();
-        final semester = data['semester'] as String?;
-        final year = data['year'] as int?;
+
+        // Handle both old and new format
+        String? semester;
+        int? year;
+
+        if (data['semester'] is Map) {
+          // New format: semester is embedded object
+          final semesterData = data['semester'] as Map<String, dynamic>;
+          semester = semesterData['semester'] as String?;
+          year = semesterData['year'] as int?;
+        } else if (data['semester'] is String) {
+          // Legacy format: semester is string
+          semester = data['semester'] as String?;
+          year = data['year'] as int?;
+        } else if (data['semesterId'] is String) {
+          // Very old format: semesterId only
+          final parts = (data['semesterId'] as String).split('_');
+          if (parts.length == 2) {
+            semester = parts[0];
+            year = int.tryParse(parts[1]);
+          }
+        }
+
         final status = data['status'] as String?;
 
         if (semester != null && year != null) {

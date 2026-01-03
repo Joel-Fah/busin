@@ -1,6 +1,7 @@
 import 'package:busin/l10n/app_localizations.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
+import 'semester_config.dart';
 import 'value_objects/bus_stop_selection.dart';
 import 'value_objects/review_observation.dart';
 
@@ -31,30 +32,6 @@ enum Semester {
         throw ArgumentError('Unknown semester: $value');
     }
   }
-
-  /// Returns a default [DateSpan] for a given calendar [year].
-  /// - Fall: Sep 1 - Dec 31
-  /// - Spring: Jan 1 - May 31
-  /// - Summer: Jun 1 - Aug 31
-  DateSpan defaultSpanForYear(int year) {
-    switch (this) {
-      case Semester.fall:
-        return DateSpan(
-          DateTime(year, 9, 1),
-          DateTime(year, 12, 31, 23, 59, 59, 999),
-        );
-      case Semester.spring:
-        return DateSpan(
-          DateTime(year, 1, 1),
-          DateTime(year, 5, 31, 23, 59, 59, 999),
-        );
-      case Semester.summer:
-        return DateSpan(
-          DateTime(year, 6, 1),
-          DateTime(year, 8, 31, 23, 59, 59, 999),
-        );
-    }
-  }
 }
 
 /// Status of a subscription during its review lifecycle.
@@ -77,11 +54,11 @@ enum BusSubscriptionStatus {
     final l10n = AppLocalizations.of(context)!;
 
     return switch (this) {
-    BusSubscriptionStatus.pending => l10n.subscriptionPending,
-    BusSubscriptionStatus.approved => l10n.subscriptionApproved,
-    BusSubscriptionStatus.rejected => l10n.subscriptionRejected,
-    BusSubscriptionStatus.expired => l10n.subscriptionExpired,
-  };
+      BusSubscriptionStatus.pending => l10n.subscriptionPending,
+      BusSubscriptionStatus.approved => l10n.subscriptionApproved,
+      BusSubscriptionStatus.rejected => l10n.subscriptionRejected,
+      BusSubscriptionStatus.expired => l10n.subscriptionExpired,
+    };
   }
 
   bool get isPending => this == BusSubscriptionStatus.pending;
@@ -177,18 +154,13 @@ class BusSubscriptionSchedule {
 class BusSubscription {
   final String id;
   final String studentId;
-  final Semester semester;
-  final int year; // calendar year for the term (e.g., 2025 for Fall 2025)
+  final SemesterConfig semesterConfig; // Embedded semester configuration
 
   final BusSubscriptionStatus status;
   final String? proofOfPaymentUrl;
 
   final DateTime createdAt;
   final DateTime updatedAt;
-
-  // Validity window; admin/staff can override from defaults
-  final DateTime startDate;
-  final DateTime endDate;
 
   // Boarding preference
   final BusStop? stop;
@@ -202,46 +174,24 @@ class BusSubscription {
   const BusSubscription({
     required this.id,
     required this.studentId,
-    required this.semester,
-    required this.year,
+    required this.semesterConfig,
     required this.status,
     required this.createdAt,
     required this.updatedAt,
-    required this.startDate,
-    required this.endDate,
     this.proofOfPaymentUrl,
     this.stop,
     this.observation,
     this.schedules = const [],
   });
 
-  factory BusSubscription.pending({
-    required String id,
-    required String studentId,
-    required Semester semester,
-    required int year,
-    String? proofOfPaymentUrl,
-    BusStop? stop,
-    List<BusSubscriptionSchedule>? schedules,
-  }) {
-    final now = DateTime.now();
-    final span = semester.defaultSpanForYear(year);
-    return BusSubscription(
-      id: id,
-      studentId: studentId,
-      semester: semester,
-      year: year,
-      status: BusSubscriptionStatus.pending,
-      createdAt: now,
-      updatedAt: now,
-      startDate: span.start,
-      endDate: span.end,
-      proofOfPaymentUrl: proofOfPaymentUrl,
-      stop: stop,
-      schedules: schedules ?? const [],
-      observation: null,
-    );
-  }
+  // Convenience getters for backward compatibility
+  Semester get semester => semesterConfig.semester;
+
+  int get year => semesterConfig.year;
+
+  DateTime get startDate => semesterConfig.startDate;
+
+  DateTime get endDate => semesterConfig.endDate;
 
   bool get isWithinWindow =>
       DateSpan(startDate, endDate).contains(DateTime.now());
@@ -262,14 +212,11 @@ class BusSubscription {
   Map<String, dynamic> toMap() => {
     'id': id,
     'studentId': studentId,
-    'semester': semester.nameLower,
-    'year': year,
+    'semester': semesterConfig.toMap(), // Embedded semester configuration
     'status': status.nameLower,
     'proofOfPaymentUrl': proofOfPaymentUrl,
     'createdAt': createdAt.toIso8601String(),
     'updatedAt': updatedAt.toIso8601String(),
-    'startDate': startDate.toIso8601String(),
-    'endDate': endDate.toIso8601String(),
     if (observation != null) 'review': observation!.toMap(),
     if (stop != null) 'stop': stop!.toMap(),
     'schedules': schedules.map((s) => s.toMap()).toList(),
@@ -292,17 +239,69 @@ class BusSubscription {
       ];
     }
 
+    // Parse semester configuration
+    SemesterConfig semesterConfig;
+
+    if (map['semester'] is Map<String, dynamic>) {
+      // New format: embedded semester configuration
+      semesterConfig = SemesterConfig.fromMap(
+        map['semester'] as Map<String, dynamic>,
+      );
+    } else {
+      // Legacy format: parse from semesterId or separate fields
+      Semester semester;
+      int year;
+      DateTime startDate;
+      DateTime endDate;
+
+      if (map['semesterId'] is String) {
+        // Parse semesterId = "fall_2025"
+        final parts = (map['semesterId'] as String).split('_');
+        if (parts.length == 2) {
+          semester = Semester.from(parts[0]);
+          year = int.parse(parts[1]);
+        } else {
+          // Fallback
+          semester = Semester.from(map['semester'] as String);
+          year = (map['year'] as num).toInt();
+        }
+      } else {
+        // Very old legacy format
+        semester = Semester.from(map['semester'] as String);
+        year = (map['year'] as num).toInt();
+      }
+
+      // Try to get dates
+      if (map['startDate'] != null && map['endDate'] != null) {
+        startDate = _parseDateTime(map['startDate']);
+        endDate = _parseDateTime(map['endDate']);
+      } else {
+        // Default dates
+        startDate = DateTime(year, 1, 1);
+        endDate = DateTime(year, 12, 31, 23, 59, 59, 999);
+      }
+
+      // Create a temporary SemesterConfig for backward compatibility
+      semesterConfig = SemesterConfig(
+        id: '${semester.nameLower}_$year',
+        semester: semester,
+        year: year,
+        startDate: startDate,
+        endDate: endDate,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+        createdBy: 'legacy',
+      );
+    }
+
     return BusSubscription(
       id: map['id'] as String,
       studentId: map['studentId'] as String,
-      semester: Semester.from(map['semester'] as String),
-      year: (map['year'] as num).toInt(),
+      semesterConfig: semesterConfig,
       status: BusSubscriptionStatus.from(map['status'] as String),
       proofOfPaymentUrl: map['proofOfPaymentUrl'] as String?,
       createdAt: _parseDateTime(map['createdAt']),
       updatedAt: _parseDateTime(map['updatedAt']),
-      startDate: _parseDateTime(map['startDate']),
-      endDate: _parseDateTime(map['endDate']),
       stop: _parseStop(map),
       schedules: parsedSchedules,
       observation: _parseObservation(map),
@@ -372,28 +371,22 @@ class BusSubscription {
   BusSubscription copyWith({
     String? id,
     String? studentId,
-    Semester? semester,
-    int? year,
+    SemesterConfig? semesterConfig,
     BusSubscriptionStatus? status,
     String? proofOfPaymentUrl,
     DateTime? createdAt,
     DateTime? updatedAt,
-    DateTime? startDate,
-    DateTime? endDate,
     BusStop? stop,
     ReviewObservation? observation,
     List<BusSubscriptionSchedule>? schedules,
   }) => BusSubscription(
     id: id ?? this.id,
     studentId: studentId ?? this.studentId,
-    semester: semester ?? this.semester,
-    year: year ?? this.year,
+    semesterConfig: semesterConfig ?? this.semesterConfig,
     status: status ?? this.status,
     proofOfPaymentUrl: proofOfPaymentUrl ?? this.proofOfPaymentUrl,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
-    startDate: startDate ?? this.startDate,
-    endDate: endDate ?? this.endDate,
     stop: stop ?? this.stop,
     observation: observation ?? this.observation,
     schedules: schedules ?? this.schedules,
@@ -407,8 +400,6 @@ class BusSubscription {
 
   BusSubscription approve({
     required String reviewerUserId,
-    DateTime? startDate,
-    DateTime? endDate,
     String? observationMessage,
   }) => copyWith(
     status: BusSubscriptionStatus.approved,
@@ -418,8 +409,6 @@ class BusSubscription {
       message: observationMessage,
     ),
     updatedAt: DateTime.now(),
-    startDate: startDate ?? this.startDate,
-    endDate: endDate ?? this.endDate,
   );
 
   BusSubscription reject({

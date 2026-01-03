@@ -148,73 +148,165 @@ class ProfilePage extends StatelessWidget {
                         Wrap(
                           spacing: 24.0,
                           crossAxisAlignment: WrapCrossAlignment.start,
-                          children: [
-                            IntrinsicWidth(
-                              child: ListTile(
-                                minTileHeight: 0.0,
-                                contentPadding: EdgeInsets.zero,
-                                title: Text(
-                                  addThousandSeparator(
-                                    busSubscriptionsController
-                                        .busSubscriptions
-                                        .length
-                                        .toString(),
+                          children: authController.isStudent
+                              ? [
+                                  // Student stats: Subscriptions & Scannings
+                                  IntrinsicWidth(
+                                    child: ListTile(
+                                      minTileHeight: 0.0,
+                                      contentPadding: EdgeInsets.zero,
+                                      title: Text(
+                                        addThousandSeparator(
+                                          busSubscriptionsController
+                                              .busSubscriptions.length
+                                              .toString(),
+                                        ),
+                                        style: AppTextStyles.h3,
+                                      ),
+                                      subtitle: Text(
+                                        busSubscriptionsController
+                                                    .busSubscriptions.length >
+                                                1
+                                            ? l10n.subscriptions
+                                            : l10n.subscriptions.substring(
+                                                0,
+                                                l10n.subscriptions.length - 1),
+                                        style: AppTextStyles.body.copyWith(
+                                          fontSize: 14.0,
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                  style: AppTextStyles.h3,
-                                ),
-                                subtitle: Text(
-                                  busSubscriptionsController
-                                      .busSubscriptions
-                                      .length > 1 ? l10n.subscriptions : l10n.subscriptions.substring(0, l10n.subscriptions.length-1),
-                                  style: AppTextStyles.body.copyWith(
-                                    fontSize: 14.0,
+                                  IntrinsicWidth(
+                                    child: ListTile(
+                                      minTileHeight: 0.0,
+                                      contentPadding: EdgeInsets.zero,
+                                      title: Text(
+                                        addThousandSeparator(
+                                            scanningController.scannings.length
+                                                .toString()),
+                                        style: AppTextStyles.h3,
+                                      ),
+                                      subtitle: Text(
+                                        scanningController.scannings.length > 1
+                                            ? l10n.scannings
+                                            : l10n.scannings.substring(
+                                                0, l10n.scannings.length - 1),
+                                        style: AppTextStyles.body.copyWith(
+                                          fontSize: 14.0,
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                            ),
-                            IntrinsicWidth(
-                              child: ListTile(
-                                minTileHeight: 0.0,
-                                contentPadding: EdgeInsets.zero,
-                                title: Text(
-                                  addThousandSeparator(
-                                    scanningController.scannings.length.toString()
+                                  IntrinsicWidth(
+                                    child: ListTile(
+                                      minTileHeight: 0.0,
+                                      contentPadding: EdgeInsets.zero,
+                                      title: Text(
+                                        dateFormatter(
+                                          authController.currentUser.value!
+                                                  .createdAt ??
+                                              DateTime.now(),
+                                        ),
+                                        style: AppTextStyles.h3,
+                                      ),
+                                      subtitle: Text(
+                                        l10n.joined,
+                                        style: AppTextStyles.body.copyWith(
+                                          fontSize: 14.0,
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                  style: AppTextStyles.h3,
-                                ),
-                                subtitle: Text(
-                                  scanningController
-                                      .scannings
-                                      .length > 1 ? l10n.scannings : l10n.scannings.substring(0, l10n.scannings.length-1),
-                                  style: AppTextStyles.body.copyWith(
-                                    fontSize: 14.0,
+                                ]
+                              : [
+                                  // Admin/Staff stats: Reviews done, Scannings done, Joined date
+                                  Obx(
+                                    () {
+                                      final currentUserId = authController.userId;
+                                      final reviewsCount = busSubscriptionsController
+                                          .busSubscriptions
+                                          .where((sub) =>
+                                              sub.observation?.reviewerUserId ==
+                                              currentUserId)
+                                          .length;
+
+                                      return IntrinsicWidth(
+                                        child: ListTile(
+                                          minTileHeight: 0.0,
+                                          contentPadding: EdgeInsets.zero,
+                                          title: Text(
+                                            addThousandSeparator(
+                                              reviewsCount.toString(),
+                                            ),
+                                            style: AppTextStyles.h3,
+                                          ),
+                                          subtitle: Text(
+                                            reviewsCount > 1
+                                                ? 'Reviews'
+                                                : 'Review',
+                                            style: AppTextStyles.body.copyWith(
+                                              fontSize: 14.0,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
                                   ),
-                                ),
-                              ),
-                            ),
-                            IntrinsicWidth(
-                              child: ListTile(
-                                minTileHeight: 0.0,
-                                contentPadding: EdgeInsets.zero,
-                                title: Text(
-                                  dateFormatter(
-                                    authController
-                                            .currentUser
-                                            .value!
-                                            .createdAt ??
-                                        DateTime.now(),
+                                  Obx(
+                                    () {
+                                      final currentUserId = authController.userId;
+                                      final scansCount = scanningController
+                                          .scannings
+                                          .where((scan) =>
+                                              scan.scannedBy == currentUserId)
+                                          .length;
+
+                                      return IntrinsicWidth(
+                                        child: ListTile(
+                                          minTileHeight: 0.0,
+                                          contentPadding: EdgeInsets.zero,
+                                          title: Text(
+                                            addThousandSeparator(
+                                              scansCount.toString(),
+                                            ),
+                                            style: AppTextStyles.h3,
+                                          ),
+                                          subtitle: Text(
+                                            scansCount > 1
+                                                ? l10n.scannings
+                                                : l10n.scannings.substring(
+                                                    0,
+                                                    l10n.scannings.length - 1),
+                                            style: AppTextStyles.body.copyWith(
+                                              fontSize: 14.0,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
                                   ),
-                                  style: AppTextStyles.h3,
-                                ),
-                                subtitle: Text(
-                                  l10n.joined,
-                                  style: AppTextStyles.body.copyWith(
-                                    fontSize: 14.0,
+                                  IntrinsicWidth(
+                                    child: ListTile(
+                                      minTileHeight: 0.0,
+                                      contentPadding: EdgeInsets.zero,
+                                      title: Text(
+                                        dateFormatter(
+                                          authController.currentUser.value!
+                                                  .createdAt ??
+                                              DateTime.now(),
+                                        ),
+                                        style: AppTextStyles.h3,
+                                      ),
+                                      subtitle: Text(
+                                        l10n.joined,
+                                        style: AppTextStyles.body.copyWith(
+                                          fontSize: 14.0,
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                            ),
-                          ],
+                                ],
                         ),
                       ],
                     ),
@@ -348,6 +440,7 @@ class ProfilePage extends StatelessWidget {
               if (authController.isAdmin || authController.isStaff) ...[
                 const Gap(24.0),
                 ListSubHeading(label: l10n.profilePage_subHeading_busManagement),
+                const Gap(20.0),
                 ListTile(
                   onTap: () {
                     HapticFeedback.mediumImpact();
@@ -531,3 +624,4 @@ class _AppInfoBarState extends State<AppInfoBar> {
     );
   }
 }
+

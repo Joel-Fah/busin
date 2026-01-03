@@ -37,6 +37,34 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
 
   bool get isEditing => widget.semester != null;
 
+  /// Suggests default date ranges for a semester in a given year.
+  /// This is ONLY used as a placeholder when creating new semesters.
+  /// Actual dates are always configured by admins in Firestore.
+  ///
+  /// Suggested ranges:
+  /// - Fall: Sep 1 - Dec 31
+  /// - Spring: Jan 1 - May 31
+  /// - Summer: Jun 1 - Aug 31
+  DateSpan _getSuggestedDates(Semester semester, int year) {
+    switch (semester) {
+      case Semester.fall:
+        return DateSpan(
+          DateTime(year, 9, 1),
+          DateTime(year, 12, 31, 23, 59, 59, 999),
+        );
+      case Semester.spring:
+        return DateSpan(
+          DateTime(year, 1, 1),
+          DateTime(year, 5, 31, 23, 59, 59, 999),
+        );
+      case Semester.summer:
+        return DateSpan(
+          DateTime(year, 6, 1),
+          DateTime(year, 8, 31, 23, 59, 59, 999),
+        );
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -437,9 +465,10 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
                             if (selected) {
                               setState(() {
                                 _selectedSemester = semester;
-                                // Auto-fill dates based on default span
+                                // Auto-fill dates based on suggested span
                                 if (_selectedYear != null) {
-                                  final span = semester.defaultSpanForYear(
+                                  final span = _getSuggestedDates(
+                                    semester,
                                     _selectedYear!,
                                   );
                                   _startDate = span.start;
@@ -572,10 +601,12 @@ class _SemesterFormPageState extends State<SemesterFormPage> {
                             if (selected) {
                               setState(() {
                                 _selectedYear = year;
-                                // Auto-fill dates based on default span
+                                // Auto-fill dates based on suggested span
                                 if (_selectedSemester != null) {
-                                  final span = _selectedSemester!
-                                      .defaultSpanForYear(year);
+                                  final span = _getSuggestedDates(
+                                    _selectedSemester!,
+                                    year,
+                                  );
                                   _startDate = span.start;
                                   _endDate = span.end;
                                 } else {

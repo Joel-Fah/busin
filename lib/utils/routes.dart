@@ -5,6 +5,7 @@ import 'package:busin/docs/docs.dart';
 import 'package:busin/models/actors/roles.dart';
 import 'package:busin/ui/screens/home/home_tab.dart';
 import 'package:busin/ui/screens/home/scanner.dart';
+import 'package:busin/ui/screens/home/scannings_list.dart';
 import 'package:busin/ui/screens/home/scannings_tab.dart';
 import 'package:busin/ui/screens/home/subscriptions_tab.dart';
 import 'package:busin/ui/screens/onboarding/verification.dart';
@@ -333,6 +334,14 @@ final router = GoRouter(
       path: ScannerPage.routeName,
       name: removeLeadingSlash(ScannerPage.routeName),
       builder: (context, state) => const ScannerPage(),
+    ),
+
+    // Scannings List
+    GoRoute(
+      parentNavigatorKey: rootNavigatorKey,
+      path: ScanningsListPage.routeName,
+      name: removeLeadingSlash(ScanningsListPage.routeName),
+      builder: (context, state) => const ScanningsListPage(),
     ),
   ],
 );

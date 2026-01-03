@@ -233,6 +233,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updatedBy => 'Updated by:';
 
   @override
+  String get today => 'Today';
+
+  @override
+  String get yesterday => 'Yesterday';
+
+  @override
+  String get error => 'Error:';
+
+  @override
   String get onboarding_screen1_title =>
       'Staring at the clock, waiting for the bus to leave, knowing I\'ll be up early tomorrow — becomes difficult to sleep with endless school work piling up too ... frrrrrrrr';
 
@@ -1662,4 +1671,78 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get imageBox_loadingError => 'Loading error';
+
+  @override
+  String get peopleTab_emptySearchState_title => 'No results found';
+
+  @override
+  String get peopleTab_emptySearchState_subtitle => 'Try adjusting your search';
+
+  @override
+  String get peopleTab_handlePromote_onlyAdmin =>
+      'Only admins can promote/demote staff members';
+
+  @override
+  String get peopleTab_handlePromote_successPromote =>
+      'has been promoted to Admin';
+
+  @override
+  String get peopleTab_handlePromote_successDemote =>
+      'has been demoted to Staff';
+
+  @override
+  String get peopleTab_promoteModal_titlePromote => 'Promote to Admin';
+
+  @override
+  String get peopleTab_promoteModal_titleDemote => 'Demote to Staff';
+
+  @override
+  String get peopleTab_promoteModal_infoWarningTitle => 'Important Information';
+
+  @override
+  String get peopleTab_promoteModal_infoWarningSubtitlePromote =>
+      'This user will gain full administrative access:';
+
+  @override
+  String get peopleTab_promoteModal_infoWarningSubtitleDemote =>
+      'This user will lose administrative access:';
+
+  @override
+  String get peopleTab_promoteModal_ctaPromote => 'Promote';
+
+  @override
+  String get peopleTab_promoteModal_ctaDemote => 'Demote';
+
+  @override
+  String get peopleTab_accessList_promote1 => 'Manage all subscriptions';
+
+  @override
+  String get peopleTab_accessList_promote2 => 'Approve/Reject staff members';
+
+  @override
+  String get peopleTab_accessList_promote3 => 'Promote/Demote staff members';
+
+  @override
+  String get peopleTab_accessList_promote4 => 'Manage semesters and bus stops';
+
+  @override
+  String get peopleTab_accessList_promote5 => 'View all analytics';
+
+  @override
+  String get peopleTab_accessList_promote6 => 'Full system access';
+
+  @override
+  String get peopleTab_accessList_demote1 => 'Can only verify subscriptions';
+
+  @override
+  String get peopleTab_accessList_demote2 => 'Cannot approve staff members';
+
+  @override
+  String get peopleTab_accessList_demote3 => 'Cannot promote/demote users';
+
+  @override
+  String get peopleTab_accessList_demote4 => 'Limited management access';
+
+  @override
+  String get peopleTab_accessList_demote5 => 'Restricted analytics view';
 }

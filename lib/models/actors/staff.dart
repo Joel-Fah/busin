@@ -57,7 +57,8 @@ class Staff extends BaseUser {
       photoUrl: user.photoURL,
       createdAt: user.metadata.creationTime,
       lastSignInAt: user.metadata.lastSignInTime,
-      updatedAt: user.metadata.creationTime, // Initially same as createdAt
+      updatedAt: user.metadata.creationTime,
+      // Initially same as createdAt
       permissions: permissions,
     );
   }
@@ -69,19 +70,11 @@ class Staff extends BaseUser {
   // --- subscription helpers ---
   bool get canReviewSubscriptions => hasPermission('verify_subscription');
 
-  BusSubscription approve(
-    BusSubscription s, {
-    DateTime? startDate,
-    DateTime? endDate,
-  }) {
+  BusSubscription approve(BusSubscription s) {
     if (!canReviewSubscriptions) {
       throw StateError('Staff lacks verify_subscription permission');
     }
-    return s.approve(
-      reviewerUserId: id,
-      startDate: startDate,
-      endDate: endDate,
-    );
+    return s.approve(reviewerUserId: id);
   }
 
   BusSubscription reject(BusSubscription s, {required String reason}) {

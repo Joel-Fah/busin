@@ -7,6 +7,7 @@ import 'package:busin/controllers/subscriptions_controller.dart';
 import 'package:busin/l10n/app_localizations.dart';
 import 'package:busin/ui/components/widgets/custom_list_tile.dart';
 import 'package:busin/ui/components/widgets/default_snack_bar.dart';
+import 'package:busin/ui/screens/home/scannings_list.dart';
 import 'package:busin/utils/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -132,6 +133,7 @@ class _ScanningsTabState extends State<ScanningsTab> {
     // Mark warning as shown
     scanningController.markScreenshotWarningShown();
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -289,7 +291,9 @@ class _ScanningsTabState extends State<ScanningsTab> {
                           ),
                           TextButton.icon(
                             onPressed: () {
-                              // TODO: Navigate to all scannings page
+                              context.pushNamed(
+                                removeLeadingSlash(ScanningsListPage.routeName),
+                              );
                             },
                             style: TextButton.styleFrom(
                               overlayColor: accentColor.withValues(alpha: 0.1),
@@ -362,31 +366,18 @@ class _ScanningsTabState extends State<ScanningsTab> {
                               onTap: () {
                                 // TODO: Navigate to scan details
                               },
-                              primaryPillLabel: lastScan.hasLocation
-                                  ? '📍'
-                                  : '#',
+                              primaryPillLabel: '#${scanningController.scannings.length}',
                               title: Text(
                                 lastScan.hasLocation
-                                    ? lastScan.locationString
+                                    ? maskCoordinates(lastScan.locationString)
                                     : l10n.homeTab_scanningsTile_titleUnavailable,
                                 style: Theme.of(context)
                                     .listTileTheme
                                     .titleTextStyle
                                     ?.copyWith(color: accentColor),
                               ),
-                              subtitle: Row(
-                                spacing: 8.0,
-                                children: [
-                                  Text(
-                                    "${l10n.homeTab_scanningsTile_on} ${dateTimeFormatter(lastScan.scannedAt)}",
-                                  ),
-                                  const Expanded(child: Divider()),
-                                  if (lastScan.hasLocation)
-                                    const HugeIcon(
-                                      icon: HugeIcons.strokeRoundedLocation01,
-                                      size: 14.0,
-                                    ),
-                                ],
+                              subtitle: Text(
+                                dateTimeFormatter(lastScan.scannedAt),
                               ),
                             )
                             .animate()

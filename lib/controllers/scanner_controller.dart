@@ -74,6 +74,7 @@ class ScannerController extends GetxController {
       await scanningController.createScanning(
         studentId: result.student!.id,
         subscriptionId: result.subscription!.id,
+        scannedBy: _authController.userId,
         deviceInfo: 'Scanner App - ${_authController.userDisplayName}',
         notes: 'Scanned by ${_authController.userDisplayName}',
       );

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
+import 'package:flutter/foundation.dart';
 
 import 'package:busin/models/actors/base_user.dart';
 import 'package:busin/models/actors/roles.dart';
@@ -11,6 +12,7 @@ import 'package:busin/models/actors/student.dart';
 import 'package:busin/models/actors/staff.dart';
 import 'package:busin/models/actors/admin.dart';
 import 'package:busin/services/auth_service.dart';
+import 'package:busin/controllers/scanning_controller.dart';
 
 /// Firestore collection names
 const String kUsersCollection = 'users';
@@ -194,6 +196,9 @@ class AuthController extends GetxController {
 
       await Future.delayed(const Duration(milliseconds: 100));
       _bootstrapped.value = true;
+
+      // Initialize ScanningController now that user data is ready
+      _initializeScanningController();
       return;
     }
 
@@ -212,6 +217,9 @@ class AuthController extends GetxController {
 
     await Future.delayed(const Duration(milliseconds: 100));
     _bootstrapped.value = true;
+
+    // Initialize ScanningController now that user data is ready
+    _initializeScanningController();
   }
 
   void _onUserDoc(DocumentSnapshot<Map<String, dynamic>> snapshot) {
@@ -222,6 +230,28 @@ class AuthController extends GetxController {
     }
     final role = UserRole.from((data[kRoleField] as String?) ?? 'student');
     currentUser.value = _mapDocToUser(role, data);
+
+    // Re-initialize ScanningController when user data updates
+    _initializeScanningController();
+  }
+
+  /// Initialize ScanningController with current user data
+  void _initializeScanningController() {
+    if (currentUser.value == null) return;
+
+    try {
+      final scanningController = Get.find<ScanningController>();
+      scanningController.initialize(
+        userId: currentUser.value!.id,
+        isStudent: currentUser.value!.role == UserRole.student,
+        isAdmin: currentUser.value!.role == UserRole.admin,
+        isStaff: currentUser.value!.role == UserRole.staff,
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[AuthController] ScanningController not found yet: $e');
+      }
+    }
   }
 
   BaseUser _mapDocToUser(UserRole role, Map<String, dynamic> data) {

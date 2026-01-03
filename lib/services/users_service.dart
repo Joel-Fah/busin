@@ -125,6 +125,18 @@ class UsersService {
     }
   }
 
+  /// Get staff scan count (number of scans performed by this staff member)
+  Future<int> getStaffScanCount(String staffId) async {
+    try {
+      return await ScanningService.instance.getStaffScanCount(staffId);
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[UsersService] getStaffScanCount error: $e');
+      }
+      return 0;
+    }
+  }
+
   /// Map Firestore document to proper user type
   BaseUser _mapDocToUser(UserRole role, Map<String, dynamic> data) {
     switch (role) {
@@ -147,6 +159,24 @@ class UsersService {
     } catch (e) {
       if (kDebugMode) {
         debugPrint('[UsersService] updateUserStatus error: $e');
+      }
+      rethrow;
+    }
+  }
+
+  /// Update user role (promote/demote staff <-> admin)
+  Future<void> updateUserRole(String userId, UserRole newRole) async {
+    try {
+      await _collection.doc(userId).update({
+        'role': newRole.name,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+      if (kDebugMode) {
+        debugPrint('[UsersService] Updated user $userId role to ${newRole.name}');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[UsersService] updateUserRole error: $e');
       }
       rethrow;
     }
