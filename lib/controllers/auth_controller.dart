@@ -13,6 +13,9 @@ import 'package:busin/models/actors/staff.dart';
 import 'package:busin/models/actors/admin.dart';
 import 'package:busin/services/auth_service.dart';
 import 'package:busin/controllers/scanning_controller.dart';
+import 'package:busin/controllers/update_controller.dart';
+import 'package:busin/controllers/report_controller.dart';
+import 'package:busin/controllers/check_in_controller.dart';
 
 /// Firestore collection names
 const String kUsersCollection = 'users';
@@ -48,10 +51,12 @@ class AuthController extends GetxController {
   void onInit() {
     super.onInit();
     // Listen to Firebase auth state and sync with Firestore + local model
-    _authSub =
-        _auth.authStateChanges().listen(_onAuthStateChanged, onError: (e, st) {
-          errorMessage?.value = e.toString();
-        });
+    _authSub = _auth.authStateChanges().listen(
+      _onAuthStateChanged,
+      onError: (e, st) {
+        errorMessage?.value = e.toString();
+      },
+    );
   }
 
   @override
@@ -149,22 +154,13 @@ class AuthController extends GetxController {
       BaseUser newUser;
       switch (roleToUse) {
         case UserRole.student:
-          newUser = Student.fromFirebaseUser(
-            fbUser,
-            status: statusToUse,
-          );
+          newUser = Student.fromFirebaseUser(fbUser, status: statusToUse);
           break;
         case UserRole.staff:
-          newUser = Staff.fromFirebaseUser(
-            fbUser,
-            status: statusToUse,
-          );
+          newUser = Staff.fromFirebaseUser(fbUser, status: statusToUse);
           break;
         case UserRole.admin:
-          newUser = Admin.fromFirebaseUser(
-            fbUser,
-            status: statusToUse,
-          );
+          newUser = Admin.fromFirebaseUser(fbUser, status: statusToUse);
           break;
       }
 
@@ -190,9 +186,12 @@ class AuthController extends GetxController {
       _pendingInitialStatus = null;
 
       // Subscribe for future updates
-      _userDocSub = docRef.snapshots().listen(_onUserDoc, onError: (e, st) {
-        errorMessage?.value = e.toString();
-      });
+      _userDocSub = docRef.snapshots().listen(
+        _onUserDoc,
+        onError: (e, st) {
+          errorMessage?.value = e.toString();
+        },
+      );
 
       await Future.delayed(const Duration(milliseconds: 100));
       _bootstrapped.value = true;
@@ -211,9 +210,12 @@ class AuthController extends GetxController {
     await _saveLastUserRole(role);
 
     // Subscribe to live updates
-    _userDocSub = docRef.snapshots().listen(_onUserDoc, onError: (e, st) {
-      errorMessage?.value = e.toString();
-    });
+    _userDocSub = docRef.snapshots().listen(
+      _onUserDoc,
+      onError: (e, st) {
+        errorMessage?.value = e.toString();
+      },
+    );
 
     await Future.delayed(const Duration(milliseconds: 100));
     _bootstrapped.value = true;
@@ -250,6 +252,65 @@ class AuthController extends GetxController {
     } catch (e) {
       if (kDebugMode) {
         debugPrint('[AuthController] ScanningController not found yet: $e');
+      }
+    }
+
+    // Initialize UpdateController for realtime updates
+    _initializeUpdateController();
+  }
+
+  /// Initialize UpdateController for realtime bus updates
+  void _initializeUpdateController() {
+    if (currentUser.value == null) return;
+
+    try {
+      final updateController = Get.find<UpdateController>();
+      updateController.initialize();
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[AuthController] UpdateController not found yet: $e');
+      }
+    }
+
+    // Initialize ReportController
+    _initializeReportController();
+  }
+
+  /// Initialize ReportController for student reports / admin triage
+  void _initializeReportController() {
+    if (currentUser.value == null) return;
+
+    try {
+      final reportController = Get.find<ReportController>();
+      reportController.initialize(
+        userId: currentUser.value!.id,
+        isStudent: currentUser.value!.role == UserRole.student,
+        isAdmin: currentUser.value!.role == UserRole.admin,
+        isStaff: currentUser.value!.role == UserRole.staff,
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[AuthController] ReportController not found yet: $e');
+      }
+    }
+
+    // Initialize CheckInController for admin/staff
+    _initializeCheckInController();
+  }
+
+  /// Initialize CheckInController for admin/staff daily attendance
+  void _initializeCheckInController() {
+    if (currentUser.value == null) return;
+
+    // Only admin and staff need the check-in controller
+    if (currentUser.value!.role == UserRole.student) return;
+
+    try {
+      final checkInController = Get.find<CheckInController>();
+      checkInController.initialize();
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[AuthController] CheckInController not found yet: $e');
       }
     }
   }
@@ -291,19 +352,25 @@ class AuthController extends GetxController {
   Future<void> updatePhone(String phone) async {
     final user = currentUser.value;
     if (user == null) return;
-    await _db.collection(kUsersCollection).doc(user.id).update({'phone': phone});
+    await _db.collection(kUsersCollection).doc(user.id).update({
+      'phone': phone,
+    });
   }
 
   Future<void> setRole(UserRole role) async {
     final user = currentUser.value;
     if (user == null) return;
-    await _db.collection(kUsersCollection).doc(user.id).update({'role': role.name});
+    await _db.collection(kUsersCollection).doc(user.id).update({
+      'role': role.name,
+    });
   }
 
   Future<void> setStatus(AccountStatus status) async {
     final user = currentUser.value;
     if (user == null) return;
-    await _db.collection(kUsersCollection).doc(user.id).update({'status': status.name});
+    await _db.collection(kUsersCollection).doc(user.id).update({
+      'status': status.name,
+    });
   }
 
   /// Reload current user data from Firestore
@@ -352,10 +419,7 @@ class AuthController extends GetxController {
     }
 
     try {
-      await _auth.updateUserProfile(
-        userId: user.id,
-        updates: updates,
-      );
+      await _auth.updateUserProfile(userId: user.id, updates: updates);
 
       // Reload user data to reflect the changes
       await reloadCurrentUser();

@@ -11,6 +11,7 @@ import '../../../controllers/scanner_controller.dart';
 import '../../../services/scanner_service.dart';
 import '../../../utils/constants.dart';
 import '../../../utils/utils.dart';
+import 'check_in_sheet.dart';
 
 class ScannerPage extends StatefulWidget {
   const ScannerPage({super.key});
@@ -260,13 +261,11 @@ class _ScannerPageState extends State<ScannerPage> {
         ),
         const Gap(8.0),
         _ScannerControlButton(
-          icon: HugeIcons.strokeRoundedRefresh,
-          onTap: () {
-            _scannerController.resetScanner();
-            _mobileScannerController.stop();
-            _mobileScannerController.start();
-          },
-          tooltip: l10n.scannerPage_controls_resetScanner,
+          icon: HugeIcons.strokeRoundedCheckList,
+          onTap: () => CheckInSheet.show(context),
+          tooltip: localeController.locale.languageCode == 'en'
+              ? 'Check-in List'
+              : 'Liste des Check-ins',
         ),
       ],
     );

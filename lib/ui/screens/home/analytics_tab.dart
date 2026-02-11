@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../../../controllers/analytics_controller.dart';
+import '../../../controllers/report_controller.dart';
 import '../../../ui/screens/profile/semesters/semester.dart';
 import '../../../ui/screens/profile/stops/stops.dart';
 import '../../../ui/screens/profile/subscriptions_admin.dart';
@@ -96,10 +97,50 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
               padding: const EdgeInsets.only(right: 8.0, left: 4.0),
               child: Tooltip(
                 message: l10n.userProfile,
-                child: UserAvatar(
-                  tag: authController.userProfileImage,
-                  radius: 24.0,
-                ),
+                child: Obx(() {
+                  final reportController = Get.find<ReportController>();
+                  final pending = reportController.pendingCount.value;
+                  return Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      UserAvatar(
+                        tag: authController.userProfileImage,
+                        radius: 24.0,
+                      ),
+                      if (pending > 0)
+                        Positioned(
+                          top: -4,
+                          right: -4,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: errorColor,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: themeController.isDark
+                                    ? seedColor
+                                    : lightColor,
+                                width: 2,
+                              ),
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 18,
+                              minHeight: 18,
+                            ),
+                            child: Text(
+                              pending > 99 ? '99+' : '$pending',
+                              textAlign: TextAlign.center,
+                              style: AppTextStyles.small.copyWith(
+                                color: lightColor,
+                                fontSize: 9,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                }),
               ),
             ),
           ),
@@ -208,7 +249,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                 : l10n.roleStudent,
             value: '${_analyticsController.totalStudents}',
             icon: HugeIcons.strokeRoundedUserMultiple,
-            color: infoColor ,
+            color: infoColor,
             trend: _getTrendText(data.studentsWeeklyChange, l10n.week),
             subtitle:
                 '${l10n.monthly}: ${_getTrendText(data.studentsMonthlyChange, '')}',
@@ -508,8 +549,10 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
             // Format date range
             String dateRange = '';
             if (startDate != null && endDate != null) {
-              final startFormatted = '${_getMonthAbbreviation(startDate.month)} ${startDate.year}';
-              final endFormatted = '${_getMonthAbbreviation(endDate.month)} ${endDate.year}';
+              final startFormatted =
+                  '${_getMonthAbbreviation(startDate.month)} ${startDate.year}';
+              final endFormatted =
+                  '${_getMonthAbbreviation(endDate.month)} ${endDate.year}';
               dateRange = '$startFormatted - $endFormatted';
             } else if (year != null) {
               dateRange = year.toString();
@@ -611,8 +654,18 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
   /// Helper method to get month abbreviation
   String _getMonthAbbreviation(int month) {
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return month >= 1 && month <= 12 ? months[month - 1] : '';
   }
@@ -942,7 +995,8 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
 
                   if (subscription['semester'] is Map) {
                     // New format: semester is embedded object
-                    final semesterData = subscription['semester'] as Map<String, dynamic>;
+                    final semesterData =
+                        subscription['semester'] as Map<String, dynamic>;
                     semester = semesterData['semester'] as String?;
                     year = semesterData['year'] as int?;
                   } else if (subscription['semester'] is String) {
