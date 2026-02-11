@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import '../services/scanner_service.dart';
 import 'scanning_controller.dart';
 import 'auth_controller.dart';
+import 'check_in_controller.dart';
 
 class ScannerController extends GetxController {
   ScannerController();
@@ -45,7 +46,9 @@ class ScannerController extends GetxController {
       }
 
       // If scan is successful, create a scanning record
-      if (result.isValid && result.hasActiveSubscription && result.student != null) {
+      if (result.isValid &&
+          result.hasActiveSubscription &&
+          result.student != null) {
         await _createScanningRecord(result);
       }
 
@@ -80,13 +83,54 @@ class ScannerController extends GetxController {
       );
 
       if (kDebugMode) {
-        debugPrint('[ScannerController] Scanning record created for student: ${result.student!.id}');
+        debugPrint(
+          '[ScannerController] Scanning record created for student: ${result.student!.id}',
+        );
       }
+
+      // Also add a check-in entry for the daily attendance list
+      _addCheckInEntry(result);
     } catch (e) {
       if (kDebugMode) {
         debugPrint('[ScannerController] _createScanningRecord error: $e');
       }
       // Don't fail the whole scan if recording fails
+    }
+  }
+
+  /// Add a check-in entry to today's daily attendance list.
+  Future<void> _addCheckInEntry(ScanResult result) async {
+    try {
+      final checkInController = Get.find<CheckInController>();
+      final period = checkInController.currentPeriod;
+
+      // Skip if student is already checked in for this period
+      if (checkInController.isStudentCheckedInToday(
+        result.student!.id,
+        period,
+      )) {
+        if (kDebugMode) {
+          debugPrint(
+            '[ScannerController] Student already checked in for ${period.value}',
+          );
+        }
+        return;
+      }
+
+      await checkInController.addEntry(
+        studentId: result.student!.id,
+        studentName: result.student!.name,
+        studentPhotoUrl: result.student!.photoUrl,
+        subscriptionId: result.subscription!.id,
+        scannedBy: _authController.userId,
+        scannedByName: _authController.userDisplayName,
+        period: period,
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[ScannerController] _addCheckInEntry error: $e');
+      }
+      // Don't fail the scan if check-in fails
     }
   }
 
@@ -113,4 +157,3 @@ class ScannerController extends GetxController {
     super.onClose();
   }
 }
-

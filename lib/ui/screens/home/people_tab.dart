@@ -310,7 +310,9 @@ class _PeopleTabState extends State<PeopleTab> {
       return RefreshIndicator(
         onRefresh: () => _usersController.refreshUsers(),
         child: ListView.separated(
-          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+          padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0).copyWith(
+            bottom: MediaQuery.paddingOf(context).bottom + 88.0
+          ),
           itemCount: filteredUsers.length,
           separatorBuilder: (context, index) => Divider(
             height: 1.0,

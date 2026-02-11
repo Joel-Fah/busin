@@ -13,6 +13,9 @@ import 'package:busin/ui/screens/profile/account_info.dart';
 import 'package:busin/ui/screens/profile/appearance.dart';
 import 'package:busin/ui/screens/profile/legal.dart';
 import 'package:busin/ui/screens/profile/profile.dart';
+import 'package:busin/ui/screens/profile/reports.dart';
+import 'package:busin/ui/screens/profile/reports_admin.dart';
+import 'package:busin/ui/screens/profile/check_in_history.dart';
 import 'package:busin/ui/screens/profile/semesters/semester.dart';
 import 'package:busin/ui/screens/profile/semesters/semester_form.dart';
 import 'package:busin/ui/screens/profile/stops/stops.dart';
@@ -326,6 +329,28 @@ final router = GoRouter(
       path: SubscriptionsAdminPage.routeName,
       name: removeLeadingSlash(SubscriptionsAdminPage.routeName),
       builder: (context, state) => const SubscriptionsAdminPage(),
+    ),
+
+    // Reports
+    GoRoute(
+      parentNavigatorKey: rootNavigatorKey,
+      path: ReportsPage.routeName,
+      name: removeLeadingSlash(ReportsPage.routeName),
+      builder: (context, state) => const ReportsPage(),
+    ),
+    GoRoute(
+      parentNavigatorKey: rootNavigatorKey,
+      path: ReportsAdminPage.routeName,
+      name: removeLeadingSlash(ReportsAdminPage.routeName),
+      builder: (context, state) => const ReportsAdminPage(),
+    ),
+
+    // Check-in History
+    GoRoute(
+      parentNavigatorKey: rootNavigatorKey,
+      path: CheckInHistoryPage.routeName,
+      name: removeLeadingSlash(CheckInHistoryPage.routeName),
+      builder: (context, state) => const CheckInHistoryPage(),
     ),
 
     // Scanner

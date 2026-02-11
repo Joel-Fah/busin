@@ -72,7 +72,7 @@ class LocalePopupButton extends StatelessWidget {
                   child: Row(
                     children: [
                       Image.asset(L10n.getFlag(l.languageCode), width: 24.0),
-                      const SizedBox(width: 8),
+                      const Gap(8.0),
                       Text(_getLabel(l), style: AppTextStyles.body,),
                     ],
                   ),

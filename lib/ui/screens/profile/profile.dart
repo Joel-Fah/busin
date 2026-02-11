@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:busin/controllers/auth_controller.dart';
+import 'package:busin/controllers/report_controller.dart';
 import 'package:busin/controllers/scanning_controller.dart';
 import 'package:busin/controllers/subscriptions_controller.dart';
 import 'package:busin/models/actors/base_user.dart';
@@ -10,6 +11,9 @@ import 'package:busin/ui/components/widgets/default_snack_bar.dart';
 import 'package:busin/ui/screens/profile/account_info.dart';
 import 'package:busin/ui/screens/profile/appearance.dart';
 import 'package:busin/ui/screens/profile/legal.dart';
+import 'package:busin/ui/screens/profile/reports.dart';
+import 'package:busin/ui/screens/profile/reports_admin.dart';
+import 'package:busin/ui/screens/profile/check_in_history.dart';
 import 'package:busin/ui/screens/profile/semesters/semester.dart';
 import 'package:busin/ui/screens/profile/stops/stops.dart';
 import 'package:busin/utils/constants.dart';
@@ -41,7 +45,8 @@ class ProfilePage extends StatelessWidget {
     final AuthController authController = Get.find<AuthController>();
     final BusSubscriptionsController busSubscriptionsController =
         Get.find<BusSubscriptionsController>();
-    final ScanningController scanningController = Get.find<ScanningController>();
+    final ScanningController scanningController =
+        Get.find<ScanningController>();
     final SemesterController _semesterController =
         Get.find<SemesterController>();
 
@@ -49,7 +54,10 @@ class ProfilePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: FittedBox(fit: BoxFit.contain, child: Text(l10n.profilePage_appBar_title)),
+        title: FittedBox(
+          fit: BoxFit.contain,
+          child: Text(l10n.profilePage_appBar_title),
+        ),
       ),
       body: Stack(
         fit: StackFit.expand,
@@ -158,19 +166,22 @@ class ProfilePage extends StatelessWidget {
                                       title: Text(
                                         addThousandSeparator(
                                           busSubscriptionsController
-                                              .busSubscriptions.length
+                                              .busSubscriptions
+                                              .length
                                               .toString(),
                                         ),
                                         style: AppTextStyles.h3,
                                       ),
                                       subtitle: Text(
                                         busSubscriptionsController
-                                                    .busSubscriptions.length >
+                                                    .busSubscriptions
+                                                    .length >
                                                 1
                                             ? l10n.subscriptions
                                             : l10n.subscriptions.substring(
                                                 0,
-                                                l10n.subscriptions.length - 1),
+                                                l10n.subscriptions.length - 1,
+                                              ),
                                         style: AppTextStyles.body.copyWith(
                                           fontSize: 14.0,
                                         ),
@@ -183,15 +194,18 @@ class ProfilePage extends StatelessWidget {
                                       contentPadding: EdgeInsets.zero,
                                       title: Text(
                                         addThousandSeparator(
-                                            scanningController.scannings.length
-                                                .toString()),
+                                          scanningController.scannings.length
+                                              .toString(),
+                                        ),
                                         style: AppTextStyles.h3,
                                       ),
                                       subtitle: Text(
                                         scanningController.scannings.length > 1
                                             ? l10n.scannings
                                             : l10n.scannings.substring(
-                                                0, l10n.scannings.length - 1),
+                                                0,
+                                                l10n.scannings.length - 1,
+                                              ),
                                         style: AppTextStyles.body.copyWith(
                                           fontSize: 14.0,
                                         ),
@@ -204,7 +218,9 @@ class ProfilePage extends StatelessWidget {
                                       contentPadding: EdgeInsets.zero,
                                       title: Text(
                                         dateFormatter(
-                                          authController.currentUser.value!
+                                          authController
+                                                  .currentUser
+                                                  .value!
                                                   .createdAt ??
                                               DateTime.now(),
                                         ),
@@ -221,78 +237,84 @@ class ProfilePage extends StatelessWidget {
                                 ]
                               : [
                                   // Admin/Staff stats: Reviews done, Scannings done, Joined date
-                                  Obx(
-                                    () {
-                                      final currentUserId = authController.userId;
-                                      final reviewsCount = busSubscriptionsController
-                                          .busSubscriptions
-                                          .where((sub) =>
-                                              sub.observation?.reviewerUserId ==
-                                              currentUserId)
-                                          .length;
+                                  Obx(() {
+                                    final currentUserId = authController.userId;
+                                    final reviewsCount =
+                                        busSubscriptionsController
+                                            .busSubscriptions
+                                            .where(
+                                              (sub) =>
+                                                  sub
+                                                      .observation
+                                                      ?.reviewerUserId ==
+                                                  currentUserId,
+                                            )
+                                            .length;
 
-                                      return IntrinsicWidth(
-                                        child: ListTile(
-                                          minTileHeight: 0.0,
-                                          contentPadding: EdgeInsets.zero,
-                                          title: Text(
-                                            addThousandSeparator(
-                                              reviewsCount.toString(),
-                                            ),
-                                            style: AppTextStyles.h3,
+                                    return IntrinsicWidth(
+                                      child: ListTile(
+                                        minTileHeight: 0.0,
+                                        contentPadding: EdgeInsets.zero,
+                                        title: Text(
+                                          addThousandSeparator(
+                                            reviewsCount.toString(),
                                           ),
-                                          subtitle: Text(
-                                            reviewsCount > 1
-                                                ? 'Reviews'
-                                                : 'Review',
-                                            style: AppTextStyles.body.copyWith(
-                                              fontSize: 14.0,
-                                            ),
+                                          style: AppTextStyles.h3,
+                                        ),
+                                        subtitle: Text(
+                                          reviewsCount > 1
+                                              ? 'Reviews'
+                                              : 'Review',
+                                          style: AppTextStyles.body.copyWith(
+                                            fontSize: 14.0,
                                           ),
                                         ),
-                                      );
-                                    },
-                                  ),
-                                  Obx(
-                                    () {
-                                      final currentUserId = authController.userId;
-                                      final scansCount = scanningController
-                                          .scannings
-                                          .where((scan) =>
-                                              scan.scannedBy == currentUserId)
-                                          .length;
+                                      ),
+                                    );
+                                  }),
+                                  Obx(() {
+                                    final currentUserId = authController.userId;
+                                    final scansCount = scanningController
+                                        .scannings
+                                        .where(
+                                          (scan) =>
+                                              scan.scannedBy == currentUserId,
+                                        )
+                                        .length;
 
-                                      return IntrinsicWidth(
-                                        child: ListTile(
-                                          minTileHeight: 0.0,
-                                          contentPadding: EdgeInsets.zero,
-                                          title: Text(
-                                            addThousandSeparator(
-                                              scansCount.toString(),
-                                            ),
-                                            style: AppTextStyles.h3,
+                                    return IntrinsicWidth(
+                                      child: ListTile(
+                                        minTileHeight: 0.0,
+                                        contentPadding: EdgeInsets.zero,
+                                        title: Text(
+                                          addThousandSeparator(
+                                            scansCount.toString(),
                                           ),
-                                          subtitle: Text(
-                                            scansCount > 1
-                                                ? l10n.scannings
-                                                : l10n.scannings.substring(
-                                                    0,
-                                                    l10n.scannings.length - 1),
-                                            style: AppTextStyles.body.copyWith(
-                                              fontSize: 14.0,
-                                            ),
+                                          style: AppTextStyles.h3,
+                                        ),
+                                        subtitle: Text(
+                                          scansCount > 1
+                                              ? l10n.scannings
+                                              : l10n.scannings.substring(
+                                                  0,
+                                                  l10n.scannings.length - 1,
+                                                ),
+                                          style: AppTextStyles.body.copyWith(
+                                            fontSize: 14.0,
                                           ),
                                         ),
-                                      );
-                                    },
-                                  ),
+                                      ),
+                                    );
+                                  }),
                                   IntrinsicWidth(
                                     child: ListTile(
                                       minTileHeight: 0.0,
                                       contentPadding: EdgeInsets.zero,
                                       title: Text(
                                         dateFormatter(
-                                          authController.currentUser.value!
+                                          authController
+                                                  .currentUser
+                                                  .value!
                                                   .createdAt ??
                                               DateTime.now(),
                                         ),
@@ -418,6 +440,71 @@ class ProfilePage extends StatelessWidget {
                   color: themeController.isDark ? lightColor : seedColor,
                 ),
               ),
+              // ── Student: My Reports tile ──
+              if (authController.isStudent) ...[
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Divider(color: greyColor, thickness: 0.5),
+                ),
+                Obx(() {
+                  final ReportController reportController =
+                      Get.find<ReportController>();
+                  final pending = reportController.pendingCount.value;
+                  return Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      ListTile(
+                        onTap: () {
+                          HapticFeedback.mediumImpact();
+                          context.pushNamed(
+                            removeLeadingSlash(ReportsPage.routeName),
+                          );
+                        },
+                        leading: HugeIcon(
+                          icon: HugeIcons.strokeRoundedComplaint,
+                          color: themeController.isDark
+                              ? lightColor
+                              : seedColor,
+                        ),
+                        title: Text(
+                          localeController.locale.languageCode == 'en'
+                              ? 'My Reports'
+                              : 'Mes Rapports',
+                        ),
+                        trailing: HugeIcon(
+                          icon: HugeIcons.strokeRoundedArrowUpRight01,
+                          color: themeController.isDark
+                              ? lightColor
+                              : seedColor,
+                        ),
+                      ),
+                      if (pending > 0)
+                        Positioned(
+                          top: -4.0,
+                          right: 8.0,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6.0,
+                              vertical: 2.0,
+                            ),
+                            decoration: BoxDecoration(
+                              color: infoColor,
+                              borderRadius: borderRadius * 0.75,
+                            ),
+                            child: Text(
+                              pending.toString(),
+                              style: AppTextStyles.small.copyWith(
+                                color: lightColor,
+                                fontSize: 11.0,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                }),
+              ],
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Divider(color: greyColor, thickness: 0.5),
@@ -439,7 +526,9 @@ class ProfilePage extends StatelessWidget {
               ),
               if (authController.isAdmin || authController.isStaff) ...[
                 const Gap(24.0),
-                ListSubHeading(label: l10n.profilePage_subHeading_busManagement),
+                ListSubHeading(
+                  label: l10n.profilePage_subHeading_busManagement,
+                ),
                 const Gap(20.0),
                 ListTile(
                   onTap: () {
@@ -453,9 +542,7 @@ class ProfilePage extends StatelessWidget {
                     color: themeController.isDark ? lightColor : seedColor,
                   ),
                   title: Text(l10n.profilePage_listTile_busStops),
-                  subtitle: Text(
-                    l10n.profilePage_busStops_subtitle,
-                  ),
+                  subtitle: Text(l10n.profilePage_busStops_subtitle),
                   trailing: HugeIcon(
                     icon: HugeIcons.strokeRoundedArrowUpRight01,
                     color: themeController.isDark ? lightColor : seedColor,
@@ -522,6 +609,122 @@ class ProfilePage extends StatelessWidget {
                         );
                       }),
                     ],
+                  ),
+                  trailing: HugeIcon(
+                    icon: HugeIcons.strokeRoundedArrowUpRight01,
+                    color: themeController.isDark ? lightColor : seedColor,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Divider(color: greyColor, thickness: 0.5),
+                ),
+                // ── Admin: Student Reports tile ──
+                Obx(() {
+                  final ReportController reportController =
+                      Get.find<ReportController>();
+                  final pending = reportController.pendingCount.value;
+                  return Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      ListTile(
+                        onTap: () {
+                          HapticFeedback.mediumImpact();
+                          context.pushNamed(
+                            removeLeadingSlash(ReportsAdminPage.routeName),
+                          );
+                        },
+                        leading: HugeIcon(
+                          icon: HugeIcons.strokeRoundedComplaint,
+                          color: themeController.isDark
+                              ? lightColor
+                              : seedColor,
+                        ),
+                        title: Text(
+                          localeController.locale.languageCode == 'en'
+                              ? 'Student Reports'
+                              : 'Rapports Étudiants',
+                        ),
+                        subtitle: Text(
+                          localeController.locale.languageCode == 'en'
+                              ? 'View and resolve student complaints'
+                              : 'Consulter et résoudre les plaintes',
+                        ),
+                        trailing: HugeIcon(
+                          icon: HugeIcons.strokeRoundedArrowUpRight01,
+                          color: themeController.isDark
+                              ? lightColor
+                              : seedColor,
+                        ),
+                      ),
+                      if (pending > 0)
+                        Positioned(
+                          top: -8.0,
+                          right: 8.0,
+                          child:
+                              Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6.0,
+                                      vertical: 2.0,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: errorColor,
+                                      borderRadius: borderRadius * 0.75,
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      spacing: 4.0,
+                                      children: [
+                                        HugeIcon(
+                                          icon: HugeIcons.strokeRoundedAlert02,
+                                          color: lightColor,
+                                          size: 12.0,
+                                        ),
+                                        Text(
+                                          '$pending ${localeController.locale.languageCode == 'en' ? 'pending' : 'en attente'}',
+                                          style: AppTextStyles.small.copyWith(
+                                            color: lightColor,
+                                            fontSize: 11.0,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                  .animate(onPlay: (c) => c.repeat())
+                                  .shimmer(
+                                    duration: 2000.ms,
+                                    color: lightColor.withValues(alpha: 0.3),
+                                  ),
+                        ),
+                    ],
+                  );
+                }),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Divider(color: greyColor, thickness: 0.5),
+                ),
+                // ── Admin: Check-in History tile ──
+                ListTile(
+                  onTap: () {
+                    HapticFeedback.mediumImpact();
+                    context.pushNamed(
+                      removeLeadingSlash(CheckInHistoryPage.routeName),
+                    );
+                  },
+                  leading: HugeIcon(
+                    icon: HugeIcons.strokeRoundedCheckList,
+                    color: themeController.isDark ? lightColor : seedColor,
+                  ),
+                  title: Text(
+                    localeController.locale.languageCode == 'en'
+                        ? 'Check-in History'
+                        : 'Historique des Check-ins',
+                  ),
+                  subtitle: Text(
+                    localeController.locale.languageCode == 'en'
+                        ? 'View daily attendance trends & records'
+                        : 'Consulter les tendances de présence',
                   ),
                   trailing: HugeIcon(
                     icon: HugeIcons.strokeRoundedArrowUpRight01,
@@ -624,4 +827,3 @@ class _AppInfoBarState extends State<AppInfoBar> {
     );
   }
 }
-
