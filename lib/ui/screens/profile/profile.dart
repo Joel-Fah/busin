@@ -7,7 +7,7 @@ import 'package:busin/controllers/scanning_controller.dart';
 import 'package:busin/controllers/subscriptions_controller.dart';
 import 'package:busin/models/actors/base_user.dart';
 import 'package:busin/models/actors/student.dart';
-import 'package:busin/ui/components/widgets/default_snack_bar.dart';
+import 'package:busin/ui/components/widgets/sign_out_confirmation.dart';
 import 'package:busin/ui/screens/profile/account_info.dart';
 import 'package:busin/ui/screens/profile/appearance.dart';
 import 'package:busin/ui/screens/profile/legal.dart';
@@ -466,11 +466,7 @@ class ProfilePage extends StatelessWidget {
                               ? lightColor
                               : seedColor,
                         ),
-                        title: Text(
-                          localeController.locale.languageCode == 'en'
-                              ? 'My Reports'
-                              : 'Mes Rapports',
-                        ),
+                        title: Text(l10n.profilePage_listTile_myReports),
                         trailing: HugeIcon(
                           icon: HugeIcons.strokeRoundedArrowUpRight01,
                           color: themeController.isDark
@@ -640,15 +636,9 @@ class ProfilePage extends StatelessWidget {
                               ? lightColor
                               : seedColor,
                         ),
-                        title: Text(
-                          localeController.locale.languageCode == 'en'
-                              ? 'Student Reports'
-                              : 'Rapports Étudiants',
-                        ),
+                        title: Text(l10n.profilePage_listTile_studentReports),
                         subtitle: Text(
-                          localeController.locale.languageCode == 'en'
-                              ? 'View and resolve student complaints'
-                              : 'Consulter et résoudre les plaintes',
+                          l10n.profilePage_studentReports_subtitle,
                         ),
                         trailing: HugeIcon(
                           icon: HugeIcons.strokeRoundedArrowUpRight01,
@@ -681,7 +671,7 @@ class ProfilePage extends StatelessWidget {
                                           size: 12.0,
                                         ),
                                         Text(
-                                          '$pending ${localeController.locale.languageCode == 'en' ? 'pending' : 'en attente'}',
+                                          '$pending ${l10n.profilePage_pendingBadge}',
                                           style: AppTextStyles.small.copyWith(
                                             color: lightColor,
                                             fontSize: 11.0,
@@ -716,16 +706,8 @@ class ProfilePage extends StatelessWidget {
                     icon: HugeIcons.strokeRoundedCheckList,
                     color: themeController.isDark ? lightColor : seedColor,
                   ),
-                  title: Text(
-                    localeController.locale.languageCode == 'en'
-                        ? 'Check-in History'
-                        : 'Historique des Check-ins',
-                  ),
-                  subtitle: Text(
-                    localeController.locale.languageCode == 'en'
-                        ? 'View daily attendance trends & records'
-                        : 'Consulter les tendances de présence',
-                  ),
+                  title: Text(l10n.profilePage_listTile_checkInHistory),
+                  subtitle: Text(l10n.profilePage_checkInHistory_subtitle),
                   trailing: HugeIcon(
                     icon: HugeIcons.strokeRoundedArrowUpRight01,
                     color: themeController.isDark ? lightColor : seedColor,
@@ -737,23 +719,11 @@ class ProfilePage extends StatelessWidget {
                 child: Divider(color: greyColor, thickness: 0.5),
               ),
               ListTile(
-                onTap: () async {
-                  HapticFeedback.heavyImpact();
-                  await authController.signOut().then(
-                    (_) => snackBarKey.currentState
-                      ?..hideCurrentSnackBar()
-                      ..showSnackBar(
-                        buildSnackBar(
-                          backgroundColor: successColor,
-                          prefixIcon: HugeIcon(
-                            icon: successIcon,
-                            color: lightColor,
-                          ),
-                          label: Text(l10n.verificationPage_signOutMessage),
-                        ),
-                      ),
-                  );
-                },
+                onTap: () => showSignOutConfirmation(
+                  context,
+                  authController: authController,
+                  l10n: l10n,
+                ),
                 splashColor: errorColor.withValues(alpha: 0.2),
                 leading: HugeIcon(
                   icon: HugeIcons.strokeRoundedLogout01,

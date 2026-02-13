@@ -1,4 +1,5 @@
 import 'package:busin/controllers/auth_controller.dart';
+import 'package:busin/l10n/app_localizations.dart';
 import 'package:busin/controllers/report_controller.dart';
 import 'package:busin/models/report.dart';
 import 'package:busin/utils/constants.dart';
@@ -42,12 +43,11 @@ class _ReportsAdminPageState extends State<ReportsAdminPage>
   @override
   Widget build(BuildContext context) {
     final langCode = localeController.locale.languageCode;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          langCode == 'en' ? 'Student Reports' : 'Rapports Étudiants',
-        ),
+        title: Text(l10n.reportsAdminPage_title),
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(56.0),
           child: SizedBox(
@@ -64,7 +64,7 @@ class _ReportsAdminPageState extends State<ReportsAdminPage>
                         .where((r) => r.status.isPending)
                         .length;
                     return _TabLabel(
-                      label: langCode == 'en' ? 'Pending' : 'En attente',
+                      label: l10n.reportsAdmin_tabPending,
                       count: count,
                       color: warningColor,
                     );
@@ -76,7 +76,7 @@ class _ReportsAdminPageState extends State<ReportsAdminPage>
                         .where((r) => r.status.isInReview)
                         .length;
                     return _TabLabel(
-                      label: langCode == 'en' ? 'In Review' : 'En cours',
+                      label: l10n.reportsAdmin_tabInReview,
                       count: count,
                       color: infoColor,
                     );
@@ -84,7 +84,7 @@ class _ReportsAdminPageState extends State<ReportsAdminPage>
                 ),
                 Tab(
                   child: Text(
-                    langCode == 'en' ? 'Resolved' : 'Résolus',
+                    l10n.reportsAdmin_tabResolved,
                     style: AppTextStyles.body.copyWith(fontSize: 14),
                   ),
                 ),
@@ -98,27 +98,21 @@ class _ReportsAdminPageState extends State<ReportsAdminPage>
         children: [
           _ReportsList(
             filter: (r) => r.status.isPending,
-            emptyMessage: langCode == 'en'
-                ? 'No pending reports'
-                : 'Aucun rapport en attente',
+            emptyMessage: l10n.reportsAdmin_emptyPending,
             langCode: langCode,
             authController: _authController,
             reportController: _reportController,
           ),
           _ReportsList(
             filter: (r) => r.status.isInReview,
-            emptyMessage: langCode == 'en'
-                ? 'No reports in review'
-                : 'Aucun rapport en cours',
+            emptyMessage: l10n.reportsAdmin_emptyInReview,
             langCode: langCode,
             authController: _authController,
             reportController: _reportController,
           ),
           _ReportsList(
             filter: (r) => r.status.isResolved,
-            emptyMessage: langCode == 'en'
-                ? 'No resolved reports'
-                : 'Aucun rapport résolu',
+            emptyMessage: l10n.reportsAdmin_emptyResolved,
             langCode: langCode,
             authController: _authController,
             reportController: _reportController,
@@ -260,6 +254,7 @@ class _AdminReportCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
@@ -344,9 +339,7 @@ class _AdminReportCard extends StatelessWidget {
           // Subject
           Text(
             report.displayTitle(langCode),
-            style: AppTextStyles.body.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style: AppTextStyles.body.copyWith(fontWeight: FontWeight.bold),
           ),
           const Gap(8.0),
 
@@ -374,7 +367,7 @@ class _AdminReportCard extends StatelessWidget {
                 borderRadius: borderRadius * 1.5,
               ),
               child: Text(
-                '${langCode == 'en' ? 'Response' : 'Réponse'}: ${report.adminResponse}',
+                '${l10n.reportsAdmin_response}: ${report.adminResponse}',
                 style: AppTextStyles.body.copyWith(
                   fontSize: 12,
                   color: successColor,
@@ -401,7 +394,7 @@ class _AdminReportCard extends StatelessWidget {
                       size: 16,
                     ),
                     label: Text(
-                      langCode == 'en' ? 'Review' : 'Examiner',
+                      l10n.reportsAdmin_review,
                       style: AppTextStyles.small.copyWith(
                         color: infoColor,
                         fontWeight: FontWeight.w600,
@@ -417,7 +410,7 @@ class _AdminReportCard extends StatelessWidget {
                     size: 16,
                   ),
                   label: Text(
-                    langCode == 'en' ? 'Resolve' : 'Résoudre',
+                    l10n.reportsAdmin_resolve,
                     style: AppTextStyles.small.copyWith(
                       color: successColor,
                       fontWeight: FontWeight.w600,
@@ -432,6 +425,7 @@ class _AdminReportCard extends StatelessWidget {
   }
 
   void _showResolveDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final responseController = TextEditingController();
 
     showModalBottomSheet(
@@ -473,9 +467,7 @@ class _AdminReportCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        langCode == 'en'
-                            ? 'Resolve Report'
-                            : 'Résoudre le Rapport',
+                        l10n.reportsAdmin_resolveTitle,
                         style: AppTextStyles.h3.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -496,9 +488,7 @@ class _AdminReportCard extends StatelessWidget {
                         minLines: 2,
                         style: AppTextStyles.body,
                         decoration: InputDecoration(
-                          hintText: langCode == 'en'
-                              ? 'Add a response for the student (optional)...'
-                              : 'Ajouter une réponse pour l\'étudiant (optionnel)...',
+                          hintText: l10n.reportsAdmin_responseHint,
                           hintStyle: AppTextStyles.body.copyWith(
                             color: greyColor,
                           ),
@@ -537,9 +527,7 @@ class _AdminReportCard extends StatelessWidget {
                             ),
                           ),
                           child: Text(
-                            langCode == 'en'
-                                ? 'Mark as Resolved'
-                                : 'Marquer comme Résolu',
+                            l10n.reportsAdmin_markResolved,
                             style: AppTextStyles.body.copyWith(
                               color: lightColor,
                               fontWeight: FontWeight.w600,

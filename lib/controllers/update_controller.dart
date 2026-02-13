@@ -6,6 +6,9 @@ import 'package:get_storage/get_storage.dart';
 
 import '../models/bus_update.dart';
 import '../services/update_service.dart';
+import 'auth_controller.dart';
+import 'scanning_controller.dart';
+import 'subscriptions_controller.dart';
 
 class UpdateController extends GetxController {
   UpdateController();
@@ -36,6 +39,22 @@ class UpdateController extends GetxController {
 
   /// Whether the input field is focused (keyboard is open on Updates tab)
   final RxBool isInputFocused = false.obs;
+
+  // ── Restriction state ──────────────────────────────────
+
+  /// Whether the current user has an approved, in-window subscription.
+  final RxBool hasActiveSubscription = false.obs;
+
+  /// Whether the current user has at least one scan today.
+  final RxBool hasScannedToday = false.obs;
+
+  /// Whether the user is allowed to post a bus-location update.
+  /// Admin/staff bypass all restrictions.
+  bool get canPostUpdate {
+    final auth = Get.find<AuthController>();
+    if (auth.isAdmin || auth.isStaff) return true;
+    return hasActiveSubscription.value && hasScannedToday.value;
+  }
 
   // Internal state
   StreamSubscription<List<BusUpdate>>? _watcher;
@@ -74,8 +93,54 @@ class UpdateController extends GetxController {
     }
 
     _startWatching();
+    _refreshRestrictions();
     _isInitialized = true;
   }
+
+  /// Recompute subscription & scan-today flags from sibling controllers.
+  void _refreshRestrictions() {
+    try {
+      final auth = Get.find<AuthController>();
+
+      // Admin/staff bypass – no need to compute further
+      if (auth.isAdmin || auth.isStaff) {
+        hasActiveSubscription.value = true;
+        hasScannedToday.value = true;
+        return;
+      }
+
+      // Check active subscription
+      final subCtrl = Get.find<BusSubscriptionsController>();
+      hasActiveSubscription.value = subCtrl.busSubscriptions.any(
+        (s) => s.isCurrentlyActive,
+      );
+
+      // Check scanned today
+      final scanCtrl = Get.find<ScanningController>();
+      final now = DateTime.now();
+      hasScannedToday.value = scanCtrl.scannings.any(
+        (s) =>
+            s.scannedAt.year == now.year &&
+            s.scannedAt.month == now.month &&
+            s.scannedAt.day == now.day,
+      );
+
+      if (kDebugMode) {
+        debugPrint(
+          '[UpdateController] Restrictions: '
+          'subscription=${hasActiveSubscription.value}, '
+          'scannedToday=${hasScannedToday.value}',
+        );
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[UpdateController] ⚠️ Restriction check failed: $e');
+      }
+    }
+  }
+
+  /// Public helper so the UI can re-check restrictions when the tab is opened.
+  void refreshRestrictions() => _refreshRestrictions();
 
   /// Start listening to today's updates in realtime
   void _startWatching() {
@@ -112,6 +177,14 @@ class UpdateController extends GetxController {
     required String message,
   }) async {
     if (message.trim().isEmpty) return;
+
+    // Server-side guard: re-check restrictions before sending
+    _refreshRestrictions();
+    if (!canPostUpdate) {
+      errorMessage.value =
+          'Update blocked: subscription or scan requirement not met.';
+      return;
+    }
 
     isBusy.value = true;
     errorMessage.value = null;

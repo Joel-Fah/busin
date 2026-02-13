@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:flutter/foundation.dart';
 
+import '../models/check_in.dart';
 import '../services/scanner_service.dart';
 import 'scanning_controller.dart';
 import 'auth_controller.dart';
@@ -103,6 +104,25 @@ class ScannerController extends GetxController {
     try {
       final checkInController = Get.find<CheckInController>();
       final period = checkInController.currentPeriod;
+
+      // Enforce max 2 scans per student per day (morning + evening)
+      final hasCheckedInMorning = checkInController.isStudentCheckedInToday(
+        result.student!.id,
+        CheckInPeriod.morning,
+      );
+      final hasCheckedInEvening = checkInController.isStudentCheckedInToday(
+        result.student!.id,
+        CheckInPeriod.evening,
+      );
+
+      if (hasCheckedInMorning && hasCheckedInEvening) {
+        if (kDebugMode) {
+          debugPrint(
+            '[ScannerController] Student already scanned twice today (max reached)',
+          );
+        }
+        return;
+      }
 
       // Skip if student is already checked in for this period
       if (checkInController.isStudentCheckedInToday(

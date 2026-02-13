@@ -151,22 +151,22 @@ class _PeopleTabState extends State<PeopleTab> {
             );
           }),
           // Refresh button
-          Obx(() {
-            return _usersController.isBusy.value
-                ? const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: SizedBox(
-                      height: 24.0,
-                      width: 24.0,
-                      child: CircularProgressIndicator(strokeWidth: 2.0),
-                    ),
-                  )
-                : IconButton(
-                    icon: const HugeIcon(icon: HugeIcons.strokeRoundedRefresh),
-                    onPressed: () => _usersController.refreshUsers(),
-                    tooltip: l10n.refresh,
-                  );
-          }),
+          // Obx(() {
+          //   return _usersController.isBusy.value
+          //       ? const Padding(
+          //           padding: EdgeInsets.all(16.0),
+          //           child: SizedBox(
+          //             height: 24.0,
+          //             width: 24.0,
+          //             child: CircularProgressIndicator(strokeWidth: 2.0),
+          //           ),
+          //         )
+          //       : IconButton(
+          //           icon: const HugeIcon(icon: HugeIcons.strokeRoundedRefresh),
+          //           onPressed: () => _usersController.refreshUsers(),
+          //           tooltip: l10n.refresh,
+          //         );
+          // }),
         ],
       ),
       body: Obx(() {
@@ -310,9 +310,10 @@ class _PeopleTabState extends State<PeopleTab> {
       return RefreshIndicator(
         onRefresh: () => _usersController.refreshUsers(),
         child: ListView.separated(
-          padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0).copyWith(
-            bottom: MediaQuery.paddingOf(context).bottom + 88.0
-          ),
+          padding: EdgeInsets.symmetric(
+            vertical: 8.0,
+            horizontal: 16.0,
+          ).copyWith(bottom: MediaQuery.paddingOf(context).bottom + 88.0),
           itemCount: filteredUsers.length,
           separatorBuilder: (context, index) => Divider(
             height: 1.0,
@@ -897,9 +898,9 @@ class _UserListTileState extends State<_UserListTile> {
                   _subscriptionCount! > 0)
                 _buildStatChip(
                   icon: HugeIcons.strokeRoundedTicket01,
-                  label: localeController.locale.languageCode == 'en'
-                      ? '$_subscriptionCount sub${_subscriptionCount! > 1 ? 's' : ''}'
-                      : '$_subscriptionCount abo${_subscriptionCount! > 1 ? 's' : ''}',
+                  label: AppLocalizations.of(
+                    context,
+                  )!.peopleTab_subscriptionCount(_subscriptionCount!),
                   color: successColor,
                 ),
               // Scan count (if available)

@@ -69,10 +69,22 @@ class _SubscriptionsTabState extends State<SubscriptionsTab> {
         );
       }
 
-      final BusSubscription latestSubscription = subscriptions.first;
-      final List<BusSubscription> remaining = subscriptions.length > 1
-          ? subscriptions.sublist(1)
-          : const [];
+      // Find a "featured" subscription: active or pending (most relevant first)
+      final BusSubscription? featuredSubscription = subscriptions
+          .cast<BusSubscription?>()
+          .firstWhere(
+            (sub) => sub!.isCurrentlyActive,
+            orElse: () => subscriptions.cast<BusSubscription?>().firstWhere(
+              (sub) => sub!.status == BusSubscriptionStatus.pending,
+              orElse: () => null,
+            ),
+          );
+      // Remaining = everything except the featured one (if any)
+      final List<BusSubscription> remaining = featuredSubscription != null
+          ? subscriptions
+                .where((sub) => sub.id != featuredSubscription.id)
+                .toList()
+          : subscriptions;
       final List<BusSubscription> filteredSubscriptions =
           _selectedStatus == null
           ? remaining
@@ -81,11 +93,8 @@ class _SubscriptionsTabState extends State<SubscriptionsTab> {
       final bool hasPending = subscriptions.any(
         (sub) => sub.status == BusSubscriptionStatus.pending,
       );
-      final bool hasApproved = subscriptions.any(
-        (sub) => sub.status == BusSubscriptionStatus.approved,
-      );
-      // Allow new subscription only if user doesn't have pending or approved subscriptions
-      final bool canSubmitNew = !hasPending && !hasApproved;
+      // Allow new subscription only if user doesn't have pending or currently-active subscriptions
+      final bool canSubmitNew = !hasPending && !hasActive;
 
       return Scaffold(
         backgroundColor: Colors.transparent,
@@ -123,51 +132,52 @@ class _SubscriptionsTabState extends State<SubscriptionsTab> {
               child: Column(
                 spacing: 12.0,
                 children: [
-                  CustomListTile(
-                    onTap: () {
-                      HapticFeedback.mediumImpact();
-                      context.pushNamed(
-                        removeLeadingSlash(SubscriptionDetailsPage.routeName),
-                        pathParameters: {
-                          'subscriptionId': latestSubscription.id,
-                        },
-                      );
-                    },
-                    showBorder: true,
-                    backgroundColor: latestSubscription.status.isRejected
-                        ? errorColor.withValues(alpha: 0.05)
-                        : latestSubscription.status.isPending
-                        ? infoColor.withValues(alpha: 0.05)
-                        : null,
-                    borderColor: latestSubscription.status.isApproved
-                        ? successColor
-                        : latestSubscription.status ==
-                              BusSubscriptionStatus.pending
-                        ? infoColor
-                        : errorColor,
-                    topPillsBorderColor: themeController.isDark
-                        ? seedColor
-                        : lightColor,
-                    title: Text(
-                      latestSubscription.semesterYear,
-                      style: Theme.of(context).listTileTheme.titleTextStyle
-                          ?.copyWith(color: accentColor),
+                  if (featuredSubscription != null)
+                    CustomListTile(
+                      onTap: () {
+                        HapticFeedback.mediumImpact();
+                        context.pushNamed(
+                          removeLeadingSlash(SubscriptionDetailsPage.routeName),
+                          pathParameters: {
+                            'subscriptionId': featuredSubscription.id,
+                          },
+                        );
+                      },
+                      showBorder: true,
+                      backgroundColor: featuredSubscription.status.isRejected
+                          ? errorColor.withValues(alpha: 0.05)
+                          : featuredSubscription.status.isPending
+                          ? infoColor.withValues(alpha: 0.05)
+                          : null,
+                      borderColor: featuredSubscription.status.isApproved
+                          ? successColor
+                          : featuredSubscription.status ==
+                                BusSubscriptionStatus.pending
+                          ? infoColor
+                          : errorColor,
+                      topPillsBorderColor: themeController.isDark
+                          ? seedColor
+                          : lightColor,
+                      title: Text(
+                        featuredSubscription.semesterYear,
+                        style: Theme.of(context).listTileTheme.titleTextStyle
+                            ?.copyWith(color: accentColor),
+                      ),
+                      subtitle: Row(
+                        spacing: 8.0,
+                        children: [
+                          Text(
+                            '${l10n.homeTab_subscriptionTile_start} ${dateFormatter(featuredSubscription.startDate)}',
+                          ),
+                          const Expanded(child: Divider()),
+                          Text(
+                            '${l10n.homeTab_subscriptionTile_end} ${dateFormatter(featuredSubscription.endDate)}',
+                          ),
+                        ],
+                      ),
+                      primaryPillLabel:
+                          '#${subscriptions.indexOf(featuredSubscription) + 1} - ${featuredSubscription.status.getDisplayLabel(context)}',
                     ),
-                    subtitle: Row(
-                      spacing: 8.0,
-                      children: [
-                        Text(
-                          '${l10n.homeTab_subscriptionTile_start} ${dateFormatter(latestSubscription.startDate)}',
-                        ),
-                        const Expanded(child: Divider()),
-                        Text(
-                          '${l10n.homeTab_subscriptionTile_end} ${dateFormatter(latestSubscription.endDate)}',
-                        ),
-                      ],
-                    ),
-                    primaryPillLabel:
-                        '#${subscriptions.indexOf(latestSubscription) + 1} - ${latestSubscription.status.getDisplayLabel(context)}',
-                  ),
                   if (!hasActive && !hasPending && canSubmitNew)
                     _ActiveSubscriptionCTA(
                       message: l10n.subscriptionTab_activeCta_message,
@@ -347,6 +357,7 @@ class _SubscriptionsTabState extends State<SubscriptionsTab> {
   }
 }
 
+/// Shown when user doesn't have active subscription, encouraging them to submit a new one if they haven't already. Hidden if user has pending/approved subscriptions since they can't submit a new one in that case. Replaces the latest subscription tile if user doesn't have an active subscription, to give it more prominence and encourage action.
 class _ActiveSubscriptionCTA extends StatelessWidget {
   const _ActiveSubscriptionCTA({
     required this.message,

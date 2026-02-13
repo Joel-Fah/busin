@@ -210,4 +210,17 @@ class ReportController extends GetxController {
   /// Only resolved reports.
   List<Report> get resolvedReports =>
       reports.where((r) => r.status.isResolved).toList();
+
+  /// Reset the controller state (e.g. on sign out)
+  void reset() {
+    _reportsSub?.cancel();
+    _pendingCountSub?.cancel();
+    _isInitialized = false;
+    reports.clear();
+    pendingCount.value = 0;
+    errorMessage.value = null;
+    if (kDebugMode) {
+      debugPrint('[ReportController] ✅ Reset complete');
+    }
+  }
 }

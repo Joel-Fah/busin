@@ -54,11 +54,74 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: FittedBox(
-          fit: BoxFit.contain,
-          child: Text(l10n.analyticsTab_appBar_title),
+        title: Row(
+          children: [
+            GestureDetector(
+              onTap: () => context.pushNamed(
+                removeLeadingSlash(ProfilePage.routeName),
+                pathParameters: {'tag': authController.userProfileImage},
+              ),
+              child: Padding(
+                padding: const EdgeInsets.only(right: 8.0, left: 4.0),
+                child: Tooltip(
+                  message: l10n.userProfile,
+                  child: Obx(() {
+                    final reportController = Get.find<ReportController>();
+                    final pending = reportController.pendingCount.value;
+                    return Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        UserAvatar(
+                          tag: authController.userProfileImage,
+                          radius: 24.0,
+                        ),
+                        if (pending > 0)
+                          Positioned(
+                            top: -4,
+                            right: -4,
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: errorColor,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: themeController.isDark
+                                      ? seedColor
+                                      : lightColor,
+                                  width: 2,
+                                ),
+                              ),
+                              constraints: const BoxConstraints(
+                                minWidth: 18,
+                                minHeight: 18,
+                              ),
+                              child: Text(
+                                pending > 99 ? '99+' : '$pending',
+                                textAlign: TextAlign.center,
+                                style: AppTextStyles.small.copyWith(
+                                  color: lightColor,
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    );
+                  }),
+                ),
+              ),
+            ),
+            Expanded(
+              child: FittedBox(
+                fit: BoxFit.contain,
+                child: Text(l10n.analyticsTab_appBar_title),
+              ),
+            ),
+          ],
         ),
         actions: [
+          // View toggle button
           Obx(() {
             return IconButton(
               tooltip: _analyticsController.showGraphical.value
@@ -72,78 +135,24 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
               ),
             );
           }),
-          Obx(() {
-            return _analyticsController.isBusy.value
-                ? const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                  )
-                : IconButton(
-                    tooltip: l10n.refresh,
-                    onPressed: _refreshAnalytics,
-                    icon: const HugeIcon(icon: HugeIcons.strokeRoundedRefresh),
-                  );
-          }),
-          GestureDetector(
-            onTap: () => context.pushNamed(
-              removeLeadingSlash(ProfilePage.routeName),
-              pathParameters: {'tag': authController.userProfileImage},
-            ),
-            child: Padding(
-              padding: const EdgeInsets.only(right: 8.0, left: 4.0),
-              child: Tooltip(
-                message: l10n.userProfile,
-                child: Obx(() {
-                  final reportController = Get.find<ReportController>();
-                  final pending = reportController.pendingCount.value;
-                  return Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      UserAvatar(
-                        tag: authController.userProfileImage,
-                        radius: 24.0,
-                      ),
-                      if (pending > 0)
-                        Positioned(
-                          top: -4,
-                          right: -4,
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: errorColor,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: themeController.isDark
-                                    ? seedColor
-                                    : lightColor,
-                                width: 2,
-                              ),
-                            ),
-                            constraints: const BoxConstraints(
-                              minWidth: 18,
-                              minHeight: 18,
-                            ),
-                            child: Text(
-                              pending > 99 ? '99+' : '$pending',
-                              textAlign: TextAlign.center,
-                              style: AppTextStyles.small.copyWith(
-                                color: lightColor,
-                                fontSize: 9,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
-                  );
-                }),
-              ),
-            ),
-          ),
+          // Refresh button
+          // Obx(() {
+          //   return _analyticsController.isBusy.value
+          //       ? const Padding(
+          //           padding: EdgeInsets.all(16.0),
+          //           child: SizedBox(
+          //             width: 20,
+          //             height: 20,
+          //             child: CircularProgressIndicator(strokeWidth: 2),
+          //           ),
+          //         )
+          //       : IconButton(
+          //           tooltip: l10n.refresh,
+          //           onPressed: _refreshAnalytics,
+          //           icon: const HugeIcon(icon: HugeIcons.strokeRoundedRefresh),
+          //         );
+          // }),
+          // User profile avatar
         ],
       ),
       body: RefreshIndicator(

@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:busin/controllers/check_in_controller.dart';
 import 'package:busin/models/check_in.dart';
+import 'package:busin/l10n/app_localizations.dart';
 import 'package:busin/utils/constants.dart';
 import 'package:busin/utils/utils.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -27,13 +28,10 @@ class _CheckInHistoryPageState extends State<CheckInHistoryPage> {
   @override
   Widget build(BuildContext context) {
     final langCode = localeController.locale.languageCode;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          langCode == 'en' ? 'Check-in History' : 'Historique des Check-ins',
-        ),
-      ),
+      appBar: AppBar(title: Text(l10n.checkInHistory_title)),
       body: Obx(() {
         final history = _checkInController.history;
 
@@ -65,7 +63,7 @@ class _CheckInHistoryPageState extends State<CheckInHistoryPage> {
 
             // ── Daily list ──
             Text(
-              langCode == 'en' ? 'Daily Lists' : 'Listes Quotidiennes',
+              l10n.checkInHistory_dailyLists,
               style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.bold),
             ),
             const Gap(12),
@@ -97,6 +95,7 @@ class _CheckInHistoryPageState extends State<CheckInHistoryPage> {
   }
 
   Widget _buildEmptyState(String langCode) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -112,16 +111,12 @@ class _CheckInHistoryPageState extends State<CheckInHistoryPage> {
             ),
             const Gap(16),
             Text(
-              langCode == 'en'
-                  ? 'No check-in history'
-                  : 'Aucun historique de check-in',
+              l10n.checkInHistory_emptyTitle,
               style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.bold),
             ),
             const Gap(8),
             Text(
-              langCode == 'en'
-                  ? 'Start scanning students to build attendance records.'
-                  : 'Commencez à scanner les étudiants pour créer des registres.',
+              l10n.checkInHistory_emptySubtitle,
               style: AppTextStyles.body.copyWith(color: greyColor),
               textAlign: TextAlign.center,
             ),
@@ -142,6 +137,7 @@ class _TrendChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     // Take up to the last 14 days, reversed to chronological order
     final data = history.take(14).toList().reversed.toList();
 
@@ -165,16 +161,14 @@ class _TrendChart extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            langCode == 'en' ? 'Attendance Trend' : 'Tendance de Présence',
+            l10n.checkInHistory_trendTitle,
             style: AppTextStyles.body.copyWith(
               fontWeight: FontWeight.w600,
               fontSize: 16,
             ),
           ),
           Text(
-            langCode == 'en'
-                ? 'Last ${data.length} days'
-                : 'Les ${data.length} derniers jours',
+            l10n.checkInHistory_trendSubtitle(data.length),
             style: AppTextStyles.small.copyWith(color: greyColor, fontSize: 12),
           ),
           const Gap(20),
@@ -307,9 +301,9 @@ class _TrendChart extends StatelessWidget {
                     getTooltipItems: (spots) {
                       return spots.map((spot) {
                         final labels = [
-                          langCode == 'en' ? 'Total' : 'Total',
-                          langCode == 'en' ? 'Morning' : 'Matin',
-                          langCode == 'en' ? 'Evening' : 'Soir',
+                          l10n.checkInHistory_total,
+                          l10n.checkInHistory_morning,
+                          l10n.checkInHistory_evening,
                         ];
                         return LineTooltipItem(
                           '${labels[spot.barIndex]}: ${spot.y.toInt()}',
@@ -330,20 +324,17 @@ class _TrendChart extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _LegendDot(
-                color: accentColor,
-                label: langCode == 'en' ? 'Total' : 'Total',
-              ),
+              _LegendDot(color: accentColor, label: l10n.checkInHistory_total),
               const Gap(16),
               _LegendDot(
                 color: warningColor,
-                label: langCode == 'en' ? 'Morning' : 'Matin',
+                label: l10n.checkInHistory_morning,
                 dashed: true,
               ),
               const Gap(16),
               _LegendDot(
                 color: infoColor,
-                label: langCode == 'en' ? 'Evening' : 'Soir',
+                label: l10n.checkInHistory_evening,
                 dashed: true,
               ),
             ],
@@ -395,6 +386,7 @@ class _SummaryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final totalDays = history.length;
     final totalEntries = history.fold<int>(
       0,
@@ -411,7 +403,7 @@ class _SummaryRow extends StatelessWidget {
           child: _StatCard(
             icon: HugeIcons.strokeRoundedCalendar03,
             value: totalDays.toString(),
-            label: langCode == 'en' ? 'Days' : 'Jours',
+            label: l10n.checkInHistory_days,
             color: accentColor,
           ),
         ),
@@ -420,7 +412,7 @@ class _SummaryRow extends StatelessWidget {
           child: _StatCard(
             icon: HugeIcons.strokeRoundedCheckList,
             value: addThousandSeparator(totalEntries.toString()),
-            label: langCode == 'en' ? 'Total Scans' : 'Total Scans',
+            label: l10n.checkInHistory_totalScans,
             color: successColor,
           ),
         ),
@@ -429,7 +421,7 @@ class _SummaryRow extends StatelessWidget {
           child: _StatCard(
             icon: HugeIcons.strokeRoundedUserMultiple,
             value: avgStudents.toString(),
-            label: langCode == 'en' ? 'Avg / Day' : 'Moy / Jour',
+            label: l10n.checkInHistory_avgPerDay,
             color: infoColor,
           ),
         ),
@@ -498,6 +490,7 @@ class _DayCardState extends State<_DayCard> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final list = widget.checkInList;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -547,9 +540,7 @@ class _DayCardState extends State<_DayCard> {
                       children: [
                         Text(
                           isToday
-                              ? (widget.langCode == 'en'
-                                    ? 'Today'
-                                    : 'Aujourd\'hui')
+                              ? l10n.checkInHistory_today
                               : dateFormatter(list.date),
                           style: AppTextStyles.body.copyWith(
                             fontWeight: FontWeight.w600,
@@ -558,7 +549,9 @@ class _DayCardState extends State<_DayCard> {
                         Row(
                           children: [
                             Text(
-                              '${list.totalStudents} student${list.totalStudents != 1 ? 's' : ''}',
+                              l10n.checkInHistory_studentCount(
+                                list.totalStudents,
+                              ),
                               style: AppTextStyles.small.copyWith(
                                 color: greyColor,
                                 fontSize: 12,

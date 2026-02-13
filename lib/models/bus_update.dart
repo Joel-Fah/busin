@@ -1,9 +1,6 @@
 /// Represents the different types of updates students can submit
 enum BusUpdateType {
-  busLocation('bus_location'),
-  payment('payment'),
-  delay('delay'),
-  general('general');
+  busLocation('bus_location');
 
   final String value;
   const BusUpdateType(this.value);
@@ -12,7 +9,7 @@ enum BusUpdateType {
   static BusUpdateType from(String value) {
     return BusUpdateType.values.firstWhere(
       (e) => e.value == value,
-      orElse: () => BusUpdateType.general,
+      orElse: () => BusUpdateType.busLocation,
     );
   }
 
@@ -21,12 +18,6 @@ enum BusUpdateType {
     switch (this) {
       case BusUpdateType.busLocation:
         return 'Bus location update';
-      case BusUpdateType.payment:
-        return 'Payments update';
-      case BusUpdateType.delay:
-        return 'Delay update';
-      case BusUpdateType.general:
-        return 'General update';
     }
   }
 
@@ -35,12 +26,6 @@ enum BusUpdateType {
     switch (this) {
       case BusUpdateType.busLocation:
         return 'Mise à jour de la position du bus';
-      case BusUpdateType.payment:
-        return 'Mise à jour des paiements';
-      case BusUpdateType.delay:
-        return 'Mise à jour de retard';
-      case BusUpdateType.general:
-        return 'Mise à jour générale';
     }
   }
 
@@ -54,12 +39,6 @@ enum BusUpdateType {
     switch (this) {
       case BusUpdateType.busLocation:
         return 'The bus is currently at ';
-      case BusUpdateType.payment:
-        return '';
-      case BusUpdateType.delay:
-        return '';
-      case BusUpdateType.general:
-        return '';
     }
   }
 
@@ -68,12 +47,6 @@ enum BusUpdateType {
     switch (this) {
       case BusUpdateType.busLocation:
         return 'Le bus est actuellement à ';
-      case BusUpdateType.payment:
-        return '';
-      case BusUpdateType.delay:
-        return '';
-      case BusUpdateType.general:
-        return '';
     }
   }
 
@@ -87,12 +60,6 @@ enum BusUpdateType {
     switch (this) {
       case BusUpdateType.busLocation:
         return 'Enter street name or location...';
-      case BusUpdateType.payment:
-        return 'Share a payment update...';
-      case BusUpdateType.delay:
-        return 'Describe the delay situation...';
-      case BusUpdateType.general:
-        return 'Write your update...';
     }
   }
 
@@ -101,12 +68,6 @@ enum BusUpdateType {
     switch (this) {
       case BusUpdateType.busLocation:
         return 'Entrez le nom de la rue ou le lieu...';
-      case BusUpdateType.payment:
-        return 'Partagez une mise à jour de paiement...';
-      case BusUpdateType.delay:
-        return 'Décrivez la situation de retard...';
-      case BusUpdateType.general:
-        return 'Écrivez votre mise à jour...';
     }
   }
 

@@ -379,6 +379,8 @@ class AnalyticsService {
         if (createdAt != null) {
           if (createdAt is Timestamp) {
             date = createdAt.toDate();
+          } else if (createdAt is String) {
+            date = DateTime.tryParse(createdAt);
           }
         }
 
@@ -405,6 +407,8 @@ class AnalyticsService {
         if (createdAt != null) {
           if (createdAt is Timestamp) {
             date = createdAt.toDate();
+          } else if (createdAt is String) {
+            date = DateTime.tryParse(createdAt);
           }
         }
 
@@ -466,9 +470,7 @@ class AnalyticsService {
       final currentYear = now.year;
 
       // Fetch semester configurations to get actual date ranges
-      final semesterConfigsSnapshot = await _db
-          .collection('semesters')
-          .get();
+      final semesterConfigsSnapshot = await _db.collection('semesters').get();
 
       // Find semesters that are active or relevant to current period
       // This includes semesters that span across years (e.g., Fall 2025 - Feb 2026)
@@ -489,10 +491,14 @@ class AnalyticsService {
           // 4. It starts in current year (even if it ends in next year)
           final isActive = !now.isBefore(startDate) && !now.isAfter(endDate);
           final belongsToCurrentYear = year == currentYear;
-          final spansIntoCurrentYear = startDate.year < currentYear && endDate.year >= currentYear;
+          final spansIntoCurrentYear =
+              startDate.year < currentYear && endDate.year >= currentYear;
           final startsInCurrentYear = startDate.year == currentYear;
 
-          if (isActive || belongsToCurrentYear || spansIntoCurrentYear || startsInCurrentYear) {
+          if (isActive ||
+              belongsToCurrentYear ||
+              spansIntoCurrentYear ||
+              startsInCurrentYear) {
             final key = '${semesterName}_$year';
             relevantSemesters[key] = {
               'semester': semesterName,
@@ -505,9 +511,7 @@ class AnalyticsService {
       }
 
       // Fetch all subscriptions
-      final subscriptionsSnapshot = await _db
-          .collection('subscriptions')
-          .get();
+      final subscriptionsSnapshot = await _db.collection('subscriptions').get();
 
       Map<String, Map<String, dynamic>> analytics = {};
 
