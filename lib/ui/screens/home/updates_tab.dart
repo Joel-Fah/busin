@@ -1,5 +1,6 @@
 import 'package:busin/controllers/auth_controller.dart';
 import 'package:busin/controllers/update_controller.dart';
+import 'package:busin/l10n/app_localizations.dart';
 import 'package:busin/models/bus_update.dart';
 import 'package:busin/ui/components/widgets/user_avatar.dart';
 import 'package:busin/utils/constants.dart';
@@ -37,6 +38,9 @@ class _UpdatesTabState extends State<UpdatesTab> with WidgetsBindingObserver {
 
     // Mark updates as seen when user opens this tab
     updateController.markAsSeen();
+
+    // Refresh restriction flags every time this tab opens
+    updateController.refreshRestrictions();
 
     // Listen to type changes to update prefill/hint (only while focused)
     ever(updateController.selectedType, (BusUpdateType type) {
@@ -93,7 +97,11 @@ class _UpdatesTabState extends State<UpdatesTab> with WidgetsBindingObserver {
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _messageFocusNode.removeListener(_onFocusChange);
-    updateController.isInputFocused.value = false;
+    // Defer reactive update to avoid triggering Obx rebuilds while the
+    // widget tree is locked during finalization.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      updateController.isInputFocused.value = false;
+    });
     _messageController.dispose();
     _messageFocusNode.dispose();
     super.dispose();
@@ -119,6 +127,7 @@ class _UpdatesTabState extends State<UpdatesTab> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final langCode = localeController.locale.languageCode;
     final isKeyboardOpen = MediaQuery.viewInsetsOf(context).bottom > 0;
 
@@ -153,7 +162,7 @@ class _UpdatesTabState extends State<UpdatesTab> with WidgetsBindingObserver {
                   final olderUpdates = updateController.olderUpdates;
 
                   if (updates.isEmpty) {
-                    return _EmptyState(langCode: langCode);
+                    return const _EmptyState();
                   }
 
                   if (olderUpdates.isEmpty) {
@@ -166,9 +175,7 @@ class _UpdatesTabState extends State<UpdatesTab> with WidgetsBindingObserver {
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
                         child: Text(
-                          langCode == 'en'
-                              ? 'Earlier today'
-                              : 'Plus tôt aujourd\'hui',
+                          l10n.updatesTab_earlierToday,
                           style: AppTextStyles.small.copyWith(color: greyColor),
                         ),
                       ),
@@ -219,6 +226,11 @@ class _UpdatesTabState extends State<UpdatesTab> with WidgetsBindingObserver {
               // --- Input area pinned at the bottom ---
               Obx(() {
                 final isFocused = updateController.isInputFocused.value;
+                final hasSub = updateController.hasActiveSubscription.value;
+                final hasScan = updateController.hasScannedToday.value;
+                final isRestricted =
+                    authController.isStudent && (!hasSub || !hasScan);
+
                 return Padding(
                   padding: EdgeInsets.only(
                     bottom: isKeyboardOpen
@@ -227,14 +239,19 @@ class _UpdatesTabState extends State<UpdatesTab> with WidgetsBindingObserver {
                         ? 0
                         : MediaQuery.viewPaddingOf(context).bottom + 80,
                   ),
-                  child: _UpdateInputArea(
-                    messageController: _messageController,
-                    messageFocusNode: _messageFocusNode,
-                    updateController: updateController,
-                    langCode: langCode,
-                    onSubmit: _submitUpdate,
-                    isFocused: isFocused,
-                  ),
+                  child: isRestricted
+                      ? _RestrictedBanner(
+                          hasSubscription: hasSub,
+                          hasScannedToday: hasScan,
+                        )
+                      : _UpdateInputArea(
+                          messageController: _messageController,
+                          messageFocusNode: _messageFocusNode,
+                          updateController: updateController,
+                          langCode: langCode,
+                          onSubmit: _submitUpdate,
+                          isFocused: isFocused,
+                        ),
                 );
               }),
             ],
@@ -249,12 +266,11 @@ class _UpdatesTabState extends State<UpdatesTab> with WidgetsBindingObserver {
 // Empty State – warm greeting while no updates exist
 // ─────────────────────────────────────────────────────────
 class _EmptyState extends StatelessWidget {
-  const _EmptyState({required this.langCode});
-
-  final String langCode;
+  const _EmptyState();
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -269,15 +285,13 @@ class _EmptyState extends StatelessWidget {
                     ),
                     const Gap(16),
                     Text(
-                      getTimeGreeting(langCode),
+                      getTimeGreetingL10n(l10n),
                       style: AppTextStyles.h2.copyWith(color: accentColor),
                       textAlign: TextAlign.center,
                     ),
                     const Gap(8),
                     Text(
-                      langCode == 'en'
-                          ? 'No updates yet today.\nBe the first to share one!'
-                          : 'Pas encore de mises à jour aujourd\'hui.\nSoyez le premier à en partager !',
+                      l10n.updatesTab_emptyState,
                       style: AppTextStyles.body.copyWith(color: greyColor),
                       textAlign: TextAlign.center,
                     ),
@@ -503,8 +517,60 @@ class _UpdateTile extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────
-// Bottom input area – type selector + text input + send
-// Transparent by default, shows chips + send on focus
+// Restricted banner – shown when user cannot post
+// ─────────────────────────────────────────────────────────
+class _RestrictedBanner extends StatelessWidget {
+  const _RestrictedBanner({
+    required this.hasSubscription,
+    required this.hasScannedToday,
+  });
+
+  final bool hasSubscription;
+  final bool hasScannedToday;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final message = !hasSubscription
+        ? l10n.updatesTab_notSubscribed
+        : l10n.updatesTab_needScanForLocation;
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 14,
+        bottom: MediaQuery.paddingOf(context).bottom + 88,
+      ),
+      decoration: BoxDecoration(
+        color: themeController.isDark
+            ? seedColor.withValues(alpha: 0.3)
+            : seedPalette.shade50,
+        borderRadius: borderRadius * 2,
+      ),
+      child: Row(
+        children: [
+          HugeIcon(
+            icon: HugeIcons.strokeRoundedAlert02,
+            color: greyColor,
+            size: 20,
+          ),
+          const Gap(10),
+          Expanded(
+            child: Text(
+              message,
+              style: AppTextStyles.small.copyWith(color: greyColor),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────
+// Bottom input area – text input + send
 // ─────────────────────────────────────────────────────────
 class _UpdateInputArea extends StatelessWidget {
   const _UpdateInputArea({
@@ -547,66 +613,6 @@ class _UpdateInputArea extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         spacing: 4.0,
         children: [
-          // Type selector chips – only visible when focused
-          AnimatedSize(
-            duration: const Duration(milliseconds: 250),
-            curve: Curves.easeInOut,
-            alignment: Alignment.topCenter,
-            child: isFocused
-                ? Obx(() {
-                    final currentType = updateController.selectedType.value;
-                    return SizedBox(
-                      height: 48,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: BusUpdateType.values.length,
-                        separatorBuilder: (_, __) => const Gap(8),
-                        padding: EdgeInsets.symmetric(horizontal: 16.0),
-                        physics: const BouncingScrollPhysics(),
-                        itemBuilder: (context, index) {
-                          final type = BusUpdateType.values[index];
-                          final isSelected = currentType == type;
-                          return ChoiceChip(
-                            label: Text(
-                              type.label(langCode),
-                              style: AppTextStyles.small.copyWith(
-                                color: isSelected
-                                    ? Colors.white
-                                    : themeController.isDark
-                                    ? lightColor
-                                    : seedColor,
-                                fontWeight: isSelected
-                                    ? FontWeight.w600
-                                    : FontWeight.normal,
-                              ),
-                            ),
-                            selected: isSelected,
-                            onSelected: (_) {
-                              HapticFeedback.selectionClick();
-                              updateController.changeType(type);
-                            },
-                            selectedColor: accentColor,
-                            backgroundColor: themeController.isDark
-                                ? seedColor.withValues(alpha: 0.5)
-                                : seedPalette.shade50,
-                            side: BorderSide.none,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: borderRadius * 1.25,
-                            ),
-                            showCheckmark: false,
-                            visualDensity: VisualDensity.compact,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 0,
-                            ),
-                          );
-                        },
-                      ),
-                    );
-                  })
-                : const SizedBox.shrink(),
-          ),
-
           // Text input + Send button (send only visible when focused)
           Padding(
             padding: EdgeInsets.fromLTRB(
@@ -621,9 +627,9 @@ class _UpdateInputArea extends StatelessWidget {
                 Expanded(
                   child: Obx(() {
                     final type = updateController.selectedType.value;
-                    final genericHint = langCode == 'en'
-                        ? 'Send an update to your mates...'
-                        : 'Envoyer une mise à jour à vos potes...';
+                    final genericHint = AppLocalizations.of(
+                      context,
+                    )!.updatesTab_genericHint;
                     return TextField(
                       controller: messageController,
                       focusNode: messageFocusNode,

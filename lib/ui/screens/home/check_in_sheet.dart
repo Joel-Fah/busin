@@ -1,4 +1,5 @@
 import 'package:busin/controllers/check_in_controller.dart';
+import 'package:busin/l10n/app_localizations.dart';
 import 'package:busin/models/check_in.dart';
 import 'package:busin/utils/constants.dart';
 import 'package:busin/utils/utils.dart';
@@ -31,6 +32,7 @@ class _CheckInSheetState extends State<CheckInSheet> {
   final CheckInController _checkInController = Get.find<CheckInController>();
   final TextEditingController _searchController = TextEditingController();
   final RxString _searchQuery = ''.obs;
+  final RxInt _selectedTab = 0.obs; // 0=All, 1=Morning, 2=Closing
 
   @override
   void dispose() {
@@ -39,16 +41,31 @@ class _CheckInSheetState extends State<CheckInSheet> {
   }
 
   List<CheckInEntry> _filtered(List<CheckInEntry> entries) {
-    if (_searchQuery.value.isEmpty) return entries;
-    final q = _searchQuery.value.toLowerCase();
-    return entries
-        .where((e) => e.studentName.toLowerCase().contains(q))
-        .toList();
+    // Apply period filter
+    List<CheckInEntry> filtered = entries;
+    if (_selectedTab.value == 1) {
+      filtered = filtered
+          .where((e) => e.period == CheckInPeriod.morning)
+          .toList();
+    } else if (_selectedTab.value == 2) {
+      filtered = filtered
+          .where((e) => e.period == CheckInPeriod.evening)
+          .toList();
+    }
+
+    // Apply search filter
+    if (_searchQuery.value.isNotEmpty) {
+      final q = _searchQuery.value.toLowerCase();
+      filtered = filtered
+          .where((e) => e.studentName.toLowerCase().contains(q))
+          .toList();
+    }
+    return filtered;
   }
 
   @override
   Widget build(BuildContext context) {
-    final langCode = localeController.locale.languageCode;
+    final l10n = AppLocalizations.of(context)!;
 
     return DraggableScrollableSheet(
       initialChildSize: 0.6,
@@ -83,9 +100,7 @@ class _CheckInSheetState extends State<CheckInSheet> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            langCode == 'en'
-                                ? 'Today\'s Check-ins'
-                                : 'Check-ins du jour',
+                            l10n.checkInSheet_title,
                             style: AppTextStyles.h3.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
@@ -93,9 +108,7 @@ class _CheckInSheetState extends State<CheckInSheet> {
                           Obx(() {
                             final total = _checkInController.todayTotalStudents;
                             return Text(
-                              langCode == 'en'
-                                  ? '$total student${total != 1 ? 's' : ''} checked in'
-                                  : '$total étudiant${total != 1 ? 's' : ''} enregistré${total != 1 ? 's' : ''}',
+                              l10n.checkInSheet_subtitle(total),
                               style: AppTextStyles.body.copyWith(
                                 color: greyColor,
                                 fontSize: 13,
@@ -130,7 +143,9 @@ class _CheckInSheetState extends State<CheckInSheet> {
                               ),
                               const Gap(6),
                               Text(
-                                period.label(langCode),
+                                period == CheckInPeriod.morning
+                                    ? l10n.checkInSheet_morningTab
+                                    : l10n.checkInSheet_closingTab,
                                 style: AppTextStyles.small.copyWith(
                                   color: accentColor,
                                   fontWeight: FontWeight.w600,
@@ -179,18 +194,48 @@ class _CheckInSheetState extends State<CheckInSheet> {
                       );
                     }),
                   ],
-                  hintText: langCode == 'en'
-                      ? 'Search student...'
-                      : 'Rechercher un étudiant...',
+                  hintText: l10n.checkInSheet_searchHint,
                 ),
+              ),
+              const Gap(8),
+
+              // Period tabs (All / Morning / Closing)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Obx(() {
+                  final selected = _selectedTab.value;
+                  return Row(
+                    spacing: 8,
+                    children: [
+                      _PeriodChip(
+                        label: l10n.checkInSheet_allTab,
+                        isSelected: selected == 0,
+                        onTap: () => _selectedTab.value = 0,
+                      ),
+                      _PeriodChip(
+                        label: l10n.checkInSheet_morningTab,
+                        isSelected: selected == 1,
+                        onTap: () => _selectedTab.value = 1,
+                        icon: HugeIcons.strokeRoundedSun03,
+                      ),
+                      _PeriodChip(
+                        label: l10n.checkInSheet_closingTab,
+                        isSelected: selected == 2,
+                        onTap: () => _selectedTab.value = 2,
+                        icon: HugeIcons.strokeRoundedMoon02,
+                      ),
+                    ],
+                  );
+                }),
               ),
               const Gap(8),
 
               // List
               Expanded(
                 child: Obx(() {
-                  // Read the searchQuery observable to trigger rebuild
+                  // Read observables to trigger rebuild
                   _searchQuery.value;
+                  _selectedTab.value;
                   final entries = _checkInController.todayEntries;
 
                   if (entries.isEmpty) {
@@ -209,18 +254,14 @@ class _CheckInSheetState extends State<CheckInSheet> {
                             ),
                             const Gap(16),
                             Text(
-                              langCode == 'en'
-                                  ? 'No check-ins yet'
-                                  : 'Aucun check-in pour le moment',
+                              l10n.checkInSheet_emptyTitle,
                               style: AppTextStyles.body.copyWith(
                                 color: greyColor,
                               ),
                             ),
                             const Gap(4),
                             Text(
-                              langCode == 'en'
-                                  ? 'Scan student QR codes to start'
-                                  : 'Scannez les QR codes pour commencer',
+                              l10n.checkInSheet_emptySubtitle,
                               style: AppTextStyles.small.copyWith(
                                 color: greyColor,
                                 fontSize: 12,
@@ -237,9 +278,7 @@ class _CheckInSheetState extends State<CheckInSheet> {
                   if (filtered.isEmpty) {
                     return Center(
                       child: Text(
-                        langCode == 'en'
-                            ? 'No matching students'
-                            : 'Aucun étudiant trouvé',
+                        l10n.checkInSheet_noMatch,
                         style: AppTextStyles.body.copyWith(color: greyColor),
                       ),
                     );
@@ -254,7 +293,7 @@ class _CheckInSheetState extends State<CheckInSheet> {
                     itemCount: filtered.length,
                     itemBuilder: (context, index) {
                       final entry = filtered[index];
-                      return _CheckInEntryTile(entry: entry, langCode: langCode)
+                      return _CheckInEntryTile(entry: entry)
                           .animate()
                           .fadeIn(
                             duration: 250.ms,
@@ -283,10 +322,9 @@ class _CheckInSheetState extends State<CheckInSheet> {
 // ─── Entry tile ──────────────────────────────────────────────────────
 
 class _CheckInEntryTile extends StatelessWidget {
-  const _CheckInEntryTile({required this.entry, required this.langCode});
+  const _CheckInEntryTile({required this.entry});
 
   final CheckInEntry entry;
-  final String langCode;
 
   @override
   Widget build(BuildContext context) {
@@ -368,7 +406,9 @@ class _CheckInEntryTile extends StatelessWidget {
               borderRadius: borderRadius,
             ),
             child: Text(
-              entry.period.label(langCode),
+              entry.period == CheckInPeriod.morning
+                  ? AppLocalizations.of(context)!.checkInSheet_morningTab
+                  : AppLocalizations.of(context)!.checkInSheet_closingTab,
               style: AppTextStyles.small.copyWith(
                 color: entry.period == CheckInPeriod.morning
                     ? warningColor
@@ -379,6 +419,58 @@ class _CheckInEntryTile extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _PeriodChip extends StatelessWidget {
+  const _PeriodChip({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+    this.icon,
+  });
+
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+  final List<List<dynamic>>? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? accentColor
+              : (themeController.isDark
+                    ? seedColor.withValues(alpha: 0.5)
+                    : seedPalette.shade50),
+          borderRadius: borderRadius * 2,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: 4,
+          children: [
+            if (icon != null)
+              HugeIcon(
+                icon: icon!,
+                size: 14,
+                color: isSelected ? lightColor : greyColor,
+              ),
+            Text(
+              label,
+              style: AppTextStyles.small.copyWith(
+                color: isSelected ? lightColor : greyColor,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

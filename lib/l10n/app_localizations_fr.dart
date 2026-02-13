@@ -540,6 +540,22 @@ class AppLocalizationsFr extends AppLocalizations {
   String get profilePage_listTile_signOutMessage => 'Déconnexion réussie';
 
   @override
+  String get signOut_confirmTitle => 'Se déconnecter ?';
+
+  @override
+  String get signOut_confirmMessage =>
+      'Êtes-vous sûr de vouloir vous déconnecter ? Vous pouvez toujours vous reconnecter.';
+
+  @override
+  String get signOut_confirmButton => 'Se déconnecter';
+
+  @override
+  String get signOut_cancelButton => 'Annuler';
+
+  @override
+  String get signOut_dontShowAgain => 'Ne plus me demander';
+
+  @override
   String get profilePage_appInfo_rights => 'Tous droits réservés';
 
   @override
@@ -1804,4 +1820,275 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get peopleTab_accessList_demote5 => 'Affichage restreint des analyses';
+
+  @override
+  String get homeNav_updatesTab => 'Actus';
+
+  @override
+  String get checkInSheet_title => 'Liste d\'embarquement du jour';
+
+  @override
+  String checkInSheet_subtitle(int count) {
+    return '$count étudiant(s) pointé(s)';
+  }
+
+  @override
+  String get checkInSheet_searchHint => 'Rechercher un étudiant...';
+
+  @override
+  String get checkInSheet_emptyTitle => 'Aucun pointage encore';
+
+  @override
+  String get checkInSheet_emptySubtitle =>
+      'Scannez les codes QR des étudiants pour commencer';
+
+  @override
+  String get checkInSheet_noMatch => 'Aucun étudiant correspondant';
+
+  @override
+  String get checkInSheet_allTab => 'Tous';
+
+  @override
+  String get checkInSheet_morningTab => 'Matin';
+
+  @override
+  String get checkInSheet_closingTab => 'Soir';
+
+  @override
+  String get updatesTab_earlierToday => 'Plus tôt aujourd\'hui';
+
+  @override
+  String get updatesTab_emptyState =>
+      'Aucune mise à jour aujourd\'hui.\nSoyez le premier à en partager une !';
+
+  @override
+  String get updatesTab_genericHint =>
+      'Envoyez une mise à jour à vos camarades...';
+
+  @override
+  String get updatesTab_notSubscribed =>
+      'Vous devez avoir un abonnement actif pour envoyer des mises à jour';
+
+  @override
+  String get updatesTab_needScanForLocation =>
+      'Vous devez embarquer le bus (scanner le QR) avant de partager la localisation';
+
+  @override
+  String peopleTab_subscriptionCount(int count) {
+    return '$count abo(s)';
+  }
+
+  @override
+  String get scanner_checkInListTooltip => 'Liste d\'embarquement';
+
+  @override
+  String get scanner_cameraPermissionDenied =>
+      'Permission de la caméra refusée';
+
+  @override
+  String get scanner_cameraPermissionMessage =>
+      'L\'accès à la caméra est requis pour scanner les codes QR. Veuillez autoriser l\'accès dans les paramètres de votre appareil.';
+
+  @override
+  String get scanner_openSettings => 'Ouvrir les paramètres';
+
+  @override
+  String get scanner_maxScansReached =>
+      'Cet étudiant a déjà été scanné deux fois aujourd\'hui';
+
+  @override
+  String get profilePage_listTile_myReports => 'Mes signalements';
+
+  @override
+  String get profilePage_listTile_studentReports => 'Signalements étudiants';
+
+  @override
+  String get profilePage_studentReports_subtitle =>
+      'Consulter et résoudre les plaintes des étudiants';
+
+  @override
+  String get profilePage_pendingBadge => 'en attente';
+
+  @override
+  String get profilePage_listTile_checkInHistory => 'Historique des pointages';
+
+  @override
+  String get profilePage_checkInHistory_subtitle =>
+      'Voir les tendances d\'assiduité et les enregistrements quotidiens';
+
+  @override
+  String get reportsPage_title => 'Mes signalements';
+
+  @override
+  String get reportsPage_newReport => 'Nouveau signalement';
+
+  @override
+  String get reportsPage_emptyTitle => 'Aucun signalement';
+
+  @override
+  String get reportsPage_emptySubtitle =>
+      'Soumettez un signalement pour partager vos préoccupations concernant le service de bus.';
+
+  @override
+  String get reportsPage_adminResponse => 'Réponse de l\'admin';
+
+  @override
+  String get reportSheet_title => 'Soumettre un signalement';
+
+  @override
+  String get reportSheet_subtitle =>
+      'Dites-nous toute préoccupation concernant le service de bus.';
+
+  @override
+  String get reportSheet_subject => 'Sujet';
+
+  @override
+  String get reportSheet_customSubjectHint => 'Titre du sujet personnalisé...';
+
+  @override
+  String get reportSheet_description => 'Description';
+
+  @override
+  String reportSheet_priority(String priority) {
+    return 'Priorité : $priority';
+  }
+
+  @override
+  String get reportsAdminPage_title => 'Signalements étudiants';
+
+  @override
+  String get reportsAdmin_tabPending => 'En attente';
+
+  @override
+  String get reportsAdmin_tabInReview => 'En examen';
+
+  @override
+  String get reportsAdmin_tabResolved => 'Résolus';
+
+  @override
+  String get reportsAdmin_emptyPending => 'Aucun signalement en attente';
+
+  @override
+  String get reportsAdmin_emptyInReview => 'Aucun signalement en examen';
+
+  @override
+  String get reportsAdmin_emptyResolved => 'Aucun signalement résolu';
+
+  @override
+  String get reportsAdmin_response => 'Réponse';
+
+  @override
+  String get reportsAdmin_review => 'Examiner';
+
+  @override
+  String get reportsAdmin_resolve => 'Résoudre';
+
+  @override
+  String get reportsAdmin_resolveTitle => 'Résoudre le signalement';
+
+  @override
+  String get reportsAdmin_responseHint =>
+      'Ajouter une réponse pour l\'étudiant (optionnel)...';
+
+  @override
+  String get reportsAdmin_markResolved => 'Marquer comme résolu';
+
+  @override
+  String get checkInHistory_title => 'Historique des pointages';
+
+  @override
+  String get checkInHistory_dailyLists => 'Listes quotidiennes';
+
+  @override
+  String get checkInHistory_emptyTitle => 'Aucun historique de pointage';
+
+  @override
+  String get checkInHistory_emptySubtitle =>
+      'Commencez à scanner les étudiants pour construire les fiches de présence.';
+
+  @override
+  String get checkInHistory_trendTitle => 'Tendance de présence';
+
+  @override
+  String checkInHistory_trendSubtitle(int count) {
+    return '$count derniers jours';
+  }
+
+  @override
+  String get checkInHistory_total => 'Total';
+
+  @override
+  String get checkInHistory_morning => 'Matin';
+
+  @override
+  String get checkInHistory_evening => 'Soir';
+
+  @override
+  String get checkInHistory_days => 'Jours';
+
+  @override
+  String get checkInHistory_totalScans => 'Total scans';
+
+  @override
+  String get checkInHistory_avgPerDay => 'Moy / Jour';
+
+  @override
+  String get checkInHistory_today => 'Aujourd\'hui';
+
+  @override
+  String checkInHistory_studentCount(int count) {
+    return '$count étudiant(s)';
+  }
+
+  @override
+  String get greeting_morning => 'Bonjour ! ☀️';
+
+  @override
+  String get greeting_afternoon => 'Bon après-midi ! 🌤️';
+
+  @override
+  String get greeting_evening => 'Bonsoir ! 🌙';
+
+  @override
+  String get validation_phoneRequired => 'Le numéro de téléphone est requis';
+
+  @override
+  String get validation_phoneInvalid =>
+      'Veuillez entrer un numéro de téléphone camerounais valide';
+
+  @override
+  String get validation_matriculeRequired => 'Le matricule est requis';
+
+  @override
+  String get validation_matriculeLength =>
+      'Le matricule doit avoir 12 caractères';
+
+  @override
+  String get validation_matriculePrefix =>
+      'Le matricule doit commencer par ICTU';
+
+  @override
+  String get validation_matriculeYear => 'Année invalide dans le matricule';
+
+  @override
+  String get validation_matriculeDigits =>
+      'Les 4 derniers caractères doivent être des chiffres';
+
+  @override
+  String get semesterPage_viewStudents => 'Voir les étudiants inscrits';
+
+  @override
+  String get semesterPage_studentsTitle => 'Étudiants inscrits';
+
+  @override
+  String semesterPage_studentsSubtitle(int count) {
+    return '$count étudiant(s) inscrit(s)';
+  }
+
+  @override
+  String get semesterPage_noStudents =>
+      'Aucun étudiant inscrit pour ce semestre';
+
+  @override
+  String get semesterPage_searchStudents => 'Rechercher des étudiants...';
 }

@@ -109,12 +109,34 @@ class AuthController extends GetxController {
     isLoading.value = true;
     errorMessage?.value = '';
     try {
+      // Reset all sibling controllers before signing out
+      _resetAllControllers();
+      await clearLastUserRole();
       await _auth.signOut();
     } catch (e) {
       errorMessage?.value = e.toString();
       rethrow;
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  /// Reset all GetX controllers that hold user-scoped data.
+  void _resetAllControllers() {
+    try {
+      Get.find<ScanningController>().reset();
+    } catch (_) {}
+    try {
+      Get.find<UpdateController>().reset();
+    } catch (_) {}
+    try {
+      Get.find<ReportController>().reset();
+    } catch (_) {}
+    try {
+      Get.find<CheckInController>().reset();
+    } catch (_) {}
+    if (kDebugMode) {
+      debugPrint('[AuthController] ✅ All controllers reset');
     }
   }
 

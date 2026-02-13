@@ -1,5 +1,6 @@
 import 'package:busin/controllers/auth_controller.dart';
 import 'package:busin/controllers/report_controller.dart';
+import 'package:busin/l10n/app_localizations.dart';
 import 'package:busin/models/report.dart';
 import 'package:busin/utils/constants.dart';
 import 'package:busin/utils/utils.dart';
@@ -27,11 +28,10 @@ class _ReportsPageState extends State<ReportsPage> {
   @override
   Widget build(BuildContext context) {
     final langCode = localeController.locale.languageCode;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(langCode == 'en' ? 'My Reports' : 'Mes Rapports'),
-      ),
+      appBar: AppBar(title: Text(l10n.reportsPage_title)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showNewReportSheet(context),
         backgroundColor: accentColor,
@@ -42,7 +42,7 @@ class _ReportsPageState extends State<ReportsPage> {
           size: 20,
         ),
         label: Text(
-          langCode == 'en' ? 'New Report' : 'Nouveau Rapport',
+          l10n.reportsPage_newReport,
           style: AppTextStyles.body.copyWith(
             color: lightColor,
             fontWeight: FontWeight.w600,
@@ -83,6 +83,7 @@ class _ReportsPageState extends State<ReportsPage> {
   }
 
   Widget _buildEmptyState(String langCode) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
           child: Padding(
             padding: const EdgeInsets.all(32),
@@ -98,16 +99,12 @@ class _ReportsPageState extends State<ReportsPage> {
                 ),
                 const Gap(16),
                 Text(
-                  langCode == 'en'
-                      ? 'No reports yet'
-                      : 'Aucun rapport pour le moment',
+                  l10n.reportsPage_emptyTitle,
                   style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const Gap(8),
                 Text(
-                  langCode == 'en'
-                      ? 'Submit a report to share your concerns about the bus service.'
-                      : 'Soumettez un rapport pour partager vos préoccupations sur le service de bus.',
+                  l10n.reportsPage_emptySubtitle,
                   style: AppTextStyles.body.copyWith(
                     color: themeController.isDark
                         ? lightColor.withValues(alpha: 0.6)
@@ -149,6 +146,8 @@ class _ReportCard extends StatelessWidget {
   final Report report;
   final String langCode;
 
+  AppLocalizations _l10n(BuildContext context) => AppLocalizations.of(context)!;
+
   Color get _statusColor {
     switch (report.status) {
       case ReportStatus.pending:
@@ -186,6 +185,7 @@ class _ReportCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = _l10n(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -293,9 +293,7 @@ class _ReportCard extends StatelessWidget {
                       ),
                       const Gap(6),
                       Text(
-                        langCode == 'en'
-                            ? 'Admin Response'
-                            : 'Réponse de l\'admin',
+                        l10n.reportsPage_adminResponse,
                         style: AppTextStyles.small.copyWith(
                           color: successColor,
                           fontWeight: FontWeight.w600,
@@ -421,6 +419,7 @@ class _NewReportSheetState extends State<_NewReportSheet> {
   @override
   Widget build(BuildContext context) {
     final langCode = localeController.locale.languageCode;
+    final l10n = AppLocalizations.of(context)!;
 
     return SafeArea(
       child: Padding(
@@ -456,18 +455,14 @@ class _NewReportSheetState extends State<_NewReportSheet> {
                 children: [
                   // Title
                   Text(
-                    langCode == 'en'
-                        ? 'Submit a Report'
-                        : 'Soumettre un Rapport',
+                    l10n.reportSheet_title,
                     style: AppTextStyles.h3.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const Gap(4),
                   Text(
-                    langCode == 'en'
-                        ? 'Tell us about any concern regarding the bus service.'
-                        : 'Parlez-nous de toute préoccupation concernant le service de bus.',
+                    l10n.reportSheet_subtitle,
                     style: AppTextStyles.body.copyWith(
                       color: themeController.isDark
                           ? lightColor.withValues(alpha: 0.6)
@@ -479,7 +474,7 @@ class _NewReportSheetState extends State<_NewReportSheet> {
 
                   // Subject selector
                   Text(
-                    langCode == 'en' ? 'Subject' : 'Sujet',
+                    l10n.reportSheet_subject,
                     style: AppTextStyles.body.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -535,9 +530,7 @@ class _NewReportSheetState extends State<_NewReportSheet> {
                       textCapitalization: TextCapitalization.sentences,
                       style: AppTextStyles.body,
                       decoration: InputDecoration(
-                        hintText: langCode == 'en'
-                            ? 'Custom subject title...'
-                            : 'Titre du sujet personnalisé...',
+                        hintText: l10n.reportSheet_customSubjectHint,
                         hintStyle: AppTextStyles.body.copyWith(
                           color: greyColor,
                         ),
@@ -555,7 +548,7 @@ class _NewReportSheetState extends State<_NewReportSheet> {
 
                   // Description field
                   Text(
-                    langCode == 'en' ? 'Description' : 'Description',
+                    l10n.reportSheet_description,
                     style: AppTextStyles.body.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -594,9 +587,11 @@ class _NewReportSheetState extends State<_NewReportSheet> {
                       const Gap(6),
                       Expanded(
                         child: Text(
-                          langCode == 'en'
-                              ? 'Priority: ${_selectedSubject.defaultPriority.labelEn}'
-                              : 'Priorité : ${_selectedSubject.defaultPriority.labelFr}',
+                          l10n.reportSheet_priority(
+                            langCode == 'en'
+                                ? _selectedSubject.defaultPriority.labelEn
+                                : _selectedSubject.defaultPriority.labelFr,
+                          ),
                           style: AppTextStyles.small.copyWith(
                             color: themeController.isDark
                                 ? lightColor.withValues(alpha: 0.4)
@@ -637,7 +632,7 @@ class _NewReportSheetState extends State<_NewReportSheet> {
                                 ),
                               )
                             : Text(
-                                langCode == 'en' ? 'Submit' : 'Soumettre',
+                                l10n.submit,
                                 style: AppTextStyles.body.copyWith(
                                   color: lightColor,
                                   fontWeight: FontWeight.w600,

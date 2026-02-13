@@ -537,6 +537,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profilePage_listTile_signOutMessage => 'Signed out successfully';
 
   @override
+  String get signOut_confirmTitle => 'Sign Out?';
+
+  @override
+  String get signOut_confirmMessage =>
+      'Are you sure you want to sign out? You can always sign back in.';
+
+  @override
+  String get signOut_confirmButton => 'Sign Out';
+
+  @override
+  String get signOut_cancelButton => 'Cancel';
+
+  @override
+  String get signOut_dontShowAgain => 'Don\'t ask me again';
+
+  @override
   String get profilePage_appInfo_rights => 'All rights reserved';
 
   @override
@@ -1745,4 +1761,270 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get peopleTab_accessList_demote5 => 'Restricted analytics view';
+
+  @override
+  String get homeNav_updatesTab => 'Updates';
+
+  @override
+  String get checkInSheet_title => 'Today\'s Boarding List';
+
+  @override
+  String checkInSheet_subtitle(int count) {
+    return '$count student(s) checked in';
+  }
+
+  @override
+  String get checkInSheet_searchHint => 'Search student...';
+
+  @override
+  String get checkInSheet_emptyTitle => 'No check-ins yet';
+
+  @override
+  String get checkInSheet_emptySubtitle => 'Scan student QR codes to start';
+
+  @override
+  String get checkInSheet_noMatch => 'No matching students';
+
+  @override
+  String get checkInSheet_allTab => 'All';
+
+  @override
+  String get checkInSheet_morningTab => 'Morning';
+
+  @override
+  String get checkInSheet_closingTab => 'Closing';
+
+  @override
+  String get updatesTab_earlierToday => 'Earlier today';
+
+  @override
+  String get updatesTab_emptyState =>
+      'No updates yet today.\nBe the first to share one!';
+
+  @override
+  String get updatesTab_genericHint => 'Send an update to your mates...';
+
+  @override
+  String get updatesTab_notSubscribed =>
+      'You need an active subscription to send updates';
+
+  @override
+  String get updatesTab_needScanForLocation =>
+      'You must board the bus (scan QR) before sharing location';
+
+  @override
+  String peopleTab_subscriptionCount(int count) {
+    return '$count sub(s)';
+  }
+
+  @override
+  String get scanner_checkInListTooltip => 'Boarding List';
+
+  @override
+  String get scanner_cameraPermissionDenied => 'Camera permission denied';
+
+  @override
+  String get scanner_cameraPermissionMessage =>
+      'Camera access is required to scan QR codes. Please allow camera access in your device settings.';
+
+  @override
+  String get scanner_openSettings => 'Open Settings';
+
+  @override
+  String get scanner_maxScansReached =>
+      'This student has already been scanned twice today';
+
+  @override
+  String get profilePage_listTile_myReports => 'My Reports';
+
+  @override
+  String get profilePage_listTile_studentReports => 'Student Reports';
+
+  @override
+  String get profilePage_studentReports_subtitle =>
+      'View and resolve student complaints';
+
+  @override
+  String get profilePage_pendingBadge => 'pending';
+
+  @override
+  String get profilePage_listTile_checkInHistory => 'Check-in History';
+
+  @override
+  String get profilePage_checkInHistory_subtitle =>
+      'View daily attendance trends & records';
+
+  @override
+  String get reportsPage_title => 'My Reports';
+
+  @override
+  String get reportsPage_newReport => 'New Report';
+
+  @override
+  String get reportsPage_emptyTitle => 'No reports yet';
+
+  @override
+  String get reportsPage_emptySubtitle =>
+      'Submit a report to share your concerns about the bus service.';
+
+  @override
+  String get reportsPage_adminResponse => 'Admin Response';
+
+  @override
+  String get reportSheet_title => 'Submit a Report';
+
+  @override
+  String get reportSheet_subtitle =>
+      'Tell us about any concern regarding the bus service.';
+
+  @override
+  String get reportSheet_subject => 'Subject';
+
+  @override
+  String get reportSheet_customSubjectHint => 'Custom subject title...';
+
+  @override
+  String get reportSheet_description => 'Description';
+
+  @override
+  String reportSheet_priority(String priority) {
+    return 'Priority: $priority';
+  }
+
+  @override
+  String get reportsAdminPage_title => 'Student Reports';
+
+  @override
+  String get reportsAdmin_tabPending => 'Pending';
+
+  @override
+  String get reportsAdmin_tabInReview => 'In Review';
+
+  @override
+  String get reportsAdmin_tabResolved => 'Resolved';
+
+  @override
+  String get reportsAdmin_emptyPending => 'No pending reports';
+
+  @override
+  String get reportsAdmin_emptyInReview => 'No reports in review';
+
+  @override
+  String get reportsAdmin_emptyResolved => 'No resolved reports';
+
+  @override
+  String get reportsAdmin_response => 'Response';
+
+  @override
+  String get reportsAdmin_review => 'Review';
+
+  @override
+  String get reportsAdmin_resolve => 'Resolve';
+
+  @override
+  String get reportsAdmin_resolveTitle => 'Resolve Report';
+
+  @override
+  String get reportsAdmin_responseHint =>
+      'Add a response for the student (optional)...';
+
+  @override
+  String get reportsAdmin_markResolved => 'Mark as Resolved';
+
+  @override
+  String get checkInHistory_title => 'Check-in History';
+
+  @override
+  String get checkInHistory_dailyLists => 'Daily Lists';
+
+  @override
+  String get checkInHistory_emptyTitle => 'No check-in history';
+
+  @override
+  String get checkInHistory_emptySubtitle =>
+      'Start scanning students to build attendance records.';
+
+  @override
+  String get checkInHistory_trendTitle => 'Attendance Trend';
+
+  @override
+  String checkInHistory_trendSubtitle(int count) {
+    return 'Last $count days';
+  }
+
+  @override
+  String get checkInHistory_total => 'Total';
+
+  @override
+  String get checkInHistory_morning => 'Morning';
+
+  @override
+  String get checkInHistory_evening => 'Closing';
+
+  @override
+  String get checkInHistory_days => 'Days';
+
+  @override
+  String get checkInHistory_totalScans => 'Total Scans';
+
+  @override
+  String get checkInHistory_avgPerDay => 'Avg / Day';
+
+  @override
+  String get checkInHistory_today => 'Today';
+
+  @override
+  String checkInHistory_studentCount(int count) {
+    return '$count student(s)';
+  }
+
+  @override
+  String get greeting_morning => 'Good morning! ☀️';
+
+  @override
+  String get greeting_afternoon => 'Good afternoon! 🌤️';
+
+  @override
+  String get greeting_evening => 'Good evening! 🌙';
+
+  @override
+  String get validation_phoneRequired => 'Phone number is required';
+
+  @override
+  String get validation_phoneInvalid =>
+      'Please enter a valid Cameroon phone number';
+
+  @override
+  String get validation_matriculeRequired => 'Student ID is required';
+
+  @override
+  String get validation_matriculeLength =>
+      'Student ID must be 12 characters long';
+
+  @override
+  String get validation_matriculePrefix => 'Student ID must start with ICTU';
+
+  @override
+  String get validation_matriculeYear => 'Invalid year in Student ID';
+
+  @override
+  String get validation_matriculeDigits => 'Last 4 characters must be digits';
+
+  @override
+  String get semesterPage_viewStudents => 'View registered students';
+
+  @override
+  String get semesterPage_studentsTitle => 'Registered Students';
+
+  @override
+  String semesterPage_studentsSubtitle(int count) {
+    return '$count student(s) registered';
+  }
+
+  @override
+  String get semesterPage_noStudents =>
+      'No students registered for this semester';
+
+  @override
+  String get semesterPage_searchStudents => 'Search students...';
 }

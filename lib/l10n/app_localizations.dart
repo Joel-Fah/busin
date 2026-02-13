@@ -1094,6 +1094,36 @@ abstract class AppLocalizations {
   /// **'Signed out successfully'**
   String get profilePage_listTile_signOutMessage;
 
+  /// No description provided for @signOut_confirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Out?'**
+  String get signOut_confirmTitle;
+
+  /// No description provided for @signOut_confirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to sign out? You can always sign back in.'**
+  String get signOut_confirmMessage;
+
+  /// No description provided for @signOut_confirmButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Out'**
+  String get signOut_confirmButton;
+
+  /// No description provided for @signOut_cancelButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get signOut_cancelButton;
+
+  /// No description provided for @signOut_dontShowAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t ask me again'**
+  String get signOut_dontShowAgain;
+
   /// No description provided for @profilePage_appInfo_rights.
   ///
   /// In en, this message translates to:
@@ -3214,6 +3244,486 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Restricted analytics view'**
   String get peopleTab_accessList_demote5;
+
+  /// No description provided for @homeNav_updatesTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Updates'**
+  String get homeNav_updatesTab;
+
+  /// No description provided for @checkInSheet_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s Boarding List'**
+  String get checkInSheet_title;
+
+  /// No description provided for @checkInSheet_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} student(s) checked in'**
+  String checkInSheet_subtitle(int count);
+
+  /// No description provided for @checkInSheet_searchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search student...'**
+  String get checkInSheet_searchHint;
+
+  /// No description provided for @checkInSheet_emptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No check-ins yet'**
+  String get checkInSheet_emptyTitle;
+
+  /// No description provided for @checkInSheet_emptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan student QR codes to start'**
+  String get checkInSheet_emptySubtitle;
+
+  /// No description provided for @checkInSheet_noMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching students'**
+  String get checkInSheet_noMatch;
+
+  /// No description provided for @checkInSheet_allTab.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get checkInSheet_allTab;
+
+  /// No description provided for @checkInSheet_morningTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning'**
+  String get checkInSheet_morningTab;
+
+  /// No description provided for @checkInSheet_closingTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Closing'**
+  String get checkInSheet_closingTab;
+
+  /// No description provided for @updatesTab_earlierToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Earlier today'**
+  String get updatesTab_earlierToday;
+
+  /// No description provided for @updatesTab_emptyState.
+  ///
+  /// In en, this message translates to:
+  /// **'No updates yet today.\nBe the first to share one!'**
+  String get updatesTab_emptyState;
+
+  /// No description provided for @updatesTab_genericHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Send an update to your mates...'**
+  String get updatesTab_genericHint;
+
+  /// No description provided for @updatesTab_notSubscribed.
+  ///
+  /// In en, this message translates to:
+  /// **'You need an active subscription to send updates'**
+  String get updatesTab_notSubscribed;
+
+  /// No description provided for @updatesTab_needScanForLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'You must board the bus (scan QR) before sharing location'**
+  String get updatesTab_needScanForLocation;
+
+  /// No description provided for @peopleTab_subscriptionCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} sub(s)'**
+  String peopleTab_subscriptionCount(int count);
+
+  /// No description provided for @scanner_checkInListTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Boarding List'**
+  String get scanner_checkInListTooltip;
+
+  /// No description provided for @scanner_cameraPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera permission denied'**
+  String get scanner_cameraPermissionDenied;
+
+  /// No description provided for @scanner_cameraPermissionMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera access is required to scan QR codes. Please allow camera access in your device settings.'**
+  String get scanner_cameraPermissionMessage;
+
+  /// No description provided for @scanner_openSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Settings'**
+  String get scanner_openSettings;
+
+  /// No description provided for @scanner_maxScansReached.
+  ///
+  /// In en, this message translates to:
+  /// **'This student has already been scanned twice today'**
+  String get scanner_maxScansReached;
+
+  /// No description provided for @profilePage_listTile_myReports.
+  ///
+  /// In en, this message translates to:
+  /// **'My Reports'**
+  String get profilePage_listTile_myReports;
+
+  /// No description provided for @profilePage_listTile_studentReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Student Reports'**
+  String get profilePage_listTile_studentReports;
+
+  /// No description provided for @profilePage_studentReports_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'View and resolve student complaints'**
+  String get profilePage_studentReports_subtitle;
+
+  /// No description provided for @profilePage_pendingBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'pending'**
+  String get profilePage_pendingBadge;
+
+  /// No description provided for @profilePage_listTile_checkInHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Check-in History'**
+  String get profilePage_listTile_checkInHistory;
+
+  /// No description provided for @profilePage_checkInHistory_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'View daily attendance trends & records'**
+  String get profilePage_checkInHistory_subtitle;
+
+  /// No description provided for @reportsPage_title.
+  ///
+  /// In en, this message translates to:
+  /// **'My Reports'**
+  String get reportsPage_title;
+
+  /// No description provided for @reportsPage_newReport.
+  ///
+  /// In en, this message translates to:
+  /// **'New Report'**
+  String get reportsPage_newReport;
+
+  /// No description provided for @reportsPage_emptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No reports yet'**
+  String get reportsPage_emptyTitle;
+
+  /// No description provided for @reportsPage_emptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit a report to share your concerns about the bus service.'**
+  String get reportsPage_emptySubtitle;
+
+  /// No description provided for @reportsPage_adminResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin Response'**
+  String get reportsPage_adminResponse;
+
+  /// No description provided for @reportSheet_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit a Report'**
+  String get reportSheet_title;
+
+  /// No description provided for @reportSheet_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us about any concern regarding the bus service.'**
+  String get reportSheet_subtitle;
+
+  /// No description provided for @reportSheet_subject.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject'**
+  String get reportSheet_subject;
+
+  /// No description provided for @reportSheet_customSubjectHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom subject title...'**
+  String get reportSheet_customSubjectHint;
+
+  /// No description provided for @reportSheet_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get reportSheet_description;
+
+  /// No description provided for @reportSheet_priority.
+  ///
+  /// In en, this message translates to:
+  /// **'Priority: {priority}'**
+  String reportSheet_priority(String priority);
+
+  /// No description provided for @reportsAdminPage_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Student Reports'**
+  String get reportsAdminPage_title;
+
+  /// No description provided for @reportsAdmin_tabPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get reportsAdmin_tabPending;
+
+  /// No description provided for @reportsAdmin_tabInReview.
+  ///
+  /// In en, this message translates to:
+  /// **'In Review'**
+  String get reportsAdmin_tabInReview;
+
+  /// No description provided for @reportsAdmin_tabResolved.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolved'**
+  String get reportsAdmin_tabResolved;
+
+  /// No description provided for @reportsAdmin_emptyPending.
+  ///
+  /// In en, this message translates to:
+  /// **'No pending reports'**
+  String get reportsAdmin_emptyPending;
+
+  /// No description provided for @reportsAdmin_emptyInReview.
+  ///
+  /// In en, this message translates to:
+  /// **'No reports in review'**
+  String get reportsAdmin_emptyInReview;
+
+  /// No description provided for @reportsAdmin_emptyResolved.
+  ///
+  /// In en, this message translates to:
+  /// **'No resolved reports'**
+  String get reportsAdmin_emptyResolved;
+
+  /// No description provided for @reportsAdmin_response.
+  ///
+  /// In en, this message translates to:
+  /// **'Response'**
+  String get reportsAdmin_response;
+
+  /// No description provided for @reportsAdmin_review.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get reportsAdmin_review;
+
+  /// No description provided for @reportsAdmin_resolve.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolve'**
+  String get reportsAdmin_resolve;
+
+  /// No description provided for @reportsAdmin_resolveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolve Report'**
+  String get reportsAdmin_resolveTitle;
+
+  /// No description provided for @reportsAdmin_responseHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a response for the student (optional)...'**
+  String get reportsAdmin_responseHint;
+
+  /// No description provided for @reportsAdmin_markResolved.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as Resolved'**
+  String get reportsAdmin_markResolved;
+
+  /// No description provided for @checkInHistory_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Check-in History'**
+  String get checkInHistory_title;
+
+  /// No description provided for @checkInHistory_dailyLists.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Lists'**
+  String get checkInHistory_dailyLists;
+
+  /// No description provided for @checkInHistory_emptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No check-in history'**
+  String get checkInHistory_emptyTitle;
+
+  /// No description provided for @checkInHistory_emptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start scanning students to build attendance records.'**
+  String get checkInHistory_emptySubtitle;
+
+  /// No description provided for @checkInHistory_trendTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance Trend'**
+  String get checkInHistory_trendTitle;
+
+  /// No description provided for @checkInHistory_trendSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Last {count} days'**
+  String checkInHistory_trendSubtitle(int count);
+
+  /// No description provided for @checkInHistory_total.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get checkInHistory_total;
+
+  /// No description provided for @checkInHistory_morning.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning'**
+  String get checkInHistory_morning;
+
+  /// No description provided for @checkInHistory_evening.
+  ///
+  /// In en, this message translates to:
+  /// **'Closing'**
+  String get checkInHistory_evening;
+
+  /// No description provided for @checkInHistory_days.
+  ///
+  /// In en, this message translates to:
+  /// **'Days'**
+  String get checkInHistory_days;
+
+  /// No description provided for @checkInHistory_totalScans.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Scans'**
+  String get checkInHistory_totalScans;
+
+  /// No description provided for @checkInHistory_avgPerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg / Day'**
+  String get checkInHistory_avgPerDay;
+
+  /// No description provided for @checkInHistory_today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get checkInHistory_today;
+
+  /// No description provided for @checkInHistory_studentCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} student(s)'**
+  String checkInHistory_studentCount(int count);
+
+  /// No description provided for @greeting_morning.
+  ///
+  /// In en, this message translates to:
+  /// **'Good morning! ☀️'**
+  String get greeting_morning;
+
+  /// No description provided for @greeting_afternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Good afternoon! 🌤️'**
+  String get greeting_afternoon;
+
+  /// No description provided for @greeting_evening.
+  ///
+  /// In en, this message translates to:
+  /// **'Good evening! 🌙'**
+  String get greeting_evening;
+
+  /// No description provided for @validation_phoneRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number is required'**
+  String get validation_phoneRequired;
+
+  /// No description provided for @validation_phoneInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid Cameroon phone number'**
+  String get validation_phoneInvalid;
+
+  /// No description provided for @validation_matriculeRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Student ID is required'**
+  String get validation_matriculeRequired;
+
+  /// No description provided for @validation_matriculeLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Student ID must be 12 characters long'**
+  String get validation_matriculeLength;
+
+  /// No description provided for @validation_matriculePrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Student ID must start with ICTU'**
+  String get validation_matriculePrefix;
+
+  /// No description provided for @validation_matriculeYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid year in Student ID'**
+  String get validation_matriculeYear;
+
+  /// No description provided for @validation_matriculeDigits.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 4 characters must be digits'**
+  String get validation_matriculeDigits;
+
+  /// No description provided for @semesterPage_viewStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'View registered students'**
+  String get semesterPage_viewStudents;
+
+  /// No description provided for @semesterPage_studentsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Registered Students'**
+  String get semesterPage_studentsTitle;
+
+  /// No description provided for @semesterPage_studentsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} student(s) registered'**
+  String semesterPage_studentsSubtitle(int count);
+
+  /// No description provided for @semesterPage_noStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'No students registered for this semester'**
+  String get semesterPage_noStudents;
+
+  /// No description provided for @semesterPage_searchStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'Search students...'**
+  String get semesterPage_searchStudents;
 }
 
 class _AppLocalizationsDelegate

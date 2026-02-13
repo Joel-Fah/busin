@@ -170,6 +170,18 @@ String getTimeGreeting(String languageCode) {
   }
 }
 
+/// Localized version using AppLocalizations
+String getTimeGreetingL10n(AppLocalizations l10n) {
+  final hour = DateTime.now().hour;
+  if (hour < 12) {
+    return l10n.greeting_morning;
+  } else if (hour < 17) {
+    return l10n.greeting_afternoon;
+  } else {
+    return l10n.greeting_evening;
+  }
+}
+
 /// Formats a time as HH:mm (24h format)
 String formatTime(DateTime date) {
   return DateFormat('HH:mm').format(date);

@@ -35,7 +35,9 @@ class ScanningController extends GetxController {
     _checkLocationPermission();
 
     if (kDebugMode) {
-      debugPrint('[ScanningController] onInit called - waiting for initialize() to be called with user data');
+      debugPrint(
+        '[ScanningController] onInit called - waiting for initialize() to be called with user data',
+      );
     }
   }
 
@@ -71,7 +73,9 @@ class ScanningController extends GetxController {
     }
 
     if (kDebugMode) {
-      debugPrint('[ScanningController] ========== INITIALIZING WITH USER DATA ==========');
+      debugPrint(
+        '[ScanningController] ========== INITIALIZING WITH USER DATA ==========',
+      );
       debugPrint('[ScanningController] User ID: $userId');
       debugPrint('[ScanningController] Is Student: $isStudent');
       debugPrint('[ScanningController] Is Admin: $isAdmin');
@@ -87,20 +91,26 @@ class ScanningController extends GetxController {
 
     if (isStudent) {
       if (kDebugMode) {
-        debugPrint('[ScanningController] ✅ Starting watch for student: $userId');
+        debugPrint(
+          '[ScanningController] ✅ Starting watch for student: $userId',
+        );
       }
       startWatchingStudent(userId);
       _loadLastScan(userId);
       _isWatchingInitialized = true;
     } else if (isAdmin || isStaff) {
       if (kDebugMode) {
-        debugPrint('[ScanningController] ✅ Starting watch for admin/staff (all scans)');
+        debugPrint(
+          '[ScanningController] ✅ Starting watch for admin/staff (all scans)',
+        );
       }
       startWatchingAll();
       _isWatchingInitialized = true;
     } else {
       if (kDebugMode) {
-        debugPrint('[ScanningController] ⚠️ WARNING: Unknown user role, no watching initialized');
+        debugPrint(
+          '[ScanningController] ⚠️ WARNING: Unknown user role, no watching initialized',
+        );
       }
     }
   }
@@ -110,7 +120,9 @@ class ScanningController extends GetxController {
     _watcher?.cancel();
 
     if (kDebugMode) {
-      debugPrint('[ScanningController] ========== SETTING UP STREAM ==========');
+      debugPrint(
+        '[ScanningController] ========== SETTING UP STREAM ==========',
+      );
       debugPrint('[ScanningController] Student ID: $studentId');
       debugPrint('[ScanningController] Timestamp: ${DateTime.now()}');
     }
@@ -120,25 +132,43 @@ class ScanningController extends GetxController {
         .listen(
           (data) {
             if (kDebugMode) {
-              debugPrint('[ScanningController] ========== STREAM DATA RECEIVED ==========');
+              debugPrint(
+                '[ScanningController] ========== STREAM DATA RECEIVED ==========',
+              );
               debugPrint('[ScanningController] Timestamp: ${DateTime.now()}');
-              debugPrint('[ScanningController] Number of scans: ${data.length}');
+              debugPrint(
+                '[ScanningController] Number of scans: ${data.length}',
+              );
 
               if (data.isNotEmpty) {
                 debugPrint('[ScanningController] First scan details:');
                 debugPrint('[ScanningController]   - ID: ${data.first.id}');
-                debugPrint('[ScanningController]   - Student ID: ${data.first.studentId}');
-                debugPrint('[ScanningController]   - Scanned At: ${data.first.scannedAt}');
-                debugPrint('[ScanningController]   - Has Location: ${data.first.hasLocation}');
+                debugPrint(
+                  '[ScanningController]   - Student ID: ${data.first.studentId}',
+                );
+                debugPrint(
+                  '[ScanningController]   - Scanned At: ${data.first.scannedAt}',
+                );
+                debugPrint(
+                  '[ScanningController]   - Has Location: ${data.first.hasLocation}',
+                );
                 if (data.first.hasLocation) {
-                  debugPrint('[ScanningController]   - Location: ${data.first.locationString}');
+                  debugPrint(
+                    '[ScanningController]   - Location: ${data.first.locationString}',
+                  );
                 }
               } else {
                 debugPrint('[ScanningController] ⚠️ No scans in the list!');
                 debugPrint('[ScanningController] This could mean:');
-                debugPrint('[ScanningController]   1. No scans exist in Firestore for this student');
-                debugPrint('[ScanningController]   2. Firestore query is not returning data');
-                debugPrint('[ScanningController]   3. studentId mismatch in Firestore documents');
+                debugPrint(
+                  '[ScanningController]   1. No scans exist in Firestore for this student',
+                );
+                debugPrint(
+                  '[ScanningController]   2. Firestore query is not returning data',
+                );
+                debugPrint(
+                  '[ScanningController]   3. studentId mismatch in Firestore documents',
+                );
               }
             }
 
@@ -148,20 +178,32 @@ class ScanningController extends GetxController {
             if (data.isNotEmpty) {
               lastScan.value = data.first;
               if (kDebugMode) {
-                debugPrint('[ScanningController] ✅ lastScan.value updated: ${data.first.id}');
-                debugPrint('[ScanningController] lastScan.value is now: ${lastScan.value?.id}');
+                debugPrint(
+                  '[ScanningController] ✅ lastScan.value updated: ${data.first.id}',
+                );
+                debugPrint(
+                  '[ScanningController] lastScan.value is now: ${lastScan.value?.id}',
+                );
               }
             } else {
               lastScan.value = null;
               if (kDebugMode) {
-                debugPrint('[ScanningController] ⚠️ lastScan.value set to null (no scans)');
+                debugPrint(
+                  '[ScanningController] ⚠️ lastScan.value set to null (no scans)',
+                );
               }
             }
 
             if (kDebugMode) {
-              debugPrint('[ScanningController] Current _scannings list length: ${_scannings.length}');
-              debugPrint('[ScanningController] Current lastScan: ${lastScan.value?.id ?? "null"}');
-              debugPrint('[ScanningController] ========================================');
+              debugPrint(
+                '[ScanningController] Current _scannings list length: ${_scannings.length}',
+              );
+              debugPrint(
+                '[ScanningController] Current lastScan: ${lastScan.value?.id ?? "null"}',
+              );
+              debugPrint(
+                '[ScanningController] ========================================',
+              );
             }
           },
           onError: (Object err) {
@@ -170,14 +212,20 @@ class ScanningController extends GetxController {
               debugPrint('[ScanningController] ❌❌❌ ERROR IN STREAM ❌❌❌');
               debugPrint('[ScanningController] Error: $err');
               debugPrint('[ScanningController] Error Type: ${err.runtimeType}');
-              debugPrint('[ScanningController] ========================================');
+              debugPrint(
+                '[ScanningController] ========================================',
+              );
             }
           },
         );
 
     if (kDebugMode) {
-      debugPrint('[ScanningController] ✅ Stream listener attached successfully');
-      debugPrint('[ScanningController] ========================================');
+      debugPrint(
+        '[ScanningController] ✅ Stream listener attached successfully',
+      );
+      debugPrint(
+        '[ScanningController] ========================================',
+      );
     }
   }
 
@@ -241,7 +289,6 @@ class ScanningController extends GetxController {
         deviceInfo: deviceInfo,
         notes: notes,
       );
-
 
       if (kDebugMode) {
         debugPrint('[ScanningController] Scanning created: ${scanning.id}');
@@ -313,6 +360,19 @@ class ScanningController extends GetxController {
     _storage.write(_screenshotWarningShownKey, true);
     if (kDebugMode) {
       debugPrint('[ScanningController] Screenshot warning marked as shown');
+    }
+  }
+
+  /// Reset the controller state (e.g. on sign out)
+  void reset() {
+    _watcher?.cancel();
+    _isWatchingInitialized = false;
+    _scannings.clear();
+    lastScan.value = null;
+    isBusy.value = false;
+    errorMessage.value = null;
+    if (kDebugMode) {
+      debugPrint('[ScanningController] ✅ Reset complete');
     }
   }
 }

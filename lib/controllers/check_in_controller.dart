@@ -166,4 +166,17 @@ class CheckInController extends GetxController {
 
   /// Total unique students checked in today.
   int get todayTotalStudents => todayCheckIns.value?.totalStudents ?? 0;
+
+  /// Reset the controller state (e.g. on sign out)
+  void reset() {
+    _todaySub?.cancel();
+    _historySub?.cancel();
+    _isInitialized = false;
+    todayCheckIns.value = null;
+    history.clear();
+    errorMessage.value = null;
+    if (kDebugMode) {
+      debugPrint('[CheckInController] ✅ Reset complete');
+    }
+  }
 }

@@ -89,7 +89,7 @@ class _HomePageState extends State<HomePage>
         AppLocalizations.of(context)!.homeNav_studentHomeTab,
       AppLocalizations.of(context)!.homeNav_subscriptionsTab,
       if (authController.isStudent)
-        localeController.locale.languageCode == 'en' ? 'Updates' : 'Actus',
+        AppLocalizations.of(context)!.homeNav_updatesTab,
       if (authController.isStudent)
         AppLocalizations.of(context)!.homeNav_scanningsTab,
       if (authController.isAdmin || authController.isStaff)
