@@ -34,8 +34,7 @@ None. GitHub CLI, Java 21, Docker Desktop and Flutter 3.47.9 are installed and v
 
 ## Open questions
 
-- Where does scanning happen: at boarding, inside the bus, or at the campus gate? Decides density inputs (Phase 4 and 5).
-- How many buses, and are routes fixed? Shapes the `trips` schema (Phase 1).
+- Answered (2026-10-30): scanning happens at each stop as students board, so scan GPS is a valid boarding location. At least 2 buses run, and sometimes only 1 when the other is out of service. Stops are fixed today, but the goal is to suggest better stops and routes from student data (see docs/phases/phase-5-insights.md).
 - Web hosting for the admin portal (Phase 2 end).
 - Whether and when to retire the old ICTU Firebase project (owner decision).
 
@@ -45,7 +44,7 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 
 ## Last handoff
 
-Phase 0 work is committed on the local branch `phase-0/restructure`. The foundation PR is open: #47 into `dev`, awaiting owner review. Audit issues are #33 to #46.
+Phase 0 work is committed on the local branch `phase-0/restructure`. The foundation PR is open: #47 into `dev`, awaiting owner review (conflicts with new dev work resolved by merging dev into the branch). Audit issues are #33 to #46.
 
 Verified: the legacy app analyzes as before (0 errors, 5 warnings); `npm run check` passes; `fvm dart pub get` resolves the workspace on Flutter 3.47.9; the Supabase CLI 2.122.0 runs through npx; `gh` is signed in; Docker Desktop and Java 21 are installed.
 

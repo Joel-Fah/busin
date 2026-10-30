@@ -4,6 +4,7 @@ Goal: a secure multi-tenant Supabase backend that closes every Critical finding 
 
 ## Scope
 - `npx supabase init`, local stack, migrations.
+- Design inputs from the owner: scans happen at each stop at boarding, so a scan carries the stop and its coordinates; at least 2 buses, sometimes 1, so a bus can be marked out of service and trips are not bound to one fixed bus.
 - Schema: schools, profiles, semesters, stops (PostGIS point), buses, trips, subscriptions, scans (unique per trip and student), live_positions, audit_log.
 - Row Level Security on every table. Roles and school come from JWT claims.
 - Sign-up check against `schools.allowed_domains`; sign-up always creates a student.

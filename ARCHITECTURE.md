@@ -54,9 +54,9 @@ One Supabase project per environment (`dev` local, `prod` hosted). Everything is
 | `profiles` | One row per auth user: school, role (`student`, `staff`, `admin`), status |
 | `semesters` | Per school, with exact start and end dates |
 | `stops` | Per school, PostGIS point, photo path |
-| `buses`, `trips` | Plate and capacity; a trip is one bus run with direction, driver, start and end |
+| `buses`, `trips` | Plate, capacity and an in-service flag (at least 2 buses, sometimes 1 operating); a trip is one bus run with direction, driver, start and end |
 | `subscriptions` | Student, semester, stop, status, proof file path, review note |
-| `scans` | Student, trip, scanner, time, location. Unique on trip + student so a repeat scan is idempotent |
+| `scans` | Student, trip, stop (scans happen at each stop at boarding), scanner, time, location. Unique on trip + student so a repeat scan is idempotent |
 | `live_positions` | Latest position per bus (one row, overwritten) |
 | `audit_log` | Who approved, rejected, promoted or suspended whom |
 | `stats_*` | Nightly aggregates written by `pg_cron` for the portal |
