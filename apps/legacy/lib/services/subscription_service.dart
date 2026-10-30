@@ -162,7 +162,7 @@ class SubscriptionService {
           reviewerUserId: reviewerId,
           observedAt: DateTime.now(),
           message:
-              'Your bus subscription for ${subscription.semester.label} ${subscription.year} has been approved. Enjoy your ride throughout the semester',
+              'Your bus subscription for ${subscription.semesterYear} has been approved. Enjoy your ride throughout the semester',
         ),
         updatedAt: DateTime.now(),
       );
@@ -247,6 +247,35 @@ class SubscriptionService {
     } catch (e) {
       if (kDebugMode) {
         debugPrint('[SubscriptionService] fetchSubscription error: $e');
+      }
+      rethrow;
+    }
+  }
+
+  /// Fetch approved subscriptions for a specific semester.
+  /// Returns students who registered for this semester, ordered by createdAt.
+  Future<List<BusSubscription>> fetchSubscriptionsBySemester({
+    required String semesterName,
+    required int year,
+  }) async {
+    try {
+      final semesterId = '${semesterName.toLowerCase()}_$year';
+      final snapshot = await _collection
+          .where('semesterId', isEqualTo: semesterId)
+          .where('status', isEqualTo: 'approved')
+          .orderBy('createdAt', descending: false)
+          .get();
+
+      return snapshot.docs.map((doc) {
+        final data = Map<String, dynamic>.from(doc.data());
+        data['id'] = doc.id;
+        return BusSubscription.fromMap(data);
+      }).toList();
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint(
+          '[SubscriptionService] fetchSubscriptionsBySemester error: $e',
+        );
       }
       rethrow;
     }

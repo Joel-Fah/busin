@@ -313,12 +313,14 @@ class _NewSubscriptionPageState extends State<NewSubscriptionPage> {
       return;
     }
 
-    // Create subscription with actual semester dates from config
+    // Create subscription with semester/stop ID references
     final now = DateTime.now();
     var newSub = BusSubscription(
       id: '',
       studentId: authController.currentUser.value!.id,
-      semesterConfig: _selectedSemesterConfig!,
+      semesterId: _selectedSemesterConfig!.id,
+      stopId: stop.id,
+      semesterConfig: _selectedSemesterConfig,
       status: BusSubscriptionStatus.pending,
       createdAt: now,
       updatedAt: now,

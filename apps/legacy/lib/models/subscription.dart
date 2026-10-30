@@ -151,10 +151,26 @@ class BusSubscriptionSchedule {
 }
 
 /// Subscription model tying a student to a semester and preferences.
+///
+/// Firestore documents store only [semesterId] and [stopId] as references.
+/// The full [semesterConfig] and [stop] objects are resolved at runtime
+/// by the controller layer using cached data from [SemesterController]
+/// and [BusStopsController].
 class BusSubscription {
   final String id;
   final String studentId;
-  final SemesterConfig semesterConfig; // Embedded semester configuration
+
+  /// Reference to the semester document ID (e.g., "fall_2025").
+  /// This is the only semester field persisted to Firestore.
+  final String semesterId;
+
+  /// Reference to the bus stop document ID.
+  /// This is the only stop field persisted to Firestore.
+  final String? stopId;
+
+  /// Runtime-resolved semester configuration. NOT serialized to Firestore.
+  /// Populated by the controller after loading via [resolve].
+  final SemesterConfig? semesterConfig;
 
   final BusSubscriptionStatus status;
   final String? proofOfPaymentUrl;
@@ -162,7 +178,8 @@ class BusSubscription {
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  // Boarding preference
+  /// Runtime-resolved bus stop. NOT serialized to Firestore.
+  /// Populated by the controller after loading via [resolve].
   final BusStop? stop;
 
   // Weekly preferences (multiple days)
@@ -174,26 +191,39 @@ class BusSubscription {
   const BusSubscription({
     required this.id,
     required this.studentId,
-    required this.semesterConfig,
+    required this.semesterId,
     required this.status,
     required this.createdAt,
     required this.updatedAt,
+    this.stopId,
+    this.semesterConfig,
     this.proofOfPaymentUrl,
     this.stop,
     this.observation,
     this.schedules = const [],
   });
 
-  // Convenience getters for backward compatibility
-  Semester get semester => semesterConfig.semester;
+  /// Whether the semester data has been resolved from the cache.
+  bool get isSemesterResolved => semesterConfig != null;
 
-  int get year => semesterConfig.year;
+  /// Whether the stop data has been resolved from the cache.
+  bool get isStopResolved => stopId == null || stop != null;
 
-  DateTime get startDate => semesterConfig.startDate;
+  // ── Convenience getters (null-safe via resolved semesterConfig) ──
 
-  DateTime get endDate => semesterConfig.endDate;
+  Semester get semester =>
+      semesterConfig?.semester ?? Semester.from(semesterId.split('_').first);
+
+  int get year =>
+      semesterConfig?.year ?? (int.tryParse(semesterId.split('_').last) ?? 0);
+
+  DateTime get startDate => semesterConfig?.startDate ?? DateTime(year, 1, 1);
+
+  DateTime get endDate =>
+      semesterConfig?.endDate ?? DateTime(year, 12, 31, 23, 59, 59, 999);
 
   bool get isWithinWindow =>
+      semesterConfig != null &&
       DateSpan(startDate, endDate).contains(DateTime.now());
 
   bool get isCurrentlyActive => status.isApproved && isWithinWindow;
@@ -209,16 +239,33 @@ class BusSubscription {
 
   bool get hasStop => stop != null && stop!.isValid;
 
+  /// Returns a new instance with the resolved semester and/or stop attached.
+  BusSubscription resolve({SemesterConfig? semester, BusStop? busStop}) =>
+      BusSubscription(
+        id: id,
+        studentId: studentId,
+        semesterId: semesterId,
+        stopId: stopId,
+        semesterConfig: semester ?? semesterConfig,
+        status: status,
+        proofOfPaymentUrl: proofOfPaymentUrl,
+        createdAt: createdAt,
+        updatedAt: updatedAt,
+        stop: busStop ?? stop,
+        observation: observation,
+        schedules: schedules,
+      );
+
   Map<String, dynamic> toMap() => {
     'id': id,
     'studentId': studentId,
-    'semester': semesterConfig.toMap(), // Embedded semester configuration
+    'semesterId': semesterId,
+    if (stopId != null) 'stopId': stopId,
     'status': status.nameLower,
     'proofOfPaymentUrl': proofOfPaymentUrl,
     'createdAt': createdAt.toIso8601String(),
     'updatedAt': updatedAt.toIso8601String(),
     if (observation != null) 'review': observation!.toMap(),
-    if (stop != null) 'stop': stop!.toMap(),
     'schedules': schedules.map((s) => s.toMap()).toList(),
   };
 
@@ -239,72 +286,53 @@ class BusSubscription {
       ];
     }
 
-    // Parse semester configuration
-    SemesterConfig semesterConfig;
+    // ── Determine semesterId ──
+    String semesterId;
 
-    if (map['semester'] is Map<String, dynamic>) {
-      // New format: embedded semester configuration
-      semesterConfig = SemesterConfig.fromMap(
-        map['semester'] as Map<String, dynamic>,
-      );
+    if (map['semesterId'] is String) {
+      // New format: semesterId is stored directly
+      semesterId = map['semesterId'] as String;
+    } else if (map['semester'] is Map<String, dynamic>) {
+      // Legacy embedded format: extract ID from the embedded semester map
+      final semMap = map['semester'] as Map<String, dynamic>;
+      semesterId =
+          semMap['id'] as String? ??
+          '${(semMap['semester'] as String?)?.toLowerCase() ?? 'fall'}_${semMap['year'] ?? 0}';
+    } else if (map['semester'] is String) {
+      // Very old legacy: semester name + year as separate fields
+      final semName = (map['semester'] as String).toLowerCase();
+      final yr = (map['year'] as num?)?.toInt() ?? 0;
+      semesterId = '${semName}_$yr';
     } else {
-      // Legacy format: parse from semesterId or separate fields
-      Semester semester;
-      int year;
-      DateTime startDate;
-      DateTime endDate;
+      semesterId = 'unknown_0';
+    }
 
-      if (map['semesterId'] is String) {
-        // Parse semesterId = "fall_2025"
-        final parts = (map['semesterId'] as String).split('_');
-        if (parts.length == 2) {
-          semester = Semester.from(parts[0]);
-          year = int.parse(parts[1]);
-        } else {
-          // Fallback
-          semester = Semester.from(map['semester'] as String);
-          year = (map['year'] as num).toInt();
-        }
-      } else {
-        // Very old legacy format
-        semester = Semester.from(map['semester'] as String);
-        year = (map['year'] as num).toInt();
-      }
+    // ── Determine stopId ──
+    String? stopId;
 
-      // Try to get dates
-      if (map['startDate'] != null && map['endDate'] != null) {
-        startDate = _parseDateTime(map['startDate']);
-        endDate = _parseDateTime(map['endDate']);
-      } else {
-        // Default dates
-        startDate = DateTime(year, 1, 1);
-        endDate = DateTime(year, 12, 31, 23, 59, 59, 999);
-      }
-
-      // Create a temporary SemesterConfig for backward compatibility
-      semesterConfig = SemesterConfig(
-        id: '${semester.nameLower}_$year',
-        semester: semester,
-        year: year,
-        startDate: startDate,
-        endDate: endDate,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-        createdBy: 'legacy',
-      );
+    if (map.containsKey('stopId') && map['stopId'] is String) {
+      // New format or legacy top-level stopId
+      stopId = map['stopId'] as String?;
+      if (stopId != null && stopId.isEmpty) stopId = null;
+    } else if (map['stop'] is Map<String, dynamic>) {
+      // Legacy embedded stop: extract the stop's ID
+      final stopMap = map['stop'] as Map<String, dynamic>;
+      stopId = stopMap['stopId'] as String? ?? stopMap['id'] as String?;
     }
 
     return BusSubscription(
       id: map['id'] as String,
       studentId: map['studentId'] as String,
-      semesterConfig: semesterConfig,
+      semesterId: semesterId,
+      stopId: stopId,
       status: BusSubscriptionStatus.from(map['status'] as String),
       proofOfPaymentUrl: map['proofOfPaymentUrl'] as String?,
       createdAt: _parseDateTime(map['createdAt']),
       updatedAt: _parseDateTime(map['updatedAt']),
-      stop: _parseStop(map),
       schedules: parsedSchedules,
       observation: _parseObservation(map),
+      // semesterConfig and stop are NOT populated from Firestore data;
+      // they will be resolved by the controller layer.
     );
   }
 
@@ -343,34 +371,11 @@ class BusSubscription {
     );
   }
 
-  static BusStop? _parseStop(Map<String, dynamic> map) {
-    // Try to parse from nested 'stop' object first
-    if (map['stop'] is Map<String, dynamic>) {
-      return BusStop.maybeFromMap(map['stop'] as Map<String, dynamic>);
-    }
-
-    // Backward compatibility: parse from top-level stopId/stopName fields
-    final stopId = map['stopId'] as String?;
-    final stopName = map['stopName'] as String?;
-    if (stopId == null || stopName == null) return null;
-    if (stopId.isEmpty || stopName.isEmpty) return null;
-
-    // Use maybeFromMap for proper parsing with defaults
-    return BusStop.maybeFromMap({
-      'stopId': stopId,
-      'stopName': stopName,
-      'pickupImageUrl': map['pickupImageUrl'],
-      'mapEmbedUrl': map['mapEmbedUrl'],
-      'createdAt': map['createdAt'],
-      'updatedAt': map['updatedAt'],
-      'createdBy': map['createdBy'] ?? '',
-      'updatedBy': map['updatedBy'],
-    });
-  }
-
   BusSubscription copyWith({
     String? id,
     String? studentId,
+    String? semesterId,
+    String? stopId,
     SemesterConfig? semesterConfig,
     BusSubscriptionStatus? status,
     String? proofOfPaymentUrl,
@@ -382,6 +387,8 @@ class BusSubscription {
   }) => BusSubscription(
     id: id ?? this.id,
     studentId: studentId ?? this.studentId,
+    semesterId: semesterId ?? this.semesterId,
+    stopId: stopId ?? this.stopId,
     semesterConfig: semesterConfig ?? this.semesterConfig,
     status: status ?? this.status,
     proofOfPaymentUrl: proofOfPaymentUrl ?? this.proofOfPaymentUrl,

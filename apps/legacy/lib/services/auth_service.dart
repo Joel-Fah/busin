@@ -12,6 +12,9 @@ class AuthService {
 
   static final AuthService instance = AuthService._();
 
+  /// When true, skip lightweight auth and force interactive account picker.
+  bool _forceInteractiveSignIn = false;
+
   final fb_auth.FirebaseAuth _auth = fb_auth.FirebaseAuth.instance;
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
@@ -33,19 +36,27 @@ class AuthService {
 
     GoogleSignInAccount? account;
 
-    // Try lightweight/ silent sign-in first
-    try {
-      account = await _googleSignIn.attemptLightweightAuthentication();
-      if (kDebugMode) {
-        debugPrint(
-          '[AuthService] signInWithGoogle Success: ${account.toString()}',
-        );
+    // Try lightweight/ silent sign-in first (skip if user just signed out)
+    if (!_forceInteractiveSignIn) {
+      try {
+        account = await _googleSignIn.attemptLightweightAuthentication();
+        if (kDebugMode) {
+          debugPrint(
+            '[AuthService] signInWithGoogle Success: ${account.toString()}',
+          );
+        }
+      } catch (e) {
+        account = null;
+        if (kDebugMode) {
+          debugPrint(
+            '[AuthService] signInWithGoogle: Lightweight auth failed: ${e.toString()}',
+          );
+        }
       }
-    } catch (e) {
-      account = null;
+    } else {
       if (kDebugMode) {
         debugPrint(
-          '[AuthService] signInWithGoogle: Lightweight auth failed: ${e.toString()}',
+          '[AuthService] signInWithGoogle: Skipping lightweight auth (user signed out previously)',
         );
       }
     }
@@ -60,9 +71,11 @@ class AuthService {
       }
     }
 
+    // Clear the force-interactive flag after successful account selection
+    _forceInteractiveSignIn = false;
+
     final GoogleSignInAuthentication gAuth = await account.authentication;
     final String? idToken = gAuth.idToken;
-    final String? accessToken = gAuth.idToken;
 
     if (idToken == null) {
       if (kDebugMode) {
@@ -76,7 +89,6 @@ class AuthService {
     final fb_auth.OAuthCredential credential =
         fb_auth.GoogleAuthProvider.credential(
           idToken: idToken,
-          accessToken: accessToken,
         );
 
     final fb_auth.UserCredential userCred = await _auth.signInWithCredential(
@@ -242,14 +254,23 @@ class AuthService {
   }
 
   Future<void> signOut() async {
+    _forceInteractiveSignIn = true;
     await _auth.signOut();
     try {
-      await _googleSignIn.disconnect();
       await _googleSignIn.signOut();
     } catch (e) {
       if (kDebugMode) {
         debugPrint(
           '[AuthService] signOut: Google signOut error: ${e.toString()}',
+        );
+      }
+    }
+    try {
+      await _googleSignIn.disconnect();
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint(
+          '[AuthService] signOut: Google disconnect error: ${e.toString()}',
         );
       }
     }
@@ -260,14 +281,10 @@ class AuthService {
       await _auth.signOut();
     } catch (_) {}
     try {
-      await _googleSignIn.disconnect();
       await _googleSignIn.signOut();
-    } catch (e) {
-      if (kDebugMode) {
-        debugPrint(
-          '[AuthService] Cleanup: Google signOut error: ${e.toString()}',
-        );
-      }
-    }
+    } catch (_) {}
+    try {
+      await _googleSignIn.disconnect();
+    } catch (_) {}
   }
 }

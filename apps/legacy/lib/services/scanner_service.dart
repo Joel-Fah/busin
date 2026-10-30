@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:get/get.dart';
 
+import '../controllers/bus_stops_controller.dart';
+import '../controllers/semester_controller.dart';
 import '../models/actors/student.dart';
 import '../models/subscription.dart';
 
@@ -123,7 +126,17 @@ class ScannerService {
       for (var doc in subscriptionsSnapshot.docs) {
         final data = doc.data();
         data['id'] = doc.id;
-        final subscription = BusSubscription.fromMap(data);
+        var subscription = BusSubscription.fromMap(data);
+
+        // Resolve semester/stop references from in-memory caches
+        final semCtrl = Get.find<SemesterController>();
+        final stopsCtrl = Get.find<BusStopsController>();
+        subscription = subscription.resolve(
+          semester: semCtrl.getSemesterById(subscription.semesterId),
+          busStop: subscription.stopId != null
+              ? stopsCtrl.getBusStopById(subscription.stopId!)
+              : null,
+        );
 
         if (kDebugMode) {
           debugPrint(

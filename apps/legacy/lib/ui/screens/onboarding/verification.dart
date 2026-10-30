@@ -1,6 +1,7 @@
 import 'package:busin/ui/components/widgets/buttons/primary_button.dart';
 import 'package:busin/ui/components/widgets/buttons/secondary_button.dart';
 import 'package:busin/ui/components/widgets/default_snack_bar.dart';
+import 'package:busin/ui/components/widgets/sign_out_confirmation.dart';
 import 'package:busin/ui/screens/home/home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -128,17 +129,11 @@ class _VerificationPageState extends State<VerificationPage> {
 
   Future<void> _signOut() async {
     final l10n = AppLocalizations.of(context)!;
-    await _authController.signOut().then((_) {
-      snackBarKey.currentState
-        ?..hideCurrentSnackBar()
-        ..showSnackBar(
-          buildSnackBar(
-            backgroundColor: successColor,
-            prefixIcon: HugeIcon(icon: successIcon, color: lightColor),
-            label: Text(l10n.verificationPage_signOutMessage),
-          ),
-        );
-    });
+    await showSignOutConfirmation(
+      context,
+      authController: _authController,
+      l10n: l10n,
+    );
   }
 
   @override

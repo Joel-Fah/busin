@@ -1,6 +1,6 @@
 import 'dart:io';
 
-  import 'package:busin/utils/routes.dart';
+import 'package:busin/utils/routes.dart';
 import 'package:busin/utils/theme.dart';
 import 'package:busin/utils/utils.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -58,9 +58,7 @@ Future<void> main() async {
   }
 
   // Initialize firebase
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // Initialize GetStorage
   await GetStorage.init();
@@ -82,6 +80,9 @@ Future<void> main() async {
   Get.put(ScannerController());
   Get.put(UsersController());
   Get.put(ScanningController());
+  Get.put(UpdateController());
+  Get.put(ReportController());
+  Get.put(CheckInController());
 
   // locked orientation to portrait
   await SystemChrome.setPreferredOrientations([
@@ -102,7 +103,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp.router(
-      title: 'Material App',
+      title: 'BusIn',
       debugShowCheckedModeBanner: false,
       scaffoldMessengerKey: snackBarKey,
       theme: AppTheme.lightTheme,

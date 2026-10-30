@@ -134,7 +134,6 @@ class _ScanningsTabState extends State<ScanningsTab> {
     scanningController.markScreenshotWarningShown();
   }
 
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -158,9 +157,9 @@ class _ScanningsTabState extends State<ScanningsTab> {
         final user = authController.currentUser.value;
         final isSuspended = user?.status.isSuspended ?? false;
 
-        // Check if user has an active (approved) subscription
+        // Check if user has a currently-active subscription (approved + within date window)
         final hasActiveSubscription = subscriptionsController.busSubscriptions
-            .any((sub) => sub.status.isApproved);
+            .any((sub) => sub.isCurrentlyActive);
 
         // Determine if QR should be blocked
         final shouldBlockQR = isSuspended || !hasActiveSubscription;
@@ -366,7 +365,8 @@ class _ScanningsTabState extends State<ScanningsTab> {
                               onTap: () {
                                 // TODO: Navigate to scan details
                               },
-                              primaryPillLabel: '#${scanningController.scannings.length}',
+                              primaryPillLabel:
+                                  '#${scanningController.scannings.length}',
                               title: Text(
                                 lastScan.hasLocation
                                     ? maskCoordinates(lastScan.locationString)

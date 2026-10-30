@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
-
 // Globals
 final GlobalKey<ScaffoldMessengerState> snackBarKey =
     GlobalKey<ScaffoldMessengerState>();
@@ -149,6 +148,43 @@ String maskCoordinates(String coordinates) {
     RegExp(r'(\d+\.\d{2})\d+'),
     (match) => '${match.group(1)}***',
   );
+}
+
+/// Returns a time-of-day greeting based on the current hour
+/// Used in the empty state of the Updates tab
+///
+/// Examples:
+/// - 6 AM → "Good morning! ☀️" / "Bonjour ! ☀️"
+/// - 1 PM → "Good afternoon! 🌤️" / "Bon après-midi ! 🌤️"
+/// - 7 PM → "Good evening! 🌙" / "Bonsoir ! 🌙"
+String getTimeGreeting(String languageCode) {
+  final hour = DateTime.now().hour;
+  if (hour < 12) {
+    return languageCode == 'en' ? 'Good morning! ☀️' : 'Bonjour ! ☀️';
+  } else if (hour < 17) {
+    return languageCode == 'en'
+        ? 'Good afternoon! 🌤️'
+        : 'Bon après-midi ! 🌤️';
+  } else {
+    return languageCode == 'en' ? 'Good evening! 🌙' : 'Bonsoir ! 🌙';
+  }
+}
+
+/// Localized version using AppLocalizations
+String getTimeGreetingL10n(AppLocalizations l10n) {
+  final hour = DateTime.now().hour;
+  if (hour < 12) {
+    return l10n.greeting_morning;
+  } else if (hour < 17) {
+    return l10n.greeting_afternoon;
+  } else {
+    return l10n.greeting_evening;
+  }
+}
+
+/// Formats a time as HH:mm (24h format)
+String formatTime(DateTime date) {
+  return DateFormat('HH:mm').format(date);
 }
 
 String? validateMatricule(String? value) {

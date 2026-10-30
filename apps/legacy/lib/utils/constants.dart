@@ -55,7 +55,7 @@ MaterialColor seedPalette =
     });
 
 MaterialColor accentPalette =
-    MaterialColor(seedColor.toARGB32(), const <int, Color>{
+    MaterialColor(accentColor.toARGB32(), const <int, Color>{
       50: Color(0xFFFEF8EC),
       100: Color(0xFFFDE9C8),
       200: Color(0xFFFAD28D),

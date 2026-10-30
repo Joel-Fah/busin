@@ -6,11 +6,13 @@ import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../../controllers/scanner_controller.dart';
 import '../../../services/scanner_service.dart';
 import '../../../utils/constants.dart';
 import '../../../utils/utils.dart';
+import 'check_in_sheet.dart';
 
 class ScannerPage extends StatefulWidget {
   const ScannerPage({super.key});
@@ -77,6 +79,9 @@ class _ScannerPageState extends State<ScannerPage> {
                         ? MobileScanner(
                             controller: _mobileScannerController,
                             onDetect: _onDetect,
+                            errorBuilder: (context, error) {
+                              return _buildCameraError(error);
+                            },
                           )
                         : Container(
                             color: seedColor,
@@ -260,13 +265,15 @@ class _ScannerPageState extends State<ScannerPage> {
         ),
         const Gap(8.0),
         _ScannerControlButton(
-          icon: HugeIcons.strokeRoundedRefresh,
-          onTap: () {
-            _scannerController.resetScanner();
+          icon: HugeIcons.strokeRoundedCheckList,
+          onTap: () async {
+            // Pause camera to prevent accidental scans
             _mobileScannerController.stop();
-            _mobileScannerController.start();
+            await CheckInSheet.show(context);
+            // Resume camera when sheet is dismissed
+            if (mounted) _mobileScannerController.start();
           },
-          tooltip: l10n.scannerPage_controls_resetScanner,
+          tooltip: l10n.scanner_checkInListTooltip,
         ),
       ],
     );
@@ -546,6 +553,70 @@ class _ScannerPageState extends State<ScannerPage> {
           ),
         ],
       ],
+    );
+  }
+
+  Widget _buildCameraError(MobileScannerException error) {
+    final l10n = AppLocalizations.of(context)!;
+    return Container(
+      color: seedColor,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              HugeIcon(
+                icon: HugeIcons.strokeRoundedCamera02,
+                color: errorColor,
+                size: 64.0,
+              ),
+              const Gap(16.0),
+              Text(
+                l10n.scanner_cameraPermissionDenied,
+                style: AppTextStyles.h2.copyWith(color: lightColor),
+                textAlign: TextAlign.center,
+              ),
+              const Gap(8.0),
+              Text(
+                l10n.scanner_cameraPermissionMessage,
+                style: AppTextStyles.body.copyWith(
+                  color: lightColor.withValues(alpha: 0.7),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const Gap(24.0),
+              FilledButton.icon(
+                onPressed: () async {
+                  await openAppSettings();
+                },
+                style: FilledButton.styleFrom(
+                  backgroundColor: accentColor,
+                  foregroundColor: lightColor,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24.0,
+                    vertical: 14.0,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: borderRadius * 2.0,
+                  ),
+                ),
+                icon: const HugeIcon(
+                  icon: HugeIcons.strokeRoundedSettings02,
+                  color: lightColor,
+                  size: 20.0,
+                ),
+                label: Text(
+                  l10n.scanner_openSettings,
+                  style: AppTextStyles.body.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

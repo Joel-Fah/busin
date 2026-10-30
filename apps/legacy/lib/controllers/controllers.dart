@@ -9,3 +9,6 @@ export 'analytics_controller.dart';
 export 'scanner_controller.dart';
 export 'users_controller.dart';
 export 'scanning_controller.dart';
+export 'update_controller.dart';
+export 'report_controller.dart';
+export 'check_in_controller.dart';

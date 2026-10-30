@@ -1,3 +1,10 @@
+# Student Information
+- **Name**: Dejon Fah Joel Xavier
+- **Student** Number: ICTU20241127
+- **Course**: SEN3142 Introduction to Mobile Development
+- **Project topic**: BusIn - Bus Subscription Management For The  ICT University
+--- 
+
 ![BusIn Presentation](assets/images/presentation.png)
 
 # 🚌 BusIn - The Campus Bus Revolution
