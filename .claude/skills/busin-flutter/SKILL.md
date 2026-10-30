@@ -25,9 +25,23 @@ description: Conventions for the BusIn Flutter apps and Dart packages (student, 
 - Strings go through localization (EN and FR). Colors and sizes come from the theme (see `busin-design-system`).
 
 ## State and navigation
-- Choose one state management approach for the new apps in Phase 2 and record it in an ADR before using it. The legacy app uses GetX with every controller created at startup; do not reproduce that.
-- Create user-scoped state after sign-in and dispose it on sign-out. Route guards read the role from the session. Admin screens do not exist in client apps.
-- Declarative routing with a redirect for auth state.
+- State: `flutter_riverpod` 3.x with plain `Notifier` and `AsyncNotifier` (no code generation yet). Navigation: `go_router`. Decision and reasons: [ADR 0007](../../../docs/decisions/0007-state-management-navigation-storage.md). Do not use GetX, `get_storage`, or GetX snackbars and dialogs in new code.
+- Every repository and service is a provider, so tests override it with a fake. Providers that hold user data watch the auth state, so they reset on sign-out. Screens use `ref.watch` and never touch storage or the backend directly.
+- Route guards read the role from the session. Admin screens do not exist in client apps. The `go_router` redirect reads the auth state from a provider.
+- Local storage: `shared_preferences` for harmless preferences, `flutter_secure_storage` for the auth session and the QR secret, `drift` (SQLite) for the ops app queue and caches. Never put a secret in preferences.
+
+```dart
+// A list that loads once, exposes loading and error states, and is faked in tests.
+class StopsNotifier extends AsyncNotifier<List<Stop>> {
+  @override
+  Future<List<Stop>> build() => ref.watch(stopsRepositoryProvider).listStops();
+}
+
+final stopsProvider = AsyncNotifierProvider<StopsNotifier, List<Stop>>(StopsNotifier.new);
+
+// In a widget: switch on the AsyncValue.
+// ref.watch(stopsProvider).when(data: ..., loading: ..., error: ...);
+```
 
 ## Data and least-load
 - Repository methods take explicit parameters and return typed models. Select named columns, paginate with `range`, and filter Realtime subscriptions.
