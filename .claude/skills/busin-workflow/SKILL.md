@@ -6,7 +6,7 @@ description: The BusIn working process - issues, branches, PRs, build log, statu
 # BusIn workflow
 
 ## Loop for every change
-1. **Issue first.** Open a GitHub issue for the problem or task: a short title, what, why, done when. Labels: one `phase:N`, one `type:*`, one `area:*`.
+1. **Issue first.** Open a GitHub issue for the problem or task: a short title, what, why, done when. Labels: one `phase:N`, one `type:*`, one `area:*`, one `priority:*`.
 2. **Branch** from `dev`: `phase-N/short-name`. One issue per branch.
 3. **Work** following the skill for the area. Run the checks locally.
 4. **PR into `dev`** that says what changed, how it was verified, and `Closes #N`. Keep it short. The owner reviews and merges; never merge for them.
@@ -18,6 +18,7 @@ Do not over-write issues and PRs. A few lines each. No emojis. No attribution li
 - `phase:0` to `phase:6`
 - `type:bug`, `type:feature`, `type:chore`, `type:docs`, `type:security`
 - `area:backend`, `area:student`, `area:ops`, `area:admin-web`, `area:shared`, `area:infra`
+- `priority:high` (security, or blocks other work), `priority:medium` (important, not blocking), `priority:low` (polish). Every issue and PR carries exactly one; a PR takes the priority of the issue it closes.
 
 ## Commits
 Conventional style, imperative, short: `feat(admin): add subscription review table`. Do not commit secrets, build output or local config.

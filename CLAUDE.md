@@ -30,7 +30,7 @@ Do not add features to `apps/legacy`. Port what you need from it into the new ti
 
 Full details are in the [busin-workflow skill](.claude/skills/busin-workflow/SKILL.md). In short:
 
-1. Every problem or task gets a GitHub issue first (short: what, why, done when).
+1. Every problem or task gets a GitHub issue first (short: what, why, done when), labeled with phase, type, area and priority (high, medium or low).
 2. Work on a branch `phase-N/short-name`. One issue per PR, PR into `dev`. The owner reviews and merges.
 3. After each PR, add a row to [build_log.md](build_log.md) (including what didn't work and how it was fixed) and update [STATUS.md](STATUS.md).
 4. Issue and PR bodies stay short. No attribution lines.
