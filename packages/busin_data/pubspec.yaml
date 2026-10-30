@@ -1,0 +1,11 @@
+name: busin_data
+description: Supabase implementations of the busin_core repository interfaces.
+publish_to: none
+version: 0.1.0
+resolution: workspace
+
+environment:
+  sdk: ^3.13.0
+
+dependencies:
+  busin_core: any
