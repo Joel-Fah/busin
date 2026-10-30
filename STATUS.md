@@ -20,19 +20,17 @@ Current phase: **Phase 0, foundation** ([docs/phases/phase-0-foundation.md](docs
 
 | Item | State | Issue / PR |
 |---|---|---|
-| Move current app to `apps/legacy` (still analyzes clean) | Done on branch `phase-0/restructure` | not opened (needs `gh`) |
-| Root workspace files (pub workspace, npm, `.nvmrc`, `.fvmrc`, `.gitignore`) | Done on branch | not opened |
-| CLAUDE.md, ARCHITECTURE.md, STATUS.md, build_log.md, README.md | Done on branch | not opened |
-| Project skills in `.claude/skills/` | Done on branch | not opened |
-| `docs/` phases, decisions, guides | Done on branch | not opened |
-| Issue and PR templates, labels, minimal CI | Files done; labels and issues blocked | blocked on `gh` |
-| Issues for audit findings | Blocked | blocked on `gh` |
+| Move current app to `apps/legacy` (still analyzes clean) | Done on branch `phase-0/restructure` | foundation PR |
+| Root workspace files (pub workspace, npm, `.nvmrc`, `.fvmrc`, `.gitignore`) | Done on branch | foundation PR |
+| CLAUDE.md, ARCHITECTURE.md, STATUS.md, build_log.md, README.md | Done on branch | foundation PR |
+| Project skills in `.claude/skills/` | Done on branch | foundation PR |
+| `docs/` phases, decisions, guides | Done on branch | foundation PR |
+| Issue and PR templates, labels, minimal CI | Files done; labels and issues next | pending |
+| Issues for audit findings | Next | pending |
 
 ## Blockers (owner)
 
-1. Install GitHub CLI and sign in: `winget install GitHub.cli`, then `gh auth login`. Until then no issues or PRs can be opened.
-2. Set `JAVA_HOME` to `C:\Program Files\Java\jdk-21.0.12` (it points to JDK 17 today).
-3. Install Docker Desktop before Phase 1 (local Supabase stack).
+None. GitHub CLI, Java 21, Docker Desktop and Flutter 3.47.9 are installed and verified.
 
 ## Open questions
 
@@ -47,11 +45,8 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 
 ## Last handoff
 
-Phase 0 work is committed on the local branch `phase-0/restructure`, not pushed. No GitHub issues or PRs exist yet.
+Phase 0 work is committed on the local branch `phase-0/restructure`. The foundation PR is the next step; see the PR list for its number.
 
-Verified: the legacy app analyzes as before (0 errors, 5 warnings); `npm run check` passes (emoji and link checks); the Supabase CLI 2.122.0 runs through npx.
+Verified: the legacy app analyzes as before (0 errors, 5 warnings); `npm run check` passes; `fvm dart pub get` resolves the workspace on Flutter 3.47.9; the Supabase CLI 2.122.0 runs through npx; `gh` is signed in; Docker Desktop and Java 21 are installed.
 
-Not yet verified: `fvm dart pub get` for the new workspace. Flutter 3.47.9 was still downloading (stalled at about 56 MB) when the session ended. Run `fvm install` at the repo root, then `fvm dart pub get`. If FVM reports a corrupted cache, run `fvm remove 3.47.9` and install again.
-
-Next once `gh` works: create labels, open issues for the audit findings, push the branch, open the PR into `dev`. Then start Phase 1 (needs Docker Desktop).
-
+Next: open the foundation PR into `dev`, then start Phase 1 (backend) in a new branch.
