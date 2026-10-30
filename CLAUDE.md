@@ -22,7 +22,7 @@ Do not add features to `apps/legacy`. Port what you need from it into the new ti
 
 1. **No emojis** anywhere: code, comments, UI strings, commit messages, issues, PRs, docs. `npm run check:emoji` enforces it.
 2. **Versions**: use LTS or the pinned stable release. Flutter is pinned in `.fvmrc` (always run it through `fvm`), Node 24 LTS in `.nvmrc`, Java 21 LTS for Android. Never bump a minor or major version inside a feature PR. Upgrades get their own issue and PR.
-3. **Security lives on the server.** Every table has Row Level Security. Roles and school come from the JWT claims, never from a field the user can write. No secrets in any client. Follow the [busin-security skill](.claude/skills/busin-security/SKILL.md).
+3. **Security lives on the server.** Every table has Row Level Security. Roles and school are read live by server-side helpers (see ADR 0005), never from a field the user can write. No secrets in any client. Follow the [busin-security skill](.claude/skills/busin-security/SKILL.md).
 4. **Least data.** Each app and each user loads only what they need: select explicit columns (never `select('*')` in apps), paginate lists, filter Realtime subscriptions, load admin code only in the admin portal, and start controllers only after the role is known.
 5. **Multi-tenant from day one.** Every tenant-owned row has `school_id`. Never hard-code a school or an email domain.
 

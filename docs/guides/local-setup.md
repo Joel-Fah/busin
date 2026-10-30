@@ -36,3 +36,20 @@ npm run check
 ## Configuration
 
 Copy `config/dev.example.json` to `config/dev.json` and fill in the public Supabase URL and publishable key. Build with `--dart-define-from-file=config/dev.json`. Never commit real config files.
+
+## Local backend (Phase 1)
+
+```bash
+npx supabase start        # first run pulls Docker images
+npx supabase db reset     # applies migrations and supabase/seed.sql
+npx supabase test db      # runs the pgTAP tests in supabase/tests
+npx supabase stop
+```
+
+Promote a local account to admin after signing in once with Google (replace the email). Local development only; never run this against a hosted project, where roles change through audited functions.
+
+```sql
+update public.profiles set role = 'admin' where email = 'you@ictuniversity.edu.cm';
+```
+
+Google sign-in locally needs an OAuth client. Until it exists, create test users with SQL as the tests do.

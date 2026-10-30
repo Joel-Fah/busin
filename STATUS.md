@@ -9,7 +9,7 @@ Current phase: **Phase 0, foundation** ([docs/phases/phase-0-foundation.md](docs
 | Phase | Goal | State |
 |---|---|---|
 | 0 Foundation | Monorepo layout, docs, skills, workflow, GitHub setup | In progress |
-| 1 Backend | Secure multi-tenant Supabase backend | Not started |
+| 1 Backend | Secure multi-tenant Supabase backend | In progress: 1a schema and RLS done, 1b functions, 1c storage, 1d rotating QR next |
 | 2 Shared and admin web | Shared Dart packages, admin portal | Not started |
 | 3 Student app | Lightweight student app | Not started |
 | 4 Ops app | Scanner and driver mode | Not started |

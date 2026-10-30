@@ -15,7 +15,7 @@ The client is untrusted. Every decision about who may read or change data is mad
 
 ### Authorization (A01 Broken Access Control, API1 and API5)
 - RLS is enabled and forced on every table in `public`, including new ones. A table without policies is closed by default; keep it that way.
-- `school_id` and `role` are read from the JWT (`auth.jwt()`), never from a column the user can update. Users cannot update their own `role`, `status` or `school_id`.
+- `school_id` and `role` are read by server-side helpers over `profiles` (ADR 0005), never from a client-supplied value. Users cannot update their own `role`, `status` or `school_id`: those columns are not in their update grant.
 - Sign-up creates only students. Role changes happen in admin-only functions that write the audit log.
 - Check object ownership on every read and write: a student reads only their rows, staff only their school.
 - `security definer` functions set `search_path = ''`, validate their inputs, and check the caller's role first.

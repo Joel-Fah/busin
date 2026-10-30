@@ -66,7 +66,7 @@ One Supabase project per environment (`dev` local, `prod` hosted). Everything is
 - Google sign-in through `signInWithIdToken` on mobile and the OAuth redirect flow on web.
 - A database check on sign-up matches the email domain against `schools.allowed_domains`. Unknown domains are rejected.
 - Sign-up always creates a `student`. Staff and admin roles are granted only through RPC functions callable by an admin, which write the audit log.
-- A custom access token hook adds `school_id` and `role` to the JWT. Row Level Security policies read those claims. Users cannot write them.
+- A custom access token hook adds `school_id`, `role` and `status` to the token for client routing. Row Level Security reads the same values live from `profiles` through helper functions, so a suspension applies immediately (see [ADR 0005](docs/decisions/0005-rls-reads-live-profile.md)). Users cannot write them.
 - Privileged work (approve, reject, promote, suspend, QR secret issue) runs in `security definer` database functions or Edge Functions, never as direct client writes.
 
 ### Storage
