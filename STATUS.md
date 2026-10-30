@@ -20,13 +20,13 @@ Current phase: **Phase 0, foundation** ([docs/phases/phase-0-foundation.md](docs
 
 | Item | State | Issue / PR |
 |---|---|---|
-| Move current app to `apps/legacy` (still analyzes clean) | Done on branch `phase-0/restructure` | foundation PR |
-| Root workspace files (pub workspace, npm, `.nvmrc`, `.fvmrc`, `.gitignore`) | Done on branch | foundation PR |
-| CLAUDE.md, ARCHITECTURE.md, STATUS.md, build_log.md, README.md | Done on branch | foundation PR |
-| Project skills in `.claude/skills/` | Done on branch | foundation PR |
-| `docs/` phases, decisions, guides | Done on branch | foundation PR |
-| Issue and PR templates, labels, minimal CI | Files done; labels and issues next | pending |
-| Issues for audit findings | Next | pending |
+| Move current app to `apps/legacy` (still analyzes clean) | Done on branch `phase-0/restructure` | [#47](https://github.com/Joel-Fah/busin/pull/47) |
+| Root workspace files (pub workspace, npm, `.nvmrc`, `.fvmrc`, `.gitignore`) | Done on branch | [#47](https://github.com/Joel-Fah/busin/pull/47) |
+| CLAUDE.md, ARCHITECTURE.md, STATUS.md, build_log.md, README.md | Done on branch | [#47](https://github.com/Joel-Fah/busin/pull/47) |
+| Project skills in `.claude/skills/` | Done on branch | [#47](https://github.com/Joel-Fah/busin/pull/47) |
+| `docs/` phases, decisions, guides | Done on branch | [#47](https://github.com/Joel-Fah/busin/pull/47) |
+| Issue and PR templates, labels, minimal CI | Done: templates, labels, CI check | [#47](https://github.com/Joel-Fah/busin/pull/47) |
+| Issues for audit findings | Done: #33 to #46 | opened |
 
 ## Blockers (owner)
 
@@ -45,8 +45,8 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 
 ## Last handoff
 
-Phase 0 work is committed on the local branch `phase-0/restructure`. The foundation PR is the next step; see the PR list for its number.
+Phase 0 work is committed on the local branch `phase-0/restructure`. The foundation PR is open: #47 into `dev`, awaiting owner review. Audit issues are #33 to #46.
 
 Verified: the legacy app analyzes as before (0 errors, 5 warnings); `npm run check` passes; `fvm dart pub get` resolves the workspace on Flutter 3.47.9; the Supabase CLI 2.122.0 runs through npx; `gh` is signed in; Docker Desktop and Java 21 are installed.
 
-Next: open the foundation PR into `dev`, then start Phase 1 (backend) in a new branch.
+Next: after #47 is merged, start Phase 1 (backend) on a new branch from `dev`.
