@@ -13,6 +13,13 @@
     "check:emoji": "node tools/check-no-emoji.mjs",
     "check:links": "node tools/check-md-links.mjs",
     "check": "npm run check:emoji && npm run check:links",
+    "backend:start": "node tools/ensure-supabase-env.mjs && supabase start -x studio,imgproxy,vector,logflare,edge-runtime,realtime,storage-api,postgres-meta,mailpit,supavisor",
+    "backend:stop": "supabase stop",
+    "backend:reset": "supabase db reset",
+    "backend:test": "supabase test db",
+    "web:setup": "node tools/write-web-env.mjs",
+    "web": "npm run dev -w apps/admin_web",
+    "dev:user": "node tools/dev-user.mjs",
     "supabase": "supabase"
   },
   "devDependencies": {

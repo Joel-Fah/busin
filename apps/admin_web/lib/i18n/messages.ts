@@ -35,6 +35,16 @@ export const en = {
     scansToday: 'Boardings today',
     loadError: 'The figures could not be loaded. Reload the page to try again.',
   },
+  devLogin: {
+    title: 'Local development sign-in',
+    warning: 'Development only. This page does not exist in a production build.',
+    hint: 'Use an account made with "npm run dev:user". Google sign-in is the real way in.',
+    email: 'Email',
+    password: 'Password',
+    button: 'Sign in',
+    error: 'Wrong email or password, or this account does not exist on this machine.',
+    link: 'Local development sign-in',
+  },
 } as const;
 
 type Widen<T> = T extends string
@@ -75,6 +85,16 @@ export const fr: Messages = {
     activeTrips: 'Trajets en cours',
     scansToday: "Embarquements aujourd'hui",
     loadError: "Les chiffres n'ont pas pu être chargés. Rechargez la page pour réessayer.",
+  },
+  devLogin: {
+    title: 'Connexion locale de développement',
+    warning: "Développement uniquement. Cette page n'existe pas dans une version de production.",
+    hint: "Utilisez un compte créé avec « npm run dev:user ». La connexion Google est la vraie voie d'accès.",
+    email: 'Email',
+    password: 'Mot de passe',
+    button: 'Se connecter',
+    error: "Email ou mot de passe incorrect, ou ce compte n'existe pas sur cette machine.",
+    link: 'Connexion locale de développement',
   },
 };
 
