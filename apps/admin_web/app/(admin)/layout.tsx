@@ -27,6 +27,7 @@ async function AdminShell({ children }: { children: React.ReactNode }) {
   const items: NavItem[] = [
     { href: "/", label: t.nav.overview },
     { href: "/subscriptions", label: t.nav.subscriptions },
+    { href: "/people", label: t.nav.people },
   ];
 
   return (

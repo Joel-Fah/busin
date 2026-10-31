@@ -1,7 +1,11 @@
 /** Pure helpers for the subscription review pages. Kept separate so they are unit tested. */
 
-export const PAGE_SIZE = 20;
-export const MAX_PAGE = 10_000;
+import { first } from "./pagination";
+
+// Shared helpers live in their own modules; they are re-exported so existing imports keep working.
+export { MAX_PAGE, PAGE_SIZE, pageRange, parsePage } from "./pagination";
+export { isUuid } from "./ids";
+
 export const MAX_REASON_LENGTH = 500;
 
 export const STATUSES = ["pending", "approved", "rejected", "expired"] as const;
@@ -9,33 +13,10 @@ export type SubscriptionStatus = (typeof STATUSES)[number];
 export type StatusFilter = SubscriptionStatus | "all";
 export const FILTERS: readonly StatusFilter[] = ["pending", "approved", "rejected", "expired", "all"];
 
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-export function isUuid(value: unknown): value is string {
-  return typeof value === "string" && UUID.test(value);
-}
-
-function first(value: string | string[] | undefined): string | undefined {
-  return Array.isArray(value) ? value[0] : value;
-}
-
 /** The status shown in the list. Anything unknown falls back to the review queue. */
 export function parseStatusFilter(value: string | string[] | undefined): StatusFilter {
   const candidate = first(value);
   return FILTERS.find((filter) => filter === candidate) ?? "pending";
-}
-
-/** A 1-based page number, clamped to a sensible range. */
-export function parsePage(value: string | string[] | undefined): number {
-  const parsed = Number.parseInt(first(value) ?? "", 10);
-  if (!Number.isFinite(parsed) || parsed < 1) return 1;
-  return Math.min(parsed, MAX_PAGE);
-}
-
-/** Inclusive row range for PostgREST `range(from, to)`. */
-export function pageRange(page: number, size: number = PAGE_SIZE): { from: number; to: number } {
-  const from = (page - 1) * size;
-  return { from, to: from + size - 1 };
 }
 
 export function pillClass(status: SubscriptionStatus): string {
