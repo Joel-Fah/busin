@@ -1,6 +1,6 @@
 # QR code format
 
-The boarding QR is a rotating code, not the student id. The student app and the database must produce and check exactly the same value. This page is the contract; the student app (Phase 3) implements the generator.
+The boarding QR is a rotating code, not the student id. The student app and the database must produce and check exactly the same value. This page is the contract. The generator is `QrCodeGenerator` in [busin_core](../../packages/busin_core/); the student app (Phase 3) uses it.
 
 ## Code
 
@@ -26,7 +26,7 @@ window   = 57000000
 mac      = c73e53d52fa5fb670e54
 ```
 
-The database test `006_rotating_qr.test.sql` checks this value, and it was produced with Node's `crypto` module, an independent implementation. The Dart implementation must reproduce it in a unit test.
+The database test `006_rotating_qr.test.sql` and the Dart test `packages/busin_core/test/qr_code_test.dart` both check this value. It was produced with Node's `crypto` module, an independent implementation, so the database and the Dart `QrCodeGenerator` agree with a third source.
 
 ## Verification
 
