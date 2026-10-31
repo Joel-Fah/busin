@@ -9,7 +9,7 @@ BusIn manages campus bus subscriptions, boarding scans and bus tracking for scho
 | `apps/student/` | Student app | Flutter (Android, iOS) |
 | `apps/ops/` | Staff scanner and driver mode | Flutter (Android) |
 | `apps/admin_web/` | Admin portal | Next.js 16, TypeScript |
-| `apps/legacy/` | The original app, frozen. Reference only | Flutter 3.35.6 + Firebase |
+| `apps/legacy/` | The original app, frozen. Reference only (uses GetX, which new code must not) | Flutter 3.35.6 + Firebase |
 | `packages/busin_core/` | Domain models, enums, repository interfaces. Pure Dart | Dart |
 | `packages/busin_data/` | Supabase implementations of the repositories | Dart |
 | `packages/busin_ui/` | Design system, shared widgets, l10n | Flutter |
