@@ -29,10 +29,40 @@ npm run check
 | Tier | Run |
 |---|---|
 | Backend | `npx supabase start` (Phase 1) |
-| Admin portal | `npm run dev -w apps/admin_web` (Phase 2) |
+| Admin portal | `cp apps/admin_web/.env.example apps/admin_web/.env.local`, fill it from `npx supabase status -o env`, then `npm run dev -w apps/admin_web` (http://127.0.0.1:3000) |
 | Student and ops apps | `fvm flutter run` inside the app folder (Phase 3 and 4) |
 | Legacy app | `cd apps/legacy && fvm flutter run` |
 
 ## Configuration
 
 Copy `config/dev.example.json` to `config/dev.json` and fill in the public Supabase URL and publishable key. Build with `--dart-define-from-file=config/dev.json`. Never commit real config files.
+
+## Local backend (Phase 1)
+
+```bash
+npx supabase start        # first run pulls Docker images
+npx supabase db reset     # applies migrations and supabase/seed.sql
+npx supabase test db      # runs the pgTAP tests in supabase/tests
+npx supabase stop
+```
+
+Promote a local account to admin after signing in once with Google (replace the email). Local development only; never run this against a hosted project, where roles change through audited functions.
+
+```sql
+update public.profiles set role = 'admin' where email = 'you@ictuniversity.edu.cm';
+```
+
+Google sign-in locally needs an OAuth client. Until it exists, create test users with SQL as the tests do.
+
+## Admin portal tests
+
+```bash
+npm run test -w apps/admin_web       # unit tests
+npm run test:e2e -w apps/admin_web   # browser tests; needs the local backend running
+```
+
+The browser tests open real sessions for temporary users that they create in the local database and delete afterwards. They need Docker (they run SQL in the `supabase_db_busin` container) and one browser download: `npx playwright install chromium --only-shell`.
+
+## Google sign-in for the portal (when you are ready)
+
+Real Google sign-in needs an OAuth client on your personal Google Cloud project. Create a Web client with the redirect URI shown by `npx supabase status` (the local Auth callback), set its id and secret as environment variables, then enable `[auth.external.google]` in `supabase/config.toml`. I will walk through the steps with you when you want to try it; the tests do not need it.
