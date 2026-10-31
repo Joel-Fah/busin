@@ -66,7 +66,7 @@ One Supabase project per environment (`dev` local, `prod` hosted). Everything is
 - Google sign-in through `signInWithIdToken` on mobile and the OAuth redirect flow on web.
 - A database check on sign-up matches the email domain against `schools.allowed_domains`. Unknown domains are rejected.
 - Sign-up always creates a `student`. Staff and admin roles are granted only through RPC functions callable by an admin, which write the audit log.
-- A custom access token hook adds `school_id` and `role` to the JWT. Row Level Security policies read those claims. Users cannot write them.
+- A custom access token hook adds `school_id`, `role` and `status` to the token for client routing. Row Level Security reads the same values live from `profiles` through helper functions, so a suspension applies immediately (see [ADR 0005](docs/decisions/0005-rls-reads-live-profile.md)). Users cannot write them.
 - Privileged work (approve, reject, promote, suspend, QR secret issue) runs in `security definer` database functions or Edge Functions, never as direct client writes.
 
 ### Storage
@@ -75,7 +75,7 @@ Private buckets only: payment proofs (`proofs/{school_id}/{user_id}/...`) and st
 
 ### Rotating QR code
 
-Each approved subscription has a per-student secret held server-side. The student app derives a code from `HMAC(secret, student_id | 30-second window)`. The scanner verifies it against the secret (cached for the day's trip so it works offline). A photographed code expires in seconds.
+Each student has a per-student secret held server-side. The student app fetches it once and derives a code from `HMAC(secret, student_id : 30-second window)`. Staff submit the scanned code to `record_qr_scan`, which verifies it in the database. A photographed code expires within about a minute. See [ADR 0006](docs/decisions/0006-rotating-qr-design.md) for the limits and [the format](docs/guides/qr-code-format.md).
 
 ### Live bus tracking
 
@@ -114,7 +114,10 @@ Clients receive only public values (Supabase URL, publishable key) through `--da
 |---|---|---|
 | Flutter | 3.47.9 (Dart 3.13.7) | `.fvmrc`. Flutter has no LTS line; upgrades happen in dedicated PRs, never inside a feature PR |
 | Node | 24 LTS | `.nvmrc`, `engines` |
-| Next.js / React / TypeScript | 16.x / 19.x / latest 5.x or 7.x stable at Phase 2 start | Verified when the portal is created |
+| Next.js / React | 16.4.3 / 19.3.0 | Cache Components on (Next 16 default); `proxy.ts` replaces middleware |
+| TypeScript | 5.9.x | TypeScript 7 (native compiler) is out but its tooling is new; adopt in a dedicated PR |
+| Supabase JS / SSR helpers | 2.118 / 0.12 | Server client acts as the signed-in user, so RLS applies |
+| Vitest / Playwright | 5.0 / 1.64 | Unit and browser tests for the portal |
 | Supabase CLI | 2.122.0 | Dev dependency, run with `npx supabase` |
 | Postgres | CLI default (17) | Extensions: PostGIS, pg_cron, pgTAP |
 | Java | 21 LTS | Android Gradle builds |

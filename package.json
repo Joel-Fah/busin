@@ -6,7 +6,9 @@
   "engines": {
     "node": ">=24 <25"
   },
-  "workspaces": [],
+  "workspaces": [
+    "apps/admin_web"
+  ],
   "scripts": {
     "check:emoji": "node tools/check-no-emoji.mjs",
     "check:links": "node tools/check-md-links.mjs",
