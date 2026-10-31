@@ -10,7 +10,7 @@ Current phase: **Phase 0, foundation** ([docs/phases/phase-0-foundation.md](docs
 |---|---|---|
 | 0 Foundation | Monorepo layout, docs, skills, workflow, GitHub setup | In progress |
 | 1 Backend | Secure multi-tenant Supabase backend | Built; PRs #51, #53, #55 and the QR PR await review and merge in that order |
-| 2 Shared and admin web | Shared Dart packages, admin portal | Not started |
+| 2 Shared and admin web | Shared Dart packages, admin portal | In progress: busin_core (PR 61) and the portal shell with sign-in and overview (PR in review); portal pages, busin_ui and busin_data next |
 | 3 Student app | Lightweight student app | Not started |
 | 4 Ops app | Scanner and driver mode | Not started |
 | 5 Insights | Density map, pickup and route suggestions | Not started |
