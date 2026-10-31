@@ -75,7 +75,7 @@ Private buckets only: payment proofs (`proofs/{school_id}/{user_id}/...`) and st
 
 ### Rotating QR code
 
-Each approved subscription has a per-student secret held server-side. The student app derives a code from `HMAC(secret, student_id | 30-second window)`. The scanner verifies it against the secret (cached for the day's trip so it works offline). A photographed code expires in seconds.
+Each student has a per-student secret held server-side. The student app fetches it once and derives a code from `HMAC(secret, student_id : 30-second window)`. Staff submit the scanned code to `record_qr_scan`, which verifies it in the database. A photographed code expires within about a minute. See [ADR 0006](docs/decisions/0006-rotating-qr-design.md) for the limits and [the format](docs/guides/qr-code-format.md).
 
 ### Live bus tracking
 

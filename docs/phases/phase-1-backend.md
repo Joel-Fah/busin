@@ -10,7 +10,7 @@ Goal: a secure multi-tenant Supabase backend that closes every Critical finding 
 - Sign-up check against `schools.allowed_domains`; sign-up always creates a student.
 - Custom access token hook adding `school_id` and `role`.
 - RPC functions for approve, reject, promote and suspend, each writing the audit log.
-- Edge Function for the rotating QR secret and verification.
+- Rotating QR secret and verification as database functions (no Edge Function needed; see ADR 0006).
 - Private storage buckets with matching policies.
 - Seed data for local development.
 - pgTAP tests for every policy and function.

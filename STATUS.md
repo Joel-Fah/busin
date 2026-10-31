@@ -9,7 +9,7 @@ Current phase: **Phase 0, foundation** ([docs/phases/phase-0-foundation.md](docs
 | Phase | Goal | State |
 |---|---|---|
 | 0 Foundation | Monorepo layout, docs, skills, workflow, GitHub setup | In progress |
-| 1 Backend | Secure multi-tenant Supabase backend | In progress: 1a schema and RLS done, 1b functions, 1c storage, 1d rotating QR next |
+| 1 Backend | Secure multi-tenant Supabase backend | Built; PRs #51, #53, #55 and the QR PR await review and merge in that order |
 | 2 Shared and admin web | Shared Dart packages, admin portal | Not started |
 | 3 Student app | Lightweight student app | Not started |
 | 4 Ops app | Scanner and driver mode | Not started |
@@ -42,10 +42,14 @@ None. GitHub CLI, Java 21, Docker Desktop and Flutter 3.47.9 are installed and v
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+
+
 ## Last handoff
 
-Phase 0 work is committed on the local branch `phase-0/restructure`. The foundation PR is open: #47 into `dev`, awaiting owner review (conflicts with new dev work resolved by merging dev into the branch). Audit issues are #33 to #46.
+Phase 1 (backend) is built on four stacked branches, each with a PR: #51 (schema and RLS), #53 (admin functions and scan recording), #55 (private storage), and the rotating QR PR. Merge them in that order; GitHub retargets each to `dev` when the one below it is merged.
 
-Verified: the legacy app analyzes as before (0 errors, 5 warnings); `npm run check` passes; `fvm dart pub get` resolves the workspace on Flutter 3.47.9; the Supabase CLI 2.122.0 runs through npx; `gh` is signed in; Docker Desktop and Java 21 are installed.
+Verified: `npx supabase db reset` applies every migration and `npx supabase test db` passes 126 tests covering sign-up rules, row isolation between schools and roles, admin functions, scan checks, private storage and the QR codes.
 
-Next: after #47 is merged, start Phase 1 (backend) on a new branch from `dev`.
+Owner decisions pending: none blocking. Known limit recorded in ADR 0006: a student can share their QR secret; options are listed there for when usage data shows it matters.
+
+Next: Phase 2 (shared Dart packages and the Next.js admin portal). It needs a decision on the Dart state management approach (an ADR before use) and the admin portal hosting choice, and Google OAuth clients on your personal Google Cloud project before real sign-in can be tested.
