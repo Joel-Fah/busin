@@ -24,6 +24,21 @@ fvm dart pub get
 npm run check
 ```
 
+## Launch the admin portal
+
+With Docker Desktop running, from the repo root:
+
+```bash
+npm install            # first time only
+npm run backend:start  # database and sign-in; the first start downloads images and is slow
+npm run web:setup      # first time only: writes apps/admin_web/.env.local from the running backend
+npm run web            # open http://127.0.0.1:3000
+```
+
+Other handy commands: `npm run backend:stop`, `npm run backend:reset` (rebuild the database from the migrations and seed), `npm run backend:test` (database tests). `backend:start` leaves out services the portal does not need (Studio, Storage, Realtime, Edge Functions) to keep the download small; add them back when a feature needs them, for example Storage to show payment proofs.
+
+To sign in, either set up Google ([Google sign-in guide](google-sign-in.md)) or, for local work only, run `npm run dev:user` and use http://127.0.0.1:3000/dev/login.
+
 ## Per tier
 
 | Tier | Run |
@@ -52,7 +67,7 @@ Promote a local account to admin after signing in once with Google (replace the 
 update public.profiles set role = 'admin' where email = 'you@ictuniversity.edu.cm';
 ```
 
-Google sign-in locally needs an OAuth client. Until it exists, create test users with SQL as the tests do.
+Google sign-in locally needs an OAuth client: see the [Google sign-in guide](google-sign-in.md). Until it exists, `npm run dev:user` creates a local admin for the development sign-in page.
 
 ## Admin portal tests
 
@@ -62,7 +77,3 @@ npm run test:e2e -w apps/admin_web   # browser tests; needs the local backend ru
 ```
 
 The browser tests open real sessions for temporary users that they create in the local database and delete afterwards. They need Docker (they run SQL in the `supabase_db_busin` container) and one browser download: `npx playwright install chromium --only-shell`.
-
-## Google sign-in for the portal (when you are ready)
-
-Real Google sign-in needs an OAuth client on your personal Google Cloud project. Create a Web client with the redirect URI shown by `npx supabase status` (the local Auth callback), set its id and secret as environment variables, then enable `[auth.external.google]` in `supabase/config.toml`. I will walk through the steps with you when you want to try it; the tests do not need it.
