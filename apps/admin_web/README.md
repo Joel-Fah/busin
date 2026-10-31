@@ -13,14 +13,18 @@ Next.js 16 and TypeScript portal for school administrators. It talks to the shar
 
 ## Run it
 
+From the repo root, with Docker Desktop running:
+
 ```bash
-npx supabase start                      # from the repo root; needs Docker Desktop
-cp apps/admin_web/.env.example apps/admin_web/.env.local
-# fill in the URL and publishable key printed by: npx supabase status -o env
-npm run dev -w apps/admin_web           # http://127.0.0.1:3000
+npm install          # first time only
+npm run backend:start   # local database and sign-in (first start downloads images and is slow)
+npm run web:setup       # first time only: writes apps/admin_web/.env.local from the running backend
+npm run web             # http://127.0.0.1:3000
 ```
 
-Google sign-in needs an OAuth client (see [local setup](../../docs/guides/local-setup.md)). Without one, the tests below sign in with real Supabase sessions created for test users.
+Stop the backend with `npm run backend:stop`.
+
+**Signing in.** The real way is Google: follow [the Google sign-in guide](../../docs/guides/google-sign-in.md) to create the OAuth client and put its keys in `supabase/.env`. For quick local work there is also a development-only page: run `npm run dev:user` to create a local admin, then sign in at http://127.0.0.1:3000/dev/login. That page only exists on a development server whose backend is on your machine; in a production build it returns not found. The browser tests below sign in with real Supabase sessions created for temporary test users.
 
 ## Checks
 
