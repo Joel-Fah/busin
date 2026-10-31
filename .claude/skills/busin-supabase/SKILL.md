@@ -22,7 +22,7 @@ Design context: [ARCHITECTURE.md](../../../ARCHITECTURE.md) and ADR 0001. Securi
 
 ## RLS patterns
 - `alter table ... enable row level security` and `force row level security` on every table.
-- Read school and role from the JWT: `(auth.jwt() ->> 'school_id')::uuid` and `auth.jwt() ->> 'role'`. Wrap in `select` (`(select auth.jwt() ...)`) so Postgres caches it per statement.
+- Read school and role through the helpers `private.my_school_id()`, `private.my_role()`, `private.is_admin()`, `private.is_staff()`, which look up the caller in `profiles` live (ADR 0005). Wrap each call in `select` so Postgres caches it per statement. JWT claims are for client routing only.
 - Students: own rows only. Staff: their school, read plus insert scans. Admin: their school, full read; writes through functions that audit.
 - Separate policies per command (select, insert, update, delete). No `using (true)`.
 - Never grant `update` on `role`, `status` or `school_id` to the `authenticated` role; use column privileges or functions.
