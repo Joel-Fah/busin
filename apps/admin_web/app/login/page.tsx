@@ -1,10 +1,12 @@
 import Image from "next/image";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 import { LanguageSwitch } from "@/components/LanguageSwitch";
 import { getCurrentUser } from "@/lib/auth";
 import { signInWithGoogle } from "@/lib/auth-actions";
+import { devLoginAllowed } from "@/lib/dev-login";
 import { getMessages } from "@/lib/i18n/server";
 
 // These routes depend on who is signed in and redirect visitors who are not, so Next's
@@ -48,6 +50,11 @@ async function LoginContent({ searchParams }: { searchParams: SearchParams }) {
             {t.login.button}
           </button>
         </form>
+        {devLoginAllowed() ? (
+          <p>
+            <Link href="/dev/login">{t.devLogin.link}</Link>
+          </p>
+        ) : null}
         <LanguageSwitch locale={locale} t={t} />
       </div>
     </main>

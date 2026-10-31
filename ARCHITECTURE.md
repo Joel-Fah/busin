@@ -100,6 +100,8 @@ apps/student, apps/ops  ->  packages/busin_data  ->  packages/busin_core
         +--------------- packages/busin_ui ---------------+ (UI only, no data access)
 ```
 
+State is managed with Riverpod, navigation with go_router, and local data with shared_preferences, flutter_secure_storage and (ops app) drift, as recorded in [ADR 0007](docs/decisions/0007-state-management-navigation-storage.md).
+
 `busin_core` has no Flutter and no Supabase imports. `busin_data` is the only package that talks to Supabase from Dart. The admin portal talks to Supabase from TypeScript with the server-side client for privileged reads.
 
 ## Configuration and secrets

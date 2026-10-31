@@ -338,6 +338,19 @@ skip_nonce_check = false
 # If enabled, it will allow the user to successfully authenticate when the provider does not return an email address.
 email_optional = false
 
+# Google sign-in, the only way into BusIn. The id and secret come from supabase/.env, which is
+# git-ignored; see docs/guides/google-sign-in.md. Without real keys the backend still starts and
+# Google sign-in simply fails at Google. Hosted projects set these in the Supabase dashboard.
+[auth.external.google]
+enabled = true
+client_id = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET)"
+redirect_uri = ""
+url = ""
+# Web sign-in does not need this. The mobile apps' native flow may (Phase 3).
+skip_nonce_check = false
+email_optional = false
+
 # Allow Solana wallet holders to sign in to your project via the Sign in with Solana (SIWS, EIP-4361) standard.
 # You can configure "web3" rate limit in the [auth.rate_limit] section and set up [auth.captcha] if self-hosting.
 [auth.web3.solana]
