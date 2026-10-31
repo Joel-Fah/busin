@@ -67,8 +67,9 @@ Project skills live in [.claude/skills/](.claude/skills/). Load the matching one
 fvm dart pub get                 # resolve the Dart workspace (packages + new apps)
 npm install                      # Node tooling (Supabase CLI, admin portal later)
 npm run check                    # emoji + markdown link checks
-npx supabase start               # local backend (Docker Desktop required, Phase 1+)
-npx supabase test db             # database tests (Phase 1+)
+npm run backend:start            # local backend (Docker Desktop required)
+npm run backend:test             # database tests
+npm run web:setup && npm run web # admin portal at http://127.0.0.1:3000
 ```
 
 Legacy app: `cd apps/legacy && fvm flutter run` (uses its own pin, 3.35.6).

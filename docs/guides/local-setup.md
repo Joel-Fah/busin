@@ -24,6 +24,21 @@ fvm dart pub get
 npm run check
 ```
 
+## Launch the admin portal
+
+With Docker Desktop running, from the repo root:
+
+```bash
+npm install            # first time only
+npm run backend:start  # database and sign-in; the first start downloads images and is slow
+npm run web:setup      # first time only: writes apps/admin_web/.env.local from the running backend
+npm run web            # open http://127.0.0.1:3000
+```
+
+Other handy commands: `npm run backend:stop`, `npm run backend:reset` (rebuild the database from the migrations and seed), `npm run backend:test` (database tests). `backend:start` leaves out services the portal does not need (Studio, Storage, Realtime, Edge Functions) to keep the download small; add them back when a feature needs them, for example Storage to show payment proofs.
+
+Sign-in uses Google, which needs an OAuth client on your personal Google Cloud project (see the last section of this page).
+
 ## Per tier
 
 | Tier | Run |
