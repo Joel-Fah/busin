@@ -31,7 +31,7 @@ Do not add features to `apps/legacy`. Port what you need from it into the new ti
 Full details are in the [busin-workflow skill](.claude/skills/busin-workflow/SKILL.md). In short:
 
 1. Every problem or task gets a GitHub issue first (short: what, why, done when), labeled with phase, type, area and priority (high, medium or low).
-2. Work on a branch `phase-N/short-name`. One issue per PR, PR into `dev`. The owner reviews and merges.
+2. Work on a branch `phase-N/short-name`. One issue per PR, PR into `dev`. The owner reviews and merges. Issues stay open until the milestone PR from `dev` to `main`, whose body lists them with `Closes #N`.
 3. After each PR, add a row to [build_log.md](build_log.md) (including what didn't work and how it was fixed) and update [STATUS.md](STATUS.md).
 4. Issue and PR bodies stay short. No attribution lines.
 5. **Keep GitHub Actions usage low** (the free minutes are limited). Run checks locally first. CI workflows trigger only on pull requests into `dev` and `main` (never on every push), use path filters so a tier only runs when its files change, cancel superseded runs with `concurrency`, and avoid macOS runners and matrix builds. Add a workflow only when it clearly earns its minutes.

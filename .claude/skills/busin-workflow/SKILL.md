@@ -10,7 +10,8 @@ description: The BusIn working process - issues, branches, PRs, build log, statu
 2. **Branch** from `dev`: `phase-N/short-name`. One issue per branch.
 3. **Work** following the skill for the area. Run the checks locally.
 4. **PR into `dev`** that says what changed, how it was verified, and `Closes #N`. Keep it short. The owner reviews and merges; never merge for them.
-5. **Log it**: add a row to `build_log.md` (date, PR, issue, summary, what did not work and how it was resolved) and update `STATUS.md`.
+5. **Issues close at milestones.** `Closes #N` in a PR into `dev` links the issue but does not close it, because GitHub only closes issues when a PR merges into the default branch (`main`). Leave finished issues open. At each milestone the owner opens a PR from `dev` to `main`; its body lists every finished issue as `Closes #N` so they close on that merge. Prepare that list when asked.
+6. **Log it**: add a row to `build_log.md` (date, PR, issue, summary, what did not work and how it was resolved) and update `STATUS.md`.
 
 Do not over-write issues and PRs. A few lines each. No emojis. No attribution lines in commits or PR bodies.
 
