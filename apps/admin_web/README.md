@@ -11,7 +11,8 @@ Next.js 16 and TypeScript portal for school administrators. It talks to the shar
 | Overview with live counts (reviews waiting, students, trips running, boardings today) | Done |
 | Subscription review: filtered, paginated list; detail with payment proof (short-lived link); approve, or reject with a reason; audited | Done |
 | People: searchable, filterable list; change a role; suspend or restore an account; audited, and never your own account | Done |
-| Stops with map, semesters, buses and trips, scans | Next PRs |
+| Stops: list with an overview map; add and edit with a map picker (click, drag the pin, or type the coordinates); deactivate | Done |
+| Semesters, buses and trips, scans, stop photos | Next PRs |
 
 ## Run it
 
@@ -45,4 +46,5 @@ npm run test:e2e -w apps/admin_web      # browser tests (Playwright); needs the 
 - **Data**: counts and selected columns only, never `select('*')`. Types come from the database (`npm run gen:types`, which needs the local stack).
 - **Text**: every string is in `lib/i18n/messages.ts` in English and French; the French catalogue must have the same keys, which the type checker and a test enforce.
 - **Theme**: BusIn tokens as CSS variables in `app/globals.css`, light and dark. The Bevellier font and logo come from the legacy app.
+- **Maps**: pages use a provider-neutral `MapView`; only `components/map/providers/maplibre.tsx` knows the map library. The free OpenFreeMap style needs no key. Moving to Mapbox later means adding one provider file: see [ADR 0008](../../docs/decisions/0008-map-provider.md).
 - **Headers**: baseline security headers in `next.config.ts`. A nonce-based Content-Security-Policy is a follow-up.
