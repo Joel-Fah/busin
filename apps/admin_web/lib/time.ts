@@ -1,5 +1,5 @@
 /** Offset of `timeZone` from UTC at the instant `at`, in milliseconds (east is positive). */
-function zoneOffsetMs(timeZone: string, at: Date): number {
+export function zoneOffsetMs(timeZone: string, at: Date): number {
   const parts = new Intl.DateTimeFormat("en-US", {
     timeZone,
     hourCycle: "h23",
