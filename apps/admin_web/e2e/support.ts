@@ -118,3 +118,19 @@ export async function signInBrowser(context: BrowserContext, user: TestUser): Pr
 
   await context.addCookies(captured.map(({ name, value }) => ({ name, value, url: BASE_URL })));
 }
+
+/** Creates a subscription request for a student, as the app would (status starts as pending). */
+export async function createSubscription(studentId: string): Promise<string> {
+  const { data, error } = await serviceClient()
+    .from("subscriptions")
+    .insert({
+      school_id: SEED.schoolId,
+      student_id: studentId,
+      semester_id: SEED.semesterId,
+      stop_id: SEED.stopId,
+    })
+    .select("id")
+    .single();
+  if (error || !data) throw new Error(`could not create a subscription: ${error?.message}`);
+  return data.id;
+}

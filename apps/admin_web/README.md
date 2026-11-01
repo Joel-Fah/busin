@@ -9,7 +9,8 @@ Next.js 16 and TypeScript portal for school administrators. It talks to the shar
 | Sign-in with Google, admin-only guard, no-access page | Done |
 | Shell with navigation, language switch (EN and FR), sign-out | Done |
 | Overview with live counts (reviews waiting, students, trips running, boardings today) | Done |
-| Subscriptions review, people, stops with map, semesters, buses and trips, scans | Next PRs |
+| Subscription review: filtered, paginated list; detail with payment proof (short-lived link); approve, or reject with a reason; audited | Done |
+| People, stops with map, semesters, buses and trips, scans | Next PRs |
 
 ## Run it
 

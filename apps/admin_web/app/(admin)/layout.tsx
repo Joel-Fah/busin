@@ -24,7 +24,10 @@ async function AdminShell({ children }: { children: React.ReactNode }) {
   const admin = await requireAdmin();
   const { locale, t } = await getMessages();
 
-  const items: NavItem[] = [{ href: "/", label: t.nav.overview }];
+  const items: NavItem[] = [
+    { href: "/", label: t.nav.overview },
+    { href: "/subscriptions", label: t.nav.subscriptions },
+  ];
 
   return (
     <div className="shell" lang={locale}>
