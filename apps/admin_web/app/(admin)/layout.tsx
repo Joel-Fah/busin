@@ -30,6 +30,7 @@ async function AdminShell({ children }: { children: React.ReactNode }) {
     { href: "/people", label: t.nav.people },
     { href: "/stops", label: t.nav.stops },
     { href: "/trips", label: t.nav.trips },
+    { href: "/scans", label: t.nav.scans },
     { href: "/semesters", label: t.nav.semesters },
     { href: "/buses", label: t.nav.buses },
   ];

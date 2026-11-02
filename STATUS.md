@@ -10,7 +10,7 @@ Current phase: **Phase 2, shared packages and admin portal** ([docs/phases/phase
 |---|---|---|
 | 0 Foundation | Monorepo layout, docs, skills, workflow, GitHub setup | Done and merged into `dev` |
 | 1 Backend | Secure multi-tenant Supabase backend | Done and merged into `dev` (126 database tests) |
-| 2 Shared and admin web | Shared Dart packages, admin portal | In progress. Merged: busin_core, portal shell and sign-in, subscription review, people, stops with a map, semesters. In review: buses. Next: trips, scans, stop photos, busin_ui, busin_data |
+| 2 Shared and admin web | Shared Dart packages, admin portal | In progress. Merged: busin_core, portal shell and sign-in, subscription review, people, stops with a map, semesters, buses, trips. In review: boardings. Next: stop photos, busin_ui, busin_data |
 | 3 Student app | Lightweight student app | Not started |
 | 4 Ops app | Scanner and driver mode | Not started |
 | 5 Insights | Density map, pickup and route suggestions | Not started |
@@ -33,10 +33,10 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 
 ## Last handoff
 
-Done: the buses pages in the admin portal (list, add, edit, in service switch; plates stored in capitals; no delete because trips refer to a bus). Verified with typecheck, lint, 82 unit tests, 67 browser tests and a production build.
+Done: the boardings page in the admin portal (read-only list with filters by stop, day and trip, paginated, and a link from a trip). Verified with typecheck, lint, 102 unit tests, 91 browser tests and a production build.
 
-Next: trips (schedule, edit, assign a driver; status changes belong to the ops app), then scans, then stop photos (needs the Storage service in the local backend start). After the portal, the Flutter packages busin_ui and busin_data, then the student app.
+Next: stop photos (needs the Storage service in the local backend start), then the Flutter packages busin_ui and busin_data, then the student app. Open decisions: whether admins may cancel or delete a trip (needs a new audited database function), and whether inbound means To campus.
 
 Blockers: none for development.
 
-Owner must do: review and merge the buses PR; add the Google keys to `supabase/.env` when ready to test real sign-in; confirm the map provider terms before heavy use.
+Owner must do: review and merge the boardings PR; add the Google keys to `supabase/.env` when ready to test real sign-in; confirm the map provider terms before heavy use; answer the two open decisions above.

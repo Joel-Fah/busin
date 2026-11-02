@@ -98,7 +98,12 @@ async function TripDetail({ params, searchParams }: { params: Params; searchPara
           }}
         />
       ) : (
-        <p className="card">{t.trips.locked}</p>
+        <div className="card stack">
+          <p>{t.trips.locked}</p>
+          <p>
+            <Link href={`/scans?trip=${trip.id}`}>{t.trips.viewBoardings}</Link>
+          </p>
+        </div>
       )}
     </>
   );
