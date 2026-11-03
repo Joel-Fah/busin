@@ -22,6 +22,7 @@ import { BrandMark } from "@/components/brand/BrandMark";
 import { Avatar } from "@/components/ui/Avatar";
 import { Contour } from "@/components/ui/Contour";
 import { Icon } from "@/components/ui/Icon";
+import { useSlidingIndicator } from "@/components/ui/useSlidingIndicator";
 import { INTRO_DONE_EVENT } from "@/lib/intro";
 
 import { NAV_DOCK_ID } from "./NavDock";
@@ -80,11 +81,6 @@ const TAB_OFF = "text-muted hover:text-fg";
 export function FloatingNav({ keys, labels, groups, profile, text }: Props) {
   const pathname = usePathname();
   const barRef = useRef<HTMLElement>(null);
-  const rowRef = useRef<HTMLDivElement>(null);
-  const indicatorRef = useRef<HTMLSpanElement>(null);
-  // Where the indicator is drawn right now (it may be mid-slide), and the slide in progress.
-  const shown = useRef<{ left: number; right: number } | null>(null);
-  const slide = useRef<gsap.core.Timeline | null>(null);
   const [open, setOpen] = useState(false);
   const current = keys.find((key) => isActive(pathname, key));
 
@@ -121,74 +117,7 @@ export function FloatingNav({ keys, labels, groups, profile, text }: Props) {
   }, []);
 
 
-  // The sliding indicator. It sits behind the active tab. When the active tab changes it stretches
-  // toward the new one: the leading edge races ahead and the trailing edge follows with a springy
-  // settle, like elastic being pulled. Resizes and the first placement are instant.
-  useEffect(() => {
-    const row = rowRef.current;
-    const indicator = indicatorRef.current;
-    if (!row || !indicator) return;
-
-    const measure = () => {
-      const tab = Array.from(row.querySelectorAll<HTMLElement>('[data-nav-tab][aria-current="page"]')).find((el) => el.offsetWidth > 0);
-      if (!tab) return null;
-      const rowBox = row.getBoundingClientRect();
-      const box = tab.getBoundingClientRect();
-      return { left: box.left - rowBox.left, right: box.right - rowBox.left, top: box.top - rowBox.top, height: box.height };
-    };
-
-    const draw = (left: number, right: number) => {
-      indicator.style.transform = `translateX(${left}px)`;
-      indicator.style.width = `${Math.max(right - left, 0)}px`;
-      shown.current = { left, right };
-    };
-
-    const place = (animate: boolean) => {
-      const target = measure();
-      slide.current?.kill();
-      if (!target) {
-        gsap.set(indicator, { opacity: 0 });
-        shown.current = null;
-        return;
-      }
-      indicator.style.top = `${target.top}px`;
-      indicator.style.height = `${target.height}px`;
-      const from = shown.current;
-      const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-      if (!animate || !from || calm) {
-        draw(target.left, target.right);
-        gsap.set(indicator, { opacity: 1 });
-        return;
-      }
-
-      // The edge facing the new tab leads and overshoots a little; the other edge starts a beat later
-      // and follows, so the indicator stretches across the gap and then snaps back to the tab's width.
-      const state = { left: from.left, right: from.right };
-      const forward = target.left >= from.left;
-      const lead = forward ? "right" : "left";
-      const trail = forward ? "left" : "right";
-      slide.current = gsap
-        .timeline({ onUpdate: () => draw(state.left, state.right) })
-        .to(state, { [lead]: target[lead], duration: 0.5, ease: "back.out(1.8)" }, 0)
-        .to(state, { [trail]: target[trail], duration: 0.45, ease: "power3.out" }, 0.09);
-    };
-
-    place(shown.current !== null);
-
-    // An observer reports once as soon as it starts, which must not cut a slide short. Only real size changes count.
-    let width = row.offsetWidth;
-    const observer = new ResizeObserver(() => {
-      if (row.offsetWidth === width) return;
-      width = row.offsetWidth;
-      place(false);
-    });
-    observer.observe(row);
-    return () => {
-      observer.disconnect();
-      slide.current?.kill();
-    };
-  }, [pathname]);
+  const { rowRef, indicatorRef } = useSlidingIndicator('[data-nav-tab][aria-current="page"]', pathname);
 
   // Escape and a click outside close the menu.
   useEffect(() => {

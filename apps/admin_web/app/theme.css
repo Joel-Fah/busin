@@ -235,3 +235,20 @@ dialog.sheet::backdrop {
     display: none;
   }
 }
+
+/* Native date and time pickers: same typeface as the rest, and a quieter picker button. */
+input[type='date'],
+input[type='time'],
+input[type='datetime-local'] {
+  font-family: inherit;
+  min-width: 0;
+}
+
+input::-webkit-calendar-picker-indicator {
+  opacity: 0.55;
+  cursor: pointer;
+}
+
+input::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}

@@ -2,6 +2,7 @@ import { Suspense } from "react";
 
 import { BrandIntro } from "@/components/brand/BrandIntro";
 import { FloatingNav, type NavKey } from "@/components/nav/FloatingNav";
+import { RoughFilter } from "@/components/ui/RoughFilter";
 import { requireAdmin } from "@/lib/auth";
 import { getMessages } from "@/lib/i18n/server";
 
@@ -27,6 +28,7 @@ async function AdminShell({ children }: { children: React.ReactNode }) {
   return (
     <div lang={locale}>
       <BrandIntro />
+      <RoughFilter />
       <main className="mx-auto flex w-full max-w-7xl min-w-0 flex-col gap-6 px-[clamp(1rem,4vw,2.5rem)] pt-8 pb-44">
         {children}
       </main>

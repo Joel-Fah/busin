@@ -22,7 +22,10 @@ import { Contour } from "@/components/ui/Contour";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Icon } from "@/components/ui/Icon";
 import { RoughFilter } from "@/components/ui/RoughFilter";
+import { Checkbox, RadioGroup, Switch } from "@/components/ui/Choice";
+import { DateField, DateTimeField, TimeField } from "@/components/ui/DateTimeFields";
 import { Input } from "@/components/ui/Input";
+import { Select } from "@/components/ui/Select";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { requireAdmin } from "@/lib/auth";
@@ -30,6 +33,7 @@ import { AA_TEXT, contrastRatio } from "@/lib/ui/contrast";
 import { RADIUS, innerRadius } from "@/lib/ui/radius";
 import { DARK as dark, LIGHT as light, TEXT_PAIRS } from "@/lib/ui/tokens";
 
+import { MenuDemo, ModalDemo, SheetDemo, TabsDemo } from "./Demos";
 import { Pair, Section } from "./Section";
 import { SectionRail } from "./SectionRail";
 
@@ -544,6 +548,75 @@ async function Styleguide() {
           <Input id="sg-email" label="Email" icon={Mail01Icon} type="email" hint="We never share it." />
           <Input id="sg-error" label="Plate" icon={Bus01Icon} defaultValue="LT 123" error="That plate is already used." />
         </div>
+
+        <h3 className="mt-8 mb-3 text-lg font-bold">Dropdown, date and time</h3>
+        <div className="grid max-w-3xl gap-4 sm:grid-cols-2">
+          <Select id="sg-bus" label="Bus" icon={Bus01Icon} defaultValue="">
+            <option value="" disabled>
+              Choose a bus
+            </option>
+            <option value="1">LT 123 AB</option>
+            <option value="2">LT 456 CD</option>
+          </Select>
+          <Select id="sg-dir" label="Direction" icon={Navigation03Icon} hint="Going to school or going home." defaultValue="in">
+            <option value="in">Going to school</option>
+            <option value="out">Going home</option>
+          </Select>
+          <DateField id="sg-date" label="First day" defaultValue="2026-09-07" />
+          <TimeField id="sg-time" label="Departure" defaultValue="07:30" />
+          <DateTimeField id="sg-dt" label="Start time" hint="Local time of the school." className="sm:col-span-2" />
+        </div>
+        <p className="mt-3 max-w-2xl text-sm text-muted">
+          These use the browser&apos;s own pickers under a BusIn face, so they are easy by touch (most administrators use
+          tablets), work with the keyboard and with screen readers, and always return a valid value.
+        </p>
+
+        <h3 className="mt-8 mb-3 text-lg font-bold">Checkbox, radio and switch</h3>
+        <div className="grid max-w-3xl gap-6 sm:grid-cols-3">
+          <div className="flex flex-col gap-4">
+            <Checkbox label="Send a receipt" hint="By email." defaultChecked />
+            <Checkbox label="Remember me" />
+            <Checkbox label="Not available" disabled />
+          </div>
+          <RadioGroup
+            legend="Payment"
+            name="sg-pay"
+            defaultValue="mobile"
+            options={[
+              { value: "mobile", label: "Mobile money" },
+              { value: "cash", label: "Cash at the office" },
+              { value: "other", label: "Not available", disabled: true },
+            ]}
+          />
+          <div className="flex flex-col gap-4">
+            <Switch label="Active" hint="Offered to students." defaultChecked />
+            <Switch label="In service" />
+            <Switch label="Not available" disabled />
+          </div>
+        </div>
+
+        <h3 id="tabs" className="mt-8 mb-3 text-lg font-bold">
+          Tabs with counters
+        </h3>
+        <TabsDemo />
+        <p className="mt-3 max-w-2xl text-sm text-muted">
+          Tabs are links, so each one is a real address and works without scripts. The current tab is raised, and the
+          highlight slides to the next with an elastic stretch. Unselected tabs have no background. Counters take a tone:
+          warn for work waiting, ok for done.
+        </p>
+
+        <h3 className="mt-8 mb-3 text-lg font-bold">Menu</h3>
+        <MenuDemo />
+
+        <h3 className="mt-8 mb-3 text-lg font-bold">Side sheet and modal</h3>
+        <div className="flex flex-wrap items-start gap-3">
+          <SheetDemo />
+          <ModalDemo />
+        </div>
+        <p className="mt-3 max-w-2xl text-sm text-muted">
+          Both float with a margin all round and rounded corners, never docked to an edge. Danger actions (delete,
+          suspend, sign out) always use the danger style, and a destructive choice asks first.
+        </p>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Card</h3>
         <div className="grid gap-4 sm:grid-cols-2">
