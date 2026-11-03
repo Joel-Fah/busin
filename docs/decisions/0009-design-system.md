@@ -8,14 +8,15 @@ The portal works but looks unfinished: a flat sidebar, plain tables, one global 
 ## Decision
 - **Styling**: Tailwind CSS 4 with the BusIn tokens as CSS variables (`app/theme.css`, colours in `app/globals.css`). Tailwind loads without its reset, and the old stylesheet sits in a lower layer, so pages migrate one at a time. `globals.css` is deleted when the last page moves.
 - **Typeface**: Plus Jakarta Sans (variable, SIL Open Font Licence), self-hosted from `@fontsource-variable/plus-jakarta-sans`. It exists for web and Flutter, so every tier can share it. It replaces Bevellier, whose licence is not recorded anywhere in the repository. The Bevellier files stay in `apps/legacy` and `apps/admin_web/app/fonts` until the owner confirms they can go.
-- **Icons**: Hugeicons, stroke rounded, free set (`@hugeicons/react`, `@hugeicons/core-free-icons`), always through the `Icon` component.
+- **Icons**: Hugeicons, stroke rounded, free set (`@hugeicons/react`, `@hugeicons/core-free-icons`), always through the `Icon` component. A few icons ship as one filled outline instead of a stroke (FlagTriangleRight is one); the library would add its stroke on top and make them look twice as heavy, so `Icon` adds only the small difference to the common weight (`lib/ui/icons.ts`).
 - **Animation**: GSAP for the larger moves (navigation reveal, tab indicator, logo draw, sheets). CSS for simple state changes. Everything respects `prefers-reduced-motion`. `flutter_animate` is the mobile counterpart, later.
 - **Shape**: five radii (8, 12, 20, 28, 36). No pills, no squircles. A nested shape uses outer radius minus padding (`lib/ui/radius.ts`).
-- **Contour**: a thin rounded stroke drawn inside containers (`Contour`), 16px in on cards and the navigation bar, 4px on buttons. One-sided borders and underlined links are not used.
+- **Contour**: a stitched thread drawn inside containers (`Contour`, an SVG with round-capped dashes), 16px in on cards and the navigation bar, 4px on buttons, and on its own around empty states. On hover the thread runs around the edge and turns orange. One-sided borders, solid contours and underlined links are not used.
 - **Theme**: system, light or dark, chosen in the browser and stored in `localStorage`; a small inline script applies it before first paint. No server state.
 - **Documentation**: a hidden, admin-only page at `/styleguide` documents brand, voice, colour, type, shape, contour, icons, motion, imagery and every component. It is updated in the same change as any component. A unit test fails if a text and background token pair drops under WCAG AA.
-- **Maps**: Mapbox GL JS behind the existing provider-neutral component, with MapLibre kept as the alternative. Built in a later PR. The Mapbox token is a public, URL-restricted token read from the portal's server environment; no secret key reaches a client.
-- **Imagery**: 3D objects from thiings.co and photographs from Pexels, only where an image carries meaning. Existing images stay.
+- **Maps**: Mapbox GL JS behind the existing provider-neutral component, with MapLibre kept as the alternative. Built in a later PR. The Mapbox token is a public (`pk.`), URL-restricted token held in `MAPBOX_API_KEY` in the portal's server environment; a secret (`sk.`) token must never be used.
+- **Imagery**: 3D objects from thiings.co and photographs from Pexels, only where an image carries meaning. Existing images stay. Files are WebP under `apps/admin_web/public/` (3D at 480px, photographs about 100 to 170 KB).
+- **Favicon**: an SVG icon (`app/icon.svg`) that follows the device's light or dark setting, with an ICO and an Apple touch icon as fallbacks.
 - **Container**: a Dockerfile for the portal comes last. It does not apply to the mobile apps.
 
 ## Consequences

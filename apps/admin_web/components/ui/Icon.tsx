@@ -1,5 +1,7 @@
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 
+import { iconStrokeWidth } from "@/lib/ui/icons";
+
 type Props = {
   icon: IconSvgElement;
   /** Pixel size. Icons are decorative unless a label is given. */
@@ -14,7 +16,7 @@ export function Icon({ icon, size = 20, label, className }: Props) {
     <HugeiconsIcon
       icon={icon}
       size={size}
-      strokeWidth={1.8}
+      strokeWidth={iconStrokeWidth(icon)}
       className={className}
       aria-hidden={label ? undefined : true}
       aria-label={label}

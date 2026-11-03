@@ -104,6 +104,39 @@
   }
 }
 
+/*
+  The contour thread. A stitched line, not a solid border. On hover the thread runs around the
+  edge and turns orange, a small playful touch. Reduced motion keeps the colour change only.
+*/
+.contour-thread {
+  fill: none;
+  stroke: var(--contour);
+  stroke-width: var(--contour-width);
+  stroke-linecap: round;
+  stroke-dasharray: var(--thread-dash, 9 7);
+  transition:
+    stroke var(--dur) var(--ease-soft),
+    stroke-width var(--dur) var(--ease-soft);
+}
+
+:hover > .contour-svg .contour-thread {
+  stroke: color-mix(in srgb, var(--accent) 85%, transparent);
+  stroke-width: 2px;
+  animation: thread-run 1.4s linear infinite;
+}
+
+@keyframes thread-run {
+  to {
+    stroke-dashoffset: calc(var(--thread-length, 16px) * -1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :hover > .contour-svg .contour-thread {
+    animation: none;
+  }
+}
+
 @keyframes shimmer {
   to {
     background-position-x: -200%;

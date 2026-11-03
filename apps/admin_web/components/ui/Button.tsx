@@ -30,7 +30,7 @@ type Common = {
 function Inner({ variant, icon, children }: Pick<Common, "variant" | "icon" | "children">) {
   return (
     <>
-      {variant === "primary" || variant === "secondary" ? <Contour radius={12} inset={4} /> : null}
+      {variant === "primary" || variant === "secondary" ? <Contour radius={12} inset={4} dash={[4, 5]} /> : null}
       {icon ? <Icon icon={icon} size={18} /> : null}
       <span>{children}</span>
     </>

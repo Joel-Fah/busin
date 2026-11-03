@@ -58,7 +58,7 @@ export function ThemeToggle({ labels }: Props) {
           className={
             "inline-flex h-10 cursor-pointer items-center gap-2 rounded-sm border-0 px-4 font-sans text-sm font-semibold " +
             "transition-colors duration-(--dur-fast) focus-visible:outline-3 focus-visible:outline-focus " +
-            (current === theme ? "bg-surface text-fg shadow-soft" : "text-muted hover:text-fg")
+            (current === theme ? "bg-surface text-fg shadow-soft" : "bg-transparent text-muted hover:text-fg")
           }
         >
           <Icon icon={ICONS[theme]} size={18} />

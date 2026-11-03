@@ -19,6 +19,7 @@ import { Button, ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
 import { Contour } from "@/components/ui/Contour";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Icon } from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -29,6 +30,7 @@ import { RADIUS, innerRadius } from "@/lib/ui/radius";
 import { TEXT_PAIRS, readColourTokens } from "@/lib/ui/tokens";
 
 import { Pair, Section } from "./Section";
+import { SectionRail } from "./SectionRail";
 
 export const metadata: Metadata = { title: "Styleguide" };
 
@@ -62,6 +64,24 @@ const NAV_ICONS = [
   ["Back", ArrowLeft01Icon],
 ] as const;
 
+const THREE_D = [
+  ["bus", "Bus"],
+  ["bus-stop", "Bus stop"],
+  ["ticket1", "Ticket"],
+  ["papers", "Papers"],
+  ["seat", "Seat"],
+  ["semester", "Semester"],
+  ["waiting", "Waiting"],
+  ["verified", "Verified"],
+  ["blocked", "Blocked"],
+  ["staff", "Staff"],
+] as const;
+
+const PHOTOS = [
+  ["bus-street", "A yellow school bus turning a snowy street corner between tall buildings", "12564070"],
+  ["bus-stop-sun", "A small yellow school bus driving down a sunlit city street under trees", "27662522"],
+] as const;
+
 const SURFACE_TOKENS = ["bg", "surface", "surface-2", "line", "fg", "muted", "brand", "accent", "link"];
 const STATE_TOKENS = ["ok", "warn", "bad", "info"];
 
@@ -78,31 +98,44 @@ async function Styleguide() {
   const { light, dark } = readColourTokens();
 
   return (
-    <div lang="en" className="mx-auto max-w-5xl px-6 pt-10 pb-40">
-      <header className="flex flex-wrap items-start justify-between gap-6">
-        <div>
-          <p className="text-sm font-semibold text-muted">BusIn design system</p>
-          <h1 className="mt-1 text-5xl font-extrabold tracking-tight">Styleguide</h1>
-          <p className="mt-3 max-w-xl text-base text-muted">
-            The single reference for how the admin portal looks, reads and moves. Update it in the same change as any
-            component, so what is built stays consistent over time. This page is not linked from the navigation.
+    <div lang="en" className="mx-auto max-w-6xl px-6 pt-8 pb-40">
+      <header className="relative isolate overflow-hidden rounded-xl bg-seed text-white">
+        <Image
+          src="/styleguide/photos/banner-brand-board.webp"
+          alt="A brand strategy board with a colour palette, mood cards and a clipboard on a concrete floor"
+          fill
+          priority
+          sizes="(min-width: 1152px) 1100px, 100vw"
+          className="-z-10 object-cover"
+        />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-seed via-seed/80 to-transparent" />
+        <div className="flex min-h-72 flex-col justify-end gap-3 p-8 sm:p-12">
+          <p className="text-sm font-semibold text-white/80">BusIn design system</p>
+          <h1 className="text-5xl font-extrabold tracking-tight sm:text-6xl">Styleguide</h1>
+          <p className="max-w-lg text-base text-white/85">
+            How the admin portal looks, reads and moves. One reference, so everything we build stays consistent over
+            time.
           </p>
         </div>
-        <ThemeToggle labels={{ group: "Theme", system: "System", light: "Light", dark: "Dark" }} />
       </header>
 
-      <nav aria-label="Sections" className="mt-8 flex flex-wrap gap-2">
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
+        <p className="max-w-xl text-sm text-muted">
+          Update this page in the same change as any component. It is not linked from the navigation.
+        </p>
+        <ThemeToggle labels={{ group: "Theme", system: "System", light: "Light", dark: "Dark" }} />
+      </div>
+
+      <nav aria-label="Jump to a section" className="mt-6 flex flex-wrap gap-x-5 gap-y-2 xl:hidden">
         {SECTIONS.map(([id, label]) => (
-          <a
-            key={id}
-            href={`#${id}`}
-            className="rounded-sm bg-surface-2 px-3.5 py-2 text-sm font-semibold text-fg no-underline transition-colors duration-(--dur-fast) hover:bg-line"
-          >
+          <a key={id} href={`#${id}`} className="text-sm font-semibold text-muted no-underline hover:text-fg">
             {label}
           </a>
         ))}
       </nav>
 
+      <div className="mt-4 xl:grid xl:grid-cols-[minmax(0,1fr)_11rem] xl:gap-12">
+      <div>
       <Section
         id="overview"
         title="Overview"
@@ -259,17 +292,14 @@ async function Styleguide() {
       <Section
         id="contour"
         title="Contour"
-        intro="A thin rounded stroke drawn inside a container, 16px in on cards and the navigation bar, 4px in on buttons. It is the quiet signature that makes BusIn surfaces recognisable. Empty states use the contour on its own, without a card."
+        intro="A thin rounded stroke drawn inside a container, 16px in on cards and the navigation bar, 4px in on buttons. It is drawn as a stitched thread, not a solid line: round-capped dashes that run around the edge and warm to orange when you hover. It is the quiet signature that makes BusIn surfaces recognisable. Empty states use the thread on its own, without a card."
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <Card>
             <h3 className="text-lg font-bold">A card</h3>
-            <p className="mt-2 text-sm text-muted">Corner 28, contour 16 in, so the stroke corner is 12.</p>
+            <p className="mt-2 text-sm text-muted">Corner 28, thread 16 in, so the thread corner is 12. Hover to see it run.</p>
           </Card>
-          <div className="relative flex h-full min-h-40 items-center justify-center p-8 text-center">
-            <Contour radius={28} />
-            <p className="text-sm text-muted">An empty state. No card, just the contour and the message.</p>
-          </div>
+          <EmptyState title="Nothing to review right now" body="An empty state has no card. The thread frames the message, and runs when you hover it." />
         </div>
       </Section>
 
@@ -320,22 +350,49 @@ async function Styleguide() {
       <Section
         id="imagery"
         title="Imagery"
-        intro="Illustration only where it carries meaning, such as an empty state or a first-run message. It is never decoration."
+        intro="Illustration only where it carries meaning, such as an empty state or a first-run message. It is never decoration. Keep every image that is already in the app."
       >
-        <ul className="m-0 grid list-none gap-2 p-0 text-sm sm:grid-cols-3">
-          <li className="rounded-md bg-surface-2 p-4">
-            <strong className="block">3D objects</strong>
-            From thiings.co, free to use. Keep every one already in the app.
-          </li>
-          <li className="rounded-md bg-surface-2 p-4">
-            <strong className="block">Photographs</strong>
-            From Pexels, free to use. Real campus and transport scenes, warm light.
-          </li>
-          <li className="rounded-md bg-surface-2 p-4">
-            <strong className="block">Files</strong>
-            Convert to WebP, keep each under about 150 KB, always with alt text.
-          </li>
-        </ul>
+        <h3 className="mb-3 text-lg font-bold">3D objects</h3>
+        <p className="mb-4 max-w-2xl text-sm text-muted">
+          From thiings.co, free to use. They sit on the page background with no frame, at 96 to 160px, and are never
+          used as wallpaper. Stored as WebP at 480px.
+        </p>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+          {THREE_D.map(([file, label]) => (
+            <div key={file} className="flex flex-col items-center gap-2 rounded-lg bg-surface p-4 shadow-soft">
+              <Image src={`/styleguide/3d/${file}.webp`} alt="" width={96} height={96} className="h-24 w-24" />
+              <span className="text-xs font-semibold text-muted">{label}</span>
+            </div>
+          ))}
+        </div>
+
+        <h3 className="mt-8 mb-3 text-lg font-bold">Photographs</h3>
+        <p className="mb-4 max-w-2xl text-sm text-muted">
+          From Pexels, free to use without credit. Real transport scenes in warm light. Large corners (36px), WebP,
+          about 100 to 170 KB, always with alt text.
+        </p>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {PHOTOS.map(([file, alt, source]) => (
+            <figure key={file} className="m-0">
+              <Image
+                src={`/styleguide/photos/${file}.webp`}
+                alt={alt}
+                width={800}
+                height={534}
+                sizes="(min-width: 640px) 50vw, 100vw"
+                className="aspect-[3/2] h-auto w-full rounded-xl object-cover"
+              />
+              <figcaption className="mt-2 text-xs text-muted">Pexels photo {source}</figcaption>
+            </figure>
+          ))}
+        </div>
+
+        <h3 className="mt-8 mb-3 text-lg font-bold">In context</h3>
+        <EmptyState
+          title="No trips scheduled yet"
+          body="Schedule the first run of the day and it will show up here."
+          illustration="/styleguide/3d/bus.webp"
+        />
       </Section>
 
       <Section id="components" title="Components" intro="Each component is shown in its states. New components are added here first.">
@@ -386,6 +443,7 @@ async function Styleguide() {
         <ul className="m-0 grid list-none gap-2 p-0 text-sm sm:grid-cols-2">
           {[
             "No one-sided borders on cards or quotes.",
+            "No solid contour. It is always the stitched thread.",
             "No underlined links. Use colour, weight or an icon.",
             "No pill shapes. Use the radius scale.",
             "No literal colours, radii or durations in a component. Use tokens.",
@@ -400,6 +458,9 @@ async function Styleguide() {
           ))}
         </ul>
       </Section>
+      </div>
+      <SectionRail items={SECTIONS.map(([id, label]) => ({ id, label }))} />
+      </div>
     </div>
   );
 }

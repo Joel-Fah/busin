@@ -52,6 +52,46 @@ test.describe("administrator reading the styleguide", () => {
     await expect(page.locator("html")).not.toHaveAttribute("data-theme", /.+/);
   });
 
+  test("the contour is a stitched thread that runs on hover", async ({ page }) => {
+    await page.goto("/styleguide");
+    const thread = page.locator("#contour .contour-thread").first();
+    await expect(thread).toHaveCSS("stroke-dasharray", /\d+px,? \d+px/);
+    await expect(thread).toHaveCSS("animation-name", "none");
+
+    await page.locator("#contour").getByText("A card", { exact: true }).hover();
+    await expect(thread).toHaveCSS("animation-name", "thread-run");
+  });
+
+  test("the section rail follows the reading position and jumps on click", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/styleguide");
+    const rail = page.getByRole("navigation", { name: "Sections" });
+    await expect(rail).toBeVisible();
+    await rail.getByRole("link", { name: "Colour" }).click();
+    await expect(rail.getByRole("link", { name: "Colour" })).toHaveAttribute("aria-current", "location");
+    await expect(page.getByRole("heading", { name: "Colour", level: 2 })).toBeInViewport();
+  });
+
+  test("unselected theme choices have no background of their own", async ({ page }) => {
+    await page.goto("/styleguide");
+    await expect(page.getByRole("button", { name: "Light" })).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+  });
+
+  test("shows the banner photo, the 3D objects and the photographs", async ({ page }) => {
+    await page.goto("/styleguide");
+    await expect(page.getByRole("img", { name: /brand strategy board/ })).toBeVisible();
+    await expect(page.getByRole("img", { name: /yellow school bus turning/ })).toBeVisible();
+    await expect(page.locator("#imagery img[src*='3d%2Fbus.webp'], #imagery img[src*='/3d/bus.webp']").first()).toBeVisible();
+  });
+
+  test("the portal has a themed icon", async ({ page }) => {
+    await page.goto("/styleguide");
+    await expect(page.locator('link[rel="icon"][href*="icon.svg"]')).toHaveCount(1);
+    const response = await page.request.get("/icon.svg");
+    expect(response.ok()).toBe(true);
+    expect(await response.text()).toContain("prefers-color-scheme:dark");
+  });
+
   // The old sidebar navigation is 746px wide and stretches every page on a phone. The floating
   // navigation bar replaces it in the shell PR; turn this test on there.
   test.fixme("the page does not scroll sideways on a phone", async ({ page }) => {
