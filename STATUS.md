@@ -33,10 +33,10 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 
 ## Last handoff
 
-Done: PR 3 of the admin portal redesign (components), on branch `phase-2/components`. Side sheet and modal now float with a margin all round (the help sheet included), with a rough marker highlight under the title. Added tabs with tone counters and the elastic sliding highlight (shared with the navigation bar), an action menu that opens up, down, left or right depending on room, a custom dropdown, calendar date picker (with month and year selection), time picker and combined date-time picker (not the browser's), checkbox, radio group and switch, all shown in the styleguide with their states; the page behind a sheet or modal no longer scrolls; the modal title has the rough marker. Verified with typecheck, lint, 158 unit tests, 167 browser tests and a production build.
+Done: the Mapbox map provider (#93's code, which had landed on the old components branch and not on `dev`, is now carried here) plus cost guardrails: one map per browser tab reused across pages, a per-browser budget of 30 loads a day that falls back to the free map, Mapbox only by default in production (development and tests use the free map), an opt-in Mapbox test, and written cost and token guidance in ADR 0008. Verified with typecheck, lint, 173 unit tests, the 12 stops browser tests on the free map, and the 2 opt-in tests against real Mapbox (one style request across three page views; zero Mapbox calls once the budget is spent).
 
-Next: the Stops redesign with the Mapbox switch (`MAPBOX_API_KEY`), then the other page redesigns using these components (tabs with counters on Subscriptions, People and Trips), then trip cancel and archive, then Docker. The Mapbox switch moved from the components PR to the Stops PR, where the map is shown.
+Next: the Stops page redesign (full-page map, stops listed in the navigation bar's dock, add and edit in the floating sheet) on top of this, then the other page redesigns, then trip cancel and Docker.
 
-Blockers: none for development. Map tiles did not load in this laptop's test browser and the dev server logs "Worker failed to load" for the map; to be checked in the Stops PR.
+Blockers: none.
 
-Owner must do: review and merge the components PR; keep the Mapbox key a public, URL-restricted `pk.` token; confirm the Bevellier font files and the unused `components/NavLinks.tsx` can be deleted; add the Google keys to `supabase/.env` when ready to test real sign-in.
+Owner must do: merge the cost-guard PR; in the Mapbox account create a separate localhost-restricted token for development and restrict the production one by URL; check usage after the first week and look for usage alerts or limits in the account; set `MAP_PROVIDER=mapbox` in `.env.local` only when you want to see Mapbox in development.
