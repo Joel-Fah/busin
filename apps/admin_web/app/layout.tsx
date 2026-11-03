@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "@fontsource-variable/plus-jakarta-sans";
 
+import { ScrollbarFade } from "@/components/ScrollbarFade";
+import { TooltipLayer } from "@/components/ui/TooltipLayer";
 import { introInitScript } from "@/lib/intro";
 import { themeInitScript } from "@/lib/theme";
 
@@ -20,7 +22,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript + introInitScript }} />
       </head>
-      <body>{children}</body>
+      <body>
+        <ScrollbarFade />
+        <TooltipLayer />
+        {children}
+      </body>
     </html>
   );
 }

@@ -26,6 +26,7 @@ export function HelpSheet({ label, title, intro, scenarios, scenariosLabel, clos
         type="button"
         onClick={() => setOpen(true)}
         aria-label={label}
+        data-tip={label}
         aria-haspopup="dialog"
         className="inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-sm border-0 bg-transparent text-muted transition-colors duration-(--dur-fast) hover:bg-surface-2 hover:text-fg focus-visible:outline-3 focus-visible:outline-focus"
       >

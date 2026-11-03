@@ -61,3 +61,7 @@ Token hygiene, for the owner:
 - Restrict each token to the scopes it needs (public styles and tiles reading); the portal needs nothing else.
 - Check the usage page in the Mapbox account after the first week and monthly after that, and look in the account's billing and usage settings for usage notifications or limits. I cannot verify which alerting features your plan offers, so check them in your account; if a hard cap exists, set it.
 - If the token leaks, rotate it in the Mapbox account, update the environment, and the old one stops working.
+
+## MapLibre worker and location (2026-11-04)
+- **MapLibre showed a blank map in development.** MapLibre parses tiles in a web worker, and Next's bundler (Turbopack) does not emit that worker file, so the browser logged "Worker failed to load" and only the markers drew. The worker is now copied to `public/vendor/maplibre/` by `tools/copy-map-workers.mjs` (run before `dev` and `build`; the copies are generated and not in git) and MapLibre is pointed at it with `setWorkerUrl`. Mapbox's library carries its worker inline and was not affected.
+- **Location.** The `Permissions-Policy` header changed from `geolocation=()` to `geolocation=(self)` so the Stops page can show an administrator where they are. Nothing asks for it automatically: the browser's permission prompt appears only when the button is pressed, and the position is kept in the page only.

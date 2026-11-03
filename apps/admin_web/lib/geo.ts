@@ -85,3 +85,27 @@ export function centroid(points: readonly LatLng[]): LatLng | null {
 export function formatLatLng({ lat, lng }: LatLng): string {
   return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
 }
+
+const EARTH_RADIUS_M = 6_371_008.8;
+
+/** Straight-line distance in metres between two points on the Earth (the great-circle distance). */
+export function distanceMeters(a: LatLng, b: LatLng): number {
+  const rad = (degrees: number) => (degrees * Math.PI) / 180;
+  const dLat = rad(b.lat - a.lat);
+  const dLng = rad(b.lng - a.lng);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return 2 * EARTH_RADIUS_M * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+
+/**
+ * An approximate distance, marked with "~" because it is a straight line and not a route, and rounded so
+ * it does not pretend to be exact: to the nearest 50 m under a kilometre, to 0.1 km up to 10 km, to the
+ * whole kilometre beyond.
+ */
+export function formatDistance(meters: number): string {
+  if (!Number.isFinite(meters) || meters < 0) return "";
+  const rounded = Math.round(meters / 50) * 50;
+  if (rounded < 1000) return `~${Math.max(50, rounded)} m`;
+  const km = meters / 1000;
+  return km < 10 ? `~${km.toFixed(1)} km` : `~${Math.round(km)} km`;
+}

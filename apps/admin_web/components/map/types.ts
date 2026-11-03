@@ -14,6 +14,12 @@ export type MapMarker = {
   href?: string;
   /** Drawn in a quieter style, for example an inactive stop. */
   muted?: boolean;
+  /** When set (and there is no href), the marker is a button that calls this. */
+  onSelect?: () => void;
+  /** Drawn larger, as the marker the page is focused on. */
+  selected?: boolean;
+  /** "me" is the visitor's own position: a blue dot with a halo, not a pin. */
+  variant?: "me";
 };
 
 export type MapPicker = {
@@ -35,6 +41,14 @@ export type MapViewProps = {
   markers?: MapMarker[];
   /** Turns the map into a place to choose a position. */
   picker?: MapPicker;
+  /** When this changes, the map glides to it. For example the stop picked from a list. */
+  focus?: LatLng | null;
+  /** Change this to glide to `focus` again even when it has not moved, for example after the map was panned away. */
+  focusKey?: number;
+  /** Text for a bubble standing for several stops that would overlap, with {count} for the number. */
+  clusterLabel?: string;
+  /** Merge markers that would overlap into numbered bubbles when zoomed out. On by default. */
+  clustering?: boolean;
   /** Describes the map for assistive technology. */
   ariaLabel: string;
   /** Shown instead of the map when the browser cannot draw it. */

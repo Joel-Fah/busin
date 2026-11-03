@@ -68,6 +68,15 @@ test.describe("floating navigation on a wide screen", () => {
     await near("Profile");
   });
 
+  test("is the same width on every page", async ({ page }) => {
+    const widths: number[] = [];
+    for (const path of ["/", "/people", "/trips", "/semesters", "/profile"]) {
+      await page.goto(path);
+      widths.push(Math.round((await page.getByRole("navigation", { name: "Main navigation" }).boundingBox())!.width));
+    }
+    expect(new Set(widths).size).toBe(1);
+  });
+
   test("moves between pages and keeps its place", async ({ page }) => {
     await page.goto("/");
     const nav = page.getByRole("navigation", { name: "Main navigation" });

@@ -2,10 +2,15 @@
 
 import "maplibre-gl/dist/maplibre-gl.css";
 
-import { LngLatBounds, Map as MapLibreMap, Marker, NavigationControl } from "maplibre-gl";
+import { LngLatBounds, Map as MapLibreMap, Marker, NavigationControl, setWorkerUrl } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
 
+import { placeMarkers } from "../place-markers";
 import type { MapViewProps } from "../types";
+
+// The bundler does not emit MapLibre's worker, which left the map blank. It is copied to public/vendor by
+// tools/copy-map-workers.mjs (run before dev and build) and served as a plain file.
+setWorkerUrl("/vendor/maplibre/maplibre-gl-worker.mjs");
 
 function webglAvailable(): boolean {
   try {
@@ -23,6 +28,10 @@ export default function MapLibreView({
   styleUrl,
   markers,
   picker,
+  focus,
+  focusKey,
+  clusterLabel = "{count}",
+  clustering = true,
   ariaLabel,
   unavailableLabel,
   className,
@@ -32,8 +41,11 @@ export default function MapLibreView({
   const container = useRef<HTMLDivElement>(null);
   const initialView = useRef({ center, zoom });
   const [map, setMap] = useState<MapLibreMap | null>(null);
+  const fittedFor = useRef("");
   const onPick = useRef(picker?.onChange);
   const pickable = picker !== undefined;
+  const focusLat = focus?.lat;
+  const focusLng = focus?.lng;
   const pinLat = picker?.position?.lat;
   const pinLng = picker?.position?.lng;
 
@@ -53,31 +65,51 @@ export default function MapLibreView({
     });
     created.addControl(new NavigationControl({ showCompass: false }), "top-right");
     setMap(created);
+    // The container can change size without the window doing so (a side panel opening), so follow it.
+    const watcher = new ResizeObserver(() => created.resize());
+    watcher.observe(container.current);
     return () => {
+      watcher.disconnect();
       created.remove();
       setMap(null);
     };
   }, [supported, styleUrl]);
 
-  // Fixed markers, for example the stops on the overview map.
+  // Fixed markers, for example the stops. Overlapping ones merge into numbered bubbles when zoomed out.
   useEffect(() => {
     if (!map || !markers || markers.length === 0) return;
-    const placed = markers.map((item) => {
-      const element = document.createElement(item.href ? "a" : "div");
-      element.className = item.muted ? "map-marker map-marker-muted" : "map-marker";
-      element.setAttribute("aria-label", item.label);
-      element.title = item.label;
-      if (item.href && element instanceof HTMLAnchorElement) element.href = item.href;
-      return new Marker({ element }).setLngLat([item.position.lng, item.position.lat]).addTo(map);
-    });
 
-    if (!pickable) {
+    // Fit all the points once for a given set of markers, not every time the page re-renders or a form closes.
+    const set = markers.map((item) => item.id).join(",");
+    if (!pickable && fittedFor.current !== set) {
+      fittedFor.current = set;
       const bounds = new LngLatBounds();
       for (const item of markers) bounds.extend([item.position.lng, item.position.lat]);
       map.fitBounds(bounds, { padding: 56, maxZoom: 15, animate: false });
     }
-    return () => placed.forEach((marker) => marker.remove());
-  }, [map, markers, pickable]);
+
+    return placeMarkers(
+      {
+        getZoom: () => map.getZoom(),
+        onZoom: (listener) => {
+          map.on("zoom", listener);
+          return () => {
+            map.off("zoom", listener);
+          };
+        },
+        fitTo: (bounds) => map.fitBounds(bounds, { padding: 90, maxZoom: 17, duration: 600 }),
+        place: (element, position) => new Marker({ element }).setLngLat(position).addTo(map),
+      },
+      markers,
+      { clustering: !pickable && clustering, clusterLabel },
+    );
+  }, [map, markers, pickable, clustering, clusterLabel]);
+
+  // Glide to the position the page is focused on, for example the stop picked from a list.
+  useEffect(() => {
+    if (!map || focusLat === undefined || focusLng === undefined) return;
+    map.easeTo({ center: [focusLng, focusLat], zoom: Math.max(map.getZoom(), 15), duration: 600 });
+  }, [map, focusLat, focusLng, focusKey]);
 
   // Choosing a position: click the map or drag the pin.
   useEffect(() => {
