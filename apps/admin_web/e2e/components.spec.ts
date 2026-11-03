@@ -239,6 +239,15 @@ test.describe("scroll lock", () => {
     await expect(page.locator("html")).not.toHaveClass(/scroll-locked/);
   });
 
+  test("the rough underline is as long as the title text, not the whole dialog", async ({ page }) => {
+    await page.getByRole("button", { name: "Delete a stop" }).click();
+    const modal = page.getByRole("dialog", { name: "Delete this stop?" });
+    const underline = (await modal.locator(".texture-rough").boundingBox())!;
+    const text = (await modal.getByText("Delete this stop?", { exact: true }).boundingBox())!;
+    expect(underline.width).toBeLessThan(text.width + 24);
+    expect(underline.width).toBeGreaterThan(text.width - 4);
+  });
+
   test("the modal title carries the rough marker like the sheet", async ({ page }) => {
     await page.getByRole("button", { name: "Delete a stop" }).click();
     await expect(page.getByRole("dialog", { name: "Delete this stop?" }).locator(".texture-rough")).toHaveCount(1);
@@ -341,6 +350,36 @@ test.describe("date picker", () => {
     await page.keyboard.press("Enter");
     await expect(field).toContainText("October 15, 2026");
     await expect(field).toBeFocused();
+  });
+
+  test("the title opens a month grid with year arrows, so far dates are quick", async ({ page }) => {
+    await page.getByRole("button", { name: "First day" }).click();
+    const calendar = page.getByRole("dialog", { name: "First day" });
+    await calendar.getByRole("button", { name: "Choose month and year" }).click();
+    const months = calendar.getByRole("group", { name: "Choose month and year" });
+    await expect(months).toBeVisible();
+    await expect(months.getByRole("button", { name: "September" })).toHaveAttribute("aria-pressed", "true");
+
+    await months.getByRole("button", { name: "March" }).click();
+    await expect(calendar.getByRole("grid")).toBeVisible();
+    await expect(calendar.getByText("March 2026")).toBeVisible();
+
+    await calendar.getByRole("button", { name: "Choose month and year" }).click();
+    await calendar.getByRole("button", { name: "Next year" }).click();
+    await expect(calendar.getByRole("button", { name: "Choose month and year" })).toContainText("2027");
+    await calendar.getByRole("group").getByRole("button", { name: "January" }).click();
+    await expect(calendar.getByText("January 2027")).toBeVisible();
+    await calendar.getByRole("gridcell", { name: "January 20, 2027" }).click();
+    await expect(page.getByRole("button", { name: "First day" })).toContainText("January 20, 2027");
+  });
+
+  test("Shift with Page Down jumps a year", async ({ page }) => {
+    await page.getByRole("button", { name: "First day" }).click();
+    const calendar = page.getByRole("dialog", { name: "First day" });
+    await expect(calendar.getByRole("gridcell", { name: "September 7, 2026" })).toBeFocused();
+    await page.keyboard.press("Shift+PageDown");
+    await expect(calendar.getByText("September 2027")).toBeVisible();
+    await expect(calendar.getByRole("gridcell", { name: "September 7, 2027" })).toBeFocused();
   });
 
   test("Escape closes without changing the date", async ({ page }) => {
