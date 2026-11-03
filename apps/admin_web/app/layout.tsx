@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "@fontsource-variable/plus-jakarta-sans";
 
+import { introInitScript } from "@/lib/intro";
 import { themeInitScript } from "@/lib/theme";
 
 import "./tailwind.css";
@@ -17,7 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript + introInitScript }} />
       </head>
       <body>{children}</body>
     </html>

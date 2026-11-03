@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 export type RailItem = { id: string; label: string };
 
 /**
- * A slim sticky rail of ticks with labels, in the manner of a conversation outline. The section
+ * A slim sticky rail of ticks with labels, in the manner of a conversation outline. It sits in the page margin, so the parent places it outside the content column. The section
  * being read is longer and orange. No backgrounds, so it stays quiet next to the content.
  */
 export function SectionRail({ items }: { items: readonly RailItem[] }) {
@@ -37,7 +37,7 @@ export function SectionRail({ items }: { items: readonly RailItem[] }) {
   }
 
   return (
-    <nav aria-label="Sections" className="sticky top-10 hidden self-start xl:block">
+    <nav aria-label="Sections" className="sticky top-10 w-44">
       <ul className="m-0 flex list-none flex-col gap-1 p-0">
         {items.map(({ id, label }) => {
           const current = id === active;

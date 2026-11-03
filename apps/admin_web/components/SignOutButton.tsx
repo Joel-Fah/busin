@@ -1,11 +1,14 @@
+import { Logout01Icon } from "@hugeicons/core-free-icons";
+
+import { Button } from "@/components/ui/Button";
 import { signOut } from "@/lib/auth-actions";
 
 export function SignOutButton({ label }: { label: string }) {
   return (
     <form action={signOut}>
-      <button type="submit" className="btn btn-secondary">
+      <Button type="submit" variant="danger" icon={Logout01Icon}>
         {label}
-      </button>
+      </Button>
     </form>
   );
 }

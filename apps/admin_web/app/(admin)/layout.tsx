@@ -1,9 +1,7 @@
-import Image from "next/image";
 import { Suspense } from "react";
 
-import { LanguageSwitch } from "@/components/LanguageSwitch";
-import { NavLinks, type NavItem } from "@/components/NavLinks";
-import { SignOutButton } from "@/components/SignOutButton";
+import { BrandIntro } from "@/components/brand/BrandIntro";
+import { FloatingNav, type NavKey } from "@/components/nav/FloatingNav";
 import { requireAdmin } from "@/lib/auth";
 import { getMessages } from "@/lib/i18n/server";
 
@@ -14,41 +12,35 @@ export const instant = false;
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
-    <Suspense fallback={<div className="shell" aria-busy="true" />}>
+    <Suspense fallback={<div aria-busy="true" />}>
       <AdminShell>{children}</AdminShell>
     </Suspense>
   );
 }
 
+const KEYS: NavKey[] = ["overview", "subscriptions", "people", "stops", "trips", "scans", "semesters", "buses"];
+
 async function AdminShell({ children }: { children: React.ReactNode }) {
   const admin = await requireAdmin();
   const { locale, t } = await getMessages();
 
-  const items: NavItem[] = [
-    { href: "/", label: t.nav.overview },
-    { href: "/subscriptions", label: t.nav.subscriptions },
-    { href: "/people", label: t.nav.people },
-    { href: "/stops", label: t.nav.stops },
-    { href: "/trips", label: t.nav.trips },
-    { href: "/scans", label: t.nav.scans },
-    { href: "/semesters", label: t.nav.semesters },
-    { href: "/buses", label: t.nav.buses },
-  ];
-
   return (
-    <div className="shell" lang={locale}>
-      <aside className="sidebar">
-        <Image src="/brand/white.svg" alt={t.appName} width={205} height={126} className="logo" priority />
-        <nav className="nav" aria-label={t.nav.primary}>
-          <NavLinks items={items} />
-        </nav>
-        <div className="sidebar-footer">
-          <span>{admin.email}</span>
-          <LanguageSwitch locale={locale} t={t} />
-          <SignOutButton label={t.nav.signOut} />
-        </div>
-      </aside>
-      <main className="main">{children}</main>
+    <div lang={locale}>
+      <BrandIntro />
+      <main className="mx-auto flex w-full max-w-7xl min-w-0 flex-col gap-6 px-[clamp(1rem,4vw,2.5rem)] pt-8 pb-44">
+        {children}
+      </main>
+      <FloatingNav
+        keys={KEYS}
+        labels={t.nav}
+        groups={[
+          { label: t.nav.groupDaily, keys: ["subscriptions", "trips", "scans"] },
+          { label: t.nav.groupSetup, keys: ["stops", "buses", "semesters"] },
+          { label: t.nav.groupGeneral, keys: ["overview", "people"] },
+        ]}
+        profile={{ name: admin.fullName || admin.email, avatarUrl: admin.avatarUrl, href: "/profile" }}
+        text={t.nav}
+      />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { AA_TEXT, contrastRatio } from "./contrast";
-import { TEXT_PAIRS, readColourTokens } from "./tokens";
+import { DARK, LIGHT, TEXT_PAIRS } from "./tokens";
 
 describe("contrastRatio", () => {
   it("matches the known extremes", () => {
@@ -18,11 +18,10 @@ describe("contrastRatio", () => {
   });
 });
 
-const { light, dark } = readColourTokens();
 
 describe.each([
-  ["light", light],
-  ["dark", dark],
+  ["light", LIGHT],
+  ["dark", DARK],
 ])("%s theme text colours", (_name, theme) => {
   it.each(TEXT_PAIRS)("%s on %s meets WCAG AA", (fg, bg) => {
     expect(contrastRatio(theme[fg], theme[bg])).toBeGreaterThanOrEqual(AA_TEXT);

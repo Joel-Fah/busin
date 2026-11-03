@@ -62,12 +62,18 @@ test.describe("administrator reading the styleguide", () => {
     const empty = page.locator("#contour").getByText("Nothing to review right now");
     const thread = empty.locator("xpath=ancestor::div[1]").locator(".contour-thread");
     const offset = () => thread.evaluate((el) => parseFloat(getComputedStyle(el).strokeDashoffset));
+    const width = () => thread.evaluate((el) => parseFloat(getComputedStyle(el).strokeWidth));
 
     expect(await offset()).toBe(0);
+    expect(await width()).toBeCloseTo(1.5, 1);
     await empty.hover();
     await expect.poll(offset).toBeLessThan(-30);
+    // It thickens a little, not a lot, and settles at the hover width.
+    await expect.poll(width).toBeGreaterThan(2.2);
+    expect(await width()).toBeLessThanOrEqual(2.3);
     await page.mouse.move(0, 0);
     await expect.poll(offset).toBe(0);
+    await expect.poll(width).toBeCloseTo(1.5, 1);
   });
 
   test("the thread on a card stays still, and a button thread keeps its colour on hover", async ({ page }) => {
@@ -88,10 +94,16 @@ test.describe("administrator reading the styleguide", () => {
   });
 
   test("the section rail follows the reading position and jumps on click", async ({ page }) => {
-    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.setViewportSize({ width: 1600, height: 900 });
     await page.goto("/styleguide");
     const rail = page.getByRole("navigation", { name: "Sections" });
     await expect(rail).toBeVisible();
+
+    // It sits to the right of the content, in the margin, and takes none of its width.
+    const railBox = await rail.boundingBox();
+    const contentBox = await page.getByRole("heading", { name: "Styleguide", level: 1 }).boundingBox();
+    expect(railBox!.x).toBeGreaterThan(contentBox!.x + 1000);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
     await rail.getByRole("link", { name: "Colour" }).click();
     await expect(rail.getByRole("link", { name: "Colour" })).toHaveAttribute("aria-current", "location");
     await expect(page.getByRole("heading", { name: "Colour", level: 2 })).toBeInViewport();
@@ -105,8 +117,27 @@ test.describe("administrator reading the styleguide", () => {
   test("shows the banner photo, the 3D objects and the photographs", async ({ page }) => {
     await page.goto("/styleguide");
     await expect(page.getByRole("img", { name: /brand strategy board/ })).toBeVisible();
-    await expect(page.getByRole("img", { name: /yellow school bus turning/ })).toBeVisible();
+    for (const name of [/blue and white city bus/, /warm evening light/, /people waiting together/, /white school bus parked/]) {
+      await expect(page.getByRole("img", { name })).toBeVisible();
+    }
     await expect(page.locator("#imagery img[src*='3d%2Fbus.webp'], #imagery img[src*='/3d/bus.webp']").first()).toBeVisible();
+  });
+
+  test("documents texture and draws the grain from an inline SVG, not an image file", async ({ page }) => {
+    await page.goto("/styleguide");
+    await expect(page.getByRole("heading", { name: "Texture", level: 2 })).toBeVisible();
+    const grain = page.locator("#texture .texture-grain").first();
+    expect(await grain.evaluate((el) => getComputedStyle(el, "::before").backgroundImage)).toContain("data:image/svg+xml");
+    expect(await grain.evaluate((el) => getComputedStyle(el, "::before").mixBlendMode)).toBe("soft-light");
+    // The rough filter is defined once on the page.
+    await expect(page.locator("filter#busin-rough")).toHaveCount(1);
+  });
+
+  test("the banner carries grain and stays readable", async ({ page }) => {
+    await page.goto("/styleguide");
+    const banner = page.locator("header.texture-grain");
+    await expect(banner).toBeVisible();
+    await expect(banner.getByRole("heading", { name: "Styleguide", level: 1 })).toBeVisible();
   });
 
   test("the portal has a themed icon", async ({ page }) => {
@@ -117,13 +148,19 @@ test.describe("administrator reading the styleguide", () => {
     expect(await response.text()).toContain("prefers-color-scheme:dark");
   });
 
-  // The old sidebar navigation is 746px wide and stretches every page on a phone. The floating
-  // navigation bar replaces it in the shell PR; turn this test on there.
-  test.fixme("the page does not scroll sideways on a phone", async ({ page }) => {
+  test("the page does not scroll sideways on a phone", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/styleguide");
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow).toBe(0);
+  });
+
+  test("is shown without the portal navigation bar and links back to the portal", async ({ page }) => {
+    await page.goto("/styleguide");
+    await expect(page.getByRole("navigation", { name: "Main navigation" })).toHaveCount(0);
+    await page.getByRole("link", { name: "Back to the portal" }).click();
+    await expect(page).toHaveURL(/\/$/);
+    await expect(page.getByRole("navigation", { name: "Main navigation" })).toBeVisible();
   });
 
   test("is not linked from the navigation", async ({ page }) => {

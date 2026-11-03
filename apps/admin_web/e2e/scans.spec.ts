@@ -10,6 +10,7 @@ import {
   serviceClient,
   signInBrowser,
   type TestUser,
+  setLanguage,
 } from "./support";
 
 const tag = randomBytes(3).toString("hex").toUpperCase();
@@ -164,10 +165,10 @@ test.describe("administrator viewing boardings", () => {
   });
 
   test("the pages are available in French", async ({ page }) => {
+    await setLanguage(page, "fr");
     await page.goto("/scans");
-    await page.getByRole("button", { name: "Français" }).click();
     await expect(page.getByRole("heading", { name: "Embarquements", level: 1 })).toBeVisible();
-    await page.getByRole("button", { name: "English" }).click();
+    await setLanguage(page, "en");
   });
 });
 

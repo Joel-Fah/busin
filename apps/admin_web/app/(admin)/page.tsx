@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
+import { PageHeader } from "@/components/ui/PageHeader";
 import { requireAdmin } from "@/lib/auth";
 import { format } from "@/lib/i18n/messages";
 import { getMessages } from "@/lib/i18n/server";
@@ -47,10 +48,18 @@ async function Overview() {
 
   return (
     <>
-      <header className="page-head">
-        <h1>{t.overview.title}</h1>
-        <p>{format(t.overview.subtitle, { school: admin.schoolName })}</p>
-      </header>
+      <PageHeader
+        title={t.overview.title}
+        subtitle={format(t.overview.subtitle, { school: admin.schoolName })}
+        help={{
+          label: t.help.open,
+          title: t.overview.help.title,
+          intro: t.overview.help.intro,
+          scenarios: Object.values(t.overview.help.scenarios),
+          scenariosLabel: t.help.scenarios,
+          closeLabel: t.help.close,
+        }}
+      />
 
       {failed ? (
         <p className="notice" role="alert">

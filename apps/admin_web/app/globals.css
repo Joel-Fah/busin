@@ -16,8 +16,6 @@
   --on-brand: #ffffff;
   --accent: #f5951f;
   --on-accent: #002a33;
-  --side-bg: #002a33;
-  --side-fg: #ffffff;
   --link: #087282;
   --focus: #087282;
 
@@ -46,7 +44,6 @@
     --line: #14505c;
     --brand: #e6f4f4;
     --on-brand: #00181d;
-    --side-bg: #001f26;
     --link: #54d8e8;
     --focus: #54d8e8;
     --ok: #4cd08a;
@@ -71,7 +68,6 @@
   --line: #14505c;
   --brand: #e6f4f4;
   --on-brand: #00181d;
-  --side-bg: #001f26;
   --link: #54d8e8;
   --focus: #54d8e8;
   --ok: #4cd08a;
@@ -232,72 +228,6 @@ a {
   font-weight: 600;
 }
 
-/* App shell */
-.shell {
-  display: grid;
-  grid-template-columns: 16rem minmax(0, 1fr);
-  min-height: 100dvh;
-}
-
-.sidebar {
-  background: var(--side-bg);
-  color: var(--side-fg);
-  padding: 1.25rem 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.sidebar .logo {
-  display: block;
-  width: 7rem;
-  height: auto;
-}
-
-.nav {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  flex: 1;
-}
-
-.nav a {
-  color: inherit;
-  text-decoration: none;
-  padding: 0.5rem 0.75rem;
-  border-radius: var(--radius);
-  font-weight: 600;
-}
-
-.nav a[aria-current='page'] {
-  background: var(--accent);
-  color: var(--on-accent);
-}
-
-.nav a:hover:not([aria-current='page']) {
-  background: rgb(255 255 255 / 12%);
-}
-
-.sidebar-footer {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-}
-
-.sidebar-footer .btn-secondary {
-  color: var(--side-fg);
-  border-color: rgb(255 255 255 / 35%);
-}
-
-.main {
-  padding: 2rem clamp(1rem, 4vw, 2.5rem);
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  min-width: 0;
-}
-
 .page-head {
   display: flex;
   flex-direction: column;
@@ -364,29 +294,6 @@ a {
   flex-wrap: wrap;
   gap: 0.75rem;
   align-items: center;
-}
-
-/* Small screens: sidebar becomes a top bar */
-@media (max-width: 52rem) {
-  .shell {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .sidebar {
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    padding: 0.75rem 1rem;
-  }
-
-  .nav {
-    flex-direction: row;
-    flex: 1;
-  }
-
-  .sidebar .logo {
-    width: 4.5rem;
-  }
 }
 
 /* Lists and tables */

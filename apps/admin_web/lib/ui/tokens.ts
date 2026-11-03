@@ -1,23 +1,56 @@
-import { readFileSync } from "node:fs";
-import path from "node:path";
-
-/** Reads the colour tokens (#rrggbb only) out of app/globals.css, so docs and tests use the real values. */
+/**
+ * Colour tokens as data, for the styleguide and the contrast test. The source of truth is
+ * app/globals.css; a unit test (tokens.test.ts) fails if the two ever disagree, so this file
+ * cannot drift. Dark lists only the values that differ from light.
+ */
 
 export type ColourTokens = Record<string, string>;
 
-function parse(body: string): ColourTokens {
-  return Object.fromEntries([...body.matchAll(/--([a-z0-9-]+):\s*(#[0-9a-f]{6})/gi)].map((m) => [m[1], m[2]]));
-}
+export const LIGHT: ColourTokens = {
+  "bg": "#f4f8f8",
+  "surface": "#ffffff",
+  "surface-2": "#e8f1f2",
+  "fg": "#002a33",
+  "muted": "#4d6a70",
+  "line": "#d2e1e3",
+  "brand": "#002a33",
+  "on-brand": "#ffffff",
+  "accent": "#f5951f",
+  "on-accent": "#002a33",
+  "link": "#087282",
+  "focus": "#087282",
+  "ok": "#0b7a43",
+  "ok-bg": "#e2f4ea",
+  "warn": "#8a6100",
+  "warn-bg": "#fbf0cf",
+  "bad": "#b3261e",
+  "bad-bg": "#fbe5e3",
+  "info": "#1a56c4",
+  "info-bg": "#e3ecfb",
+};
 
-export function readColourTokens(cssPath = path.join(process.cwd(), "app/globals.css")): {
-  light: ColourTokens;
-  dark: ColourTokens;
-} {
-  const css = readFileSync(cssPath, "utf8");
-  const light = parse(css.match(/:root \{([\s\S]*?)\n\}/)?.[1] ?? "");
-  const dark = { ...light, ...parse(css.match(/:root\[data-theme='dark'\] \{([\s\S]*?)\n\}/)?.[1] ?? "") };
-  return { light, dark };
-}
+export const DARK_OVERRIDES: ColourTokens = {
+  "bg": "#00181d",
+  "surface": "#002a33",
+  "surface-2": "#06404b",
+  "fg": "#e6f4f4",
+  "muted": "#9dbdc1",
+  "line": "#14505c",
+  "brand": "#e6f4f4",
+  "on-brand": "#00181d",
+  "link": "#54d8e8",
+  "focus": "#54d8e8",
+  "ok": "#4cd08a",
+  "ok-bg": "#0c3a28",
+  "warn": "#ffd24d",
+  "warn-bg": "#3d3208",
+  "bad": "#ff8a80",
+  "bad-bg": "#4a1714",
+  "info": "#8ab4ff",
+  "info-bg": "#14305e",
+};
+
+export const DARK: ColourTokens = { ...LIGHT, ...DARK_OVERRIDES };
 
 /** Text on background pairs that must stay readable in both themes. */
 export const TEXT_PAIRS: [string, string][] = [
