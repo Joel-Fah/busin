@@ -1,12 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import { DEFAULT_CENTER, DEFAULT_STYLE_URL, DEFAULT_ZOOM, resolveMapConfig } from "./config";
+import { DEFAULT_CENTER, DEFAULT_MAPBOX_STYLE_URL, DEFAULT_STYLE_URL, DEFAULT_ZOOM, isPublicMapboxToken, resolveMapConfig } from "./config";
 
 describe("resolveMapConfig", () => {
   it("uses safe defaults when nothing is set", () => {
     expect(resolveMapConfig({})).toEqual({
       provider: "maplibre",
       styleUrl: DEFAULT_STYLE_URL,
+      accessToken: "",
       fallbackCenter: DEFAULT_CENTER,
       fallbackZoom: DEFAULT_ZOOM,
     });
@@ -47,5 +48,47 @@ describe("resolveMapConfig", () => {
 
   it("needs both halves of the centre", () => {
     expect(resolveMapConfig({ MAP_DEFAULT_LAT: "10" }).fallbackCenter).toEqual(DEFAULT_CENTER);
+  });
+});
+
+const PUBLIC = "pk.eyJ1IjoiYnVzaW4iLCJhIjoiYWJjMTIzIn0.abc-123_XYZ";
+
+describe("isPublicMapboxToken", () => {
+  it("accepts a public token and rejects everything else, above all a secret one", () => {
+    expect(isPublicMapboxToken(PUBLIC)).toBe(true);
+    expect(isPublicMapboxToken(` ${PUBLIC} `)).toBe(true);
+    expect(isPublicMapboxToken("sk.eyJ1IjoiYnVzaW4iLCJhIjoiYWJj.secret-part")).toBe(false);
+    expect(isPublicMapboxToken("pk.only-one-part")).toBe(false);
+    expect(isPublicMapboxToken("")).toBe(false);
+    expect(isPublicMapboxToken(undefined)).toBe(false);
+  });
+});
+
+describe("resolveMapConfig with Mapbox", () => {
+  it("uses Mapbox by default once a public token exists", () => {
+    const config = resolveMapConfig({ MAPBOX_API_KEY: PUBLIC });
+    expect(config.provider).toBe("mapbox");
+    expect(config.accessToken).toBe(PUBLIC);
+    expect(config.styleUrl).toBe(DEFAULT_MAPBOX_STYLE_URL);
+  });
+
+  it("falls back to the free map when Mapbox is asked for but there is no valid token", () => {
+    for (const MAPBOX_API_KEY of [undefined, "", "sk.secret.value", "garbage"]) {
+      const config = resolveMapConfig({ MAP_PROVIDER: "mapbox", MAPBOX_API_KEY });
+      expect(config.provider).toBe("maplibre");
+      expect(config.accessToken).toBe("");
+      expect(config.styleUrl).toBe(DEFAULT_STYLE_URL);
+    }
+  });
+
+  it("keeps MapLibre when it is chosen, and never hands its pages a token", () => {
+    const config = resolveMapConfig({ MAP_PROVIDER: "maplibre", MAPBOX_API_KEY: PUBLIC });
+    expect(config.provider).toBe("maplibre");
+    expect(config.accessToken).toBe("");
+  });
+
+  it("accepts a mapbox:// style only for Mapbox", () => {
+    expect(resolveMapConfig({ MAPBOX_API_KEY: PUBLIC, MAP_STYLE_URL: "mapbox://styles/mapbox/dark-v11" }).styleUrl).toBe("mapbox://styles/mapbox/dark-v11");
+    expect(resolveMapConfig({ MAP_STYLE_URL: "mapbox://styles/mapbox/dark-v11" }).styleUrl).toBe(DEFAULT_STYLE_URL);
   });
 });

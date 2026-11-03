@@ -27,8 +27,10 @@ export type MapViewProps = {
   /** Where the map opens when there is nothing to fit. */
   center: LatLng;
   zoom: number;
-  /** Where the base map comes from. Each provider says what it expects (a style URL for MapLibre). */
+  /** Where the base map comes from. Each provider says what it expects (a style URL for MapLibre, a mapbox:// style for Mapbox). */
   styleUrl: string;
+  /** Mapbox public access token. Ignored by other providers. */
+  accessToken?: string;
   /** Points to show. With no picker the map fits them all. */
   markers?: MapMarker[];
   /** Turns the map into a place to choose a position. */

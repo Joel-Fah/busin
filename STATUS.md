@@ -33,10 +33,10 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 
 ## Last handoff
 
-Done: PR 3 of the admin portal redesign (components), on branch `phase-2/components`. Side sheet and modal now float with a margin all round (the help sheet included), with a rough marker highlight under the title. Added tabs with tone counters and the elastic sliding highlight (shared with the navigation bar), an action menu that opens up, down, left or right depending on room, a custom dropdown, calendar date picker (with month and year selection), time picker and combined date-time picker (not the browser's), checkbox, radio group and switch, all shown in the styleguide with their states; the page behind a sheet or modal no longer scrolls; the modal title has the rough marker. Verified with typecheck, lint, 158 unit tests, 167 browser tests and a production build.
+Done: Mapbox map provider (PR #93, part 1 of the Stops redesign), stacked on the components PR #91. The portal uses Mapbox when `MAPBOX_API_KEY` is a valid public token and falls back to MapLibre otherwise. Verified with typecheck, lint, 163 unit tests and the 12 stops browser tests running against the real Mapbox map (clicks, pin drag, coordinates).
 
-Next: the Stops redesign with the Mapbox switch (`MAPBOX_API_KEY`), then the other page redesigns using these components (tabs with counters on Subscriptions, People and Trips), then trip cancel and archive, then Docker. The Mapbox switch moved from the components PR to the Stops PR, where the map is shown.
+Next: part 2, the Stops page redesign (full-page map, stops listed in the navigation bar's dock, add and edit in the floating sheet), then the other page redesigns, then trip cancel and Docker.
 
-Blockers: none for development. Map tiles did not load in this laptop's test browser and the dev server logs "Worker failed to load" for the map; to be checked in the Stops PR.
+Blockers: none. Keep the Mapbox token restricted to the portal's address in your Mapbox account and watch map loads against the free allowance.
 
-Owner must do: review and merge the components PR; keep the Mapbox key a public, URL-restricted `pk.` token; confirm the Bevellier font files and the unused `components/NavLinks.tsx` can be deleted; add the Google keys to `supabase/.env` when ready to test real sign-in.
+Owner must do: merge #91 then #93; restrict the Mapbox token by URL; confirm the Bevellier font files and the unused `components/NavLinks.tsx` can be deleted.

@@ -60,6 +60,7 @@ async function StopsList() {
           <MapView
             provider={config.provider}
             styleUrl={config.styleUrl}
+            accessToken={config.accessToken}
             center={center}
             zoom={config.fallbackZoom}
             markers={markers}
