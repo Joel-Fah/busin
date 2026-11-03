@@ -42,6 +42,7 @@ export function StopForm({ action, t, config, center, zoom, stop }: Props) {
         initial={stop?.position ?? null}
         provider={config.provider}
         styleUrl={config.styleUrl}
+        accessToken={config.accessToken}
         center={center}
         zoom={zoom}
         labels={{

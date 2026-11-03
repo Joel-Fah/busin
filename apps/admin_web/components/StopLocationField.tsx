@@ -11,6 +11,7 @@ type Props = {
   initial: LatLng | null;
   provider: MapProviderId;
   styleUrl: string;
+  accessToken: string;
   center: LatLng;
   zoom: number;
   labels: {
@@ -26,7 +27,7 @@ type Props = {
  * Position fields for a stop: a map to click or a pin to drag, and two number fields that stay
  * in step with it. The fields are the accessible way to set a position without a mouse.
  */
-export function StopLocationField({ initial, provider, styleUrl, center, zoom, labels }: Props) {
+export function StopLocationField({ initial, provider, styleUrl, accessToken, center, zoom, labels }: Props) {
   const [lat, setLat] = useState(initial ? initial.lat.toFixed(6) : "");
   const [lng, setLng] = useState(initial ? initial.lng.toFixed(6) : "");
 
@@ -42,6 +43,7 @@ export function StopLocationField({ initial, provider, styleUrl, center, zoom, l
       <MapView
         provider={provider}
         styleUrl={styleUrl}
+        accessToken={accessToken}
         center={initial ?? center}
         zoom={initial ? 15 : zoom}
         picker={{

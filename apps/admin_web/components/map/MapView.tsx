@@ -18,6 +18,7 @@ function Loading() {
  */
 const providers: Record<MapProviderId, ComponentType<MapViewProps>> = {
   maplibre: dynamic(() => import("./providers/maplibre"), { ssr: false, loading: Loading }),
+  mapbox: dynamic(() => import("./providers/mapbox"), { ssr: false, loading: Loading }),
 };
 
 export function MapView({ provider, ...props }: MapViewProps & { provider: MapProviderId }) {
