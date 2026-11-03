@@ -65,11 +65,18 @@ describe("isPublicMapboxToken", () => {
 });
 
 describe("resolveMapConfig with Mapbox", () => {
-  it("uses Mapbox by default once a public token exists", () => {
-    const config = resolveMapConfig({ MAPBOX_API_KEY: PUBLIC });
+  it("uses Mapbox by default in production once a public token exists", () => {
+    const config = resolveMapConfig({ MAPBOX_API_KEY: PUBLIC, NODE_ENV: "production" });
     expect(config.provider).toBe("mapbox");
     expect(config.accessToken).toBe(PUBLIC);
     expect(config.styleUrl).toBe(DEFAULT_MAPBOX_STYLE_URL);
+  });
+
+  it("keeps the free map in development and tests, so they never bill, unless Mapbox is asked for", () => {
+    for (const NODE_ENV of ["development", "test", undefined]) {
+      expect(resolveMapConfig({ MAPBOX_API_KEY: PUBLIC, NODE_ENV }).provider).toBe("maplibre");
+    }
+    expect(resolveMapConfig({ MAPBOX_API_KEY: PUBLIC, NODE_ENV: "development", MAP_PROVIDER: "mapbox" }).provider).toBe("mapbox");
   });
 
   it("falls back to the free map when Mapbox is asked for but there is no valid token", () => {
@@ -82,13 +89,13 @@ describe("resolveMapConfig with Mapbox", () => {
   });
 
   it("keeps MapLibre when it is chosen, and never hands its pages a token", () => {
-    const config = resolveMapConfig({ MAP_PROVIDER: "maplibre", MAPBOX_API_KEY: PUBLIC });
+    const config = resolveMapConfig({ MAP_PROVIDER: "maplibre", MAPBOX_API_KEY: PUBLIC, NODE_ENV: "production" });
     expect(config.provider).toBe("maplibre");
     expect(config.accessToken).toBe("");
   });
 
   it("accepts a mapbox:// style only for Mapbox", () => {
-    expect(resolveMapConfig({ MAPBOX_API_KEY: PUBLIC, MAP_STYLE_URL: "mapbox://styles/mapbox/dark-v11" }).styleUrl).toBe("mapbox://styles/mapbox/dark-v11");
+    expect(resolveMapConfig({ MAPBOX_API_KEY: PUBLIC, MAP_PROVIDER: "mapbox", MAP_STYLE_URL: "mapbox://styles/mapbox/dark-v11" }).styleUrl).toBe("mapbox://styles/mapbox/dark-v11");
     expect(resolveMapConfig({ MAP_STYLE_URL: "mapbox://styles/mapbox/dark-v11" }).styleUrl).toBe(DEFAULT_STYLE_URL);
   });
 });

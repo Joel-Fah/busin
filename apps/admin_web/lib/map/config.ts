@@ -58,10 +58,11 @@ function number(value: string | undefined): number | null {
 export function resolveMapConfig(env: Env): MapConfig {
   const token = isPublicMapboxToken(env.MAPBOX_API_KEY) ? env.MAPBOX_API_KEY.trim() : "";
 
-  // Mapbox is used when asked for and a valid public token exists; with a token and no choice made it
-  // is the default; without a token the portal falls back to the free MapLibre map so it never breaks.
+  // Mapbox bills per map load, so it is the default only in production. Development and tests use the free
+  // map unless MAP_PROVIDER=mapbox is set on purpose. Without a valid token the free map is always used,
+  // so the portal never breaks.
   const requested = env.MAP_PROVIDER?.trim();
-  const wanted = MAP_PROVIDERS.find((id) => id === requested) ?? (token ? "mapbox" : "maplibre");
+  const wanted = MAP_PROVIDERS.find((id) => id === requested) ?? (token && env.NODE_ENV === "production" ? "mapbox" : "maplibre");
   const provider: MapProviderId = wanted === "mapbox" && !token ? "maplibre" : wanted;
 
   const fallbackStyle = provider === "mapbox" ? DEFAULT_MAPBOX_STYLE_URL : DEFAULT_STYLE_URL;

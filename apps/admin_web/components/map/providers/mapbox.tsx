@@ -3,9 +3,16 @@
 import "mapbox-gl/dist/mapbox-gl.css";
 
 import mapboxgl, { LngLatBounds, Map as MapboxMap, Marker, NavigationControl } from "mapbox-gl";
+import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 
+import { mapBudgetAvailable, takeMapLoad } from "@/lib/map/budget";
+import { DEFAULT_STYLE_URL } from "@/lib/map/config";
+
 import type { MapViewProps } from "../types";
+
+// The free map, used when this browser has spent its Mapbox budget. Loaded only if it is needed.
+const FreeMap = dynamic(() => import("./maplibre"), { ssr: false });
 
 function webglAvailable(): boolean {
   try {
@@ -17,23 +24,52 @@ function webglAvailable(): boolean {
 }
 
 /**
+ * Mapbox bills for every map that is created, so this tab keeps exactly one and hands the same map to
+ * every page that needs it. Going from the stops list to a form and back costs one load, not three,
+ * and React's double mount in development costs one, not two. The map's element is moved into
+ * whichever page is showing and parked when the page goes away.
+ */
+type Shared = { key: string; map: MapboxMap; host: HTMLDivElement };
+let shared: Shared | null = null;
+
+function acquire(token: string, style: string, view: { center: [number, number]; zoom: number }): Shared | null {
+  const key = `${token}|${style}`;
+  if (shared?.key === key) return shared;
+
+  // A different style or token needs a new map, which is a new load.
+  shared?.map.remove();
+  shared = null;
+
+  // The budget is checked and spent only when a real load is about to happen, never for a reuse.
+  if (!takeMapLoad(localStorage)) return null;
+
+  const host = document.createElement("div");
+  host.style.cssText = "width:100%;height:100%";
+  mapboxgl.accessToken = token;
+  const map = new MapboxMap({
+    container: host,
+    style,
+    center: view.center,
+    zoom: view.zoom,
+    attributionControl: true, // the Mapbox logo and attribution must stay visible (their terms)
+    performanceMetricsCollection: false,
+  });
+  map.addControl(new NavigationControl({ showCompass: false }), "top-right");
+  shared = { key, map, host };
+  return shared;
+}
+
+/**
  * Mapbox GL JS implementation of the map contract. It needs a public access token (pk.), which the
  * portal passes in; the token is restricted to this site in the Mapbox account. Mapbox GL JS is
  * proprietary software under Mapbox's terms (see docs/decisions/0008-map-provider.md).
  */
-export default function MapboxView({
-  center,
-  zoom,
-  styleUrl,
-  accessToken,
-  markers,
-  picker,
-  ariaLabel,
-  unavailableLabel,
-  className,
-}: MapViewProps) {
+export default function MapboxView(props: MapViewProps) {
+  const { center, zoom, styleUrl, accessToken, markers, picker, ariaLabel, unavailableLabel, className } = props;
   // This module only ever runs in the browser (the selector loads it without server rendering).
   const [supported] = useState(webglAvailable);
+  // Spent its budget in this browser: draw the free map instead. A map already in this tab is reused, so it never counts.
+  const [spent] = useState(() => shared === null && !mapBudgetAvailable(localStorage));
   const container = useRef<HTMLDivElement>(null);
   const initialView = useRef({ center, zoom });
   const [map, setMap] = useState<MapboxMap | null>(null);
@@ -46,24 +82,22 @@ export default function MapboxView({
     onPick.current = picker?.onChange;
   });
 
-  // Create the map once for this style, and remove it when the component goes away.
+  // Take the tab's map (creating it only if there is none) and put it in this page.
   useEffect(() => {
-    if (!supported || !container.current || !accessToken) return;
-    mapboxgl.accessToken = accessToken;
-    const created = new MapboxMap({
-      container: container.current,
-      style: styleUrl,
-      center: [initialView.current.center.lng, initialView.current.center.lat],
-      zoom: initialView.current.zoom,
-      attributionControl: true, // the Mapbox logo and attribution must stay visible (their terms)
-    });
-    created.addControl(new NavigationControl({ showCompass: false }), "top-right");
-    setMap(created);
+    const slot = container.current;
+    if (spent || !supported || !slot || !accessToken) return;
+    const view = { center: [initialView.current.center.lng, initialView.current.center.lat] as [number, number], zoom: initialView.current.zoom };
+    const got = acquire(accessToken, styleUrl, view);
+    if (!got) return;
+    slot.appendChild(got.host);
+    got.map.resize();
+    setMap(got.map);
     return () => {
-      created.remove();
+      // Park the map instead of destroying it, so the next page can use it for free.
+      got.host.remove();
       setMap(null);
     };
-  }, [supported, styleUrl, accessToken]);
+  }, [spent, supported, styleUrl, accessToken]);
 
   // Fixed markers, for example the stops on the overview map.
   useEffect(() => {
@@ -96,6 +130,7 @@ export default function MapboxView({
     map.getCanvas().style.cursor = "crosshair";
     return () => {
       map.off("click", handleClick);
+      map.getCanvas().style.cursor = "";
     };
   }, [map, pickable]);
 
@@ -107,11 +142,13 @@ export default function MapboxView({
       const { lat, lng } = pin.getLngLat().wrap();
       onPick.current?.({ lat, lng });
     });
-    if (!map.getBounds().contains([pinLng, pinLat])) map.easeTo({ center: [pinLng, pinLat], duration: 300 });
+    if (!map.getBounds()?.contains([pinLng, pinLat])) map.easeTo({ center: [pinLng, pinLat], duration: 300 });
     return () => {
       pin.remove();
     };
   }, [map, pickable, pinLat, pinLng]);
+
+  if (spent) return <FreeMap {...props} styleUrl={DEFAULT_STYLE_URL} />;
 
   if (!supported) {
     return (

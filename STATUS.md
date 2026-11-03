@@ -33,10 +33,10 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 
 ## Last handoff
 
-Done: Mapbox map provider (PR #93, part 1 of the Stops redesign), stacked on the components PR #91. The portal uses Mapbox when `MAPBOX_API_KEY` is a valid public token and falls back to MapLibre otherwise. Verified with typecheck, lint, 163 unit tests and the 12 stops browser tests running against the real Mapbox map (clicks, pin drag, coordinates).
+Done: the Mapbox map provider (#93's code, which had landed on the old components branch and not on `dev`, is now carried here) plus cost guardrails: one map per browser tab reused across pages, a per-browser budget of 30 loads a day that falls back to the free map, Mapbox only by default in production (development and tests use the free map), an opt-in Mapbox test, and written cost and token guidance in ADR 0008. Verified with typecheck, lint, 173 unit tests, the 12 stops browser tests on the free map, and the 2 opt-in tests against real Mapbox (one style request across three page views; zero Mapbox calls once the budget is spent).
 
-Next: part 2, the Stops page redesign (full-page map, stops listed in the navigation bar's dock, add and edit in the floating sheet), then the other page redesigns, then trip cancel and Docker.
+Next: the Stops page redesign (full-page map, stops listed in the navigation bar's dock, add and edit in the floating sheet) on top of this, then the other page redesigns, then trip cancel and Docker.
 
-Blockers: none. Keep the Mapbox token restricted to the portal's address in your Mapbox account and watch map loads against the free allowance.
+Blockers: none.
 
-Owner must do: merge #91 then #93; restrict the Mapbox token by URL; confirm the Bevellier font files and the unused `components/NavLinks.tsx` can be deleted.
+Owner must do: merge the cost-guard PR; in the Mapbox account create a separate localhost-restricted token for development and restrict the production one by URL; check usage after the first week and look for usage alerts or limits in the account; set `MAP_PROVIDER=mapbox` in `.env.local` only when you want to see Mapbox in development.

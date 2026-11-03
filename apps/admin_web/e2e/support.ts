@@ -16,7 +16,8 @@ export const SEED = {
   domain: "ictuniversity.edu.cm",
 };
 
-export const BASE_URL = "http://127.0.0.1:3000";
+/** The portal under test. Set E2E_PORT to run beside a dev server you already have on 3000. */
+export const BASE_URL = `http://127.0.0.1:${process.env.E2E_PORT ?? "3000"}`;
 
 type LocalKeys = { url: string; publishableKey: string; serviceKey: string };
 
