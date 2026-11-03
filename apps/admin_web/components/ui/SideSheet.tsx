@@ -6,6 +6,8 @@ import { gsap } from "gsap";
 
 import { Contour } from "./Contour";
 import { Icon } from "./Icon";
+import { MarkedTitle } from "./MarkedTitle";
+import { useScrollLock } from "./useScrollLock";
 
 type Props = {
   open: boolean;
@@ -17,18 +19,24 @@ type Props = {
 
 const calm = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/** A panel that slides in from the right over a dimmed page. Built on <dialog>, so focus and Escape work. */
+/**
+ * A floating panel that glides in from the right. It is not docked to the screen edge: it keeps a
+ * margin all round and has rounded corners on every side. Clean edges, because it holds reading
+ * text; the only rough touch is the marker highlight under the title (needs <RoughFilter /> on the
+ * page). Built on <dialog>, so focus handling and Escape come for free.
+ */
 export function SideSheet({ open, onClose, title, closeLabel, children }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
+  useScrollLock(open);
 
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
     if (open && !dialog.open) {
       dialog.showModal();
-      gsap.fromTo(dialog, { xPercent: 100 }, { xPercent: 0, duration: calm() ? 0 : 0.45, ease: "power3.out" });
+      gsap.fromTo(dialog, { x: 80, opacity: 0, scale: 0.97 }, { x: 0, opacity: 1, scale: 1, duration: calm() ? 0 : 0.5, ease: "power3.out" });
     } else if (!open && dialog.open) {
-      gsap.to(dialog, { xPercent: 100, duration: calm() ? 0 : 0.3, ease: "power2.in", onComplete: () => dialog.close() });
+      gsap.to(dialog, { x: 60, opacity: 0, scale: 0.98, duration: calm() ? 0 : 0.3, ease: "power2.in", onComplete: () => dialog.close() });
     }
   }, [open]);
 
@@ -45,12 +53,12 @@ export function SideSheet({ open, onClose, title, closeLabel, children }: Props)
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
-      className="sheet fixed inset-y-0 right-0 left-auto m-0 h-dvh max-h-none w-[min(32rem,100vw)] max-w-none overflow-y-auto rounded-l-xl border-0 bg-surface p-0 text-fg shadow-float"
+      className="sheet fixed top-4 right-4 bottom-4 left-auto m-0 h-[calc(100dvh-2rem)] max-h-none w-[min(30rem,calc(100vw-2rem))] max-w-none overflow-y-auto rounded-xl border-0 bg-surface p-0 text-fg shadow-float"
     >
       <Contour radius={36} inset={14} />
       <div className="relative flex flex-col gap-6 p-8 sm:p-10">
         <div className="flex items-start justify-between gap-4">
-          <h2 className="text-2xl font-extrabold tracking-tight">{title}</h2>
+          <MarkedTitle>{title}</MarkedTitle>
           <button
             type="button"
             onClick={onClose}
