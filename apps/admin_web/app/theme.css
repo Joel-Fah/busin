@@ -1,0 +1,152 @@
+/*
+  BusIn design tokens for the admin portal. The documented source is the styleguide page
+  (/styleguide) and docs/decisions/0009-design-system.md. Colour values live in globals.css
+  (light and dark); this file adds shape, contour, motion and the Tailwind mapping.
+*/
+
+:root {
+  /* Shape: rounded beyond normal, never a pill and never a squircle. */
+  --r-xs: 8px;
+  --r-sm: 12px;
+  --r-md: 20px;
+  --r-lg: 28px;
+  --r-xl: 36px;
+
+  /* Contour: a thin rounded stroke drawn inside a container. */
+  --contour-inset: 16px;
+  --contour-width: 1.5px;
+  --contour: color-mix(in srgb, var(--fg) 16%, transparent);
+
+  /* Surfaces that float over content get a translucent fill and a blur. */
+  --glass: color-mix(in srgb, var(--surface) 72%, transparent);
+  --glass-blur: 18px;
+
+  /* Motion. */
+  --dur-fast: 160ms;
+  --dur: 280ms;
+  --dur-slow: 520ms;
+
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-brand: var(--brand);
+  --color-on-brand: var(--on-brand);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-link: var(--link);
+  --color-focus: var(--focus);
+  --color-ok: var(--ok);
+  --color-ok-bg: var(--ok-bg);
+  --color-warn: var(--warn);
+  --color-warn-bg: var(--warn-bg);
+  --color-bad: var(--bad);
+  --color-bad-bg: var(--bad-bg);
+  --color-info: var(--info);
+  --color-info-bg: var(--info-bg);
+  --color-glass: var(--glass);
+  --color-contour: var(--contour);
+
+  --font-sans: var(--font);
+
+  --radius-xs: var(--r-xs);
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r-md);
+  --radius-lg: var(--r-lg);
+  --radius-xl: var(--r-xl);
+
+  --shadow-soft: var(--shadow);
+}
+
+/* Static tokens (not theme dependent): float shadow, easing and the brand ramps from the app's constants. */
+@theme {
+  --shadow-float: 0 12px 36px rgb(0 20 26 / 18%), 0 2px 8px rgb(0 20 26 / 10%);
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  /* The brand seed in both themes, for surfaces that must stay teal (logo panels). */
+  --color-seed: #002a33;
+  --color-teal-50: #e9fffd;
+  --color-teal-100: #c9fff9;
+  --color-teal-200: #99fff7;
+  --color-teal-300: #54fff5;
+  --color-teal-400: #07fffc;
+  --color-teal-500: #00e3ef;
+  --color-teal-600: #00b4c9;
+  --color-teal-700: #008fa1;
+  --color-teal-800: #087282;
+  --color-teal-900: #0c5d6d;
+  --color-orange-50: #fef8ec;
+  --color-orange-100: #fde9c8;
+  --color-orange-200: #fad28d;
+  --color-orange-300: #f7b552;
+  --color-orange-400: #ef7611;
+  --color-orange-500: #d4550b;
+  --color-orange-600: #b0380d;
+  --color-orange-700: #8f2c11;
+  --color-orange-800: #752512;
+  --color-orange-900: #431005;
+}
+
+/* `dark:` follows the theme toggle first and the device setting when the choice is "system". */
+@custom-variant dark {
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    &:where(:not([data-theme="light"], [data-theme="light"] *)) {
+      @slot;
+    }
+  }
+}
+
+/*
+  The contour thread. A stitched line, not a solid border. On hover the thread runs around the
+  edge and turns orange, a small playful touch. Reduced motion keeps the colour change only.
+*/
+.contour-thread {
+  fill: none;
+  stroke: var(--contour);
+  stroke-width: var(--contour-width);
+  stroke-linecap: round;
+  stroke-dasharray: var(--thread-dash, 9 7);
+  transition:
+    stroke var(--dur) var(--ease-soft),
+    stroke-width var(--dur) var(--ease-soft);
+}
+
+:hover > .contour-svg .contour-thread {
+  stroke: color-mix(in srgb, var(--accent) 85%, transparent);
+  stroke-width: 2px;
+  animation: thread-run 1.4s linear infinite;
+}
+
+@keyframes thread-run {
+  to {
+    stroke-dashoffset: calc(var(--thread-length, 16px) * -1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :hover > .contour-svg .contour-thread {
+    animation: none;
+  }
+}
+
+@keyframes shimmer {
+  to {
+    background-position-x: -200%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 1ms;
+    --dur: 1ms;
+    --dur-slow: 1ms;
+  }
+}

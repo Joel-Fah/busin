@@ -1,14 +1,9 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import "@fontsource-variable/plus-jakarta-sans";
 
-import "./globals.css";
+import { themeInitScript } from "@/lib/theme";
 
-const bevellier = localFont({
-  src: "./fonts/Bevellier-Variable.ttf",
-  variable: "--font-bevellier",
-  weight: "100 900",
-  display: "swap",
-});
+import "./tailwind.css";
 
 export const metadata: Metadata = {
   title: { default: "BusIn admin", template: "%s | BusIn admin" },
@@ -20,7 +15,10 @@ export const metadata: Metadata = {
 // therefore sets `lang` on its own content wrapper instead of reading the cookie here.
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={bevellier.variable}>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body>{children}</body>
     </html>
   );

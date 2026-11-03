@@ -45,6 +45,6 @@ npm run test:e2e -w apps/admin_web      # browser tests (Playwright); needs the 
 - **Rendering**: Cache Components is on (Next 16 default). Anything that reads the session or the database runs at request time inside `<Suspense>`.
 - **Data**: counts and selected columns only, never `select('*')`. Types come from the database (`npm run gen:types`, which needs the local stack).
 - **Text**: every string is in `lib/i18n/messages.ts` in English and French; the French catalogue must have the same keys, which the type checker and a test enforce.
-- **Theme**: BusIn tokens as CSS variables in `app/globals.css`, light and dark. The Bevellier font and logo come from the legacy app.
+- **Theme**: BusIn tokens as CSS variables (`app/globals.css` for colour, `app/theme.css` for shape, motion and the Tailwind mapping), light and dark, with a system, light or dark choice stored in the browser. Typeface is Plus Jakarta Sans; the logo comes from the legacy app. The design system is documented on the hidden admin-only `/styleguide` page and in [ADR 0009](../../docs/decisions/0009-design-system.md).
 - **Maps**: pages use a provider-neutral `MapView`; only `components/map/providers/maplibre.tsx` knows the map library. The free OpenFreeMap style needs no key. Moving to Mapbox later means adding one provider file: see [ADR 0008](../../docs/decisions/0008-map-provider.md).
 - **Headers**: baseline security headers in `next.config.ts`. A nonce-based Content-Security-Policy is a follow-up.

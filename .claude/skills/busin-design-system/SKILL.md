@@ -53,7 +53,7 @@ Bottom sheets and long-press actions rather than extra screens; pull-to-refresh 
 
 ## Admin portal
 
-The web portal follows the same palette, radius and tone (teal and orange, light and dark), expressed as CSS variables. It may use denser layouts and tables, but not different brand colors or fonts.
+The web portal keeps the same palette (teal and orange, light and dark) as CSS variables, but has its own documented system: Plus Jakarta Sans, Hugeicons, radii 8 to 36 (no pills, no squircles), the inner contour, Tailwind and GSAP. The source of truth is the hidden admin-only `/styleguide` page (`apps/admin_web/app/(admin)/styleguide/`) and [ADR 0009](../../../docs/decisions/0009-design-system.md). Read the styleguide before building any portal UI, and update it in the same change as any new component. Never use one-sided borders or underlined links.
 
 ## Localization
 
