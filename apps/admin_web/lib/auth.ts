@@ -11,6 +11,7 @@ export type AdminContext = {
   schoolId: string;
   schoolName: string;
   schoolTimezone: string;
+  avatarUrl: string | null;
 };
 
 /**
@@ -27,7 +28,7 @@ export const getCurrentUser = cache(async () => {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, email, full_name, role, status, school_id, schools(name, timezone)")
+    .select("id, email, full_name, avatar_url, role, status, school_id, schools(name, timezone)")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -56,5 +57,6 @@ export async function requireAdmin(): Promise<AdminContext> {
     schoolId: profile.school_id,
     schoolName: school?.name ?? "",
     schoolTimezone: school?.timezone ?? "UTC",
+    avatarUrl: profile.avatar_url,
   };
 }

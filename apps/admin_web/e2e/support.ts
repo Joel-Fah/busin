@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { createServerClient } from "@supabase/ssr";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import type { BrowserContext } from "@playwright/test";
+import { expect, type BrowserContext, type Page } from "@playwright/test";
 
 import type { Database } from "../lib/database.types";
 
@@ -133,4 +133,14 @@ export async function createSubscription(studentId: string): Promise<string> {
     .single();
   if (error || !data) throw new Error(`could not create a subscription: ${error?.message}`);
   return data.id;
+}
+
+/** Switches the portal language on the profile page, where the language choice lives. Leaves the browser there. */
+export async function setLanguage(page: Page, language: "en" | "fr"): Promise<void> {
+  await page.goto("/profile");
+  const button = page.getByRole("button", { name: language === "fr" ? "Français" : "English" });
+  await button.click();
+  // The chosen language becomes the pressed, disabled one once the server has saved it.
+  await expect(button).toBeDisabled();
+  await expect(button).toHaveAttribute("aria-pressed", "true");
 }

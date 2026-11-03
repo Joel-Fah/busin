@@ -7,7 +7,7 @@
 :root {
   /* Shape: rounded beyond normal, never a pill and never a squircle. */
   --r-xs: 8px;
-  --r-sm: 12px;
+  --r-sm: 16px;
   --r-md: 20px;
   --r-lg: 28px;
   --r-xl: 36px;
@@ -105,35 +105,31 @@
 }
 
 /*
-  The contour thread. A stitched line, not a solid border. On hover the thread runs around the
-  edge and turns orange, a small playful touch. Reduced motion keeps the colour change only.
+  The contour thread. A stitched line, not a solid border. On interactive elements (buttons, links)
+  and on empty states it slides forward when the pointer enters or the element gets keyboard focus,
+  and slides back when it leaves, while the thread thickens a little and eases back to its resting width. Cards are not interactive, so their thread stays still. The colour
+  never changes: each component sets --thread-color so it stays tonal with its own background.
 */
 .contour-thread {
   fill: none;
-  stroke: var(--contour);
+  stroke: var(--thread-color, var(--contour));
   stroke-width: var(--contour-width);
   stroke-linecap: round;
   stroke-dasharray: var(--thread-dash, 9 7);
+  stroke-dashoffset: 0;
   transition:
-    stroke var(--dur) var(--ease-soft),
-    stroke-width var(--dur) var(--ease-soft);
+    stroke-dashoffset 900ms var(--ease-soft),
+    stroke-width 600ms var(--ease-soft);
 }
 
-:hover > .contour-svg .contour-thread {
-  stroke: color-mix(in srgb, var(--accent) 85%, transparent);
-  stroke-width: 2px;
-  animation: thread-run 1.4s linear infinite;
-}
-
-@keyframes thread-run {
-  to {
-    stroke-dashoffset: calc(var(--thread-length, 16px) * -1);
-  }
+:is(:hover, :focus-visible) > .contour-live .contour-thread {
+  stroke-dashoffset: calc(var(--thread-length, 16px) * -3);
+  stroke-width: var(--thread-hover-width, 2px);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :hover > .contour-svg .contour-thread {
-    animation: none;
+  .contour-thread {
+    transition: none;
   }
 }
 
@@ -148,5 +144,94 @@
     --dur-fast: 1ms;
     --dur: 1ms;
     --dur-slow: 1ms;
+  }
+}
+
+/*
+  Page load choreography (see lib/intro.ts). The pre-paint script sets data-reveal on the page so the
+  navigation bar starts hidden, and data-intro on the first load of a session so the logo cover shows.
+  If scripts fail, the bar still appears after a few seconds.
+*/
+.brand-intro {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+}
+
+html[data-intro] .brand-intro {
+  display: flex;
+}
+
+html[data-reveal] .nav-bar {
+  opacity: 0;
+  animation: nav-fallback 0.01s 5s forwards;
+}
+
+@keyframes nav-fallback {
+  to {
+    opacity: 1;
+  }
+}
+
+dialog.sheet::backdrop {
+  background: color-mix(in srgb, var(--color-seed) 45%, transparent);
+  animation: sheet-fade var(--dur) var(--ease-soft);
+}
+
+@keyframes sheet-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/*
+  Texture. Grain is drawn by an inline SVG noise filter, so it costs no image download and scales
+  to any size. It is decorative: banners, feature cards and empty-state backdrops, never behind
+  tables, forms or small text. Strength comes from --grain (0 to 1; soft-light is gentle, so 0.5 to 1 is typical). The pseudo-element sits
+  above the element's own background and below its content.
+*/
+:root {
+  --noise-fine: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --noise-coarse: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.42' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.texture-grain,
+.texture-grain-coarse {
+  position: relative;
+  isolation: isolate;
+}
+
+.texture-grain::before,
+.texture-grain-coarse::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  background-image: var(--noise-fine);
+  background-size: 220px 220px;
+  mix-blend-mode: soft-light;
+  opacity: var(--grain, 0.55);
+}
+
+.texture-grain-coarse::before {
+  background-image: var(--noise-coarse);
+  background-size: 300px 300px;
+}
+
+/* Rough edge: wobbles the outline of a decorative shape. Needs <RoughFilter /> on the page. Never put text in it. */
+.texture-rough {
+  filter: url('#busin-rough');
+}
+
+@media (forced-colors: active) {
+  .texture-grain::before,
+  .texture-grain-coarse::before {
+    display: none;
   }
 }

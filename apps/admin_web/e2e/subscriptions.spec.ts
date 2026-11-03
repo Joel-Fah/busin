@@ -9,6 +9,7 @@ import {
   serviceClient,
   signInBrowser,
   type TestUser,
+  setLanguage,
 } from "./support";
 
 const tag = randomBytes(3).toString("hex");
@@ -124,11 +125,11 @@ test.describe("administrator reviewing", () => {
   });
 
   test("the pages are available in French", async ({ page }) => {
+    await setLanguage(page, "fr");
     await page.goto("/subscriptions?status=all");
-    await page.getByRole("button", { name: "Français" }).click();
     await expect(page.getByRole("heading", { name: "Abonnements", level: 1 })).toBeVisible();
     await expect(page.getByRole("link", { name: "À examiner" })).toBeVisible();
-    await page.getByRole("button", { name: "English" }).click();
+    await setLanguage(page, "en");
   });
 });
 

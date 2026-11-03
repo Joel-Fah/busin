@@ -28,7 +28,7 @@ export function Input({ id, label, icon, hint, error, className = "", ...rest }:
           aria-invalid={error ? true : undefined}
           aria-describedby={describedBy}
           className={
-            "h-12 w-full rounded-sm border bg-surface pr-4 pl-11 text-base text-fg " +
+            "h-12 w-full rounded-sm border bg-surface pr-4 pl-11 font-sans text-base text-fg " +
             "placeholder:text-muted transition-[border-color,box-shadow] duration-(--dur-fast) " +
             "focus:outline-none focus:ring-3 focus:ring-focus/30 " +
             (error ? "border-bad focus:border-bad" : "border-line focus:border-focus")

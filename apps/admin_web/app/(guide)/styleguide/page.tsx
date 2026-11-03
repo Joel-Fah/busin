@@ -21,13 +21,14 @@ import { Chip } from "@/components/ui/Chip";
 import { Contour } from "@/components/ui/Contour";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Icon } from "@/components/ui/Icon";
+import { RoughFilter } from "@/components/ui/RoughFilter";
 import { Input } from "@/components/ui/Input";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { requireAdmin } from "@/lib/auth";
 import { AA_TEXT, contrastRatio } from "@/lib/ui/contrast";
 import { RADIUS, innerRadius } from "@/lib/ui/radius";
-import { TEXT_PAIRS, readColourTokens } from "@/lib/ui/tokens";
+import { DARK as dark, LIGHT as light, TEXT_PAIRS } from "@/lib/ui/tokens";
 
 import { Pair, Section } from "./Section";
 import { SectionRail } from "./SectionRail";
@@ -45,7 +46,9 @@ const SECTIONS = [
   ["type", "Typography"],
   ["shape", "Shape"],
   ["contour", "Contour"],
+  ["texture", "Texture"],
   ["icons", "Icons"],
+  ["navigation", "Navigation"],
   ["motion", "Motion"],
   ["imagery", "Imagery"],
   ["components", "Components"],
@@ -77,9 +80,36 @@ const THREE_D = [
   ["staff", "Staff"],
 ] as const;
 
-const PHOTOS = [
-  ["bus-street", "A yellow school bus turning a snowy street corner between tall buildings", "12564070"],
-  ["bus-stop-sun", "A small yellow school bus driving down a sunlit city street under trees", "27662522"],
+// A bento layout: each tile has its own size and crop. Wide tiles take the middle of a tall photo.
+const BENTO = [
+  {
+    file: "bus-aerial",
+    id: "21576182",
+    alt: "A blue and white city bus at a stop beside a busy road, seen from above, with people walking on the pavement",
+    tile: "row-span-2 sm:col-span-2 sm:row-span-3",
+    focus: "50% 40%",
+  },
+  {
+    file: "bus-stop-street",
+    id: "17859087",
+    alt: "A city street in warm evening light with a bus stop sign and shelter in front of an old stone building",
+    tile: "sm:col-span-2 sm:row-span-2",
+    focus: "50% 62%",
+  },
+  {
+    file: "bus-shelter-bw",
+    id: "19443791",
+    alt: "Black and white photo of people waiting together under a bus shelter",
+    tile: "row-span-2 sm:col-span-2 sm:row-span-3",
+    focus: "50% 55%",
+  },
+  {
+    file: "school-bus-brick",
+    id: "40615028",
+    alt: "A white school bus parked on an empty lot beside a red brick building",
+    tile: "col-span-2 sm:col-span-2 sm:row-span-1",
+    focus: "50% 74%",
+  },
 ] as const;
 
 const SURFACE_TOKENS = ["bg", "surface", "surface-2", "line", "fg", "muted", "brand", "accent", "link"];
@@ -95,11 +125,17 @@ export default function StyleguidePage() {
 
 async function Styleguide() {
   await requireAdmin();
-  const { light, dark } = readColourTokens();
 
   return (
-    <div lang="en" className="mx-auto max-w-6xl px-6 pt-8 pb-40">
-      <header className="relative isolate overflow-hidden rounded-xl bg-seed text-white">
+    <div lang="en" className="relative mx-auto w-full min-w-0 max-w-5xl">
+      <RoughFilter />
+      <div className="mb-4">
+        <ButtonLink href="/" variant="ghost" icon={ArrowLeft01Icon} className="-ml-4">
+          Back to the portal
+        </ButtonLink>
+      </div>
+
+      <header className="texture-grain relative overflow-hidden rounded-xl bg-seed text-white [--grain:1]">
         <Image
           src="/styleguide/photos/banner-brand-board.webp"
           alt="A brand strategy board with a colour palette, mood cards and a clipboard on a concrete floor"
@@ -126,7 +162,7 @@ async function Styleguide() {
         <ThemeToggle labels={{ group: "Theme", system: "System", light: "Light", dark: "Dark" }} />
       </div>
 
-      <nav aria-label="Jump to a section" className="mt-6 flex flex-wrap gap-x-5 gap-y-2 xl:hidden">
+      <nav aria-label="Jump to a section" className="mt-6 flex flex-wrap gap-x-5 gap-y-2 min-[94rem]:hidden">
         {SECTIONS.map(([id, label]) => (
           <a key={id} href={`#${id}`} className="text-sm font-semibold text-muted no-underline hover:text-fg">
             {label}
@@ -134,8 +170,7 @@ async function Styleguide() {
         ))}
       </nav>
 
-      <div className="mt-4 xl:grid xl:grid-cols-[minmax(0,1fr)_11rem] xl:gap-12">
-      <div>
+      <div className="mt-4">
       <Section
         id="overview"
         title="Overview"
@@ -292,15 +327,69 @@ async function Styleguide() {
       <Section
         id="contour"
         title="Contour"
-        intro="A thin rounded stroke drawn inside a container, 16px in on cards and the navigation bar, 4px in on buttons. It is drawn as a stitched thread, not a solid line: round-capped dashes that run around the edge and warm to orange when you hover. It is the quiet signature that makes BusIn surfaces recognisable. Empty states use the thread on its own, without a card."
+        intro="A thin rounded stroke drawn inside a container, 16px in on cards, 6px in on the navigation bar, 4px in on buttons. It is drawn as a stitched thread, not a solid line: round-capped dashes. On buttons, links and empty states the thread slides forward when you hover or focus and back when you leave; on cards it stays still. Its colour never changes: it is the element's own colour, mixed toward its text. It is the quiet signature that makes BusIn surfaces recognisable. Empty states use the thread on its own, without a card."
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <Card>
             <h3 className="text-lg font-bold">A card</h3>
-            <p className="mt-2 text-sm text-muted">Corner 28, thread 16 in, so the thread corner is 12. Hover to see it run.</p>
+            <p className="mt-2 text-sm text-muted">Corner 28, thread 16 in, so the thread corner is 12. It stays still, since a card is not interactive.</p>
           </Card>
-          <EmptyState title="Nothing to review right now" body="An empty state has no card. The thread frames the message, and runs when you hover it." />
+          <EmptyState title="Nothing to review right now" body="An empty state has no card. The thread frames the message, and slides when you hover it." />
         </div>
+      </Section>
+
+      <Section
+        id="texture"
+        title="Texture"
+        intro="A little roughness keeps the interface from feeling sterile. Grain and rough edges are decoration: they live on banners, feature cards and backdrops, never behind tables, forms or small text."
+      >
+        <h3 className="mb-3 text-lg font-bold">Grain</h3>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            ["Fine on surface", "texture-grain bg-surface-2 text-fg [--grain:1]"],
+            ["Fine on accent", "texture-grain bg-accent text-on-accent [--grain:0.8]"],
+            ["Coarse on brand", "texture-grain-coarse bg-seed text-white [--grain:0.9]"],
+            ["Coarse on teal", "texture-grain-coarse bg-teal-800 text-white [--grain:1]"],
+          ].map(([label, classes]) => (
+            <div key={label} className={`flex h-36 items-end rounded-lg p-4 text-sm font-semibold ${classes}`}>
+              {label}
+            </div>
+          ))}
+        </div>
+        <p className="mt-3 max-w-2xl text-sm text-muted">
+          Two strengths of noise, drawn by an inline SVG filter, so there is no image to download and it stays sharp at
+          any size. Set the strength with --grain (about 0.5 to 1, with soft-light blending, which is gentle on light colours). It sits above the
+          background and below the content, does not animate, and is hidden in high contrast mode.
+        </p>
+
+        <h3 className="mt-8 mb-3 text-lg font-bold">Rough edge</h3>
+        <div className="flex flex-wrap items-center gap-6">
+          <div className="texture-rough h-24 w-44 rounded-lg bg-accent" aria-hidden />
+          <div className="texture-rough h-24 w-44 rounded-lg bg-teal-800" aria-hidden />
+          <p className="relative max-w-xs text-2xl font-extrabold tracking-tight">
+            A marker
+            <span aria-hidden className="texture-rough absolute inset-x-[-0.2em] bottom-[0.05em] -z-10 h-[0.45em] rounded-xs bg-accent/60" />
+            <span className="relative"> highlight</span>
+          </p>
+        </div>
+        <p className="mt-3 max-w-2xl text-sm text-muted">
+          The outline wobbles like cut paper or a marker stroke. Use it on a decorative shape behind or beside text,
+          never on the text itself, and render the filter once per page.
+        </p>
+
+        <h3 className="mt-8 mb-3 text-lg font-bold">In use</h3>
+        <ul className="m-0 grid list-none gap-2 p-0 text-sm sm:grid-cols-2">
+          {[
+            "Page banners and the first card of a page: fine grain.",
+            "Large empty-state backdrops and illustrations: coarse grain, kept faint.",
+            "Never on tables, forms, buttons or anything under about 18px of text.",
+            "Check contrast with the grain on; the strength may never lower it below WCAG AA.",
+          ].map((line) => (
+            <li key={line} className="rounded-md bg-surface-2 p-4">
+              {line}
+            </li>
+          ))}
+        </ul>
       </Section>
 
       <Section
@@ -319,9 +408,37 @@ async function Styleguide() {
       </Section>
 
       <Section
+        id="navigation"
+        title="Navigation"
+        intro="One floating bar at the bottom of every page, in place of a sidebar. It never hides on scroll and never changes between pages, so it is always where the thumb expects it."
+      >
+        <ul className="m-0 grid list-none gap-2 p-0 text-sm sm:grid-cols-2">
+          {[
+            "Glass: a translucent surface with a blur, so content shows softly behind it.",
+            "Tabs are icon above label. The current page is tinted; the others sit on the bar with no background of their own.",
+            "The logo and the profile picture sit at the ends and take no label. Theme, language and sign out live on the profile page.",
+            "On wide screens every tab shows. On tablets in portrait and on phones the bar shows the current page and a Menu button that opens the tabs upward, grouped.",
+            "The bar slides in from below when the dashboard loads, once, after the logo intro. It does not replay between pages.",
+            "A page can fill the space above the tabs (the dock). The bar grows upward and the tabs stay in place.",
+          ].map((line) => (
+            <li key={line} className="rounded-md bg-surface-2 p-4">
+              {line}
+            </li>
+          ))}
+        </ul>
+        <p className="mt-4 text-sm text-muted">The bar is not drawn on this page, so the documentation stays uncluttered. Open any portal page to see it.</p>
+        <h3 className="mt-8 mb-3 text-lg font-bold">Page header and help</h3>
+        <p className="max-w-2xl text-sm text-muted">
+          Every page starts with a large headline. A help button beside it opens a side sheet with worked examples from
+          real days, so a new administrator learns the page by reading situations, not instructions. See the Overview
+          page for the first one.
+        </p>
+      </Section>
+
+      <Section
         id="motion"
         title="Motion"
-        intro="Motion is gentle and short. GSAP drives the larger moves (navigation bar reveal, tab indicator, logo draw); simple state changes use CSS. All of it stops when the device asks for reduced motion."
+        intro="Motion is gentle and short. GSAP drives the larger moves (navigation bar reveal, side sheet, logo draw, later the tab indicator); simple state changes use CSS. All of it stops when the device asks for reduced motion."
       >
         <div className="grid gap-3 sm:grid-cols-3">
           {[
@@ -371,18 +488,20 @@ async function Styleguide() {
           From Pexels, free to use without credit. Real transport scenes in warm light. Large corners (36px), WebP,
           about 100 to 170 KB, always with alt text.
         </p>
-        <div className="grid gap-4 sm:grid-cols-2">
-          {PHOTOS.map(([file, alt, source]) => (
-            <figure key={file} className="m-0">
+        <div className="grid auto-rows-[10rem] grid-flow-dense grid-cols-2 gap-3 sm:auto-rows-[10.5rem] sm:grid-cols-6">
+          {BENTO.map((photo) => (
+            <figure key={photo.file} className={`group relative m-0 overflow-hidden rounded-lg bg-surface-2 ${photo.tile}`}>
               <Image
-                src={`/styleguide/photos/${file}.webp`}
-                alt={alt}
-                width={800}
-                height={534}
-                sizes="(min-width: 640px) 50vw, 100vw"
-                className="aspect-[3/2] h-auto w-full rounded-xl object-cover"
+                src={`/styleguide/photos/${photo.file}.webp`}
+                alt={photo.alt}
+                fill
+                sizes="(min-width: 640px) 33vw, 50vw"
+                className="object-cover transition-transform duration-(--dur-slow) ease-soft group-hover:scale-[1.04] motion-reduce:transition-none"
+                style={{ objectPosition: photo.focus }}
               />
-              <figcaption className="mt-2 text-xs text-muted">Pexels photo {source}</figcaption>
+              <figcaption className="absolute bottom-3 left-3 rounded-xs bg-glass px-2.5 py-1 text-xs font-semibold backdrop-blur-[10px]">
+                Pexels {photo.id}
+              </figcaption>
             </figure>
           ))}
         </div>
@@ -448,6 +567,7 @@ async function Styleguide() {
             "No pill shapes. Use the radius scale.",
             "No literal colours, radii or durations in a component. Use tokens.",
             "No state shown by colour alone.",
+            "No grain or rough edge behind tables, forms or small text.",
             "No icon without a label unless its meaning is universal.",
             "No emojis.",
             "No text in only one language.",
@@ -459,7 +579,10 @@ async function Styleguide() {
         </ul>
       </Section>
       </div>
-      <SectionRail items={SECTIONS.map(([id, label]) => ({ id, label }))} />
+
+      {/* The rail lives in the right margin, outside the content column, so it takes no reading space. */}
+      <div className="absolute top-0 left-full hidden h-full pl-10 min-[94rem]:block">
+        <SectionRail items={SECTIONS.map(([id, label]) => ({ id, label }))} />
       </div>
     </div>
   );
@@ -470,7 +593,7 @@ function Swatches({ names, light, dark }: { names: string[]; light: Record<strin
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
       {names.map((name) => (
         <div key={name} className="rounded-md bg-surface p-3 shadow-soft">
-          <div className="h-14 rounded-sm border border-line" style={{ background: `var(--${name})` }} />
+          <div className="h-14 rounded-xs border border-line" style={{ background: `var(--${name})` }} />
           <p className="mt-2 text-sm font-semibold">{name}</p>
           <p className="text-xs text-muted">
             {light[name]} / {dark[name]}
@@ -487,7 +610,7 @@ function Ramp({ name }: { name: "teal" | "orange" }) {
     <div className="mb-4 grid grid-cols-10 gap-1">
       {steps.map((step) => (
         <div key={step}>
-          <div className="h-14 rounded-sm" style={{ background: `var(--color-${name}-${step})` }} />
+          <div className="h-14 rounded-xs" style={{ background: `var(--color-${name}-${step})` }} />
           <p className="mt-1 text-center text-[11px] font-semibold text-muted">{step}</p>
         </div>
       ))}

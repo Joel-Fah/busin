@@ -7,6 +7,7 @@ import {
   serviceClient,
   signInBrowser,
   type TestUser,
+  setLanguage,
 } from "./support";
 
 let admin: TestUser;
@@ -88,15 +89,16 @@ test.describe("administrator", () => {
   });
 
   test("can switch to French and back", async ({ page }) => {
+    await setLanguage(page, "fr");
     await page.goto("/");
-    await page.getByRole("button", { name: "Français" }).click();
     await expect(page.getByRole("heading", { name: "Vue d'ensemble", level: 1 })).toBeVisible();
-    await page.getByRole("button", { name: "English" }).click();
+    await setLanguage(page, "en");
+    await page.goto("/");
     await expect(page.getByRole("heading", { name: "Overview", level: 1 })).toBeVisible();
   });
 
   test("signing out returns to the login page and closes the portal", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/profile");
     await page.getByRole("button", { name: "Sign out" }).click();
     await expect(page).toHaveURL(/\/login$/);
     await page.goto("/");

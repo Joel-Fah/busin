@@ -3,7 +3,7 @@ import { randomBytes } from "node:crypto";
 import { expect, test, type Page } from "@playwright/test";
 
 import { parsePoint } from "../lib/geo";
-import { SEED, createUser, deleteUser, serviceClient, signInBrowser, type TestUser } from "./support";
+import { SEED, createUser, deleteUser, serviceClient, signInBrowser, type TestUser, setLanguage } from "./support";
 
 const tag = randomBytes(3).toString("hex");
 const prefix = `E2E stop-${tag}`;
@@ -160,11 +160,11 @@ test.describe("administrator managing stops", () => {
   });
 
   test("the pages are available in French", async ({ page }) => {
+    await setLanguage(page, "fr");
     await page.goto("/stops");
-    await page.getByRole("button", { name: "Français" }).click();
     await expect(page.getByRole("heading", { name: "Arrêts", level: 1 })).toBeVisible();
     await expect(page.getByRole("link", { name: "Ajouter un arrêt" })).toBeVisible();
-    await page.getByRole("button", { name: "English" }).click();
+    await setLanguage(page, "en");
   });
 });
 

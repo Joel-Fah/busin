@@ -1,0 +1,304 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import {
+  Bus01Icon,
+  Calendar02Icon,
+  Cancel01Icon,
+  FlagTriangleRightIcon,
+  GeometricShapes01Icon,
+  Menu03Icon,
+  Navigation03Icon,
+  ReceiptTextIcon,
+  Ticket01Icon,
+  UserMultiple02Icon,
+} from "@hugeicons/core-free-icons";
+import type { IconSvgElement } from "@hugeicons/react";
+import { gsap } from "gsap";
+
+import { BrandMark } from "@/components/brand/BrandMark";
+import { Avatar } from "@/components/ui/Avatar";
+import { Contour } from "@/components/ui/Contour";
+import { Icon } from "@/components/ui/Icon";
+import { INTRO_DONE_EVENT } from "@/lib/intro";
+
+import { NAV_DOCK_ID } from "./NavDock";
+
+export type NavKey = "overview" | "subscriptions" | "people" | "stops" | "trips" | "scans" | "semesters" | "buses";
+
+const ICONS: Record<NavKey, IconSvgElement> = {
+  overview: GeometricShapes01Icon,
+  subscriptions: Ticket01Icon,
+  people: UserMultiple02Icon,
+  stops: FlagTriangleRightIcon,
+  trips: Navigation03Icon,
+  scans: ReceiptTextIcon,
+  semesters: Calendar02Icon,
+  buses: Bus01Icon,
+};
+
+const HREFS: Record<NavKey, string> = {
+  overview: "/",
+  subscriptions: "/subscriptions",
+  people: "/people",
+  stops: "/stops",
+  trips: "/trips",
+  scans: "/scans",
+  semesters: "/semesters",
+  buses: "/buses",
+};
+
+type Props = {
+  /** Tabs in the order they appear on a wide screen. */
+  keys: NavKey[];
+  labels: Record<NavKey, string>;
+  /** How the tabs are grouped in the menu on small screens. */
+  groups: { label: string; keys: NavKey[] }[];
+  profile: { name: string; avatarUrl: string | null; href: string };
+  text: { primary: string; menu: string; closeMenu: string; profile: string; profileTab: string; home: string; current: string };
+};
+
+function isActive(pathname: string, key: NavKey): boolean {
+  const href = HREFS[key];
+  return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
+}
+
+const TAB =
+  "relative flex flex-col items-center gap-1 rounded-sm px-3.5 py-2 text-xs font-semibold no-underline " +
+  "transition-colors duration-(--dur-fast) ease-soft focus-visible:outline-3 focus-visible:outline-focus";
+const TAB_ON = "bg-[color-mix(in_srgb,var(--fg)_9%,transparent)] text-fg";
+const TAB_ACTIVE_TEXT = "text-fg";
+const TAB_OFF = "text-muted hover:text-fg";
+
+/**
+ * The floating bar at the bottom of every admin page. Wide screens show every tab with icon and
+ * label. Smaller screens show the current page and a menu button that opens the tabs upward in
+ * place. A dock above the tabs (see NavDock) lets a page add its own content to the bar.
+ */
+export function FloatingNav({ keys, labels, groups, profile, text }: Props) {
+  const pathname = usePathname();
+  const barRef = useRef<HTMLElement>(null);
+  const rowRef = useRef<HTMLDivElement>(null);
+  const indicatorRef = useRef<HTMLSpanElement>(null);
+  // Where the indicator is drawn right now (it may be mid-slide), and the slide in progress.
+  const shown = useRef<{ left: number; right: number } | null>(null);
+  const slide = useRef<gsap.core.Timeline | null>(null);
+  const [open, setOpen] = useState(false);
+  const current = keys.find((key) => isActive(pathname, key));
+
+  // Slide in from below when the dashboard loads (after the logo intro, when there is one).
+  useEffect(() => {
+    const bar = barRef.current;
+    const root = document.documentElement;
+    if (!bar || root.dataset.reveal === undefined) return;
+
+    const play = () =>
+      gsap.fromTo(
+        bar,
+        { y: 160, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.9,
+          ease: "power3.out",
+          onComplete: () => {
+            delete root.dataset.reveal;
+            gsap.set(bar, { clearProps: "transform,opacity" });
+          },
+        },
+      );
+
+    if (root.dataset.intro !== undefined) {
+      window.addEventListener(INTRO_DONE_EVENT, play, { once: true });
+      return () => window.removeEventListener(INTRO_DONE_EVENT, play);
+    }
+    const tween = play();
+    return () => {
+      tween.kill();
+    };
+  }, []);
+
+
+  // The sliding indicator. It sits behind the active tab. When the active tab changes it stretches
+  // toward the new one: the leading edge races ahead and the trailing edge follows with a springy
+  // settle, like elastic being pulled. Resizes and the first placement are instant.
+  useEffect(() => {
+    const row = rowRef.current;
+    const indicator = indicatorRef.current;
+    if (!row || !indicator) return;
+
+    const measure = () => {
+      const tab = Array.from(row.querySelectorAll<HTMLElement>('[data-nav-tab][aria-current="page"]')).find((el) => el.offsetWidth > 0);
+      if (!tab) return null;
+      const rowBox = row.getBoundingClientRect();
+      const box = tab.getBoundingClientRect();
+      return { left: box.left - rowBox.left, right: box.right - rowBox.left, top: box.top - rowBox.top, height: box.height };
+    };
+
+    const draw = (left: number, right: number) => {
+      indicator.style.transform = `translateX(${left}px)`;
+      indicator.style.width = `${Math.max(right - left, 0)}px`;
+      shown.current = { left, right };
+    };
+
+    const place = (animate: boolean) => {
+      const target = measure();
+      slide.current?.kill();
+      if (!target) {
+        gsap.set(indicator, { opacity: 0 });
+        shown.current = null;
+        return;
+      }
+      indicator.style.top = `${target.top}px`;
+      indicator.style.height = `${target.height}px`;
+      const from = shown.current;
+      const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      if (!animate || !from || calm) {
+        draw(target.left, target.right);
+        gsap.set(indicator, { opacity: 1 });
+        return;
+      }
+
+      // The edge facing the new tab leads and overshoots a little; the other edge starts a beat later
+      // and follows, so the indicator stretches across the gap and then snaps back to the tab's width.
+      const state = { left: from.left, right: from.right };
+      const forward = target.left >= from.left;
+      const lead = forward ? "right" : "left";
+      const trail = forward ? "left" : "right";
+      slide.current = gsap
+        .timeline({ onUpdate: () => draw(state.left, state.right) })
+        .to(state, { [lead]: target[lead], duration: 0.5, ease: "back.out(1.8)" }, 0)
+        .to(state, { [trail]: target[trail], duration: 0.45, ease: "power3.out" }, 0.09);
+    };
+
+    place(shown.current !== null);
+
+    // An observer reports once as soon as it starts, which must not cut a slide short. Only real size changes count.
+    let width = row.offsetWidth;
+    const observer = new ResizeObserver(() => {
+      if (row.offsetWidth === width) return;
+      width = row.offsetWidth;
+      place(false);
+    });
+    observer.observe(row);
+    return () => {
+      observer.disconnect();
+      slide.current?.kill();
+    };
+  }, [pathname]);
+
+  // Escape and a click outside close the menu.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => event.key === "Escape" && setOpen(false);
+    const onPointer = (event: PointerEvent) => {
+      if (barRef.current && !barRef.current.contains(event.target as Node)) setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("pointerdown", onPointer);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("pointerdown", onPointer);
+    };
+  }, [open]);
+
+  // Tabs in the bar take their highlight from the sliding indicator; tabs in the menu panel tint themselves.
+  const tab = (key: NavKey, onNavigate?: () => void, slides = false) => {
+    const active = key === current;
+    return (
+      <Link
+        key={key}
+        href={HREFS[key]}
+        data-nav-tab={slides ? "" : undefined}
+        aria-current={active ? "page" : undefined}
+        onClick={onNavigate}
+        className={`${TAB} ${active ? (slides ? TAB_ACTIVE_TEXT : TAB_ON) : TAB_OFF}`}
+      >
+        <Icon icon={ICONS[key]} size={22} />
+        {labels[key]}
+      </Link>
+    );
+  };
+
+  return (
+    <div className="pointer-events-none fixed inset-x-0 bottom-4 z-40 flex justify-center px-3 sm:px-4">
+      <nav
+        ref={barRef}
+        aria-label={text.primary}
+        className="nav-bar pointer-events-auto relative w-full max-w-md rounded-lg bg-glass shadow-float backdrop-blur-[18px] lg:w-auto lg:max-w-none"
+      >
+        <Contour radius={28} inset={6} dash={[6, 6]} />
+
+        {/* Space a page can fill with its own content. Empty most of the time. */}
+        <div id={NAV_DOCK_ID} className="relative px-4 pt-4 empty:hidden" />
+
+        {/* The tabs on small screens, opening upward. Inert while closed so it cannot take focus. */}
+        <div
+          inert={!open}
+          className={
+            "relative grid transition-[grid-template-rows,opacity,visibility] duration-(--dur) ease-soft lg:hidden " +
+            (open ? "visible grid-rows-[1fr] opacity-100" : "invisible grid-rows-[0fr] opacity-0")
+          }
+        >
+          <div className="overflow-hidden">
+            <div className="flex flex-col gap-4 p-5 pb-2">
+              {groups.map((group) => (
+                <div key={group.label}>
+                  <p className="mb-1.5 px-1 text-xs font-semibold tracking-wide text-muted uppercase">{group.label}</p>
+                  <div className="grid grid-cols-3 gap-1 sm:grid-cols-4">{group.keys.map((key) => tab(key, () => setOpen(false)))}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div ref={rowRef} className="relative flex items-center gap-2 p-2.5">
+          <span ref={indicatorRef} data-testid="nav-indicator" aria-hidden className="pointer-events-none absolute top-0 left-0 rounded-sm bg-[color-mix(in_srgb,var(--fg)_9%,transparent)] opacity-0" />
+          <Link
+            href="/"
+            aria-label={text.home}
+            className="flex h-14 shrink-0 items-center rounded-sm px-3 text-brand focus-visible:outline-3 focus-visible:outline-focus"
+          >
+            <BrandMark className="h-8 w-auto" />
+          </Link>
+
+          <div className="hidden items-center gap-1.5 lg:flex">{keys.map((key) => tab(key, undefined, true))}</div>
+
+          <div className="flex min-w-0 flex-1 items-center gap-2 lg:hidden">
+            <p className="flex min-w-0 flex-1 items-center gap-2 px-1 text-sm font-semibold">
+              {current ? (
+                <>
+                  <Icon icon={ICONS[current]} size={20} />
+                  <span className="sr-only">{text.current} </span>
+                  <span className="truncate">{labels[current]}</span>
+                </>
+              ) : null}
+            </p>
+            <button
+              type="button"
+              onClick={() => setOpen((value) => !value)}
+              aria-expanded={open}
+              className={`${TAB} cursor-pointer border-0 bg-transparent ${open ? TAB_ON : TAB_OFF}`}
+            >
+              <Icon icon={open ? Cancel01Icon : Menu03Icon} size={22} />
+              {open ? text.closeMenu : text.menu}
+            </button>
+          </div>
+
+          <Link
+            href={profile.href}
+            data-nav-tab=""
+            aria-current={pathname === profile.href ? "page" : undefined}
+            className={`${TAB} ${pathname === profile.href ? TAB_ACTIVE_TEXT : TAB_OFF}`}
+          >
+            <Avatar name={profile.name} url={profile.avatarUrl} size={24} />
+            {text.profileTab}
+          </Link>
+        </div>
+      </nav>
+    </div>
+  );
+}

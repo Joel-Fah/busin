@@ -2,7 +2,7 @@ import { randomBytes } from "node:crypto";
 
 import { expect, test } from "@playwright/test";
 
-import { SEED, createUser, deleteUser, serviceClient, signInBrowser, type TestUser } from "./support";
+import { SEED, createUser, deleteUser, serviceClient, signInBrowser, type TestUser, setLanguage } from "./support";
 
 const tag = randomBytes(3).toString("hex").toUpperCase();
 const prefix = `E2E-TRIP-${tag}`;
@@ -186,11 +186,11 @@ test.describe("administrator managing trips", () => {
   });
 
   test("the pages are available in French", async ({ page }) => {
+    await setLanguage(page, "fr");
     await page.goto("/trips");
-    await page.getByRole("button", { name: "Français" }).click();
     await expect(page.getByRole("heading", { name: "Trajets", level: 1 })).toBeVisible();
     await expect(page.getByRole("link", { name: "Planifier un trajet" })).toBeVisible();
-    await page.getByRole("button", { name: "English" }).click();
+    await setLanguage(page, "en");
   });
 });
 

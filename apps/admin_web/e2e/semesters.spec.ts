@@ -2,7 +2,7 @@ import { randomBytes } from "node:crypto";
 
 import { expect, test } from "@playwright/test";
 
-import { SEED, createUser, deleteUser, serviceClient, signInBrowser, type TestUser } from "./support";
+import { SEED, createUser, deleteUser, serviceClient, signInBrowser, type TestUser, setLanguage } from "./support";
 
 const tag = randomBytes(3).toString("hex");
 // A year far from the seed data, so runs cannot collide with real semesters.
@@ -125,11 +125,11 @@ test.describe("administrator managing semesters", () => {
   });
 
   test("the pages are available in French", async ({ page }) => {
+    await setLanguage(page, "fr");
     await page.goto("/semesters");
-    await page.getByRole("button", { name: "Français" }).click();
     await expect(page.getByRole("heading", { name: "Semestres", level: 1 })).toBeVisible();
     await expect(page.getByRole("link", { name: "Ajouter un semestre" })).toBeVisible();
-    await page.getByRole("button", { name: "English" }).click();
+    await setLanguage(page, "en");
   });
 });
 
