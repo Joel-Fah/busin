@@ -85,12 +85,12 @@ test.describe("administrator managing stops", () => {
 
   test("adds a stop by clicking the map", async ({ page }) => {
     await page.goto("/stops/new");
-    const canvas = page.locator(".maplibregl-canvas");
+    const canvas = page.locator(".maplibregl-canvas, .mapboxgl-canvas");
     await expect(canvas).toBeVisible();
 
     await canvas.click();
     await expect(page.getByLabel("Latitude")).not.toHaveValue("");
-    await expect(page.locator(".maplibregl-marker")).toBeVisible();
+    await expect(page.locator(".maplibregl-marker, .mapboxgl-marker")).toBeVisible();
 
     const lat = Number(await page.getByLabel("Latitude").inputValue());
     const lng = Number(await page.getByLabel("Longitude").inputValue());
@@ -108,12 +108,12 @@ test.describe("administrator managing stops", () => {
 
   test("typing coordinates moves the pin", async ({ page }) => {
     await page.goto("/stops/new");
-    await expect(page.locator(".maplibregl-canvas")).toBeVisible();
-    await expect(page.locator(".maplibregl-marker")).toHaveCount(0);
+    await expect(page.locator(".maplibregl-canvas, .mapboxgl-canvas")).toBeVisible();
+    await expect(page.locator(".maplibregl-marker, .mapboxgl-marker")).toHaveCount(0);
 
     await page.getByLabel("Latitude").fill("3.9");
     await page.getByLabel("Longitude").fill("11.5");
-    await expect(page.locator(".maplibregl-marker")).toBeVisible();
+    await expect(page.locator(".maplibregl-marker, .mapboxgl-marker")).toBeVisible();
   });
 
   test("edits a stop and makes it inactive", async ({ page }) => {

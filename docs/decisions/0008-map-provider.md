@@ -1,6 +1,6 @@
 # 0008: Map provider behind a provider-neutral component
 
-Status: accepted, 2026-10-31.
+Status: accepted, 2026-10-31. Amended 2026-11-04 (owner request, see [ADR 0009](0009-design-system.md)): the portal now uses Mapbox when a public token is configured, and keeps MapLibre with OpenFreeMap as the fallback and the free alternative.
 
 ## Context
 The admin portal needs maps for placing stops now, and for density heatmaps, pickup suggestions and routes in Phase 5. The owner wants to start free and be able to move to Mapbox later without rewriting pages.
@@ -37,3 +37,10 @@ Do not point MapLibre at Mapbox's tiles or styles: Mapbox's terms tie those to i
 - Swapping provider touches three files plus configuration, not the pages.
 - The abstraction is intentionally small. Features only one provider offers would need a deliberate extension of the contract.
 - Self-hosting tiles (for example with Protomaps) later only changes `MAP_STYLE_URL`.
+
+## Mapbox switch (2026-11-04)
+- **Provider**: `components/map/providers/mapbox.tsx` implements the same contract as MapLibre. `lib/map/config.ts` picks Mapbox when `MAPBOX_API_KEY` holds a valid public token, MapLibre otherwise, and `MAP_PROVIDER` can force either. With no token the portal never breaks.
+- **Token**: only a public token (`pk.`) is accepted; a secret token (`sk.`) is rejected in code and covered by a test. A public token is meant for the browser, so it is handed to the page as a prop. It must be restricted to the portal's address in the Mapbox account, which is what stops others using it.
+- **Terms**: Mapbox GL JS is proprietary. The Mapbox logo and attribution stay visible. Usage beyond the free allowance is billed, so keep an eye on map loads in the Mapbox dashboard.
+- **Privacy**: Mapbox GL JS sends usage events to `events.mapbox.com`. Maps are shown only to signed-in administrators, and no student data goes into those requests, but it is a third party the school should know about.
+- **Styles**: the default is `mapbox://styles/mapbox/streets-v12`; `MAP_STYLE_URL` can point at another Mapbox style. A matching dark style for dark mode is a follow-up.
