@@ -6,6 +6,8 @@ import { gsap } from "gsap";
 
 import { Contour } from "./Contour";
 import { Icon } from "./Icon";
+import { MarkedTitle } from "./MarkedTitle";
+import { useScrollLock } from "./useScrollLock";
 
 type Props = {
   open: boolean;
@@ -25,6 +27,7 @@ const calm = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches
  */
 export function SideSheet({ open, onClose, title, closeLabel, children }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
+  useScrollLock(open);
 
   useEffect(() => {
     const dialog = ref.current;
@@ -55,13 +58,7 @@ export function SideSheet({ open, onClose, title, closeLabel, children }: Props)
       <Contour radius={36} inset={14} />
       <div className="relative flex flex-col gap-6 p-8 sm:p-10">
         <div className="flex items-start justify-between gap-4">
-          <h2 className="relative text-2xl font-extrabold tracking-tight">
-            <span
-              aria-hidden
-              className="texture-rough absolute inset-x-[-0.15em] bottom-[0.02em] h-[0.4em] rounded-xs bg-accent/55"
-            />
-            <span className="relative">{title}</span>
-          </h2>
+          <MarkedTitle>{title}</MarkedTitle>
           <button
             type="button"
             onClick={onClose}

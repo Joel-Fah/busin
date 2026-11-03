@@ -4,6 +4,8 @@ import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 
 import { Contour } from "./Contour";
+import { MarkedTitle } from "./MarkedTitle";
+import { useScrollLock } from "./useScrollLock";
 
 type Props = {
   open: boolean;
@@ -18,9 +20,10 @@ type Props = {
 
 const calm = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/** A floating dialog in the middle of the page, for a decision that needs an answer. Built on <dialog>. */
+/** A floating dialog in the middle of the page, for a decision that needs an answer. Built on <dialog>. Needs <RoughFilter /> on the page for the marker under its title. */
 export function Modal({ open, onClose, title, description, actions, children }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
+  useScrollLock(open);
 
   useEffect(() => {
     const dialog = ref.current;
@@ -48,7 +51,7 @@ export function Modal({ open, onClose, title, description, actions, children }: 
     >
       <Contour radius={36} inset={14} />
       <div className="relative flex flex-col gap-4 p-8 sm:p-10">
-        <h2 className="text-2xl font-extrabold tracking-tight">{title}</h2>
+        <MarkedTitle>{title}</MarkedTitle>
         {description ? <p className="text-base text-muted">{description}</p> : null}
         {children}
         <div className="mt-2 flex flex-wrap justify-end gap-3">{actions}</div>

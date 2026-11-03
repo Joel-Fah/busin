@@ -5,7 +5,11 @@ import { useEffect, useRef, useState } from "react";
 import { MoreHorizontalIcon } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 
+import type { Side } from "@/lib/ui/placement";
+
 import { Icon } from "./Icon";
+import { PANEL } from "./Picker";
+import { useAnchoredPanel } from "./useAnchoredPanel";
 
 export type MenuItem = {
   label: string;
@@ -18,13 +22,18 @@ type Props = {
   /** Accessible name of the button that opens the menu. */
   label: string;
   items: MenuItem[];
+  /**
+   * Where the menu opens. "auto" is below, then above. "left" and "right" open beside the button.
+   * Whatever is asked, the menu moves to the side with room if it would run off the screen.
+   */
+  placement?: Side | "auto";
 };
 
 /** A button that opens a short list of actions. Arrow keys move, Escape and a click outside close it. */
-export function Menu({ label, items }: Props) {
+export function Menu({ label, items, placement = "auto" }: Props) {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
-  const panel = useRef<HTMLDivElement>(null);
+  const { anchorRef, panelRef } = useAnchoredPanel<HTMLButtonElement>(open, placement);
 
   useEffect(() => {
     if (!open) return;
@@ -35,25 +44,14 @@ export function Menu({ label, items }: Props) {
     return () => window.removeEventListener("pointerdown", onPointer);
   }, [open]);
 
-  // Opens toward the side with room: left-aligned by default, flipped to the right edge if it would run off the screen.
-  useEffect(() => {
-    const el = panel.current;
-    if (!open || !el) return;
-    const box = el.getBoundingClientRect();
-    if (box.right > window.innerWidth - 8) {
-      el.style.left = "auto";
-      el.style.right = "0";
-    }
-  }, [open]);
-
   function onKeyDown(event: React.KeyboardEvent) {
-    if (event.key === "Escape") {
+    if (event.key === "Escape" && open) {
       setOpen(false);
-      root.current?.querySelector<HTMLElement>("button[aria-haspopup]")?.focus();
+      anchorRef.current?.focus();
       return;
     }
     if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
-    const entries = Array.from(root.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? []);
+    const entries = Array.from(panelRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? []);
     if (!entries.length) return;
     event.preventDefault();
     const at = entries.indexOf(document.activeElement as HTMLElement);
@@ -68,6 +66,7 @@ export function Menu({ label, items }: Props) {
   return (
     <div ref={root} className="relative inline-block" onKeyDown={onKeyDown}>
       <button
+        ref={anchorRef}
         type="button"
         aria-haspopup="menu"
         aria-expanded={open}
@@ -78,12 +77,7 @@ export function Menu({ label, items }: Props) {
         <Icon icon={MoreHorizontalIcon} size={22} />
       </button>
       {open ? (
-        <div
-          ref={panel}
-          role="menu"
-          aria-label={label}
-          className="absolute top-full left-0 z-30 mt-2 flex min-w-52 flex-col gap-0.5 rounded-md bg-glass p-1.5 shadow-float backdrop-blur-[18px]"
-        >
+        <div ref={panelRef} popover="manual" role="menu" aria-label={label} className={`${PANEL} flex min-w-52 flex-col gap-0.5`}>
           {items.map((item) => {
             const tone = item.danger ? "text-bad hover:bg-bad-bg" : "text-fg hover:bg-surface-2";
             const inner = (

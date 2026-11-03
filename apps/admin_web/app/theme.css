@@ -252,3 +252,26 @@ input::-webkit-calendar-picker-indicator {
 input::-webkit-calendar-picker-indicator:hover {
   opacity: 1;
 }
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [popover] {
+    animation: none !important;
+  }
+}
+
+/* Behind an open sheet or modal the page does not scroll. The scrollbar's width is added back as padding so nothing jumps. */
+html.scroll-locked {
+  overflow: hidden;
+  padding-right: var(--lock-pad, 0);
+}
+
+dialog.sheet {
+  overscroll-behavior: contain;
+}

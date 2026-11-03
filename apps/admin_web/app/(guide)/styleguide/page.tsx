@@ -23,7 +23,9 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Icon } from "@/components/ui/Icon";
 import { RoughFilter } from "@/components/ui/RoughFilter";
 import { Checkbox, RadioGroup, Switch } from "@/components/ui/Choice";
-import { DateField, DateTimeField, TimeField } from "@/components/ui/DateTimeFields";
+import { DatePicker } from "@/components/ui/DatePicker";
+import { DateTimePicker } from "@/components/ui/DateTimePicker";
+import { TimePicker } from "@/components/ui/TimePicker";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -33,7 +35,7 @@ import { AA_TEXT, contrastRatio } from "@/lib/ui/contrast";
 import { RADIUS, innerRadius } from "@/lib/ui/radius";
 import { DARK as dark, LIGHT as light, TEXT_PAIRS } from "@/lib/ui/tokens";
 
-import { MenuDemo, ModalDemo, SheetDemo, TabsDemo } from "./Demos";
+import { MenuDemo, MenuPlacementDemo, ModalDemo, SheetDemo, TabsDemo } from "./Demos";
 import { Pair, Section } from "./Section";
 import { SectionRail } from "./SectionRail";
 
@@ -551,24 +553,37 @@ async function Styleguide() {
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Dropdown, date and time</h3>
         <div className="grid max-w-3xl gap-4 sm:grid-cols-2">
-          <Select id="sg-bus" label="Bus" icon={Bus01Icon} defaultValue="">
-            <option value="" disabled>
-              Choose a bus
-            </option>
-            <option value="1">LT 123 AB</option>
-            <option value="2">LT 456 CD</option>
-          </Select>
-          <Select id="sg-dir" label="Direction" icon={Navigation03Icon} hint="Going to school or going home." defaultValue="in">
-            <option value="in">Going to school</option>
-            <option value="out">Going home</option>
-          </Select>
-          <DateField id="sg-date" label="First day" defaultValue="2026-09-07" />
-          <TimeField id="sg-time" label="Departure" defaultValue="07:30" />
-          <DateTimeField id="sg-dt" label="Start time" hint="Local time of the school." className="sm:col-span-2" />
+          <Select
+            id="sg-bus"
+            label="Bus"
+            icon={Bus01Icon}
+            placeholder="Choose a bus"
+            options={[
+              { value: "1", label: "LT 123 AB" },
+              { value: "2", label: "LT 456 CD" },
+              { value: "3", label: "LT 789 EF (out of service)", disabled: true },
+            ]}
+          />
+          <Select
+            id="sg-dir"
+            label="Direction"
+            icon={Navigation03Icon}
+            hint="Going to school or going home."
+            defaultValue="in"
+            options={[
+              { value: "in", label: "Going to school" },
+              { value: "out", label: "Going home" },
+            ]}
+          />
+          <DatePicker id="sg-date" label="First day" defaultValue="2026-09-07" />
+          <TimePicker id="sg-time" label="Departure" defaultValue="07:30" />
+          <DateTimePicker id="sg-dt" name="start" label="Start time" hint="Local time of the school." className="sm:col-span-2" />
         </div>
         <p className="mt-3 max-w-2xl text-sm text-muted">
-          These use the browser&apos;s own pickers under a BusIn face, so they are easy by touch (most administrators use
-          tablets), work with the keyboard and with screen readers, and always return a valid value.
+          All three are drawn in the design system, not by the browser, so they match everything else. Each opens up or
+          down, whichever has room, and sits above sheets and modals. Keyboard: arrows move, Home and End jump, Enter
+          picks, Escape closes; in the calendar Page Up and Page Down change the month; in the dropdown, typing jumps
+          to a match. Each sends its value with the form.
         </p>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Checkbox, radio and switch</h3>
@@ -607,6 +622,11 @@ async function Styleguide() {
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Menu</h3>
         <MenuDemo />
+        <p className="mt-4 mb-3 max-w-2xl text-sm text-muted">
+          A menu can open below, above, to the left or to the right of its button. Whatever is asked, it moves to the side
+          with room if it would run off the screen.
+        </p>
+        <MenuPlacementDemo />
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Side sheet and modal</h3>
         <div className="flex flex-wrap items-start gap-3">
@@ -626,9 +646,7 @@ async function Styleguide() {
           </Card>
         </div>
         <p className="mt-6 text-sm text-muted">
-          Coming next, in this order: navigation bar, tabs with counters, side sheet, dropdown, date and time pickers,
-          checkbox, radio, switch, modal, toast, table.
-        </p>
+          Coming next: toast, table, pagination.</p>
       </Section>
 
       <Section id="rules" title="Never" intro="Rules that keep the system honest.">

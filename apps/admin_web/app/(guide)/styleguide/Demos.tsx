@@ -105,3 +105,21 @@ export function MenuDemo() {
     </div>
   );
 }
+
+export function MenuPlacementDemo() {
+  const items = [
+    { label: "Edit", icon: PencilEdit02Icon, onSelect: () => {} },
+    { label: "Duplicate", icon: Copy01Icon, onSelect: () => {} },
+    { label: "Delete", icon: Delete02Icon, danger: true, onSelect: () => {} },
+  ];
+  return (
+    <div className="flex flex-wrap items-center gap-6">
+      {(["bottom", "top", "left", "right"] as const).map((side) => (
+        <div key={side} className="flex items-center gap-2">
+          <Menu label={`Menu opening ${side}`} items={items} placement={side} />
+          <span className="text-sm text-muted">{side}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
