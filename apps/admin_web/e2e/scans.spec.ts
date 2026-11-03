@@ -118,9 +118,9 @@ test.describe("administrator viewing boardings", () => {
     const rows = page.getByRole("row").filter({ hasText: `${prefix} BUS` });
     await expect(rows).toHaveCount(2);
     await expect(rows.first()).toContainText(bob);
-    await expect(rows.first()).toContainText("From campus");
+    await expect(rows.first()).toContainText("Going home");
     await expect(rows.last()).toContainText(alice);
-    await expect(rows.last()).toContainText("To campus");
+    await expect(rows.last()).toContainText("Going to school");
   });
 
   test("filters by day in the school timezone", async ({ page }) => {
