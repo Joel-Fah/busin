@@ -7,7 +7,7 @@
 :root {
   /* Shape: rounded beyond normal, never a pill and never a squircle. */
   --r-xs: 8px;
-  --r-sm: 12px;
+  --r-sm: 16px;
   --r-md: 20px;
   --r-lg: 28px;
   --r-xl: 36px;
@@ -105,35 +105,28 @@
 }
 
 /*
-  The contour thread. A stitched line, not a solid border. On hover the thread runs around the
-  edge and turns orange, a small playful touch. Reduced motion keeps the colour change only.
+  The contour thread. A stitched line, not a solid border. On interactive elements (buttons, links)
+  and on empty states it slides forward when the pointer enters or the element gets keyboard focus,
+  and slides back when it leaves. Cards are not interactive, so their thread stays still. The colour
+  never changes: each component sets --thread-color so it stays tonal with its own background.
 */
 .contour-thread {
   fill: none;
-  stroke: var(--contour);
+  stroke: var(--thread-color, var(--contour));
   stroke-width: var(--contour-width);
   stroke-linecap: round;
   stroke-dasharray: var(--thread-dash, 9 7);
-  transition:
-    stroke var(--dur) var(--ease-soft),
-    stroke-width var(--dur) var(--ease-soft);
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 900ms var(--ease-soft);
 }
 
-:hover > .contour-svg .contour-thread {
-  stroke: color-mix(in srgb, var(--accent) 85%, transparent);
-  stroke-width: 2px;
-  animation: thread-run 1.4s linear infinite;
-}
-
-@keyframes thread-run {
-  to {
-    stroke-dashoffset: calc(var(--thread-length, 16px) * -1);
-  }
+:is(:hover, :focus-visible) > .contour-live .contour-thread {
+  stroke-dashoffset: calc(var(--thread-length, 16px) * -3);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :hover > .contour-svg .contour-thread {
-    animation: none;
+  .contour-thread {
+    transition: none;
   }
 }
 

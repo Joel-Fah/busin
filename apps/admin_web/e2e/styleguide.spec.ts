@@ -52,14 +52,39 @@ test.describe("administrator reading the styleguide", () => {
     await expect(page.locator("html")).not.toHaveAttribute("data-theme", /.+/);
   });
 
-  test("the contour is a stitched thread that runs on hover", async ({ page }) => {
+  test("the contour is a stitched thread", async ({ page }) => {
     await page.goto("/styleguide");
-    const thread = page.locator("#contour .contour-thread").first();
-    await expect(thread).toHaveCSS("stroke-dasharray", /\d+px,? \d+px/);
-    await expect(thread).toHaveCSS("animation-name", "none");
+    await expect(page.locator("#contour .contour-thread").first()).toHaveCSS("stroke-dasharray", /\d+px,? \d+px/);
+  });
 
+  test("the thread on an empty state slides forward on hover and back on leave", async ({ page }) => {
+    await page.goto("/styleguide");
+    const empty = page.locator("#contour").getByText("Nothing to review right now");
+    const thread = empty.locator("xpath=ancestor::div[1]").locator(".contour-thread");
+    const offset = () => thread.evaluate((el) => parseFloat(getComputedStyle(el).strokeDashoffset));
+
+    expect(await offset()).toBe(0);
+    await empty.hover();
+    await expect.poll(offset).toBeLessThan(-30);
+    await page.mouse.move(0, 0);
+    await expect.poll(offset).toBe(0);
+  });
+
+  test("the thread on a card stays still, and a button thread keeps its colour on hover", async ({ page }) => {
+    await page.goto("/styleguide");
+    const cardThread = page.locator("#contour .contour-thread").first();
     await page.locator("#contour").getByText("A card", { exact: true }).hover();
-    await expect(thread).toHaveCSS("animation-name", "thread-run");
+    await page.waitForTimeout(1000);
+    expect(await cardThread.evaluate((el) => getComputedStyle(el).strokeDashoffset)).toBe("0px");
+
+    const button = page.locator("#components").getByRole("button", { name: "Save stop" });
+    const thread = button.locator(".contour-thread");
+    const colour = () => thread.evaluate((el) => getComputedStyle(el).stroke);
+    const before = await colour();
+    await button.hover();
+    await page.waitForTimeout(1000);
+    expect(await colour()).toBe(before);
+    expect(await thread.evaluate((el) => parseFloat(getComputedStyle(el).strokeDashoffset))).toBeLessThan(-20);
   });
 
   test("the section rail follows the reading position and jumps on click", async ({ page }) => {

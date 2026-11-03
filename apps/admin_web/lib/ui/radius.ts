@@ -1,6 +1,6 @@
 /** Shape scale and the nested-radius rule. Values match --r-* in app/theme.css. */
 
-export const RADIUS = { xs: 8, sm: 12, md: 20, lg: 28, xl: 36 } as const;
+export const RADIUS = { xs: 8, sm: 16, md: 20, lg: 28, xl: 36 } as const;
 export type RadiusName = keyof typeof RADIUS;
 
 /**

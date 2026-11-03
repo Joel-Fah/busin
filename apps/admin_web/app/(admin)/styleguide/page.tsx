@@ -292,14 +292,14 @@ async function Styleguide() {
       <Section
         id="contour"
         title="Contour"
-        intro="A thin rounded stroke drawn inside a container, 16px in on cards and the navigation bar, 4px in on buttons. It is drawn as a stitched thread, not a solid line: round-capped dashes that run around the edge and warm to orange when you hover. It is the quiet signature that makes BusIn surfaces recognisable. Empty states use the thread on its own, without a card."
+        intro="A thin rounded stroke drawn inside a container, 16px in on cards and the navigation bar, 4px in on buttons. It is drawn as a stitched thread, not a solid line: round-capped dashes. On buttons, links and empty states the thread slides forward when you hover or focus and back when you leave; on cards it stays still. Its colour never changes: it is the element's own colour, mixed toward its text. It is the quiet signature that makes BusIn surfaces recognisable. Empty states use the thread on its own, without a card."
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <Card>
             <h3 className="text-lg font-bold">A card</h3>
-            <p className="mt-2 text-sm text-muted">Corner 28, thread 16 in, so the thread corner is 12. Hover to see it run.</p>
+            <p className="mt-2 text-sm text-muted">Corner 28, thread 16 in, so the thread corner is 12. It stays still, since a card is not interactive.</p>
           </Card>
-          <EmptyState title="Nothing to review right now" body="An empty state has no card. The thread frames the message, and runs when you hover it." />
+          <EmptyState title="Nothing to review right now" body="An empty state has no card. The thread frames the message, and slides when you hover it." />
         </div>
       </Section>
 
@@ -470,7 +470,7 @@ function Swatches({ names, light, dark }: { names: string[]; light: Record<strin
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
       {names.map((name) => (
         <div key={name} className="rounded-md bg-surface p-3 shadow-soft">
-          <div className="h-14 rounded-sm border border-line" style={{ background: `var(--${name})` }} />
+          <div className="h-14 rounded-xs border border-line" style={{ background: `var(--${name})` }} />
           <p className="mt-2 text-sm font-semibold">{name}</p>
           <p className="text-xs text-muted">
             {light[name]} / {dark[name]}
@@ -487,7 +487,7 @@ function Ramp({ name }: { name: "teal" | "orange" }) {
     <div className="mb-4 grid grid-cols-10 gap-1">
       {steps.map((step) => (
         <div key={step}>
-          <div className="h-14 rounded-sm" style={{ background: `var(--color-${name}-${step})` }} />
+          <div className="h-14 rounded-xs" style={{ background: `var(--color-${name}-${step})` }} />
           <p className="mt-1 text-center text-[11px] font-semibold text-muted">{step}</p>
         </div>
       ))}

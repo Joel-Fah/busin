@@ -7,11 +7,19 @@ import { Icon } from "./Icon";
 
 export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 
+/*
+  Each variant also sets --thread-color: its own text colour mixed into its own background, so the
+  thread is tonal with the button on light and solid fills alike, and stays that colour on hover.
+*/
 const VARIANTS: Record<ButtonVariant, string> = {
-  primary: "bg-accent text-on-accent hover:brightness-105 active:brightness-95",
-  secondary: "bg-surface-2 text-fg hover:bg-line",
+  primary:
+    "bg-accent text-on-accent hover:brightness-105 active:brightness-95 " +
+    "[--thread-color:color-mix(in_srgb,var(--on-accent)_38%,var(--accent))]",
+  secondary:
+    "bg-surface-2 text-fg hover:bg-line [--thread-color:color-mix(in_srgb,var(--fg)_26%,var(--surface-2))]",
   ghost: "bg-transparent text-fg hover:bg-surface-2",
-  danger: "bg-bad-bg text-bad hover:brightness-95",
+  danger:
+    "bg-bad-bg text-bad hover:brightness-95 [--thread-color:color-mix(in_srgb,var(--bad)_36%,var(--bad-bg))]",
 };
 
 const BASE =
@@ -30,7 +38,7 @@ type Common = {
 function Inner({ variant, icon, children }: Pick<Common, "variant" | "icon" | "children">) {
   return (
     <>
-      {variant === "primary" || variant === "secondary" ? <Contour radius={12} inset={4} dash={[4, 5]} /> : null}
+      {variant !== "ghost" ? <Contour radius={16} inset={4} dash={[4, 5]} live /> : null}
       {icon ? <Icon icon={icon} size={18} /> : null}
       <span>{children}</span>
     </>
