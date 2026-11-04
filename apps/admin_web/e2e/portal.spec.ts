@@ -88,6 +88,27 @@ test.describe("administrator", () => {
     await expect(page.getByTestId("stat-scansToday")).toBeVisible();
   });
 
+  test("shows the trends and short lists beside the figures", async ({ page }) => {
+    await page.goto("/");
+    // Boardings chart: a named image, with one entry for each of the last 14 days for screen readers.
+    const boardings = page.getByTestId("tile-boardings").locator("xpath=..");
+    await expect(boardings.getByRole("img", { name: "Boardings per day over the last 14 days" })).toBeVisible();
+    await expect(boardings.locator("figcaption li")).toHaveCount(14);
+
+    // The status mix repeats each figure as text and links to that status.
+    const mix = page.getByTestId("tile-mix").locator("xpath=..");
+    await expect(mix.getByRole("link", { name: /Pending/ })).toHaveAttribute("href", "/subscriptions?status=pending");
+
+    // The oldest request waiting is listed, with how long it has waited.
+    const waiting = page.getByTestId("tile-waiting").locator("xpath=..");
+    await expect(waiting.getByRole("listitem").first()).toBeVisible();
+    await expect(waiting.getByRole("listitem").first()).toContainText(/\d+ (h|d)/);
+
+    await expect(page.getByTestId("tile-trips")).toBeVisible();
+    await expect(page.getByTestId("tile-semester")).toBeVisible();
+    await expect(page.getByTestId("tile-fleet").locator("xpath=..").getByRole("link", { name: /Stops/ })).toHaveAttribute("href", "/stops");
+  });
+
   test("each figure is a card that leads to where its detail lives", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByTestId("stat-pendingSubscriptions")).toHaveAttribute("href", "/subscriptions");

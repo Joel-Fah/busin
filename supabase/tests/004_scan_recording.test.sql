@@ -57,12 +57,12 @@ select is(
   (private.record_scan('f1000000-0000-4000-8000-000000000001', 'a1000000-0000-4000-8000-000000000001'))
     ->> 'valid',
   'true', 'a verified student with an approved subscription is accepted');
-select is((select count(*)::int from public.scans), 1, 'the scan is recorded');
+select is((select count(*)::int from public.scans where school_id = '10000000-0000-4000-8000-000000000001'), 1, 'the scan is recorded');
 select is(
   (private.record_scan('f1000000-0000-4000-8000-000000000001', 'a1000000-0000-4000-8000-000000000001'))
     ->> 'duplicate',
   'true', 'a repeat scan on the same trip is flagged as a duplicate');
-select is((select count(*)::int from public.scans), 1, 'a repeat scan does not create another row');
+select is((select count(*)::int from public.scans where school_id = '10000000-0000-4000-8000-000000000001'), 1, 'a repeat scan does not create another row');
 
 select is(
   (private.record_scan('f1000000-0000-4000-8000-000000000001', 'a1000000-0000-4000-8000-000000000002'))

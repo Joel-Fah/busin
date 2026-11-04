@@ -333,7 +333,12 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "admin_cancel_trip":
+            "admin_boardings_by_day":
+{ Args: { "p_days"?: number }; Returns: {
+              "boardings": number,"day": string
+            }[]
+                           },
+"admin_cancel_trip":
 { Args: { "p_reason"?: string,"p_trip_id": string }; Returns: undefined
                            },
 "admin_review_subscription":
