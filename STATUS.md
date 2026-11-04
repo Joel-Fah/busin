@@ -33,10 +33,10 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 
 ## Last handoff
 
-Done: trip cancel and archive (branch `phase-2/trip-cancel-archive`, stacked on the sticky toolbar PR #102). Administrators no longer delete trips: the delete grant and policy are gone, because boardings point to a trip. Instead, `admin_cancel_trip` cancels a trip that has not started (optional reason, kept in the audit log) and `admin_set_trip_archived` archives a completed or cancelled trip or brings it back; both are audited, admin only and limited to the school. In the portal, a trip that has not started has a Cancel this trip section (with the reason), a finished or cancelled trip has Archive or Restore, archived trips leave every list and have an Archived tab with its own count. 23 new database tests, 3 unit tests and 4 browser tests. Applied to the local database only.
+Done: Docker for the portal (branch , stacked on the trip cancel and archive PR #104).  builds a Node 24 image with Next standalone output that runs as an unprivileged user; only the public Supabase URL and publishable key are build arguments, and everything else (Mapbox token, map provider, site URL) is a runtime setting. Built and run locally: it serves the sign-in page with the security headers. The guide is [docs/guides/docker.md](docs/guides/docker.md). No CI job was added. This completes the redesign plan.
 
-Next: Docker for the portal (last step of the redesign plan).
+Next: owner decision on "how many students use each stop" (needs a small database function); Mapbox token tasks below.
 
 Blockers: none.
 
-Owner must do: merge #100, then #102, then this PR (each is based on the previous branch; retarget to `dev` with `gh pr edit --base dev` once its parent merges). Before this is used on the hosted project, approve running `supabase/migrations/20261104120000_trip_cancel_and_archive.sql` there (I have not run it). Note the migration revokes delete on trips for administrators.
+Owner must do: merge #100, #102, #104 and this PR in order (retarget each with  once its parent merges). Approve running the trip cancel and archive migration on the hosted project when ready (it removes administrators' ability to delete trips). Create separate dev and prod Mapbox tokens restricted to your URLs. Confirm the Bevellier font files and the unused  can be deleted.
