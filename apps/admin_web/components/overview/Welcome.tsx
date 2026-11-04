@@ -39,24 +39,26 @@ export function fanPosition(index: number, count: number): { rotate: number; dro
 /**
  * A greeting that also says what is worth a look. Always the deep brand teal, so it anchors the page in both
  * themes, with fine grain and the rough marker under the greeting (needs <RoughFilter /> on the page).
- * The insight cards are portrait links fanned like a hand; one lifts and straightens on hover or focus.
- * The bus is decoration: larger than its frame and cut off at the bottom only.
+ * The insight cards are portrait links fanned like a hand, cropped by the bottom edge with their content at the top; one lifts along its own angle on hover or focus.
+ * The bus is decoration: larger than its frame and cut off on the right and at the bottom.
  */
 export function Welcome({ greeting, date, summary, insights }: Props) {
   const cards = insights.slice(0, 4);
   return (
     <section
       data-testid="welcome"
-      className="texture-grain relative overflow-hidden rounded-lg bg-seed p-7 text-white shadow-soft [--grain:1] [--thread-color:color-mix(in_srgb,white_26%,transparent)] sm:col-span-2 sm:p-9 xl:col-span-4"
+      className="texture-grain relative flex flex-col justify-between overflow-hidden rounded-lg sm:min-h-[24rem] lg:min-h-[26rem] bg-seed p-7 text-white shadow-soft [--grain:1] [--thread-color:color-mix(in_srgb,white_26%,transparent)] sm:col-span-2 sm:p-9 xl:col-span-4"
     >
       <Contour radius={28} inset={14} />
+      {/* The full-resolution artwork, served as is so it is not recompressed. It overhangs the right and bottom edges, which clip it. */}
       <Image
-        src="/illustrations/bus.webp"
+        src="/illustrations/bus-large.webp"
         alt=""
-        width={480}
-        height={480}
+        width={960}
+        height={830}
         priority
-        className="pointer-events-none absolute -right-4 -bottom-16 hidden h-[26rem] w-[26rem] max-w-none sm:block lg:right-6 lg:-bottom-24 lg:h-[34rem] lg:w-[34rem]"
+        unoptimized
+        className="pointer-events-none absolute -right-24 -bottom-14 hidden h-auto w-[30rem] max-w-none sm:block lg:-right-32 lg:-bottom-24 lg:w-[36rem]"
       />
       <div className="relative flex max-w-xl flex-col gap-4">
         <p className="m-0 text-sm font-semibold text-white/70">{date}</p>
@@ -67,7 +69,7 @@ export function Welcome({ greeting, date, summary, insights }: Props) {
         <p className="m-0 text-base text-white/85">{summary}</p>
       </div>
 
-      <ul className="relative m-0 mt-8 flex list-none items-end p-0 pb-2 pl-3 sm:pl-4">
+      <ul className="relative m-0 mt-8 -mb-16 flex list-none items-end p-0 pl-3 sm:-mb-20 sm:pl-4">
         {cards.map((card, index) => {
           const { rotate, drop } = fanPosition(index, cards.length);
           const style = { "--r": `${rotate}deg`, "--y": `${drop}px`, zIndex: index + 1 } as CSSProperties;
@@ -76,9 +78,9 @@ export function Welcome({ greeting, date, summary, insights }: Props) {
               <Link
                 href={card.href}
                 className={
-                  "relative flex h-40 w-24 origin-bottom flex-col justify-between rounded-md p-3 no-underline sm:p-4 shadow-float sm:h-48 sm:w-36 " +
+                  "relative flex h-40 w-24 origin-bottom flex-col gap-6 rounded-md p-3 no-underline sm:p-4 shadow-float sm:h-48 sm:w-36 " +
                   "[transform:translateY(var(--y))_rotate(var(--r))] transition-transform duration-(--dur) ease-soft motion-reduce:transition-none " +
-                  "hover:[transform:translateY(calc(var(--y)-18px))_rotate(0deg)] focus-visible:[transform:translateY(calc(var(--y)-18px))_rotate(0deg)] " +
+                  "hover:[transform:translateY(var(--y))_rotate(var(--r))_translateY(-14px)] focus-visible:[transform:translateY(var(--y))_rotate(var(--r))_translateY(-14px)] " +
                   "focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus " +
                   (card.attention
                     ? "bg-accent text-on-accent [--thread-color:color-mix(in_srgb,var(--on-accent)_38%,var(--accent))]"
