@@ -348,6 +348,11 @@ isOneToOne: false
 "admin_set_user_status":
 { Args: { "p_status": Database["public"]['Enums']["account_status"],"p_user_id": string }; Returns: undefined
                            },
+"admin_stop_usage":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "pending": number,"stop_id": string,"students": number
+            }[]
+                           },
 "custom_access_token_hook":
 { Args: { "event": Json }; Returns: Json
                            },

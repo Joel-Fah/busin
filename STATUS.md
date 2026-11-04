@@ -33,10 +33,10 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 
 ## Last handoff
 
-Done: Docker for the portal (branch `phase-2/docker-portal`, stacked on the trip cancel and archive PR #104). `apps/admin_web/Dockerfile` builds a Node 24 image with Next standalone output that runs as an unprivileged user; only the public Supabase URL and publishable key are build arguments, and everything else (Mapbox token, map provider, site URL) is a runtime setting. Built and run locally: it serves the sign-in page with the security headers. The guide is [docs/guides/docker.md](docs/guides/docker.md). No CI job was added. This completes the redesign plan.
+Done: students per stop (branch `phase-2/stop-usage`, stacked on the Docker PR #106). A read-only database function, `admin_stop_usage`, counts approved and pending subscriptions per stop for semesters that have not ended; it runs as the caller, so row security limits it to the admin's school. Every stop in the Stops dock and full list now says, for example, "12 students, 3 waiting". Also removed the unused `NavLinks` component and the admin copy of the Bevellier font (the legacy app keeps its own).
 
-Next: owner decision on "how many students use each stop" (needs a small database function); Mapbox token tasks below.
+Next: nothing is queued. Candidates: admin overview shortcuts to the busiest stops, then Phase 3 (student app) once the owner says to start.
 
 Blockers: none.
 
-Owner must do: merge #100, #102, #104 and this PR in order (retarget each with `gh pr edit --base dev` once its parent merges). Approve running the trip cancel and archive migration on the hosted project when ready (it removes administrators' ability to delete trips). Create separate dev and prod Mapbox tokens restricted to your URLs. Confirm the Bevellier font files and the unused `components/NavLinks.tsx` can be deleted.
+Owner must do: merge #100, #102, #104, #106 and this PR in order (retarget each with `gh pr edit --base dev` once its parent merges). Approve running the three new migrations (trip cancel and archive, stop usage) on the hosted project when ready; I have not run them there. Create separate dev and prod Mapbox tokens restricted to your URLs.
