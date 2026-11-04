@@ -33,10 +33,10 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 
 ## Last handoff
 
-Done: the rest of Phase 2 (branch `phase-2/busin-ui-data`). `busin_core` gained the repository interfaces (profile, school, stops, semesters, subscriptions, QR secret, trips, scans, live positions), a `PageRequest` and a typed `RepositoryException` family. `busin_data` implements them on the Supabase client: columns named in one place, lists paginated, every backend error mapped to a repository exception, Realtime filtered to one bus; 20 tests use a fake network. `busin_ui` has the palette (the portal's tokens, tested to WCAG AA in light and dark), the shape scale, the Material 3 themes in Plus Jakarta Sans (bundled, OFL), `BusinButton`, `BusinTextField`, `StatusChip`, `UserAvatar`, `StatCard`, `EmptyState`, and English and French strings with labels for the core enums; 33 tests. `fvm flutter analyze packages` is clean. The skills and READMEs describe all three.
+Done: the admin overview is now a bento grid (branch `phase-2/overview-bento`, issue #117). Beside the four counts it shows boardings for the last 14 days with a week-on-week change, the subscription status mix, the open semester with progress, today's trips, the requests that have waited longest, and buses and stops. New read-only database function `admin_boardings_by_day` (admin only, runs under Row Level Security, school timezone, capped at 90 days) with a pgTAP test; everything else is counts or short capped lists. Charts are plain HTML, no new dependency. Test 004 now counts only its own school, because the demo data made it fail. Unit, database and the portal and shell end-to-end specs pass.
 
-Next: Phase 3, the student app (see docs/phases/). Nothing else is open in Phase 2.
+Next: Phase 3, the student app (see docs/phases/). The mobile apps take their look from `busin_ui` (same palette, Plus Jakarta Sans, radius scale, contour), so they match the portal.
 
 Blockers: none.
 
-Owner must do: merge this PR to close Phase 2. Approve the new migrations on the hosted project when ready (trip cancel and archive, stop usage). Create separate dev and prod Mapbox tokens restricted to your URLs. Say when to start Phase 3.
+Owner must do: merge the PR. Approve the new migrations on the hosted project when ready (trip cancel and archive, stop usage, boardings by day). Create separate dev and prod Mapbox tokens restricted to your URLs. Say when to start Phase 3.
