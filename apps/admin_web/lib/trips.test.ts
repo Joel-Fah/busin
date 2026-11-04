@@ -5,7 +5,8 @@ import {
   isTripFormErrorKey,
   parseStatusFilter,
   parseTripForm,
-  statusPill,
+  tripStatusTone,
+  tripTabCounts,
   tripSaveErrorKey,
 } from "./trips";
 
@@ -62,9 +63,25 @@ describe("error codes and guards", () => {
     expect(isTripDone("created")).toBe(true);
     expect(isTripDone("deleted")).toBe(false);
   });
+});
 
-  it("has a pill for every status", () => {
-    expect(statusPill("active")).toContain("pill-ok");
-    expect(statusPill("completed")).toBe("pill");
+describe("tripStatusTone", () => {
+  it("gives each status its own tone", () => {
+    expect(tripStatusTone("scheduled")).toBe("info");
+    expect(tripStatusTone("active")).toBe("ok");
+    expect(tripStatusTone("completed")).toBe("neutral");
+    expect(tripStatusTone("cancelled")).toBe("bad");
+  });
+});
+
+describe("tripTabCounts", () => {
+  it("adds up the total and treats a missing count as zero", () => {
+    expect(tripTabCounts({ scheduled: 4, active: 1, completed: 20, cancelled: null })).toEqual({
+      all: 25,
+      scheduled: 4,
+      active: 1,
+      completed: 20,
+      cancelled: 0,
+    });
   });
 });

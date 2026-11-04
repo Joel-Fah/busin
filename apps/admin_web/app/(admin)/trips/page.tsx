@@ -1,12 +1,32 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { Add01Icon } from "@hugeicons/core-free-icons";
+
+import { ButtonLink } from "@/components/ui/Button";
+import { Chip } from "@/components/ui/Chip";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ListSkeleton } from "@/components/ui/ListSkeleton";
+import { Notice } from "@/components/ui/Notice";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Pager } from "@/components/ui/Pager";
+import { DataTable, Head, TableCard, Td, Th, Tr } from "@/components/ui/Table";
+import { Tabs, type TabItem } from "@/components/ui/Tabs";
 
 import { requireAdmin } from "@/lib/auth";
 import { format, type Locale } from "@/lib/i18n/messages";
 import { getMessages } from "@/lib/i18n/server";
 import { PAGE_SIZE, lastPage, pageRange, parsePage } from "@/lib/pagination";
-import { STATUS_FILTERS, isDirection, isTripStatus, parseStatusFilter, statusPill, type StatusFilter } from "@/lib/trips";
+import {
+  STATUS_FILTERS,
+  TRIP_STATUSES,
+  isDirection,
+  isTripStatus,
+  parseStatusFilter,
+  tripStatusTone,
+  tripTabCounts,
+  type StatusFilter,
+} from "@/lib/trips";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Trips" };
@@ -18,7 +38,7 @@ type SearchParams = Promise<{ status?: string | string[]; page?: string | string
 
 export default function TripsPage({ searchParams }: { searchParams: SearchParams }) {
   return (
-    <Suspense fallback={<section aria-busy="true" />}>
+    <Suspense fallback={<ListSkeleton />}>
       <TripsList searchParams={searchParams} />
     </Suspense>
   );
@@ -52,7 +72,16 @@ async function TripsList({ searchParams }: { searchParams: SearchParams }) {
     .range(from, to);
   if (status !== "all") request = request.eq("status", status);
 
-  const { data, count, error } = await request;
+  // Counts only, no rows: one per status for the numbers on the tabs.
+  const [listed, ...counted] = await Promise.all([
+    request,
+    ...TRIP_STATUSES.map((st) => supabase.from("trips").select("id", { count: "exact", head: true }).eq("status", st)),
+  ]);
+  const counts = tripTabCounts(Object.fromEntries(TRIP_STATUSES.map((st, index) => [st, counted[index].count])));
+
+  // A page past the last one is not a failure: the database answers "range not satisfiable" and there is nothing there.
+  const { data, count } = listed;
+  const error = listed.error?.code === "PGRST103" ? null : listed.error;
   const total = count ?? 0;
   const rows = data ?? [];
 
@@ -66,81 +95,75 @@ async function TripsList({ searchParams }: { searchParams: SearchParams }) {
   const plates = new Map((busRows.data ?? []).map((bus) => [bus.id, bus.plate]));
   const drivers = new Map((driverRows.data ?? []).map((row) => [row.id, row.full_name || row.email]));
 
+  const tabs: TabItem[] = STATUS_FILTERS.map((filter) => ({
+    id: filter,
+    label: t.trips.filters[filter],
+    href: href(filter),
+    count: counts[filter],
+    tone: filter === "all" ? "neutral" : tripStatusTone(filter),
+  }));
+
   return (
     <>
-      <header className="page-head">
-        <h1>{t.trips.title}</h1>
-        <p>{t.trips.subtitle}</p>
-      </header>
+      <PageHeader
+        title={t.trips.title}
+        subtitle={t.trips.subtitle}
+        help={{
+          label: t.help.open,
+          title: t.trips.help.title,
+          intro: t.trips.help.intro,
+          scenarios: Object.values(t.trips.help.scenarios),
+          scenariosLabel: t.help.scenarios,
+          closeLabel: t.help.close,
+        }}
+        action={
+          <ButtonLink href="/trips/new" icon={Add01Icon}>
+            {t.trips.add}
+          </ButtonLink>
+        }
+      />
 
-      <div className="row">
-        <Link className="btn btn-primary" href="/trips/new">
-          {t.trips.add}
-        </Link>
-      </div>
-
-      <nav className="tabs" aria-label={t.trips.filtersLabel}>
-        {STATUS_FILTERS.map((filter) => (
-          <Link key={filter} href={href(filter)} aria-current={filter === status ? "page" : undefined}>
-            {t.trips.filters[filter]}
-          </Link>
-        ))}
-      </nav>
+      <Tabs label={t.trips.filtersLabel} items={tabs} active={status} />
 
       {error ? (
-        <p className="notice" role="alert">
-          {t.trips.loadError}
-        </p>
+        <Notice tone="bad">{t.trips.loadError}</Notice>
       ) : rows.length === 0 ? (
-        <p className="card">{t.trips.empty}</p>
+        <EmptyState illustration="/illustrations/bus-stop.webp" title={t.trips.empty} />
       ) : (
         <>
-          <div className="table-wrap card">
-            <table>
-              <thead>
-                <tr>
-                  <th scope="col">{t.trips.columns.start}</th>
-                  <th scope="col">{t.trips.columns.bus}</th>
-                  <th scope="col">{t.trips.columns.direction}</th>
-                  <th scope="col">{t.trips.columns.driver}</th>
-                  <th scope="col">{t.trips.columns.status}</th>
-                </tr>
-              </thead>
+          <TableCard>
+            <DataTable minWidth="40rem">
+              <Head>
+                <Th>{t.trips.columns.start}</Th>
+                <Th>{t.trips.columns.bus}</Th>
+                <Th>{t.trips.columns.direction}</Th>
+                <Th>{t.trips.columns.driver}</Th>
+                <Th>{t.trips.columns.status}</Th>
+              </Head>
               <tbody>
                 {rows.map((row) => (
-                  <tr key={row.id}>
-                    <td>
-                      <Link href={`/trips/${row.id}`}>{formatStart(row.scheduled_start, locale, admin.schoolTimezone)}</Link>
-                    </td>
-                    <td>{plates.get(row.bus_id) ?? "-"}</td>
-                    <td>{isDirection(row.direction) ? t.trips.direction[row.direction] : "-"}</td>
-                    <td>{(row.driver_id && drivers.get(row.driver_id)) || t.trips.noDriver}</td>
-                    <td>
-                      {isTripStatus(row.status) ? (
-                        <span className={statusPill(row.status)}>{t.trips.status[row.status]}</span>
-                      ) : null}
-                    </td>
-                  </tr>
+                  <Tr key={row.id}>
+                    <Td>
+                      <Link href={`/trips/${row.id}`} className="font-semibold text-fg no-underline hover:text-link">
+                        {formatStart(row.scheduled_start, locale, admin.schoolTimezone)}
+                      </Link>
+                    </Td>
+                    <Td>{plates.get(row.bus_id) ?? "-"}</Td>
+                    <Td>{isDirection(row.direction) ? t.trips.direction[row.direction] : "-"}</Td>
+                    <Td className="text-muted">{(row.driver_id && drivers.get(row.driver_id)) || t.trips.noDriver}</Td>
+                    <Td>{isTripStatus(row.status) ? <Chip tone={tripStatusTone(row.status)}>{t.trips.status[row.status]}</Chip> : null}</Td>
+                  </Tr>
                 ))}
               </tbody>
-            </table>
-          </div>
+            </DataTable>
+          </TableCard>
 
-          <div className="pager">
-            <p>{format(t.trips.range, { from: from + 1, to: from + rows.length, total })}</p>
-            <nav className="row" aria-label={t.trips.paginationLabel}>
-              {page > 1 ? (
-                <Link className="btn btn-secondary" href={href(status, page - 1)}>
-                  {t.trips.previous}
-                </Link>
-              ) : null}
-              {page < lastPage(total, PAGE_SIZE) ? (
-                <Link className="btn btn-secondary" href={href(status, page + 1)}>
-                  {t.trips.next}
-                </Link>
-              ) : null}
-            </nav>
-          </div>
+          <Pager
+            range={format(t.trips.range, { from: from + 1, to: from + rows.length, total })}
+            label={t.trips.paginationLabel}
+            previous={page > 1 ? { href: href(status, page - 1), label: t.trips.previous } : undefined}
+            next={page < lastPage(total, PAGE_SIZE) ? { href: href(status, page + 1), label: t.trips.next } : undefined}
+          />
         </>
       )}
     </>

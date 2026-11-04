@@ -88,6 +88,26 @@ test.describe("administrator", () => {
     await expect(page.getByTestId("stat-scansToday")).toBeVisible();
   });
 
+  test("each figure is a card that leads to where its detail lives", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByTestId("stat-pendingSubscriptions")).toHaveAttribute("href", "/subscriptions");
+    await expect(page.getByTestId("stat-students")).toHaveAttribute("href", "/people?role=student");
+    await expect(page.getByTestId("stat-activeTrips")).toHaveAttribute("href", "/trips?status=active");
+    await expect(page.getByTestId("stat-scansToday")).toHaveAttribute("href", "/scans");
+    await page.getByTestId("stat-students").click();
+    await expect(page).toHaveURL(/\/people\?role=student$/);
+  });
+
+  test("the sign-in page is a branded card with the logo, a title and one clear action", async ({ browser }) => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    await page.goto("/login");
+    await expect(page.getByRole("heading", { name: "Sign in to the admin portal", level: 1 })).toBeVisible();
+    await expect(page.getByRole("img", { name: "BusIn" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Continue with Google" })).toBeVisible();
+    await context.close();
+  });
+
   test("can switch to French and back", async ({ page }) => {
     await setLanguage(page, "fr");
     await page.goto("/");

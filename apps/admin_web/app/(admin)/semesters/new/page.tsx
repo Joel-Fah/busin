@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Suspense } from "react";
+import { BackLink } from "@/components/ui/BackLink";
+import { ListSkeleton } from "@/components/ui/ListSkeleton";
+import { Notice } from "@/components/ui/Notice";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 import { SemesterForm } from "@/components/SemesterForm";
 import { requireAdmin } from "@/lib/auth";
@@ -18,7 +21,7 @@ type SearchParams = Promise<{ error?: string | string[] }>;
 
 export default function NewSemesterPage({ searchParams }: { searchParams: SearchParams }) {
   return (
-    <Suspense fallback={<section aria-busy="true" />}>
+    <Suspense fallback={<ListSkeleton rows={2} />}>
       <NewSemester searchParams={searchParams} />
     </Suspense>
   );
@@ -26,7 +29,7 @@ export default function NewSemesterPage({ searchParams }: { searchParams: Search
 
 async function NewSemester({ searchParams }: { searchParams: SearchParams }) {
   await requireAdmin();
-  const { t } = await getMessages();
+  const { locale, t } = await getMessages();
 
   const { error } = await searchParams;
   const errorParam = Array.isArray(error) ? error[0] : error;
@@ -34,18 +37,12 @@ async function NewSemester({ searchParams }: { searchParams: SearchParams }) {
 
   return (
     <>
-      <p>
-        <Link href="/semesters">{t.semesters.form.back}</Link>
-      </p>
-      <header className="page-head">
-        <h1>{t.semesters.form.newTitle}</h1>
-      </header>
-      {errorKey ? (
-        <p className="notice" role="alert">
-          {t.semesters.errors[errorKey]}
-        </p>
-      ) : null}
-      <SemesterForm action={createSemester} t={t} defaultYear={Number(todayIso().slice(0, 4))} />
+      <BackLink href="/semesters">{t.semesters.form.back}</BackLink>
+      <PageHeader title={t.semesters.form.newTitle} />
+
+      {errorKey ? <Notice tone="bad">{t.semesters.errors[errorKey]}</Notice> : null}
+
+      <SemesterForm action={createSemester} t={t} locale={locale} defaultYear={Number(todayIso().slice(0, 4))} />
     </>
   );
 }

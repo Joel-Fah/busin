@@ -10,6 +10,7 @@ import {
   serviceClient,
   signInBrowser,
   type TestUser,
+  pickDate,
   setLanguage,
 } from "./support";
 
@@ -126,7 +127,7 @@ test.describe("administrator viewing boardings", () => {
 
   test("filters by day in the school timezone", async ({ page }) => {
     await page.goto("/scans");
-    await page.getByLabel("Day").fill("2090-07-02");
+    await pickDate(page, "Day", "2090-07-02");
     await page.getByRole("button", { name: "Apply" }).click();
 
     await expect(page).toHaveURL(/date=2090-07-02/);

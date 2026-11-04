@@ -2,7 +2,7 @@ import { randomBytes } from "node:crypto";
 
 import { expect, test } from "@playwright/test";
 
-import { SEED, createUser, deleteUser, serviceClient, signInBrowser, type TestUser, setLanguage } from "./support";
+import { SEED, createUser, deleteUser, serviceClient, signInBrowser, type TestUser, chooseOption, pickDate, setLanguage, setPickerValue } from "./support";
 
 const tag = randomBytes(3).toString("hex");
 // A year far from the seed data, so runs cannot collide with real semesters.
@@ -66,10 +66,10 @@ test.describe("administrator managing semesters", () => {
 
   test("adds a semester", async ({ page }) => {
     await page.goto("/semesters/new");
-    await page.getByLabel("Semester").selectOption("fall");
+    await chooseOption(page, "Semester", "Fall");
     await page.getByLabel("Year").fill(String(YEAR));
-    await page.getByLabel("First day").fill(`${YEAR}-09-01`);
-    await page.getByLabel("Last day").fill(`${YEAR}-12-20`);
+    await pickDate(page, "First day", `${YEAR}-09-01`);
+    await setPickerValue(page, "end_date", `${YEAR}-12-20`);
     await page.getByRole("button", { name: "Add semester" }).click();
 
     await expect(page.getByRole("status")).toContainText("Semester added.");
@@ -80,7 +80,7 @@ test.describe("administrator managing semesters", () => {
 
   test("edits the dates of a semester", async ({ page }) => {
     await page.goto(`/semesters/${existingId}`);
-    await page.getByLabel("Last day").fill(`${YEAR}-06-30`);
+    await pickDate(page, "Last day", `${YEAR}-06-30`);
     await page.getByRole("button", { name: "Save semester" }).click();
 
     await expect(page.getByRole("status")).toContainText("Semester saved.");
@@ -89,10 +89,10 @@ test.describe("administrator managing semesters", () => {
 
   test("refuses a last day that is not after the first day", async ({ page }) => {
     await page.goto("/semesters/new");
-    await page.getByLabel("Semester").selectOption("summer");
+    await chooseOption(page, "Semester", "Summer");
     await page.getByLabel("Year").fill(String(YEAR));
-    await page.getByLabel("First day").fill(`${YEAR}-07-10`);
-    await page.getByLabel("Last day").fill(`${YEAR}-07-01`);
+    await setPickerValue(page, "start_date", `${YEAR}-07-10`);
+    await setPickerValue(page, "end_date", `${YEAR}-07-01`);
     await page.getByRole("button", { name: "Add semester" }).click();
 
     await expect(page.getByRole("alert").filter({ hasText: "The last day must be after the first day." })).toBeVisible();
@@ -101,10 +101,10 @@ test.describe("administrator managing semesters", () => {
 
   test("refuses a semester that already exists", async ({ page }) => {
     await page.goto("/semesters/new");
-    await page.getByLabel("Semester").selectOption("spring");
+    await chooseOption(page, "Semester", "Spring");
     await page.getByLabel("Year").fill(String(YEAR));
-    await page.getByLabel("First day").fill(`${YEAR}-02-01`);
-    await page.getByLabel("Last day").fill(`${YEAR}-05-01`);
+    await setPickerValue(page, "start_date", `${YEAR}-02-01`);
+    await setPickerValue(page, "end_date", `${YEAR}-05-01`);
     await page.getByRole("button", { name: "Add semester" }).click();
 
     await expect(page.getByRole("alert").filter({ hasText: "This semester already exists for that year." })).toBeVisible();

@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Suspense } from "react";
 
 import { BusForm } from "@/components/BusForm";
+import { BackLink } from "@/components/ui/BackLink";
+import { ListSkeleton } from "@/components/ui/ListSkeleton";
+import { Notice } from "@/components/ui/Notice";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { requireAdmin } from "@/lib/auth";
 import { isBusFormErrorKey } from "@/lib/buses";
 import { getMessages } from "@/lib/i18n/server";
@@ -18,7 +21,7 @@ type SearchParams = Promise<{ error?: string | string[] }>;
 
 export default function NewBusPage({ searchParams }: { searchParams: SearchParams }) {
   return (
-    <Suspense fallback={<section aria-busy="true" />}>
+    <Suspense fallback={<ListSkeleton rows={2} />}>
       <NewBus searchParams={searchParams} />
     </Suspense>
   );
@@ -34,17 +37,11 @@ async function NewBus({ searchParams }: { searchParams: SearchParams }) {
 
   return (
     <>
-      <p>
-        <Link href="/buses">{t.buses.form.back}</Link>
-      </p>
-      <header className="page-head">
-        <h1>{t.buses.form.newTitle}</h1>
-      </header>
-      {errorKey ? (
-        <p className="notice" role="alert">
-          {t.buses.errors[errorKey]}
-        </p>
-      ) : null}
+      <BackLink href="/buses">{t.buses.form.back}</BackLink>
+      <PageHeader title={t.buses.form.newTitle} />
+
+      {errorKey ? <Notice tone="bad">{t.buses.errors[errorKey]}</Notice> : null}
+
       <BusForm action={createBus} t={t} />
     </>
   );

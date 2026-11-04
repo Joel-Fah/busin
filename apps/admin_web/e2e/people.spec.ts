@@ -2,7 +2,7 @@ import { randomBytes } from "node:crypto";
 
 import { expect, test } from "@playwright/test";
 
-import { createUser, deleteUser, serviceClient, signInBrowser, type TestUser, setLanguage } from "./support";
+import { createUser, deleteUser, serviceClient, signInBrowser, type TestUser, chooseOption, setLanguage } from "./support";
 
 const tag = randomBytes(3).toString("hex");
 
@@ -68,7 +68,7 @@ test.describe("administrator managing people", () => {
     await page.getByRole("button", { name: "Search" }).click();
     await page.getByRole("row").filter({ hasText: nameOf(`promote-${tag}`) }).getByRole("link").first().click();
 
-    await page.getByLabel("New role").selectOption("staff");
+    await chooseOption(page, "New role", "Staff");
     await page.getByRole("button", { name: "Change role" }).click();
     await expect(page.getByRole("status")).toContainText("Role changed.");
 
@@ -111,6 +111,24 @@ test.describe("administrator managing people", () => {
     await expect(page.getByRole("heading", { name: "Page not found" })).toBeVisible();
     await page.goto("/people/a1000000-0000-4000-8000-0000000000ff");
     await expect(page.getByRole("heading", { name: "Page not found" })).toBeVisible();
+  });
+
+  test("the search field always shows a placeholder and the tabs count people for the search", async ({ page }) => {
+    await page.goto("/people");
+    await expect(page.getByLabel("Search by name, email or matricule")).toHaveAttribute("placeholder", "Name, email or matricule...");
+    const tabs = page.getByRole("navigation", { name: "Filter by role" });
+    const everyone = await tabs.getByRole("link", { name: /Everyone/ }).textContent();
+    expect(Number(everyone?.match(/\d+/)?.[0])).toBeGreaterThan(0);
+
+    await page.goto("/people?q=zzz-nobody-has-this-name");
+    await expect(page.getByText("No one matches this search.")).toBeVisible();
+    await expect(tabs.getByRole("link", { name: /Everyone/ })).toContainText("0");
+  });
+
+  test("the help button explains people with examples", async ({ page }) => {
+    await page.goto("/people");
+    await page.getByRole("button", { name: "Help" }).click();
+    await expect(page.getByRole("dialog", { name: "How people work" }).getByText("A new driver joins")).toBeVisible();
   });
 
   test("the pages are available in French", async ({ page }) => {

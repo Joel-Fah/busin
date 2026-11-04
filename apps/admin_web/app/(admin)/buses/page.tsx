@@ -1,7 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { Add01Icon } from "@hugeicons/core-free-icons";
 
+import { ButtonLink } from "@/components/ui/Button";
+import { Chip } from "@/components/ui/Chip";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ListSkeleton } from "@/components/ui/ListSkeleton";
+import { Notice } from "@/components/ui/Notice";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { DataTable, Head, TableCard, Td, Th, Tr } from "@/components/ui/Table";
 import { requireAdmin } from "@/lib/auth";
 import { loadBuses } from "@/lib/buses-data";
 import { getMessages } from "@/lib/i18n/server";
@@ -13,7 +21,7 @@ export const instant = false;
 
 export default function BusesPage() {
   return (
-    <Suspense fallback={<section aria-busy="true" />}>
+    <Suspense fallback={<ListSkeleton rows={4} />}>
       <BusesList />
     </Suspense>
   );
@@ -26,50 +34,53 @@ async function BusesList() {
 
   return (
     <>
-      <header className="page-head">
-        <h1>{t.buses.title}</h1>
-        <p>{t.buses.subtitle}</p>
-      </header>
-
-      <div className="row">
-        <Link className="btn btn-primary" href="/buses/new">
-          {t.buses.add}
-        </Link>
-      </div>
+      <PageHeader
+        title={t.buses.title}
+        subtitle={t.buses.subtitle}
+        help={{
+          label: t.help.open,
+          title: t.buses.help.title,
+          intro: t.buses.help.intro,
+          scenarios: Object.values(t.buses.help.scenarios),
+          scenariosLabel: t.help.scenarios,
+          closeLabel: t.help.close,
+        }}
+        action={
+          <ButtonLink href="/buses/new" icon={Add01Icon}>
+            {t.buses.add}
+          </ButtonLink>
+        }
+      />
 
       {failed ? (
-        <p className="notice" role="alert">
-          {t.buses.loadError}
-        </p>
+        <Notice tone="bad">{t.buses.loadError}</Notice>
       ) : buses.length === 0 ? (
-        <p className="card">{t.buses.empty}</p>
+        <EmptyState illustration="/illustrations/bus.webp" title={t.buses.empty} />
       ) : (
-        <div className="table-wrap card">
-          <table>
-            <thead>
-              <tr>
-                <th scope="col">{t.buses.columns.plate}</th>
-                <th scope="col">{t.buses.columns.capacity}</th>
-                <th scope="col">{t.buses.columns.status}</th>
-              </tr>
-            </thead>
+        <TableCard>
+          <DataTable minWidth="28rem">
+            <Head>
+              <Th>{t.buses.columns.plate}</Th>
+              <Th>{t.buses.columns.capacity}</Th>
+              <Th>{t.buses.columns.status}</Th>
+            </Head>
             <tbody>
               {buses.map((bus) => (
-                <tr key={bus.id}>
-                  <td>
-                    <Link href={`/buses/${bus.id}`}>{bus.plate}</Link>
-                  </td>
-                  <td>{bus.capacity}</td>
-                  <td>
-                    <span className={bus.inService ? "pill pill-ok" : "pill"}>
-                      {bus.inService ? t.buses.status.inService : t.buses.status.outOfService}
-                    </span>
-                  </td>
-                </tr>
+                <Tr key={bus.id}>
+                  <Td>
+                    <Link href={`/buses/${bus.id}`} className="font-semibold text-fg no-underline hover:text-link">
+                      {bus.plate}
+                    </Link>
+                  </Td>
+                  <Td>{bus.capacity}</Td>
+                  <Td>
+                    <Chip tone={bus.inService ? "ok" : "neutral"}>{bus.inService ? t.buses.status.inService : t.buses.status.outOfService}</Chip>
+                  </Td>
+                </Tr>
               ))}
             </tbody>
-          </table>
-        </div>
+          </DataTable>
+        </TableCard>
       )}
     </>
   );

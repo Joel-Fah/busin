@@ -101,15 +101,28 @@ export function isTripDone(value: string | undefined): value is TripDone {
   return value === "created" || value === "saved";
 }
 
-export function statusPill(status: TripStatus): string {
+/** The tone of a status chip. The label always comes with it, so colour is never the only signal. */
+export function tripStatusTone(status: TripStatus): "info" | "ok" | "neutral" | "bad" {
   switch (status) {
     case "active":
-      return "pill pill-ok";
+      return "ok";
     case "scheduled":
-      return "pill pill-info";
+      return "info";
     case "cancelled":
-      return "pill pill-warn";
+      return "bad";
     default:
-      return "pill";
+      return "neutral";
   }
+}
+
+/** Number of trips for each tab. "all" is the sum, and a missing count counts as zero. */
+export function tripTabCounts(byStatus: Partial<Record<TripStatus, number | null>>): Record<StatusFilter, number> {
+  const get = (status: TripStatus) => byStatus[status] ?? 0;
+  return {
+    all: TRIP_STATUSES.reduce((sum, status) => sum + get(status), 0),
+    scheduled: get("scheduled"),
+    active: get("active"),
+    completed: get("completed"),
+    cancelled: get("cancelled"),
+  };
 }

@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { BackLink } from "@/components/ui/BackLink";
+import { ListSkeleton } from "@/components/ui/ListSkeleton";
+import { Notice } from "@/components/ui/Notice";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 import { SemesterForm } from "@/components/SemesterForm";
 import { requireAdmin } from "@/lib/auth";
@@ -22,7 +25,7 @@ type SearchParams = Promise<{ done?: string | string[]; error?: string | string[
 
 export default function SemesterPage({ params, searchParams }: { params: Params; searchParams: SearchParams }) {
   return (
-    <Suspense fallback={<section aria-busy="true" />}>
+    <Suspense fallback={<ListSkeleton rows={2} />}>
       <SemesterDetail params={params} searchParams={searchParams} />
     </Suspense>
   );
@@ -34,7 +37,7 @@ function single(value: string | string[] | undefined): string | undefined {
 
 async function SemesterDetail({ params, searchParams }: { params: Params; searchParams: SearchParams }) {
   await requireAdmin();
-  const { t } = await getMessages();
+  const { locale, t } = await getMessages();
   const { id } = await params;
   if (!isUuid(id)) notFound();
 
@@ -54,27 +57,16 @@ async function SemesterDetail({ params, searchParams }: { params: Params; search
 
   return (
     <>
-      <p>
-        <Link href="/semesters">{t.semesters.form.back}</Link>
-      </p>
-      <header className="page-head">
-        <h1>
-          {t.semester[semester.name]} {semester.year}
-        </h1>
-      </header>
-      {done ? (
-        <p className="success" role="status">
-          {t.semesters.done[done]}
-        </p>
-      ) : null}
-      {errorKey ? (
-        <p className="notice" role="alert">
-          {t.semesters.errors[errorKey]}
-        </p>
-      ) : null}
+      <BackLink href="/semesters">{t.semesters.form.back}</BackLink>
+      <PageHeader title={`${t.semester[semester.name]} ${semester.year}`} />
+
+      {done ? <Notice tone="ok">{t.semesters.done[done]}</Notice> : null}
+      {errorKey ? <Notice tone="bad">{t.semesters.errors[errorKey]}</Notice> : null}
+
       <SemesterForm
         action={updateSemester}
         t={t}
+        locale={locale}
         defaultYear={semester.year}
         semester={{
           id: semester.id,

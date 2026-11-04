@@ -1,12 +1,16 @@
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { LockPasswordIcon, Mail01Icon } from "@hugeicons/core-free-icons";
+
+import { AuthShell } from "@/components/AuthShell";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Notice } from "@/components/ui/Notice";
 
 import { devLoginAllowed } from "@/lib/dev-login";
 import { getMessages } from "@/lib/i18n/server";
 
 import { signInWithPassword } from "./actions";
-import styles from "./page.module.css";
 
 // Depends on the runtime environment and on who is signed in, so it cannot be an instant navigation.
 export const instant = false;
@@ -15,7 +19,7 @@ type SearchParams = Promise<{ error?: string | string[] }>;
 
 export default function DevLoginPage({ searchParams }: { searchParams: SearchParams }) {
   return (
-    <Suspense fallback={<main className="center" aria-busy="true" />}>
+    <Suspense fallback={<main className="grid min-h-dvh place-items-center" aria-busy="true" />}>
       <DevLoginContent searchParams={searchParams} />
     </Suspense>
   );
@@ -29,35 +33,19 @@ async function DevLoginContent({ searchParams }: { searchParams: SearchParams })
   const { locale, t } = await getMessages();
 
   return (
-    <main className="center" lang={locale}>
-      <div className="card">
-        <Image src="/brand/cyan.svg" alt={t.appName} width={205} height={126} className="logo" />
-        <h1>{t.devLogin.title}</h1>
-        <p className={styles.warning} role="note">
-          {t.devLogin.warning}
-        </p>
-        <p>{t.devLogin.hint}</p>
-        {error ? (
-          <p className="notice" role="alert">
-            {t.devLogin.error}
-          </p>
-        ) : null}
-        <form action={signInWithPassword} className="stack">
-          <div className={styles.field}>
-            <label htmlFor="email">{t.devLogin.email}</label>
-            <input id="email" name="email" type="email" autoComplete="username" required />
-          </div>
-          <div className={styles.field}>
-            <label htmlFor="password">{t.devLogin.password}</label>
-            <input id="password" name="password" type="password" autoComplete="current-password" required />
-          </div>
-          <div className="row">
-            <button type="submit" className="btn btn-primary">
-              {t.devLogin.button}
-            </button>
-          </div>
-        </form>
-      </div>
-    </main>
+    <AuthShell lang={locale} title={t.devLogin.title}>
+      <p role="note" className="rounded-md bg-warn-bg px-4 py-3 text-sm font-semibold text-warn">
+        {t.devLogin.warning}
+      </p>
+      <p className="text-sm text-muted">{t.devLogin.hint}</p>
+      {error ? <Notice tone="bad">{t.devLogin.error}</Notice> : null}
+      <form action={signInWithPassword} className="flex flex-col gap-4">
+        <Input id="email" name="email" type="email" label={t.devLogin.email} icon={Mail01Icon} autoComplete="username" required />
+        <Input id="password" name="password" type="password" label={t.devLogin.password} icon={LockPasswordIcon} autoComplete="current-password" required />
+        <div>
+          <Button type="submit">{t.devLogin.button}</Button>
+        </div>
+      </form>
+    </AuthShell>
   );
 }

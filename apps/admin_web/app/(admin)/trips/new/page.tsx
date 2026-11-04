@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Suspense } from "react";
+import { BackLink } from "@/components/ui/BackLink";
+import { ListSkeleton } from "@/components/ui/ListSkeleton";
+import { Notice } from "@/components/ui/Notice";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 import { TripForm } from "@/components/TripForm";
 import { requireAdmin } from "@/lib/auth";
@@ -19,7 +22,7 @@ type SearchParams = Promise<{ error?: string | string[] }>;
 
 export default function NewTripPage({ searchParams }: { searchParams: SearchParams }) {
   return (
-    <Suspense fallback={<section aria-busy="true" />}>
+    <Suspense fallback={<ListSkeleton rows={2} />}>
       <NewTrip searchParams={searchParams} />
     </Suspense>
   );
@@ -27,7 +30,7 @@ export default function NewTripPage({ searchParams }: { searchParams: SearchPara
 
 async function NewTrip({ searchParams }: { searchParams: SearchParams }) {
   const admin = await requireAdmin();
-  const { t } = await getMessages();
+  const { locale, t } = await getMessages();
   const { buses, drivers, failed } = await loadTripOptions();
 
   const { error } = await searchParams;
@@ -36,24 +39,15 @@ async function NewTrip({ searchParams }: { searchParams: SearchParams }) {
 
   return (
     <>
-      <p>
-        <Link href="/trips">{t.trips.form.back}</Link>
-      </p>
-      <header className="page-head">
-        <h1>{t.trips.form.newTitle}</h1>
-      </header>
+      <BackLink href="/trips">{t.trips.form.back}</BackLink>
+      <PageHeader title={t.trips.form.newTitle} />
+
       {failed ? (
-        <p className="notice" role="alert">
-          {t.trips.loadError}
-        </p>
+        <Notice tone="bad">{t.trips.loadError}</Notice>
       ) : (
         <>
-          {errorKey ? (
-            <p className="notice" role="alert">
-              {t.trips.errors[errorKey]}
-            </p>
-          ) : null}
-          <TripForm action={createTrip} t={t} buses={buses} drivers={drivers} timeZone={admin.schoolTimezone} />
+          {errorKey ? <Notice tone="bad">{t.trips.errors[errorKey]}</Notice> : null}
+          <TripForm action={createTrip} t={t} locale={locale} buses={buses} drivers={drivers} timeZone={admin.schoolTimezone} />
         </>
       )}
     </>

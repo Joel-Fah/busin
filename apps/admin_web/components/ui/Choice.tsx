@@ -9,7 +9,9 @@ type Base = Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "children"> & {
 };
 
 const FOCUS = "peer-focus-visible:outline-3 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-focus";
-const ROW = "group flex cursor-pointer items-start gap-3 has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50";
+const ROW = "group relative flex cursor-pointer items-start gap-3 has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50";
+// The real input lies invisibly over the visible face, so a click lands on the control itself.
+const INPUT_OVER_FACE = "peer absolute top-0.5 left-0 m-0 cursor-pointer opacity-0 disabled:cursor-not-allowed";
 
 function Text({ label, hint }: { label: ReactNode; hint?: string }) {
   return (
@@ -20,15 +22,15 @@ function Text({ label, hint }: { label: ReactNode; hint?: string }) {
   );
 }
 
-/** A tick box. The real checkbox sits under the face, so forms, labels and keyboards behave normally. */
+/** A tick box. The real checkbox lies invisibly over the face, so clicks, forms, labels and keyboards behave normally. */
 export function Checkbox({ label, hint, className = "", ...rest }: Base) {
   return (
     <label className={`${ROW} ${className}`}>
-      <input type="checkbox" className="peer sr-only" {...rest} />
+      <input type="checkbox" className={`${INPUT_OVER_FACE} size-6`} {...rest} />
       <span
         aria-hidden
         className={
-          "mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-xs border-2 border-line bg-surface text-on-accent " +
+          "pointer-events-none mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-xs border-2 border-line bg-surface text-on-accent " +
           "transition-[background-color,border-color] duration-(--dur-fast) group-hover:border-muted " +
           "peer-checked:border-accent peer-checked:bg-accent [&>svg]:scale-50 [&>svg]:opacity-0 " +
           "peer-checked:[&>svg]:scale-100 peer-checked:[&>svg]:opacity-100 [&>svg]:transition-[opacity,transform] " +
@@ -46,11 +48,11 @@ export function Checkbox({ label, hint, className = "", ...rest }: Base) {
 export function Radio({ label, hint, className = "", ...rest }: Base) {
   return (
     <label className={`${ROW} ${className}`}>
-      <input type="radio" className="peer sr-only" {...rest} />
+      <input type="radio" className={`${INPUT_OVER_FACE} size-6`} {...rest} />
       <span
         aria-hidden
         className={
-          "mt-0.5 inline-flex size-6 shrink-0 rounded-full border-2 border-line bg-surface " +
+          "pointer-events-none mt-0.5 inline-flex size-6 shrink-0 rounded-full border-2 border-line bg-surface " +
           "transition-[background,border-color] duration-(--dur) ease-soft group-hover:border-muted " +
           "peer-checked:border-accent peer-checked:bg-[radial-gradient(circle,var(--accent)_0_42%,transparent_46%)] " +
           FOCUS
@@ -92,11 +94,11 @@ export function RadioGroup({ legend, name, options, defaultValue, className = ""
 export function Switch({ label, hint, className = "", ...rest }: Base) {
   return (
     <label className={`${ROW} ${className}`}>
-      <input type="checkbox" role="switch" className="peer sr-only" {...rest} />
+      <input type="checkbox" role="switch" className={`${INPUT_OVER_FACE} h-7 w-12`} {...rest} />
       <span
         aria-hidden
         className={
-          "relative mt-0.5 inline-block h-7 w-12 shrink-0 rounded-sm border-2 border-line bg-surface-2 " +
+          "pointer-events-none relative mt-0.5 inline-block h-7 w-12 shrink-0 rounded-sm border-2 border-line bg-surface-2 " +
           "transition-[background-color,border-color] duration-(--dur) ease-soft group-hover:border-muted " +
           "peer-checked:border-accent peer-checked:bg-accent " +
           "after:absolute after:top-1 after:left-1 after:size-4 after:rounded-xs after:bg-fg after:transition-transform " +
