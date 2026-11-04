@@ -1,6 +1,7 @@
-import Image from "next/image";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
+
+import { AuthShell } from "@/components/AuthShell";
 
 import { LanguageSwitch } from "@/components/LanguageSwitch";
 import { SignOutButton } from "@/components/SignOutButton";
@@ -15,7 +16,7 @@ export const instant = false;
 
 export default function NoAccessPage() {
   return (
-    <Suspense fallback={<main className="center" aria-busy="true" />}>
+    <Suspense fallback={<main className="grid min-h-dvh place-items-center" aria-busy="true" />}>
       <NoAccessContent />
     </Suspense>
   );
@@ -30,17 +31,13 @@ async function NoAccessContent() {
   const email = current.profile?.email ?? current.user.email ?? "";
 
   return (
-    <main className="center" lang={locale}>
-      <div className="card">
-        <Image src="/brand/cyan.svg" alt={t.appName} width={205} height={126} className="logo" />
-        <h1>{t.noAccess.title}</h1>
-        <p>{t.noAccess.body}</p>
-        <p>{format(t.noAccess.signedInAs, { email })}</p>
-        <div className="row">
-          <SignOutButton label={t.noAccess.signOut} />
-        </div>
-        <LanguageSwitch locale={locale} t={t} />
+    <AuthShell lang={locale} title={t.noAccess.title}>
+      <p className="text-muted">{t.noAccess.body}</p>
+      <p className="text-sm">{format(t.noAccess.signedInAs, { email })}</p>
+      <div>
+        <SignOutButton label={t.noAccess.signOut} />
       </div>
-    </main>
+      <LanguageSwitch locale={locale} t={t} />
+    </AuthShell>
   );
 }

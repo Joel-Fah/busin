@@ -1,6 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { Add01Icon } from "@hugeicons/core-free-icons";
+
+import { ButtonLink } from "@/components/ui/Button";
+import { Chip } from "@/components/ui/Chip";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ListSkeleton } from "@/components/ui/ListSkeleton";
+import { Notice } from "@/components/ui/Notice";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { DataTable, Head, TableCard, Td, Th, Tr } from "@/components/ui/Table";
 
 import { requireAdmin } from "@/lib/auth";
 import { getMessages } from "@/lib/i18n/server";
@@ -14,7 +23,7 @@ export const instant = false;
 
 export default function SemestersPage() {
   return (
-    <Suspense fallback={<section aria-busy="true" />}>
+    <Suspense fallback={<ListSkeleton rows={3} />}>
       <SemestersList />
     </Suspense>
   );
@@ -28,55 +37,58 @@ async function SemestersList() {
 
   return (
     <>
-      <header className="page-head">
-        <h1>{t.semesters.title}</h1>
-        <p>{t.semesters.subtitle}</p>
-      </header>
-
-      <div className="row">
-        <Link className="btn btn-primary" href="/semesters/new">
-          {t.semesters.add}
-        </Link>
-      </div>
+      <PageHeader
+        title={t.semesters.title}
+        subtitle={t.semesters.subtitle}
+        help={{
+          label: t.help.open,
+          title: t.semesters.help.title,
+          intro: t.semesters.help.intro,
+          scenarios: Object.values(t.semesters.help.scenarios),
+          scenariosLabel: t.help.scenarios,
+          closeLabel: t.help.close,
+        }}
+        action={
+          <ButtonLink href="/semesters/new" icon={Add01Icon}>
+            {t.semesters.add}
+          </ButtonLink>
+        }
+      />
 
       {failed ? (
-        <p className="notice" role="alert">
-          {t.semesters.loadError}
-        </p>
+        <Notice tone="bad">{t.semesters.loadError}</Notice>
       ) : semesters.length === 0 ? (
-        <p className="card">{t.semesters.empty}</p>
+        <EmptyState illustration="/illustrations/semester.webp" title={t.semesters.empty} />
       ) : (
-        <div className="table-wrap card">
-          <table>
-            <thead>
-              <tr>
-                <th scope="col">{t.semesters.columns.semester}</th>
-                <th scope="col">{t.semesters.columns.dates}</th>
-                <th scope="col">{t.semesters.columns.status}</th>
-              </tr>
-            </thead>
+        <TableCard>
+          <DataTable minWidth="32rem">
+            <Head>
+              <Th>{t.semesters.columns.semester}</Th>
+              <Th>{t.semesters.columns.dates}</Th>
+              <Th>{t.semesters.columns.status}</Th>
+            </Head>
             <tbody>
               {semesters.map((semester) => {
                 const phase = semesterPhase(semester.startDate, semester.endDate, today);
                 return (
-                  <tr key={semester.id}>
-                    <td>
-                      <Link href={`/semesters/${semester.id}`}>
+                  <Tr key={semester.id}>
+                    <Td>
+                      <Link href={`/semesters/${semester.id}`} className="font-semibold text-fg no-underline hover:text-link">
                         {t.semester[semester.name]} {semester.year}
                       </Link>
-                    </td>
-                    <td>
+                    </Td>
+                    <Td className="text-muted">
                       {semester.startDate} - {semester.endDate}
-                    </td>
-                    <td>
-                      <span className={phase === "current" ? "pill pill-ok" : "pill"}>{t.semesters.phase[phase]}</span>
-                    </td>
-                  </tr>
+                    </Td>
+                    <Td>
+                      <Chip tone={phase === "current" ? "ok" : phase === "upcoming" ? "info" : "neutral"}>{t.semesters.phase[phase]}</Chip>
+                    </Td>
+                  </Tr>
                 );
               })}
             </tbody>
-          </table>
-        </div>
+          </DataTable>
+        </TableCard>
       )}
     </>
   );

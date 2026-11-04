@@ -1,37 +1,44 @@
-import type { Messages } from "@/lib/i18n/messages";
+import { Calendar02Icon, Calendar03Icon } from "@hugeicons/core-free-icons";
+
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { DatePicker } from "@/components/ui/DatePicker";
+import { Input } from "@/components/ui/Input";
+import { Select } from "@/components/ui/Select";
+import type { Locale, Messages } from "@/lib/i18n/messages";
 import { MAX_YEAR, MIN_YEAR, SEMESTER_NAMES, type SemesterName } from "@/lib/semesters";
 
 type Props = {
   action: (formData: FormData) => Promise<void>;
   t: Messages;
+  locale: Locale;
   semester?: { id: string; name: SemesterName; year: number; startDate: string; endDate: string };
   /** Suggested year for a new semester. */
   defaultYear: number;
 };
 
-/** The form used to add and to edit a semester. Server rendered; no client code needed. */
-export function SemesterForm({ action, t, semester, defaultYear }: Props) {
+/** The form used to add and to edit a semester. */
+export function SemesterForm({ action, t, locale, semester, defaultYear }: Props) {
   const f = t.semesters.form;
   return (
-    <form action={action} className="card stack">
-      {semester ? <input type="hidden" name="id" value={semester.id} /> : null}
+    <Card className="max-w-2xl">
+      <form action={action} className="flex flex-col gap-6">
+        {semester ? <input type="hidden" name="id" value={semester.id} /> : null}
 
-      <div className="field">
-        <label htmlFor="name">{f.name}</label>
-        <select id="name" name="name" required defaultValue={semester?.name ?? "fall"}>
-          {SEMESTER_NAMES.map((name) => (
-            <option key={name} value={name}>
-              {t.semester[name]}
-            </option>
-          ))}
-        </select>
-      </div>
+        <Select
+          id="name"
+          name="name"
+          label={f.name}
+          icon={Calendar02Icon}
+          defaultValue={semester?.name ?? "fall"}
+          options={SEMESTER_NAMES.map((name) => ({ value: name, label: t.semester[name] }))}
+        />
 
-      <div className="field">
-        <label htmlFor="year">{f.year}</label>
-        <input
+        <Input
           id="year"
           name="year"
+          label={f.year}
+          icon={Calendar03Icon}
           type="number"
           inputMode="numeric"
           required
@@ -40,33 +47,17 @@ export function SemesterForm({ action, t, semester, defaultYear }: Props) {
           step={1}
           defaultValue={semester?.year ?? defaultYear}
         />
-      </div>
 
-      <div className="field">
-        <label htmlFor="start_date">{f.startDate}</label>
-        <input id="start_date" name="start_date" type="date" required defaultValue={semester?.startDate ?? ""} />
-      </div>
+        <div className="grid gap-6 sm:grid-cols-2">
+          <DatePicker id="start_date" name="start_date" label={f.startDate} locale={locale} text={t.pickers.date} defaultValue={semester?.startDate ?? ""} />
+          <DatePicker id="end_date" name="end_date" label={f.endDate} locale={locale} text={t.pickers.date} defaultValue={semester?.endDate ?? ""} />
+        </div>
+        <p className="-mt-3 text-sm text-muted">{f.datesHint}</p>
 
-      <div className="field">
-        <label htmlFor="end_date">{f.endDate}</label>
-        <input
-          id="end_date"
-          name="end_date"
-          type="date"
-          required
-          defaultValue={semester?.endDate ?? ""}
-          aria-describedby="dates-hint"
-        />
-        <span id="dates-hint" className="muted">
-          {f.datesHint}
-        </span>
-      </div>
-
-      <div className="row">
-        <button type="submit" className="btn btn-primary">
-          {semester ? f.save : f.create}
-        </button>
-      </div>
-    </form>
+        <div>
+          <Button type="submit">{semester ? f.save : f.create}</Button>
+        </div>
+      </form>
+    </Card>
   );
 }

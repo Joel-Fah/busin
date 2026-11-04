@@ -1,7 +1,11 @@
-import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
+import { Login03Icon } from "@hugeicons/core-free-icons";
+
+import { AuthShell } from "@/components/AuthShell";
+import { Button } from "@/components/ui/Button";
+import { Notice } from "@/components/ui/Notice";
 
 import { LanguageSwitch } from "@/components/LanguageSwitch";
 import { getCurrentUser } from "@/lib/auth";
@@ -17,7 +21,7 @@ type SearchParams = Promise<{ error?: string | string[] }>;
 
 export default function LoginPage({ searchParams }: { searchParams: SearchParams }) {
   return (
-    <Suspense fallback={<main className="center" aria-busy="true" />}>
+    <Suspense fallback={<main className="grid min-h-dvh place-items-center" aria-busy="true" />}>
       <LoginContent searchParams={searchParams} />
     </Suspense>
   );
@@ -35,28 +39,20 @@ async function LoginContent({ searchParams }: { searchParams: SearchParams }) {
     : null;
 
   return (
-    <main className="center" lang={locale}>
-      <div className="card">
-        <Image src="/brand/cyan.svg" alt={t.appName} width={205} height={126} className="logo" priority />
-        <h1>{t.login.title}</h1>
-        <p>{t.login.hint}</p>
-        {errorText ? (
-          <p className="notice" role="alert">
-            {errorText}
-          </p>
-        ) : null}
-        <form action={signInWithGoogle}>
-          <button type="submit" className="btn btn-primary">
-            {t.login.button}
-          </button>
-        </form>
-        {devLoginAllowed() ? (
-          <p>
-            <Link href="/dev/login">{t.devLogin.link}</Link>
-          </p>
-        ) : null}
-        <LanguageSwitch locale={locale} t={t} />
-      </div>
-    </main>
+    <AuthShell lang={locale} title={t.login.title}>
+      <p className="text-muted">{t.login.hint}</p>
+      {errorText ? <Notice tone="bad">{errorText}</Notice> : null}
+      <form action={signInWithGoogle}>
+        <Button type="submit" icon={Login03Icon} className="w-full">
+          {t.login.button}
+        </Button>
+      </form>
+      {devLoginAllowed() ? (
+        <Link href="/dev/login" className="text-sm font-semibold text-muted no-underline hover:text-fg">
+          {t.devLogin.link}
+        </Link>
+      ) : null}
+      <LanguageSwitch locale={locale} t={t} />
+    </AuthShell>
   );
 }

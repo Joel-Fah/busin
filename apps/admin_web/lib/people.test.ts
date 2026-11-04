@@ -3,14 +3,15 @@ import { describe, expect, it } from "vitest";
 import { lastPage, pageRange, parsePage } from "./pagination";
 import {
   MAX_SEARCH_LENGTH,
-  accountPill,
+  accountTone,
   initials,
   isPeopleDone,
   isRole,
   parseRoleFilter,
   parseSearch,
   peopleErrorKey,
-  rolePill,
+  roleTabCounts,
+  roleTone,
   searchFilter,
 } from "./people";
 
@@ -90,12 +91,7 @@ describe("peopleErrorKey", () => {
   });
 });
 
-describe("pills and done states", () => {
-  it("give each role and status its own look", () => {
-    expect(new Set((["student", "staff", "admin"] as const).map(rolePill)).size).toBe(3);
-    expect(new Set((["pending", "verified", "suspended"] as const).map(accountPill)).size).toBe(3);
-  });
-
+describe("done states", () => {
   it("recognises only known outcomes", () => {
     expect(isPeopleDone("role")).toBe(true);
     expect(isPeopleDone("suspended")).toBe(true);
@@ -111,5 +107,21 @@ describe("pagination helpers", () => {
     expect(lastPage(0)).toBe(1);
     expect(lastPage(20)).toBe(1);
     expect(lastPage(21)).toBe(2);
+  });
+});
+
+describe("tones and tab counts", () => {
+  it("gives roles and account states their own tones", () => {
+    expect(roleTone("admin")).toBe("info");
+    expect(roleTone("staff")).toBe("warn");
+    expect(roleTone("student")).toBe("neutral");
+    expect(accountTone("verified")).toBe("ok");
+    expect(accountTone("suspended")).toBe("bad");
+    expect(accountTone("pending")).toBe("warn");
+  });
+
+  it("adds up the total and treats a missing count as zero", () => {
+    expect(roleTabCounts({ student: 120, staff: 6, admin: 2 })).toEqual({ all: 128, student: 120, staff: 6, admin: 2 });
+    expect(roleTabCounts({ student: null }).all).toBe(0);
   });
 });

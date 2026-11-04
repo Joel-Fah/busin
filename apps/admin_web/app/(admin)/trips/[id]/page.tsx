@@ -1,13 +1,20 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
+
+import { ButtonLink } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { BackLink } from "@/components/ui/BackLink";
+import { Chip } from "@/components/ui/Chip";
+import { ListSkeleton } from "@/components/ui/ListSkeleton";
+import { Notice } from "@/components/ui/Notice";
 
 import { TripForm } from "@/components/TripForm";
 import { requireAdmin } from "@/lib/auth";
 import { getMessages } from "@/lib/i18n/server";
 import { isUuid } from "@/lib/ids";
-import { isDirection, isTripDone, isTripFormErrorKey, isTripStatus, statusPill } from "@/lib/trips";
+import { isDirection, isTripDone, isTripFormErrorKey, isTripStatus, tripStatusTone } from "@/lib/trips";
 import { loadTripOptions } from "@/lib/trips-data";
 import { createClient } from "@/lib/supabase/server";
 import { utcToZonedLocal } from "@/lib/zoned";
@@ -24,7 +31,7 @@ type SearchParams = Promise<{ done?: string | string[]; error?: string | string[
 
 export default function TripPage({ params, searchParams }: { params: Params; searchParams: SearchParams }) {
   return (
-    <Suspense fallback={<section aria-busy="true" />}>
+    <Suspense fallback={<ListSkeleton rows={2} />}>
       <TripDetail params={params} searchParams={searchParams} />
     </Suspense>
   );
@@ -36,7 +43,7 @@ function single(value: string | string[] | undefined): string | undefined {
 
 async function TripDetail({ params, searchParams }: { params: Params; searchParams: SearchParams }) {
   const admin = await requireAdmin();
-  const { t } = await getMessages();
+  const { locale, t } = await getMessages();
   const { id } = await params;
   if (!isUuid(id)) notFound();
 
@@ -59,33 +66,24 @@ async function TripDetail({ params, searchParams }: { params: Params; searchPara
 
   return (
     <>
-      <p>
-        <Link href="/trips">{t.trips.form.back}</Link>
-      </p>
-      <header className="page-head">
-        <h1>{t.trips.direction[trip.direction]}</h1>
-        <p>
-          <span className={statusPill(trip.status)}>{t.trips.status[trip.status]}</span>
+      <BackLink href="/trips">{t.trips.form.back}</BackLink>
+      <header>
+        <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">{t.trips.direction[trip.direction]}</h1>
+        <p className="mt-2">
+          <Chip tone={tripStatusTone(trip.status)}>{t.trips.status[trip.status]}</Chip>
         </p>
       </header>
-      {done ? (
-        <p className="success" role="status">
-          {t.trips.done[done]}
-        </p>
-      ) : null}
-      {errorKey ? (
-        <p className="notice" role="alert">
-          {t.trips.errors[errorKey]}
-        </p>
-      ) : null}
+
+      {done ? <Notice tone="ok">{t.trips.done[done]}</Notice> : null}
+      {errorKey ? <Notice tone="bad">{t.trips.errors[errorKey]}</Notice> : null}
+
       {failed ? (
-        <p className="notice" role="alert">
-          {t.trips.loadError}
-        </p>
+        <Notice tone="bad">{t.trips.loadError}</Notice>
       ) : editable ? (
         <TripForm
           action={updateTrip}
           t={t}
+          locale={locale}
           buses={buses}
           drivers={drivers}
           timeZone={admin.schoolTimezone}
@@ -98,12 +96,12 @@ async function TripDetail({ params, searchParams }: { params: Params; searchPara
           }}
         />
       ) : (
-        <div className="card stack">
+        <Card className="flex max-w-2xl flex-col items-start gap-4">
           <p>{t.trips.locked}</p>
-          <p>
-            <Link href={`/scans?trip=${trip.id}`}>{t.trips.viewBoardings}</Link>
-          </p>
-        </div>
+          <ButtonLink href={`/scans?trip=${trip.id}`} variant="secondary" icon={ArrowRight01Icon}>
+            {t.trips.viewBoardings}
+          </ButtonLink>
+        </Card>
       )}
     </>
   );

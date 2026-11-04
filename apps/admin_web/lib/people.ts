@@ -51,26 +51,33 @@ export function initials(fullName: string | null | undefined, email: string | nu
   return word.slice(0, 2).toUpperCase();
 }
 
-export function rolePill(role: Role): string {
+/** Tones for the role and account chips. The label always comes with the tone. */
+export function roleTone(role: Role): "info" | "warn" | "neutral" {
   switch (role) {
     case "admin":
-      return "pill pill-info";
+      return "info";
     case "staff":
-      return "pill pill-warn";
+      return "warn";
     default:
-      return "pill";
+      return "neutral";
   }
 }
 
-export function accountPill(status: AccountStatus): string {
+export function accountTone(status: AccountStatus): "ok" | "bad" | "warn" {
   switch (status) {
     case "verified":
-      return "pill pill-ok";
+      return "ok";
     case "suspended":
-      return "pill pill-bad";
+      return "bad";
     default:
-      return "pill pill-warn";
+      return "warn";
   }
+}
+
+/** Number of people for each tab. "all" is the sum, and a missing count counts as zero. */
+export function roleTabCounts(byRole: Partial<Record<Role, number | null>>): Record<RoleFilter, number> {
+  const get = (role: Role) => byRole[role] ?? 0;
+  return { all: ROLES.reduce((sum, role) => sum + get(role), 0), student: get("student"), staff: get("staff"), admin: get("admin") };
 }
 
 export type PeopleErrorKey = "self" | "invalid" | "not_found" | "generic";

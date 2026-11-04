@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import { BusForm } from "@/components/BusForm";
+import { BackLink } from "@/components/ui/BackLink";
+import { ListSkeleton } from "@/components/ui/ListSkeleton";
+import { Notice } from "@/components/ui/Notice";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { requireAdmin } from "@/lib/auth";
 import { isBusDone, isBusFormErrorKey } from "@/lib/buses";
 import { getMessages } from "@/lib/i18n/server";
@@ -22,7 +25,7 @@ type SearchParams = Promise<{ done?: string | string[]; error?: string | string[
 
 export default function BusPage({ params, searchParams }: { params: Params; searchParams: SearchParams }) {
   return (
-    <Suspense fallback={<section aria-busy="true" />}>
+    <Suspense fallback={<ListSkeleton rows={2} />}>
       <BusDetail params={params} searchParams={searchParams} />
     </Suspense>
   );
@@ -54,27 +57,13 @@ async function BusDetail({ params, searchParams }: { params: Params; searchParam
 
   return (
     <>
-      <p>
-        <Link href="/buses">{t.buses.form.back}</Link>
-      </p>
-      <header className="page-head">
-        <h1>{bus.plate}</h1>
-      </header>
-      {done ? (
-        <p className="success" role="status">
-          {t.buses.done[done]}
-        </p>
-      ) : null}
-      {errorKey ? (
-        <p className="notice" role="alert">
-          {t.buses.errors[errorKey]}
-        </p>
-      ) : null}
-      <BusForm
-        action={updateBus}
-        t={t}
-        bus={{ id: bus.id, plate: bus.plate, capacity: bus.capacity, inService: bus.in_service }}
-      />
+      <BackLink href="/buses">{t.buses.form.back}</BackLink>
+      <PageHeader title={bus.plate} />
+
+      {done ? <Notice tone="ok">{t.buses.done[done]}</Notice> : null}
+      {errorKey ? <Notice tone="bad">{t.buses.errors[errorKey]}</Notice> : null}
+
+      <BusForm action={updateBus} t={t} bus={{ id: bus.id, plate: bus.plate, capacity: bus.capacity, inService: bus.in_service }} />
     </>
   );
 }

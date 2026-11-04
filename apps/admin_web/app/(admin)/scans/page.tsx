@@ -1,6 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { FlagTriangleRightIcon } from "@hugeicons/core-free-icons";
+
+import { Avatar } from "@/components/ui/Avatar";
+import { Button, ButtonLink } from "@/components/ui/Button";
+import { DatePicker } from "@/components/ui/DatePicker";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ListSkeleton } from "@/components/ui/ListSkeleton";
+import { Notice } from "@/components/ui/Notice";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Pager } from "@/components/ui/Pager";
+import { Select } from "@/components/ui/Select";
+import { DataTable, Head, TableCard, Td, Th, Tr } from "@/components/ui/Table";
 
 import { requireAdmin } from "@/lib/auth";
 import { format, type Locale } from "@/lib/i18n/messages";
@@ -24,7 +36,7 @@ type SearchParams = Promise<{
 
 export default function ScansPage({ searchParams }: { searchParams: SearchParams }) {
   return (
-    <Suspense fallback={<section aria-busy="true" />}>
+    <Suspense fallback={<ListSkeleton />}>
       <ScansList searchParams={searchParams} />
     </Suspense>
   );
@@ -55,13 +67,16 @@ async function ScansList({ searchParams }: { searchParams: SearchParams }) {
     request = request.gte("scanned_at", bounds.from).lt("scanned_at", bounds.to);
   }
 
-  const [{ data, count, error }, stopOptions, chipTrip] = await Promise.all([
+  const [listed, stopOptions, chipTrip] = await Promise.all([
     request,
     supabase.from("stops").select("id, name").order("name", { ascending: true }).limit(500),
     filters.trip
       ? supabase.from("trips").select("id, bus_id, direction, scheduled_start").eq("id", filters.trip).maybeSingle()
       : Promise.resolve({ data: null }),
   ]);
+  // A page past the last one is not a failure: the database answers "range not satisfiable" and there is nothing there.
+  const { data, count } = listed;
+  const error = listed.error?.code === "PGRST103" ? null : listed.error;
   const total = count ?? 0;
   const rows = data ?? [];
 
@@ -90,100 +105,111 @@ async function ScansList({ searchParams }: { searchParams: SearchParams }) {
 
   return (
     <>
-      <header className="page-head">
-        <h1>{t.scans.title}</h1>
-        <p>{t.scans.subtitle}</p>
-      </header>
+      <PageHeader
+        title={t.scans.title}
+        subtitle={t.scans.subtitle}
+        help={{
+          label: t.help.open,
+          title: t.scans.help.title,
+          intro: t.scans.help.intro,
+          scenarios: Object.values(t.scans.help.scenarios),
+          scenariosLabel: t.help.scenarios,
+          closeLabel: t.help.close,
+        }}
+      />
 
-      <form method="get" action="/scans" className="search-form" aria-label={t.scans.filtersLabel}>
+      <form method="get" action="/scans" aria-label={t.scans.filtersLabel} className="flex flex-wrap items-end gap-3">
         {filters.trip ? <input type="hidden" name="trip" value={filters.trip} /> : null}
-        <div className="field">
-          <label htmlFor="stop">{t.scans.filters.stop}</label>
-          <select id="stop" name="stop" defaultValue={filters.stop ?? ""}>
-            <option value="">{t.scans.filters.allStops}</option>
-            {(stopOptions.data ?? []).map((stop) => (
-              <option key={stop.id} value={stop.id}>
-                {stop.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="field">
-          <label htmlFor="date">{t.scans.filters.day}</label>
-          <input id="date" name="date" type="date" defaultValue={filters.date ?? ""} />
-        </div>
-        <button type="submit" className="btn btn-secondary">
+        <Select
+          id="stop"
+          name="stop"
+          label={t.scans.filters.stop}
+          icon={FlagTriangleRightIcon}
+          defaultValue={filters.stop ?? ""}
+          className="w-full sm:w-72"
+          options={[{ value: "", label: t.scans.filters.allStops }, ...(stopOptions.data ?? []).map((stop) => ({ value: stop.id, label: stop.name }))]}
+        />
+        <DatePicker
+          id="date"
+          name="date"
+          label={t.scans.filters.day}
+          locale={locale}
+          text={t.pickers.date}
+          defaultValue={filters.date ?? ""}
+          placeholder={t.scans.filters.anyDay}
+          className="w-full sm:w-64"
+        />
+        <Button type="submit" variant="secondary">
           {t.scans.filters.apply}
-        </button>
+        </Button>
         {anyFilter ? (
-          <Link className="btn btn-secondary" href="/scans">
+          <ButtonLink variant="ghost" href="/scans">
             {t.scans.filters.clear}
-          </Link>
+          </ButtonLink>
         ) : null}
       </form>
 
       {chipLabel ? (
-        <p className="muted">
-          {t.scans.filters.trip}: {chipLabel}{" "}
-          <Link href={scansHref({ ...filters, trip: null })}>{t.scans.filters.removeTrip}</Link>
-        </p>
+        <div className="flex flex-wrap items-center gap-3 rounded-md bg-surface-2 px-5 py-3 text-sm">
+          <span>
+            {t.scans.filters.trip}: <strong>{chipLabel}</strong>
+          </span>
+          <Link href={scansHref({ ...filters, trip: null })} className="font-semibold text-fg no-underline hover:text-link">
+            {t.scans.filters.removeTrip}
+          </Link>
+        </div>
       ) : null}
 
       {error ? (
-        <p className="notice" role="alert">
-          {t.scans.loadError}
-        </p>
+        <Notice tone="bad">{t.scans.loadError}</Notice>
       ) : rows.length === 0 ? (
-        <p className="card">{anyFilter ? t.scans.emptyFiltered : t.scans.empty}</p>
+        <EmptyState illustration="/illustrations/ticket1.webp" title={anyFilter ? t.scans.emptyFiltered : t.scans.empty} />
       ) : (
         <>
-          <div className="table-wrap card">
-            <table>
-              <thead>
-                <tr>
-                  <th scope="col">{t.scans.columns.time}</th>
-                  <th scope="col">{t.scans.columns.student}</th>
-                  <th scope="col">{t.scans.columns.stop}</th>
-                  <th scope="col">{t.scans.columns.bus}</th>
-                  <th scope="col">{t.scans.columns.direction}</th>
-                </tr>
-              </thead>
+          <TableCard>
+            <DataTable minWidth="40rem">
+              <Head>
+                <Th>{t.scans.columns.time}</Th>
+                <Th>{t.scans.columns.student}</Th>
+                <Th>{t.scans.columns.stop}</Th>
+                <Th>{t.scans.columns.bus}</Th>
+                <Th>{t.scans.columns.direction}</Th>
+              </Head>
               <tbody>
                 {rows.map((row) => {
                   const student = studentById.get(row.student_id);
                   const trip = tripById.get(row.trip_id);
+                  const name = student?.full_name || student?.email || "-";
                   return (
-                    <tr key={row.id}>
-                      <td>{formatTime(row.scanned_at, locale, admin.schoolTimezone)}</td>
-                      <td>
-                        <Link href={`/people/${row.student_id}`}>{student?.full_name || student?.email || "-"}</Link>
-                        {student?.matricule ? <span className="muted block">{student.matricule}</span> : null}
-                      </td>
-                      <td>{(row.stop_id && stopById.get(row.stop_id)) || t.scans.noStop}</td>
-                      <td>{(trip && plateById.get(trip.bus_id)) || "-"}</td>
-                      <td>{trip && isDirection(trip.direction) ? t.trips.direction[trip.direction] : "-"}</td>
-                    </tr>
+                    <Tr key={row.id}>
+                      <Td className="text-muted">{formatTime(row.scanned_at, locale, admin.schoolTimezone)}</Td>
+                      <Td>
+                        <div className="flex items-center gap-3">
+                          <Avatar name={name} url={null} size={40} />
+                          <div className="min-w-0">
+                            <Link href={`/people/${row.student_id}`} className="font-semibold text-fg no-underline hover:text-link">
+                              {name}
+                            </Link>
+                            {student?.matricule ? <p className="text-xs text-muted">{student.matricule}</p> : null}
+                          </div>
+                        </div>
+                      </Td>
+                      <Td>{(row.stop_id && stopById.get(row.stop_id)) || t.scans.noStop}</Td>
+                      <Td>{(trip && plateById.get(trip.bus_id)) || "-"}</Td>
+                      <Td>{trip && isDirection(trip.direction) ? t.trips.direction[trip.direction] : "-"}</Td>
+                    </Tr>
                   );
                 })}
               </tbody>
-            </table>
-          </div>
+            </DataTable>
+          </TableCard>
 
-          <div className="pager">
-            <p>{format(t.scans.range, { from: from + 1, to: from + rows.length, total })}</p>
-            <nav className="row" aria-label={t.scans.paginationLabel}>
-              {page > 1 ? (
-                <Link className="btn btn-secondary" href={scansHref(filters, page - 1)}>
-                  {t.scans.previous}
-                </Link>
-              ) : null}
-              {page < lastPage(total, PAGE_SIZE) ? (
-                <Link className="btn btn-secondary" href={scansHref(filters, page + 1)}>
-                  {t.scans.next}
-                </Link>
-              ) : null}
-            </nav>
-          </div>
+          <Pager
+            range={format(t.scans.range, { from: from + 1, to: from + rows.length, total })}
+            label={t.scans.paginationLabel}
+            previous={page > 1 ? { href: scansHref(filters, page - 1), label: t.scans.previous } : undefined}
+            next={page < lastPage(total, PAGE_SIZE) ? { href: scansHref(filters, page + 1), label: t.scans.next } : undefined}
+          />
         </>
       )}
     </>

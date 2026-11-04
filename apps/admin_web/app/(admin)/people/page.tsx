@@ -1,20 +1,34 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { Search01Icon } from "@hugeicons/core-free-icons";
+
+import { Avatar } from "@/components/ui/Avatar";
+import { Button, ButtonLink } from "@/components/ui/Button";
+import { Chip } from "@/components/ui/Chip";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { Input } from "@/components/ui/Input";
+import { ListSkeleton } from "@/components/ui/ListSkeleton";
+import { Notice } from "@/components/ui/Notice";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Pager } from "@/components/ui/Pager";
+import { DataTable, Head, TableCard, Td, Th, Tr } from "@/components/ui/Table";
+import { Tabs, type TabItem } from "@/components/ui/Tabs";
 
 import { requireAdmin } from "@/lib/auth";
 import { format, type Locale } from "@/lib/i18n/messages";
 import { getMessages } from "@/lib/i18n/server";
 import { PAGE_SIZE, lastPage, pageRange, parsePage } from "@/lib/pagination";
 import {
-  ROLE_FILTERS,
-  accountPill,
-  initials,
+  accountTone,
   parseRoleFilter,
   parseSearch,
-  rolePill,
-  searchFilter,
+  ROLE_FILTERS,
   type RoleFilter,
+  ROLES,
+  roleTabCounts,
+  roleTone,
+  searchFilter,
 } from "@/lib/people";
 import { createClient } from "@/lib/supabase/server";
 
@@ -27,7 +41,7 @@ type SearchParams = Promise<{ role?: string | string[]; q?: string | string[]; p
 
 export default function PeoplePage({ searchParams }: { searchParams: SearchParams }) {
   return (
-    <Suspense fallback={<section aria-busy="true" />}>
+    <Suspense fallback={<ListSkeleton />}>
       <PeopleList searchParams={searchParams} />
     </Suspense>
   );
@@ -64,112 +78,122 @@ async function PeopleList({ searchParams }: { searchParams: SearchParams }) {
   if (role !== "all") request = request.eq("role", role);
   if (q) request = request.or(searchFilter(q));
 
-  const { data, count, error } = await request;
+  // Counts only, no rows: one per role for the numbers on the tabs, following the search.
+  const [listed, ...counted] = await Promise.all([
+    request,
+    ...ROLES.map((r) => {
+      let counting = supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", r);
+      if (q) counting = counting.or(searchFilter(q));
+      return counting;
+    }),
+  ]);
+  const counts = roleTabCounts(Object.fromEntries(ROLES.map((r, index) => [r, counted[index].count])));
+
+  // A page past the last one is not a failure: the database answers "range not satisfiable" and there is nothing there.
+  const { data, count } = listed;
+  const error = listed.error?.code === "PGRST103" ? null : listed.error;
   const total = count ?? 0;
   const rows = data ?? [];
 
+  const tabs: TabItem[] = ROLE_FILTERS.map((filter) => ({
+    id: filter,
+    label: t.people.filters[filter],
+    href: href(filter, q),
+    count: counts[filter],
+    tone: filter === "all" ? "neutral" : filter === "admin" ? "info" : filter === "staff" ? "warn" : "neutral",
+  }));
+
   return (
     <>
-      <header className="page-head">
-        <h1>{t.people.title}</h1>
-        <p>{t.people.subtitle}</p>
-      </header>
+      <PageHeader
+        title={t.people.title}
+        subtitle={t.people.subtitle}
+        help={{
+          label: t.help.open,
+          title: t.people.help.title,
+          intro: t.people.help.intro,
+          scenarios: Object.values(t.people.help.scenarios),
+          scenariosLabel: t.help.scenarios,
+          closeLabel: t.help.close,
+        }}
+      />
 
-      <form method="get" action="/people" role="search" className="search-form">
+      <form method="get" action="/people" role="search" className="flex max-w-2xl flex-wrap items-end gap-3">
         {role !== "all" ? <input type="hidden" name="role" value={role} /> : null}
-        <label htmlFor="q" className="visually-hidden">
-          {t.people.search.label}
-        </label>
-        <input
+        <Input
           id="q"
           name="q"
           type="search"
+          label={t.people.search.label}
+          icon={Search01Icon}
           defaultValue={q}
-          placeholder={t.people.search.label}
+          placeholder={t.people.search.placeholder}
           maxLength={64}
-          className="search-input"
+          autoComplete="off"
+          className="min-w-64 flex-1"
         />
-        <button type="submit" className="btn btn-secondary">
+        <Button type="submit" variant="secondary">
           {t.people.search.button}
-        </button>
+        </Button>
         {q ? (
-          <Link className="btn btn-secondary" href={href(role, "")}>
+          <ButtonLink variant="ghost" href={href(role, "")}>
             {t.people.search.clear}
-          </Link>
+          </ButtonLink>
         ) : null}
       </form>
 
-      <nav className="tabs" aria-label={t.people.filtersLabel}>
-        {ROLE_FILTERS.map((filter) => (
-          <Link key={filter} href={href(filter, q)} aria-current={filter === role ? "page" : undefined}>
-            {t.people.filters[filter]}
-          </Link>
-        ))}
-      </nav>
+      <Tabs label={t.people.filtersLabel} items={tabs} active={role} />
 
       {error ? (
-        <p className="notice" role="alert">
-          {t.people.loadError}
-        </p>
+        <Notice tone="bad">{t.people.loadError}</Notice>
       ) : rows.length === 0 ? (
-        <p className="card">{t.people.empty}</p>
+        <EmptyState illustration="/illustrations/staff.webp" title={t.people.empty} />
       ) : (
         <>
-          <div className="table-wrap card">
-            <table>
-              <thead>
-                <tr>
-                  <th scope="col">{t.people.columns.person}</th>
-                  <th scope="col">{t.people.columns.role}</th>
-                  <th scope="col">{t.people.columns.status}</th>
-                  <th scope="col">{t.people.columns.joined}</th>
-                </tr>
-              </thead>
+          <TableCard>
+            <DataTable minWidth="40rem">
+              <Head>
+                <Th>{t.people.columns.person}</Th>
+                <Th>{t.people.columns.role}</Th>
+                <Th>{t.people.columns.status}</Th>
+                <Th>{t.people.columns.joined}</Th>
+              </Head>
               <tbody>
                 {rows.map((row) => (
-                  <tr key={row.id}>
-                    <td>
-                      <div className="person">
-                        <span className="avatar" aria-hidden="true">
-                          {initials(row.full_name, row.email)}
-                        </span>
-                        <span>
-                          <Link href={`/people/${row.id}`}>{row.full_name || row.email}</Link>
-                          <span className="muted block">
+                  <Tr key={row.id}>
+                    <Td>
+                      <div className="flex items-center gap-3">
+                        <Avatar name={row.full_name || row.email} url={null} size={40} />
+                        <div className="min-w-0">
+                          <Link href={`/people/${row.id}`} className="font-semibold text-fg no-underline hover:text-link">
+                            {row.full_name || row.email}
+                          </Link>
+                          <p className="text-xs break-all text-muted">
                             {row.email}
                             {row.matricule ? ` / ${row.matricule}` : ""}
-                          </span>
-                        </span>
+                          </p>
+                        </div>
                       </div>
-                    </td>
-                    <td>
-                      <span className={rolePill(row.role)}>{t.role[row.role]}</span>
-                    </td>
-                    <td>
-                      <span className={accountPill(row.status)}>{t.accountStatus[row.status]}</span>
-                    </td>
-                    <td>{formatDate(row.created_at, locale, admin.schoolTimezone)}</td>
-                  </tr>
+                    </Td>
+                    <Td>
+                      <Chip tone={roleTone(row.role)}>{t.role[row.role]}</Chip>
+                    </Td>
+                    <Td>
+                      <Chip tone={accountTone(row.status)}>{t.accountStatus[row.status]}</Chip>
+                    </Td>
+                    <Td className="text-muted">{formatDate(row.created_at, locale, admin.schoolTimezone)}</Td>
+                  </Tr>
                 ))}
               </tbody>
-            </table>
-          </div>
+            </DataTable>
+          </TableCard>
 
-          <div className="pager">
-            <p>{format(t.people.range, { from: from + 1, to: from + rows.length, total })}</p>
-            <nav className="row" aria-label={t.people.paginationLabel}>
-              {page > 1 ? (
-                <Link className="btn btn-secondary" href={href(role, q, page - 1)}>
-                  {t.people.previous}
-                </Link>
-              ) : null}
-              {page < lastPage(total, PAGE_SIZE) ? (
-                <Link className="btn btn-secondary" href={href(role, q, page + 1)}>
-                  {t.people.next}
-                </Link>
-              ) : null}
-            </nav>
-          </div>
+          <Pager
+            range={format(t.people.range, { from: from + 1, to: from + rows.length, total })}
+            label={t.people.paginationLabel}
+            previous={page > 1 ? { href: href(role, q, page - 1), label: t.people.previous } : undefined}
+            next={page < lastPage(total, PAGE_SIZE) ? { href: href(role, q, page + 1), label: t.people.next } : undefined}
+          />
         </>
       )}
     </>

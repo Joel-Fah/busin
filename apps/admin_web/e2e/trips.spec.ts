@@ -2,7 +2,7 @@ import { randomBytes } from "node:crypto";
 
 import { expect, test } from "@playwright/test";
 
-import { SEED, createUser, deleteUser, serviceClient, signInBrowser, type TestUser, setLanguage } from "./support";
+import { SEED, chooseOption, createUser, deleteUser, pickDateTime, serviceClient, setLanguage, setPickerValue, signInBrowser, type TestUser } from "./support";
 
 const tag = randomBytes(3).toString("hex").toUpperCase();
 const prefix = `E2E-TRIP-${tag}`;
@@ -99,10 +99,10 @@ test.describe("administrator managing trips", () => {
 
   test("schedules a trip and stores the start time in the school timezone", async ({ page }) => {
     await page.goto("/trips/new");
-    await page.getByLabel("Bus").selectOption({ label: `${prefix} RUN` });
-    await page.getByLabel("Driver").selectOption({ label: `E2E trip-driver-${tag}` });
-    await page.getByLabel("Direction").selectOption("outbound");
-    await page.getByLabel("Start time").fill(START);
+    await chooseOption(page, "Bus", `${prefix} RUN`);
+    await chooseOption(page, "Driver", `E2E trip-driver-${tag}`);
+    await chooseOption(page, "Direction", "Going home");
+    await pickDateTime(page, START);
     await page.getByRole("button", { name: "Schedule trip" }).click();
 
     await expect(page.getByRole("status")).toContainText("Trip scheduled.");
@@ -116,21 +116,18 @@ test.describe("administrator managing trips", () => {
 
   test("an out-of-service bus is not offered", async ({ page }) => {
     await page.goto("/trips/new");
-    await expect(page.getByLabel("Bus").locator("option", { hasText: `${prefix} RUN` })).toHaveCount(1);
-    await expect(page.getByLabel("Bus").locator("option", { hasText: `${prefix} IDLE` })).toHaveCount(0);
+    await page.getByRole("combobox", { name: "Bus" }).click();
+    const list = page.getByRole("listbox", { name: "Bus" });
+    await expect(list.getByRole("option", { name: new RegExp(`${prefix} RUN`) })).toHaveCount(1);
+    await expect(list.getByRole("option", { name: new RegExp(`${prefix} IDLE`) })).toHaveCount(0);
   });
 
   test("the server refuses an out-of-service bus even if the form is tampered with", async ({ page }) => {
     await page.goto("/trips/new");
     await page.waitForLoadState("networkidle");
-    await page.getByLabel("Bus").evaluate((select, id) => {
-      const option = document.createElement("option");
-      option.value = id;
-      option.textContent = "tampered";
-      (select as HTMLSelectElement).appendChild(option);
-    }, idleBusId);
-    await page.getByLabel("Bus").selectOption("tampered");
-    await page.getByLabel("Start time").fill(START);
+    // The idle bus is not in the list, so put its id in the field the form submits.
+    await pickDateTime(page, START);
+    await setPickerValue(page, "bus_id", idleBusId);
     await page.getByRole("button", { name: "Schedule trip" }).click();
 
     await expect(page.getByRole("alert").filter({ hasText: "That bus is not available." })).toBeVisible();
@@ -139,7 +136,8 @@ test.describe("administrator managing trips", () => {
 
   test("only staff are offered as drivers", async ({ page }) => {
     await page.goto("/trips/new");
-    const options = page.getByLabel("Driver").locator("option");
+    await page.getByRole("combobox", { name: "Driver" }).click();
+    const options = page.getByRole("listbox", { name: "Driver" }).getByRole("option");
     await expect(options.filter({ hasText: `E2E trip-driver-${tag}` })).toHaveCount(1);
     await expect(options.filter({ hasText: `E2E trip-student-${tag}` })).toHaveCount(0);
     await expect(options.filter({ hasText: `E2E trip-admin-${tag}` })).toHaveCount(0);
@@ -148,10 +146,10 @@ test.describe("administrator managing trips", () => {
   test("edits a scheduled trip and shows its start in the school timezone", async ({ page }) => {
     await page.goto(`/trips/${scheduledId}`);
     // 2090-07-01T06:30Z is 07:30 in Douala.
-    await expect(page.getByLabel("Start time")).toHaveValue("2090-07-01T07:30");
+    await expect(page.locator('input[name="scheduled_start"]')).toHaveValue("2090-07-01T07:30");
 
-    await page.getByLabel("Driver").selectOption("");
-    await page.getByLabel("Start time").fill("2090-07-01T08:15");
+    await chooseOption(page, "Driver", "Not assigned yet");
+    await pickDateTime(page, "2090-07-01T08:15");
     await page.getByRole("button", { name: "Save trip" }).click();
 
     await expect(page.getByRole("status")).toContainText("Trip saved.");
@@ -166,11 +164,12 @@ test.describe("administrator managing trips", () => {
     await expect(page.getByRole("button", { name: "Save trip" })).toHaveCount(0);
   });
 
-  test("the browser blocks a missing start time", async ({ page }) => {
+  test("a missing start time is refused with a clear message", async ({ page }) => {
     await page.goto("/trips/new");
-    await page.getByLabel("Bus").selectOption({ label: `${prefix} RUN` });
+    await chooseOption(page, "Bus", `${prefix} RUN`);
     await page.getByRole("button", { name: "Schedule trip" }).click();
-    await expect(page).toHaveURL(/\/trips\/new$/);
+    await expect(page.getByRole("alert")).toBeVisible();
+    await expect(page).toHaveURL(/\/trips\/new\?error=/);
   });
 
   test("an unknown or malformed id shows the not-found page", async ({ page }) => {
@@ -183,6 +182,33 @@ test.describe("administrator managing trips", () => {
   test("odd filter and page values fall back safely", async ({ page }) => {
     await page.goto("/trips?status=%27%3Bdrop&page=-4");
     await expect(page.getByRole("heading", { name: "Trips", level: 1 })).toBeVisible();
+  });
+
+  test("each tab shows how many trips are behind it, matching the database", async ({ page }) => {
+    const db = serviceClient();
+    const total = async (status?: "scheduled" | "active" | "completed" | "cancelled") => {
+      let query = db.from("trips").select("id", { count: "exact", head: true });
+      if (status) query = query.eq("status", status);
+      const { count } = await query;
+      return count ?? 0;
+    };
+    await page.goto("/trips");
+    const tabs = page.getByRole("navigation", { name: "Filter by status" });
+    await expect(tabs.getByRole("link", { name: /Scheduled/ })).toContainText(String(await total("scheduled")));
+    await expect(tabs.getByRole("link", { name: /Running/ })).toContainText(String(await total("active")));
+    await expect(tabs.getByRole("link", { name: /All/ })).toContainText(String(await total()));
+  });
+
+  test("a page past the last one shows an empty state, not an error", async ({ page }) => {
+    await page.goto("/trips?status=cancelled&page=50");
+    await expect(page.getByText("No trips match this filter.")).toBeVisible();
+    await expect(page.getByText("could not be loaded")).toHaveCount(0);
+  });
+
+  test("the help button explains trips with examples", async ({ page }) => {
+    await page.goto("/trips");
+    await page.getByRole("button", { name: "Help" }).click();
+    await expect(page.getByRole("dialog", { name: "How trips work" }).getByText("The driver changes")).toBeVisible();
   });
 
   test("the pages are available in French", async ({ page }) => {

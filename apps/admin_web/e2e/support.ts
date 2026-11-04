@@ -145,3 +145,52 @@ export async function setLanguage(page: Page, language: "en" | "fr"): Promise<vo
   await expect(button).toBeDisabled();
   await expect(button).toHaveAttribute("aria-pressed", "true");
 }
+
+/** Picks an option in a custom dropdown the way a person does: open it, choose by name. */
+export async function chooseOption(page: Page, label: string | RegExp, option: string | RegExp): Promise<void> {
+  await page.getByRole("combobox", { name: label }).click();
+  await page.getByRole("option", { name: option }).click();
+}
+
+/**
+ * Sets the value a custom picker will submit (its hidden field), for tests that are about what the
+ * server does with a date, not about the picker. The picker itself is tested on its own.
+ */
+export async function setPickerValue(page: Page, fieldName: string, value: string): Promise<void> {
+  await page.locator(`input[type="hidden"][name="${fieldName}"]`).evaluate((el, next) => {
+    (el as HTMLInputElement).value = next;
+  }, value);
+}
+
+const MONTH = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleString("en", { month: "long", timeZone: "UTC" });
+const LONG = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleString("en", { dateStyle: "long", timeZone: "UTC" });
+
+/** Chooses a date through the real calendar: open it, jump years with Shift and Page Up or Down, pick the day. */
+export async function pickDate(page: Page, label: string, iso: string): Promise<void> {
+  await page.getByRole("button", { name: label, exact: true }).click();
+  const calendar = page.getByRole("dialog", { name: label });
+  const title = calendar.getByRole("button", { name: "Choose month and year" });
+  const shown = async () => Number(((await title.textContent()) ?? "").match(/\d{4}/)?.[0]);
+  const targetYear = Number(iso.slice(0, 4));
+
+  // Open the month grid and step the year with its arrows until it matches.
+  await title.click();
+  for (let guard = 0; guard < 200; guard++) {
+    const year = await shown();
+    if (year === targetYear) break;
+    await calendar.getByRole("button", { name: year < targetYear ? "Next year" : "Previous year" }).click();
+  }
+  await calendar.getByRole("button", { name: MONTH(iso), exact: true }).click();
+  await calendar.getByRole("gridcell", { name: LONG(iso) }).click();
+}
+
+/** Chooses a date and a time in the date-time picker through the real controls. `local` is YYYY-MM-DDTHH:mm. */
+export async function pickDateTime(page: Page, local: string): Promise<void> {
+  const [date, time] = local.split("T");
+  const [hour, minute] = time.split(":");
+  await pickDate(page, "Date", date);
+  await page.getByRole("button", { name: "Time", exact: true }).click();
+  const panel = page.getByRole("dialog", { name: "Time" });
+  await panel.getByRole("listbox", { name: "Hours" }).getByRole("option", { name: hour, exact: true }).click();
+  await panel.getByRole("listbox", { name: "Minutes" }).getByRole("option", { name: minute, exact: true }).click();
+}

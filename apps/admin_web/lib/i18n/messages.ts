@@ -43,6 +43,20 @@ export const en = {
     current: 'You are on',
   },
   help: { open: 'Help', close: 'Close', scenarios: 'Examples' },
+  pickers: {
+    date: {
+      previousMonth: 'Previous month',
+      nextMonth: 'Next month',
+      previousYear: 'Previous year',
+      nextYear: 'Next year',
+      chooseMonth: 'Choose month and year',
+      today: 'Today',
+      choose: 'Choose a date',
+    },
+    time: { choose: 'Choose a time', hours: 'Hours', minutes: 'Minutes', done: 'Done' },
+    dateLabel: 'Date',
+    timeLabel: 'Time',
+  },
   profile: {
     title: 'Your profile',
     subtitle: 'Your account, how the portal looks and which language it speaks.',
@@ -248,6 +262,20 @@ export const en = {
   semesters: {
     title: 'Semesters',
     subtitle: 'The periods students subscribe for. A subscription lasts for one semester.',
+    help: {
+      title: 'How semesters work',
+      intro: 'A semester is the period a subscription lasts for. Students subscribe for one semester at a time, so create the next one before it starts.',
+      scenarios: {
+        next: {
+          title: 'Opening subscriptions for spring',
+          body: 'Add a semester, choose spring, the year, and the first and last day. Students can subscribe once it exists.',
+        },
+        dates: {
+          title: 'The dates change',
+          body: 'Open the semester and correct the first or last day. The last day must be after the first, and both days are included.',
+        },
+      },
+    },
     add: 'Add a semester',
     columns: { semester: 'Semester', dates: 'Dates', status: 'Status' },
     phase: { current: 'Running', upcoming: 'Upcoming', past: 'Finished' },
@@ -280,6 +308,20 @@ export const en = {
   buses: {
     title: 'Buses',
     subtitle: 'The buses that run the routes. Take one out of service when it cannot run.',
+    help: {
+      title: 'How buses work',
+      intro: 'Buses are what trips run on. Keep the list true to what is on the road: a bus that cannot run should be taken out of service.',
+      scenarios: {
+        garage: {
+          title: 'A bus is in the garage',
+          body: 'Open it and switch off In service. It is no longer offered when you schedule trips, and its past trips are untouched.',
+        },
+        new: {
+          title: 'A new bus joins the fleet',
+          body: 'Choose Add a bus, then enter its plate and number of seats. Plates are saved in capitals, so LT 123 ab and LT 123 AB are the same bus.',
+        },
+      },
+    },
     add: 'Add a bus',
     columns: { plate: 'Plate', capacity: 'Seats', status: 'Status' },
     status: { inService: 'In service', outOfService: 'Out of service' },
@@ -309,6 +351,24 @@ export const en = {
   trips: {
     title: 'Trips',
     subtitle: 'Scheduled bus runs. Drivers start and end them in the ops app.',
+    help: {
+      title: 'How trips work',
+      intro: 'A trip is one run of a bus, going to school or going home, at a set time. Drivers start and end it in the ops app.',
+      scenarios: {
+        plan: {
+          title: "Planning tomorrow's first run",
+          body: 'Choose Schedule a trip, then pick a bus that is in service, a direction and a start time. You can give it a driver now or later.',
+        },
+        driver: {
+          title: 'The driver changes',
+          body: 'Open a trip that has not started and pick another driver. A trip that is running or finished cannot be edited.',
+        },
+        running: {
+          title: 'Is a trip running?',
+          body: 'Open the Running tab. From a running trip you can open its boardings to see who has got on so far.',
+        },
+      },
+    },
     add: 'Schedule a trip',
     filtersLabel: 'Filter by status',
     filters: { all: 'All', scheduled: 'Scheduled', active: 'Running', completed: 'Completed', cancelled: 'Cancelled' },
@@ -356,10 +416,25 @@ export const en = {
   scans: {
     title: 'Boardings',
     subtitle: 'Who boarded which bus, where and when. Read only: boardings are recorded by the ops app.',
+    help: {
+      title: 'How boardings work',
+      intro: 'A boarding is a student scanned onto a bus at a stop. This list is read-only: it is the record of who rode.',
+      scenarios: {
+        dispute: {
+          title: 'A student says they boarded',
+          body: "Filter by their day and stop, or open the trip, and look for them in the list. Times are shown in the school's time zone.",
+        },
+        busy: {
+          title: 'Which stop is busiest?',
+          body: 'Filter by stop and day to see how many boardings it had. Add the trip filter to look at a single run.',
+        },
+      },
+    },
     filtersLabel: 'Filter boardings',
     filters: {
       stop: 'Stop',
       allStops: 'All stops',
+      anyDay: 'Any day',
       day: 'Day',
       trip: 'Trip',
       apply: 'Apply',
@@ -381,8 +456,23 @@ export const en = {
   people: {
     title: 'People',
     subtitle: 'Find someone, change their role or suspend an account.',
+    help: {
+      title: 'How people work',
+      intro: "Everyone with an account at your school appears here. You can change someone's role or suspend an account.",
+      scenarios: {
+        driver: {
+          title: 'A new driver joins',
+          body: 'Find them with search, open their profile and change their role to staff. Staff can scan boardings and be given trips.',
+        },
+        leaves: {
+          title: 'Someone leaves',
+          body: 'Open their profile and suspend the account. They can no longer sign in, and their history is kept.',
+        },
+      },
+    },
     search: {
       label: 'Search by name, email or matricule',
+      placeholder: 'Name, email or matricule...',
       button: 'Search',
       clear: 'Clear search',
     },
@@ -491,6 +581,20 @@ export const fr: Messages = {
     current: 'Vous êtes sur',
   },
   help: { open: 'Aide', close: 'Fermer', scenarios: 'Exemples' },
+  pickers: {
+    date: {
+      previousMonth: 'Mois précédent',
+      nextMonth: 'Mois suivant',
+      previousYear: 'Année précédente',
+      nextYear: 'Année suivante',
+      chooseMonth: 'Choisir le mois et l’année',
+      today: 'Aujourd’hui',
+      choose: 'Choisir une date',
+    },
+    time: { choose: 'Choisir une heure', hours: 'Heures', minutes: 'Minutes', done: 'Terminé' },
+    dateLabel: 'Date',
+    timeLabel: 'Heure',
+  },
   profile: {
     title: 'Votre profil',
     subtitle: "Votre compte, l'apparence du portail et sa langue.",
@@ -696,6 +800,20 @@ export const fr: Messages = {
   semesters: {
     title: "Semestres",
     subtitle: "Les périodes pour lesquelles les étudiants s'abonnent. Un abonnement dure un semestre.",
+    help: {
+      title: 'Comment fonctionnent les semestres',
+      intro: "Un semestre est la période pour laquelle un abonnement dure. Les étudiants s'abonnent pour un semestre à la fois : créez le suivant avant son début.",
+      scenarios: {
+        next: {
+          title: 'Ouvrir les abonnements du printemps',
+          body: "Ajoutez un semestre, choisissez printemps, l'année, le premier et le dernier jour. Les étudiants peuvent s'abonner dès qu'il existe.",
+        },
+        dates: {
+          title: 'Les dates changent',
+          body: 'Ouvrez le semestre et corrigez le premier ou le dernier jour. Le dernier jour doit être après le premier, et les deux jours sont inclus.',
+        },
+      },
+    },
     add: "Ajouter un semestre",
     columns: { semester: "Semestre", dates: "Dates", status: "Statut" },
     phase: { current: "En cours", upcoming: "À venir", past: "Terminé" },
@@ -728,6 +846,20 @@ export const fr: Messages = {
   buses: {
     title: "Bus",
     subtitle: "Les bus qui assurent les trajets. Mettez-en un hors service quand il ne peut pas rouler.",
+    help: {
+      title: 'Comment fonctionnent les bus',
+      intro: 'Les bus sont ce sur quoi roulent les trajets. Gardez la liste fidèle à ce qui circule : un bus qui ne peut pas rouler doit être mis hors service.',
+      scenarios: {
+        garage: {
+          title: 'Un bus est au garage',
+          body: "Ouvrez-le et désactivez En service. Il n'est plus proposé quand vous planifiez des trajets, et ses trajets passés restent intacts.",
+        },
+        new: {
+          title: 'Un nouveau bus rejoint la flotte',
+          body: 'Choisissez Ajouter un bus, puis saisissez sa plaque et son nombre de places. Les plaques sont enregistrées en majuscules : LT 123 ab et LT 123 AB sont le même bus.',
+        },
+      },
+    },
     add: "Ajouter un bus",
     columns: { plate: "Plaque", capacity: "Places", status: "Statut" },
     status: { inService: "En service", outOfService: "Hors service" },
@@ -757,6 +889,24 @@ export const fr: Messages = {
   trips: {
     title: "Trajets",
     subtitle: "Les trajets de bus planifiés. Les chauffeurs les démarrent et les terminent dans l'application ops.",
+    help: {
+      title: 'Comment fonctionnent les trajets',
+      intro: "Un trajet est un parcours d'un bus, vers l'école ou vers la maison, à une heure donnée. Les chauffeurs le démarrent et le terminent dans l'application des opérations.",
+      scenarios: {
+        plan: {
+          title: 'Planifier le premier départ de demain',
+          body: 'Choisissez Planifier un trajet, puis un bus en service, un sens et une heure de départ. Vous pouvez désigner un chauffeur maintenant ou plus tard.',
+        },
+        driver: {
+          title: 'Le chauffeur change',
+          body: "Ouvrez un trajet qui n'a pas commencé et choisissez un autre chauffeur. Un trajet en cours ou terminé ne peut pas être modifié.",
+        },
+        running: {
+          title: 'Un trajet est-il en cours ?',
+          body: "Ouvrez l'onglet En cours. Depuis un trajet en cours, vous pouvez ouvrir ses embarquements pour voir qui est monté jusqu'ici.",
+        },
+      },
+    },
     add: "Planifier un trajet",
     filtersLabel: "Filtrer par statut",
     filters: { all: "Tous", scheduled: "Planifiés", active: "En cours", completed: "Terminés", cancelled: "Annulés" },
@@ -804,10 +954,25 @@ export const fr: Messages = {
   scans: {
     title: "Embarquements",
     subtitle: "Qui a pris quel bus, où et quand. Lecture seule : les embarquements sont enregistrés par l'application ops.",
+    help: {
+      title: 'Comment fonctionnent les embarquements',
+      intro: "Un embarquement est un étudiant scanné dans un bus à un arrêt. Cette liste est en lecture seule : c'est la trace de qui a voyagé.",
+      scenarios: {
+        dispute: {
+          title: 'Un étudiant dit être monté',
+          body: "Filtrez par son jour et son arrêt, ou ouvrez le trajet, et cherchez-le dans la liste. Les heures sont affichées dans le fuseau horaire de l'école.",
+        },
+        busy: {
+          title: 'Quel arrêt est le plus fréquenté ?',
+          body: "Filtrez par arrêt et par jour pour voir combien d'embarquements il a eus. Ajoutez le filtre de trajet pour regarder un seul parcours.",
+        },
+      },
+    },
     filtersLabel: "Filtrer les embarquements",
     filters: {
       stop: "Arrêt",
       allStops: "Tous les arrêts",
+      anyDay: "Tous les jours",
       day: "Jour",
       trip: "Trajet",
       apply: "Appliquer",
@@ -829,8 +994,23 @@ export const fr: Messages = {
   people: {
     title: 'Personnes',
     subtitle: "Trouvez quelqu'un, changez son rôle ou suspendez un compte.",
+    help: {
+      title: 'Comment fonctionnent les personnes',
+      intro: "Toutes les personnes ayant un compte dans votre école apparaissent ici. Vous pouvez changer le rôle de quelqu'un ou suspendre un compte.",
+      scenarios: {
+        driver: {
+          title: 'Un nouveau chauffeur arrive',
+          body: 'Trouvez-le avec la recherche, ouvrez son profil et passez son rôle à personnel. Le personnel peut scanner les embarquements et recevoir des trajets.',
+        },
+        leaves: {
+          title: "Quelqu'un part",
+          body: 'Ouvrez son profil et suspendez le compte. La personne ne peut plus se connecter, et son historique est conservé.',
+        },
+      },
+    },
     search: {
       label: 'Rechercher par nom, email ou matricule',
+      placeholder: 'Nom, e-mail ou matricule...',
       button: 'Rechercher',
       clear: 'Effacer la recherche',
     },
