@@ -35,8 +35,8 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 
 Done: filters in the table headings (branch `phase-2/header-filters`). Trips filter by start day, bus, direction and driver (including trips with none yet); Subscriptions by semester and stop; Boardings by day, stop, bus and direction. A small filter button after the column name opens the choices (a calendar for dates), each active filter shows as a chip above the table that removes it, the tab counts follow the filters, and the filters live in the page address. On Trips and Subscriptions the sticky bar now stretches to the table's width and the tabs share it. Boardings no longer has a toolbar form: its filters are in the headings. Documented in the styleguide and ADR 0009.
 
-Next: nothing is queued. Look through the filters with the demo data (`npm run seed:demo`, PR #112) and say what to change or which other columns should filter.
+Next: nothing is queued. Look through the filters with the demo data (`npm run seed:demo`) and say what to change or which other columns should filter.
 
 Blockers: none.
 
-Owner must do: merge the demo data PR #112 and this PR. Approve the hosted migrations when ready. Create separate dev and prod Mapbox tokens restricted to your URLs.
+Owner must do: merge this PR. Approve the hosted migrations when ready. Create separate dev and prod Mapbox tokens restricted to your URLs.
