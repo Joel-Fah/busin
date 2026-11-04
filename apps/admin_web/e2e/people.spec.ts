@@ -157,3 +157,122 @@ test("signed-out visitors are sent to the login page", async ({ page }) => {
   await page.goto("/people");
   await expect(page).toHaveURL(/\/login$/);
 });
+
+test.describe("the sticky toolbar", () => {
+  test.beforeEach(async ({ context }) => {
+    await signInBrowser(context, admin);
+  });
+
+  /** Enough people that the list is taller than a short screen, so it scrolls. */
+  async function withManyPeople(run: () => Promise<void>) {
+    const extra: TestUser[] = [];
+    try {
+      for (let i = 0; i < 14; i++) extra.push(await createUser(`stick-${tag}-${i}`, "student"));
+      await run();
+    } finally {
+      for (const user of extra) await deleteUser(user);
+    }
+  }
+
+  const centreY = (box: { y: number; height: number }) => box.y + box.height / 2;
+
+  test("sticks when the list scrolls, realigned into one row, and relaxes back at the top", async ({ page }) => {
+    await withManyPeople(async () => {
+      await page.setViewportSize({ width: 1280, height: 560 });
+      await page.goto("/people");
+      const bar = page.locator(".sticky-toolbar");
+      const search = page.getByRole("search");
+      const tabs = page.getByRole("navigation", { name: "Filter by role" });
+
+      // At the top: roomy, the search on one line and the tabs below it.
+      await expect(bar).toHaveAttribute("data-stuck", "false");
+      const roomySearch = (await search.boundingBox())!;
+      const roomyTabs = (await tabs.boundingBox())!;
+      expect(roomyTabs.y).toBeGreaterThanOrEqual(roomySearch.y + roomySearch.height - 2);
+
+      // Scrolled: compact, both on one line, resting near the top while the list moves behind.
+      await page.mouse.wheel(0, 700);
+      await expect(bar).toHaveAttribute("data-stuck", "true");
+      await expect.poll(async () => Math.abs(centreY((await tabs.boundingBox())!) - centreY((await search.boundingBox())!))).toBeLessThan(24);
+      const resting = (await bar.boundingBox())!;
+      expect(resting.y).toBeGreaterThanOrEqual(8);
+      expect(resting.y).toBeLessThanOrEqual(40);
+      expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(300);
+
+      // Both controls still work while stuck.
+      await expect(search.getByLabel("Search by name, email or matricule")).toHaveAttribute("placeholder", /./);
+      await expect(tabs.getByRole("link", { name: /Students/ })).toBeVisible();
+
+      // Back at the top: roomy again.
+      await page.mouse.wheel(0, -3000);
+      await expect(bar).toHaveAttribute("data-stuck", "false");
+      await expect.poll(async () => (await tabs.boundingBox())!.y).toBeGreaterThanOrEqual(roomySearch.y + roomySearch.height - 2);
+    });
+  });
+
+  test("the list below does not jump when the toolbar shrinks", async ({ page }) => {
+    await withManyPeople(async () => {
+      await page.setViewportSize({ width: 1280, height: 560 });
+      await page.goto("/people");
+      const bar = page.locator(".sticky-toolbar");
+      const table = page.getByRole("table");
+      const before = (await table.boundingBox())!.y + (await page.evaluate(() => window.scrollY));
+      await page.mouse.wheel(0, 700);
+      await expect(bar).toHaveAttribute("data-stuck", "true");
+      const after = (await table.boundingBox())!.y + (await page.evaluate(() => window.scrollY));
+      // The table sits at the same place on the page: the space the roomy toolbar needed is held.
+      expect(Math.abs(after - before)).toBeLessThan(2);
+    });
+  });
+});
+
+test.describe("the sticky toolbar with motion", () => {
+  test.use({ reducedMotion: "no-preference" });
+
+  test.beforeEach(async ({ context }) => {
+    await signInBrowser(context, admin);
+  });
+
+  test("glides between the two layouts instead of jumping", async ({ page }) => {
+    const extra: TestUser[] = [];
+    try {
+      for (let i = 0; i < 14; i++) extra.push(await createUser(`glide-${tag}-${i}`, "student"));
+      await page.setViewportSize({ width: 1280, height: 560 });
+      await page.goto("/people");
+      await page.mouse.click(5, 5); // skip the logo intro, so only the toolbar moves
+      await expect(page.locator(".brand-intro")).toBeHidden({ timeout: 8000 });
+      await expect(page.getByRole("navigation", { name: "Main navigation" })).toHaveCSS("opacity", "1", { timeout: 8000 });
+
+      // Record how far across the tabs are on every frame, inside the page, starting before the scroll that triggers the change.
+      const frames = await page.evaluate(
+        () =>
+          new Promise<number[]>((resolve) => {
+            const nav = document.querySelector('nav[aria-label="Filter by role"]')!;
+            const out: number[] = [];
+            const start = performance.now();
+            let scrolled = false;
+            const tick = () => {
+              out.push(Math.round(nav.getBoundingClientRect().x));
+              if (!scrolled && performance.now() - start > 150) {
+                scrolled = true;
+                window.scrollTo(0, 700);
+              }
+              if (performance.now() - start < 1500) requestAnimationFrame(tick);
+              else resolve(out);
+            };
+            tick();
+          }),
+      );
+
+      const last = frames[frames.length - 1];
+      const first = frames[0];
+      // They end up well to the right of where they started (beside the search, not under it)...
+      expect(last).toBeGreaterThan(first + 200);
+      // ...and on the way they were seen at places in between, not only at the two ends.
+      const onTheWay = frames.filter((x) => x > first + 40 && x < last - 40);
+      expect(onTheWay.length).toBeGreaterThanOrEqual(3);
+    } finally {
+      for (const user of extra) await deleteUser(user);
+    }
+  });
+});
