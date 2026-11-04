@@ -2,6 +2,7 @@
 
 import type { ChipTone } from "@/components/ui/Chip";
 
+import { listHref, uuidParam } from "./filters";
 import { first } from "./pagination";
 
 // Shared helpers live in their own modules; they are re-exported so existing imports keep working.
@@ -73,4 +74,31 @@ export function reviewErrorKey(code: string | undefined): ReviewErrorKey {
 
 export function isReviewErrorKey(value: string | undefined): value is ReviewErrorKey {
   return value === "already_reviewed" || value === "invalid" || value === "not_found" || value === "generic";
+}
+
+export type SubscriptionFilters = {
+  status: StatusFilter;
+  /** A semester id, or null for all semesters. */
+  semester: string | null;
+  /** A stop id, or null for all stops. */
+  stop: string | null;
+};
+
+/** Reads the list's filters from its query string. Anything malformed means "no filter". */
+export function parseSubscriptionFilters(query: {
+  status?: string | string[];
+  semester?: string | string[];
+  stop?: string | string[];
+}): SubscriptionFilters {
+  return { status: parseStatusFilter(query.status), semester: uuidParam(query.semester), stop: uuidParam(query.stop) };
+}
+
+/** The address of the list for these filters. The review queue is the plain address, so it carries no status. */
+export function subscriptionsHref(filters: SubscriptionFilters, page = 1): string {
+  return listHref("/subscriptions", {
+    status: filters.status === "pending" ? null : filters.status,
+    semester: filters.semester,
+    stop: filters.stop,
+    page: page > 1 ? page : null,
+  });
 }

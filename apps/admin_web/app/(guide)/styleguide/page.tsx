@@ -22,6 +22,8 @@ import { Button, ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Avatar } from "@/components/ui/Avatar";
 import { Chip } from "@/components/ui/Chip";
+import { ColumnFilter } from "@/components/ui/ColumnFilter";
+import { FilterChips } from "@/components/ui/FilterChips";
 import { Contour } from "@/components/ui/Contour";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Icon } from "@/components/ui/Icon";
@@ -716,7 +718,71 @@ async function Styleguide() {
           back at the top they glide to their roomy layout again. The change animates in both directions, is instant for
           people who prefer less motion, and the list below never jumps. On a narrow screen the compact bar keeps
           wrapping, because one row would not fit. Wrap a list&apos;s controls in StickyToolbar to get it; People,
-          Subscriptions, Trips and Boardings are the examples to open.
+          Subscriptions and Trips are the examples to open. When a toolbar is only tabs (Subscriptions,
+          Trips) they stretch to fill the bar as it sticks, so the bar is as wide as the table.
+        </p>
+
+        <h3 className="mt-8 mb-3 text-lg font-bold">Column filters</h3>
+        <div className="flex max-w-3xl flex-col gap-4">
+          <FilterChips
+            chips={[{ label: "Stop", value: "Mvan roundabout", href: "#" }, { label: "Direction", value: "Going home", href: "#" }]}
+            clearAllHref="#"
+            clearAllLabel="Clear all"
+            groupLabel="Active filters"
+            removeLabel="Remove filter"
+          />
+          <TableCard>
+            <DataTable minWidth="28rem">
+              <Head>
+                <Th>Student</Th>
+                <Th>
+                  <ColumnFilter
+                    label="Stop"
+                    value="a"
+                    clearHref="#"
+                    allLabel="All stops"
+                    options={[
+                      { value: "a", label: "Mvan roundabout", href: "#" },
+                      { value: "b", label: "Mendong market", href: "#" },
+                    ]}
+                    searchLabel="Search"
+                    noMatchLabel="Nothing matches"
+                    activeLabel="(filtered)"
+                  />
+                </Th>
+                <Th>
+                  <ColumnFilter
+                    label="Direction"
+                    value={null}
+                    clearHref="#"
+                    allLabel="Both directions"
+                    options={[
+                      { value: "in", label: "Going to school", href: "#" },
+                      { value: "out", label: "Going home", href: "#" },
+                    ]}
+                    searchLabel="Search"
+                    noMatchLabel="Nothing matches"
+                    activeLabel="(filtered)"
+                  />
+                </Th>
+              </Head>
+              <tbody>
+                <Tr>
+                  <Td>Ada Lovelace</Td>
+                  <Td>Mvan roundabout</Td>
+                  <Td className="text-muted">Going home</Td>
+                </Tr>
+              </tbody>
+            </DataTable>
+          </TableCard>
+        </div>
+        <p className="mt-3 max-w-2xl text-sm text-muted">
+          A list is narrowed from its column headings: a small filter button after the name opens a panel of choices (a
+          calendar for a date column), and a dot marks a heading that is filtered. Each filter lives in the
+          page address, so a filtered list can be shared and survives a reload; picking a choice is a link, so it works
+          with the keyboard and without scripts. Every active filter also shows as a chip above the table that removes
+          it with one click, and the numbers on the tabs follow the filters. Long lists of choices (more than eight)
+          get a search box. Use them where a column has a short set of values worth narrowing by; not every column needs one.
         </p>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Tooltip</h3>

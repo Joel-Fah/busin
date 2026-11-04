@@ -7,20 +7,24 @@ const OTHER = "a1000000-0000-4000-8000-000000000002";
 
 describe("parseScanFilters", () => {
   it("reads valid filters", () => {
-    expect(parseScanFilters({ trip: ID, stop: OTHER, date: "2026-11-02" })).toEqual({
+    expect(parseScanFilters({ trip: ID, stop: OTHER, date: "2026-11-02", bus: ID, direction: "outbound" })).toEqual({
       trip: ID,
       stop: OTHER,
       date: "2026-11-02",
+      bus: ID,
+      direction: "outbound",
     });
   });
 
   it("treats malformed values as no filter", () => {
-    expect(parseScanFilters({ trip: "x", stop: "'; drop", date: "2026-02-30" })).toEqual({
+    expect(parseScanFilters({ trip: "x", stop: "'; drop", date: "2026-02-30", bus: "y", direction: "up" })).toEqual({
       trip: null,
       stop: null,
+      bus: null,
+      direction: null,
       date: null,
     });
-    expect(parseScanFilters({})).toEqual({ trip: null, stop: null, date: null });
+    expect(parseScanFilters({})).toEqual({ trip: null, stop: null, date: null, bus: null, direction: null });
   });
 
   it("uses the first value of a repeated parameter", () => {
@@ -51,7 +55,9 @@ describe("dayBounds", () => {
 
 describe("scansHref", () => {
   it("leaves out empty filters and the first page", () => {
-    expect(scansHref({ trip: null, stop: null, date: null })).toBe("/scans");
-    expect(scansHref({ trip: ID, stop: null, date: "2026-11-02" }, 3)).toBe(`/scans?trip=${ID}&date=2026-11-02&page=3`);
+    const none = { trip: null, stop: null, date: null, bus: null, direction: null };
+    expect(scansHref(none)).toBe("/scans");
+    expect(scansHref({ ...none, trip: ID, date: "2026-11-02" }, 3)).toBe(`/scans?trip=${ID}&date=2026-11-02&page=3`);
+    expect(scansHref({ ...none, bus: OTHER, direction: "inbound" })).toBe(`/scans?bus=${OTHER}&direction=inbound`);
   });
 });

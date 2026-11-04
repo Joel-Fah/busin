@@ -129,6 +129,32 @@ test.describe("administrator reviewing", () => {
     await expect(page.getByRole("link", { name: "To review" })).toHaveAttribute("aria-current", "page");
   });
 
+  test("filters by stop and semester from the headings, with chips", async ({ page }) => {
+    await page.goto("/subscriptions?status=all");
+    await page.getByRole("button", { name: "Stop", exact: true }).click();
+    await page.getByRole("dialog", { name: "Stop" }).getByRole("link", { name: "Sample stop A" }).click();
+    await expect(page).toHaveURL(/stop=00000000-0000-4000-8000-000000000021/);
+    await expect(page.getByRole("group", { name: "Active filters" }).getByRole("link", { name: /Stop Sample stop A/ })).toBeVisible();
+    await expect(page.getByRole("row").filter({ hasText: `E2E view-${tag}` })).toHaveCount(1);
+
+    // Another stop has none of these students.
+    await page.goto("/subscriptions?status=all&stop=00000000-0000-4000-8000-000000000022");
+    await expect(page.getByRole("row").filter({ hasText: `E2E view-${tag}` })).toHaveCount(0);
+    await expect(page.getByText("Try removing a filter above the table.")).toBeVisible();
+
+    await page.goto("/subscriptions?status=all");
+    await page.getByRole("button", { name: "Semester", exact: true }).click();
+    await page.getByRole("dialog", { name: "Semester" }).getByRole("link", { name: "Fall 2026" }).click();
+    await expect(page).toHaveURL(/semester=00000000-0000-4000-8000-000000000011/);
+    await expect(page.getByRole("row").filter({ hasText: `E2E view-${tag}` })).toHaveCount(1);
+  });
+
+  test("the tab numbers follow the filters", async ({ page }) => {
+    await page.goto("/subscriptions?stop=00000000-0000-4000-8000-000000000022");
+    const tabs = page.getByRole("navigation", { name: "Filter by status" });
+    await expect(tabs.getByRole("link", { name: /To review/ })).toContainText("0");
+  });
+
   test("each tab shows how many subscriptions are behind it, matching the database", async ({ page }) => {
     const db = serviceClient();
     const total = async (status?: "pending" | "approved" | "rejected" | "expired") => {

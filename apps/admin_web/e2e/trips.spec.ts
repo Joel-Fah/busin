@@ -2,7 +2,7 @@ import { randomBytes } from "node:crypto";
 
 import { expect, test } from "@playwright/test";
 
-import { SEED, chooseOption, createUser, deleteUser, pickDateTime, serviceClient, setLanguage, setPickerValue, signInBrowser, userClient, type TestUser } from "./support";
+import { SEED, chooseOption, createUser, deleteUser, pickDate, pickDateTime, serviceClient, setLanguage, setPickerValue, signInBrowser, userClient, type TestUser } from "./support";
 
 const tag = randomBytes(3).toString("hex").toUpperCase();
 const prefix = `E2E-TRIP-${tag}`;
@@ -235,6 +235,80 @@ test.describe("administrator managing trips", () => {
     expect(data).toHaveLength(1);
   });
 
+  test("filters from the column headings, shows each as a chip, and the chips remove them", async ({ page }) => {
+    await page.goto("/trips");
+    await page.getByRole("button", { name: "Direction", exact: true }).click();
+    await page.getByRole("dialog", { name: "Direction" }).getByRole("link", { name: "Going home" }).click();
+    await expect(page).toHaveURL(/direction=outbound/);
+
+    await page.getByRole("button", { name: /^Bus/ }).click();
+    await page.getByRole("dialog", { name: "Bus" }).getByRole("link", { name: `${prefix} RUN` }).click();
+    await expect(page).toHaveURL(/bus=/);
+
+    const chips = page.getByRole("group", { name: "Active filters" });
+    await expect(chips.getByRole("link", { name: /Direction Going home/ })).toBeVisible();
+    await expect(chips.getByRole("link", { name: new RegExp(`Bus ${prefix} RUN`) })).toBeVisible();
+    // Going home on this bus: the finished trip of 2 August, not the scheduled one of 1 July.
+    await expect(page.getByRole("row").filter({ hasText: /Aug 2, 2090/ })).toHaveCount(1);
+    await expect(page.getByRole("row").filter({ hasText: /Jul 1, 2090/ })).toHaveCount(0);
+
+    await chips.getByRole("link", { name: /Direction Going home/ }).click();
+    await expect(page).not.toHaveURL(/direction=/);
+    await expect(page).toHaveURL(/bus=/);
+    await page.getByRole("group", { name: "Active filters" }).getByRole("link", { name: /Bus/ }).click();
+    await expect(page).toHaveURL(/\/trips$/);
+    await expect(page.getByRole("group", { name: "Active filters" })).toHaveCount(0);
+  });
+
+  test("filters by day in the school timezone from the Start heading", async ({ page }) => {
+    await page.goto("/trips");
+    await page.getByRole("button", { name: "Start", exact: true }).click();
+    await pickDate(page, "Day", "2090-07-01");
+    await expect(page).toHaveURL(/date=2090-07-01/);
+    await expect(page.getByRole("row").filter({ hasText: /Jul 1, 2090/ })).toHaveCount(1);
+    await expect(page.getByRole("row").filter({ hasText: /Jul 2, 2090/ })).toHaveCount(0);
+  });
+
+  test("filters by driver, including trips that have none yet", async ({ page }) => {
+    // Its own trip, so the test does not depend on what the others changed.
+    const own = await serviceClient()
+      .from("trips")
+      .insert({ school_id: SEED.schoolId, bus_id: busId, driver_id: driver.id, direction: "inbound", status: "scheduled", scheduled_start: "2090-09-15T06:30:00Z" })
+      .select("id")
+      .single();
+    expect(own.error).toBeNull();
+
+    await page.goto("/trips?driver=none");
+    await expect(page.getByRole("row").filter({ hasText: /Jul 2, 2090/ })).toHaveCount(1);
+    await expect(page.getByRole("row").filter({ hasText: /Sep 15, 2090/ })).toHaveCount(0);
+    await page.goto(`/trips?driver=${driver.id}`);
+    await expect(page.getByRole("row").filter({ hasText: /Sep 15, 2090/ })).toHaveCount(1);
+    await expect(page.getByRole("row").filter({ hasText: /Jul 2, 2090/ })).toHaveCount(0);
+  });
+
+  test("the numbers on the tabs follow the filters", async ({ page }) => {
+    const { count } = await serviceClient()
+      .from("trips")
+      .select("id", { count: "exact", head: true })
+      .eq("direction", "outbound")
+      .is("archived_at", null);
+    await page.goto("/trips?direction=outbound");
+    const tabs = page.getByRole("navigation", { name: "Filter by status" });
+    await expect(tabs.getByRole("link", { name: /All/ })).toContainText(String(count ?? 0));
+    // No trip is on the idle bus, so every tab reads 0 and the list says so.
+    await page.goto(`/trips?bus=${idleBusId}`);
+    await expect(tabs.getByRole("link", { name: /All/ })).toContainText("0");
+    await expect(page.getByText("No trips match this filter.")).toBeVisible();
+    await expect(page.getByText("Try removing a filter above the table.")).toBeVisible();
+  });
+
+  test("odd filter values fall back safely", async ({ page }) => {
+    await page.goto("/trips?bus=x&driver=%27%3B&direction=up&date=2026-02-30");
+    await expect(page.getByRole("heading", { name: "Trips", level: 1 })).toBeVisible();
+    await expect(page.getByRole("group", { name: "Active filters" })).toHaveCount(0);
+    await expect(page.getByText("could not be loaded")).toHaveCount(0);
+  });
+
   test("a missing start time is refused with a clear message", async ({ page }) => {
     await page.goto("/trips/new");
     await chooseOption(page, "Bus", `${prefix} RUN`);
@@ -307,4 +381,30 @@ for (const [label, who] of [
 test("signed-out visitors are sent to the login page", async ({ page }) => {
   await page.goto("/trips");
   await expect(page).toHaveURL(/\/login$/);
+});
+
+test.describe("the sticky bar on a tabs-only page", () => {
+  test("stretches to the width of the table when it sticks, and relaxes at the top", async ({ page, context }) => {
+    await signInBrowser(context, admin);
+    await page.setViewportSize({ width: 1280, height: 420 });
+    await page.goto("/trips");
+    const bar = page.locator(".sticky-toolbar");
+    const tabs = page.getByRole("navigation", { name: "Filter by status" });
+    const table = page.getByRole("table");
+
+    await expect(bar).toHaveAttribute("data-stuck", "false");
+    const roomy = (await tabs.boundingBox())!;
+    expect(roomy.width).toBeLessThan(900);
+
+    await page.mouse.wheel(0, 900);
+    await expect(bar).toHaveAttribute("data-stuck", "true");
+    const tableBox = (await table.boundingBox())!;
+    // The tabs share the bar, so they are about as wide as the table (less the bar's own padding).
+    await expect.poll(async () => (await tabs.boundingBox())!.width).toBeGreaterThan(tableBox.width - 60);
+    expect((await bar.boundingBox())!.width).toBeGreaterThan(tableBox.width - 4);
+
+    await page.mouse.wheel(0, -3000);
+    await expect(bar).toHaveAttribute("data-stuck", "false");
+    await expect.poll(async () => (await tabs.boundingBox())!.width).toBeLessThan(900);
+  });
 });

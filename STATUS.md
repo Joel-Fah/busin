@@ -33,10 +33,10 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 
 ## Last handoff
 
-Done: students per stop (branch `phase-2/stop-usage`, stacked on the Docker PR #106). A read-only database function, `admin_stop_usage`, counts approved and pending subscriptions per stop for semesters that have not ended; it runs as the caller, so row security limits it to the admin's school. Every stop in the Stops dock and full list now says, for example, "12 students, 3 waiting". Also removed the unused `NavLinks` component and the admin copy of the Bevellier font (the legacy app keeps its own).
+Done: filters in the table headings (branch `phase-2/header-filters`). Trips filter by start day, bus, direction and driver (including trips with none yet); Subscriptions by semester and stop; Boardings by day, stop, bus and direction. A small filter button after the column name opens the choices (a calendar for dates), each active filter shows as a chip above the table that removes it, the tab counts follow the filters, and the filters live in the page address. On Trips and Subscriptions the sticky bar now stretches to the table's width and the tabs share it. Boardings no longer has a toolbar form: its filters are in the headings. Documented in the styleguide and ADR 0009.
 
-Next: nothing is queued. Candidates: admin overview shortcuts to the busiest stops, then Phase 3 (student app) once the owner says to start.
+Next: nothing is queued. Look through the filters with the demo data (`npm run seed:demo`, PR #112) and say what to change or which other columns should filter.
 
 Blockers: none.
 
-Owner must do: merge #100, #102, #104, #106 and this PR in order (retarget each with `gh pr edit --base dev` once its parent merges). Approve running the three new migrations (trip cancel and archive, stop usage) on the hosted project when ready; I have not run them there. Create separate dev and prod Mapbox tokens restricted to your URLs.
+Owner must do: merge the demo data PR #112 and this PR. Approve the hosted migrations when ready. Create separate dev and prod Mapbox tokens restricted to your URLs.
