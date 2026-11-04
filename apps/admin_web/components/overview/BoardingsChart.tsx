@@ -41,15 +41,17 @@ export function BoardingsChart({ days, locale, label, todayLabel, barLabel }: Pr
               const height = d.boardings === 0 ? 0 : Math.max(3, (d.boardings / max) * 100);
               const isToday = index === last;
               return (
-                <div key={d.day} className="group flex min-w-0 flex-1 flex-col" title={barLabel(longDay(d.day, locale), d.boardings)}>
+                <div key={d.day} className="group flex min-w-0 flex-1 flex-col">
                   <div className="flex flex-1 items-end pb-0.5">
+                    {/* The tooltip hangs on the bar. A transparent top border makes the hit area a little taller than the bar. */}
                     <span
+                      data-tip={barLabel(longDay(d.day, locale), d.boardings)}
                       aria-hidden
                       className={
-                        "block w-full rounded-t-xs transition-opacity duration-(--dur-fast) " +
+                        "box-content block w-full border-t-8 border-transparent bg-clip-padding rounded-t-xs transition-colors duration-(--dur-fast) " +
                         (isToday ? "bg-accent" : "bg-[color-mix(in_srgb,var(--fg)_26%,transparent)] group-hover:bg-[color-mix(in_srgb,var(--fg)_44%,transparent)]")
                       }
-                      style={{ height: `${height}%` }}
+                      style={{ height: d.boardings === 0 ? "2px" : `${height}%` }}
                     />
                   </div>
                   <span

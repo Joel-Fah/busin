@@ -57,3 +57,14 @@ export function semesterProgress(start: string, end: string, today: string): { d
   const day = Math.min(total, Math.max(1, Math.round((ms(today) - ms(start)) / 86_400_000) + 1));
   return { day, total, percent: Math.round((day / total) * 100) };
 }
+
+/** Which greeting fits the hour (0 to 23) at the school: morning before noon, afternoon before six, evening after. */
+export function greetingFor(hour: number): "morning" | "afternoon" | "evening" {
+  if (hour < 12) return "morning";
+  return hour < 18 ? "afternoon" : "evening";
+}
+
+/** The first word of a full name, or an empty string when there is none. */
+export function firstName(fullName: string): string {
+  return fullName.trim().split(/\s+/)[0] ?? "";
+}

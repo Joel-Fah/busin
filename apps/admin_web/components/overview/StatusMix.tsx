@@ -12,10 +12,10 @@ export function StatusMix({ parts }: { parts: readonly MixPart[] }) {
   const percents = shares(parts.map((p) => p.count));
   return (
     <div className="flex flex-col gap-5">
-      <div aria-hidden className="flex h-4 w-full gap-1 overflow-hidden rounded-xs">
+      <div aria-hidden className="flex h-4 w-full gap-1 rounded-xs">
         {parts.map((part, index) =>
           part.count > 0 ? (
-            <span key={part.key} className="block h-full min-w-1 rounded-[3px]" style={{ width: `${percents[index]}%`, background: part.color }} />
+            <span key={part.key} data-tip={`${part.label}: ${part.count}`} className="block h-full min-w-1 rounded-[3px]" style={{ width: `${percents[index]}%`, background: part.color }} />
           ) : null,
         )}
       </div>

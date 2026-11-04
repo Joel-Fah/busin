@@ -1,7 +1,10 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { ArrowUpRight01Icon } from "@hugeicons/core-free-icons";
+
 import { Card } from "@/components/ui/Card";
+import { Icon } from "@/components/ui/Icon";
 
 type Props = {
   title: string;
@@ -21,9 +24,10 @@ export function Tile({ title, action, children, className = "", testId }: Props)
         {action ? (
           <Link
             href={action.href}
-            className="rounded-xs text-sm font-semibold text-link no-underline hover:text-fg focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus"
+            className="inline-flex items-center gap-1 rounded-xs text-sm font-semibold text-link no-underline hover:text-fg focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus"
           >
             {action.label}
+            <Icon icon={ArrowUpRight01Icon} size={16} />
           </Link>
         ) : null}
       </div>

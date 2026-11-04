@@ -11,6 +11,7 @@ import {
 } from "@hugeicons/core-free-icons";
 
 import { BoardingsChart } from "@/components/overview/BoardingsChart";
+import { Welcome } from "@/components/overview/Welcome";
 import { StatusMix, type MixPart } from "@/components/overview/StatusMix";
 import { Tile } from "@/components/overview/Tile";
 import { Avatar } from "@/components/ui/Avatar";
@@ -23,7 +24,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { requireAdmin } from "@/lib/auth";
 import { format } from "@/lib/i18n/messages";
 import { getMessages } from "@/lib/i18n/server";
-import { semesterProgress, waitingAge, weekTrend, type DayCount } from "@/lib/overview";
+import { firstName, greetingFor, semesterProgress, waitingAge, weekTrend, type DayCount } from "@/lib/overview";
 import { STATUSES } from "@/lib/subscriptions";
 import { createClient } from "@/lib/supabase/server";
 import { startOfDayInTimeZone } from "@/lib/time";
@@ -171,6 +172,19 @@ async function Overview() {
     return format(age.unit === "hours" ? tiles.ageHours : tiles.ageDays, { n: age.value });
   };
 
+  const hour = Number(new Intl.DateTimeFormat("en-GB", { hour: "2-digit", hourCycle: "h23", timeZone: admin.schoolTimezone }).format(now));
+  const who = firstName(admin.fullName);
+  const greeting = who ? `${tiles.welcome[greetingFor(hour)]}, ${who}` : tiles.welcome[greetingFor(hour)];
+  const waitingCount = counts.pending;
+  const summary =
+    waitingCount === 0
+      ? format(tiles.welcome.clear, { n: scansToday.count ?? 0 })
+      : waitingCount === 1
+        ? tiles.welcome.waitingOne
+        : format(tiles.welcome.waitingMany, { n: waitingCount });
+  const welcomeAction = waitingCount > 0 ? { href: "/subscriptions", label: tiles.welcome.review } : { href: "/trips", label: tiles.welcome.trips };
+  const longDate = new Intl.DateTimeFormat(locale, { dateStyle: "full", timeZone: admin.schoolTimezone }).format(now);
+
   return (
     <>
       <PageHeader
@@ -214,6 +228,8 @@ async function Overview() {
               </Link>
             );
           })}
+
+          <Welcome greeting={greeting} date={longDate} summary={summary} action={welcomeAction} />
 
           <Tile title={tiles.boardingsTitle} action={{ href: "/scans", label: t.nav.scans }} className="sm:col-span-2" testId="tile-boardings">
             <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1">

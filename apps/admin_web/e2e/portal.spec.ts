@@ -109,6 +109,23 @@ test.describe("administrator", () => {
     await expect(page.getByTestId("tile-fleet").locator("xpath=..").getByRole("link", { name: /Stops/ })).toHaveAttribute("href", "/stops");
   });
 
+  test("greets the administrator and the chart bars show a tooltip on hover", async ({ page }) => {
+    // Tall enough that the floating navigation bar does not sit over the chart.
+    await page.setViewportSize({ width: 1440, height: 1500 });
+    await page.goto("/");
+    const welcome = page.getByTestId("welcome");
+    await expect(welcome.getByRole("heading", { level: 2, name: /^Good (morning|afternoon|evening)/ })).toBeVisible();
+    await expect(welcome.getByRole("link")).toHaveAttribute("href", /\/(subscriptions|trips)$/);
+
+    const tile = page.getByTestId("tile-boardings").locator("xpath=..");
+    await expect(tile.getByRole("link", { name: "Boardings" }).locator("svg")).toBeVisible();
+    await tile.locator("[data-tip]").last().hover();
+    await expect(page.getByRole("tooltip")).toContainText(/: \d+$/);
+    // The status bar has one too.
+    await page.getByTestId("tile-mix").locator("xpath=..").locator("[data-tip]").first().hover();
+    await expect(page.getByRole("tooltip")).toContainText(/: \d+$/);
+  });
+
   test("each figure is a card that leads to where its detail lives", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByTestId("stat-pendingSubscriptions")).toHaveAttribute("href", "/subscriptions");

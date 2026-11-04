@@ -95,6 +95,16 @@ export const en = {
     scansToday: 'Boardings today',
     loadError: 'The figures could not be loaded. Reload the page to try again.',
     tiles: {
+      welcome: {
+        morning: 'Good morning',
+        afternoon: 'Good afternoon',
+        evening: 'Good evening',
+        waitingOne: 'One subscription is waiting for your review.',
+        waitingMany: '{n} subscriptions are waiting for your review.',
+        clear: 'Nothing is waiting for review. {n} boardings so far today.',
+        review: 'Review subscriptions',
+        trips: "See today's trips",
+      },
       boardingsTitle: 'Boardings, last 14 days',
       boardingsTotal: '{n} boardings',
       boardingsChart: 'Boardings per day over the last 14 days',
@@ -700,6 +710,16 @@ export const fr: Messages = {
     scansToday: "Embarquements aujourd'hui",
     loadError: 'Les chiffres n’ont pas pu être chargés. Rechargez la page pour réessayer.',
     tiles: {
+      welcome: {
+        morning: 'Bonjour',
+        afternoon: 'Bon après-midi',
+        evening: 'Bonsoir',
+        waitingOne: 'Un abonnement attend votre examen.',
+        waitingMany: '{n} abonnements attendent votre examen.',
+        clear: "Rien n’attend d’examen. {n} embarquements jusqu’ici aujourd’hui.",
+        review: 'Examiner les abonnements',
+        trips: "Voir les trajets d’aujourd’hui",
+      },
       boardingsTitle: 'Embarquements, 14 derniers jours',
       boardingsTotal: '{n} embarquements',
       boardingsChart: 'Embarquements par jour sur les 14 derniers jours',

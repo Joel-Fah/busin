@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { niceMax, semesterProgress, shares, waitingAge, weekTrend, type DayCount } from "./overview";
+import { firstName, greetingFor, niceMax, semesterProgress, shares, waitingAge, weekTrend, type DayCount } from "./overview";
 
 const days = (values: number[]): DayCount[] => values.map((boardings, i) => ({ day: `2026-11-${String(i + 1).padStart(2, "0")}`, boardings }));
 
@@ -65,5 +65,23 @@ describe("semesterProgress", () => {
   it("clamps to the span", () => {
     expect(semesterProgress("2026-09-01", "2026-09-10", "2026-12-01").day).toBe(10);
     expect(semesterProgress("2026-09-01", "2026-09-10", "2026-08-01").day).toBe(1);
+  });
+});
+
+describe("greetingFor", () => {
+  it("follows the hour", () => {
+    expect(greetingFor(0)).toBe("morning");
+    expect(greetingFor(11)).toBe("morning");
+    expect(greetingFor(12)).toBe("afternoon");
+    expect(greetingFor(17)).toBe("afternoon");
+    expect(greetingFor(18)).toBe("evening");
+    expect(greetingFor(23)).toBe("evening");
+  });
+});
+
+describe("firstName", () => {
+  it("takes the first word", () => {
+    expect(firstName("  Joel Fah ")).toBe("Joel");
+    expect(firstName("")).toBe("");
   });
 });
