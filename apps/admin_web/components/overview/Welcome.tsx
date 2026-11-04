@@ -39,7 +39,7 @@ export function fanPosition(index: number, count: number): { rotate: number; dro
 /**
  * A greeting that also says what is worth a look. Always the deep brand teal, so it anchors the page in both
  * themes, with fine grain and the rough marker under the greeting (needs <RoughFilter /> on the page).
- * The insight cards are portrait links fanned like a hand, cropped by the bottom edge with their content at the top; one lifts along its own angle on hover or focus.
+ * The insight cards are portrait links fanned like a hand, cropped by the bottom edge with their content at the top; on hover or focus the whole fan lifts and loosens a little, then the card under the pointer lifts further along its own angle.
  * The bus is decoration: larger than its frame and cut off on the right and at the bottom.
  */
 export function Welcome({ greeting, date, summary, insights }: Props) {
@@ -69,10 +69,10 @@ export function Welcome({ greeting, date, summary, insights }: Props) {
         <p className="m-0 text-base text-white/85">{summary}</p>
       </div>
 
-      <ul className="relative m-0 mt-8 -mb-16 flex list-none items-end p-0 pl-3 sm:-mb-20 sm:pl-4">
+      <ul className="group/fan relative m-0 mt-8 -mb-16 flex w-fit list-none items-end p-0 pl-3 sm:-mb-20 sm:pl-4">
         {cards.map((card, index) => {
           const { rotate, drop } = fanPosition(index, cards.length);
-          const style = { "--r": `${rotate}deg`, "--y": `${drop}px`, zIndex: index + 1 } as CSSProperties;
+          const style = { "--r": `${rotate}deg`, "--y": `${drop}px`, "--o": index - (cards.length - 1) / 2, zIndex: index + 1 } as CSSProperties;
           return (
             <li key={card.key} style={style} className={`${index === 0 ? "" : "-ml-7 sm:-ml-4"} origin-bottom transition-transform duration-(--dur) ease-soft`}>
               <Link
@@ -80,7 +80,10 @@ export function Welcome({ greeting, date, summary, insights }: Props) {
                 className={
                   "relative flex h-40 w-24 origin-bottom flex-col gap-6 rounded-md p-3 no-underline sm:p-4 shadow-float sm:h-48 sm:w-36 " +
                   "[transform:translateY(var(--y))_rotate(var(--r))] transition-transform duration-(--dur) ease-soft motion-reduce:transition-none " +
-                  "hover:[transform:translateY(var(--y))_rotate(var(--r))_translateY(-14px)] focus-visible:[transform:translateY(var(--y))_rotate(var(--r))_translateY(-14px)] " +
+                  "group-hover/fan:[transform:translateX(calc(var(--o)*10px))_translateY(calc(var(--y)-8px))_rotate(calc(var(--r)*1.2))] " +
+                  "group-focus-within/fan:[transform:translateX(calc(var(--o)*10px))_translateY(calc(var(--y)-8px))_rotate(calc(var(--r)*1.2))] " +
+                  "group-hover/fan:hover:[transform:translateX(calc(var(--o)*10px))_translateY(calc(var(--y)-8px))_rotate(calc(var(--r)*1.2))_translateY(-16px)] " +
+                  "group-focus-within/fan:focus-visible:[transform:translateX(calc(var(--o)*10px))_translateY(calc(var(--y)-8px))_rotate(calc(var(--r)*1.2))_translateY(-16px)] " +
                   "focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus " +
                   (card.attention
                     ? "bg-accent text-on-accent [--thread-color:color-mix(in_srgb,var(--on-accent)_38%,var(--accent))]"
