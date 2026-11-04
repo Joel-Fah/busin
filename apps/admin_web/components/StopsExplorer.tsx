@@ -27,6 +27,7 @@ import { distanceMeters, formatDistance, isValidLatLng, type LatLng } from "@/li
 import { format, type Messages } from "@/lib/i18n/messages";
 import type { MapProviderId } from "@/lib/map/config";
 import { MAX_STOP_NAME_LENGTH, parseCoordinate } from "@/lib/stops";
+import { describeUsage } from "@/lib/stops";
 import type { StopRow } from "@/lib/stops-data";
 
 type Props = {
@@ -305,11 +306,10 @@ export function StopsExplorer({ stops, failed, map, initialSheet, t }: Props) {
                         <span className="truncate text-sm font-bold text-fg">{stop.name}</span>
                         <Chip tone={stop.active ? "ok" : "neutral"}>{stop.active ? s.status.active : s.status.inactive}</Chip>
                       </span>
-                      {distance ? (
-                        <span className="text-xs text-muted">
-                          {distance} {s.location.away}
-                        </span>
-                      ) : null}
+                      <span className="text-xs text-muted">
+                        {describeUsage(stop.students, stop.pending, s.usage)}
+                        {distance ? ` · ${distance} ${s.location.away}` : ""}
+                      </span>
                     </button>
                     <button type="button" aria-label={format(s.editStop, { name: stop.name })} data-tip={format(s.editStop, { name: stop.name })} onClick={() => openEdit(stop)} className={`${ICON_BUTTON} size-9`}>
                       <Icon icon={Edit02Icon} size={18} />
@@ -397,7 +397,10 @@ export function StopsExplorer({ stops, failed, map, initialSheet, t }: Props) {
                             onClick={() => pick(stop)}
                             className="col-start-1 row-span-2 row-start-1 flex min-w-0 cursor-pointer flex-col justify-between gap-3 rounded-md border-0 bg-transparent p-3.5 text-left font-sans focus-visible:outline-3 focus-visible:outline-focus"
                           >
-                            <span className="truncate pr-1 text-sm font-bold text-fg">{stop.name}</span>
+                            <span className="flex min-w-0 flex-col gap-0.5">
+                              <span className="truncate pr-1 text-sm font-bold text-fg">{stop.name}</span>
+                              <span className="truncate text-xs text-muted">{describeUsage(stop.students, stop.pending, s.usage)}</span>
+                            </span>
                             <span className="flex items-center gap-2">
                               <Chip tone={stop.active ? "ok" : "neutral"}>{stop.active ? s.status.active : s.status.inactive}</Chip>
                               {distance ? (

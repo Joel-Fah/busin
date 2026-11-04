@@ -20,6 +20,7 @@ import {
 
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { Avatar } from "@/components/ui/Avatar";
 import { Chip } from "@/components/ui/Chip";
 import { Contour } from "@/components/ui/Contour";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -31,7 +32,11 @@ import { DateTimePicker } from "@/components/ui/DateTimePicker";
 import { TimePicker } from "@/components/ui/TimePicker";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
+import { ListSkeleton } from "@/components/ui/ListSkeleton";
+import { Notice } from "@/components/ui/Notice";
+import { Pager } from "@/components/ui/Pager";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { DataTable, Head, TableCard, Td, Th, Tr } from "@/components/ui/Table";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { requireAdmin } from "@/lib/auth";
 import { AA_TEXT, contrastRatio } from "@/lib/ui/contrast";
@@ -630,6 +635,89 @@ async function Styleguide() {
           with room if it would run off the screen.
         </p>
         <MenuPlacementDemo />
+
+        <h3 className="mt-8 mb-3 text-lg font-bold">Table</h3>
+        <TableCard>
+          <DataTable minWidth="34rem">
+            <Head>
+              <Th>Student</Th>
+              <Th>Stop</Th>
+              <Th>Submitted</Th>
+              <Th>Status</Th>
+            </Head>
+            <tbody>
+              {(
+                [
+                  ["Amina Tchoua", "Sample stop A", "Nov 4, 2026", "Pending", "warn"],
+                  ["Joseph Mbarga", "Sample stop B", "Nov 3, 2026", "Approved", "ok"],
+                  ["Lea Fotso", "Sample stop A", "Nov 1, 2026", "Rejected", "bad"],
+                ] as const
+              ).map(([name, stop, date, status, tone]) => (
+                <Tr key={name}>
+                  <Td>
+                    <div className="flex items-center gap-3">
+                      <Avatar name={name} url={null} size={40} />
+                      <span className="font-semibold">{name}</span>
+                    </div>
+                  </Td>
+                  <Td>{stop}</Td>
+                  <Td className="text-muted">{date}</Td>
+                  <Td>
+                    <Chip tone={tone}>{status}</Chip>
+                  </Td>
+                </Tr>
+              ))}
+            </tbody>
+          </DataTable>
+        </TableCard>
+        <p className="mt-3 max-w-2xl text-sm text-muted">
+          One set of pieces builds every list: TableCard (the raised, rounded surface that scrolls sideways on a narrow
+          screen), DataTable, Head, Th, Tr and Td. They are real table elements, so screen readers get a real table.
+          Headings are quiet uppercase, rows tint on hover, a person is an avatar and a name, a state is a chip with its
+          label, and a name that leads somewhere is a link without an underline. Show only the columns that help; never
+          coordinates or ids.
+        </p>
+
+        <h3 className="mt-8 mb-3 text-lg font-bold">Pagination</h3>
+        <Pager range="Showing 21 to 40 of 87" label="Pages" previous={{ href: "#components", label: "Previous" }} next={{ href: "#components", label: "Next" }} />
+        <p className="mt-3 max-w-2xl text-sm text-muted">
+          Under every list that has more than one page: the range on the left, Previous and Next on the right. Each is a
+          link to a real address, so the page can be bookmarked, and a button only appears when there is somewhere to go.
+          A page past the last one is an empty list, never an error. Lists show 20 at a time and are paginated by the
+          server, so a long list never loads more than one page.
+        </p>
+
+        <h3 className="mt-8 mb-3 text-lg font-bold">Notices</h3>
+        <div className="flex max-w-2xl flex-col gap-3">
+          <Notice tone="ok">Stop saved.</Notice>
+          <Notice tone="bad">The stop could not be saved. Try again.</Notice>
+          <Notice tone="warn">This bus is out of service.</Notice>
+          <Notice tone="info">Distances are approximate.</Notice>
+        </div>
+        <p className="mt-3 max-w-2xl text-sm text-muted">
+          A short message in a tone. Successes are announced politely (status), failures at once (alert). Say what
+          happened, then what to do; the tone is never the only signal.
+        </p>
+
+        <h3 className="mt-8 mb-3 text-lg font-bold">Empty and loading states</h3>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <EmptyState illustration="/illustrations/papers.webp" title="No subscriptions here" body="Try another tab." />
+          <ListSkeleton rows={3} />
+        </div>
+        <p className="mt-3 max-w-2xl text-sm text-muted">
+          An empty list says so with the thread around it and, where it helps, an illustration; it is not a card. While a
+          list loads, a shimmer in the same shapes holds its place, so nothing jumps when the content arrives.
+        </p>
+
+        <h3 className="mt-8 mb-3 text-lg font-bold">Sticky toolbar</h3>
+        <p className="max-w-2xl text-sm text-muted">
+          The search and filters of a list stay in reach. Scrolled past, they stick to the top and realign into one
+          compact glass row (search and tabs side by side, labels kept for screen readers) while the list moves behind;
+          back at the top they glide to their roomy layout again. The change animates in both directions, is instant for
+          people who prefer less motion, and the list below never jumps. On a narrow screen the compact bar keeps
+          wrapping, because one row would not fit. Wrap a list&apos;s controls in StickyToolbar to get it; People,
+          Subscriptions, Trips and Boardings are the examples to open.
+        </p>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Tooltip</h3>
         <div className="flex flex-wrap items-center gap-3">

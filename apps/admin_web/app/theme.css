@@ -295,3 +295,52 @@ dialog,
 :is(.overflow-x-auto, .overflow-y-auto, .scroll-fade, dialog, [popover]):is(:hover, .is-scrolling) {
   scrollbar-color: color-mix(in srgb, var(--fg) 28%, transparent) transparent;
 }
+
+/*
+  The toolbar of a list page (search and filters), see components/ui/StickyToolbar.tsx. At rest it is
+  just the controls. Stuck to the top it becomes a compact glass bar; the controls change place with an
+  animation, and these rules are the compact layout. On narrow screens it keeps wrapping, because one
+  row would not fit.
+*/
+.sticky-toolbar {
+  border-radius: var(--r-lg);
+  padding: 0;
+  transition:
+    background-color var(--dur) var(--ease-soft),
+    box-shadow var(--dur) var(--ease-soft),
+    padding var(--dur) var(--ease-soft);
+}
+
+.sticky-toolbar[data-stuck='true'] {
+  padding: 0.5rem 0.75rem;
+  background: var(--glass);
+  box-shadow: var(--shadow-float);
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur));
+  align-items: center;
+}
+
+/* The labels give way to the placeholders in the compact bar, but stay for screen readers. */
+.sticky-toolbar[data-stuck='true'] label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (min-width: 64rem) {
+  .sticky-toolbar[data-stuck='true'] {
+    flex-wrap: nowrap;
+  }
+
+  .sticky-toolbar[data-stuck='true'] > form {
+    flex: 1 1 auto;
+    flex-wrap: nowrap;
+    align-items: center;
+    width: auto;
+    min-width: 0;
+    max-width: 38rem;
+  }
+}

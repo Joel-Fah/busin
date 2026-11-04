@@ -33,10 +33,10 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 
 ## Last handoff
 
-Done: the remaining page redesigns in one PR (branch `phase-2/pages-redesign`): People (search with placeholder, role tabs with counts, profile with the custom role dropdown and danger-styled suspend), Trips (status tabs with counts, schedule and edit forms with the custom dropdowns and date-time picker), Boardings (custom stop and day filters), Semesters and Buses (lists, forms with the custom fields), the Overview (cards that lead to where each figure lives, the review count set apart when something waits), and the sign-in, no-access, dev sign-in and not-found pages (one shared shell). Each list page has a header with help examples in English and French, an illustrated empty state, a shimmer loading state and the shared table and pager. A page past the last one is now an empty list, not an error, on all of them. The unused legacy styles are removed (about 350 lines). The real checkbox, radio and switch inputs now lie invisibly over their faces, so real clicks land on them.
+Done: students per stop (branch `phase-2/stop-usage`, stacked on the Docker PR #106). A read-only database function, `admin_stop_usage`, counts approved and pending subscriptions per stop for semesters that have not ended; it runs as the caller, so row security limits it to the admin's school. Every stop in the Stops dock and full list now says, for example, "12 students, 3 waiting". Also removed the unused `NavLinks` component and the admin copy of the Bevellier font (the legacy app keeps its own).
 
-Next: trip cancel and archive (needs a small audited database function, applied locally; hosted needs your approval), then Docker for the portal. Then phase 3, the student app, once the portal is accepted.
+Next: nothing is queued. Candidates: admin overview shortcuts to the busiest stops, then Phase 3 (student app) once the owner says to start.
 
 Blockers: none.
 
-Owner must do: review and merge the pages PR and try every page on your tablet and phone; decide whether stops should show how many students use each (needs a small database function); the Mapbox usage and token tasks still apply.
+Owner must do: merge #100, #102, #104, #106 and this PR in order (retarget each with `gh pr edit --base dev` once its parent merges). Approve running the three new migrations (trip cancel and archive, stop usage) on the hosted project when ready; I have not run them there. Create separate dev and prod Mapbox tokens restricted to your URLs.

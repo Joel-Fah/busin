@@ -13,6 +13,9 @@ let staff: TestUser;
 let student: TestUser;
 let existingId: string;
 let editableId: string;
+let usageStopId: string;
+let usageSemesterId: string;
+let usageStudents: TestUser[] = [];
 
 // A blank base map, so the tests need no outside map server and no network (and never touch Mapbox).
 const BLANK_STYLE = {
@@ -40,13 +43,37 @@ test.beforeAll(async () => {
   student = await createUser(`stop-student-${tag}`, "student");
   existingId = await insertStop(`${prefix} existing`);
   editableId = await insertStop(`${prefix} editable`, "SRID=4326;POINT(11.5100000 3.8500000)");
+
+  // A stop with two approved students and one waiting, in a semester far from ending.
+  usageStopId = await insertStop(`${prefix} busy`, "SRID=4326;POINT(11.5300000 3.8700000)");
+  const db = serviceClient();
+  const semester = await db
+    .from("semesters")
+    .insert({ school_id: SEED.schoolId, name: "spring", year: 2097, start_date: "2097-02-01", end_date: "2097-06-30" })
+    .select("id")
+    .single();
+  if (!semester.data) throw new Error(`could not create a semester: ${semester.error?.message}`);
+  usageSemesterId = semester.data.id;
+  usageStudents = [await createUser(`stop-u1-${tag}`, "student"), await createUser(`stop-u2-${tag}`, "student"), await createUser(`stop-u3-${tag}`, "student")];
+  const subs = await db.from("subscriptions").insert(
+    usageStudents.map((user, index) => ({
+      school_id: SEED.schoolId,
+      student_id: user.id,
+      semester_id: usageSemesterId,
+      stop_id: usageStopId,
+      status: index < 2 ? ("approved" as const) : ("pending" as const),
+    })),
+  );
+  if (subs.error) throw new Error(`could not create subscriptions: ${subs.error.message}`);
 });
 
 test.afterAll(async () => {
-  await serviceClient().from("stops").delete().like("name", `${prefix}%`);
-  for (const user of [admin, staff, student]) {
+  for (const user of [admin, staff, student, ...usageStudents]) {
     if (user) await deleteUser(user);
   }
+  const db = serviceClient();
+  await db.from("semesters").delete().eq("id", usageSemesterId ?? "");
+  await db.from("stops").delete().like("name", `${prefix}%`);
 });
 
 async function stopByName(name: string) {
@@ -85,6 +112,12 @@ test.describe("administrator managing stops", () => {
     const box = (await page.getByRole("region", { name: "Map of all stops" }).boundingBox())!;
     expect(box.width).toBeGreaterThanOrEqual(1200);
     expect(box.height).toBeGreaterThanOrEqual(700);
+  });
+
+  test("each stop says how many students use it", async ({ page }) => {
+    await page.goto("/stops");
+    await expect(dockRow(page, `${prefix} busy`)).toContainText("2 students, 1 waiting");
+    await expect(dockRow(page, `${prefix} existing`)).toContainText("No students yet");
   });
 
   test("selecting a stop highlights it in the list and on the map", async ({ page }) => {

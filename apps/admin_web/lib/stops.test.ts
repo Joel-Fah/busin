@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { MAX_STOP_NAME_LENGTH, parseCoordinate, parseStopForm, stopSaveErrorKey } from "./stops";
+import { MAX_STOP_NAME_LENGTH, describeUsage, parseCoordinate, parseStopForm, stopSaveErrorKey } from "./stops";
 
 function form(values: Record<string, string>) {
   return { get: (name: string) => values[name] ?? null };
@@ -64,5 +64,20 @@ describe("stopSaveErrorKey", () => {
     expect(stopSaveErrorKey("PGRST116")).toBe("not_found");
     expect(stopSaveErrorKey("42501")).toBe("generic");
     expect(stopSaveErrorKey(undefined)).toBe("generic");
+  });
+});
+
+describe("describeUsage", () => {
+  const labels = { none: "No students yet", one: "1 student", many: "{count} students", pending: "{count} waiting" };
+
+  it("says none, one or many", () => {
+    expect(describeUsage(0, 0, labels)).toBe("No students yet");
+    expect(describeUsage(1, 0, labels)).toBe("1 student");
+    expect(describeUsage(12, 0, labels)).toBe("12 students");
+  });
+
+  it("adds the requests that are waiting", () => {
+    expect(describeUsage(12, 3, labels)).toBe("12 students, 3 waiting");
+    expect(describeUsage(0, 2, labels)).toBe("No students yet, 2 waiting");
   });
 });

@@ -9,8 +9,9 @@ export type Direction = (typeof DIRECTIONS)[number];
 
 export const TRIP_STATUSES = ["scheduled", "active", "completed", "cancelled"] as const;
 export type TripStatus = (typeof TRIP_STATUSES)[number];
-export type StatusFilter = TripStatus | "all";
-export const STATUS_FILTERS: readonly StatusFilter[] = ["all", ...TRIP_STATUSES];
+/** "archived" is not a status: it is the set of finished or cancelled trips an admin has put away. Every other tab leaves them out. */
+export type StatusFilter = TripStatus | "all" | "archived";
+export const STATUS_FILTERS: readonly StatusFilter[] = ["all", ...TRIP_STATUSES, "archived"];
 
 export function isDirection(value: unknown): value is Direction {
   return typeof value === "string" && (DIRECTIONS as readonly string[]).includes(value);
@@ -59,7 +60,14 @@ export function parseTripForm(
   return { ok: true, value: { busId, driverId, direction, scheduledStart: start.toISOString() } };
 }
 
-export type TripSaveErrorKey = "bus_unavailable" | "driver_unavailable" | "not_editable" | "invalid" | "generic";
+export type TripSaveErrorKey =
+  | "bus_unavailable"
+  | "driver_unavailable"
+  | "not_editable"
+  | "cannot_cancel"
+  | "cannot_archive"
+  | "invalid"
+  | "generic";
 
 /** Maps a database error code from saving a trip. PGRST116 on update means no scheduled trip matched. */
 export function tripSaveErrorKey(code: string | undefined): TripSaveErrorKey {
@@ -87,6 +95,8 @@ const FORM_ERRORS: readonly string[] = [
   "bus_unavailable",
   "driver_unavailable",
   "not_editable",
+  "cannot_cancel",
+  "cannot_archive",
   "invalid",
   "generic",
 ];
@@ -95,10 +105,31 @@ export function isTripFormErrorKey(value: string | undefined): value is TripForm
   return value !== undefined && FORM_ERRORS.includes(value);
 }
 
-export type TripDone = "created" | "saved";
+export type TripAction = "cancel" | "archive";
+
+/** Maps a database error code from cancelling or archiving. 55000 means the trip is not in a state that allows it. */
+export function tripActionErrorKey(code: string | undefined, action: TripAction): TripSaveErrorKey {
+  if (code === "55000") return action === "cancel" ? "cannot_cancel" : "cannot_archive";
+  if (code === "22023") return "invalid";
+  return "generic";
+}
+
+/** The longest reason a cancellation can carry. The database enforces the same limit. */
+export const MAX_REASON_LENGTH = 300;
+
+/** The reason typed when cancelling: trimmed, empty means none, and null when it is too long. */
+export function parseReason(value: unknown): string | null | undefined {
+  if (typeof value !== "string") return undefined;
+  const reason = value.trim();
+  if (reason === "") return undefined;
+  return reason.length > MAX_REASON_LENGTH ? null : reason;
+}
+
+export const TRIP_DONE = ["created", "saved", "cancelled", "archived", "restored"] as const;
+export type TripDone = (typeof TRIP_DONE)[number];
 
 export function isTripDone(value: string | undefined): value is TripDone {
-  return value === "created" || value === "saved";
+  return value !== undefined && (TRIP_DONE as readonly string[]).includes(value);
 }
 
 /** The tone of a status chip. The label always comes with it, so colour is never the only signal. */
@@ -115,8 +146,11 @@ export function tripStatusTone(status: TripStatus): "info" | "ok" | "neutral" | 
   }
 }
 
-/** Number of trips for each tab. "all" is the sum, and a missing count counts as zero. */
-export function tripTabCounts(byStatus: Partial<Record<TripStatus, number | null>>): Record<StatusFilter, number> {
+/** Number of trips for each tab. Status counts leave out archived trips; "all" is their sum, and a missing count counts as zero. */
+export function tripTabCounts(
+  byStatus: Partial<Record<TripStatus, number | null>>,
+  archived: number | null = 0,
+): Record<StatusFilter, number> {
   const get = (status: TripStatus) => byStatus[status] ?? 0;
   return {
     all: TRIP_STATUSES.reduce((sum, status) => sum + get(status), 0),
@@ -124,5 +158,6 @@ export function tripTabCounts(byStatus: Partial<Record<TripStatus, number | null
     active: get("active"),
     completed: get("completed"),
     cancelled: get("cancelled"),
+    archived: archived ?? 0,
   };
 }

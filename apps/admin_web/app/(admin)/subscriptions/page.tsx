@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ListSkeleton } from "@/components/ui/ListSkeleton";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Tabs, type TabItem } from "@/components/ui/Tabs";
+import { StickyToolbar } from "@/components/ui/StickyToolbar";
 import { requireAdmin } from "@/lib/auth";
 import { format, type Locale } from "@/lib/i18n/messages";
 import { getMessages } from "@/lib/i18n/server";
@@ -115,7 +116,9 @@ async function SubscriptionsList({ searchParams }: { searchParams: SearchParams 
         }}
       />
 
-      <Tabs label={t.subscriptions.filtersLabel} items={tabs} active={status} />
+      <StickyToolbar>
+        <Tabs label={t.subscriptions.filtersLabel} items={tabs} active={status} />
+      </StickyToolbar>
 
       {error ? (
         <p className="rounded-md bg-bad-bg px-5 py-4 text-sm text-bad" role="alert">
