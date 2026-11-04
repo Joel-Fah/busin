@@ -47,6 +47,15 @@ export function serviceClient(): SupabaseClient<Database> {
   return createClient<Database>(url, serviceKey, { auth: { persistSession: false } });
 }
 
+/** A client holding the user's own session, so Row Level Security applies exactly as it does for the app. */
+export async function userClient(user: TestUser): Promise<SupabaseClient<Database>> {
+  const { url, publishableKey } = localKeys();
+  const client = createClient<Database>(url, publishableKey, { auth: { persistSession: false } });
+  const { error } = await client.auth.signInWithPassword({ email: user.email, password: user.password });
+  if (error) throw new Error(`sign-in failed: ${error.message}`);
+  return client;
+}
+
 export type TestUser = { id: string; email: string; password: string };
 
 /** Runs SQL in the local database container. Local development only. */
