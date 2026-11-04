@@ -1,5 +1,5 @@
 name: busin_data
-description: Supabase implementations of the busin_core repository interfaces.
+description: Supabase implementations of the busin_core repository interfaces. The only package that talks to the backend.
 publish_to: none
 version: 0.1.0
 resolution: workspace
@@ -9,3 +9,11 @@ environment:
 
 dependencies:
   busin_core: any
+  # The pure Dart client that supabase_flutter wraps. Apps start supabase_flutter (sessions, deep links)
+  # and hand its client to SupabaseRepositories, so this package tests with plain `dart test`.
+  supabase: ^2.9.0
+
+dev_dependencies:
+  http: ^1.2.0
+  lints: ^6.1.0
+  test: ^1.26.0
