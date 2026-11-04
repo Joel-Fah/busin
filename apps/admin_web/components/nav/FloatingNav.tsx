@@ -119,6 +119,21 @@ export function FloatingNav({ keys, labels, groups, profile, text }: Props) {
 
   const { rowRef, indicatorRef } = useSlidingIndicator('[data-nav-tab][aria-current="page"]', pathname);
 
+  // Other floating things (a sheet beside the page) keep clear of the bar by reading its height.
+  useEffect(() => {
+    const bar = barRef.current;
+    if (!bar) return;
+    const root = document.documentElement;
+    const publish = () => root.style.setProperty("--nav-height", `${bar.offsetHeight}px`);
+    publish();
+    const observer = new ResizeObserver(publish);
+    observer.observe(bar);
+    return () => {
+      observer.disconnect();
+      root.style.removeProperty("--nav-height");
+    };
+  }, []);
+
   // Escape and a click outside close the menu.
   useEffect(() => {
     if (!open) return;
@@ -157,12 +172,12 @@ export function FloatingNav({ keys, labels, groups, profile, text }: Props) {
       <nav
         ref={barRef}
         aria-label={text.primary}
-        className="nav-bar pointer-events-auto relative w-full max-w-md rounded-lg bg-glass shadow-float backdrop-blur-[18px] lg:w-auto lg:max-w-none"
+        className="nav-bar pointer-events-auto relative w-full max-w-md rounded-lg bg-glass shadow-float backdrop-blur-[18px] lg:w-[58rem] lg:max-w-[calc(100vw-2rem)]"
       >
         <Contour radius={28} inset={6} dash={[6, 6]} />
 
         {/* Space a page can fill with its own content. Empty most of the time. */}
-        <div id={NAV_DOCK_ID} className="relative px-4 pt-4 empty:hidden" />
+        <div id={NAV_DOCK_ID} className="relative empty:hidden" />
 
         {/* The tabs on small screens, opening upward. Inert while closed so it cannot take focus. */}
         <div
@@ -189,12 +204,13 @@ export function FloatingNav({ keys, labels, groups, profile, text }: Props) {
           <Link
             href="/"
             aria-label={text.home}
+            data-tip={text.home}
             className="flex h-14 shrink-0 items-center rounded-sm px-3 text-brand focus-visible:outline-3 focus-visible:outline-focus"
           >
             <BrandMark className="h-8 w-auto" />
           </Link>
 
-          <div className="hidden items-center gap-1.5 lg:flex">{keys.map((key) => tab(key, undefined, true))}</div>
+          <div className="hidden items-center gap-1.5 lg:flex lg:flex-1 lg:justify-evenly">{keys.map((key) => tab(key, undefined, true))}</div>
 
           <div className="flex min-w-0 flex-1 items-center gap-2 lg:hidden">
             <p className="flex min-w-0 flex-1 items-center gap-2 px-1 text-sm font-semibold">

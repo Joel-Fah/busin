@@ -4,7 +4,9 @@
   "private": true,
   "description": "BusIn admin portal.",
   "scripts": {
+    "predev": "node ../../tools/copy-map-workers.mjs",
     "dev": "next dev --hostname 127.0.0.1",
+    "prebuild": "node ../../tools/copy-map-workers.mjs",
     "build": "next build",
     "start": "next start --hostname 127.0.0.1",
     "lint": "eslint",

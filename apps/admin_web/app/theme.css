@@ -275,3 +275,23 @@ html.scroll-locked {
 dialog.sheet {
   overscroll-behavior: contain;
 }
+
+/*
+  Scrollbars inside containers (sheets, modals, lists, tables): thin, quiet, and gone when not in use.
+  The thumb shows while the pointer is over the container and for a moment after it scrolls (keyboard
+  scrolling counts, as it fires the same scroll event) (the .is-scrolling class comes from components/ScrollbarFade.tsx), then fades away.
+  The page's own scrollbar is left to the browser.
+*/
+.overflow-x-auto,
+.overflow-y-auto,
+.scroll-fade,
+dialog,
+[popover] {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 600ms var(--ease-soft);
+}
+
+:is(.overflow-x-auto, .overflow-y-auto, .scroll-fade, dialog, [popover]):is(:hover, .is-scrolling) {
+  scrollbar-color: color-mix(in srgb, var(--fg) 28%, transparent) transparent;
+}

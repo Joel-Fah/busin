@@ -33,11 +33,11 @@ test("one map is created for the tab and reused across the stops pages", async (
   await page.goto("/stops");
   await expect(page.locator(".mapboxgl-canvas")).toBeVisible({ timeout: 30_000 });
 
-  // Soft navigation to the form and back: the same map moves with the page.
-  await page.getByRole("link", { name: "Add a stop" }).click();
-  await expect(page).toHaveURL(/\/stops\/new$/);
-  await expect(page.locator(".mapboxgl-canvas")).toBeVisible({ timeout: 30_000 });
-  await page.getByRole("link", { name: "Back to stops" }).click();
+  // Soft navigation to a page without a map and back: the same map moves with the page.
+  const nav = page.getByRole("navigation", { name: "Main navigation" });
+  await nav.getByRole("link", { name: "Trips", exact: true }).click();
+  await expect(page).toHaveURL(/\/trips$/);
+  await nav.getByRole("link", { name: "Stops", exact: true }).click();
   await expect(page).toHaveURL(/\/stops$/);
   await expect(page.locator(".mapboxgl-canvas")).toBeVisible({ timeout: 30_000 });
 

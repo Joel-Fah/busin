@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from "react";
 import { mapBudgetAvailable, takeMapLoad } from "@/lib/map/budget";
 import { DEFAULT_STYLE_URL } from "@/lib/map/config";
 
+import { placeMarkers } from "../place-markers";
 import type { MapViewProps } from "../types";
 
 // The free map, used when this browser has spent its Mapbox budget. Loaded only if it is needed.
@@ -65,7 +66,7 @@ function acquire(token: string, style: string, view: { center: [number, number];
  * proprietary software under Mapbox's terms (see docs/decisions/0008-map-provider.md).
  */
 export default function MapboxView(props: MapViewProps) {
-  const { center, zoom, styleUrl, accessToken, markers, picker, ariaLabel, unavailableLabel, className } = props;
+  const { center, zoom, styleUrl, accessToken, markers, picker, ariaLabel, unavailableLabel, className, clusterLabel = "{count}", clustering = true } = props;
   // This module only ever runs in the browser (the selector loads it without server rendering).
   const [supported] = useState(webglAvailable);
   // Spent its budget in this browser: draw the free map instead. A map already in this tab is reused, so it never counts.
@@ -73,8 +74,12 @@ export default function MapboxView(props: MapViewProps) {
   const container = useRef<HTMLDivElement>(null);
   const initialView = useRef({ center, zoom });
   const [map, setMap] = useState<MapboxMap | null>(null);
+  const fittedFor = useRef("");
   const onPick = useRef(picker?.onChange);
   const pickable = picker !== undefined;
+  const focusKey = props.focusKey;
+  const focusLat = props.focus?.lat;
+  const focusLng = props.focus?.lng;
   const pinLat = picker?.position?.lat;
   const pinLng = picker?.position?.lng;
 
@@ -92,32 +97,52 @@ export default function MapboxView(props: MapViewProps) {
     slot.appendChild(got.host);
     got.map.resize();
     setMap(got.map);
+    // The container can change size without the window doing so (a side panel opening), so follow it.
+    const watcher = new ResizeObserver(() => got.map.resize());
+    watcher.observe(slot);
     return () => {
+      watcher.disconnect();
       // Park the map instead of destroying it, so the next page can use it for free.
       got.host.remove();
       setMap(null);
     };
   }, [spent, supported, styleUrl, accessToken]);
 
-  // Fixed markers, for example the stops on the overview map.
+  // Fixed markers, for example the stops. Overlapping ones merge into numbered bubbles when zoomed out.
   useEffect(() => {
     if (!map || !markers || markers.length === 0) return;
-    const placed = markers.map((item) => {
-      const element = document.createElement(item.href ? "a" : "div");
-      element.className = item.muted ? "map-marker map-marker-muted" : "map-marker";
-      element.setAttribute("aria-label", item.label);
-      element.title = item.label;
-      if (item.href && element instanceof HTMLAnchorElement) element.href = item.href;
-      return new Marker({ element }).setLngLat([item.position.lng, item.position.lat]).addTo(map);
-    });
 
-    if (!pickable) {
+    // Fit all the points once for a given set of markers, not every time the page re-renders or a form closes.
+    const set = markers.map((item) => item.id).join(",");
+    if (!pickable && fittedFor.current !== set) {
+      fittedFor.current = set;
       const bounds = new LngLatBounds();
       for (const item of markers) bounds.extend([item.position.lng, item.position.lat]);
       map.fitBounds(bounds, { padding: 56, maxZoom: 15, animate: false });
     }
-    return () => placed.forEach((marker) => marker.remove());
-  }, [map, markers, pickable]);
+
+    return placeMarkers(
+      {
+        getZoom: () => map.getZoom(),
+        onZoom: (listener) => {
+          map.on("zoom", listener);
+          return () => {
+            map.off("zoom", listener);
+          };
+        },
+        fitTo: (bounds) => map.fitBounds(bounds, { padding: 90, maxZoom: 17, duration: 600 }),
+        place: (element, position) => new Marker({ element }).setLngLat(position).addTo(map),
+      },
+      markers,
+      { clustering: !pickable && clustering, clusterLabel },
+    );
+  }, [map, markers, pickable, clustering, clusterLabel]);
+
+  // Glide to the position the page is focused on, for example the stop picked from a list.
+  useEffect(() => {
+    if (!map || focusLat === undefined || focusLng === undefined) return;
+    map.easeTo({ center: [focusLng, focusLat], zoom: Math.max(map.getZoom(), 15), duration: 600 });
+  }, [map, focusLat, focusLng, focusKey]);
 
   // Choosing a position: click the map or drag the pin.
   useEffect(() => {

@@ -5,6 +5,9 @@ import {
   ArrowLeft01Icon,
   Bus01Icon,
   Calendar02Icon,
+  Copy01Icon,
+  Delete02Icon,
+  Edit02Icon,
   FlagTriangleRightIcon,
   GeometricShapes01Icon,
   Mail01Icon,
@@ -627,6 +630,34 @@ async function Styleguide() {
           with room if it would run off the screen.
         </p>
         <MenuPlacementDemo />
+
+        <h3 className="mt-8 mb-3 text-lg font-bold">Tooltip</h3>
+        <div className="flex flex-wrap items-center gap-3">
+          {(
+            [
+              ["Copy the link", Copy01Icon, "top"],
+              ["Edit the stop", Edit02Icon, "right"],
+              ["Delete the stop", Delete02Icon, "bottom"],
+            ] as const
+          ).map(([label, icon, side]) => (
+            <button
+              key={label}
+              type="button"
+              aria-label={label}
+              data-tip={label}
+              data-tip-side={side}
+              className="inline-flex size-11 cursor-pointer items-center justify-center rounded-sm border-0 bg-surface-2 text-fg transition-colors duration-(--dur-fast) hover:bg-line focus-visible:outline-3 focus-visible:outline-focus"
+            >
+              <Icon icon={icon} size={20} />
+            </button>
+          ))}
+        </div>
+        <p className="mt-3 max-w-2xl text-sm text-muted">
+          Any element with a data-tip attribute gets one, on hover after a short pause and on keyboard focus; data-tip-side
+          picks the side, and it moves to the side with room. It is drawn by one layer for the whole page, so it also
+          serves map markers, and it replaces the browser&apos;s own title tooltip. Icon buttons keep their aria-label:
+          the tooltip is a hint, not the only name.
+        </p>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Side sheet and modal</h3>
         <div className="flex flex-wrap items-start gap-3">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Copy01Icon, Delete02Icon, PencilEdit02Icon } from "@hugeicons/core-free-icons";
+import { Copy01Icon, Delete02Icon, Edit02Icon } from "@hugeicons/core-free-icons";
 
 import { Button } from "@/components/ui/Button";
 import { Menu } from "@/components/ui/Menu";
@@ -94,7 +94,7 @@ export function MenuDemo() {
       <Menu
         label="More actions"
         items={[
-          { label: "Edit", icon: PencilEdit02Icon, onSelect: () => setLast("Edit") },
+          { label: "Edit", icon: Edit02Icon, onSelect: () => setLast("Edit") },
           { label: "Duplicate", icon: Copy01Icon, onSelect: () => setLast("Duplicate") },
           { label: "Delete", icon: Delete02Icon, danger: true, onSelect: () => setLast("Delete") },
         ]}
@@ -108,7 +108,7 @@ export function MenuDemo() {
 
 export function MenuPlacementDemo() {
   const items = [
-    { label: "Edit", icon: PencilEdit02Icon, onSelect: () => {} },
+    { label: "Edit", icon: Edit02Icon, onSelect: () => {} },
     { label: "Duplicate", icon: Copy01Icon, onSelect: () => {} },
     { label: "Delete", icon: Delete02Icon, danger: true, onSelect: () => {} },
   ];

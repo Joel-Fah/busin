@@ -488,3 +488,60 @@ test.describe("menu placement", () => {
     if (box.x < 220) expect(side).not.toBe("left");
   });
 });
+
+test.describe("tooltip", () => {
+  const tooltip = (page: import("@playwright/test").Page) => page.getByRole("tooltip");
+
+  test("shows on hover after a pause, in the design system, and hides when the pointer leaves", async ({ page }) => {
+    const button = page.getByRole("button", { name: "Copy the link" });
+    await button.scrollIntoViewIfNeeded();
+    await button.hover();
+    await expect(tooltip(page)).toHaveText("Copy the link");
+    await expect(button).toHaveAttribute("aria-describedby", /.+/);
+    // Not the browser's own: our layer, light text on the dark foreground colour, rounded.
+    expect(await tooltip(page).evaluate((el) => parseFloat(getComputedStyle(el).borderTopLeftRadius))).toBeGreaterThanOrEqual(8);
+    await page.mouse.move(2, 2);
+    await expect(tooltip(page)).toHaveCount(0);
+    await expect(button).not.toHaveAttribute("aria-describedby", /.+/);
+  });
+
+  test("shows on keyboard focus and Escape hides it", async ({ page }) => {
+    const button = page.getByRole("button", { name: "Edit the stop" });
+    await button.scrollIntoViewIfNeeded();
+    await page.keyboard.press("Tab");
+    await button.focus();
+    await page.keyboard.press("Shift+Tab");
+    await page.keyboard.press("Tab");
+    await expect(button).toBeFocused();
+    await expect(tooltip(page)).toHaveText("Edit the stop");
+    await page.keyboard.press("Escape");
+    await expect(tooltip(page)).toHaveCount(0);
+  });
+
+  test("sits on the side asked for, and moves when there is no room", async ({ page }) => {
+    const right = page.getByRole("button", { name: "Edit the stop" });
+    await right.evaluate((el) => el.scrollIntoView({ block: "center" }));
+    await right.hover();
+    const side = (await tooltip(page).boundingBox())!;
+    const target = (await right.boundingBox())!;
+    expect(side.x).toBeGreaterThanOrEqual(target.x + target.width);
+    await page.mouse.move(2, 2);
+
+    // At the very top of the screen a tooltip asked for above goes below instead.
+    const top = page.getByRole("button", { name: "Copy the link" });
+    await top.evaluate((el) => el.scrollIntoView({ block: "start" }));
+    await top.hover();
+    const below = (await tooltip(page).boundingBox())!;
+    const topTarget = (await top.boundingBox())!;
+    expect(below.y).toBeGreaterThanOrEqual(topTarget.y + topTarget.height - 1);
+  });
+
+  test("map markers use it too, not the browser's title", async ({ page }) => {
+    // The Stops page has a marker per stop; its hover text comes from data-tip.
+    await page.goto("/stops");
+    const marker = page.locator("button.map-marker, div.map-marker, .map-cluster").first();
+    await expect(marker).toBeVisible({ timeout: 30_000 });
+    expect(await marker.getAttribute("title")).toBeNull();
+    expect(await marker.getAttribute("data-tip")).not.toBeNull();
+  });
+});

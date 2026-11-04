@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { centroid, formatLatLng, isValidLatLng, parsePoint, toEwkt } from "./geo";
+import { centroid, distanceMeters, formatDistance, formatLatLng, isValidLatLng, parsePoint, toEwkt } from "./geo";
 
 /** Builds the hex form of a point the way PostGIS writes it. */
 function ewkbHex(opts: { lng: number; lat: number; little?: boolean; srid?: number | null; baseType?: number }): string {
@@ -91,5 +91,46 @@ describe("centroid and formatLatLng", () => {
 
   it("formats with five decimals", () => {
     expect(formatLatLng({ lat: 3.848, lng: 11.5021 })).toBe("3.84800, 11.50210");
+  });
+});
+
+describe("distanceMeters", () => {
+  it("is zero for the same point and symmetric", () => {
+    const a = { lat: 3.848, lng: 11.5021 };
+    const b = { lat: 3.8333, lng: 11.4833 };
+    expect(distanceMeters(a, a)).toBe(0);
+    expect(distanceMeters(a, b)).toBeCloseTo(distanceMeters(b, a), 6);
+  });
+
+  it("matches known distances", () => {
+    // One degree of latitude is about 111.2 km.
+    expect(distanceMeters({ lat: 0, lng: 0 }, { lat: 1, lng: 0 })).toBeGreaterThan(111_000);
+    expect(distanceMeters({ lat: 0, lng: 0 }, { lat: 1, lng: 0 })).toBeLessThan(111_400);
+    // Yaounde to Douala is roughly 200 km in a straight line.
+    const km = distanceMeters({ lat: 3.848, lng: 11.5021 }, { lat: 4.0511, lng: 9.7679 }) / 1000;
+    expect(km).toBeGreaterThan(185);
+    expect(km).toBeLessThan(200);
+  });
+});
+
+describe("formatDistance", () => {
+  it("is marked as an approximation and rounded to what is worth reading", () => {
+    expect(formatDistance(3)).toBe("~50 m");
+    expect(formatDistance(847)).toBe("~850 m");
+    expect(formatDistance(999)).toBe("~1.0 km");
+    expect(formatDistance(1000)).toBe("~1.0 km");
+    expect(formatDistance(1234)).toBe("~1.2 km");
+    expect(formatDistance(9949)).toBe("~9.9 km");
+    expect(formatDistance(10_400)).toBe("~10 km");
+    expect(formatDistance(152_900)).toBe("~153 km");
+  });
+
+  it("always carries the mark, so it is never read as exact", () => {
+    for (const meters of [1, 60, 540, 2300, 48_000]) expect(formatDistance(meters).startsWith("~")).toBe(true);
+  });
+
+  it("returns nothing for a value that is not a distance", () => {
+    expect(formatDistance(Number.NaN)).toBe("");
+    expect(formatDistance(-5)).toBe("");
   });
 });

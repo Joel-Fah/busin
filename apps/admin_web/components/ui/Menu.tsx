@@ -71,6 +71,7 @@ export function Menu({ label, items, placement = "auto" }: Props) {
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={label}
+        data-tip={label}
         onClick={() => setOpen((value) => !value)}
         className="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-sm border-0 bg-transparent text-muted transition-colors duration-(--dur-fast) hover:bg-surface-2 hover:text-fg focus-visible:outline-3 focus-visible:outline-focus"
       >
