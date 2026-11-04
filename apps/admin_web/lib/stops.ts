@@ -70,3 +70,11 @@ export type StopDone = "created" | "saved";
 export function isStopDone(value: string | undefined): value is StopDone {
   return value === "created" || value === "saved";
 }
+
+export type UsageLabels = { none: string; one: string; many: string; pending: string };
+
+/** "12 students, 3 waiting" for a stop. Singular and zero have their own words. */
+export function describeUsage(students: number, pending: number, labels: UsageLabels): string {
+  const main = students === 0 ? labels.none : students === 1 ? labels.one : labels.many.replace("{count}", String(students));
+  return pending > 0 ? `${main}, ${labels.pending.replace("{count}", String(pending))}` : main;
+}

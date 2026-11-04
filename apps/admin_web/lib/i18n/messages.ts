@@ -195,6 +195,7 @@ export const en = {
     mapUnavailable: 'The map could not be drawn in this browser. You can still type the coordinates.',
     columns: { name: 'Stop', position: 'Position', status: 'Status' },
     status: { active: 'Active', inactive: 'Inactive' },
+    usage: { none: 'No students yet', one: '1 student', many: '{count} students', pending: '{count} waiting' },
     empty: 'No stops yet. Add the first one.',
     loadError: 'The stops could not be loaded. Reload the page to try again.',
     form: {
@@ -756,6 +757,7 @@ export const fr: Messages = {
     mapUnavailable: "La carte n'a pas pu être affichée dans ce navigateur. Vous pouvez saisir les coordonnées.",
     columns: { name: 'Arrêt', position: 'Position', status: 'Statut' },
     status: { active: 'Actif', inactive: 'Inactif' },
+    usage: { none: 'Aucun étudiant pour l\'instant', one: '1 étudiant', many: '{count} étudiants', pending: '{count} en attente' },
     empty: "Aucun arrêt pour l'instant. Ajoutez le premier.",
     loadError: "Les arrêts n'ont pas pu être chargés. Rechargez la page pour réessayer.",
     form: {
