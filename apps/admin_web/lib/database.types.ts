@@ -297,14 +297,14 @@ isOneToOne: false
                   ]
                 },"trips": {
                   Row: {
-                    "bus_id": string,"created_at": string,"direction": Database["public"]['Enums']["trip_direction"],"driver_id": string | null,"ended_at": string | null,"id": string,"scheduled_start": string,"school_id": string,"started_at": string | null,"status": Database["public"]['Enums']["trip_status"]
+                    "archived_at": string | null,"bus_id": string,"created_at": string,"direction": Database["public"]['Enums']["trip_direction"],"driver_id": string | null,"ended_at": string | null,"id": string,"scheduled_start": string,"school_id": string,"started_at": string | null,"status": Database["public"]['Enums']["trip_status"]
                   }
                   ComputedFields: never
                   Insert: {
-                    "bus_id": string,"created_at"?: string,"direction": Database["public"]['Enums']["trip_direction"],"driver_id"?: string | null,"ended_at"?: string | null,"id"?: string,"scheduled_start": string,"school_id": string,"started_at"?: string | null,"status"?: Database["public"]['Enums']["trip_status"]
+                    "archived_at"?: string | null,"bus_id": string,"created_at"?: string,"direction": Database["public"]['Enums']["trip_direction"],"driver_id"?: string | null,"ended_at"?: string | null,"id"?: string,"scheduled_start": string,"school_id": string,"started_at"?: string | null,"status"?: Database["public"]['Enums']["trip_status"]
                   }
                   Update: {
-                    "bus_id"?: string,"created_at"?: string,"direction"?: Database["public"]['Enums']["trip_direction"],"driver_id"?: string | null,"ended_at"?: string | null,"id"?: string,"scheduled_start"?: string,"school_id"?: string,"started_at"?: string | null,"status"?: Database["public"]['Enums']["trip_status"]
+                    "archived_at"?: string | null,"bus_id"?: string,"created_at"?: string,"direction"?: Database["public"]['Enums']["trip_direction"],"driver_id"?: string | null,"ended_at"?: string | null,"id"?: string,"scheduled_start"?: string,"school_id"?: string,"started_at"?: string | null,"status"?: Database["public"]['Enums']["trip_status"]
                   }
                   Relationships: [
                     {
@@ -333,8 +333,14 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "admin_review_subscription":
+            "admin_cancel_trip":
+{ Args: { "p_reason"?: string,"p_trip_id": string }; Returns: undefined
+                           },
+"admin_review_subscription":
 { Args: { "p_decision": string,"p_note"?: string,"p_subscription_id": string }; Returns: undefined
+                           },
+"admin_set_trip_archived":
+{ Args: { "p_archived": boolean,"p_trip_id": string }; Returns: undefined
                            },
 "admin_set_user_role":
 { Args: { "p_role": Database["public"]['Enums']["user_role"],"p_user_id": string }; Returns: undefined

@@ -5,7 +5,14 @@ import { redirect } from "next/navigation";
 
 import { requireAdmin } from "@/lib/auth";
 import { isUuid } from "@/lib/ids";
-import { parseTripForm, tripSaveErrorKey, type TripFormErrorKey, type TripInput } from "@/lib/trips";
+import {
+  parseReason,
+  parseTripForm,
+  tripActionErrorKey,
+  tripSaveErrorKey,
+  type TripFormErrorKey,
+  type TripInput,
+} from "@/lib/trips";
 import { createClient } from "@/lib/supabase/server";
 
 /**
@@ -107,4 +114,42 @@ export async function updateTrip(formData: FormData): Promise<void> {
 
   revalidatePath("/trips");
   redirect(`/trips/${id}?done=saved`);
+}
+
+/**
+ * Cancels a trip that has not started. A trip is never deleted, because boardings point to it. The
+ * database function checks that the caller is an admin of the school and that the trip has not
+ * started, and writes the audit entry.
+ */
+export async function cancelTrip(formData: FormData): Promise<void> {
+  await requireAdmin();
+
+  const id = formData.get("id");
+  if (!isUuid(id)) redirect("/trips");
+
+  const reason = parseReason(formData.get("reason"));
+  if (reason === null) redirect(`/trips/${id}?error=invalid`);
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("admin_cancel_trip", { p_trip_id: id, p_reason: reason });
+  if (error) redirect(`/trips/${id}?error=${tripActionErrorKey(error.code, "cancel")}`);
+
+  revalidatePath("/trips");
+  redirect(`/trips/${id}?done=cancelled`);
+}
+
+/** Archives a finished or cancelled trip so it leaves the main list, or brings an archived one back. */
+export async function setTripArchived(formData: FormData): Promise<void> {
+  await requireAdmin();
+
+  const id = formData.get("id");
+  if (!isUuid(id)) redirect("/trips");
+  const archive = formData.get("archive") === "true";
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("admin_set_trip_archived", { p_trip_id: id, p_archived: archive });
+  if (error) redirect(`/trips/${id}?error=${tripActionErrorKey(error.code, "archive")}`);
+
+  revalidatePath("/trips");
+  redirect(`/trips/${id}?done=${archive ? "archived" : "restored"}`);
 }
