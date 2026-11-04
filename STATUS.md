@@ -10,7 +10,7 @@ Current phase: **Phase 2, shared packages and admin portal** ([docs/phases/phase
 |---|---|---|
 | 0 Foundation | Monorepo layout, docs, skills, workflow, GitHub setup | Done and merged into `dev` |
 | 1 Backend | Secure multi-tenant Supabase backend | Done and merged into `dev` (126 database tests) |
-| 2 Shared and admin web | Shared Dart packages, admin portal | In progress. Merged: busin_core, portal shell and sign-in, subscription review, people, stops with a map, semesters, buses, trips, boardings. In progress: admin portal redesign in five PRs (foundation and styleguide in review; then shell and navbar, components and Mapbox, page redesigns, trip cancel and Docker). Next after that: stop photos, busin_ui, busin_data |
+| 2 Shared and admin web | Shared Dart packages, admin portal | Admin portal done and merged into `dev` (redesign, filters, trip cancel and archive, stop usage, Docker, demo data; the exit criteria for the portal are met). Remaining: `busin_ui` and `busin_data` are still empty stubs, and the Flutter upgrade tooling check |
 | 3 Student app | Lightweight student app | Not started |
 | 4 Ops app | Scanner and driver mode | Not started |
 | 5 Insights | Density map, pickup and route suggestions | Not started |
