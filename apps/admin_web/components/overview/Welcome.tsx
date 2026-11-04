@@ -4,6 +4,7 @@ import type { CSSProperties } from "react";
 import type { IconSvgElement } from "@hugeicons/react";
 
 import { Contour } from "@/components/ui/Contour";
+import { Parallax } from "./Parallax";
 import { Icon } from "@/components/ui/Icon";
 
 export type Insight = {
@@ -40,13 +41,13 @@ export function fanPosition(index: number, count: number): { rotate: number; dro
  * A greeting that also says what is worth a look. Always the deep brand teal, so it anchors the page in both
  * themes, with fine grain and the rough marker under the greeting (needs <RoughFilter /> on the page).
  * The insight cards are portrait links fanned like a hand, cropped by the bottom edge with their content at the top; on hover or focus the whole fan lifts and loosens a little, then the card under the pointer lifts further along its own angle.
- * The bus is decoration: larger than its frame and cut off on the right and at the bottom.
+ * Only the insight cards follow the pointer (see Parallax). The bus is decoration: larger than its frame and cut off on the right and at the bottom.
  */
 export function Welcome({ greeting, date, summary, insights }: Props) {
   const cards = insights.slice(0, 4);
   return (
-    <section
-      data-testid="welcome"
+    <Parallax
+      testId="welcome"
       className="texture-grain relative flex flex-col justify-between overflow-hidden rounded-lg sm:min-h-[24rem] lg:min-h-[26rem] bg-seed p-7 text-white shadow-soft [--grain:1] [--thread-color:color-mix(in_srgb,white_26%,transparent)] sm:col-span-2 sm:p-9 xl:col-span-4"
     >
       <Contour radius={28} inset={14} />
@@ -69,7 +70,7 @@ export function Welcome({ greeting, date, summary, insights }: Props) {
         <p className="m-0 text-base text-white/85">{summary}</p>
       </div>
 
-      <ul className="group/fan relative m-0 mt-8 -mb-16 flex w-fit list-none items-end p-0 pl-3 sm:-mb-20 sm:pl-4">
+      <ul className="group/fan relative [translate:calc(var(--px,0)*14px)_calc(var(--py,0)*9px)] transition-[translate] duration-300 ease-out motion-reduce:transition-none m-0 mt-8 -mb-16 flex w-fit list-none items-end p-0 pl-3 sm:-mb-20 sm:pl-4">
         {cards.map((card, index) => {
           const { rotate, drop } = fanPosition(index, cards.length);
           const style = { "--r": `${rotate}deg`, "--y": `${drop}px`, "--o": index - (cards.length - 1) / 2, zIndex: index + 1 } as CSSProperties;
@@ -101,6 +102,6 @@ export function Welcome({ greeting, date, summary, insights }: Props) {
           );
         })}
       </ul>
-    </section>
+    </Parallax>
   );
 }

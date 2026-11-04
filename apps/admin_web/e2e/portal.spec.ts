@@ -130,6 +130,41 @@ test.describe("administrator", () => {
     await expect(page.getByRole("tooltip")).toContainText(/: \d+$/);
   });
 
+  test("only the insight cards follow the mouse, and stay still for reduced motion", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 1500 });
+    const offsets = async () => {
+      const welcome = page.getByTestId("welcome");
+      const read = (selector: string) => welcome.locator(selector).first().evaluate((el) => getComputedStyle(el).translate);
+      return { bus: await read("img"), text: await read("h2"), cards: await read("ul") };
+    };
+    const still = { bus: "none", text: "none", cards: "0px" };
+
+    // Reduced motion (the suite default): the pointer changes nothing.
+    await page.goto("/");
+    await expect(page.getByTestId("welcome")).toBeVisible();
+    const box = (await page.getByTestId("welcome").boundingBox())!;
+    await page.mouse.move(box.x + box.width - 20, box.y + 20);
+    await page.waitForTimeout(500);
+    expect(await offsets()).toEqual(still);
+
+    // Otherwise the cards move with the pointer and nothing else does; they return when it leaves.
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    await page.reload();
+    await expect(page.getByTestId("welcome")).toBeVisible();
+    // Keep moving until the page has hydrated and listens.
+    await expect
+      .poll(async () => {
+        await page.mouse.move(box.x + 40, box.y + 40);
+        await page.mouse.move(box.x + box.width - 20, box.y + 20, { steps: 4 });
+        await page.waitForTimeout(150);
+        return (await offsets()).cards;
+      })
+      .toMatch(/^[1-9]/);
+    expect(await offsets()).toMatchObject({ bus: "none", text: "none" });
+    await page.mouse.move(box.x - 40, box.y - 40);
+    await expect.poll(async () => (await offsets()).cards).toMatch(/^0px/);
+  });
+
   test("each figure is a card that leads to where its detail lives", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByTestId("stat-pendingSubscriptions")).toHaveAttribute("href", "/subscriptions");
