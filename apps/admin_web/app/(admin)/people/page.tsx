@@ -14,6 +14,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Pager } from "@/components/ui/Pager";
 import { DataTable, Head, TableCard, Td, Th, Tr } from "@/components/ui/Table";
 import { Tabs, type TabItem } from "@/components/ui/Tabs";
+import { StickyToolbar } from "@/components/ui/StickyToolbar";
 
 import { requireAdmin } from "@/lib/auth";
 import { format, type Locale } from "@/lib/i18n/messages";
@@ -118,31 +119,33 @@ async function PeopleList({ searchParams }: { searchParams: SearchParams }) {
         }}
       />
 
-      <form method="get" action="/people" role="search" className="flex max-w-2xl flex-wrap items-end gap-3">
-        {role !== "all" ? <input type="hidden" name="role" value={role} /> : null}
-        <Input
-          id="q"
-          name="q"
-          type="search"
-          label={t.people.search.label}
-          icon={Search01Icon}
-          defaultValue={q}
-          placeholder={t.people.search.placeholder}
-          maxLength={64}
-          autoComplete="off"
-          className="min-w-64 flex-1"
-        />
-        <Button type="submit" variant="secondary">
-          {t.people.search.button}
-        </Button>
-        {q ? (
-          <ButtonLink variant="ghost" href={href(role, "")}>
-            {t.people.search.clear}
-          </ButtonLink>
-        ) : null}
-      </form>
+      <StickyToolbar>
+        <form method="get" action="/people" role="search" className="flex w-full max-w-2xl flex-wrap items-end gap-3">
+          {role !== "all" ? <input type="hidden" name="role" value={role} /> : null}
+          <Input
+            id="q"
+            name="q"
+            type="search"
+            label={t.people.search.label}
+            icon={Search01Icon}
+            defaultValue={q}
+            placeholder={t.people.search.placeholder}
+            maxLength={64}
+            autoComplete="off"
+            className="min-w-64 flex-1"
+          />
+          <Button type="submit" variant="secondary">
+            {t.people.search.button}
+          </Button>
+          {q ? (
+            <ButtonLink variant="ghost" href={href(role, "")}>
+              {t.people.search.clear}
+            </ButtonLink>
+          ) : null}
+        </form>
 
-      <Tabs label={t.people.filtersLabel} items={tabs} active={role} />
+        <Tabs label={t.people.filtersLabel} items={tabs} active={role} />
+      </StickyToolbar>
 
       {error ? (
         <Notice tone="bad">{t.people.loadError}</Notice>

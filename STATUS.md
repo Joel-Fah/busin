@@ -33,10 +33,10 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 
 ## Last handoff
 
-Done: the remaining page redesigns in one PR (branch `phase-2/pages-redesign`): People (search with placeholder, role tabs with counts, profile with the custom role dropdown and danger-styled suspend), Trips (status tabs with counts, schedule and edit forms with the custom dropdowns and date-time picker), Boardings (custom stop and day filters), Semesters and Buses (lists, forms with the custom fields), the Overview (cards that lead to where each figure lives, the review count set apart when something waits), and the sign-in, no-access, dev sign-in and not-found pages (one shared shell). Each list page has a header with help examples in English and French, an illustrated empty state, a shimmer loading state and the shared table and pager. A page past the last one is now an empty list, not an error, on all of them. The unused legacy styles are removed (about 350 lines). The real checkbox, radio and switch inputs now lie invisibly over their faces, so real clicks land on them.
+Done: the sticky toolbar on the list pages (branch `phase-2/sticky-toolbar`, stacked on the pages PR #100). On People, Subscriptions, Trips and Boardings the search and filters stick to the top when the list scrolls and realign into one compact glass row (search and tabs side by side), gliding back to the roomy layout at the top; smooth in both directions, instant with reduced motion, and the list below never jumps. The styleguide now documents tables, pagination, notices, empty and loading states and the sticky toolbar. Verified with typecheck, lint, unit tests, a clean build and the list and styleguide browser specs.
 
-Next: trip cancel and archive (needs a small audited database function, applied locally; hosted needs your approval), then Docker for the portal. Then phase 3, the student app, once the portal is accepted.
+Next: trip cancel and archive (a small audited database function applied locally; hosted needs your approval), then Docker for the portal.
 
 Blockers: none.
 
-Owner must do: review and merge the pages PR and try every page on your tablet and phone; decide whether stops should show how many students use each (needs a small database function); the Mapbox usage and token tasks still apply.
+Owner must do: merge #100 first, then retarget or merge the sticky toolbar PR (it is based on #100's branch). Try the sticky toolbar on your tablet.

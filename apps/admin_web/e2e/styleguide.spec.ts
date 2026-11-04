@@ -140,6 +140,28 @@ test.describe("administrator reading the styleguide", () => {
     await expect(banner.getByRole("heading", { name: "Styleguide", level: 1 })).toBeVisible();
   });
 
+  test("documents tables, pagination, notices, empty and loading states and the sticky toolbar", async ({ page }) => {
+    await page.goto("/styleguide");
+    for (const title of ["Table", "Pagination", "Notices", "Empty and loading states", "Sticky toolbar"]) {
+      await expect(page.getByRole("heading", { name: title, level: 3 })).toBeVisible();
+    }
+
+    // The table example is a real table with column headings.
+    const table = page.locator("#components").getByRole("table").first();
+    await expect(table.getByRole("columnheader")).toHaveCount(4);
+    await expect(table.getByRole("row")).toHaveCount(4);
+
+    // The pager shows the range and both steps.
+    const pager = page.getByRole("navigation", { name: "Pages" });
+    await expect(pager.getByRole("link", { name: "Previous" })).toBeVisible();
+    await expect(pager.getByRole("link", { name: "Next" })).toBeVisible();
+    await expect(page.getByText("Showing 21 to 40 of 87")).toBeVisible();
+
+    // Notices: failures are alerts, the others are polite statuses.
+    await expect(page.getByRole("alert").filter({ hasText: "could not be saved" })).toBeVisible();
+    await expect(page.getByRole("status").filter({ hasText: "Stop saved." })).toBeVisible();
+  });
+
   test("the portal has a themed icon", async ({ page }) => {
     await page.goto("/styleguide");
     await expect(page.locator('link[rel="icon"][href*="icon.svg"]')).toHaveCount(1);
