@@ -1,5 +1,7 @@
 /** Pure helpers for the subscription review pages. Kept separate so they are unit tested. */
 
+import type { ChipTone } from "@/components/ui/Chip";
+
 import { first } from "./pagination";
 
 // Shared helpers live in their own modules; they are re-exported so existing imports keep working.
@@ -19,17 +21,30 @@ export function parseStatusFilter(value: string | string[] | undefined): StatusF
   return FILTERS.find((filter) => filter === candidate) ?? "pending";
 }
 
-export function pillClass(status: SubscriptionStatus): string {
+/** The tone of a status chip. The label always comes with it, so colour is never the only signal. */
+export function statusTone(status: SubscriptionStatus): ChipTone {
   switch (status) {
     case "approved":
-      return "pill pill-ok";
+      return "ok";
     case "rejected":
-      return "pill pill-bad";
+      return "bad";
     case "expired":
-      return "pill pill-info";
+      return "neutral";
     default:
-      return "pill pill-warn";
+      return "warn";
   }
+}
+
+/** Number of subscriptions for each tab. "all" is the sum, and a missing count counts as zero. */
+export function tabCounts(byStatus: Partial<Record<SubscriptionStatus, number | null>>): Record<StatusFilter, number> {
+  const get = (status: SubscriptionStatus) => byStatus[status] ?? 0;
+  return {
+    pending: get("pending"),
+    approved: get("approved"),
+    rejected: get("rejected"),
+    expired: get("expired"),
+    all: STATUSES.reduce((sum, status) => sum + get(status), 0),
+  };
 }
 
 /** Trimmed reason, or null when it is empty or too long. */

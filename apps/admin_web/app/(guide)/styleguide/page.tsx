@@ -486,7 +486,7 @@ async function Styleguide() {
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
           {THREE_D.map(([file, label]) => (
             <div key={file} className="flex flex-col items-center gap-2 rounded-lg bg-surface p-4 shadow-soft">
-              <Image src={`/styleguide/3d/${file}.webp`} alt="" width={96} height={96} className="h-24 w-24" />
+              <Image src={`/illustrations/${file}.webp`} alt="" width={96} height={96} className="h-24 w-24" />
               <span className="text-xs font-semibold text-muted">{label}</span>
             </div>
           ))}
@@ -519,7 +519,7 @@ async function Styleguide() {
         <EmptyState
           title="No trips scheduled yet"
           body="Schedule the first run of the day and it will show up here."
-          illustration="/styleguide/3d/bus.webp"
+          illustration="/illustrations/bus.webp"
         />
       </Section>
 

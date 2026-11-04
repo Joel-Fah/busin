@@ -18,8 +18,11 @@ let admin: TestUser;
 let staff: TestUser;
 let studentApprove: TestUser;
 let studentReject: TestUser;
+let studentView: TestUser;
 let approveId: string;
 let rejectId: string;
+// Used only to look at the review page, so no other test decides it.
+let viewId: string;
 
 const nameOf = (label: string) => `E2E ${label}`;
 
@@ -30,12 +33,14 @@ test.beforeAll(async () => {
   studentReject = await createUser(`reject-${tag}`, "student");
   approveId = await createSubscription(studentApprove.id);
   rejectId = await createSubscription(studentReject.id);
+  studentView = await createUser(`view-${tag}`, "student");
+  viewId = await createSubscription(studentView.id);
 });
 
 test.afterAll(async () => {
   const db = serviceClient();
   await db.from("audit_log").delete().in("target_id", [approveId, rejectId].filter(Boolean));
-  for (const user of [admin, staff, studentApprove, studentReject]) {
+  for (const user of [admin, staff, studentApprove, studentReject, studentView]) {
     if (user) await deleteUser(user);
   }
 });
@@ -122,6 +127,67 @@ test.describe("administrator reviewing", () => {
     await page.goto("/subscriptions?status=%27%3Bdrop&page=-5");
     await expect(page.getByRole("heading", { name: "Subscriptions", level: 1 })).toBeVisible();
     await expect(page.getByRole("link", { name: "To review" })).toHaveAttribute("aria-current", "page");
+  });
+
+  test("each tab shows how many subscriptions are behind it, matching the database", async ({ page }) => {
+    const db = serviceClient();
+    const total = async (status?: "pending" | "approved" | "rejected" | "expired") => {
+      let query = db.from("subscriptions").select("id", { count: "exact", head: true });
+      if (status) query = query.eq("status", status);
+      const { count } = await query;
+      return count ?? 0;
+    };
+    await page.goto("/subscriptions");
+    const tabs = page.getByRole("navigation", { name: "Filter by status" });
+    await expect(tabs.getByRole("link", { name: /To review/ })).toContainText(String(await total("pending")));
+    await expect(tabs.getByRole("link", { name: /Approved/ })).toContainText(String(await total("approved")));
+    await expect(tabs.getByRole("link", { name: /Rejected/ })).toContainText(String(await total("rejected")));
+    await expect(tabs.getByRole("link", { name: /All/ })).toContainText(String(await total()));
+  });
+
+  test("the queue tab is in the warning tone and approved is in the ok tone, with the label beside the colour", async ({ page }) => {
+    await page.goto("/subscriptions");
+    const tabs = page.getByRole("navigation", { name: "Filter by status" });
+    const colourOf = (name: RegExp) =>
+      tabs.getByRole("link", { name }).locator("span").last().evaluate((el) => getComputedStyle(el).backgroundColor);
+    expect(await colourOf(/To review/)).not.toBe(await colourOf(/Approved/));
+    await expect(tabs.getByRole("link", { name: /To review/ })).toContainText("To review");
+  });
+
+  test("the help button explains reviewing with examples", async ({ page }) => {
+    await page.goto("/subscriptions");
+    await page.getByRole("button", { name: "Help" }).click();
+    const sheet = page.getByRole("dialog", { name: "How reviewing works" });
+    await expect(sheet).toBeVisible();
+    await expect(sheet.getByText("The receipt is unreadable")).toBeVisible();
+  });
+
+  test("an empty page shows a friendly empty state with an illustration, not a bare line", async ({ page }) => {
+    await page.goto("/subscriptions?status=approved&page=50");
+    await expect(page.getByText("No subscriptions here")).toBeVisible();
+    await expect(page.getByText("Try another tab.")).toBeVisible();
+    await expect(page.locator("img[src*='papers']")).toBeVisible();
+  });
+
+  test("the review page uses the design system: back button, status chip, proof card and a field with an icon", async ({ page }) => {
+    await page.goto(`/subscriptions/${viewId}`);
+    await expect(page.getByRole("link", { name: "Back to subscriptions" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: nameOf(`view-${tag}`), level: 1 })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Payment proof" })).toBeVisible();
+    await page.getByText("Reject with a reason").click();
+    const reason = page.getByLabel("Reason for rejection");
+    await expect(reason).toHaveAttribute("placeholder", /receipt is unreadable/);
+    await expect(reason).toHaveAttribute("maxlength", "500");
+    // The reject button is the danger style.
+    const isDanger = await page.getByRole("button", { name: "Confirm rejection" }).evaluate((el) => {
+      const probe = document.createElement("span");
+      probe.style.color = "var(--bad)";
+      document.body.append(probe);
+      const same = getComputedStyle(el).color === getComputedStyle(probe).color;
+      probe.remove();
+      return same;
+    });
+    expect(isDanger).toBe(true);
   });
 
   test("the pages are available in French", async ({ page }) => {

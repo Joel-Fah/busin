@@ -12,7 +12,7 @@ import {
   Menu03Icon,
   Navigation03Icon,
   ReceiptTextIcon,
-  Ticket01Icon,
+  Ticket03Icon,
   UserMultiple02Icon,
 } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
@@ -31,7 +31,7 @@ export type NavKey = "overview" | "subscriptions" | "people" | "stops" | "trips"
 
 const ICONS: Record<NavKey, IconSvgElement> = {
   overview: GeometricShapes01Icon,
-  subscriptions: Ticket01Icon,
+  subscriptions: Ticket03Icon,
   people: UserMultiple02Icon,
   stops: FlagTriangleRightIcon,
   trips: Navigation03Icon,

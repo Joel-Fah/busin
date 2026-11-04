@@ -192,7 +192,7 @@ for (const [label, width, height] of [
     });
 
     test("no page scrolls sideways", async ({ page }) => {
-      for (const path of ["/", "/trips", "/stops", "/profile", "/semesters"]) {
+      for (const path of ["/", "/trips", "/stops", "/profile", "/semesters", "/subscriptions"]) {
         await page.goto(path);
         const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
         expect(overflow, path).toBe(0);

@@ -9,8 +9,9 @@ import {
   parsePage,
   parseReason,
   parseStatusFilter,
-  pillClass,
   reviewErrorKey,
+  statusTone,
+  tabCounts,
 } from "./subscriptions";
 
 describe("parseStatusFilter", () => {
@@ -87,9 +88,24 @@ describe("isUuid", () => {
   });
 });
 
-describe("pillClass", () => {
-  it("has a distinct class per status", () => {
-    const classes = (["pending", "approved", "rejected", "expired"] as const).map(pillClass);
-    expect(new Set(classes).size).toBe(4);
+describe("statusTone", () => {
+  it("gives each status its own tone", () => {
+    expect(statusTone("pending")).toBe("warn");
+    expect(statusTone("approved")).toBe("ok");
+    expect(statusTone("rejected")).toBe("bad");
+    expect(statusTone("expired")).toBe("neutral");
+  });
+});
+
+describe("tabCounts", () => {
+  it("adds up the total and treats a missing count as zero", () => {
+    expect(tabCounts({ pending: 3, approved: 10, rejected: 1, expired: null })).toEqual({
+      pending: 3,
+      approved: 10,
+      rejected: 1,
+      expired: 0,
+      all: 14,
+    });
+    expect(tabCounts({}).all).toBe(0);
   });
 });
