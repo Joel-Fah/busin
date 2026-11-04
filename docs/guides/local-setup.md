@@ -39,6 +39,12 @@ Other handy commands: `npm run backend:stop`, `npm run backend:reset` (rebuild t
 
 To sign in, either set up Google ([Google sign-in guide](google-sign-in.md)) or, for local work only, run `npm run dev:user` and use http://127.0.0.1:3000/dev/login.
 
+## Demo data
+
+To see how the portal behaves with real-looking content, run `npm run seed:demo` (the backend must be running and seeded once with `npm run backend:reset`). It adds 66 demo people (an administrator, five drivers, sixty students; a few pending or suspended), twelve stops around Yaounde, six buses, three semesters, about eighty subscriptions (approved, waiting, rejected, expired), two weeks of trips with some cancelled and archived, and about five hundred boardings, plus one trip that is always running. It prints sign-in details for an administrator, a driver and a student.
+
+It only touches demo rows (accounts starting with `demo.` and ids starting with `de`), so your own local accounts stay. Run it again any time to replace the demo rows and move the trips to today's dates. It is not loaded by `backend:reset` and must never be run against a hosted project; the script only talks to the local database container. The data is in [supabase/seed-demo.sql](../../supabase/seed-demo.sql).
+
 ## Per tier
 
 | Tier | Run |

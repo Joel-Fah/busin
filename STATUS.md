@@ -33,10 +33,10 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 
 ## Last handoff
 
-Done: students per stop (branch `phase-2/stop-usage`, stacked on the Docker PR #106). A read-only database function, `admin_stop_usage`, counts approved and pending subscriptions per stop for semesters that have not ended; it runs as the caller, so row security limits it to the admin's school. Every stop in the Stops dock and full list now says, for example, "12 students, 3 waiting". Also removed the unused `NavLinks` component and the admin copy of the Bevellier font (the legacy app keeps its own).
+Done: demo data for local development (branch `phase-2/demo-data`, based on `phase-2/land-stacked`, PR #110). `npm run seed:demo` fills the local database with 66 people, 12 stops, 6 buses, 3 semesters, 84 subscriptions, about 118 trips (some cancelled or archived, one always running) and about 520 boardings, and prints sign-in details for an administrator, a driver and a student. It is repeatable and only touches rows marked as demo. Also found that #102, #104, #106 and #108 were merged into their parent branches rather than into `dev`; #110 brings all of that work into `dev`.
 
-Next: nothing is queued. Candidates: admin overview shortcuts to the busiest stops, then Phase 3 (student app) once the owner says to start.
+Next: nothing is queued. Look through the portal with the demo data and note what to change.
 
 Blockers: none.
 
-Owner must do: merge #100, #102, #104, #106 and this PR in order (retarget each with `gh pr edit --base dev` once its parent merges). Approve running the three new migrations (trip cancel and archive, stop usage) on the hosted project when ready; I have not run them there. Create separate dev and prod Mapbox tokens restricted to your URLs.
+Owner must do: merge #110 first (it contains the sticky toolbar, trip cancel and archive, Docker and stop usage), then tell me so I retarget the demo data PR to `dev` before it is merged (merging it earlier would put it into the old branch again). Run `npm run seed:demo` to try the portal with data. Approve running the new migrations on the hosted project when ready. Create separate dev and prod Mapbox tokens restricted to your URLs.
