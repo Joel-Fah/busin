@@ -1,7 +1,10 @@
 /** Pure helpers for the trips pages. Kept separate so they are unit tested. */
 
+import { choiceParam, listHref, uuidParam } from "./filters";
 import { isUuid } from "./ids";
 import { first } from "./pagination";
+import { dayBounds } from "./scans";
+import { isIsoDate } from "./semesters";
 import { zonedLocalToUtc } from "./zoned";
 
 export const DIRECTIONS = ["inbound", "outbound"] as const;
@@ -160,4 +163,74 @@ export function tripTabCounts(
     cancelled: get("cancelled"),
     archived: archived ?? 0,
   };
+}
+
+/** The driver filter value for trips that have no driver yet. */
+export const NO_DRIVER = "none";
+
+export type TripFilters = {
+  status: StatusFilter;
+  /** A calendar day as YYYY-MM-DD in the school timezone. */
+  date: string | null;
+  bus: string | null;
+  direction: Direction | null;
+  /** A driver id, NO_DRIVER for trips without one, or null for everyone. */
+  driver: string | null;
+};
+
+export type TripQuery = {
+  status?: string | string[];
+  date?: string | string[];
+  bus?: string | string[];
+  direction?: string | string[];
+  driver?: string | string[];
+};
+
+/** Reads the list's filters from its query string. Anything malformed means "no filter". */
+export function parseTripFilters(query: TripQuery): TripFilters {
+  const date = first(query.date);
+  const driver = first(query.driver);
+  return {
+    status: parseStatusFilter(query.status),
+    date: isIsoDate(date) ? date : null,
+    bus: uuidParam(query.bus),
+    direction: choiceParam(query.direction, DIRECTIONS),
+    driver: driver === NO_DRIVER ? NO_DRIVER : uuidParam(query.driver),
+  };
+}
+
+/** The address of the trips list for these filters, leaving out what is empty and the first page. */
+export function tripsHref(filters: TripFilters, page = 1): string {
+  return listHref("/trips", {
+    status: filters.status === "all" ? null : filters.status,
+    date: filters.date,
+    bus: filters.bus,
+    direction: filters.direction,
+    driver: filters.driver,
+    page: page > 1 ? page : null,
+  });
+}
+
+type Chain = {
+  eq(column: string, value: string): Chain;
+  is(column: string, value: null): Chain;
+  gte(column: string, value: string): Chain;
+  lt(column: string, value: string): Chain;
+};
+
+/**
+ * Narrows a trips query by the column filters (not by status, which the page handles with the archive).
+ * The same function narrows the list and the counts on the tabs, so the numbers always agree with the rows.
+ */
+export function applyTripFilters<Q>(query: Q, filters: TripFilters, timeZone: string): Q {
+  let q = query as unknown as Chain;
+  if (filters.bus) q = q.eq("bus_id", filters.bus);
+  if (filters.direction) q = q.eq("direction", filters.direction);
+  if (filters.driver === NO_DRIVER) q = q.is("driver_id", null);
+  else if (filters.driver) q = q.eq("driver_id", filters.driver);
+  if (filters.date) {
+    const bounds = dayBounds(filters.date, timeZone);
+    q = q.gte("scheduled_start", bounds.from).lt("scheduled_start", bounds.to);
+  }
+  return q as unknown as Q;
 }

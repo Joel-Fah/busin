@@ -63,7 +63,7 @@ export function StickyToolbar({ children }: Props) {
           if (current === next) return current;
           // Remember where everything is now; the layout effect below animates from there. The first report,
           // when the page loads already scrolled, just sets the state without an animation.
-          if (seen.current) before.current = Flip.getState(Array.from(el.children));
+          if (seen.current) before.current = Flip.getState(Array.from(el.children), { props: "width" });
           return next;
         });
         seen.current = true;
@@ -79,7 +79,7 @@ export function StickyToolbar({ children }: Props) {
     if (!state) return;
     before.current = null;
     const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    Flip.from(state, { duration: calm ? 0 : 0.55, ease: "power3.out", scale: false, simple: true });
+    Flip.from(state, { duration: calm ? 0 : 0.55, ease: "power3.out", scale: false, simple: true, props: "width" });
   }, [stuck]);
 
   return (

@@ -36,3 +36,16 @@ export async function loadTripOptions(currentBusId?: string): Promise<{
     failed: false,
   };
 }
+
+/** Every bus and every staff member, for the column filters: a past trip may have a bus now out of service. */
+export async function loadTripFilterOptions(): Promise<{ buses: { id: string; plate: string }[]; drivers: DriverOption[] }> {
+  const supabase = await createClient();
+  const [buses, drivers] = await Promise.all([
+    supabase.from("buses").select("id, plate").order("plate", { ascending: true }).limit(MAX_OPTIONS),
+    supabase.from("profiles").select("id, full_name, email").eq("role", "staff").order("full_name", { ascending: true }).limit(MAX_OPTIONS),
+  ]);
+  return {
+    buses: buses.data ?? [],
+    drivers: (drivers.data ?? []).map((row) => ({ id: row.id, name: row.full_name || row.email })),
+  };
+}

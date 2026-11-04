@@ -2,6 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import {
   MAX_REASON_LENGTH,
+  NO_DRIVER,
+  applyTripFilters,
+  parseTripFilters,
+  tripsHref,
   isTripDone,
   isTripFormErrorKey,
   parseReason,
@@ -120,5 +124,50 @@ describe("cancelling and archiving", () => {
       archived: 5,
     });
     expect(tripTabCounts({}, null).archived).toBe(0);
+  });
+});
+
+describe("trip filters", () => {
+  it("reads valid filters and treats the rest as none", () => {
+    expect(parseTripFilters({ status: "active", date: "2026-11-04", bus: BUS, direction: "outbound", driver: DRIVER })).toEqual({
+      status: "active",
+      date: "2026-11-04",
+      bus: BUS,
+      direction: "outbound",
+      driver: DRIVER,
+    });
+    expect(parseTripFilters({ date: "2026-02-30", bus: "x", direction: "up", driver: "y" })).toEqual({
+      status: "all",
+      date: null,
+      bus: null,
+      direction: null,
+      driver: null,
+    });
+    expect(parseTripFilters({ driver: NO_DRIVER }).driver).toBe(NO_DRIVER);
+  });
+
+  it("builds addresses without empty parts", () => {
+    const none = parseTripFilters({});
+    expect(tripsHref(none)).toBe("/trips");
+    expect(tripsHref({ ...none, status: "completed", bus: BUS }, 2)).toBe(`/trips?status=completed&bus=${BUS}&page=2`);
+  });
+
+  it("narrows a query by each filter", () => {
+    const calls: string[] = [];
+    const recorder: Record<string, (...args: unknown[]) => unknown> = {};
+    for (const name of ["eq", "is", "gte", "lt"]) {
+      recorder[name] = (...args) => {
+        calls.push(`${name} ${args.join(" ")}`);
+        return recorder;
+      };
+    }
+    applyTripFilters(recorder, parseTripFilters({ bus: BUS, direction: "inbound", driver: NO_DRIVER, date: "2026-11-04" }), "UTC");
+    expect(calls).toEqual([
+      `eq bus_id ${BUS}`,
+      "eq direction inbound",
+      "is driver_id ",
+      "gte scheduled_start 2026-11-04T00:00:00.000Z",
+      "lt scheduled_start 2026-11-05T00:00:00.000Z",
+    ]);
   });
 });

@@ -330,6 +330,21 @@ dialog,
   white-space: nowrap;
 }
 
+/*
+  A toolbar that is only tabs (Trips, Subscriptions) stretches them across the whole bar when it sticks, so the
+  bar is as wide as the table below and the tabs share it out, instead of a small group in a wide bar.
+*/
+.sticky-toolbar[data-stuck='true'] > nav:only-child {
+  display: flex;
+  flex: 1 1 auto;
+  width: 100%;
+}
+
+.sticky-toolbar[data-stuck='true'] > nav:only-child > [data-tab] {
+  flex: 1 1 0;
+  justify-content: center;
+}
+
 @media (min-width: 64rem) {
   .sticky-toolbar[data-stuck='true'] {
     flex-wrap: nowrap;

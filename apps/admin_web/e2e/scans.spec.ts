@@ -127,8 +127,8 @@ test.describe("administrator viewing boardings", () => {
 
   test("filters by day in the school timezone", async ({ page }) => {
     await page.goto("/scans");
+    await page.getByRole("button", { name: "Time", exact: true }).click();
     await pickDate(page, "Day", "2090-07-02");
-    await page.getByRole("button", { name: "Apply" }).click();
 
     await expect(page).toHaveURL(/date=2090-07-02/);
     await expect(page.getByRole("row").filter({ hasText: alice })).toHaveCount(1);
@@ -139,6 +139,27 @@ test.describe("administrator viewing boardings", () => {
     await page.goto(`/scans?stop=${SECOND_STOP}`);
     await expect(page.getByRole("row").filter({ hasText: bob })).toHaveCount(1);
     await expect(page.getByRole("row").filter({ hasText: alice })).toHaveCount(0);
+  });
+
+  test("filters by direction from the heading, and the chip removes it", async ({ page }) => {
+    await page.goto("/scans");
+    await page.getByRole("button", { name: "Direction", exact: true }).click();
+    await page.getByRole("dialog", { name: "Direction" }).getByRole("link", { name: "Going home" }).click();
+    await expect(page).toHaveURL(/direction=outbound/);
+    await expect(page.getByRole("row").filter({ hasText: bob })).toHaveCount(1);
+    await expect(page.getByRole("row").filter({ hasText: alice })).toHaveCount(0);
+
+    await page.getByRole("link", { name: /Remove filter: Direction/ }).click();
+    await expect(page).toHaveURL(/\/scans$/);
+    await expect(page.getByRole("row").filter({ hasText: alice })).toHaveCount(1);
+  });
+
+  test("filters by bus", async ({ page }) => {
+    await page.goto(`/scans?bus=${busId}`);
+    await expect(page.getByRole("row").filter({ hasText: alice })).toHaveCount(1);
+    await expect(page.getByRole("row").filter({ hasText: bob })).toHaveCount(1);
+    await page.goto("/scans?bus=a1000000-0000-4000-8000-0000000000ff");
+    await expect(page.getByText("No boardings match these filters.")).toBeVisible();
   });
 
   test("a trip links to its boardings", async ({ page }) => {

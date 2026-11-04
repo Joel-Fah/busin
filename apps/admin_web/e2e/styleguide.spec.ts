@@ -140,9 +140,9 @@ test.describe("administrator reading the styleguide", () => {
     await expect(banner.getByRole("heading", { name: "Styleguide", level: 1 })).toBeVisible();
   });
 
-  test("documents tables, pagination, notices, empty and loading states and the sticky toolbar", async ({ page }) => {
+  test("documents tables, pagination, notices, empty and loading states, the sticky toolbar and column filters", async ({ page }) => {
     await page.goto("/styleguide");
-    for (const title of ["Table", "Pagination", "Notices", "Empty and loading states", "Sticky toolbar"]) {
+    for (const title of ["Table", "Pagination", "Notices", "Empty and loading states", "Sticky toolbar", "Column filters"]) {
       await expect(page.getByRole("heading", { name: title, level: 3 })).toBeVisible();
     }
 
@@ -160,6 +160,13 @@ test.describe("administrator reading the styleguide", () => {
     // Notices: failures are alerts, the others are polite statuses.
     await expect(page.getByRole("alert").filter({ hasText: "could not be saved" })).toBeVisible();
     await expect(page.getByRole("status").filter({ hasText: "Stop saved." })).toBeVisible();
+
+    // The column filter example opens a panel of choices from its heading, and the chips can be removed.
+    const filters = page.locator("#components");
+    await filters.getByRole("button", { name: /^Stop/ }).first().click();
+    await expect(page.getByRole("dialog", { name: "Stop" }).getByRole("link", { name: "Mendong market" })).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(filters.getByRole("group", { name: "Active filters" }).getByRole("link", { name: /Remove filter: Stop/ })).toBeVisible();
   });
 
   test("the portal has a themed icon", async ({ page }) => {

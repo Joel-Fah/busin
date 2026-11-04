@@ -10,7 +10,7 @@ Current phase: **Phase 2, shared packages and admin portal** ([docs/phases/phase
 |---|---|---|
 | 0 Foundation | Monorepo layout, docs, skills, workflow, GitHub setup | Done and merged into `dev` |
 | 1 Backend | Secure multi-tenant Supabase backend | Done and merged into `dev` (126 database tests) |
-| 2 Shared and admin web | Shared Dart packages, admin portal | In progress. Merged: busin_core, portal shell and sign-in, subscription review, people, stops with a map, semesters, buses, trips, boardings. In progress: admin portal redesign in five PRs (foundation and styleguide in review; then shell and navbar, components and Mapbox, page redesigns, trip cancel and Docker). Next after that: stop photos, busin_ui, busin_data |
+| 2 Shared and admin web | Shared Dart packages, admin portal | Admin portal done and merged into `dev` (redesign, filters, trip cancel and archive, stop usage, Docker, demo data; the exit criteria for the portal are met). Remaining: `busin_ui` and `busin_data` are still empty stubs, and the Flutter upgrade tooling check |
 | 3 Student app | Lightweight student app | Not started |
 | 4 Ops app | Scanner and driver mode | Not started |
 | 5 Insights | Density map, pickup and route suggestions | Not started |
@@ -33,10 +33,10 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 
 ## Last handoff
 
-Done: demo data for local development (branch `phase-2/demo-data`, based on `phase-2/land-stacked`, PR #110). `npm run seed:demo` fills the local database with 66 people, 12 stops, 6 buses, 3 semesters, 84 subscriptions, about 118 trips (some cancelled or archived, one always running) and about 520 boardings, and prints sign-in details for an administrator, a driver and a student. It is repeatable and only touches rows marked as demo. Also found that #102, #104, #106 and #108 were merged into their parent branches rather than into `dev`; #110 brings all of that work into `dev`.
+Done: filters in the table headings (branch `phase-2/header-filters`). Trips filter by start day, bus, direction and driver (including trips with none yet); Subscriptions by semester and stop; Boardings by day, stop, bus and direction. A small filter button after the column name opens the choices (a calendar for dates), each active filter shows as a chip above the table that removes it, the tab counts follow the filters, and the filters live in the page address. On Trips and Subscriptions the sticky bar now stretches to the table's width and the tabs share it. Boardings no longer has a toolbar form: its filters are in the headings. Documented in the styleguide and ADR 0009.
 
-Next: nothing is queued. Look through the portal with the demo data and note what to change.
+Next: nothing is queued. Look through the filters with the demo data (`npm run seed:demo`) and say what to change or which other columns should filter.
 
 Blockers: none.
 
-Owner must do: merge #110 first (it contains the sticky toolbar, trip cancel and archive, Docker and stop usage), then tell me so I retarget the demo data PR to `dev` before it is merged (merging it earlier would put it into the old branch again). Run `npm run seed:demo` to try the portal with data. Approve running the new migrations on the hosted project when ready. Create separate dev and prod Mapbox tokens restricted to your URLs.
+Owner must do: merge this PR. Approve the hosted migrations when ready. Create separate dev and prod Mapbox tokens restricted to your URLs.

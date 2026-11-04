@@ -1,27 +1,26 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { FlagTriangleRightIcon } from "@hugeicons/core-free-icons";
 
 import { Avatar } from "@/components/ui/Avatar";
-import { Button, ButtonLink } from "@/components/ui/Button";
-import { DatePicker } from "@/components/ui/DatePicker";
+import { ColumnFilter } from "@/components/ui/ColumnFilter";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { FilterChips, type FilterChip } from "@/components/ui/FilterChips";
 import { ListSkeleton } from "@/components/ui/ListSkeleton";
 import { Notice } from "@/components/ui/Notice";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Pager } from "@/components/ui/Pager";
-import { Select } from "@/components/ui/Select";
 import { DataTable, Head, TableCard, Td, Th, Tr } from "@/components/ui/Table";
-import { StickyToolbar } from "@/components/ui/StickyToolbar";
 
 import { requireAdmin } from "@/lib/auth";
+import { chipText, filterText } from "@/lib/filter-text";
+import { VALUE_TOKEN } from "@/lib/filters";
 import { format, type Locale } from "@/lib/i18n/messages";
 import { getMessages } from "@/lib/i18n/server";
 import { PAGE_SIZE, lastPage, pageRange, parsePage } from "@/lib/pagination";
 import { dayBounds, parseScanFilters, scansHref } from "@/lib/scans";
 import { createClient } from "@/lib/supabase/server";
-import { isDirection } from "@/lib/trips";
+import { DIRECTIONS, isDirection } from "@/lib/trips";
 
 export const metadata: Metadata = { title: "Boardings" };
 
@@ -32,6 +31,8 @@ type SearchParams = Promise<{
   trip?: string | string[];
   stop?: string | string[];
   date?: string | string[];
+  bus?: string | string[];
+  direction?: string | string[];
   page?: string | string[];
 }>;
 
@@ -58,19 +59,23 @@ async function ScansList({ searchParams }: { searchParams: SearchParams }) {
   const supabase = await createClient();
   let request = supabase
     .from("scans")
-    .select("id, trip_id, student_id, stop_id, scanned_at", { count: "exact" })
+    // The trip comes with the boarding (an inner join), which is also how the bus and direction filters reach it.
+    .select("id, trip_id, student_id, stop_id, scanned_at, trip:trips!scans_trip_id_school_id_fkey!inner(bus_id, direction)", { count: "exact" })
     .order("scanned_at", { ascending: false })
     .range(from, to);
   if (filters.trip) request = request.eq("trip_id", filters.trip);
   if (filters.stop) request = request.eq("stop_id", filters.stop);
+  if (filters.bus) request = request.eq("trip.bus_id", filters.bus);
+  if (filters.direction) request = request.eq("trip.direction", filters.direction);
   if (filters.date) {
     const bounds = dayBounds(filters.date, admin.schoolTimezone);
     request = request.gte("scanned_at", bounds.from).lt("scanned_at", bounds.to);
   }
 
-  const [listed, stopOptions, chipTrip] = await Promise.all([
+  const [listed, stopOptions, busOptions, chipTrip] = await Promise.all([
     request,
     supabase.from("stops").select("id, name").order("name", { ascending: true }).limit(500),
+    supabase.from("buses").select("id, plate").order("plate", { ascending: true }).limit(200),
     filters.trip
       ? supabase.from("trips").select("id, bus_id, direction, scheduled_start").eq("id", filters.trip).maybeSingle()
       : Promise.resolve({ data: null }),
@@ -84,25 +89,33 @@ async function ScansList({ searchParams }: { searchParams: SearchParams }) {
   // Names for this page only, so the list never loads every student, stop and trip.
   const studentIds = [...new Set(rows.map((row) => row.student_id))];
   const stopIds = [...new Set(rows.flatMap((row) => (row.stop_id ? [row.stop_id] : [])))];
-  const tripIds = [...new Set(rows.map((row) => row.trip_id))];
-  const [students, stops, trips] = await Promise.all([
+  const [students, stops] = await Promise.all([
     studentIds.length ? supabase.from("profiles").select("id, full_name, email, matricule").in("id", studentIds) : { data: [] },
     stopIds.length ? supabase.from("stops").select("id, name").in("id", stopIds) : { data: [] },
-    tripIds.length ? supabase.from("trips").select("id, bus_id, direction").in("id", tripIds) : { data: [] },
   ]);
-  const busIds = [...new Set([...(trips.data ?? []).map((trip) => trip.bus_id), ...(chipTrip.data ? [chipTrip.data.bus_id] : [])])];
-  const buses = busIds.length ? await supabase.from("buses").select("id, plate").in("id", busIds) : { data: [] };
 
   const studentById = new Map((students.data ?? []).map((row) => [row.id, row]));
   const stopById = new Map((stops.data ?? []).map((row) => [row.id, row.name]));
-  const tripById = new Map((trips.data ?? []).map((row) => [row.id, row]));
-  const plateById = new Map((buses.data ?? []).map((row) => [row.id, row.plate]));
+  const plateById = new Map((busOptions.data ?? []).map((row) => [row.id, row.plate]));
 
   const chipLabel =
     chipTrip.data && isDirection(chipTrip.data.direction)
       ? `${formatTime(chipTrip.data.scheduled_start, locale, admin.schoolTimezone)} / ${plateById.get(chipTrip.data.bus_id) ?? "-"} / ${t.trips.direction[chipTrip.data.direction]}`
       : null;
-  const anyFilter = Boolean(filters.trip || filters.stop || filters.date);
+  const text = filterText(t);
+  const cf = t.columnFilter;
+  const without = (change: Partial<typeof filters>) => scansHref({ ...filters, ...change });
+  const stopList = stopOptions.data ?? [];
+  const dayLabel = filters.date
+    ? new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone: "UTC" }).format(new Date(`${filters.date}T00:00:00Z`))
+    : null;
+  const chips: FilterChip[] = [
+    ...(dayLabel ? [{ label: t.scans.columns.time, value: dayLabel, href: without({ date: null }) }] : []),
+    ...(filters.stop ? [{ label: t.scans.columns.stop, value: stopList.find((stop) => stop.id === filters.stop)?.name ?? "-", href: without({ stop: null }) }] : []),
+    ...(filters.bus ? [{ label: t.scans.columns.bus, value: plateById.get(filters.bus) ?? "-", href: without({ bus: null }) }] : []),
+    ...(filters.direction ? [{ label: t.scans.columns.direction, value: t.trips.direction[filters.direction], href: without({ direction: null }) }] : []),
+  ];
+  const anyFilter = Boolean(filters.trip) || chips.length > 0;
 
   return (
     <>
@@ -119,38 +132,11 @@ async function ScansList({ searchParams }: { searchParams: SearchParams }) {
         }}
       />
 
-      <StickyToolbar>
-        <form method="get" action="/scans" aria-label={t.scans.filtersLabel} className="flex flex-wrap items-end gap-3">
-          {filters.trip ? <input type="hidden" name="trip" value={filters.trip} /> : null}
-          <Select
-            id="stop"
-            name="stop"
-            label={t.scans.filters.stop}
-            icon={FlagTriangleRightIcon}
-            defaultValue={filters.stop ?? ""}
-            className="w-full sm:w-72"
-            options={[{ value: "", label: t.scans.filters.allStops }, ...(stopOptions.data ?? []).map((stop) => ({ value: stop.id, label: stop.name }))]}
-          />
-          <DatePicker
-            id="date"
-            name="date"
-            label={t.scans.filters.day}
-            locale={locale}
-            text={t.pickers.date}
-            defaultValue={filters.date ?? ""}
-            placeholder={t.scans.filters.anyDay}
-            className="w-full sm:w-64"
-          />
-          <Button type="submit" variant="secondary">
-            {t.scans.filters.apply}
-          </Button>
-          {anyFilter ? (
-            <ButtonLink variant="ghost" href="/scans">
-              {t.scans.filters.clear}
-            </ButtonLink>
-          ) : null}
-        </form>
-      </StickyToolbar>
+      <FilterChips
+        chips={chips}
+        clearAllHref={without({ date: null, stop: null, bus: null, direction: null })}
+        {...chipText(t)}
+      />
 
       {chipLabel ? (
         <div className="flex flex-wrap items-center gap-3 rounded-md bg-surface-2 px-5 py-3 text-sm">
@@ -172,16 +158,57 @@ async function ScansList({ searchParams }: { searchParams: SearchParams }) {
           <TableCard>
             <DataTable minWidth="40rem">
               <Head>
-                <Th>{t.scans.columns.time}</Th>
+                <Th>
+                  <ColumnFilter
+                    kind="date"
+                    label={t.scans.columns.time}
+                    value={filters.date}
+                    clearHref={without({ date: null })}
+                    allLabel={cf.anyDay}
+                    pickerLabel={cf.day}
+                    hrefTemplate={scansHref({ ...filters, date: VALUE_TOKEN })}
+                    locale={locale}
+                    pickerText={t.pickers.date}
+                    placeholder={cf.anyDay}
+                    {...text}
+                  />
+                </Th>
                 <Th>{t.scans.columns.student}</Th>
-                <Th>{t.scans.columns.stop}</Th>
-                <Th>{t.scans.columns.bus}</Th>
-                <Th>{t.scans.columns.direction}</Th>
+                <Th>
+                  <ColumnFilter
+                    label={t.scans.columns.stop}
+                    value={filters.stop}
+                    clearHref={without({ stop: null })}
+                    allLabel={cf.allStops}
+                    options={stopList.map((stop) => ({ value: stop.id, label: stop.name, href: without({ stop: stop.id }) }))}
+                    {...text}
+                  />
+                </Th>
+                <Th>
+                  <ColumnFilter
+                    label={t.scans.columns.bus}
+                    value={filters.bus}
+                    clearHref={without({ bus: null })}
+                    allLabel={cf.allBuses}
+                    options={(busOptions.data ?? []).map((bus) => ({ value: bus.id, label: bus.plate, href: without({ bus: bus.id }) }))}
+                    {...text}
+                  />
+                </Th>
+                <Th>
+                  <ColumnFilter
+                    label={t.scans.columns.direction}
+                    value={filters.direction}
+                    clearHref={without({ direction: null })}
+                    allLabel={cf.bothDirections}
+                    options={DIRECTIONS.map((direction) => ({ value: direction, label: t.trips.direction[direction], href: without({ direction }) }))}
+                    {...text}
+                  />
+                </Th>
               </Head>
               <tbody>
                 {rows.map((row) => {
                   const student = studentById.get(row.student_id);
-                  const trip = tripById.get(row.trip_id);
+                  const trip = row.trip;
                   const name = student?.full_name || student?.email || "-";
                   return (
                     <Tr key={row.id}>
