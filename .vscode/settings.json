@@ -1,4 +1,4 @@
 {
     "java.compile.nullAnalysis.mode": "disabled",
-    "cmake.sourceDirectory": "C:/Users/joelf/Documents/GitHub/busin/apps/legacy/windows"
+    "cmake.sourceDirectory": "/home/joelfah/Documents/GitHub/busin/apps/legacy/linux"
 }

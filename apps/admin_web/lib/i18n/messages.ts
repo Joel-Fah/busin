@@ -110,6 +110,28 @@ export const en = {
       status: 'Status',
     },
     empty: 'No subscriptions match this filter.',
+    emptyPending: 'Nothing to review right now',
+    emptyPendingHint: 'New payment proofs appear here as students send them.',
+    emptyOther: 'No subscriptions here',
+    emptyOtherHint: 'Try another tab.',
+    help: {
+      title: 'How reviewing works',
+      intro: 'A subscription is a student asking to ride for a semester, with a photo of their payment. Your decision is what lets them board.',
+      scenarios: {
+        queue: {
+          title: 'A busy Monday morning',
+          body: 'To review lists the oldest first, so work from the top. The number on the tab tells you how many are waiting, and it drops as you decide.',
+        },
+        blurry: {
+          title: 'The receipt is unreadable',
+          body: 'Open the subscription, look at the proof, then choose Reject with a reason and say what to fix, for example to upload a clearer photo. The reason is saved with the subscription.',
+        },
+        paid: {
+          title: 'The payment looks right',
+          body: 'Check the proof, then press Approve. The student can board from that moment, and the subscription moves to the Approved tab.',
+        },
+      },
+    },
     loadError: 'The subscriptions could not be loaded. Reload the page to try again.',
     paginationLabel: 'Pages',
     range: 'Showing {from} to {to} of {total}',
@@ -137,6 +159,7 @@ export const en = {
       rejectOpen: 'Reject with a reason',
       reasonLabel: 'Reason for rejection',
       reasonHint: 'The student will see this. 500 characters at most.',
+      reasonPlaceholder: 'For example: the receipt is unreadable, please upload a clearer photo.',
       rejectConfirm: 'Confirm rejection',
     },
     done: {
@@ -535,6 +558,28 @@ export const fr: Messages = {
       status: 'Statut',
     },
     empty: 'Aucun abonnement ne correspond à ce filtre.',
+    emptyPending: 'Rien à examiner pour l’instant',
+    emptyPendingHint: 'Les nouvelles preuves de paiement apparaissent ici dès que les étudiants les envoient.',
+    emptyOther: 'Aucun abonnement ici',
+    emptyOtherHint: 'Essayez un autre onglet.',
+    help: {
+      title: 'Comment fonctionne l’examen',
+      intro: 'Un abonnement est la demande d’un étudiant pour voyager pendant un semestre, avec une photo de son paiement. Votre décision lui permet de monter dans le bus.',
+      scenarios: {
+        queue: {
+          title: 'Un lundi matin chargé',
+          body: 'À examiner liste les plus anciens d’abord : travaillez du haut vers le bas. Le nombre sur l’onglet indique combien attendent, et il baisse à mesure que vous décidez.',
+        },
+        blurry: {
+          title: 'Le reçu est illisible',
+          body: 'Ouvrez l’abonnement, regardez la preuve, puis choisissez Refuser avec un motif en disant quoi corriger, par exemple envoyer une photo plus nette. Le motif est enregistré avec l’abonnement.',
+        },
+        paid: {
+          title: 'Le paiement semble correct',
+          body: 'Vérifiez la preuve, puis appuyez sur Approuver. L’étudiant peut monter dès cet instant, et l’abonnement passe dans l’onglet Approuvés.',
+        },
+      },
+    },
     loadError: "Les abonnements n'ont pas pu être chargés. Rechargez la page pour réessayer.",
     paginationLabel: 'Pages',
     range: 'Affichage de {from} à {to} sur {total}',
@@ -562,6 +607,7 @@ export const fr: Messages = {
       rejectOpen: 'Refuser avec un motif',
       reasonLabel: 'Motif du refus',
       reasonHint: "L'étudiant le verra. 500 caractères au maximum.",
+      reasonPlaceholder: 'Par exemple : le reçu est illisible, envoyez une photo plus nette.',
       rejectConfirm: 'Confirmer le refus',
     },
     done: {

@@ -120,7 +120,7 @@ test.describe("administrator reading the styleguide", () => {
     for (const name of [/blue and white city bus/, /warm evening light/, /people waiting together/, /white school bus parked/]) {
       await expect(page.getByRole("img", { name })).toBeVisible();
     }
-    await expect(page.locator("#imagery img[src*='3d%2Fbus.webp'], #imagery img[src*='/3d/bus.webp']").first()).toBeVisible();
+    await expect(page.locator("#imagery img[src*='illustrations%2Fbus.webp'], #imagery img[src*='/illustrations/bus.webp']").first()).toBeVisible();
   });
 
   test("documents texture and draws the grain from an inline SVG, not an image file", async ({ page }) => {
