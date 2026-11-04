@@ -5,7 +5,7 @@ description: BusIn visual language - colors, typography, shape, icons, themes an
 
 # BusIn design system
 
-Source of truth until `packages/busin_ui` exists: `apps/legacy/lib/utils/constants.dart` and `theme.dart`, components in `apps/legacy/lib/ui/components/`. When `busin_ui` is built, it becomes the source and this skill is updated to match.
+Source of truth for the Flutter apps: `packages/busin_ui` (see its README): `BusinPalette`, `BusinRadius`, `BusinTheme`, the shared widgets and `BusinL10n`. It matches the admin portal's tokens (`apps/admin_web/app/globals.css`, the `/styleguide` page, [ADR 0009](../../../docs/decisions/0009-design-system.md)), so every tier looks like one product. The legacy app (`apps/legacy`) is history; the table below is what it used and the portal and `busin_ui` replaced.
 
 ## Color
 
@@ -29,11 +29,11 @@ Never hard-code a color in a widget. Read it from the theme or the tokens so lig
 
 ## Type
 
-Font family **Bevellier** (variable, with italic), bundled in the app. Text color defaults to the seed color on light themes. Use the Material 3 text styles from the theme; do not invent sizes.
+Font family **Plus Jakarta Sans** (bundled in `busin_ui`, SIL Open Font Licence), the same as the portal. The legacy app used Bevellier, dropped because its licence is unknown. Text color defaults to the seed color on light themes. Use the Material 3 text styles from the theme; do not invent sizes.
 
 ## Shape and spacing
 
-Default corner radius is 8. Larger surfaces such as the QR card use multiples of it with a superellipse clip. Use `gap` based spacing (the legacy app uses the `gap` package) instead of ad hoc margins.
+Radius scale 8, 16, 20, 28, 36 (`BusinRadius`), the same as the portal: rounded beyond normal, never a pill or a squircle; nested shapes use `innerRadius`. Use `gap` based spacing (the legacy app uses the `gap` package) instead of ad hoc margins.
 
 ## Icons and imagery
 
@@ -57,4 +57,4 @@ The web portal keeps the same palette (teal and orange, light and dark) as CSS v
 
 ## Localization
 
-All user-facing strings go through localization (EN and FR). ARB files move to `busin_ui`.
+All user-facing strings go through localization (EN and FR). Shared strings live in `busin_ui` (`BusinL10n`); a screen's own strings live in its app. Student-facing wording will be friendlier than the admin's.

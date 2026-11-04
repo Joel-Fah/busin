@@ -1,0 +1,59 @@
+{
+  "@@locale": "en",
+  "actionRetry": "Try again",
+  "actionCancel": "Cancel",
+  "actionSave": "Save",
+  "actionClose": "Close",
+  "actionConfirm": "Confirm",
+  "actionBack": "Back",
+  "actionContinue": "Continue",
+  "actionSignOut": "Sign out",
+  "stateLoading": "Loading...",
+  "stateEmpty": "Nothing here yet",
+  "errorGeneric": "Something went wrong. Try again.",
+  "errorOffline": "No connection. Check your network and try again.",
+  "errorNotAllowed": "You do not have access to this.",
+  "errorNotFound": "This could not be found.",
+  "roleStudent": "Student",
+  "roleStaff": "Staff",
+  "roleAdmin": "Administrator",
+  "accountPending": "Pending",
+  "accountVerified": "Active",
+  "accountSuspended": "Suspended",
+  "subscriptionPending": "Pending",
+  "subscriptionApproved": "Approved",
+  "subscriptionRejected": "Rejected",
+  "subscriptionExpired": "Expired",
+  "tripScheduled": "Scheduled",
+  "tripActive": "Running",
+  "tripCompleted": "Completed",
+  "tripCancelled": "Cancelled",
+  "directionInbound": "Going to school",
+  "directionOutbound": "Going home",
+  "semesterFall": "Fall",
+  "semesterSpring": "Spring",
+  "semesterSummer": "Summer",
+  "semesterLabel": "{name} {year}",
+  "@semesterLabel": {
+    "description": "A semester as people name it, for example Fall 2026.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "avatarOf": "Picture of {name}",
+  "@avatarOf": {
+    "description": "Spoken name of a person's avatar.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "fieldRequired": "This field is required.",
+  "loadingLabel": "Loading"
+}

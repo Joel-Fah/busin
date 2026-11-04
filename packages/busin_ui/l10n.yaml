@@ -1,0 +1,6 @@
+arb-dir: lib/src/l10n
+template-arb-file: busin_en.arb
+output-localization-file: busin_l10n.dart
+output-class: BusinL10n
+output-dir: lib/src/l10n
+nullable-getter: false

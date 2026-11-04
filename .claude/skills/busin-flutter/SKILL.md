@@ -13,8 +13,8 @@ description: Conventions for the BusIn Flutter apps and Dart packages (student, 
 ## Layout and layering
 - Dart pub workspace at the repo root. Each member has `resolution: workspace`.
 - `busin_core`: pure Dart (no Flutter, no Supabase). Models, enums, value objects, repository interfaces, validation.
-- `busin_data`: the only Dart code that imports `supabase_flutter`. Implements the core interfaces.
-- `busin_ui`: theme, widgets, l10n. No data access.
+- `busin_data`: the only package that talks to the backend. It imports `supabase` (the pure Dart client that `supabase_flutter` wraps), so its tests run with plain `dart test`; an app starts `supabase_flutter` for sessions and deep links and passes its client to `SupabaseRepositories`. Implements the core interfaces, names its columns in one place, maps every backend error to a `RepositoryException`.
+- `busin_ui`: palette, shape scale, Material 3 themes, widgets, shared EN/FR strings (`BusinL10n`). No data access.
 - Apps depend on the packages; packages never depend on apps. `apps/legacy` is read-only reference and stays outside the workspace.
 
 ## Code style

@@ -1,6 +1,8 @@
 /// BusIn domain layer: enums, models, value objects and the rotating QR code
 /// generator shared by the student and ops apps.
 ///
+/// The repository interfaces apps program against are here too.
+///
 /// Pure Dart. Must not import Flutter or any backend SDK; backend access
 /// lives in `busin_data`.
 library;
@@ -18,4 +20,7 @@ export 'src/models/stop.dart';
 export 'src/models/subscription.dart';
 export 'src/models/trip.dart';
 export 'src/qr_code.dart';
+export 'src/repositories/page.dart';
+export 'src/repositories/repositories.dart';
+export 'src/repositories/repository_exception.dart';
 export 'src/value_object.dart';

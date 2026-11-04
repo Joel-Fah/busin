@@ -10,7 +10,7 @@ Current phase: **Phase 2, shared packages and admin portal** ([docs/phases/phase
 |---|---|---|
 | 0 Foundation | Monorepo layout, docs, skills, workflow, GitHub setup | Done and merged into `dev` |
 | 1 Backend | Secure multi-tenant Supabase backend | Done and merged into `dev` (126 database tests) |
-| 2 Shared and admin web | Shared Dart packages, admin portal | Admin portal done and merged into `dev` (redesign, filters, trip cancel and archive, stop usage, Docker, demo data; the exit criteria for the portal are met). Remaining: `busin_ui` and `busin_data` are still empty stubs, and the Flutter upgrade tooling check |
+| 2 Shared and admin web | Shared Dart packages, admin portal | **Done** (pending the merge of the shared packages PR). Admin portal merged into `dev`; `busin_core` has the models and the repository interfaces, `busin_data` the Supabase implementations, `busin_ui` the design system. Flutter 3.47.9 through fvm resolves, analyzes and tests the workspace |
 | 3 Student app | Lightweight student app | Not started |
 | 4 Ops app | Scanner and driver mode | Not started |
 | 5 Insights | Density map, pickup and route suggestions | Not started |
@@ -33,10 +33,10 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 
 ## Last handoff
 
-Done: filters in the table headings (branch `phase-2/header-filters`). Trips filter by start day, bus, direction and driver (including trips with none yet); Subscriptions by semester and stop; Boardings by day, stop, bus and direction. A small filter button after the column name opens the choices (a calendar for dates), each active filter shows as a chip above the table that removes it, the tab counts follow the filters, and the filters live in the page address. On Trips and Subscriptions the sticky bar now stretches to the table's width and the tabs share it. Boardings no longer has a toolbar form: its filters are in the headings. Documented in the styleguide and ADR 0009.
+Done: the rest of Phase 2 (branch `phase-2/busin-ui-data`). `busin_core` gained the repository interfaces (profile, school, stops, semesters, subscriptions, QR secret, trips, scans, live positions), a `PageRequest` and a typed `RepositoryException` family. `busin_data` implements them on the Supabase client: columns named in one place, lists paginated, every backend error mapped to a repository exception, Realtime filtered to one bus; 20 tests use a fake network. `busin_ui` has the palette (the portal's tokens, tested to WCAG AA in light and dark), the shape scale, the Material 3 themes in Plus Jakarta Sans (bundled, OFL), `BusinButton`, `BusinTextField`, `StatusChip`, `UserAvatar`, `StatCard`, `EmptyState`, and English and French strings with labels for the core enums; 33 tests. `fvm flutter analyze packages` is clean. The skills and READMEs describe all three.
 
-Next: nothing is queued. Look through the filters with the demo data (`npm run seed:demo`) and say what to change or which other columns should filter.
+Next: Phase 3, the student app (see docs/phases/). Nothing else is open in Phase 2.
 
 Blockers: none.
 
-Owner must do: merge this PR. Approve the hosted migrations when ready. Create separate dev and prod Mapbox tokens restricted to your URLs.
+Owner must do: merge this PR to close Phase 2. Approve the new migrations on the hosted project when ready (trip cancel and archive, stop usage). Create separate dev and prod Mapbox tokens restricted to your URLs. Say when to start Phase 3.
