@@ -71,14 +71,22 @@ async function TripsList({ searchParams }: { searchParams: SearchParams }) {
     .select("id, bus_id, driver_id, direction, status, scheduled_start", { count: "exact" })
     .order("scheduled_start", { ascending: false })
     .range(from, to);
-  if (status !== "all") request = request.eq("status", status);
+  // Archived trips have a tab of their own and are left out of every other one.
+  request = status === "archived" ? request.not("archived_at", "is", null) : request.is("archived_at", null);
+  if (status !== "all" && status !== "archived") request = request.eq("status", status);
 
-  // Counts only, no rows: one per status for the numbers on the tabs.
-  const [listed, ...counted] = await Promise.all([
+  // Counts only, no rows: one per status for the numbers on the tabs, and one for the archive.
+  const [listed, archivedCount, ...counted] = await Promise.all([
     request,
-    ...TRIP_STATUSES.map((st) => supabase.from("trips").select("id", { count: "exact", head: true }).eq("status", st)),
+    supabase.from("trips").select("id", { count: "exact", head: true }).not("archived_at", "is", null),
+    ...TRIP_STATUSES.map((st) =>
+      supabase.from("trips").select("id", { count: "exact", head: true }).eq("status", st).is("archived_at", null),
+    ),
   ]);
-  const counts = tripTabCounts(Object.fromEntries(TRIP_STATUSES.map((st, index) => [st, counted[index].count])));
+  const counts = tripTabCounts(
+    Object.fromEntries(TRIP_STATUSES.map((st, index) => [st, counted[index].count])),
+    archivedCount.count,
+  );
 
   // A page past the last one is not a failure: the database answers "range not satisfiable" and there is nothing there.
   const { data, count } = listed;
@@ -101,7 +109,7 @@ async function TripsList({ searchParams }: { searchParams: SearchParams }) {
     label: t.trips.filters[filter],
     href: href(filter),
     count: counts[filter],
-    tone: filter === "all" ? "neutral" : tripStatusTone(filter),
+    tone: filter === "all" || filter === "archived" ? "neutral" : tripStatusTone(filter),
   }));
 
   return (
@@ -131,7 +139,7 @@ async function TripsList({ searchParams }: { searchParams: SearchParams }) {
       {error ? (
         <Notice tone="bad">{t.trips.loadError}</Notice>
       ) : rows.length === 0 ? (
-        <EmptyState illustration="/illustrations/bus-stop.webp" title={t.trips.empty} />
+        <EmptyState illustration="/illustrations/bus-stop.webp" title={status === "archived" ? t.trips.emptyArchived : t.trips.empty} />
       ) : (
         <>
           <TableCard>

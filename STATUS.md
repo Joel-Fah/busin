@@ -33,10 +33,10 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 
 ## Last handoff
 
-Done: the sticky toolbar on the list pages (branch `phase-2/sticky-toolbar`, stacked on the pages PR #100). On People, Subscriptions, Trips and Boardings the search and filters stick to the top when the list scrolls and realign into one compact glass row (search and tabs side by side), gliding back to the roomy layout at the top; smooth in both directions, instant with reduced motion, and the list below never jumps. The styleguide now documents tables, pagination, notices, empty and loading states and the sticky toolbar. Verified with typecheck, lint, unit tests, a clean build and the list and styleguide browser specs.
+Done: trip cancel and archive (branch `phase-2/trip-cancel-archive`, stacked on the sticky toolbar PR #102). Administrators no longer delete trips: the delete grant and policy are gone, because boardings point to a trip. Instead, `admin_cancel_trip` cancels a trip that has not started (optional reason, kept in the audit log) and `admin_set_trip_archived` archives a completed or cancelled trip or brings it back; both are audited, admin only and limited to the school. In the portal, a trip that has not started has a Cancel this trip section (with the reason), a finished or cancelled trip has Archive or Restore, archived trips leave every list and have an Archived tab with its own count. 23 new database tests, 3 unit tests and 4 browser tests. Applied to the local database only.
 
-Next: trip cancel and archive (a small audited database function applied locally; hosted needs your approval), then Docker for the portal.
+Next: Docker for the portal (last step of the redesign plan).
 
 Blockers: none.
 
-Owner must do: merge #100 first, then retarget or merge the sticky toolbar PR (it is based on #100's branch). Try the sticky toolbar on your tablet.
+Owner must do: merge #100, then #102, then this PR (each is based on the previous branch; retarget to `dev` with `gh pr edit --base dev` once its parent merges). Before this is used on the hosted project, approve running `supabase/migrations/20261104120000_trip_cancel_and_archive.sql` there (I have not run it). Note the migration revokes delete on trips for administrators.

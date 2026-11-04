@@ -2,7 +2,7 @@ import { randomBytes } from "node:crypto";
 
 import { expect, test } from "@playwright/test";
 
-import { SEED, chooseOption, createUser, deleteUser, pickDateTime, serviceClient, setLanguage, setPickerValue, signInBrowser, type TestUser } from "./support";
+import { SEED, chooseOption, createUser, deleteUser, pickDateTime, serviceClient, setLanguage, setPickerValue, signInBrowser, userClient, type TestUser } from "./support";
 
 const tag = randomBytes(3).toString("hex").toUpperCase();
 const prefix = `E2E-TRIP-${tag}`;
@@ -15,6 +15,8 @@ let busId: string;
 let idleBusId: string;
 let scheduledId: string;
 let activeId: string;
+let cancelId: string;
+let finishedId: string;
 
 // Far in the future so the trips are always on the first page of the newest-first list.
 const START = "2090-06-01T07:30";
@@ -55,15 +57,31 @@ test.beforeAll(async () => {
         scheduled_start: "2090-07-02T06:30:00Z",
         started_at: "2090-07-02T06:31:00Z",
       },
+      { school_id: SEED.schoolId, bus_id: busId, driver_id: null, direction: "inbound", status: "scheduled", scheduled_start: "2090-08-01T06:30:00Z" },
+      {
+        school_id: SEED.schoolId,
+        bus_id: busId,
+        driver_id: null,
+        direction: "outbound",
+        status: "completed",
+        scheduled_start: "2090-08-02T06:30:00Z",
+        started_at: "2090-08-02T06:31:00Z",
+        ended_at: "2090-08-02T07:10:00Z",
+      },
     ])
-    .select("id, status");
+    .select("id, status, scheduled_start");
   if (!trips.data) throw new Error(`could not create trips: ${trips.error?.message}`);
-  scheduledId = trips.data.find((trip) => trip.status === "scheduled")!.id;
-  activeId = trips.data.find((trip) => trip.status === "active")!.id;
+  const at = (day: string) => trips.data.find((trip) => trip.scheduled_start.startsWith(day))!.id;
+  scheduledId = at("2090-07-01");
+  activeId = at("2090-07-02");
+  cancelId = at("2090-08-01");
+  finishedId = at("2090-08-02");
 });
 
 test.afterAll(async () => {
   const db = serviceClient();
+  // Audit rows point at the acting admin, so they go before the user does.
+  await db.from("audit_log").delete().eq("actor_id", admin?.id ?? "");
   await db.from("trips").delete().in("bus_id", [busId, idleBusId]);
   await db.from("buses").delete().like("plate", `${prefix}%`);
   for (const user of [admin, staff, student, driver]) {
@@ -106,7 +124,7 @@ test.describe("administrator managing trips", () => {
     await page.getByRole("button", { name: "Schedule trip" }).click();
 
     await expect(page.getByRole("status")).toContainText("Trip scheduled.");
-    const created = (await tripOnBus(scheduledId, busId)).filter((trip) => trip.id !== activeId);
+    const created = (await tripOnBus(scheduledId, busId)).filter((trip) => ![activeId, cancelId, finishedId].includes(trip.id));
     expect(created).toHaveLength(1);
     expect(created[0].driver_id).toBe(driver.id);
     expect(created[0].direction).toBe("outbound");
@@ -164,6 +182,59 @@ test.describe("administrator managing trips", () => {
     await expect(page.getByRole("button", { name: "Save trip" })).toHaveCount(0);
   });
 
+  test("cancelling a trip keeps it, records the reason and locks it", async ({ page }) => {
+    await page.goto(`/trips/${cancelId}`);
+    await page.getByText("Cancel this trip", { exact: true }).last().click();
+    await page.getByLabel("Reason").fill("The bus is in the garage.");
+    await page.getByRole("button", { name: "Cancel trip" }).click();
+
+    await expect(page.getByRole("status")).toContainText("Trip cancelled.");
+    const db = serviceClient();
+    expect((await db.from("trips").select("status").eq("id", cancelId).single()).data?.status).toBe("cancelled");
+    const { data: entries } = await db.from("audit_log").select("actor_id, details").eq("target_id", cancelId).eq("action", "trip.cancelled");
+    expect(entries).toHaveLength(1);
+    expect(entries?.[0].actor_id).toBe(admin.id);
+    expect(entries?.[0].details).toMatchObject({ reason: "The bus is in the garage." });
+
+    // It cannot be cancelled again, and it can now be archived.
+    await expect(page.getByRole("button", { name: "Cancel trip" })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Archive trip" })).toBeVisible();
+  });
+
+  test("a running trip offers neither cancel nor archive", async ({ page }) => {
+    await page.goto(`/trips/${activeId}`);
+    await expect(page.getByText("can no longer be changed here")).toBeVisible();
+    await expect(page.getByText("Cancel this trip")).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Archive trip" })).toHaveCount(0);
+  });
+
+  test("an archived trip leaves the lists, shows under Archived, and can be restored", async ({ page }) => {
+    const when = /Aug 2, 2090/;
+    await page.goto(`/trips/${finishedId}`);
+    await page.getByRole("button", { name: "Archive trip" }).click();
+    await expect(page.getByRole("status")).toContainText("Trip archived.");
+    await expect(page.getByText("Archived", { exact: true }).first()).toBeVisible();
+    expect((await serviceClient().from("trips").select("archived_at").eq("id", finishedId).single()).data?.archived_at).not.toBeNull();
+
+    await page.goto("/trips?status=completed");
+    await expect(page.getByRole("row").filter({ hasText: when })).toHaveCount(0);
+    await page.goto("/trips?status=archived");
+    await expect(page.getByRole("row").filter({ hasText: when })).toHaveCount(1);
+
+    await page.goto(`/trips/${finishedId}`);
+    await page.getByRole("button", { name: "Restore trip" }).click();
+    await expect(page.getByRole("status")).toContainText("Trip restored.");
+    await page.goto("/trips?status=archived");
+    await expect(page.getByRole("row").filter({ hasText: when })).toHaveCount(0);
+  });
+
+  test("a trip cannot be deleted through the API, even by an administrator", async () => {
+    const { error, count } = await (await userClient(admin)).from("trips").delete({ count: "exact" }).eq("id", finishedId);
+    expect(error !== null || count === 0).toBe(true);
+    const { data } = await serviceClient().from("trips").select("id").eq("id", finishedId);
+    expect(data).toHaveLength(1);
+  });
+
   test("a missing start time is refused with a clear message", async ({ page }) => {
     await page.goto("/trips/new");
     await chooseOption(page, "Bus", `${prefix} RUN`);
@@ -187,7 +258,7 @@ test.describe("administrator managing trips", () => {
   test("each tab shows how many trips are behind it, matching the database", async ({ page }) => {
     const db = serviceClient();
     const total = async (status?: "scheduled" | "active" | "completed" | "cancelled") => {
-      let query = db.from("trips").select("id", { count: "exact", head: true });
+      let query = db.from("trips").select("id", { count: "exact", head: true }).is("archived_at", null);
       if (status) query = query.eq("status", status);
       const { count } = await query;
       return count ?? 0;
