@@ -12,6 +12,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Pager } from "@/components/ui/Pager";
 import { DataTable, Head, TableCard, Td, Th, Tr } from "@/components/ui/Table";
 import { Tabs, type TabItem } from "@/components/ui/Tabs";
+import { StickyToolbar } from "@/components/ui/StickyToolbar";
 
 import { requireAdmin } from "@/lib/auth";
 import { format, type Locale } from "@/lib/i18n/messages";
@@ -123,7 +124,9 @@ async function TripsList({ searchParams }: { searchParams: SearchParams }) {
         }
       />
 
-      <Tabs label={t.trips.filtersLabel} items={tabs} active={status} />
+      <StickyToolbar>
+        <Tabs label={t.trips.filtersLabel} items={tabs} active={status} />
+      </StickyToolbar>
 
       {error ? (
         <Notice tone="bad">{t.trips.loadError}</Notice>

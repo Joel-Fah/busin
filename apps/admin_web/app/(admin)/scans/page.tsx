@@ -13,6 +13,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Pager } from "@/components/ui/Pager";
 import { Select } from "@/components/ui/Select";
 import { DataTable, Head, TableCard, Td, Th, Tr } from "@/components/ui/Table";
+import { StickyToolbar } from "@/components/ui/StickyToolbar";
 
 import { requireAdmin } from "@/lib/auth";
 import { format, type Locale } from "@/lib/i18n/messages";
@@ -118,36 +119,38 @@ async function ScansList({ searchParams }: { searchParams: SearchParams }) {
         }}
       />
 
-      <form method="get" action="/scans" aria-label={t.scans.filtersLabel} className="flex flex-wrap items-end gap-3">
-        {filters.trip ? <input type="hidden" name="trip" value={filters.trip} /> : null}
-        <Select
-          id="stop"
-          name="stop"
-          label={t.scans.filters.stop}
-          icon={FlagTriangleRightIcon}
-          defaultValue={filters.stop ?? ""}
-          className="w-full sm:w-72"
-          options={[{ value: "", label: t.scans.filters.allStops }, ...(stopOptions.data ?? []).map((stop) => ({ value: stop.id, label: stop.name }))]}
-        />
-        <DatePicker
-          id="date"
-          name="date"
-          label={t.scans.filters.day}
-          locale={locale}
-          text={t.pickers.date}
-          defaultValue={filters.date ?? ""}
-          placeholder={t.scans.filters.anyDay}
-          className="w-full sm:w-64"
-        />
-        <Button type="submit" variant="secondary">
-          {t.scans.filters.apply}
-        </Button>
-        {anyFilter ? (
-          <ButtonLink variant="ghost" href="/scans">
-            {t.scans.filters.clear}
-          </ButtonLink>
-        ) : null}
-      </form>
+      <StickyToolbar>
+        <form method="get" action="/scans" aria-label={t.scans.filtersLabel} className="flex flex-wrap items-end gap-3">
+          {filters.trip ? <input type="hidden" name="trip" value={filters.trip} /> : null}
+          <Select
+            id="stop"
+            name="stop"
+            label={t.scans.filters.stop}
+            icon={FlagTriangleRightIcon}
+            defaultValue={filters.stop ?? ""}
+            className="w-full sm:w-72"
+            options={[{ value: "", label: t.scans.filters.allStops }, ...(stopOptions.data ?? []).map((stop) => ({ value: stop.id, label: stop.name }))]}
+          />
+          <DatePicker
+            id="date"
+            name="date"
+            label={t.scans.filters.day}
+            locale={locale}
+            text={t.pickers.date}
+            defaultValue={filters.date ?? ""}
+            placeholder={t.scans.filters.anyDay}
+            className="w-full sm:w-64"
+          />
+          <Button type="submit" variant="secondary">
+            {t.scans.filters.apply}
+          </Button>
+          {anyFilter ? (
+            <ButtonLink variant="ghost" href="/scans">
+              {t.scans.filters.clear}
+            </ButtonLink>
+          ) : null}
+        </form>
+      </StickyToolbar>
 
       {chipLabel ? (
         <div className="flex flex-wrap items-center gap-3 rounded-md bg-surface-2 px-5 py-3 text-sm">
