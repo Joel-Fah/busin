@@ -33,10 +33,10 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 
 ## Last handoff
 
-Done: Docker for the portal (branch , stacked on the trip cancel and archive PR #104).  builds a Node 24 image with Next standalone output that runs as an unprivileged user; only the public Supabase URL and publishable key are build arguments, and everything else (Mapbox token, map provider, site URL) is a runtime setting. Built and run locally: it serves the sign-in page with the security headers. The guide is [docs/guides/docker.md](docs/guides/docker.md). No CI job was added. This completes the redesign plan.
+Done: Docker for the portal (branch `phase-2/docker-portal`, stacked on the trip cancel and archive PR #104). `apps/admin_web/Dockerfile` builds a Node 24 image with Next standalone output that runs as an unprivileged user; only the public Supabase URL and publishable key are build arguments, and everything else (Mapbox token, map provider, site URL) is a runtime setting. Built and run locally: it serves the sign-in page with the security headers. The guide is [docs/guides/docker.md](docs/guides/docker.md). No CI job was added. This completes the redesign plan.
 
 Next: owner decision on "how many students use each stop" (needs a small database function); Mapbox token tasks below.
 
 Blockers: none.
 
-Owner must do: merge #100, #102, #104 and this PR in order (retarget each with  once its parent merges). Approve running the trip cancel and archive migration on the hosted project when ready (it removes administrators' ability to delete trips). Create separate dev and prod Mapbox tokens restricted to your URLs. Confirm the Bevellier font files and the unused  can be deleted.
+Owner must do: merge #100, #102, #104 and this PR in order (retarget each with `gh pr edit --base dev` once its parent merges). Approve running the trip cancel and archive migration on the hosted project when ready (it removes administrators' ability to delete trips). Create separate dev and prod Mapbox tokens restricted to your URLs. Confirm the Bevellier font files and the unused `components/NavLinks.tsx` can be deleted.
