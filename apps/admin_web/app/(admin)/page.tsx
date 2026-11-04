@@ -3,6 +3,8 @@ import Link from "next/link";
 import { Suspense } from "react";
 import {
   Bus01Icon,
+  Calendar02Icon,
+  Clock01Icon,
   FlagTriangleRightIcon,
   Navigation03Icon,
   ReceiptTextIcon,
@@ -11,7 +13,7 @@ import {
 } from "@hugeicons/core-free-icons";
 
 import { BoardingsChart } from "@/components/overview/BoardingsChart";
-import { Welcome } from "@/components/overview/Welcome";
+import { Welcome, type Insight } from "@/components/overview/Welcome";
 import { StatusMix, type MixPart } from "@/components/overview/StatusMix";
 import { Tile } from "@/components/overview/Tile";
 import { Avatar } from "@/components/ui/Avatar";
@@ -98,7 +100,7 @@ async function Overview() {
       supabase.from("semesters").select("name, year, start_date, end_date").lte("start_date", todayIso).gte("end_date", todayIso).order("start_date", { ascending: false }).limit(1),
       supabase
         .from("trips")
-        .select("id, direction, status, scheduled_start, bus_id, driver_id")
+        .select("id, direction, status, scheduled_start, bus_id, driver_id", { count: "exact" })
         .is("archived_at", null)
         .gte("scheduled_start", startOfToday.toISOString())
         .lt("scheduled_start", endOfToday.toISOString())
@@ -182,7 +184,21 @@ async function Overview() {
       : waitingCount === 1
         ? tiles.welcome.waitingOne
         : format(tiles.welcome.waitingMany, { n: waitingCount });
-  const welcomeAction = waitingCount > 0 ? { href: "/subscriptions", label: tiles.welcome.review } : { href: "/trips", label: tiles.welcome.trips };
+  // Two to four cards: what asks for action first, then what is running, then the day so far. Boardings and today's trips always exist, so there are never fewer than two.
+  const oldest = (waiting.data ?? [])[0];
+  const insights: Insight[] = [
+    ...(waitingCount > 0
+      ? [{ key: "pending", href: "/subscriptions", icon: Ticket03Icon, value: String(waitingCount), label: t.overview.pendingSubscriptions, attention: true }]
+      : []),
+    ...(oldest
+      ? [{ key: "oldest", href: `/subscriptions/${oldest.id}`, icon: Clock01Icon, value: ageText(oldest.created_at), label: tiles.welcome.oldest }]
+      : []),
+    ...((activeTrips.count ?? 0) > 0
+      ? [{ key: "running", href: "/trips?status=active", icon: Navigation03Icon, value: String(activeTrips.count), label: t.overview.activeTrips }]
+      : []),
+    { key: "boardings", href: "/scans", icon: ReceiptTextIcon, value: String(scansToday.count ?? 0), label: t.overview.scansToday },
+    { key: "tripsToday", href: "/trips", icon: Calendar02Icon, value: String(todaysTrips.count ?? 0), label: tiles.welcome.tripsToday },
+  ].slice(0, 4);
   const longDate = new Intl.DateTimeFormat(locale, { dateStyle: "full", timeZone: admin.schoolTimezone }).format(now);
 
   return (
@@ -229,7 +245,7 @@ async function Overview() {
             );
           })}
 
-          <Welcome greeting={greeting} date={longDate} summary={summary} action={welcomeAction} />
+          <Welcome greeting={greeting} date={longDate} summary={summary} insights={insights} />
 
           <Tile title={tiles.boardingsTitle} action={{ href: "/scans", label: t.nav.scans }} className="sm:col-span-2" testId="tile-boardings">
             <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1">

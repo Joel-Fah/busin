@@ -115,7 +115,11 @@ test.describe("administrator", () => {
     await page.goto("/");
     const welcome = page.getByTestId("welcome");
     await expect(welcome.getByRole("heading", { level: 2, name: /^Good (morning|afternoon|evening)/ })).toBeVisible();
-    await expect(welcome.getByRole("link")).toHaveAttribute("href", /\/(subscriptions|trips)$/);
+    // Two to four insight cards, each a link.
+    const cards = await welcome.getByRole("link").count();
+    expect(cards).toBeGreaterThanOrEqual(2);
+    expect(cards).toBeLessThanOrEqual(4);
+    await expect(welcome.getByRole("link", { name: /Boardings today/ })).toHaveAttribute("href", "/scans");
 
     const tile = page.getByTestId("tile-boardings").locator("xpath=..");
     await expect(tile.getByRole("link", { name: "Boardings" }).locator("svg")).toBeVisible();
