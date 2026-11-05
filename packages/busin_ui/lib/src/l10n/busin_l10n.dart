@@ -820,8 +820,14 @@ abstract class BusinL10n {
   /// No description provided for @busEtaCaption.
   ///
   /// In en, this message translates to:
-  /// **'About {km} km from {stop}. An estimate.'**
+  /// **'{km} km from {stop}'**
   String busEtaCaption(String km, String stop);
+
+  /// No description provided for @busDistanceKm.
+  ///
+  /// In en, this message translates to:
+  /// **'{km} km'**
+  String busDistanceKm(String km);
 
   /// No description provided for @busEtaLabel.
   ///

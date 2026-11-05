@@ -202,13 +202,21 @@
     }
   },
   "busEtaArriving": "Arriving",
-  "busEtaCaption": "About {km} km from {stop}. An estimate.",
+  "busEtaCaption": "{km} km from {stop}",
   "@busEtaCaption": {
     "placeholders": {
       "km": {
         "type": "String"
       },
       "stop": {
+        "type": "String"
+      }
+    }
+  },
+  "busDistanceKm": "{km} km",
+  "@busDistanceKm": {
+    "placeholders": {
+      "km": {
         "type": "String"
       }
     }

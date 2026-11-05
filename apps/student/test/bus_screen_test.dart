@@ -127,7 +127,7 @@ void main() {
     rig.live.emit(position('bus1', 3.86, 11.5, at: noon, speed: 10));
     await tester.pumpAndSettle();
     expect(find.text('3 min'), findsOneWidget);
-    expect(find.textContaining('About 1.4 km from Mvan'), findsOneWidget);
+    expect(find.text('1.4 km'), findsOneWidget);
 
     rig.live.emit(position('bus1', 3.86, 11.5, at: noon.subtract(const Duration(minutes: 3)), speed: 10));
     await tester.pumpAndSettle();

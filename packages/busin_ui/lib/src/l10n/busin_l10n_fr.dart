@@ -421,7 +421,12 @@ class BusinL10nFr extends BusinL10n {
 
   @override
   String busEtaCaption(String km, String stop) {
-    return 'Environ $km km de $stop. Une estimation.';
+    return '$km km de $stop';
+  }
+
+  @override
+  String busDistanceKm(String km) {
+    return '$km km';
   }
 
   @override

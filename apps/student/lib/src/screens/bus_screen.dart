@@ -119,7 +119,7 @@ class _Tracking extends ConsumerWidget {
       bus: position.value?.location,
       busHeading: position.value?.headingDeg,
       // On a phone the details card floats over the lower part of the map.
-      coveredBottom: expanded ? 0 : 250,
+      coveredBottom: expanded ? 0 : 150,
     );
 
     // What floats over the map: a status line while waiting or failing, and the way back to the bus.
@@ -283,59 +283,53 @@ class _InfoCard extends ConsumerWidget {
     // An estimate only from a fresh position: a stale one would promise something the bus may not be doing.
     final eta = stale || myStop == null ? null : estimateEta(bus: p?.location, stop: myStop!.location, speedMps: p?.speedMps);
 
+    // One status line: the direction, how fresh the position is and the speed; or the warning if it has gone quiet.
+    final status = stale ? l10n.busStale('$staleMinutes') : [l10n.direction(bus.trip.direction), ?updated, if (kmh != null) l10n.busSpeed('$kmh')].join(' · ');
+
     return BusinCard(
-      padding: const EdgeInsets.fromLTRB(BusinSpace.x5, BusinSpace.x4, BusinSpace.x5, BusinSpace.x4),
+      padding: const EdgeInsets.fromLTRB(BusinSpace.x4, BusinSpace.x3, BusinSpace.x4, BusinSpace.x3),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             children: [
-              const Illustration(BusinIllustration.bus, width: 56, height: 56),
+              const Illustration(BusinIllustration.bus, width: 44, height: 44),
               const SizedBox(width: BusinSpace.x3),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(bus.plate, style: text.titleLarge, maxLines: 1, overflow: TextOverflow.ellipsis),
-                    const SizedBox(height: BusinSpace.x1),
-                    StatusChip(label: l10n.direction(bus.trip.direction), tone: StatusTone.info),
+                    Text(bus.plate, style: text.titleMedium, maxLines: 1, overflow: TextOverflow.ellipsis),
+                    Text(status, style: text.bodySmall?.copyWith(color: stale ? palette.warn : palette.muted), maxLines: 2, overflow: TextOverflow.ellipsis),
                   ],
                 ),
               ),
+              if (eta != null) ...[
+                const SizedBox(width: BusinSpace.x3),
+                Semantics(
+                  label: '${l10n.busEtaLabel}: ${eta.arriving ? l10n.busEtaArriving : l10n.busEtaMinutes('${eta.minutes}')}. ${l10n.busEtaCaption(_km(eta.kilometres, l10n.localeName), myStop!.name)}',
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(eta.arriving ? l10n.busEtaArriving : l10n.busEtaMinutes('${eta.minutes}'), style: text.headlineSmall?.copyWith(color: palette.accent, fontWeight: FontWeight.w800)),
+                      Text(l10n.busDistanceKm(_km(eta.kilometres, l10n.localeName)), style: text.bodySmall?.copyWith(color: palette.muted)),
+                    ],
+                  ),
+                ),
+              ],
             ],
           ),
-          if (eta != null) ...[
-            const SizedBox(height: BusinSpace.x3),
-            Semantics(
-              label: l10n.busEtaLabel,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(eta.arriving ? l10n.busEtaArriving : l10n.busEtaMinutes('${eta.minutes}'), style: text.displaySmall?.copyWith(color: palette.accent)),
-                  const SizedBox(width: BusinSpace.x4),
-                  Expanded(
-                    child: Text(
-                      l10n.busEtaCaption(_km(eta.kilometres, l10n.localeName), myStop!.name),
-                      style: text.bodyMedium?.copyWith(color: palette.muted),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-          const SizedBox(height: BusinSpace.x2),
-          if (stale)
-            Text(l10n.busStale('$staleMinutes'), style: text.bodyMedium?.copyWith(color: palette.warn))
-          else if (updated != null)
-            Text([updated, if (kmh != null) l10n.busSpeed('$kmh')].join(' · '), style: text.bodyMedium?.copyWith(color: palette.muted)),
-          if (myStop != null) ...[
-            const SizedBox(height: BusinSpace.x3),
+          // Without an estimate the student's stop still gets its line.
+          if (myStop != null && eta == null) ...[
+            const SizedBox(height: BusinSpace.x2),
             Row(
               children: [
-                const Illustration(BusinIllustration.busStop, width: 28, height: 28),
+                const Illustration(BusinIllustration.busStop, width: 22, height: 22),
                 const SizedBox(width: BusinSpace.x2),
-                Expanded(child: Text('${l10n.busYourStop}: ${myStop!.name}', style: text.bodyMedium?.copyWith(fontWeight: FontWeight.w600))),
+                Expanded(child: Text('${l10n.busYourStop}: ${myStop!.name}', style: text.bodySmall?.copyWith(fontWeight: FontWeight.w600))),
               ],
             ),
           ],
