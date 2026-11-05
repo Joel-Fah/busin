@@ -18,8 +18,7 @@ void main() {
       for (final theme in [BusinTheme.light(), BusinTheme.dark()]) {
         for (final variant in BusinButtonVariant.values) {
           await tester.pumpWidget(app(BusinButton(label: 'Save', variant: variant, onPressed: () {}), theme: theme));
-          final style = tester.widget<DefaultTextStyle>(find.descendant(of: find.byType(TextButton), matching: find.byType(DefaultTextStyle)).first).style;
-          expect(style.fontWeight, FontWeight.w700, reason: '$variant');
+          expect(tester.widget<Text>(find.text('Save')).style?.fontWeight, FontWeight.w700, reason: '$variant');
         }
       }
     });
@@ -41,7 +40,7 @@ void main() {
 
     testWidgets('is disabled without a callback', (tester) async {
       await tester.pumpWidget(app(const BusinButton(label: 'Save', onPressed: null)));
-      expect(tester.widget<TextButton>(find.byType(TextButton)).onPressed, isNull);
+      expect(tester.widget<InkWell>(find.descendant(of: find.byType(BusinButton), matching: find.byType(InkWell))).onTap, isNull);
     });
 
     testWidgets('every variant draws in light and dark', (tester) async {
@@ -58,7 +57,7 @@ void main() {
 
     testWidgets('can fill the width', (tester) async {
       await tester.pumpWidget(app(SizedBox(width: 300, child: BusinButton(label: 'Wide', expand: true, onPressed: () {}))));
-      expect(tester.getSize(find.byType(TextButton)).width, 300);
+      expect(tester.getSize(find.byType(BusinButton)).width, 300);
     });
   });
 

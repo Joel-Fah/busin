@@ -12,6 +12,7 @@ import 'screens/home_shell.dart';
 import 'screens/problem_screen.dart';
 import 'screens/qr_screen.dart';
 import 'screens/subscription_screen.dart';
+import 'styleguide/styleguide_screen.dart';
 import 'screens/sign_in_screen.dart';
 import 'screens/splash_screen.dart';
 
@@ -25,6 +26,9 @@ abstract final class Routes {
   static const history = '/history';
   static const bus = '/bus';
 
+  /// Debug builds only: the design language on a screen (`fvm flutter run --route /styleguide`).
+  static const styleguide = '/styleguide';
+
   static const _gate = {signIn, loading, blocked, problem};
 }
 
@@ -32,7 +36,9 @@ abstract final class Routes {
 ///
 /// Signed-out people see only sign-in; anyone the server does not allow sees only the page that says why.
 /// Signed-in students never see those pages, so Back cannot lead to them.
-String? redirectFor(AccessState access, String location) {
+String? redirectFor(AccessState access, String location, {bool debug = kDebugMode}) {
+  // The styleguide needs no account, and exists only in debug builds.
+  if (debug && location == Routes.styleguide) return null;
   final target = switch (access) {
     SignedOut() => Routes.signIn,
     AccessLoading() => Routes.loading,
@@ -51,11 +57,12 @@ final routerProvider = Provider<GoRouter>((ref) {
   ref.onDispose(changes.dispose);
 
   final router = GoRouter(
-    initialLocation: Routes.loading,
+    initialLocation: kDebugMode && WidgetsBinding.instance.platformDispatcher.defaultRouteName == Routes.styleguide ? Routes.styleguide : Routes.loading,
     refreshListenable: changes,
     redirect: (context, state) => redirectFor(ref.read(accessProvider), state.matchedLocation),
     routes: [
       GoRoute(path: Routes.loading, builder: (_, _) => const SplashScreen()),
+      if (kDebugMode) GoRoute(path: Routes.styleguide, builder: (_, _) => const StyleguideScreen()),
       GoRoute(path: Routes.signIn, builder: (_, _) => const SignInScreen()),
       GoRoute(path: Routes.blocked, builder: (_, _) => const BlockedScreen()),
       GoRoute(path: Routes.problem, builder: (_, _) => const ProblemScreen()),

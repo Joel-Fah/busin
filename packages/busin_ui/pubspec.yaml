@@ -14,6 +14,7 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+  flutter_svg: ^2.2.0
   hugeicons: ^1.1.1
   intl: any
 
@@ -25,6 +26,11 @@ dev_dependencies:
 flutter:
   generate: true
   uses-material-design: true
+  assets:
+    - assets/illustrations/
+    - assets/brand/
+    - assets/photos/
+    - assets/textures/
   # Plus Jakarta Sans, the same typeface as the admin portal (SIL Open Font Licence, see assets/fonts/OFL.txt).
   fonts:
     - family: PlusJakartaSans

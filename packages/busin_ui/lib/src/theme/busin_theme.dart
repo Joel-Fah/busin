@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
 import 'package:flutter/material.dart';
 
 import '../tokens/palette.dart';
@@ -63,6 +64,8 @@ class BusinTheme {
 
     return base.copyWith(
       textTheme: text.copyWith(
+        displaySmall: text.displaySmall?.copyWith(fontWeight: FontWeight.w800, letterSpacing: -0.8),
+        displayMedium: text.displayMedium?.copyWith(fontWeight: FontWeight.w800, letterSpacing: -1),
         headlineLarge: text.headlineLarge?.copyWith(fontWeight: FontWeight.w800, letterSpacing: -0.5),
         headlineMedium: text.headlineMedium?.copyWith(fontWeight: FontWeight.w800, letterSpacing: -0.4),
         headlineSmall: text.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
@@ -70,6 +73,20 @@ class BusinTheme {
         titleMedium: text.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         labelLarge: text.labelLarge?.copyWith(fontWeight: FontWeight.w700),
       ),
+      // A soft slide with a swipe-back on every platform, as in the legacy app: pages feel like they have weight.
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+        },
+      ),
+      // Tooltips as in the portal: dark on light, light on dark, a small corner, no border.
+      tooltipTheme: TooltipThemeData(
+        decoration: BoxDecoration(color: p.fg, borderRadius: BorderRadius.circular(BusinRadius.xs)),
+        textStyle: TextStyle(color: p.bg, fontSize: 12, fontWeight: FontWeight.w600, fontFamily: fontFamily, package: fontPackage),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      ),
+      listTileTheme: ListTileThemeData(shape: shape(BusinRadius.sm), iconColor: p.muted, contentPadding: const EdgeInsets.symmetric(horizontal: BusinSpace.x4)),
       appBarTheme: AppBarTheme(
         backgroundColor: p.bg,
         foregroundColor: p.fg,
@@ -133,7 +150,7 @@ class BusinTheme {
         backgroundColor: p.surface,
         showDragHandle: true,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(BusinRadius.lg)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(BusinRadius.xl)),
         ),
       ),
       snackBarTheme: SnackBarThemeData(
