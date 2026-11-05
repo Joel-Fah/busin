@@ -56,11 +56,20 @@ class _StopPickerState extends State<_StopPicker> {
                         itemBuilder: (context, index) {
                           final stop = shown[index];
                           final selected = stop.id == widget.selectedId;
-                          return ListTile(
-                            title: Text(stop.name),
-                            trailing: selected ? HugeIcon(icon: HugeIcons.strokeRoundedTick02, color: palette.ok) : null,
-                            selected: selected,
-                            onTap: () => Navigator.of(context).pop(stop),
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: BusinSpace.x3, vertical: 2),
+                            child: ListTile(
+                              leading: Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(color: selected ? palette.okBg : palette.surface2, borderRadius: BorderRadius.circular(BusinRadius.sm)),
+                                child: Center(child: HugeIcon(icon: HugeIcons.strokeRoundedFlag02, size: 20, color: selected ? palette.ok : palette.muted)),
+                              ),
+                              title: Text(stop.name, style: TextStyle(fontWeight: selected ? FontWeight.w700 : FontWeight.w500)),
+                              trailing: selected ? HugeIcon(icon: HugeIcons.strokeRoundedTick02, color: palette.ok) : null,
+                              selected: selected,
+                              onTap: () => Navigator.of(context).pop(stop),
+                            ),
                           );
                         },
                       ),

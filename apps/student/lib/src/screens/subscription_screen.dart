@@ -3,15 +3,20 @@ import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hugeicons/hugeicons.dart';
 
+import '../auth/access.dart';
+import '../greeting.dart';
+import '../providers.dart';
 import '../push/push_prompt_card.dart';
+import '../qr/qr_providers.dart';
 import '../router.dart';
+import '../subscription/how_it_works_card.dart';
 import '../subscription/subscribe_form.dart';
 import '../subscription/subscription_providers.dart';
 import '../subscription/subscription_status_card.dart';
 
-/// The first tab: the semester that matters now, and either the request form or where the request stands.
+/// The first tab: a banner that greets the student and names the semester, then either the request form or where the
+/// request stands. On a wide screen (a tablet in landscape) the form or status sits on the left and a short guide on the right.
 class SubscriptionScreen extends ConsumerStatefulWidget {
   const SubscriptionScreen({super.key});
 
@@ -28,72 +33,113 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
     await ref.read(subscriptionOverviewProvider.future).catchError((_) => const SubscriptionOverview.none());
   }
 
+  /// The greeting for the hour it is at the school, with the student's first name.
+  String _greeting(BusinL10n l10n) {
+    final access = ref.watch(accessProvider);
+    final school = ref.watch(schoolProvider).value;
+    final now = ref.watch(nowProvider)();
+    final hour = school == null ? now.toLocal().hour : ref.watch(schoolClockProvider).wallClock(school.timezone, now).hour;
+    final base = switch (greetingForHour(hour)) {
+      Greeting.morning => l10n.greetMorning,
+      Greeting.afternoon => l10n.greetAfternoon,
+      Greeting.evening => l10n.greetEvening,
+    };
+    final name = access is Allowed ? firstNameOf(access.profile.fullName) : '';
+    return name.isEmpty ? base : '$base, $name';
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = BusinL10n.of(context);
+    final layout = BusinLayout.of(context);
     final overview = ref.watch(subscriptionOverviewProvider);
+    final inset = BusinScope.of(context).bottomInset;
+    final padding = EdgeInsets.fromLTRB(BusinSpace.x5, BusinSpace.x5, BusinSpace.x5, BusinSpace.x5 + inset);
 
     return ContentColumn(
+      maxWidth: layout.isExpanded ? 1100 : BusinLayout.maxColumn,
       child: RefreshIndicator(
-      onRefresh: _refresh,
-      child: overview.when(
-        loading: () => ListView(physics: const AlwaysScrollableScrollPhysics(), children: const [SizedBox(height: 240), Center(child: CircularProgressIndicator())]),
-        error: (error, _) => ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          children: [
-            const SizedBox(height: 80),
-            EmptyState(
-              icon: HugeIcons.strokeRoundedWifiDisconnected01,
-              title: error is RepositoryException ? l10n.failure(error) : l10n.errorGeneric,
-              action: BusinButton(label: l10n.actionRetry, onPressed: () => ref.invalidate(subscriptionOverviewProvider)),
-            ),
-          ],
-        ),
-        data: (data) {
-          final semester = data.semester;
-          if (semester == null) {
-            return ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
+        onRefresh: _refresh,
+        child: overview.when(
+          loading: () => ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: padding,
+            // The shape of what is coming: the banner, then a card.
+            children: const [Skeleton(height: 188, radius: BusinRadius.lg), SizedBox(height: BusinSpace.x4), Skeleton(height: 280, radius: BusinRadius.lg)],
+          ),
+          error: (error, _) => ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: padding,
+            children: [
+              const SizedBox(height: 40),
+              EmptyState(
+                illustration: BusinIllustration.waiting,
+                title: error is RepositoryException ? l10n.failure(error) : l10n.errorGeneric,
+                action: BusinButton(label: l10n.actionRetry, onPressed: () => ref.invalidate(subscriptionOverviewProvider)),
+              ),
+            ],
+          ),
+          data: (data) {
+            final semester = data.semester;
+            if (semester == null) {
+              return ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: padding,
+                children: [
+                  BusinBanner(title: _greeting(l10n), eyebrow: MaterialLocalizations.of(context).formatFullDate(DateTime.now()), art: BusinIllustration.semester),
+                  const SizedBox(height: BusinSpace.x4),
+                  EmptyState(illustration: BusinIllustration.semester, title: l10n.subscriptionNoSemesterTitle, body: l10n.subscriptionNoSemesterBody),
+                ],
+              );
+            }
+
+            final subscription = data.subscription;
+            final showForm = subscription == null || (_requestAgain && !subscription.isLive);
+            final name = l10n.semester(semester.name, semester.year);
+            final material = MaterialLocalizations.of(context);
+
+            final art = showForm
+                ? BusinIllustration.ticket
+                : switch (subscription.status) {
+                    SubscriptionStatus.approved => BusinIllustration.verified,
+                    SubscriptionStatus.pending => BusinIllustration.waiting,
+                    SubscriptionStatus.rejected => BusinIllustration.papers,
+                    SubscriptionStatus.expired => BusinIllustration.semester,
+                  };
+
+            final banner = BusinBanner(
+              eyebrow: material.formatFullDate(DateTime.now()),
+              title: _greeting(l10n),
+              body: [showForm ? l10n.subscribeHeading(name) : name, if (data.upcoming) l10n.subscriptionStarts(material.formatMediumDate(semester.startDate))].join('\n'),
+              art: art,
+            );
+
+            final main = Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 80),
-                EmptyState(icon: HugeIcons.strokeRoundedCalendar02, title: l10n.subscriptionNoSemesterTitle, body: l10n.subscriptionNoSemesterBody),
+                banner,
+                const SizedBox(height: BusinSpace.x5),
+                if (showForm)
+                  SubscribeForm(semester: semester)
+                else
+                  SubscriptionStatusCard(
+                    subscription: subscription,
+                    stopName: data.stop?.name ?? '',
+                    onShowCode: () => context.go(Routes.qr),
+                    onRequestAgain: () => setState(() => _requestAgain = true),
+                  ),
+                // The moment there is something to wait for is the moment to offer to tell them.
+                if (!showForm && subscription.status == SubscriptionStatus.pending) const PushPromptCard(),
               ],
             );
-          }
 
-          final subscription = data.subscription;
-          final showForm = subscription == null || (_requestAgain && !subscription.isLive);
-          final name = l10n.semester(semester.name, semester.year);
-          final text = Theme.of(context).textTheme;
-
-          return ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: EdgeInsets.fromLTRB(BusinSpace.x5, BusinSpace.x5, BusinSpace.x5, BusinSpace.x5 + BusinScope.of(context).bottomInset),
-            children: [
-              Text(showForm ? l10n.subscribeHeading(name) : name, style: text.headlineSmall),
-              if (data.upcoming) ...[
-                const SizedBox(height: BusinSpace.x1),
-                Text(
-                  l10n.subscriptionStarts(MaterialLocalizations.of(context).formatMediumDate(semester.startDate)),
-                  style: text.bodyMedium?.copyWith(color: BusinPalette.of(context).muted),
-                ),
-              ],
-              const SizedBox(height: BusinSpace.x5),
-              if (showForm)
-                SubscribeForm(semester: semester)
-              else
-                SubscriptionStatusCard(
-                  subscription: subscription,
-                  stopName: data.stop?.name ?? '',
-                  onShowCode: () => context.go(Routes.qr),
-                  onRequestAgain: () => setState(() => _requestAgain = true),
-                ),
-              // The moment there is something to wait for is the moment to offer to tell them.
-              if (!showForm && subscription.status == SubscriptionStatus.pending) const PushPromptCard(),
-            ],
-          );
-        },
-      ),
+            return ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: padding,
+              children: [layout.isExpanded ? SplitView(primary: main, secondary: const HowItWorksCard(), primaryFlex: 6, secondaryFlex: 4) : main],
+            );
+          },
+        ),
       ),
     );
   }

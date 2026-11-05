@@ -431,4 +431,45 @@ class BusinL10nFr extends BusinL10n {
 
   @override
   String get navQrShort => 'Code';
+
+  @override
+  String get greetMorning => 'Bonjour';
+
+  @override
+  String get greetAfternoon => 'Bon après-midi';
+
+  @override
+  String get greetEvening => 'Bonsoir';
+
+  @override
+  String get stageSent => 'Envoyée';
+
+  @override
+  String get stageChecking => 'Vérification';
+
+  @override
+  String get stageDecided => 'Décision';
+
+  @override
+  String stageSemantics(String number, String total, String label) {
+    return 'Étape $number sur $total : $label';
+  }
+
+  @override
+  String get howTitle => 'Comment ça marche';
+
+  @override
+  String get howStep1 => 'Choisissez où vous montez.';
+
+  @override
+  String get howStep2 => 'Ajoutez une photo de votre reçu de paiement.';
+
+  @override
+  String get howStep3 => 'Votre école la vérifie et décide.';
+
+  @override
+  String get howStep4 => 'Présentez votre code d’embarquement et voyagez.';
+
+  @override
+  String get proofAdded => 'Photo ajoutée';
 }

@@ -840,6 +840,84 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'Code'**
   String get navQrShort;
+
+  /// No description provided for @greetMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Good morning'**
+  String get greetMorning;
+
+  /// No description provided for @greetAfternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Good afternoon'**
+  String get greetAfternoon;
+
+  /// No description provided for @greetEvening.
+  ///
+  /// In en, this message translates to:
+  /// **'Good evening'**
+  String get greetEvening;
+
+  /// No description provided for @stageSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get stageSent;
+
+  /// No description provided for @stageChecking.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking'**
+  String get stageChecking;
+
+  /// No description provided for @stageDecided.
+  ///
+  /// In en, this message translates to:
+  /// **'Decision'**
+  String get stageDecided;
+
+  /// No description provided for @stageSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {number} of {total}: {label}'**
+  String stageSemantics(String number, String total, String label);
+
+  /// No description provided for @howTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How it works'**
+  String get howTitle;
+
+  /// No description provided for @howStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose where you board.'**
+  String get howStep1;
+
+  /// No description provided for @howStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a photo of your payment receipt.'**
+  String get howStep2;
+
+  /// No description provided for @howStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school checks it and decides.'**
+  String get howStep3;
+
+  /// No description provided for @howStep4.
+  ///
+  /// In en, this message translates to:
+  /// **'Show your boarding code and ride.'**
+  String get howStep4;
+
+  /// No description provided for @proofAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo added'**
+  String get proofAdded;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {
