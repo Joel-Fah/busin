@@ -24,6 +24,7 @@ class SupabaseRepositories {
         proofs = SupabaseProofsRepository(client),
         qr = SupabaseQrRepository(client),
         trips = SupabaseTripsRepository(client),
+        buses = SupabaseBusesRepository(client),
         scans = SupabaseScansRepository(client),
         livePositions = SupabaseLivePositionsRepository(client);
 
@@ -35,6 +36,7 @@ class SupabaseRepositories {
   final ProofsRepository proofs;
   final QrRepository qr;
   final TripsRepository trips;
+  final BusesRepository buses;
   final ScansRepository scans;
   final LivePositionsRepository livePositions;
 }

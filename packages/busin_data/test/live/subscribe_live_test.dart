@@ -59,6 +59,7 @@ void main() {
   late String studentId;
   late String otherId;
   String? historyTripId;
+  final feedBuses = <String>[];
   late SupabaseClient client;
   late SupabaseRepositories repos;
   final uploaded = <String>[];
@@ -100,6 +101,7 @@ void main() {
     final admin = SupabaseClient(url, serviceKey);
     if (uploaded.isNotEmpty) await admin.storage.from('proofs').remove(uploaded);
     // Rotating a secret writes an audit entry that points at the student; remove it with the throwaway user.
+    if (feedBuses.isNotEmpty) await _sql("delete from public.live_positions where bus_id in (${feedBuses.map((b) => "'$b'").join(',')});");
     await _sql("delete from public.scans where student_id in ('$studentId', '$otherId');");
     if (historyTripId != null) await _sql("delete from public.trips where id = '$historyTripId';");
     await _sql("delete from public.audit_log where actor_id in ('$studentId', '$otherId');");
@@ -203,6 +205,39 @@ void main() {
 
     final trips = await repos.trips.listByIds([tripId]);
     expect(trips.single.direction, TripDirection.inbound);
+  });
+
+  test('the live feed of one bus carries that bus only, as it moves', () async {
+    final ids = (await _query("select id from public.buses where school_id = '$_school' order by created_at limit 2")).split('\n');
+    expect(ids, hasLength(2), reason: 'the local data needs two buses (npm run seed:demo)');
+    final (mine, other) = (ids[0], ids[1]);
+    feedBuses.addAll([mine, other]);
+
+    final received = <LivePosition>[];
+    final subscription = repos.livePositions.watchBus(mine).listen(received.add);
+    addTearDown(subscription.cancel);
+    await Future<void>.delayed(const Duration(seconds: 3)); // let the channel join
+
+    String upsert(String bus, double lat, double lng) => """
+      insert into public.live_positions (bus_id, school_id, location, source, recorded_at)
+      values ('$bus', '$_school', extensions.st_point($lng, $lat)::extensions.geography, 'phone', now())
+      on conflict (bus_id) do update set location = excluded.location, recorded_at = excluded.recorded_at;""";
+
+    await _sql(upsert(other, 3.90, 11.60)); // another bus moves: must not arrive
+    await _sql(upsert(mine, 3.851, 11.501));
+    await _sql(upsert(other, 3.91, 11.61));
+    await _sql(upsert(mine, 3.852, 11.502));
+
+    for (var i = 0; i < 40 && !received.any((p) => (p.location.latitude - 3.852).abs() < 1e-6); i++) {
+      await Future<void>.delayed(const Duration(milliseconds: 250));
+    }
+    expect(received, isNotEmpty, reason: 'the student receives the bus they follow');
+    expect(received.map((p) => p.busId).toSet(), {mine}, reason: 'and nothing from other buses');
+    expect(received.last.location.latitude, closeTo(3.852, 1e-6));
+    expect(received.any((p) => p.location.latitude > 3.89), isFalse);
+
+    final latest = await repos.livePositions.latestForBus(mine);
+    expect(latest?.location.longitude, closeTo(11.502, 1e-6));
   });
 
   test('a student cannot upload into someone else\'s folder', () async {

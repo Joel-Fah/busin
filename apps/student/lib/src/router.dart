@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'auth/access.dart';
 import 'providers.dart';
 import 'screens/blocked_screen.dart';
-import 'screens/coming_soon_screen.dart';
+import 'screens/bus_screen.dart';
 import 'screens/history_screen.dart';
 import 'screens/home_shell.dart';
 import 'screens/problem_screen.dart';
@@ -65,8 +65,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(routes: [GoRoute(path: Routes.subscription, builder: (_, _) => const SubscriptionScreen())]),
           StatefulShellBranch(routes: [GoRoute(path: Routes.qr, builder: (_, _) => const QrScreen())]),
           StatefulShellBranch(routes: [GoRoute(path: Routes.history, builder: (_, _) => const HistoryScreen())]),
-          for (final path in [Routes.bus])
-            StatefulShellBranch(routes: [GoRoute(path: path, builder: (_, _) => const ComingSoonScreen())]),
+          StatefulShellBranch(routes: [GoRoute(path: Routes.bus, builder: (_, _) => const BusScreen())]),
         ],
       ),
     ],

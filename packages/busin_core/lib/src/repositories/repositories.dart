@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import '../geo_point.dart';
+import '../models/bus.dart';
 import '../models/live_position.dart';
 import '../models/profile.dart';
 import '../models/scan.dart';
@@ -102,9 +103,18 @@ abstract interface class TripsRepository {
 
   Future<Trip> getTrip(String tripId);
 
+  /// The trips running right now at the caller's school, most recently started first. A school runs a
+  /// handful at a time; the list is capped at [PageRequest.defaultLimit].
+  Future<List<Trip>> listActive();
+
   /// The trips with these ids, in no particular order. At most [PageRequest.maxLimit] ids at a time;
   /// ids a caller may not read are left out.
   Future<List<Trip>> listByIds(List<String> tripIds);
+}
+
+abstract interface class BusesRepository {
+  /// The buses with these ids (for plates on a map or a list). At most [PageRequest.maxLimit] at a time.
+  Future<List<Bus>> listByIds(List<String> busIds);
 }
 
 abstract interface class ScansRepository {

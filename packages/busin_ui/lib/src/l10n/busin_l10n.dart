@@ -720,6 +720,72 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'Could not load more. Tap to try again.'**
   String get historyLoadMoreFailed;
+
+  /// No description provided for @busNoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No bus is running right now'**
+  String get busNoneTitle;
+
+  /// No description provided for @busNoneBody.
+  ///
+  /// In en, this message translates to:
+  /// **'When a trip starts you can follow its bus here.'**
+  String get busNoneBody;
+
+  /// No description provided for @busWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the bus to share its location.'**
+  String get busWaiting;
+
+  /// No description provided for @busUpdatedSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated {seconds} s ago'**
+  String busUpdatedSeconds(String seconds);
+
+  /// No description provided for @busUpdatedMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated {minutes} min ago'**
+  String busUpdatedMinutes(String minutes);
+
+  /// No description provided for @busStale.
+  ///
+  /// In en, this message translates to:
+  /// **'Last seen {minutes} min ago. The bus may be out of signal.'**
+  String busStale(String minutes);
+
+  /// No description provided for @busSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'{kmh} km/h'**
+  String busSpeed(String kmh);
+
+  /// No description provided for @busYourStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Your stop'**
+  String get busYourStop;
+
+  /// No description provided for @busRecenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the bus'**
+  String get busRecenter;
+
+  /// No description provided for @busLiveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Live updates are not available right now.'**
+  String get busLiveFailed;
+
+  /// No description provided for @busMapLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Map of the bus and the stops'**
+  String get busMapLabel;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {

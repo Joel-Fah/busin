@@ -214,11 +214,35 @@ class SupabaseTripsRepository implements TripsRepository {
       });
 
   @override
+  Future<List<Trip>> listActive() => guarded(() async {
+        final data = await _client
+            .from('trips')
+            .select(Columns.trip)
+            .eq('status', 'active')
+            .order('started_at', ascending: false)
+            .limit(PageRequest.defaultLimit);
+        return _rows(data).map(Trip.fromJson).toList(growable: false);
+      });
+
+  @override
   Future<List<Trip>> listByIds(List<String> tripIds) => guarded(() async {
         if (tripIds.isEmpty) return const <Trip>[];
         if (tripIds.length > PageRequest.maxLimit) throw const Invalid('Too many trips asked for at once.');
         final data = await _client.from('trips').select(Columns.trip).inFilter('id', tripIds);
         return _rows(data).map(Trip.fromJson).toList(growable: false);
+      });
+}
+
+class SupabaseBusesRepository implements BusesRepository {
+  SupabaseBusesRepository(this._client);
+  final SupabaseClient _client;
+
+  @override
+  Future<List<Bus>> listByIds(List<String> busIds) => guarded(() async {
+        if (busIds.isEmpty) return const <Bus>[];
+        if (busIds.length > PageRequest.maxLimit) throw const Invalid('Too many buses asked for at once.');
+        final data = await _client.from('buses').select(Columns.bus).inFilter('id', busIds);
+        return _rows(data).map(Bus.fromJson).toList(growable: false);
       });
 }
 

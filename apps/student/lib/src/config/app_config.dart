@@ -7,6 +7,7 @@ class AppConfig {
     required this.publishableKey,
     required this.googleServerClientId,
     required this.environment,
+    this.mapStyleUrl = defaultMapStyleUrl,
   });
 
   /// Reads the values the app was compiled with.
@@ -15,6 +16,7 @@ class AppConfig {
         publishableKey: String.fromEnvironment('SUPABASE_PUBLISHABLE_KEY'),
         googleServerClientId: String.fromEnvironment('GOOGLE_SERVER_CLIENT_ID'),
         environment: String.fromEnvironment('APP_ENV', defaultValue: 'dev'),
+        mapStyleUrl: String.fromEnvironment('MAP_STYLE_URL', defaultValue: defaultMapStyleUrl),
       );
 
   final String supabaseUrl;
@@ -23,6 +25,11 @@ class AppConfig {
   /// The Web application OAuth client id from Google Cloud. Supabase checks the Google ID token against it.
   final String googleServerClientId;
   final String environment;
+
+  /// The base map. OpenFreeMap needs no key and no account (ADR 0008); point this at another style to change provider.
+  final String mapStyleUrl;
+
+  static const defaultMapStyleUrl = 'https://tiles.openfreemap.org/styles/liberty';
 
   /// Names of the values that are missing, so a developer sees exactly what to add.
   List<String> get missing => [

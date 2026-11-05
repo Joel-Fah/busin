@@ -53,7 +53,12 @@ class _QrScreenState extends ConsumerState<QrScreen> {
       _active = active;
       _security.setSecure(active);
       // Coming back after a failure (for example the subscription was approved meanwhile): try again.
-      if (active && ref.read(qrSecretProvider).hasError) ref.invalidate(qrSecretProvider);
+      if (active && ref.read(qrSecretProvider).hasError) {
+        // After this frame: a provider cannot be changed while the tree is building.
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) ref.invalidate(qrSecretProvider);
+        });
+      }
     }
   }
 
