@@ -58,6 +58,7 @@ void main() {
   late String serviceKey;
   late String studentId;
   late String otherId;
+  String? historyTripId;
   late SupabaseClient client;
   late SupabaseRepositories repos;
   final uploaded = <String>[];
@@ -99,6 +100,8 @@ void main() {
     final admin = SupabaseClient(url, serviceKey);
     if (uploaded.isNotEmpty) await admin.storage.from('proofs').remove(uploaded);
     // Rotating a secret writes an audit entry that points at the student; remove it with the throwaway user.
+    await _sql("delete from public.scans where student_id in ('$studentId', '$otherId');");
+    if (historyTripId != null) await _sql("delete from public.trips where id = '$historyTripId';");
     await _sql("delete from public.audit_log where actor_id in ('$studentId', '$otherId');");
     await _sql("delete from public.subscriptions where student_id in ('$studentId', '$otherId');");
     await _sql("delete from auth.users where id in ('$studentId', '$otherId');");
@@ -172,6 +175,34 @@ void main() {
       repos.subscriptions.request(NewSubscription(schoolId: _school, studentId: studentId, semesterId: _semester, stopId: _stop)),
       throwsA(isA<Conflict>()),
     );
+  });
+
+  test('a student reads only their own boardings, and the trips they were on', () async {
+    final random = Random.secure();
+    final tripId = _uuid(random);
+    historyTripId = tripId;
+    final bus = await _query('select id from public.buses order by created_at limit 1');
+    final subscription = await _query("select id from public.subscriptions where student_id = '$studentId' limit 1");
+    await _sql("""
+      insert into public.subscriptions (school_id, student_id, semester_id, stop_id, status)
+        values ('$_school', '$otherId', '$_semester', '$_stop', 'approved');
+      insert into public.trips (id, school_id, bus_id, direction, status, scheduled_start, started_at, ended_at)
+        values ('$tripId', '$_school', '$bus', 'inbound', 'completed', now() - interval '2 hours', now() - interval '2 hours', now() - interval '1 hour');
+      insert into public.scans (school_id, trip_id, student_id, subscription_id, stop_id, scanned_by, scanned_at)
+        values ('$_school', '$tripId', '$studentId', '$subscription', '$_stop', '$studentId', now() - interval '90 minutes'),
+               ('$_school', '$tripId', '$otherId', (select id from public.subscriptions where student_id = '$otherId'), '$_stop', '$studentId', now() - interval '80 minutes');
+    """);
+
+    final mine = await repos.scans.listForStudent(studentId, page: const PageRequest(limit: 20));
+    expect(mine, hasLength(1));
+    expect(mine.single.studentId, studentId);
+    expect(mine.single.stopId, _stop);
+
+    // Asking for another student's history returns nothing: Row Level Security, not the app, hides it.
+    expect(await repos.scans.listForStudent(otherId), isEmpty);
+
+    final trips = await repos.trips.listByIds([tripId]);
+    expect(trips.single.direction, TripDirection.inbound);
   });
 
   test('a student cannot upload into someone else\'s folder', () async {

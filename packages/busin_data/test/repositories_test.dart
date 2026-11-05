@@ -44,6 +44,18 @@ Map<String, dynamic> stopRow(String name, {bool active = true}) => {
       'active': active,
     };
 
+Map<String, dynamic> tripRow({String status = 'scheduled'}) => {
+      'id': _id,
+      'school_id': _school,
+      'bus_id': _other,
+      'driver_id': _id,
+      'direction': 'inbound',
+      'status': status,
+      'scheduled_start': '2026-11-05T06:30:00Z',
+      'started_at': null,
+      'ended_at': null,
+    };
+
 Map<String, dynamic> subscriptionRow({String status = 'pending'}) => {
       'id': _id,
       'school_id': _school,
@@ -129,6 +141,51 @@ void main() {
       expect(await h.repos.scans.listForTrip(_id), isEmpty);
       expect(h.last.url.queryParameters['trip_id'], 'eq.$_id');
       expect(h.last.url.queryParameters['limit'], '20');
+    });
+  });
+
+  group('student history', () {
+    Map<String, dynamic> scanRow(String id, String at) => {
+          'id': id,
+          'school_id': _school,
+          'trip_id': _id,
+          'student_id': _other,
+          'subscription_id': _id,
+          'stop_id': _id,
+          'scanned_by': _id,
+          'scanned_at': at,
+          'location': null,
+          'accuracy_m': null,
+        };
+
+    test('a student\'s own boardings come newest first, a page at a time', () async {
+      final h = Harness((_) async => json([scanRow(_id, '2026-11-05T07:00:00Z'), scanRow(_other, '2026-11-04T07:00:00Z')]));
+      final scans = await h.repos.scans.listForStudent(_other, page: const PageRequest(limit: 2, offset: 4));
+
+      expect(scans, hasLength(2));
+      final query = h.last.url.queryParameters;
+      expect(query['student_id'], 'eq.$_other');
+      expect(query['order'], startsWith('scanned_at.desc'));
+      expect(query['limit'], '2');
+      expect(query['offset'], '4');
+      expect(query['select'], isNot(contains('*')));
+    });
+
+    test('trips are fetched by id in one request, and not at all for none', () async {
+      final h = Harness((_) async => json([tripRow()]));
+      expect(await h.repos.trips.listByIds(const []), isEmpty);
+      expect(h.requests, isEmpty);
+
+      final trips = await h.repos.trips.listByIds([_id, _other]);
+      expect(trips, hasLength(1));
+      expect(h.requests, hasLength(1));
+      expect(h.last.url.queryParameters['id'], 'in.("$_id","$_other")');
+    });
+
+    test('asking for too many trips at once is refused before any request', () async {
+      final h = Harness((_) async => json(<Object>[]));
+      await expectLater(h.repos.trips.listByIds(List.filled(PageRequest.maxLimit + 1, _id)), throwsA(isA<Invalid>()));
+      expect(h.requests, isEmpty);
     });
   });
 

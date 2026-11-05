@@ -334,4 +334,20 @@ class BusinL10nEn extends BusinL10n {
   @override
   String get qrOfflineBody =>
       'Your phone needs the internet one time to get your boarding code. After that it works without a connection.';
+
+  @override
+  String get historyTitle => 'Your boardings';
+
+  @override
+  String get historyEmptyTitle => 'No boardings yet';
+
+  @override
+  String get historyEmptyBody =>
+      'Each time you board with your code, it appears here.';
+
+  @override
+  String get historyStopUnknown => 'Stop not recorded';
+
+  @override
+  String get historyLoadMoreFailed => 'Could not load more. Tap to try again.';
 }
