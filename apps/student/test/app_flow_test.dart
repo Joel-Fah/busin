@@ -1,6 +1,7 @@
 import 'package:busin_core/busin_core.dart';
 import 'package:busin_student/src/app.dart';
 import 'package:busin_student/src/auth/auth_service.dart';
+import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -34,7 +35,7 @@ void main() {
     await tester.tap(find.text('Continue with Google'));
     await tester.pumpAndSettle();
 
-    expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.byType(FloatingNavBar), findsOneWidget);
     expect(find.text('Subscription'), findsOneWidget);
     expect(find.text('Hop on. BusIn handles the rest.'), findsNothing);
   });
@@ -51,13 +52,13 @@ void main() {
       await tester.tap(find.text('Continue with Google'));
       await tester.pumpAndSettle();
       expect(find.text(entry.value), findsOneWidget, reason: '${entry.key}');
-      expect(find.byType(NavigationBar), findsNothing);
+      expect(find.byType(FloatingNavBar), findsNothing);
     }
   });
 
   testWidgets('a returning student goes straight in', (tester) async {
     await open(tester, FakeAuthService(signedInAs: 'u1'), FakeProfileRepository({'u1': profile()}));
-    expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.byType(FloatingNavBar), findsOneWidget);
   });
 
   testWidgets('staff are told this app is for students, and can sign out', (tester) async {
@@ -65,7 +66,7 @@ void main() {
     await open(tester, auth, FakeProfileRepository({'u1': profile(role: UserRole.staff)}));
 
     expect(find.text('This app is for students'), findsOneWidget);
-    expect(find.byType(NavigationBar), findsNothing);
+    expect(find.byType(FloatingNavBar), findsNothing);
 
     await tester.tap(find.text('Sign out'));
     await tester.pumpAndSettle();
@@ -86,20 +87,20 @@ void main() {
     await open(tester, FakeAuthService(signedInAs: 'u1'), profiles);
 
     expect(find.text('Something went wrong. Try again.'), findsOneWidget);
-    expect(find.byType(NavigationBar), findsNothing);
+    expect(find.byType(FloatingNavBar), findsNothing);
 
     profiles.error = null;
     await tester.tap(find.text('Try again'));
     await tester.pumpAndSettle();
-    expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.byType(FloatingNavBar), findsOneWidget);
   });
 
   testWidgets('all four destinations are reachable and the app speaks French', (tester) async {
     await open(tester, FakeAuthService(signedInAs: 'u1'), FakeProfileRepository({'u1': profile()}), locale: const Locale('fr'));
-    for (final label in ['Code d’embarquement', 'Historique', 'Mon bus', 'Abonnement']) {
+    for (final label in ['Code', 'Historique', 'Mon bus', 'Abonnement']) {
       await tester.tap(find.text(label));
       await tester.pumpAndSettle();
-      expect(find.byType(NavigationBar), findsOneWidget, reason: label);
+      expect(find.byType(FloatingNavBar), findsOneWidget, reason: label);
     }
     expect(find.text('Aucun semestre ouvert pour le moment'), findsOneWidget, reason: 'back on the first tab');
   });
@@ -107,11 +108,11 @@ void main() {
   testWidgets('signing out of the app returns to sign-in and drops the profile', (tester) async {
     final auth = FakeAuthService(signedInAs: 'u1');
     await open(tester, auth, FakeProfileRepository({'u1': profile()}));
-    expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.byType(FloatingNavBar), findsOneWidget);
 
     await auth.signOut();
     await tester.pumpAndSettle();
     expect(find.text('Hop on. BusIn handles the rest.'), findsOneWidget);
-    expect(find.byType(NavigationBar), findsNothing);
+    expect(find.byType(FloatingNavBar), findsNothing);
   });
 }

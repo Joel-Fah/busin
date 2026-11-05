@@ -73,7 +73,8 @@ class _QrScreenState extends ConsumerState<QrScreen> {
   Widget build(BuildContext context) {
     final secret = ref.watch(qrSecretProvider);
 
-    return RefreshIndicator(
+    return ContentColumn(
+      child: RefreshIndicator(
       onRefresh: () async {
         ref.invalidate(qrSecretProvider);
         try {
@@ -84,7 +85,7 @@ class _QrScreenState extends ConsumerState<QrScreen> {
       },
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(BusinSpace.x5),
+        padding: EdgeInsets.fromLTRB(BusinSpace.x5, BusinSpace.x5, BusinSpace.x5, BusinSpace.x5 + BusinScope.of(context).bottomInset),
         children: [
           secret.when(
             loading: () => const Padding(padding: EdgeInsets.only(top: 160), child: Center(child: CircularProgressIndicator())),
@@ -92,6 +93,7 @@ class _QrScreenState extends ConsumerState<QrScreen> {
             data: (bytes) => _Code(secret: bytes, security: _security),
           ),
         ],
+      ),
       ),
     );
   }

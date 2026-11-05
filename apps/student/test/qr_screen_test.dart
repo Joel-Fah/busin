@@ -46,7 +46,7 @@ Future<void> openQr(
   );
   await tester.pumpAndSettle();
   if (goToQr) {
-    await tester.tap(find.text(locale.languageCode == 'fr' ? 'Code d’embarquement' : 'Boarding code'));
+    await tester.tap(find.text('Code'));
     await tester.pumpAndSettle();
   }
 }
@@ -134,7 +134,7 @@ void main() {
     qr.error = null;
     await tester.tap(find.text('History'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Boarding code'));
+    await tester.tap(find.text('Code'));
     await tester.pumpAndSettle();
     expect(shownCode(tester), codeAt(noon));
   });
@@ -161,7 +161,7 @@ void main() {
     await openQr(tester, security: security, goToQr: false);
     expect(security.calls.where((c) => c), isEmpty, reason: 'not blocked on the first tab');
 
-    await tester.tap(find.text('Boarding code'));
+    await tester.tap(find.text('Code'));
     await tester.pumpAndSettle();
     expect(security.calls.last, isTrue);
 
@@ -169,7 +169,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(security.calls.last, isFalse);
 
-    await tester.tap(find.text('Boarding code'));
+    await tester.tap(find.text('Code'));
     await tester.pumpAndSettle();
     expect(security.calls.last, isTrue);
   });

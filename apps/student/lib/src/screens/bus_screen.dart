@@ -143,7 +143,7 @@ class _Tracking extends ConsumerWidget {
             ],
           ),
         ),
-        _InfoCard(bus: current, position: position.value, myStopName: myStop?.name),
+        Padding(padding: EdgeInsets.only(bottom: BusinScope.of(context).bottomInset), child: _InfoCard(bus: current, position: position.value, myStopName: myStop?.name)),
       ],
     );
   }

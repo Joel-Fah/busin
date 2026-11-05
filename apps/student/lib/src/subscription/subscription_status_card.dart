@@ -43,10 +43,14 @@ class SubscriptionStatusCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
+            // A wrap, not a row: a chip with its icon and a date do not both fit one line on a small phone.
+            Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: BusinSpace.x3,
+              runSpacing: BusinSpace.x2,
               children: [
                 StatusChip(label: l10n.subscriptionStatus(status), tone: subscriptionTone(status)),
-                const Spacer(),
                 Text(
                   l10n.subscriptionSent(MaterialLocalizations.of(context).formatMediumDate(subscription.createdAt.toLocal())),
                   style: text.bodySmall?.copyWith(color: palette.muted),

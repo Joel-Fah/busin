@@ -5,10 +5,9 @@ import 'package:hugeicons/hugeicons.dart';
 
 /// A sheet listing the school's stops with a search box. Returns the stop the person taps, or null.
 Future<Stop?> showStopPicker(BuildContext context, List<Stop> stops, {String? selectedId}) {
-  return showModalBottomSheet<Stop>(
-    context: context,
+  return showBusinSheet<Stop>(
+    context,
     isScrollControlled: true,
-    showDragHandle: true,
     builder: (_) => _StopPicker(stops: stops, selectedId: selectedId),
   );
 }

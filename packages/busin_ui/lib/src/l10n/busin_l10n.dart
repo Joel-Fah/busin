@@ -834,6 +834,12 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'View'**
   String get pushForegroundView;
+
+  /// No description provided for @navQrShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Code'**
+  String get navQrShort;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {

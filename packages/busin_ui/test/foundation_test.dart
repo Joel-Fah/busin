@@ -117,6 +117,24 @@ void main() {
       expect(a, isNot(c));
     });
 
+    testWidgets('sits under the last line only, as wide as that line', (tester) async {
+      Future<({double left, double width, double box})> measure(Widget w) async {
+        await tester.pumpWidget(host(w));
+        final paint = find.descendant(of: find.byType(MarkedText), matching: find.byType(CustomPaint)).first;
+        final boxWidth = tester.getSize(paint).width;
+        final span = (tester.widget<CustomPaint>(paint).painter! as MarkerPainter).spanFor(boxWidth);
+        return (left: span.left, width: span.width, box: boxWidth);
+      }
+
+      final wrapped = await measure(const Align(alignment: Alignment.topLeft, child: SizedBox(width: 200, child: MarkedText('Hop on and ride along with us today', style: TextStyle(fontSize: 24)))));
+      expect(wrapped.width, greaterThan(0));
+      expect(wrapped.width, lessThan(wrapped.box), reason: 'the last line is shorter than the box, and so is the marker');
+
+      final one = await measure(const Align(alignment: Alignment.topLeft, child: MarkedText('Short', style: TextStyle(fontSize: 24))));
+      expect(one.left, closeTo(0, 1));
+      expect(one.width, closeTo(one.box, 1));
+    });
+
     testWidgets('draws under undistorted text', (tester) async {
       await tester.pumpWidget(host(const MarkedText('Hop on', style: TextStyle(fontSize: 30))));
       expect(find.text('Hop on'), findsOneWidget);
@@ -364,6 +382,19 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('inside'), findsOneWidget);
       expect(find.byType(BusinSheetFrame), findsOneWidget);
+
+      // Floating: the card keeps clear of the screen's edges on every side, including the bottom, and has no handle inside it.
+      final screen = tester.getSize(find.byType(MaterialApp));
+      final card = tester.getRect(find.descendant(of: find.byType(BusinSheetFrame), matching: find.byType(Material)).first);
+      expect(card.left, greaterThanOrEqualTo(BusinSheetFrame.margin));
+      expect(screen.width - card.right, greaterThanOrEqualTo(BusinSheetFrame.margin));
+      expect(screen.height - card.bottom, greaterThanOrEqualTo(BusinSheetFrame.margin));
+      final handle = find.byWidgetPredicate((w) => w is Container && w.constraints?.maxWidth == 44 && w.constraints?.maxHeight == 5);
+      expect(handle, findsOneWidget, reason: 'exactly one handle');
+      expect(tester.getBottomLeft(handle).dy, lessThanOrEqualTo(card.top), reason: 'and it is above the card, outside it');
+      final shape = tester.widget<Material>(find.descendant(of: find.byType(BusinSheetFrame), matching: find.byType(Material)).first).shape! as RoundedRectangleBorder;
+      expect((shape.borderRadius as BorderRadius).bottomLeft.x, BusinRadius.xl, reason: 'every corner is rounded, not just the top ones');
+
       await tester.tapAt(const Offset(10, 10));
       await tester.pumpAndSettle();
       expect(find.text('inside'), findsNothing);
