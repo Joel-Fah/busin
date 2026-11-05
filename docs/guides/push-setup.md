@@ -4,21 +4,20 @@ What is needed to get a push from Firebase onto a phone. The Firebase project is
 
 The app builds and works without any of this: with no Firebase file, push is simply off.
 
-## 1. Register the Android app (about 3 minutes)
+## 1. Register the Android app
 
-In the [Firebase console](https://console.firebase.google.com/), open the project `busin-28e6a`:
+Done for `busin-28e6a`: the Android app `BusIn Student` (package `com.joelfah.busin.student`, app id `1:551894412092:android:4568aaa9f62c9fb9dacc39`) is registered, and its config is saved as `apps/student/android/app/google-services.json` (git ignores that path, so it is not committed). On another machine, or after changing the package name, recreate it with the Firebase CLI:
 
-1. Project overview, then the Android icon (Add app).
-2. Android package name: `com.joelfah.busin.student`. Nickname: `BusIn Student`. Leave the SHA-1 empty (Cloud Messaging does not need it).
-3. Register, then **Download google-services.json**.
-4. Save it as `apps/student/android/app/google-services.json`. Git ignores that path, so it is not committed. Skip the console's "add the SDK" steps: the project already has them.
+```bash
+firebase apps:sdkconfig ANDROID 1:551894412092:android:4568aaa9f62c9fb9dacc39 --project busin-28e6a --out apps/student/android/app/google-services.json
+```
 
-Run the app again (`fvm flutter run --dart-define-from-file=../../config/dev.json`). The first build after adding the file applies the Google services plugin.
+Or in the [Firebase console](https://console.firebase.google.com/): Project settings, your Android app, Download google-services.json. Leave the SHA-1 empty (Cloud Messaging does not need it). The first build with the file applies the Google services plugin.
 
 ## 2. Try it on your phone, before anything is deployed
 
 1. Start the backend and the app. Sign in as a student with a pending subscription request. On the Subscription tab choose **Turn on notifications** and allow them in the system dialog. The phone's token is now registered (`select token, platform, locale from public.device_tokens;`).
-2. In the Firebase console: Project settings, Service accounts, **Generate new private key**. Save the file **outside the repository** (for example `~/secrets/busin-firebase.json`). It is a secret: anyone with it can send notifications as BusIn.
+2. In the Firebase console: Project settings, Service accounts, **Generate new private key** (the CLI cannot create one). Save the file **outside the repository** (for example `~/secrets/busin-firebase.json`). It is a secret: anyone with it can send notifications as BusIn.
 3. Send a test push straight to that phone:
 
    ```bash
