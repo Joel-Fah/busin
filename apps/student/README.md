@@ -10,8 +10,8 @@ Created in [Phase 3](../../docs/phases/phase-3-student-app.md). It contains no s
 |---|---|---|
 | 1 | Shell: theme, English and French, Google sign-in, session in secure storage, role and status gate, four-tab frame | Done |
 | 2 | Subscribe with a stop and a private proof upload, status tracking | Done (this branch) |
-| 3 | Rotating QR code with screenshot protection | Next |
-| 4 | Scan history, live bus map | |
+| 3 | Rotating QR code with screenshot protection | Done (this branch) |
+| 4 | Scan history, live bus map | Next |
 | 5 | Push notifications (needs the owner's Firebase project) | |
 
 ## How it fits together
@@ -28,6 +28,14 @@ Created in [Phase 3](../../docs/phases/phase-3-student-app.md). It contains no s
 - Sending uploads the proof into the student's own folder (`<school>/<student>/<random>.<ext>`), then creates the request with that path. Proofs are never replaced or deleted by the student; a new request uploads a new file.
 - A student sees their live request, or else the latest rejected or expired one with the school's reason, and can ask again. Pull down to refresh.
 - Local backend: `npm run backend:start` now includes the storage service, which uploads need.
+
+## The boarding code
+
+- The server releases a per-student secret only to a verified student with an approved subscription (`get_my_qr_secret`). The app fetches it once, keeps it in the platform keystore under that user's id, and derives a new code every 30 seconds on the device with `QrCodeGenerator` (the format and test vector are in [the QR format guide](../../docs/guides/qr-code-format.md)). After the first fetch it needs no connection.
+- The secret is deleted from the phone on sign-out, before the session ends. A second account on the same phone never sees the first one's.
+- The code is drawn dark on white in both themes, with a countdown to the next one.
+- On Android the screen is marked secure while the Boarding code tab shows (no screenshots, no screen recording, blank recent-apps preview). iOS cannot block screenshots, so there the note is not shown and nothing is claimed.
+- Known limit: the code depends on the phone's clock. Phones set to automatic time are fine (the server accepts one 30-second window either side); a badly wrong clock gives codes the server refuses. Detecting clock skew against the server is not built yet.
 
 ## Run it
 

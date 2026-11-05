@@ -21,6 +21,7 @@ dependencies:
   go_router: ^18.1.2
   hugeicons: ^1.1.1
   image_picker: ^1.2.0
+  qr_flutter: ^4.1.0
   google_sign_in: ^7.0.0
   intl: any
   shared_preferences: ^2.5.6

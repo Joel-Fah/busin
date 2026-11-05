@@ -29,7 +29,7 @@ Never hard-code a color in a widget. Read it from the theme or the tokens so lig
 
 ## Type
 
-Font family **Plus Jakarta Sans** (bundled in `busin_ui`, SIL Open Font Licence), the same as the portal. The legacy app used Bevellier, dropped because its licence is unknown. Text color defaults to the seed color on light themes. Use the Material 3 text styles from the theme; do not invent sizes.
+Font family **Plus Jakarta Sans** (bundled in `busin_ui`, SIL Open Font Licence), the same as the portal. The legacy app used Bevellier, dropped because its licence is unknown. Text color defaults to the seed color on light themes. Use the Material 3 text styles from the theme; do not invent sizes. Button labels are weight 700 (a little heavier than body text) so they read as buttons on a small, bright screen.
 
 ## Shape and spacing
 

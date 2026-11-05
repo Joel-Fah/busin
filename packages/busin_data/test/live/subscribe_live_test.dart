@@ -43,6 +43,12 @@ Future<void> _sql(String statement) async {
   if (result.exitCode != 0) throw StateError('psql failed: ${result.stderr}');
 }
 
+Future<String> _query(String statement) async {
+  final result = await Process.run('docker', ['exec', '-i', 'supabase_db_busin', 'psql', '-U', 'postgres', '-v', 'ON_ERROR_STOP=1', '-tA', '-c', statement]);
+  if (result.exitCode != 0) throw StateError('psql failed: ${result.stderr}');
+  return (result.stdout as String).trim();
+}
+
 /// A real 1x1 PNG.
 final _png = base64Decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==');
 
@@ -92,6 +98,8 @@ void main() {
   tearDownAll(() async {
     final admin = SupabaseClient(url, serviceKey);
     if (uploaded.isNotEmpty) await admin.storage.from('proofs').remove(uploaded);
+    // Rotating a secret writes an audit entry that points at the student; remove it with the throwaway user.
+    await _sql("delete from public.audit_log where actor_id in ('$studentId', '$otherId');");
     await _sql("delete from public.subscriptions where student_id in ('$studentId', '$otherId');");
     await _sql("delete from auth.users where id in ('$studentId', '$otherId');");
     await client.auth.signOut();
@@ -125,6 +133,38 @@ void main() {
 
     final live = await repos.subscriptions.liveForSemester(studentId: studentId, semesterId: _semester);
     expect(live?.id, created.id);
+  });
+
+  test('no boarding secret before the subscription is approved', () async {
+    await expectLater(repos.qr.fetchSecret(), throwsA(isA<NotAllowed>()));
+  });
+
+  test('once approved, the secret is released and the database accepts exactly the codes the app derives', () async {
+    await _sql("update public.subscriptions set status = 'approved' where student_id = '$studentId';");
+
+    final secret = await repos.qr.fetchSecret();
+    expect(secret, hasLength(32));
+    expect(await repos.qr.fetchSecret(), secret, reason: 'fetching again returns the same secret');
+
+    final window = QrCodeGenerator.windowFor(DateTime.now().toUtc());
+    final appMac = QrCodeGenerator.mac(secret: secret, studentId: studentId, window: window);
+    final dbMac = await _query("select private.qr_mac((select secret from private.qr_secrets where student_id = '$studentId'), '$studentId', $window)");
+    expect(appMac, dbMac, reason: 'the Dart generator and the database function agree on this student secret');
+
+    final code = QrCodeGenerator.generate(secret: secret, studentId: studentId, now: DateTime.now().toUtc());
+    expect(code, startsWith('busin1.$studentId.'));
+    expect(code, endsWith(appMac));
+  });
+
+  test('rotating the secret makes the old codes stop matching', () async {
+    final before = await repos.qr.fetchSecret();
+    final after = await repos.qr.rotateSecret();
+    expect(after, isNot(before));
+
+    final window = QrCodeGenerator.windowFor(DateTime.now().toUtc());
+    final dbMac = await _query("select private.qr_mac((select secret from private.qr_secrets where student_id = '$studentId'), '$studentId', $window)");
+    expect(QrCodeGenerator.mac(secret: after, studentId: studentId, window: window), dbMac);
+    expect(QrCodeGenerator.mac(secret: before, studentId: studentId, window: window), isNot(dbMac));
   });
 
   test('a second live request for the semester is a Conflict', () async {

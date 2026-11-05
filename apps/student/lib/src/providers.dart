@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'auth/access.dart';
 import 'auth/auth_service.dart';
 import 'config/app_config.dart';
+import 'qr/secret_store.dart';
 
 /// Set once at start-up (see main.dart). Tests override the providers below it instead.
 final appConfigProvider = Provider<AppConfig>((ref) => throw UnimplementedError('appConfigProvider is overridden at start-up'));
@@ -13,6 +14,8 @@ final appConfigProvider = Provider<AppConfig>((ref) => throw UnimplementedError(
 final supabaseClientProvider = Provider<SupabaseClient>((ref) => throw UnimplementedError('supabaseClientProvider is overridden at start-up'));
 
 final authServiceProvider = Provider<AuthService>((ref) => throw UnimplementedError('authServiceProvider is overridden at start-up'));
+
+final secretStoreProvider = Provider<SecretStore>((ref) => SecureSecretStore());
 
 final repositoriesProvider = Provider<SupabaseRepositories>((ref) => SupabaseRepositories(ref.watch(supabaseClientProvider)));
 
@@ -39,4 +42,13 @@ final accessProvider = Provider<AccessState>((ref) {
     profileError: profile.error,
     profile: profile.value,
   );
+});
+
+/// Signs out and forgets what must not outlive the session: the boarding secret goes before the session does,
+/// so a phone handed to someone else holds nothing of the last student's.
+final signOutProvider = Provider<Future<void> Function()>((ref) {
+  return () async {
+    await ref.read(secretStoreProvider).deleteAll();
+    await ref.read(authServiceProvider).signOut();
+  };
 });

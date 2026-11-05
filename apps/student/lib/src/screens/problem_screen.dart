@@ -25,7 +25,7 @@ class ProblemScreen extends ConsumerWidget {
               BusinButton(
                 label: l10n.actionSignOut,
                 variant: BusinButtonVariant.ghost,
-                onPressed: () => ref.read(authServiceProvider).signOut(),
+                onPressed: () => ref.read(signOutProvider)(),
               ),
             ],
           ),

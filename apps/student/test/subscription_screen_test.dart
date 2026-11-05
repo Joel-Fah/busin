@@ -21,6 +21,7 @@ Future<void> open(
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
     ProviderScope(
+      key: UniqueKey(),
       overrides: overridesFor(FakeAuthService(signedInAs: 'u1'), FakeProfileRepository({'u1': profile()}), backend: backend, picker: picker),
       child: const StudentApp(),
     ),
@@ -181,7 +182,8 @@ void main() {
 
     await tester.tap(find.text('Show boarding code'));
     await tester.pumpAndSettle();
-    expect(find.text('Coming soon'), findsOneWidget, reason: 'the boarding code arrives in the next slice');
+    expect(find.text('Your boarding code. It changes every 30 seconds.').evaluate(), isEmpty, reason: 'the image label is a semantics label, not text');
+    expect(find.text('Boarding code'), findsNWidgets(2), reason: 'the tab and the screen title');
   });
 
   testWidgets('a rejected request shows the school\'s reason and lets the student ask again', (tester) async {

@@ -14,6 +14,16 @@ Widget app(Widget child, {ThemeData? theme, Locale locale = const Locale('en')})
 
 void main() {
   group('BusinButton', () {
+    testWidgets('labels are bold in both themes, in every variant', (tester) async {
+      for (final theme in [BusinTheme.light(), BusinTheme.dark()]) {
+        for (final variant in BusinButtonVariant.values) {
+          await tester.pumpWidget(app(BusinButton(label: 'Save', variant: variant, onPressed: () {}), theme: theme));
+          final style = tester.widget<DefaultTextStyle>(find.descendant(of: find.byType(TextButton), matching: find.byType(DefaultTextStyle)).first).style;
+          expect(style.fontWeight, FontWeight.w700, reason: '$variant');
+        }
+      }
+    });
+
     testWidgets('calls back when pressed', (tester) async {
       var pressed = 0;
       await tester.pumpWidget(app(BusinButton(label: 'Save', onPressed: () => pressed++)));
