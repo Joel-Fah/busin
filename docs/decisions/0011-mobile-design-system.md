@@ -32,3 +32,7 @@ A debug-only styleguide screen (`fvm flutter run --route /styleguide`) shows eve
 - New screens compose these parts; a screen that needs something new adds it to `busin_ui` and to the styleguide first.
 - Everything animates through Flutter's own implicit animations; the only new dependency is `flutter_svg` for the wordmark.
 - Native MapLibre and other platform views are not part of the design system and keep their own styling.
+
+## Addendum: 3D art licence
+
+The 3D art from thiings.co is used under its free licence, which is for personal and non-commercial use and requires attribution. Before BusIn is released commercially the owner needs the Indie licence (a one-time purchase, listed on thiings.co/pricing) or the art must be replaced. Until then, credit "Thiings" in the app's About screen. This is flagged for the owner; nothing has been bought.

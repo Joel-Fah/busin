@@ -400,6 +400,25 @@ class BusinL10nEn extends BusinL10n {
   }
 
   @override
+  String busEtaMinutes(String minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get busEtaArriving => 'Arriving';
+
+  @override
+  String busEtaCaption(String km, String stop) {
+    return 'About $km km from $stop. An estimate.';
+  }
+
+  @override
+  String get busEtaLabel => 'Estimated arrival';
+
+  @override
+  String get busRunning => 'Running buses';
+
+  @override
   String get busYourStop => 'Your stop';
 
   @override

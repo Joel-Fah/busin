@@ -193,6 +193,28 @@
       }
     }
   },
+  "busEtaMinutes": "{minutes} min",
+  "@busEtaMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "busEtaArriving": "Arriving",
+  "busEtaCaption": "About {km} km from {stop}. An estimate.",
+  "@busEtaCaption": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      },
+      "stop": {
+        "type": "String"
+      }
+    }
+  },
+  "busEtaLabel": "Estimated arrival",
+  "busRunning": "Running buses",
   "busYourStop": "Your stop",
   "busRecenter": "Show the bus",
   "busLiveFailed": "Live updates are not available right now.",

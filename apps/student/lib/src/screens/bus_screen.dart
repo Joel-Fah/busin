@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../bus/bus_providers.dart';
+import '../bus/eta.dart';
 import '../bus/map_scene.dart';
 import '../qr/qr_providers.dart';
 import '../subscription/subscription_providers.dart';
@@ -110,109 +111,157 @@ class _Tracking extends ConsumerWidget {
     final position = active ? ref.watch(busPositionProvider(current.busId)) : const AsyncLoading<LivePosition>();
     final stops = ref.watch(stopsProvider).value ?? const <Stop>[];
     final myStop = ref.watch(myStopProvider).value;
+    final expanded = BusinLayout.of(context).isExpanded;
 
     final scene = MapScene(
       stops: stops,
       myStopId: myStop?.id,
       bus: position.value?.location,
       busHeading: position.value?.headingDeg,
+      // On a phone the details card floats over the lower part of the map.
+      coveredBottom: expanded ? 0 : 250,
     );
 
-    return Column(
-      children: [
-        if (buses.length > 1) _BusChips(buses: buses, selectedId: current.busId),
-        Expanded(
-          child: Stack(
-            children: [
-              Positioned.fill(child: ref.watch(mapSurfaceBuilderProvider)(context, scene, recenter)),
-              if (position.isLoading)
-                Positioned(top: BusinSpace.x3, left: BusinSpace.x3, right: BusinSpace.x3, child: _Banner(text: l10n.busWaiting)),
-              if (position.hasError)
-                Positioned(
-                  top: BusinSpace.x3,
-                  left: BusinSpace.x3,
-                  right: BusinSpace.x3,
-                  child: _Banner(text: l10n.busLiveFailed, action: l10n.actionRetry, onAction: () => ref.invalidate(busPositionProvider(current.busId)), bad: true),
-                ),
-              if (scene.bus != null)
-                Positioned(
-                  right: BusinSpace.x3,
-                  bottom: BusinSpace.x3,
-                  child: BusinButton(label: l10n.busRecenter, variant: BusinButtonVariant.secondary, icon: HugeIcons.strokeRoundedLocation01, onPressed: () => recenter.value++),
-                ),
-            ],
+    // What floats over the map: a status line while waiting or failing, and the way back to the bus.
+    final overlays = <Widget>[
+      if (position.isLoading)
+        Positioned(top: BusinSpace.x3, left: BusinSpace.x3, right: BusinSpace.x3, child: Notice(child: Text(l10n.busWaiting))),
+      if (position.hasError)
+        Positioned(
+          top: BusinSpace.x3,
+          left: BusinSpace.x3,
+          right: BusinSpace.x3,
+          child: Notice(
+            tone: StatusTone.bad,
+            child: Row(
+              children: [
+                Expanded(child: Text(l10n.busLiveFailed)),
+                TextButton(onPressed: () => ref.invalidate(busPositionProvider(current.busId)), child: Text(l10n.actionRetry)),
+              ],
+            ),
           ),
         ),
-        Padding(padding: EdgeInsets.only(bottom: BusinScope.of(context).bottomInset), child: _InfoCard(bus: current, position: position.value, myStopName: myStop?.name)),
+      if (scene.bus != null)
+        Positioned(
+          right: BusinSpace.x3,
+          top: position.isLoading || position.hasError ? 76 : BusinSpace.x3,
+          child: BusinButton(label: l10n.busRecenter, variant: BusinButtonVariant.secondary, icon: HugeIcons.strokeRoundedLocation01, onPressed: () => recenter.value++),
+        ),
+    ];
+
+    final map = DecoratedBox(
+      decoration: const BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(BusinRadius.xl)), boxShadow: BusinElevation.float),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(BusinRadius.xl),
+        child: Stack(children: [Positioned.fill(child: ref.watch(mapSurfaceBuilderProvider)(context, scene, recenter)), ...overlays]),
+      ),
+    );
+    final card = _InfoCard(bus: current, position: position.value, myStop: myStop);
+
+    if (expanded) {
+      // A wide screen: the map takes the room, the buses and the details sit in a panel beside it.
+      return Padding(
+        padding: const EdgeInsets.all(BusinSpace.x4),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(child: map),
+            const SizedBox(width: BusinSpace.x4),
+            SizedBox(
+              width: 380,
+              child: ListView(
+                children: [
+                  if (buses.length > 1) ...[
+                    Text(l10n.busRunning, style: Theme.of(context).textTheme.titleMedium),
+                    const SizedBox(height: BusinSpace.x2),
+                    _BusPills(buses: buses, selectedId: current.busId, wrap: true),
+                    const SizedBox(height: BusinSpace.x4),
+                  ],
+                  card,
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // A phone or portrait tablet: the map floats as a rounded card, the bus pills ride on top of it and the details
+    // card floats above the navigation bar.
+    final inset = BusinScope.of(context).bottomInset;
+    return Stack(
+      children: [
+        Positioned.fill(child: Padding(padding: EdgeInsets.fromLTRB(BusinSpace.x3, BusinSpace.x2, BusinSpace.x3, inset), child: map)),
+        Positioned(left: BusinSpace.x5, right: BusinSpace.x5, bottom: inset + BusinSpace.x3, child: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 520), child: card))),
+        if (buses.length > 1)
+          Positioned(top: BusinSpace.x2 + BusinSpace.x3, left: BusinSpace.x5, right: BusinSpace.x5, child: _BusPills(buses: buses, selectedId: current.busId)),
       ],
     );
   }
 }
 
-class _BusChips extends ConsumerWidget {
-  const _BusChips({required this.buses, required this.selectedId});
+/// The running buses as pills the student can switch between: the chosen one is solid teal, the others are surface.
+class _BusPills extends ConsumerWidget {
+  const _BusPills({required this.buses, required this.selectedId, this.wrap = false});
 
   final List<RunningBus> buses;
   final String selectedId;
+  final bool wrap;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = BusinL10n.of(context);
-    return SizedBox(
-      height: 56,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: BusinSpace.x4, vertical: BusinSpace.x2),
-        itemCount: buses.length,
-        separatorBuilder: (_, _) => const SizedBox(width: BusinSpace.x2),
-        itemBuilder: (context, index) {
-          final bus = buses[index];
-          return ChoiceChip(
-            label: Text('${bus.plate} · ${l10n.direction(bus.trip.direction)}'),
-            selected: bus.busId == selectedId,
-            onSelected: (_) => ref.read(selectedBusIdProvider.notifier).select(bus.busId),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _Banner extends StatelessWidget {
-  const _Banner({required this.text, this.action, this.onAction, this.bad = false});
-
-  final String text;
-  final String? action;
-  final VoidCallback? onAction;
-  final bool bad;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = BusinPalette.of(context);
-    return Semantics(
-      liveRegion: true,
-      child: DecoratedBox(
-        decoration: BoxDecoration(color: bad ? palette.badBg : palette.surface, borderRadius: BorderRadius.circular(BusinRadius.sm), boxShadow: const [BoxShadow(blurRadius: 8, color: Color(0x22000000))]),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: BusinSpace.x4, vertical: BusinSpace.x3),
-          child: Row(
-            children: [
-              Expanded(child: Text(text, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: bad ? palette.bad : palette.fg))),
-              if (action != null) TextButton(onPressed: onAction, child: Text(action!)),
-            ],
+    final p = BusinPalette.of(context);
+    Widget pill(RunningBus bus) {
+      final chosen = bus.busId == selectedId;
+      return Semantics(
+        button: true,
+        selected: chosen,
+        child: Material(
+          color: chosen ? BusinRamps.seed : p.surface,
+          elevation: chosen ? 0 : 2,
+          shadowColor: Colors.black26,
+          borderRadius: BorderRadius.circular(BusinRadius.sm),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(BusinRadius.sm),
+            onTap: () {
+              BusinHaptics.selection();
+              ref.read(selectedBusIdProvider.notifier).select(bus.busId);
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: BusinSpace.x4, vertical: BusinSpace.x3),
+              child: Text(
+                '${bus.plate} · ${l10n.direction(bus.trip.direction)}',
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(color: chosen ? Colors.white : p.fg),
+              ),
+            ),
           ),
         ),
+      );
+    }
+
+    if (wrap) return Wrap(spacing: BusinSpace.x2, runSpacing: BusinSpace.x2, children: [for (final b in buses) pill(b)]);
+    return SizedBox(
+      height: 48,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        clipBehavior: Clip.none,
+        itemCount: buses.length,
+        separatorBuilder: (_, _) => const SizedBox(width: BusinSpace.x2),
+        itemBuilder: (context, index) => pill(buses[index]),
       ),
     );
   }
 }
 
+/// The bus's details: a 3D bus, the plate and direction, the estimated arrival at the student's stop when it can be
+/// worked out, how fresh the position is, and the student's stop.
 class _InfoCard extends ConsumerWidget {
-  const _InfoCard({required this.bus, required this.position, required this.myStopName});
+  const _InfoCard({required this.bus, required this.position, required this.myStop});
 
   final RunningBus bus;
   final LivePosition? position;
-  final String? myStopName;
+  final Stop? myStop;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -231,43 +280,73 @@ class _InfoCard extends ConsumerWidget {
       updated = age.inSeconds < 90 ? l10n.busUpdatedSeconds('${age.inSeconds}') : l10n.busUpdatedMinutes('${age.inMinutes}');
     }
     final kmh = p == null ? null : speedKmh(p.speedMps);
+    // An estimate only from a fresh position: a stale one would promise something the bus may not be doing.
+    final eta = stale || myStop == null ? null : estimateEta(bus: p?.location, stop: myStop!.location, speedMps: p?.speedMps);
 
-    return Material(
-      color: palette.surface,
-      elevation: 8,
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.all(BusinSpace.x4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
+    return BusinCard(
+      padding: const EdgeInsets.fromLTRB(BusinSpace.x5, BusinSpace.x4, BusinSpace.x5, BusinSpace.x4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  Expanded(child: Text(bus.plate, style: text.titleLarge)),
-                  StatusChip(label: l10n.direction(bus.trip.direction), tone: StatusTone.info),
-                ],
-              ),
-              const SizedBox(height: BusinSpace.x1),
-              if (stale)
-                Text(l10n.busStale('$staleMinutes'), style: text.bodyMedium?.copyWith(color: palette.warn))
-              else if (updated != null)
-                Text([updated, if (kmh != null) l10n.busSpeed('$kmh')].join(' · '), style: text.bodyMedium?.copyWith(color: palette.muted)),
-              if (myStopName != null) ...[
-                const SizedBox(height: BusinSpace.x2),
-                Row(
+              const Illustration(BusinIllustration.bus, width: 56, height: 56),
+              const SizedBox(width: BusinSpace.x3),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    HugeIcon(icon: HugeIcons.strokeRoundedFlag02, size: 16, color: palette.accent),
-                    const SizedBox(width: BusinSpace.x2),
-                    Text('${l10n.busYourStop}: $myStopName', style: text.bodyMedium),
+                    Text(bus.plate, style: text.titleLarge, maxLines: 1, overflow: TextOverflow.ellipsis),
+                    const SizedBox(height: BusinSpace.x1),
+                    StatusChip(label: l10n.direction(bus.trip.direction), tone: StatusTone.info),
                   ],
                 ),
-              ],
+              ),
             ],
           ),
-        ),
+          if (eta != null) ...[
+            const SizedBox(height: BusinSpace.x3),
+            Semantics(
+              label: l10n.busEtaLabel,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(eta.arriving ? l10n.busEtaArriving : l10n.busEtaMinutes('${eta.minutes}'), style: text.displaySmall?.copyWith(color: palette.accent)),
+                  const SizedBox(width: BusinSpace.x4),
+                  Expanded(
+                    child: Text(
+                      l10n.busEtaCaption(_km(eta.kilometres, l10n.localeName), myStop!.name),
+                      style: text.bodyMedium?.copyWith(color: palette.muted),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+          const SizedBox(height: BusinSpace.x2),
+          if (stale)
+            Text(l10n.busStale('$staleMinutes'), style: text.bodyMedium?.copyWith(color: palette.warn))
+          else if (updated != null)
+            Text([updated, if (kmh != null) l10n.busSpeed('$kmh')].join(' · '), style: text.bodyMedium?.copyWith(color: palette.muted)),
+          if (myStop != null) ...[
+            const SizedBox(height: BusinSpace.x3),
+            Row(
+              children: [
+                const Illustration(BusinIllustration.busStop, width: 28, height: 28),
+                const SizedBox(width: BusinSpace.x2),
+                Expanded(child: Text('${l10n.busYourStop}: ${myStop!.name}', style: text.bodyMedium?.copyWith(fontWeight: FontWeight.w600))),
+              ],
+            ),
+          ],
+        ],
       ),
     );
   }
+}
+
+/// One decimal, with the language's decimal mark.
+String _km(double km, String languageCode) {
+  final text = km.toStringAsFixed(1);
+  return languageCode.startsWith('fr') ? text.replaceFirst('.', ',') : text;
 }

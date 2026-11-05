@@ -8,6 +8,7 @@ class AppConfig {
     required this.googleServerClientId,
     required this.environment,
     this.mapStyleUrl = defaultMapStyleUrl,
+    this.darkMapStyleUrl = defaultDarkMapStyleUrl,
   });
 
   /// Reads the values the app was compiled with.
@@ -17,6 +18,7 @@ class AppConfig {
         googleServerClientId: String.fromEnvironment('GOOGLE_SERVER_CLIENT_ID'),
         environment: String.fromEnvironment('APP_ENV', defaultValue: 'dev'),
         mapStyleUrl: String.fromEnvironment('MAP_STYLE_URL', defaultValue: defaultMapStyleUrl),
+        darkMapStyleUrl: String.fromEnvironment('MAP_DARK_STYLE_URL', defaultValue: defaultDarkMapStyleUrl),
       );
 
   final String supabaseUrl;
@@ -29,7 +31,11 @@ class AppConfig {
   /// The base map. OpenFreeMap needs no key and no account (ADR 0008); point this at another style to change provider.
   final String mapStyleUrl;
 
+  /// The base map used when the phone is in dark mode.
+  final String darkMapStyleUrl;
+
   static const defaultMapStyleUrl = 'https://tiles.openfreemap.org/styles/liberty';
+  static const defaultDarkMapStyleUrl = 'https://tiles.openfreemap.org/styles/dark';
 
   /// Names of the values that are missing, so a developer sees exactly what to add.
   List<String> get missing => [

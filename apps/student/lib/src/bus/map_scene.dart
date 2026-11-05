@@ -9,7 +9,7 @@ import 'maplibre_surface.dart';
 /// Everything the map needs to draw, as plain data. The screen builds it; a map surface draws it.
 /// Keeping the two apart means the screen is tested with a fake surface (a native map cannot run in a unit test).
 class MapScene {
-  const MapScene({required this.stops, this.myStopId, this.bus, this.busHeading});
+  const MapScene({required this.stops, this.myStopId, this.bus, this.busHeading, this.coveredBottom = 0});
 
   final List<Stop> stops;
   final String? myStopId;
@@ -18,17 +18,22 @@ class MapScene {
   final GeoPoint? bus;
   final double? busHeading;
 
+  /// How much of the map's bottom edge something floats over (the details card), so the camera frames the bus and the
+  /// stop above it. Logical pixels (the map plugin reads its camera padding in them).
+  final double coveredBottom;
+
   @override
   bool operator ==(Object other) =>
       other is MapScene &&
       other.myStopId == myStopId &&
       other.bus == bus &&
       other.busHeading == busHeading &&
+      other.coveredBottom == coveredBottom &&
       other.stops.length == stops.length &&
       Iterable<int>.generate(stops.length).every((i) => other.stops[i] == stops[i]);
 
   @override
-  int get hashCode => Object.hash(myStopId, bus, busHeading, stops.length);
+  int get hashCode => Object.hash(myStopId, bus, busHeading, coveredBottom, stops.length);
 }
 
 /// Draws a [MapScene]. The real one is MapLibre; tests replace it.
@@ -36,6 +41,6 @@ class MapScene {
 typedef MapSurfaceBuilder = Widget Function(BuildContext context, MapScene scene, ValueListenable<int> recenter);
 
 final mapSurfaceBuilderProvider = Provider<MapSurfaceBuilder>((ref) {
-  final style = ref.watch(appConfigProvider).mapStyleUrl;
-  return (context, scene, recenter) => MapLibreSurface(scene: scene, styleUrl: style, recenter: recenter);
+  final config = ref.watch(appConfigProvider);
+  return (context, scene, recenter) => MapLibreSurface(scene: scene, styleUrl: config.mapStyleUrl, darkStyleUrl: config.darkMapStyleUrl, recenter: recenter);
 });

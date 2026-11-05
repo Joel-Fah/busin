@@ -40,6 +40,9 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    # 3D bus and pin for the map (thiings.co, free licence: attribution required, see docs/decisions/0011).
+    - assets/map/
 
 # Stand-in icons rendered from the BusIn wordmark (node tools/render-app-icons.mjs). Replace the PNGs in
 # assets/icon with the owner's own artwork and run: fvm dart run flutter_launcher_icons
