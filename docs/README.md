@@ -6,5 +6,6 @@ Engineering documents for the BusIn team. The help and legal pages shown inside 
 - [decisions/](decisions/): architecture decision records
 - [guides/local-setup.md](guides/local-setup.md): tools and how to run each tier
 - [guides/google-sign-in.md](guides/google-sign-in.md): create the Google OAuth client and where its keys go
+- [guides/student-app-setup.md](guides/student-app-setup.md): run the student app, and the Android and iOS Google clients it needs
 - [guides/qr-code-format.md](guides/qr-code-format.md): the rotating QR contract
 - [audit/2026-10-codebase-audit.md](audit/2026-10-codebase-audit.md): the October 2026 audit that started the rebuild

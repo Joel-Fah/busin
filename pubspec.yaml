@@ -12,3 +12,4 @@ workspace:
   - packages/busin_core
   - packages/busin_data
   - packages/busin_ui
+  - apps/student

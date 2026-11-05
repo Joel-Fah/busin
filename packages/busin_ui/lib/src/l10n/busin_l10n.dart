@@ -318,6 +318,120 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'Loading'**
   String get loadingLabel;
+
+  /// No description provided for @appName.
+  ///
+  /// In en, this message translates to:
+  /// **'BusIn'**
+  String get appName;
+
+  /// No description provided for @signInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ride with BusIn'**
+  String get signInTitle;
+
+  /// No description provided for @signInSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with your school Google account to subscribe, show your boarding code and follow your bus.'**
+  String get signInSubtitle;
+
+  /// No description provided for @signInWithGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Google'**
+  String get signInWithGoogle;
+
+  /// No description provided for @signInCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-in was cancelled.'**
+  String get signInCancelled;
+
+  /// No description provided for @signInFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-in did not work. Try again.'**
+  String get signInFailed;
+
+  /// No description provided for @signInNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'This Google account is not allowed here. Use your school account.'**
+  String get signInNotAllowed;
+
+  /// No description provided for @blockedStaffTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This app is for students'**
+  String get blockedStaffTitle;
+
+  /// No description provided for @blockedStaffBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is a staff or administrator account. Staff use the BusIn ops app, and administrators use the admin portal.'**
+  String get blockedStaffBody;
+
+  /// No description provided for @blockedPendingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is waiting for approval'**
+  String get blockedPendingTitle;
+
+  /// No description provided for @blockedPendingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A school administrator needs to verify your account before you can use BusIn.'**
+  String get blockedPendingBody;
+
+  /// No description provided for @blockedSuspendedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is suspended'**
+  String get blockedSuspendedTitle;
+
+  /// No description provided for @blockedSuspendedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact your school\'s transport office to find out why.'**
+  String get blockedSuspendedBody;
+
+  /// No description provided for @navSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription'**
+  String get navSubscription;
+
+  /// No description provided for @navQr.
+  ///
+  /// In en, this message translates to:
+  /// **'Boarding code'**
+  String get navQr;
+
+  /// No description provided for @navHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get navHistory;
+
+  /// No description provided for @navBus.
+  ///
+  /// In en, this message translates to:
+  /// **'My bus'**
+  String get navBus;
+
+  /// No description provided for @comingSoonTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming soon'**
+  String get comingSoonTitle;
+
+  /// No description provided for @comingSoonBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This part of the app is being built.'**
+  String get comingSoonBody;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {
