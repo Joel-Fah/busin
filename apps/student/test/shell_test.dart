@@ -54,7 +54,7 @@ void main() {
       testWidgets('sign-in lays out on ${entry.key} at text size $scale, in both languages', (tester) async {
         for (final locale in [const Locale('en'), const Locale('fr')]) {
           await run(tester, entry.value, textScale: scale, locale: locale);
-          expect(tester.takeException(), isNull, reason: '${locale.languageCode}');
+          expect(tester.takeException(), isNull, reason: locale.languageCode);
           expect(find.text(locale.languageCode == 'fr' ? 'Continuer avec Google' : 'Continue with Google'), findsOneWidget);
           expect(find.byType(BrandMark), findsWidgets);
         }
