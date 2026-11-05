@@ -35,7 +35,10 @@ enum SubscriptionStatus {
   pending,
   approved,
   rejected,
-  expired;
+  expired,
+
+  /// Ended early by an administrator, with a reason.
+  revoked;
 
   static SubscriptionStatus parse(Object? raw) =>
       _parse(values, raw, 'subscription status');

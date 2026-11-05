@@ -123,7 +123,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                 : switch (subscription.status) {
                     SubscriptionStatus.approved => BusinIllustration.verified,
                     SubscriptionStatus.pending => BusinIllustration.waiting,
-                    SubscriptionStatus.rejected => BusinIllustration.papers,
+                    SubscriptionStatus.rejected || SubscriptionStatus.revoked => BusinIllustration.papers,
                     SubscriptionStatus.expired => BusinIllustration.semester,
                   };
 

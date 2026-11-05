@@ -80,6 +80,9 @@ class BusinL10nFr extends BusinL10n {
   String get subscriptionRejected => 'Refusé';
 
   @override
+  String get subscriptionRevoked => 'Révoqué';
+
+  @override
   String get subscriptionExpired => 'Expiré';
 
   @override
@@ -386,6 +389,12 @@ class BusinL10nFr extends BusinL10n {
 
   @override
   String get statusRequestAgain => 'Refaire une demande';
+
+  @override
+  String get statusRevokedTitle => 'Abonnement terminé par votre école';
+
+  @override
+  String get statusRevokedReason => 'Motif de votre école :';
 
   @override
   String get statusExpiredTitle => 'Abonnement terminé';

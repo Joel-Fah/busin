@@ -22,6 +22,7 @@ extension BusinLabels on BusinL10n {
         SubscriptionStatus.approved => subscriptionApproved,
         SubscriptionStatus.rejected => subscriptionRejected,
         SubscriptionStatus.expired => subscriptionExpired,
+        SubscriptionStatus.revoked => subscriptionRevoked,
       };
 
   String tripStatus(TripStatus status) => switch (status) {
@@ -59,6 +60,7 @@ StatusTone subscriptionTone(SubscriptionStatus status) => switch (status) {
       SubscriptionStatus.approved => StatusTone.ok,
       SubscriptionStatus.rejected => StatusTone.bad,
       SubscriptionStatus.expired => StatusTone.neutral,
+      SubscriptionStatus.revoked => StatusTone.bad,
       SubscriptionStatus.pending => StatusTone.warn,
     };
 

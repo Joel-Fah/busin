@@ -214,6 +214,18 @@ void main() {
     expect(find.text('Request again'), findsOneWidget);
   });
 
+  testWidgets('a revoked subscription says so with the school\'s reason and lets the student ask again', (tester) async {
+    await open(tester, FakeBackend(current: semester(), mine: [subscription(status: SubscriptionStatus.revoked, note: 'Payment was reversed.')]));
+    expect(find.text('Subscription ended by your school'), findsOneWidget);
+    expect(find.text('Revoked'), findsOneWidget);
+    expect(find.text('Payment was reversed.'), findsOneWidget);
+    expect(find.text('Show boarding code'), findsNothing);
+
+    await tester.tap(find.text('Request again'));
+    await tester.pumpAndSettle();
+    expect(find.text('Send request'), findsOneWidget);
+  });
+
   testWidgets('requests for another semester do not count', (tester) async {
     await open(tester, FakeBackend(current: semester(), mine: [subscription(semesterId: 'old', status: SubscriptionStatus.approved)]));
     expect(find.text('Subscribe for Fall 2026'), findsOneWidget);

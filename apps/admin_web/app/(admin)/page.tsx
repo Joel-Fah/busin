@@ -72,6 +72,7 @@ const STATUS_COLOR: Record<(typeof STATUSES)[number], string> = {
   pending: "var(--warn)",
   approved: "var(--ok)",
   rejected: "var(--bad)",
+  revoked: "color-mix(in srgb, var(--bad) 55%, transparent)",
   expired: "color-mix(in srgb, var(--fg) 35%, transparent)",
 };
 

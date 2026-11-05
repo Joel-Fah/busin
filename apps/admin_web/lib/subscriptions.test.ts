@@ -12,6 +12,8 @@ import {
   reviewErrorKey,
   statusTone,
   tabCounts,
+  isReviewErrorKey,
+  revokeErrorKey,
 } from "./subscriptions";
 
 describe("parseStatusFilter", () => {
@@ -21,7 +23,7 @@ describe("parseStatusFilter", () => {
   });
 
   it("accepts the known filters", () => {
-    for (const filter of ["pending", "approved", "rejected", "expired", "all"]) {
+    for (const filter of ["pending", "approved", "rejected", "expired", "revoked", "all"]) {
       expect(parseStatusFilter(filter)).toBe(filter);
     }
   });
@@ -94,17 +96,33 @@ describe("statusTone", () => {
     expect(statusTone("approved")).toBe("ok");
     expect(statusTone("rejected")).toBe("bad");
     expect(statusTone("expired")).toBe("neutral");
+    expect(statusTone("revoked")).toBe("bad");
+  });
+});
+
+describe("revokeErrorKey", () => {
+  it("maps the database codes of the revoke function", () => {
+    expect(revokeErrorKey("55000")).toBe("not_approved");
+    expect(revokeErrorKey("22023")).toBe("invalid");
+    expect(revokeErrorKey("P0002")).toBe("not_found");
+    expect(revokeErrorKey("42501")).toBe("generic");
+    expect(revokeErrorKey(undefined)).toBe("generic");
+  });
+
+  it("every key it can return has words", () => {
+    for (const key of ["not_approved", "invalid", "not_found", "generic"]) expect(isReviewErrorKey(key)).toBe(true);
   });
 });
 
 describe("tabCounts", () => {
   it("adds up the total and treats a missing count as zero", () => {
-    expect(tabCounts({ pending: 3, approved: 10, rejected: 1, expired: null })).toEqual({
+    expect(tabCounts({ pending: 3, approved: 10, rejected: 1, expired: null, revoked: 2 })).toEqual({
       pending: 3,
       approved: 10,
       rejected: 1,
       expired: 0,
-      all: 14,
+      revoked: 2,
+      all: 16,
     });
     expect(tabCounts({}).all).toBe(0);
   });
