@@ -1,11 +1,14 @@
 import 'package:busin_core/busin_core.dart';
 import 'package:busin_data/busin_data.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'auth/access.dart';
 import 'auth/auth_service.dart';
 import 'config/app_config.dart';
+import 'push/push_registrar.dart';
+import 'push/push_service.dart';
 import 'qr/secret_store.dart';
 
 /// Set once at start-up (see main.dart). Tests override the providers below it instead.
@@ -16,6 +19,22 @@ final supabaseClientProvider = Provider<SupabaseClient>((ref) => throw Unimpleme
 final authServiceProvider = Provider<AuthService>((ref) => throw UnimplementedError('authServiceProvider is overridden at start-up'));
 
 final secretStoreProvider = Provider<SecretStore>((ref) => SecureSecretStore());
+
+/// Firebase Cloud Messaging, or a stand-in that does nothing when this build has no Firebase configuration.
+final pushServiceProvider = Provider<PushService>((ref) => const NoPushService());
+
+final deviceTokensRepositoryProvider = Provider<DeviceTokensRepository>((ref) => ref.watch(repositoriesProvider).deviceTokens);
+
+final languageCodeProvider = Provider<String Function()>((ref) => systemLanguageCode);
+
+final pushRegistrarProvider = Provider<PushRegistrar>(
+  (ref) => PushRegistrar(
+    push: ref.watch(pushServiceProvider),
+    tokens: ref.watch(deviceTokensRepositoryProvider),
+    languageCode: ref.watch(languageCodeProvider),
+    platform: defaultTargetPlatform,
+  ),
+);
 
 final repositoriesProvider = Provider<SupabaseRepositories>((ref) => SupabaseRepositories(ref.watch(supabaseClientProvider)));
 
@@ -44,10 +63,12 @@ final accessProvider = Provider<AccessState>((ref) {
   );
 });
 
-/// Signs out and forgets what must not outlive the session: the boarding secret goes before the session does,
-/// so a phone handed to someone else holds nothing of the last student's.
+/// Signs out and forgets what must not outlive the session: this phone's push registration and the boarding
+/// secret go before the session does, so a phone handed to someone else holds nothing of the last student's.
 final signOutProvider = Provider<Future<void> Function()>((ref) {
   return () async {
+    // While still signed in, so the server accepts removing this phone.
+    await ref.read(pushRegistrarProvider).forget();
     await ref.read(secretStoreProvider).deleteAll();
     await ref.read(authServiceProvider).signOut();
   };

@@ -391,4 +391,31 @@ class BusinL10nEn extends BusinL10n {
 
   @override
   String get busMapLabel => 'Map of the bus and the stops';
+
+  @override
+  String get pushPromptTitle => 'Get notified';
+
+  @override
+  String get pushPromptBody =>
+      'We can tell you as soon as your school decides on your request, even when the app is closed.';
+
+  @override
+  String get pushPromptEnable => 'Turn on notifications';
+
+  @override
+  String get pushPromptLater => 'Not now';
+
+  @override
+  String get pushPromptDenied =>
+      'Notifications are off. You can turn them on in your phone\'s settings.';
+
+  @override
+  String get pushForegroundApproved => 'Your subscription was approved.';
+
+  @override
+  String get pushForegroundRejected =>
+      'Your school has decided on your subscription.';
+
+  @override
+  String get pushForegroundView => 'View';
 }

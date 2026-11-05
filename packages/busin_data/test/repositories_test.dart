@@ -189,6 +189,38 @@ void main() {
     });
   });
 
+  group('device tokens', () {
+    test('registering sends the token, platform and language to the function and nothing else', () async {
+      final h = Harness((_) async => http.Response('', 204));
+      await h.repos.deviceTokens.register(token: 'token-of-this-phone-aaaaaaaaaaaa', platform: 'android', locale: 'fr');
+
+      expect(h.last.url.path, '/rest/v1/rpc/register_device_token');
+      expect(jsonDecode(h.last.body), {'p_token': 'token-of-this-phone-aaaaaaaaaaaa', 'p_platform': 'android', 'p_locale': 'fr'});
+    });
+
+    test('unregistering names only the token', () async {
+      final h = Harness((_) async => http.Response('', 204));
+      await h.repos.deviceTokens.unregister('token-of-this-phone-aaaaaaaaaaaa');
+      expect(h.last.url.path, '/rest/v1/rpc/unregister_device_token');
+      expect(jsonDecode(h.last.body), {'p_token': 'token-of-this-phone-aaaaaaaaaaaa'});
+    });
+
+    test('an account that may not register is NotAllowed, a bad value is Invalid, no network is Offline', () async {
+      Future<Object> failure(Harness h) async {
+        try {
+          await h.repos.deviceTokens.register(token: 'token-of-this-phone-aaaaaaaaaaaa', platform: 'android', locale: 'en');
+        } catch (e) {
+          return e;
+        }
+        return 'no error';
+      }
+
+      expect(await failure(Harness((_) async => json({'code': '42501', 'message': 'no', 'details': null, 'hint': null}, status: 403))), isA<NotAllowed>());
+      expect(await failure(Harness((_) async => json({'code': '22023', 'message': 'bad', 'details': null, 'hint': null}, status: 400))), isA<Invalid>());
+      expect(await failure(Harness((_) async => throw const SocketException('down'))), isA<Offline>());
+    });
+  });
+
   group('live bus lookups', () {
     test('active trips are asked for by status, newest started first, and capped', () async {
       final h = Harness((_) async => json([tripRow(status: 'active')]));
@@ -344,7 +376,7 @@ void main() {
     });
 
     test('a refused role or school is NotAllowed', () async {
-      expect(await failure(Harness((_) async => refusal('42501', status: 403))), isA<NotAllowed>());
+      expect(await failure(Harness((_) async => json({'code': '42501', 'message': 'no', 'details': null, 'hint': null}, status: 403))), isA<NotAllowed>());
     });
 
     test('a second live subscription is a Conflict', () async {

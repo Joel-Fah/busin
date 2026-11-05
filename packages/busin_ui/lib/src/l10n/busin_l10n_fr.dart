@@ -401,4 +401,31 @@ class BusinL10nFr extends BusinL10n {
 
   @override
   String get busMapLabel => 'Carte du bus et des arrêts';
+
+  @override
+  String get pushPromptTitle => 'Soyez prévenu';
+
+  @override
+  String get pushPromptBody =>
+      'Nous pouvons vous prévenir dès que votre école statue sur votre demande, même lorsque l’application est fermée.';
+
+  @override
+  String get pushPromptEnable => 'Activer les notifications';
+
+  @override
+  String get pushPromptLater => 'Plus tard';
+
+  @override
+  String get pushPromptDenied =>
+      'Les notifications sont désactivées. Vous pouvez les activer dans les réglages de votre téléphone.';
+
+  @override
+  String get pushForegroundApproved => 'Votre abonnement a été approuvé.';
+
+  @override
+  String get pushForegroundRejected =>
+      'Votre école a statué sur votre abonnement.';
+
+  @override
+  String get pushForegroundView => 'Voir';
 }

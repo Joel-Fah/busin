@@ -233,6 +233,21 @@ class SupabaseTripsRepository implements TripsRepository {
       });
 }
 
+class SupabaseDeviceTokensRepository implements DeviceTokensRepository {
+  SupabaseDeviceTokensRepository(this._client);
+  final SupabaseClient _client;
+
+  @override
+  Future<void> register({required String token, required String platform, required String locale}) => guarded(() async {
+        await _client.rpc<void>('register_device_token', params: {'p_token': token, 'p_platform': platform, 'p_locale': locale});
+      });
+
+  @override
+  Future<void> unregister(String token) => guarded(() async {
+        await _client.rpc<void>('unregister_device_token', params: {'p_token': token});
+      });
+}
+
 class SupabaseBusesRepository implements BusesRepository {
   SupabaseBusesRepository(this._client);
   final SupabaseClient _client;

@@ -240,6 +240,33 @@ void main() {
     expect(latest?.location.longitude, closeTo(11.502, 1e-6));
   });
 
+  test('a student registers and removes their own push token, and cannot read the outbox', () async {
+    const token = 'live-test-token-0123456789abcdef-student';
+    await repos.deviceTokens.register(token: token, platform: 'android', locale: 'fr');
+    final mine = await client.from('device_tokens').select('token, platform, locale');
+    expect(mine, [
+      {'token': token, 'platform': 'android', 'locale': 'fr'},
+    ]);
+
+    // Registering again from the same phone only refreshes it.
+    await repos.deviceTokens.register(token: token, platform: 'android', locale: 'en');
+    expect(await client.from('device_tokens').select('locale'), [
+      {'locale': 'en'},
+    ]);
+
+    // Changing an already decided subscription queues nothing (a decision on a pending one does, covered by the database tests).
+    final queuedBefore = int.parse(await _query("select count(*) from private.notification_outbox where user_id = '$studentId'"));
+    await _sql("update public.subscriptions set status = 'rejected' where student_id = '$studentId' and status = 'approved';");
+    final queuedAfter = int.parse(await _query("select count(*) from private.notification_outbox where user_id = '$studentId'"));
+    expect(queuedAfter, queuedBefore, reason: 'only a pending request that is decided queues a notification');
+
+    // The outbox is not reachable by a signed-in student at all.
+    await expectLater(client.from('notification_outbox').select(), throwsA(anything));
+
+    await repos.deviceTokens.unregister(token);
+    expect(await client.from('device_tokens').select('token'), isEmpty);
+  });
+
   test('a student cannot upload into someone else\'s folder', () async {
     await expectLater(
       repos.proofs.upload(schoolId: _school, studentId: otherId, bytes: Uint8List.fromList(_png), contentType: 'image/png'),

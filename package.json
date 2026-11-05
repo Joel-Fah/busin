@@ -23,6 +23,7 @@
     "dev:user": "node tools/dev-user.mjs",
     "seed:demo": "node tools/seed-demo.mjs",
     "dev:bus": "node tools/simulate-bus.mjs",
+    "dev:push": "node tools/send-test-push.mjs",
     "supabase": "supabase"
   },
   "devDependencies": {

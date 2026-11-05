@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
+import '../push/push_prompt_card.dart';
 import '../router.dart';
 import '../subscription/subscribe_form.dart';
 import '../subscription/subscription_providers.dart';
@@ -86,6 +87,8 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                   onShowCode: () => context.go(Routes.qr),
                   onRequestAgain: () => setState(() => _requestAgain = true),
                 ),
+              // The moment there is something to wait for is the moment to offer to tell them.
+              if (!showForm && subscription.status == SubscriptionStatus.pending) const PushPromptCard(),
             ],
           );
         },

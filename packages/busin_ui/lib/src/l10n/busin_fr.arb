@@ -177,5 +177,13 @@
   "busYourStop": "Votre arrêt",
   "busRecenter": "Afficher le bus",
   "busLiveFailed": "Les mises à jour en direct ne sont pas disponibles pour le moment.",
-  "busMapLabel": "Carte du bus et des arrêts"
+  "busMapLabel": "Carte du bus et des arrêts",
+  "pushPromptTitle": "Soyez prévenu",
+  "pushPromptBody": "Nous pouvons vous prévenir dès que votre école statue sur votre demande, même lorsque l’application est fermée.",
+  "pushPromptEnable": "Activer les notifications",
+  "pushPromptLater": "Plus tard",
+  "pushPromptDenied": "Les notifications sont désactivées. Vous pouvez les activer dans les réglages de votre téléphone.",
+  "pushForegroundApproved": "Votre abonnement a été approuvé.",
+  "pushForegroundRejected": "Votre école a statué sur votre abonnement.",
+  "pushForegroundView": "Voir"
 }

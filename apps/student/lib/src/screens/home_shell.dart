@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
+import '../push/push_binder.dart';
+
 /// The signed-in student's frame: four destinations along the bottom. Each keeps its own place when you
 /// switch away and back.
 class HomeShell extends StatelessWidget {
@@ -13,7 +15,8 @@ class HomeShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = BusinL10n.of(context);
-    return Scaffold(
+    return PushBinder(
+      child: Scaffold(
       body: SafeArea(bottom: false, child: shell),
       bottomNavigationBar: NavigationBar(
         selectedIndex: shell.currentIndex,
@@ -24,6 +27,7 @@ class HomeShell extends StatelessWidget {
           NavigationDestination(icon: const HugeIcon(icon: HugeIcons.strokeRoundedReceiptText), label: l10n.navHistory),
           NavigationDestination(icon: const HugeIcon(icon: HugeIcons.strokeRoundedBus01), label: l10n.navBus),
         ],
+      ),
       ),
     );
   }
