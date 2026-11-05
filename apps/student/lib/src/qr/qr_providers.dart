@@ -12,6 +12,16 @@ final qrRepositoryProvider = Provider<QrRepository>((ref) => ref.watch(repositor
 
 final screenSecurityProvider = Provider<ScreenSecurity>((ref) => MethodChannelScreenSecurity());
 
+/// Whether this session has already reminded the student to keep the code private.
+class QrPrivacyTold extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void told() => state = true;
+}
+
+final qrPrivacyToldProvider = NotifierProvider<QrPrivacyTold, bool>(QrPrivacyTold.new);
+
 /// The current time. The boarding code is a function of it; tests replace it to move through windows.
 final nowProvider = Provider<DateTime Function()>((ref) => DateTime.now);
 

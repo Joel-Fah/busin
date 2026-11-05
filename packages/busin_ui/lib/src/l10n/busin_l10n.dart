@@ -649,17 +649,59 @@ abstract class BusinL10n {
   /// **'Your boarding code. It changes every 30 seconds.'**
   String get qrImageLabel;
 
-  /// No description provided for @qrRefreshesIn.
+  /// No description provided for @qrLive.
   ///
   /// In en, this message translates to:
-  /// **'New code in {seconds} s'**
-  String qrRefreshesIn(String seconds);
+  /// **'Live code'**
+  String get qrLive;
 
-  /// No description provided for @qrScreenshotsOff.
+  /// No description provided for @qrPrivateTitle.
   ///
   /// In en, this message translates to:
-  /// **'Screenshots are turned off here so a copy of your code cannot be shared.'**
-  String get qrScreenshotsOff;
+  /// **'Keep your code to yourself'**
+  String get qrPrivateTitle;
+
+  /// No description provided for @qrPrivateBodyProtected.
+  ///
+  /// In en, this message translates to:
+  /// **'It changes by itself, and screenshots are turned off here.'**
+  String get qrPrivateBodyProtected;
+
+  /// No description provided for @qrPrivateBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It changes by itself and only works for you.'**
+  String get qrPrivateBody;
+
+  /// No description provided for @qrRefreshed.
+  ///
+  /// In en, this message translates to:
+  /// **'Code refreshed.'**
+  String get qrRefreshed;
+
+  /// No description provided for @boardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How to board'**
+  String get boardTitle;
+
+  /// No description provided for @boardStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'Have this screen open when you reach the door.'**
+  String get boardStep1;
+
+  /// No description provided for @boardStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold your phone to the scanner until it confirms.'**
+  String get boardStep2;
+
+  /// No description provided for @boardStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Take any seat. Your ride is saved in History.'**
+  String get boardStep3;
 
   /// No description provided for @qrNoSubscriptionTitle.
   ///
