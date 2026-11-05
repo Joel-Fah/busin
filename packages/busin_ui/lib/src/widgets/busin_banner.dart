@@ -42,8 +42,9 @@ class BusinBanner extends StatelessWidget {
             child: Stack(
               children: [
                 const Positioned.fill(child: Grain(opacity: 1)),
-                if (art != null) Positioned(right: -36, bottom: -30, child: Illustration(art!, width: 168, height: 168)),
                 Positioned.fill(child: Contour(color: Colors.white.withValues(alpha: 0.26), style: ContourStyle.banner)),
+                // The art is drawn over the thread, so the stitching passes behind it.
+                if (art != null) Positioned(right: -36, bottom: -30, child: Illustration(art!, width: 168, height: 168)),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(BusinSpace.x6, BusinSpace.x6, BusinSpace.x6, BusinSpace.x6),
                   child: Column(

@@ -64,14 +64,15 @@ class _BusinCardState extends State<BusinCard> {
         child: Stack(
           children: [
             if (widget.grain) const Positioned.fill(child: Grain(opacity: 0.8)),
+            // Under the content, so 3D art and text sit above the thread.
+            if (widget.contour)
+              Positioned.fill(child: Contour(color: threadColor(text: p.fg, background: surface, mix: 0.16), style: style, active: _pressed)),
             InkWell(
               customBorder: shape,
               onTap: widget.onTap,
               onHighlightChanged: widget.onTap == null ? null : (down) => setState(() => _pressed = down),
               child: Padding(padding: widget.padding, child: widget.child),
             ),
-            if (widget.contour)
-              Positioned.fill(child: Contour(color: threadColor(text: p.fg, background: surface, mix: 0.16), style: style, active: _pressed)),
           ],
         ),
       ),
