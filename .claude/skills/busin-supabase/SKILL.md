@@ -28,6 +28,7 @@ Design context: [ARCHITECTURE.md](../../../ARCHITECTURE.md) and ADR 0001. Securi
 - Never grant `update` on `role`, `status` or `school_id` to the `authenticated` role; use column privileges or functions.
 
 ## Functions
+- Edge Function logic goes in `supabase/functions/_shared/` as plain TypeScript with no Deno or network calls, with tests run by Node (`npm run test:functions`); the Deno `index.ts` only wires it up. Service-only database functions are granted to `service_role` and revoked from everyone else, and have pgTAP tests for both sides.
 - Use a database function (RPC) for transactional business rules (approve, reject, promote, suspend, issue QR secret). Use an Edge Function when you need secrets, outside HTTP calls or non-SQL libraries.
 - `security definer` functions set `search_path = ''`, qualify every object name, check the caller, validate inputs, and write `audit_log`.
 
