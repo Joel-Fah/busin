@@ -21,12 +21,15 @@ Profile profile({
   String id = 'u1',
   UserRole role = UserRole.student,
   AccountStatus status = AccountStatus.verified,
+  bool complete = true,
 }) =>
     Profile(
       id: id,
       schoolId: 's1',
       email: '$id@school.edu',
       fullName: 'Test Person',
+      matricule: complete ? 'ICT2026-0001' : null,
+      phone: complete ? '677123456' : null,
       role: role,
       status: status,
       createdAt: DateTime.utc(2026, 11, 1),
@@ -77,6 +80,33 @@ class FakeProfileRepository implements ProfileRepository {
   Future<Profile> getProfile(String userId) async {
     if (error != null) throw error!;
     return byId[userId] ?? (throw const NotFound('profile'));
+  }
+
+  /// What was last saved, to check in tests.
+  Map<String, String?>? lastUpdate;
+
+  @override
+  Future<Profile> updateProfile(String userId, {String? fullName, String? phone, String? matricule, String? department, String? program}) async {
+    if (error != null) throw error!;
+    lastUpdate = {'fullName': fullName, 'phone': phone, 'matricule': matricule, 'department': department, 'program': program};
+    final old = byId[userId] ?? (throw const NotFound('profile'));
+    final updated = Profile(
+      id: old.id,
+      schoolId: old.schoolId,
+      email: old.email,
+      fullName: fullName ?? old.fullName,
+      avatarUrl: old.avatarUrl,
+      phone: phone ?? old.phone,
+      role: old.role,
+      status: old.status,
+      matricule: matricule ?? old.matricule,
+      department: department ?? old.department,
+      program: program ?? old.program,
+      createdAt: old.createdAt,
+      updatedAt: DateTime.now().toUtc(),
+    );
+    byId[userId] = updated;
+    return updated;
   }
 }
 
@@ -436,10 +466,14 @@ class FakeLive implements LivePositionsRepository {
 class FakeMapSurface {
   final List<MapScene> scenes = [];
   int recenters = 0;
+
+  /// What the real map would write: whether the bus is inside the visible part of the map.
+  ValueNotifier<bool>? busInView;
   ValueListenable<int>? _listening;
 
-  MapSurfaceBuilder get builder => (context, scene, recenter) {
+  MapSurfaceBuilder get builder => (context, scene, recenter, busInView) {
         scenes.add(scene);
+        this.busInView = busInView;
         // The screen rebuilds the surface often; listen to the one notifier once.
         if (!identical(_listening, recenter)) {
           _listening = recenter;

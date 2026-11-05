@@ -27,6 +27,13 @@ class Blocked extends AccessState {
   final BlockReason reason;
 }
 
+/// A verified student who has not yet told the school who they are (student number, phone). They finish that first.
+class NeedsSetup extends AccessState {
+  const NeedsSetup(this.profile);
+
+  final Profile profile;
+}
+
 class Allowed extends AccessState {
   const Allowed(this.profile);
 
@@ -52,6 +59,6 @@ AccessState accessFor({
   return switch (profile.status) {
     AccountStatus.pending => const Blocked(BlockReason.pending),
     AccountStatus.suspended => const Blocked(BlockReason.suspended),
-    AccountStatus.verified => Allowed(profile),
+    AccountStatus.verified => profile.isSetupComplete ? Allowed(profile) : NeedsSetup(profile),
   };
 }

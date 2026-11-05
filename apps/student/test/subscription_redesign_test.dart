@@ -37,6 +37,12 @@ Future<void> run(
     ),
   );
   await tester.pumpAndSettle();
+  // A student with an approved subscription opens on the boarding code; these tests look at the subscription tab.
+  final tab = find.text('Subscription');
+  if (tab.evaluate().isNotEmpty) {
+    await tester.tap(tab.first);
+    await tester.pumpAndSettle();
+  }
 }
 
 void main() {

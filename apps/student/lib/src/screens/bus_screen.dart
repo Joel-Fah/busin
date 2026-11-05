@@ -23,6 +23,7 @@ class BusScreen extends ConsumerStatefulWidget {
 
 class _BusScreenState extends ConsumerState<BusScreen> {
   final _recenter = ValueNotifier<int>(0);
+  final _busInView = ValueNotifier<bool>(false);
   Timer? _timer;
   bool? _active;
 
@@ -54,6 +55,7 @@ class _BusScreenState extends ConsumerState<BusScreen> {
   void dispose() {
     _timer?.cancel();
     _recenter.dispose();
+    _busInView.dispose();
     super.dispose();
   }
 
@@ -87,17 +89,18 @@ class _BusScreenState extends ConsumerState<BusScreen> {
             ),
           );
         }
-        return _Tracking(buses: buses, recenter: _recenter, active: _active ?? true);
+        return _Tracking(buses: buses, recenter: _recenter, busInView: _busInView, active: _active ?? true);
       },
     );
   }
 }
 
 class _Tracking extends ConsumerWidget {
-  const _Tracking({required this.buses, required this.recenter, required this.active});
+  const _Tracking({required this.buses, required this.recenter, required this.busInView, required this.active});
 
   final List<RunningBus> buses;
   final ValueNotifier<int> recenter;
+  final ValueNotifier<bool> busInView;
 
   /// False while another tab is showing: the live subscription is dropped then and taken up again on return.
   final bool active;
@@ -145,7 +148,16 @@ class _Tracking extends ConsumerWidget {
         Positioned(
           right: BusinSpace.x3,
           top: position.isLoading || position.hasError ? 76 : BusinSpace.x3,
-          child: BusinButton(label: l10n.busRecenter, variant: BusinButtonVariant.secondary, icon: HugeIcons.strokeRoundedLocation01, onPressed: () => recenter.value++),
+          // Only when the bus is out of frame; it fades in and out so the map is not jumpy.
+          child: ValueListenableBuilder<bool>(
+            valueListenable: busInView,
+            builder: (context, inView, button) => AnimatedSwitcher(
+              duration: BusinMotion.of(context, BusinMotion.fast),
+              transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: ScaleTransition(scale: Tween(begin: 0.9, end: 1.0).animate(animation), child: child)),
+              child: inView ? const SizedBox.shrink() : button,
+            ),
+            child: BusinButton(label: l10n.busRecenter, variant: BusinButtonVariant.secondary, icon: HugeIcons.strokeRoundedLocation01, onPressed: () => recenter.value++),
+          ),
         ),
     ];
 
@@ -153,7 +165,7 @@ class _Tracking extends ConsumerWidget {
       decoration: const BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(BusinRadius.xl)), boxShadow: BusinElevation.float),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(BusinRadius.xl),
-        child: Stack(children: [Positioned.fill(child: ref.watch(mapSurfaceBuilderProvider)(context, scene, recenter)), ...overlays]),
+        child: Stack(children: [Positioned.fill(child: ref.watch(mapSurfaceBuilderProvider)(context, scene, recenter, busInView)), ...overlays]),
       ),
     );
     final card = _InfoCard(bus: current, position: position.value, myStop: myStop);
@@ -327,7 +339,7 @@ class _InfoCard extends ConsumerWidget {
             const SizedBox(height: BusinSpace.x2),
             Row(
               children: [
-                const Illustration(BusinIllustration.busStop, width: 22, height: 22),
+                HugeIcon(icon: HugeIcons.strokeRoundedFlag02, size: 18, color: palette.accent),
                 const SizedBox(width: BusinSpace.x2),
                 Expanded(child: Text('${l10n.busYourStop}: ${myStop!.name}', style: text.bodySmall?.copyWith(fontWeight: FontWeight.w600))),
               ],

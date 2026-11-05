@@ -19,6 +19,7 @@ export 'src/models/semester.dart';
 export 'src/models/stop.dart';
 export 'src/models/subscription.dart';
 export 'src/models/trip.dart';
+export 'src/profile_validation.dart';
 export 'src/qr_code.dart';
 export 'src/repositories/page.dart';
 export 'src/repositories/repositories.dart';

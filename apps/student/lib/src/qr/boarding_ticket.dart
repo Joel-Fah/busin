@@ -95,8 +95,8 @@ class _BoardingTicketState extends State<BoardingTicket> with TickerProviderStat
                     child: Row(
                       children: [
                         const BrandMark(color: Colors.white, height: 26),
-                        const Spacer(),
-                        _LivePill(label: widget.liveLabel, animation: _live),
+                        const SizedBox(width: BusinSpace.x3),
+                        Expanded(child: Align(alignment: Alignment.centerRight, child: _LivePill(label: widget.liveLabel, animation: _live))),
                       ],
                     ),
                   ),
@@ -185,7 +185,7 @@ class _LivePill extends StatelessWidget {
               ),
             ),
             const SizedBox(width: BusinSpace.x2),
-            Text(label, style: text.labelMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.w700)),
+            Flexible(child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: text.labelMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.w700))),
           ],
         ),
       ),

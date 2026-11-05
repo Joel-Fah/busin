@@ -9,7 +9,10 @@ import 'screens/blocked_screen.dart';
 import 'screens/bus_screen.dart';
 import 'screens/history_screen.dart';
 import 'screens/home_shell.dart';
+import 'screens/landing_screen.dart';
 import 'screens/problem_screen.dart';
+import 'screens/profile_screen.dart';
+import 'screens/setup_screen.dart';
 import 'screens/qr_screen.dart';
 import 'screens/subscription_screen.dart';
 import 'styleguide/qr_preview.dart';
@@ -22,6 +25,12 @@ abstract final class Routes {
   static const loading = '/loading';
   static const blocked = '/blocked';
   static const problem = '/problem';
+  static const setup = '/setup';
+
+  /// Where an allowed student arrives: it looks up whether they have an approved subscription and moves on to the
+  /// boarding code or the subscription tab.
+  static const start = '/start';
+  static const profile = '/profile';
   static const subscription = '/subscription';
   static const qr = '/qr';
   static const history = '/history';
@@ -33,7 +42,7 @@ abstract final class Routes {
   /// Debug builds only: the first-run screens, previewed without signing out (`--route /styleguide/sign-in`).
   static const previewPrefix = '/styleguide/';
 
-  static const _gate = {signIn, loading, blocked, problem};
+  static const _gate = {signIn, loading, blocked, problem, setup};
 }
 
 /// Where a person at [location] should be, given what the app may show. Null means stay.
@@ -50,10 +59,11 @@ String? redirectFor(AccessState access, String location, {bool debug = kDebugMod
     AccessLoading() => Routes.loading,
     AccessLoadFailed() => Routes.problem,
     Blocked() => Routes.blocked,
+    NeedsSetup() => Routes.setup,
     Allowed() => null,
   };
   if (target != null) return location == target ? null : target;
-  return Routes._gate.contains(location) || location == '/' ? Routes.subscription : null;
+  return Routes._gate.contains(location) || location == '/' ? Routes.start : null;
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -81,6 +91,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: Routes.signIn, builder: (_, _) => const SignInScreen()),
       GoRoute(path: Routes.blocked, builder: (_, _) => const BlockedScreen()),
       GoRoute(path: Routes.problem, builder: (_, _) => const ProblemScreen()),
+      GoRoute(path: Routes.setup, builder: (_, _) => const SetupScreen()),
+      GoRoute(path: Routes.start, builder: (_, _) => const LandingScreen()),
+      GoRoute(path: Routes.profile, builder: (_, _) => const ProfileScreen()),
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => HomeShell(shell: shell),
         branches: [

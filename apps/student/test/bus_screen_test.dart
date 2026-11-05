@@ -216,6 +216,22 @@ void main() {
     expect(rig.map.recenters, 1);
   });
 
+  testWidgets('"Show the bus" appears only when the bus is out of frame', (tester) async {
+    final rig = Rig(active: [activeTrip('t1', 'bus1')]);
+    await openBus(tester, rig);
+    rig.live.emit(position('bus1', 3.85, 11.5, at: noon));
+    await tester.pumpAndSettle();
+    expect(find.text('Show the bus'), findsOneWidget, reason: 'until the map says the bus is in view');
+
+    rig.map.busInView!.value = true;
+    await tester.pumpAndSettle();
+    expect(find.text('Show the bus'), findsNothing);
+
+    rig.map.busInView!.value = false;
+    await tester.pumpAndSettle();
+    expect(find.text('Show the bus'), findsOneWidget);
+  });
+
   testWidgets('a failed trip lookup explains and can retry', (tester) async {
     final rig = Rig()..history.activeError = const Offline('down');
     await openBus(tester, rig);

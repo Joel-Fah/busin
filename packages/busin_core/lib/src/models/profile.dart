@@ -52,6 +52,10 @@ class Profile extends ValueObject {
 
   bool get isVerified => status == AccountStatus.verified;
 
+  /// A student has finished setting up when the school can recognise and reach them: a name, a student number and
+  /// a phone number. Department and program are optional.
+  bool get isSetupComplete => fullName.trim().isNotEmpty && (matricule ?? '').trim().isNotEmpty && (phone ?? '').trim().isNotEmpty;
+
   /// Up to two capital letters for an avatar placeholder.
   String get initials {
     final source = fullName.trim().isNotEmpty ? fullName.trim() : email.trim();

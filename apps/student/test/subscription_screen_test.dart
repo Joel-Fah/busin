@@ -27,6 +27,11 @@ Future<void> open(
     ),
   );
   await tester.pumpAndSettle();
+  // A student with an approved subscription opens on the boarding code; these tests look at the subscription tab.
+  if (find.text('Boarding code').evaluate().isNotEmpty) {
+    await tester.tap(find.text('Subscription').first);
+    await tester.pumpAndSettle();
+  }
 }
 
 bool sendEnabled(WidgetTester tester) => tester.widget<BusinButton>(find.widgetWithText(BusinButton, 'Send request')).onPressed != null;

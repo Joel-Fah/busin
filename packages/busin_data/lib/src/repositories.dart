@@ -25,6 +25,21 @@ class SupabaseProfileRepository implements ProfileRepository {
         final row = await _client.from('profiles').select(Columns.profile).eq('id', userId).single();
         return Profile.fromJson(row);
       });
+
+  @override
+  Future<Profile> updateProfile(
+    String userId, {
+    String? fullName,
+    String? phone,
+    String? matricule,
+    String? department,
+    String? program,
+  }) =>
+      guarded(() async {
+        final changes = Profile.editableJson(fullName: fullName, phone: phone, matricule: matricule, department: department, program: program);
+        final row = await _client.from('profiles').update(changes).eq('id', userId).select(Columns.profile).single();
+        return Profile.fromJson(row);
+      });
 }
 
 class SupabaseSchoolRepository implements SchoolRepository {

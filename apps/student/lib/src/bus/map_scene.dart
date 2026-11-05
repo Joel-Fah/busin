@@ -38,9 +38,13 @@ class MapScene {
 
 /// Draws a [MapScene]. The real one is MapLibre; tests replace it.
 /// [recenter] ticks when the student asks to see the bus again; the surface moves the camera to the bus.
-typedef MapSurfaceBuilder = Widget Function(BuildContext context, MapScene scene, ValueListenable<int> recenter);
+///
+/// The surface tells the screen through [busInView] whether the bus is inside the part of the map the student can see
+/// (not behind the floating card, not off the edge), so the "Show the bus" button only appears when it is not.
+typedef MapSurfaceBuilder = Widget Function(BuildContext context, MapScene scene, ValueListenable<int> recenter, ValueNotifier<bool> busInView);
 
 final mapSurfaceBuilderProvider = Provider<MapSurfaceBuilder>((ref) {
   final config = ref.watch(appConfigProvider);
-  return (context, scene, recenter) => MapLibreSurface(scene: scene, styleUrl: config.mapStyleUrl, darkStyleUrl: config.darkMapStyleUrl, recenter: recenter);
+  return (context, scene, recenter, busInView) =>
+      MapLibreSurface(scene: scene, styleUrl: config.mapStyleUrl, darkStyleUrl: config.darkMapStyleUrl, recenter: recenter, busInView: busInView);
 });
