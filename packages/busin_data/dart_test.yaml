@@ -1,0 +1,5 @@
+# Live tests talk to the local Supabase stack, so a plain `dart test` skips them.
+# Run them with: fvm dart test -t live --run-skipped
+tags:
+  live:
+    skip: "Needs the local Supabase stack. Run: fvm dart test -t live --run-skipped"

@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:busin_core/busin_core.dart';
@@ -133,6 +134,38 @@ class SupabaseSubscriptionsRepository implements SubscriptionsRepository {
             .single();
         return Subscription.fromJson(row);
       });
+}
+
+class SupabaseProofsRepository implements ProofsRepository {
+  SupabaseProofsRepository(this._client, {Random? random}) : _random = random ?? Random.secure();
+  final SupabaseClient _client;
+  final Random _random;
+
+  static const _bucket = 'proofs';
+  static const _extensions = {'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp'};
+
+  @override
+  Future<String> upload({
+    required String schoolId,
+    required String studentId,
+    required Uint8List bytes,
+    required String contentType,
+  }) =>
+      guarded(() async {
+        final extension = _extensions[contentType];
+        if (extension == null) throw const Invalid('Proofs must be JPEG, PNG or WebP images.');
+        if (bytes.isEmpty || bytes.length > ProofRules.maxBytes) throw const Invalid('A proof must be between 1 byte and 5 MB.');
+
+        // Unguessable name in the student's own folder; the database policy checks both folders.
+        final name = List.generate(16, (_) => _random.nextInt(256).toRadixString(16).padLeft(2, '0')).join();
+        final path = NewSubscription.proofPathFor(schoolId: schoolId, studentId: studentId, fileName: '$name.$extension');
+        await _client.storage.from(_bucket).uploadBinary(path, bytes, fileOptions: FileOptions(contentType: contentType, upsert: false));
+        return path;
+      });
+
+  @override
+  Future<String> signedUrl(String path, {Duration expiresIn = const Duration(minutes: 10)}) =>
+      guarded(() => _client.storage.from(_bucket).createSignedUrl(path, expiresIn.inSeconds));
 }
 
 class SupabaseQrRepository implements QrRepository {

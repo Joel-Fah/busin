@@ -9,8 +9,8 @@ Created in [Phase 3](../../docs/phases/phase-3-student-app.md). It contains no s
 | Slice | What | State |
 |---|---|---|
 | 1 | Shell: theme, English and French, Google sign-in, session in secure storage, role and status gate, four-tab frame | Done |
-| 2 | Subscribe with a stop and a private proof upload, status tracking | Next |
-| 3 | Rotating QR code with screenshot protection | |
+| 2 | Subscribe with a stop and a private proof upload, status tracking | Done (this branch) |
+| 3 | Rotating QR code with screenshot protection | Next |
 | 4 | Scan history, live bus map | |
 | 5 | Push notifications (needs the owner's Firebase project) | |
 
@@ -20,6 +20,14 @@ Created in [Phase 3](../../docs/phases/phase-3-student-app.md). It contains no s
 - `lib/src/providers.dart`: every service is a provider, so tests replace it with a fake. Data providers watch the signed-in user, so they reset on sign-out.
 - `lib/src/router.dart`: `go_router`; the redirect reads the access state, so a screen is never reachable without the right to see it.
 - Look and strings come from `busin_ui` (same palette and type as the admin portal). Data comes from `busin_data`.
+
+## The subscription flow
+
+- The semester is the one that includes today **at the school** (`SchoolClock`, from the school's IANA zone), or the next one if none is running. The phone's own zone and clock are not used for this.
+- The photo is taken or chosen with `image_picker`, shrunk on the device (1600 px, quality 80), and checked by its first bytes, not its name: only JPEG, PNG and WebP up to 5 MB. The same limits are enforced by the private `proofs` bucket.
+- Sending uploads the proof into the student's own folder (`<school>/<student>/<random>.<ext>`), then creates the request with that path. Proofs are never replaced or deleted by the student; a new request uploads a new file.
+- A student sees their live request, or else the latest rejected or expired one with the school's reason, and can ask again. Pull down to refresh.
+- Local backend: `npm run backend:start` now includes the storage service, which uploads need.
 
 ## Run it
 

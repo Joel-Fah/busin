@@ -185,4 +185,118 @@ class BusinL10nEn extends BusinL10n {
 
   @override
   String get comingSoonBody => 'This part of the app is being built.';
+
+  @override
+  String get subscriptionNoSemesterTitle => 'No semester open yet';
+
+  @override
+  String get subscriptionNoSemesterBody =>
+      'You can subscribe as soon as your school adds the semester.';
+
+  @override
+  String subscriptionStarts(String date) {
+    return 'Starts $date';
+  }
+
+  @override
+  String subscribeHeading(String semester) {
+    return 'Subscribe for $semester';
+  }
+
+  @override
+  String get subscribeIntro =>
+      'Choose where you board and add a photo of your payment receipt. Your school checks it and approves your request.';
+
+  @override
+  String get subscribeStopLabel => 'Your stop';
+
+  @override
+  String get subscribeStopHint => 'Choose where you board';
+
+  @override
+  String get subscribeStopSearch => 'Search stops';
+
+  @override
+  String get subscribeStopNone => 'No stop matches.';
+
+  @override
+  String get subscribeProofLabel => 'Payment proof';
+
+  @override
+  String get subscribeProofHint => 'Add a clear photo of your receipt';
+
+  @override
+  String get subscribeProofPrivacy =>
+      'Only you and your school\'s administrators can see it.';
+
+  @override
+  String get proofTakePhoto => 'Take a photo';
+
+  @override
+  String get proofChoosePhoto => 'Choose from gallery';
+
+  @override
+  String get proofChange => 'Change photo';
+
+  @override
+  String get subscribeSubmit => 'Send request';
+
+  @override
+  String get subscribeErrorType => 'Use a JPEG, PNG or WebP photo.';
+
+  @override
+  String get subscribeErrorTooLarge =>
+      'That photo is too large. Pick one under 5 MB.';
+
+  @override
+  String get subscribeErrorExists =>
+      'You already have a request for this semester. Pull down to refresh.';
+
+  @override
+  String get subscriptionStop => 'Stop';
+
+  @override
+  String subscriptionSent(String date) {
+    return 'Sent $date';
+  }
+
+  @override
+  String get subscriptionProofTitle => 'Your payment proof';
+
+  @override
+  String get statusPendingTitle => 'Request sent';
+
+  @override
+  String get statusPendingBody =>
+      'Your school is checking your payment proof. Pull down to see if it has been decided.';
+
+  @override
+  String get statusApprovedTitle => 'You are subscribed';
+
+  @override
+  String statusApprovedBody(String stop) {
+    return 'You can board at $stop.';
+  }
+
+  @override
+  String get statusApprovedAction => 'Show boarding code';
+
+  @override
+  String get statusRejectedTitle => 'Request not approved';
+
+  @override
+  String get statusRejectedReason => 'Your school\'s reason:';
+
+  @override
+  String get statusRejectedNoReason => 'Your school did not give a reason.';
+
+  @override
+  String get statusRequestAgain => 'Request again';
+
+  @override
+  String get statusExpiredTitle => 'Subscription ended';
+
+  @override
+  String get statusExpiredBody =>
+      'This subscription is no longer valid. You can send a new request.';
 }

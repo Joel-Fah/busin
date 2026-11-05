@@ -284,4 +284,59 @@ void main() {
       expect(identical(mapError(original), original), isTrue);
     });
   });
+
+  group('proofs', () {
+    final jpeg = Uint8List.fromList(List.filled(2048, 7));
+
+    test('uploads into the student folder with an unguessable name and the right type', () async {
+      final h = Harness((r) async => json({'Key': 'proofs/x', 'Id': 'abc'}));
+      final path = await h.repos.proofs.upload(schoolId: _school, studentId: _other, bytes: jpeg, contentType: 'image/jpeg');
+
+      expect(path, matches(RegExp('^$_school/$_other/[0-9a-f]{32}\\.jpg\$')));
+      expect(h.last.method, 'POST');
+      expect(h.last.url.path, '/storage/v1/object/proofs/$path');
+      expect(h.last.headers['content-type'], startsWith('multipart/form-data'));
+      expect(h.last.body, contains('image/jpeg'));
+      expect(h.last.headers['x-upsert'], 'false', reason: 'evidence is never overwritten');
+    });
+
+    test('two uploads never share a name', () async {
+      final h = Harness((r) async => json({'Key': 'proofs/x'}));
+      final a = await h.repos.proofs.upload(schoolId: _school, studentId: _other, bytes: jpeg, contentType: 'image/png');
+      final b = await h.repos.proofs.upload(schoolId: _school, studentId: _other, bytes: jpeg, contentType: 'image/png');
+      expect(a, isNot(b));
+      expect(a, endsWith('.png'));
+    });
+
+    test('refuses a type, an empty file and a file over 5 MB before any request', () async {
+      final h = Harness((r) async => json({}));
+      await expectLater(h.repos.proofs.upload(schoolId: _school, studentId: _other, bytes: jpeg, contentType: 'application/pdf'), throwsA(isA<Invalid>()));
+      await expectLater(h.repos.proofs.upload(schoolId: _school, studentId: _other, bytes: Uint8List(0), contentType: 'image/jpeg'), throwsA(isA<Invalid>()));
+      await expectLater(
+        h.repos.proofs.upload(schoolId: _school, studentId: _other, bytes: Uint8List(ProofRules.maxBytes + 1), contentType: 'image/jpeg'),
+        throwsA(isA<Invalid>()),
+      );
+      expect(h.requests, isEmpty);
+    });
+
+    test('maps what the bucket says into repository exceptions', () async {
+      for (final (status, matcher) in [(403, isA<NotAllowed>()), (413, isA<Invalid>()), (409, isA<Conflict>()), (404, isA<NotFound>())]) {
+        final h = Harness((r) async => json({'statusCode': '$status', 'error': 'x', 'message': 'x'}, status: status));
+        await expectLater(
+          h.repos.proofs.upload(schoolId: _school, studentId: _other, bytes: jpeg, contentType: 'image/jpeg'),
+          throwsA(matcher),
+          reason: 'status $status',
+        );
+      }
+    });
+
+    test('asks for a short-lived signed address', () async {
+      final h = Harness((r) async => json({'signedURL': '/object/sign/proofs/a/b/c.jpg?token=t'}));
+      final url = await h.repos.proofs.signedUrl('a/b/c.jpg', expiresIn: const Duration(minutes: 5));
+
+      expect(url, contains('token=t'));
+      expect(h.last.url.path, '/storage/v1/object/sign/proofs/a/b/c.jpg');
+      expect(jsonDecode(h.last.body), {'expiresIn': 300});
+    });
+  });
 }

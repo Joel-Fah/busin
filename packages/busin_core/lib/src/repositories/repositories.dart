@@ -62,6 +62,27 @@ abstract interface class SubscriptionsRepository {
   Future<Subscription> request(NewSubscription subscription);
 }
 
+/// What a proof of payment may be. The `proofs` bucket enforces the same limits on the server.
+abstract final class ProofRules {
+  static const maxBytes = 5 * 1024 * 1024;
+  static const contentTypes = ['image/jpeg', 'image/png', 'image/webp'];
+}
+
+abstract interface class ProofsRepository {
+  /// Stores a payment proof in the student's own folder of the private `proofs` bucket and returns its
+  /// path, to be sent with the subscription request. Throws [Invalid] for a type or size the bucket
+  /// refuses. A file is never replaced: a new request uploads a new file.
+  Future<String> upload({
+    required String schoolId,
+    required String studentId,
+    required Uint8List bytes,
+    required String contentType,
+  });
+
+  /// A short-lived address for showing a stored proof. The bucket is private, so there is no public URL.
+  Future<String> signedUrl(String path, {Duration expiresIn = const Duration(minutes: 10)});
+}
+
 abstract interface class QrRepository {
   /// The student's boarding secret. Keep it in secure storage; the code is
   /// derived on the device with `QrCodeGenerator`.

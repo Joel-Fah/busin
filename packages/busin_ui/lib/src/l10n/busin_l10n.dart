@@ -432,6 +432,204 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'This part of the app is being built.'**
   String get comingSoonBody;
+
+  /// No description provided for @subscriptionNoSemesterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No semester open yet'**
+  String get subscriptionNoSemesterTitle;
+
+  /// No description provided for @subscriptionNoSemesterBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You can subscribe as soon as your school adds the semester.'**
+  String get subscriptionNoSemesterBody;
+
+  /// No description provided for @subscriptionStarts.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts {date}'**
+  String subscriptionStarts(String date);
+
+  /// No description provided for @subscribeHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribe for {semester}'**
+  String subscribeHeading(String semester);
+
+  /// No description provided for @subscribeIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose where you board and add a photo of your payment receipt. Your school checks it and approves your request.'**
+  String get subscribeIntro;
+
+  /// No description provided for @subscribeStopLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Your stop'**
+  String get subscribeStopLabel;
+
+  /// No description provided for @subscribeStopHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose where you board'**
+  String get subscribeStopHint;
+
+  /// No description provided for @subscribeStopSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search stops'**
+  String get subscribeStopSearch;
+
+  /// No description provided for @subscribeStopNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No stop matches.'**
+  String get subscribeStopNone;
+
+  /// No description provided for @subscribeProofLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment proof'**
+  String get subscribeProofLabel;
+
+  /// No description provided for @subscribeProofHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a clear photo of your receipt'**
+  String get subscribeProofHint;
+
+  /// No description provided for @subscribeProofPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Only you and your school\'s administrators can see it.'**
+  String get subscribeProofPrivacy;
+
+  /// No description provided for @proofTakePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo'**
+  String get proofTakePhoto;
+
+  /// No description provided for @proofChoosePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from gallery'**
+  String get proofChoosePhoto;
+
+  /// No description provided for @proofChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change photo'**
+  String get proofChange;
+
+  /// No description provided for @subscribeSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Send request'**
+  String get subscribeSubmit;
+
+  /// No description provided for @subscribeErrorType.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a JPEG, PNG or WebP photo.'**
+  String get subscribeErrorType;
+
+  /// No description provided for @subscribeErrorTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'That photo is too large. Pick one under 5 MB.'**
+  String get subscribeErrorTooLarge;
+
+  /// No description provided for @subscribeErrorExists.
+  ///
+  /// In en, this message translates to:
+  /// **'You already have a request for this semester. Pull down to refresh.'**
+  String get subscribeErrorExists;
+
+  /// No description provided for @subscriptionStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get subscriptionStop;
+
+  /// No description provided for @subscriptionSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent {date}'**
+  String subscriptionSent(String date);
+
+  /// No description provided for @subscriptionProofTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your payment proof'**
+  String get subscriptionProofTitle;
+
+  /// No description provided for @statusPendingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Request sent'**
+  String get statusPendingTitle;
+
+  /// No description provided for @statusPendingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school is checking your payment proof. Pull down to see if it has been decided.'**
+  String get statusPendingBody;
+
+  /// No description provided for @statusApprovedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You are subscribed'**
+  String get statusApprovedTitle;
+
+  /// No description provided for @statusApprovedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You can board at {stop}.'**
+  String statusApprovedBody(String stop);
+
+  /// No description provided for @statusApprovedAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Show boarding code'**
+  String get statusApprovedAction;
+
+  /// No description provided for @statusRejectedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Request not approved'**
+  String get statusRejectedTitle;
+
+  /// No description provided for @statusRejectedReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school\'s reason:'**
+  String get statusRejectedReason;
+
+  /// No description provided for @statusRejectedNoReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school did not give a reason.'**
+  String get statusRejectedNoReason;
+
+  /// No description provided for @statusRequestAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Request again'**
+  String get statusRequestAgain;
+
+  /// No description provided for @statusExpiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription ended'**
+  String get statusExpiredTitle;
+
+  /// No description provided for @statusExpiredBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This subscription is no longer valid. You can send a new request.'**
+  String get statusExpiredBody;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {

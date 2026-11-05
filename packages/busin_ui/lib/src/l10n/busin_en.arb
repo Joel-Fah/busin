@@ -74,5 +74,66 @@
   "navHistory": "History",
   "navBus": "My bus",
   "comingSoonTitle": "Coming soon",
-  "comingSoonBody": "This part of the app is being built."
+  "comingSoonBody": "This part of the app is being built.",
+  "subscriptionNoSemesterTitle": "No semester open yet",
+  "subscriptionNoSemesterBody": "You can subscribe as soon as your school adds the semester.",
+  "subscriptionStarts": "Starts {date}",
+  "@subscriptionStarts": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "subscribeHeading": "Subscribe for {semester}",
+  "@subscribeHeading": {
+    "placeholders": {
+      "semester": {
+        "type": "String"
+      }
+    }
+  },
+  "subscribeIntro": "Choose where you board and add a photo of your payment receipt. Your school checks it and approves your request.",
+  "subscribeStopLabel": "Your stop",
+  "subscribeStopHint": "Choose where you board",
+  "subscribeStopSearch": "Search stops",
+  "subscribeStopNone": "No stop matches.",
+  "subscribeProofLabel": "Payment proof",
+  "subscribeProofHint": "Add a clear photo of your receipt",
+  "subscribeProofPrivacy": "Only you and your school's administrators can see it.",
+  "proofTakePhoto": "Take a photo",
+  "proofChoosePhoto": "Choose from gallery",
+  "proofChange": "Change photo",
+  "subscribeSubmit": "Send request",
+  "subscribeErrorType": "Use a JPEG, PNG or WebP photo.",
+  "subscribeErrorTooLarge": "That photo is too large. Pick one under 5 MB.",
+  "subscribeErrorExists": "You already have a request for this semester. Pull down to refresh.",
+  "subscriptionStop": "Stop",
+  "subscriptionSent": "Sent {date}",
+  "@subscriptionSent": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "subscriptionProofTitle": "Your payment proof",
+  "statusPendingTitle": "Request sent",
+  "statusPendingBody": "Your school is checking your payment proof. Pull down to see if it has been decided.",
+  "statusApprovedTitle": "You are subscribed",
+  "statusApprovedBody": "You can board at {stop}.",
+  "@statusApprovedBody": {
+    "placeholders": {
+      "stop": {
+        "type": "String"
+      }
+    }
+  },
+  "statusApprovedAction": "Show boarding code",
+  "statusRejectedTitle": "Request not approved",
+  "statusRejectedReason": "Your school's reason:",
+  "statusRejectedNoReason": "Your school did not give a reason.",
+  "statusRequestAgain": "Request again",
+  "statusExpiredTitle": "Subscription ended",
+  "statusExpiredBody": "This subscription is no longer valid. You can send a new request."
 }

@@ -59,6 +59,7 @@ final stopsProvider = AsyncNotifierProvider<StopsNotifier, List<Stop>>(StopsNoti
 ## Testing
 - Claude writes and runs unit tests for models, repositories (with fakes), QR derivation and sync logic: `fvm dart test` or `fvm flutter test`.
 - Widget tests for critical reusable widgets. The owner does device and emulator testing; list manual test steps in the PR.
+- Anything that depends on Row Level Security or storage policies also gets a live test in `packages/busin_data/test/live/` (opt-in: `fvm dart test -t live --run-skipped` against the local stack, with a real user session). Unit tests with fakes cannot prove a policy.
 
 ## Done checklist
 - [ ] `fvm flutter analyze` clean

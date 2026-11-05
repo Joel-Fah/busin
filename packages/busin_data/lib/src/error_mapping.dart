@@ -10,12 +10,24 @@ import 'package:supabase/supabase.dart';
 RepositoryException mapError(Object error) {
   if (error is RepositoryException) return error;
   if (error is PostgrestException) return _fromCode(error);
+  if (error is StorageException) return _fromStorage(error);
   if (error is AuthException) return NotAllowed('auth: ${error.statusCode ?? error.message}');
   if (error is SocketException || error is TimeoutException || error is HttpException) {
     return const Offline('The backend could not be reached.');
   }
   if (error is FormatException) return Unexpected('unexpected reply: ${error.message}');
   return Unexpected(error.runtimeType.toString());
+}
+
+RepositoryException _fromStorage(StorageException error) {
+  final message = 'storage ${error.statusCode ?? 'error'}';
+  return switch (error.statusCode) {
+    '401' || '403' => NotAllowed(message),
+    '404' => NotFound(message),
+    '409' => Conflict(message),
+    '400' || '413' || '415' => Invalid(message),
+    _ => Unexpected(message),
+  };
 }
 
 RepositoryException _fromCode(PostgrestException error) {
