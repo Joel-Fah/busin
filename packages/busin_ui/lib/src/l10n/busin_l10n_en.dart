@@ -128,7 +128,7 @@ class BusinL10nEn extends BusinL10n {
   String get appName => 'BusIn';
 
   @override
-  String get signInTitle => 'Ride with BusIn';
+  String get signInTitle => 'Hop on. BusIn handles the rest.';
 
   @override
   String get signInSubtitle =>

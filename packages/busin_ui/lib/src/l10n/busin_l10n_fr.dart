@@ -129,7 +129,7 @@ class BusinL10nFr extends BusinL10n {
   String get appName => 'BusIn';
 
   @override
-  String get signInTitle => 'Voyagez avec BusIn';
+  String get signInTitle => 'Montez à bord. BusIn s’occupe du reste.';
 
   @override
   String get signInSubtitle =>

@@ -38,7 +38,7 @@
   "fieldRequired": "Ce champ est obligatoire.",
   "loadingLabel": "Chargement",
   "appName": "BusIn",
-  "signInTitle": "Voyagez avec BusIn",
+  "signInTitle": "Montez à bord. BusIn s’occupe du reste.",
   "signInSubtitle": "Connectez-vous avec votre compte Google de l’école pour vous abonner, présenter votre code d’embarquement et suivre votre bus.",
   "signInWithGoogle": "Continuer avec Google",
   "signInCancelled": "La connexion a été annulée.",

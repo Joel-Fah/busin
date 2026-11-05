@@ -328,7 +328,7 @@ abstract class BusinL10n {
   /// No description provided for @signInTitle.
   ///
   /// In en, this message translates to:
-  /// **'Ride with BusIn'**
+  /// **'Hop on. BusIn handles the rest.'**
   String get signInTitle;
 
   /// No description provided for @signInSubtitle.
