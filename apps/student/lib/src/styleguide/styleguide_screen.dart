@@ -290,6 +290,19 @@ class _Parts extends StatelessWidget {
         const Notice(tone: StatusTone.bad, title: 'Your school\'s reason:', child: Text('The receipt is unreadable.')),
         const SizedBox(height: BusinSpace.x3),
         const Notice(tone: StatusTone.info, child: Text('Only you and your school can see your receipt.')),
+        const _Title('Toasts', note: 'A short message that floats at the top and leaves by itself. Good news is quick, problems stay. Swipe up to dismiss.'),
+        Builder(
+          builder: (context) => Wrap(
+            spacing: BusinSpace.x3,
+            runSpacing: BusinSpace.x3,
+            children: [
+              BusinButton(label: 'Success', variant: BusinButtonVariant.secondary, onPressed: () => BusinToast.show(context, 'Request sent.', tone: ToastTone.success)),
+              BusinButton(label: 'Info', variant: BusinButtonVariant.secondary, onPressed: () => BusinToast.show(context, 'Your code refreshes by itself.', tone: ToastTone.info)),
+              BusinButton(label: 'Warning', variant: BusinButtonVariant.secondary, onPressed: () => BusinToast.show(context, 'Do not share your code.', tone: ToastTone.warning, title: 'Heads up')),
+              BusinButton(label: 'Error', variant: BusinButtonVariant.secondary, onPressed: () => BusinToast.show(context, 'No connection. Try again.', tone: ToastTone.error, title: 'Not sent')),
+            ],
+          ),
+        ),
         const _Title('Stage line', note: 'Where something stands: done, current, coming; or ending badly.'),
         const BusinCard(child: Column(children: [
           StepLine(labels: ['Sent', 'Checking', 'Decision'], current: 1),

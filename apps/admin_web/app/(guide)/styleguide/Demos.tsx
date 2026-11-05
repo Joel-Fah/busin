@@ -8,6 +8,7 @@ import { Menu } from "@/components/ui/Menu";
 import { Modal } from "@/components/ui/Modal";
 import { SideSheet } from "@/components/ui/SideSheet";
 import { Tabs } from "@/components/ui/Tabs";
+import { useToast } from "@/components/ui/Toast";
 
 /** Live examples for the styleguide. They hold their own state so each component can be tried. */
 
@@ -120,6 +121,26 @@ export function MenuPlacementDemo() {
           <span className="text-sm text-muted">{side}</span>
         </div>
       ))}
+    </div>
+  );
+}
+
+export function ToastDemo() {
+  const toast = useToast();
+  return (
+    <div className="flex flex-wrap gap-3">
+      <Button variant="secondary" onClick={() => toast("Stop saved.", { tone: "ok" })}>
+        Success (2.8 s)
+      </Button>
+      <Button variant="secondary" onClick={() => toast("Distances are approximate.", { tone: "info" })}>
+        Info (4 s)
+      </Button>
+      <Button variant="secondary" onClick={() => toast("This bus is out of service.", { tone: "warn", title: "Heads up" })}>
+        Warning (5.5 s)
+      </Button>
+      <Button variant="secondary" onClick={() => toast("The stop could not be saved. Try again.", { tone: "bad", title: "Not saved" })}>
+        Error (7 s)
+      </Button>
     </div>
   );
 }

@@ -45,7 +45,7 @@ import { AA_TEXT, contrastRatio } from "@/lib/ui/contrast";
 import { RADIUS, innerRadius } from "@/lib/ui/radius";
 import { DARK as dark, LIGHT as light, TEXT_PAIRS } from "@/lib/ui/tokens";
 
-import { MenuDemo, MenuPlacementDemo, ModalDemo, SheetDemo, TabsDemo } from "./Demos";
+import { MenuDemo, MenuPlacementDemo, ModalDemo, SheetDemo, TabsDemo, ToastDemo } from "./Demos";
 import { Pair, Section } from "./Section";
 import { SectionRail } from "./SectionRail";
 
@@ -687,6 +687,15 @@ async function Styleguide() {
           link to a real address, so the page can be bookmarked, and a button only appears when there is somewhere to go.
           A page past the last one is an empty list, never an error. Lists show 20 at a time and are paginated by the
           server, so a long list never loads more than one page.
+        </p>
+
+        <h3 className="mt-8 mb-3 text-lg font-bold">Toasts</h3>
+        <ToastDemo />
+        <p className="mt-3 max-w-2xl text-sm text-muted">
+          A short message that floats at the top and leaves by itself: the stitched thread, an icon for its state and a
+          close button. One at a time. Good news leaves quickly (2.8 s), a problem stays to be read (7 s). Use it for
+          confirmations and reminders; an error the person must act on also stays on the page. The apps have the same
+          component with the same times (swipe up to dismiss).
         </p>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Notices</h3>

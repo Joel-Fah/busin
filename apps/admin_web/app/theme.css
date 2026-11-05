@@ -253,6 +253,24 @@ input::-webkit-calendar-picker-indicator:hover {
   opacity: 1;
 }
 
+/* A toast drops in from above and settles; with reduced motion it simply appears. */
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+}
+
+.toast-in {
+  animation: toast-in var(--dur) var(--ease-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast-in {
+    animation: none;
+  }
+}
+
 @keyframes panel-in {
   from {
     opacity: 0;
