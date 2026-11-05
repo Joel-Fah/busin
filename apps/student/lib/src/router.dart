@@ -39,9 +39,11 @@ abstract final class Routes {
 ///
 /// Signed-out people see only sign-in; anyone the server does not allow sees only the page that says why.
 /// Signed-in students never see those pages, so Back cannot lead to them.
-String? redirectFor(AccessState access, String location, {bool debug = kDebugMode}) {
+String? redirectFor(AccessState access, String location, {bool debug = kDebugMode, bool introDone = true}) {
   // The styleguide needs no account, and exists only in debug builds.
   if (debug && (location == Routes.styleguide || location.startsWith(Routes.previewPrefix))) return null;
+  // The opening animation plays first, on the splash screen, whatever the session turns out to be.
+  if (!introDone) return location == Routes.loading ? null : Routes.loading;
   final target = switch (access) {
     SignedOut() => Routes.signIn,
     AccessLoading() => Routes.loading,
@@ -55,14 +57,16 @@ String? redirectFor(AccessState access, String location, {bool debug = kDebugMod
 
 final routerProvider = Provider<GoRouter>((ref) {
   // The router re-checks its redirect whenever the access state changes.
-  final changes = ValueNotifier<AccessState>(ref.read(accessProvider));
-  ref.listen(accessProvider, (_, next) => changes.value = next);
+  final changes = ValueNotifier<int>(0);
+  ref.listen(accessProvider, (_, _) => changes.value++);
+  ref.listen(introDoneProvider, (_, _) => changes.value++);
   ref.onDispose(changes.dispose);
 
   final router = GoRouter(
     initialLocation: kDebugMode && WidgetsBinding.instance.platformDispatcher.defaultRouteName.startsWith(Routes.styleguide) ? WidgetsBinding.instance.platformDispatcher.defaultRouteName : Routes.loading,
     refreshListenable: changes,
-    redirect: (context, state) => redirectFor(ref.read(accessProvider), state.matchedLocation),
+    redirect: (context, state) =>
+        redirectFor(ref.read(accessProvider), state.matchedLocation, introDone: ref.read(introDoneProvider)),
     routes: [
       GoRoute(path: Routes.loading, builder: (_, _) => const SplashScreen()),
       if (kDebugMode) ...[

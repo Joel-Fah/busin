@@ -12,6 +12,8 @@ import 'src/l10n/busin_l10n.dart';
 
 export 'src/l10n/busin_l10n.dart';
 export 'src/l10n/labels.dart';
+export 'src/brand/brand_intro.dart';
+export 'src/brand/brand_paths.dart';
 export 'src/layout/adaptive_scaffold.dart';
 export 'src/layout/nav.dart';
 export 'src/layout/nav_indicator.dart';

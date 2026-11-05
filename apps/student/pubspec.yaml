@@ -36,6 +36,7 @@ dev_dependencies:
     sdk: flutter
   flutter_launcher_icons: ^0.14.4
   flutter_lints: ^6.0.0
+  flutter_native_splash: ^2.4.6
 
 flutter:
   uses-material-design: true
@@ -50,3 +51,13 @@ flutter_launcher_icons:
   adaptive_icon_background: "#002A33"
   adaptive_icon_foreground: assets/icon/icon_foreground.png
   adaptive_icon_monochrome: assets/icon/icon_monochrome.png
+
+# The native splash: the wordmark at 144 dp in the middle of the brand teal. The app's opening animation (BrandIntro) draws
+# the same mark at the same size and place, so the hand-off is invisible. Regenerate with:
+#   node tools/render-app-icons.mjs && fvm dart run flutter_native_splash:create
+flutter_native_splash:
+  color: "#002A33"
+  image: assets/splash/wordmark.png
+  android_12:
+    color: "#002A33"
+    image: assets/splash/wordmark.png

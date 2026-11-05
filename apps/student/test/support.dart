@@ -535,6 +535,7 @@ List<Override> overridesFor(
   final b = backend ?? FakeBackend();
   final h = history ?? FakeHistory();
   return [
+    introEnabledProvider.overrideWithValue(false),
     authServiceProvider.overrideWithValue(auth),
     profileRepositoryProvider.overrideWithValue(profiles),
     schoolRepositoryProvider.overrideWithValue(b),
