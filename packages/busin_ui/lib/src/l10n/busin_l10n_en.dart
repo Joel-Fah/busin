@@ -123,4 +123,66 @@ class BusinL10nEn extends BusinL10n {
 
   @override
   String get loadingLabel => 'Loading';
+
+  @override
+  String get appName => 'BusIn';
+
+  @override
+  String get signInTitle => 'Ride with BusIn';
+
+  @override
+  String get signInSubtitle =>
+      'Sign in with your school Google account to subscribe, show your boarding code and follow your bus.';
+
+  @override
+  String get signInWithGoogle => 'Continue with Google';
+
+  @override
+  String get signInCancelled => 'Sign-in was cancelled.';
+
+  @override
+  String get signInFailed => 'Sign-in did not work. Try again.';
+
+  @override
+  String get signInNotAllowed =>
+      'This Google account is not allowed here. Use your school account.';
+
+  @override
+  String get blockedStaffTitle => 'This app is for students';
+
+  @override
+  String get blockedStaffBody =>
+      'Your account is a staff or administrator account. Staff use the BusIn ops app, and administrators use the admin portal.';
+
+  @override
+  String get blockedPendingTitle => 'Your account is waiting for approval';
+
+  @override
+  String get blockedPendingBody =>
+      'A school administrator needs to verify your account before you can use BusIn.';
+
+  @override
+  String get blockedSuspendedTitle => 'Your account is suspended';
+
+  @override
+  String get blockedSuspendedBody =>
+      'Contact your school\'s transport office to find out why.';
+
+  @override
+  String get navSubscription => 'Subscription';
+
+  @override
+  String get navQr => 'Boarding code';
+
+  @override
+  String get navHistory => 'History';
+
+  @override
+  String get navBus => 'My bus';
+
+  @override
+  String get comingSoonTitle => 'Coming soon';
+
+  @override
+  String get comingSoonBody => 'This part of the app is being built.';
 }

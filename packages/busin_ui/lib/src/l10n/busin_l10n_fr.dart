@@ -124,4 +124,68 @@ class BusinL10nFr extends BusinL10n {
 
   @override
   String get loadingLabel => 'Chargement';
+
+  @override
+  String get appName => 'BusIn';
+
+  @override
+  String get signInTitle => 'Voyagez avec BusIn';
+
+  @override
+  String get signInSubtitle =>
+      'Connectez-vous avec votre compte Google de l’école pour vous abonner, présenter votre code d’embarquement et suivre votre bus.';
+
+  @override
+  String get signInWithGoogle => 'Continuer avec Google';
+
+  @override
+  String get signInCancelled => 'La connexion a été annulée.';
+
+  @override
+  String get signInFailed => 'La connexion n’a pas fonctionné. Réessayez.';
+
+  @override
+  String get signInNotAllowed =>
+      'Ce compte Google n’est pas autorisé ici. Utilisez votre compte de l’école.';
+
+  @override
+  String get blockedStaffTitle =>
+      'Cette application est réservée aux étudiants';
+
+  @override
+  String get blockedStaffBody =>
+      'Votre compte est un compte de personnel ou d’administrateur. Le personnel utilise l’application BusIn Ops et les administrateurs le portail d’administration.';
+
+  @override
+  String get blockedPendingTitle => 'Votre compte attend d’être approuvé';
+
+  @override
+  String get blockedPendingBody =>
+      'Un administrateur de l’école doit vérifier votre compte avant que vous puissiez utiliser BusIn.';
+
+  @override
+  String get blockedSuspendedTitle => 'Votre compte est suspendu';
+
+  @override
+  String get blockedSuspendedBody =>
+      'Contactez le service transport de votre école pour en connaître la raison.';
+
+  @override
+  String get navSubscription => 'Abonnement';
+
+  @override
+  String get navQr => 'Code d’embarquement';
+
+  @override
+  String get navHistory => 'Historique';
+
+  @override
+  String get navBus => 'Mon bus';
+
+  @override
+  String get comingSoonTitle => 'Bientôt disponible';
+
+  @override
+  String get comingSoonBody =>
+      'Cette partie de l’application est en cours de création.';
 }

@@ -55,5 +55,24 @@
     }
   },
   "fieldRequired": "This field is required.",
-  "loadingLabel": "Loading"
+  "loadingLabel": "Loading",
+  "appName": "BusIn",
+  "signInTitle": "Ride with BusIn",
+  "signInSubtitle": "Sign in with your school Google account to subscribe, show your boarding code and follow your bus.",
+  "signInWithGoogle": "Continue with Google",
+  "signInCancelled": "Sign-in was cancelled.",
+  "signInFailed": "Sign-in did not work. Try again.",
+  "signInNotAllowed": "This Google account is not allowed here. Use your school account.",
+  "blockedStaffTitle": "This app is for students",
+  "blockedStaffBody": "Your account is a staff or administrator account. Staff use the BusIn ops app, and administrators use the admin portal.",
+  "blockedPendingTitle": "Your account is waiting for approval",
+  "blockedPendingBody": "A school administrator needs to verify your account before you can use BusIn.",
+  "blockedSuspendedTitle": "Your account is suspended",
+  "blockedSuspendedBody": "Contact your school's transport office to find out why.",
+  "navSubscription": "Subscription",
+  "navQr": "Boarding code",
+  "navHistory": "History",
+  "navBus": "My bus",
+  "comingSoonTitle": "Coming soon",
+  "comingSoonBody": "This part of the app is being built."
 }
