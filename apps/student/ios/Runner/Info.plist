@@ -4,6 +4,10 @@
 <dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+		<key>NSCameraUsageDescription</key>
+	<string>BusIn uses the camera so you can photograph your payment receipt.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>BusIn reads the photo you choose as proof of your payment. It cannot see your other photos.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

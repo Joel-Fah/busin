@@ -9,6 +9,7 @@ import 'screens/blocked_screen.dart';
 import 'screens/coming_soon_screen.dart';
 import 'screens/home_shell.dart';
 import 'screens/problem_screen.dart';
+import 'screens/subscription_screen.dart';
 import 'screens/sign_in_screen.dart';
 import 'screens/splash_screen.dart';
 
@@ -59,7 +60,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => HomeShell(shell: shell),
         branches: [
-          for (final path in [Routes.subscription, Routes.qr, Routes.history, Routes.bus])
+          StatefulShellBranch(routes: [GoRoute(path: Routes.subscription, builder: (_, _) => const SubscriptionScreen())]),
+          for (final path in [Routes.qr, Routes.history, Routes.bus])
             StatefulShellBranch(routes: [GoRoute(path: path, builder: (_, _) => const ComingSoonScreen())]),
         ],
       ),

@@ -21,6 +21,7 @@ class SupabaseRepositories {
         stops = SupabaseStopsRepository(client),
         semesters = SupabaseSemestersRepository(client),
         subscriptions = SupabaseSubscriptionsRepository(client),
+        proofs = SupabaseProofsRepository(client),
         qr = SupabaseQrRepository(client),
         trips = SupabaseTripsRepository(client),
         scans = SupabaseScansRepository(client),
@@ -31,6 +32,7 @@ class SupabaseRepositories {
   final StopsRepository stops;
   final SemestersRepository semesters;
   final SubscriptionsRepository subscriptions;
+  final ProofsRepository proofs;
   final QrRepository qr;
   final TripsRepository trips;
   final ScansRepository scans;

@@ -93,9 +93,9 @@ void main() {
     expect(find.byType(NavigationBar), findsOneWidget);
   });
 
-  testWidgets('the four destinations are reachable and the app speaks French', (tester) async {
+  testWidgets('the other destinations are reachable and the app speaks French', (tester) async {
     await open(tester, FakeAuthService(signedInAs: 'u1'), FakeProfileRepository({'u1': profile()}), locale: const Locale('fr'));
-    for (final label in ['Abonnement', 'Code d’embarquement', 'Historique', 'Mon bus']) {
+    for (final label in ['Code d’embarquement', 'Historique', 'Mon bus']) {
       await tester.tap(find.text(label));
       await tester.pumpAndSettle();
       expect(find.text('Bientôt disponible'), findsOneWidget, reason: label);

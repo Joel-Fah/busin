@@ -188,4 +188,119 @@ class BusinL10nFr extends BusinL10n {
   @override
   String get comingSoonBody =>
       'Cette partie de l’application est en cours de création.';
+
+  @override
+  String get subscriptionNoSemesterTitle =>
+      'Aucun semestre ouvert pour le moment';
+
+  @override
+  String get subscriptionNoSemesterBody =>
+      'Vous pourrez vous abonner dès que votre école aura ajouté le semestre.';
+
+  @override
+  String subscriptionStarts(String date) {
+    return 'Commence le $date';
+  }
+
+  @override
+  String subscribeHeading(String semester) {
+    return 'S’abonner pour $semester';
+  }
+
+  @override
+  String get subscribeIntro =>
+      'Choisissez où vous montez et ajoutez une photo de votre reçu de paiement. Votre école la vérifie et approuve votre demande.';
+
+  @override
+  String get subscribeStopLabel => 'Votre arrêt';
+
+  @override
+  String get subscribeStopHint => 'Choisissez où vous montez';
+
+  @override
+  String get subscribeStopSearch => 'Rechercher un arrêt';
+
+  @override
+  String get subscribeStopNone => 'Aucun arrêt ne correspond.';
+
+  @override
+  String get subscribeProofLabel => 'Preuve de paiement';
+
+  @override
+  String get subscribeProofHint => 'Ajoutez une photo nette de votre reçu';
+
+  @override
+  String get subscribeProofPrivacy =>
+      'Seuls vous et les administrateurs de votre école peuvent la voir.';
+
+  @override
+  String get proofTakePhoto => 'Prendre une photo';
+
+  @override
+  String get proofChoosePhoto => 'Choisir dans la galerie';
+
+  @override
+  String get proofChange => 'Changer de photo';
+
+  @override
+  String get subscribeSubmit => 'Envoyer la demande';
+
+  @override
+  String get subscribeErrorType => 'Utilisez une photo JPEG, PNG ou WebP.';
+
+  @override
+  String get subscribeErrorTooLarge =>
+      'Cette photo est trop volumineuse. Choisissez-en une de moins de 5 Mo.';
+
+  @override
+  String get subscribeErrorExists =>
+      'Vous avez déjà une demande pour ce semestre. Tirez vers le bas pour actualiser.';
+
+  @override
+  String get subscriptionStop => 'Arrêt';
+
+  @override
+  String subscriptionSent(String date) {
+    return 'Envoyée le $date';
+  }
+
+  @override
+  String get subscriptionProofTitle => 'Votre preuve de paiement';
+
+  @override
+  String get statusPendingTitle => 'Demande envoyée';
+
+  @override
+  String get statusPendingBody =>
+      'Votre école vérifie votre preuve de paiement. Tirez vers le bas pour voir si une décision a été prise.';
+
+  @override
+  String get statusApprovedTitle => 'Vous êtes abonné';
+
+  @override
+  String statusApprovedBody(String stop) {
+    return 'Vous pouvez monter à l’arrêt $stop.';
+  }
+
+  @override
+  String get statusApprovedAction => 'Afficher le code d’embarquement';
+
+  @override
+  String get statusRejectedTitle => 'Demande non approuvée';
+
+  @override
+  String get statusRejectedReason => 'Motif de votre école :';
+
+  @override
+  String get statusRejectedNoReason => 'Votre école n’a pas donné de motif.';
+
+  @override
+  String get statusRequestAgain => 'Refaire une demande';
+
+  @override
+  String get statusExpiredTitle => 'Abonnement terminé';
+
+  @override
+  String get statusExpiredBody =>
+      'Cet abonnement n’est plus valide. Vous pouvez envoyer une nouvelle demande.';
 }

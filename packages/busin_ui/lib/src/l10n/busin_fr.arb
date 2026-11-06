@@ -55,5 +55,66 @@
   "navHistory": "Historique",
   "navBus": "Mon bus",
   "comingSoonTitle": "Bientôt disponible",
-  "comingSoonBody": "Cette partie de l’application est en cours de création."
+  "comingSoonBody": "Cette partie de l’application est en cours de création.",
+  "subscriptionNoSemesterTitle": "Aucun semestre ouvert pour le moment",
+  "subscriptionNoSemesterBody": "Vous pourrez vous abonner dès que votre école aura ajouté le semestre.",
+  "subscriptionStarts": "Commence le {date}",
+  "@subscriptionStarts": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "subscribeHeading": "S’abonner pour {semester}",
+  "@subscribeHeading": {
+    "placeholders": {
+      "semester": {
+        "type": "String"
+      }
+    }
+  },
+  "subscribeIntro": "Choisissez où vous montez et ajoutez une photo de votre reçu de paiement. Votre école la vérifie et approuve votre demande.",
+  "subscribeStopLabel": "Votre arrêt",
+  "subscribeStopHint": "Choisissez où vous montez",
+  "subscribeStopSearch": "Rechercher un arrêt",
+  "subscribeStopNone": "Aucun arrêt ne correspond.",
+  "subscribeProofLabel": "Preuve de paiement",
+  "subscribeProofHint": "Ajoutez une photo nette de votre reçu",
+  "subscribeProofPrivacy": "Seuls vous et les administrateurs de votre école peuvent la voir.",
+  "proofTakePhoto": "Prendre une photo",
+  "proofChoosePhoto": "Choisir dans la galerie",
+  "proofChange": "Changer de photo",
+  "subscribeSubmit": "Envoyer la demande",
+  "subscribeErrorType": "Utilisez une photo JPEG, PNG ou WebP.",
+  "subscribeErrorTooLarge": "Cette photo est trop volumineuse. Choisissez-en une de moins de 5 Mo.",
+  "subscribeErrorExists": "Vous avez déjà une demande pour ce semestre. Tirez vers le bas pour actualiser.",
+  "subscriptionStop": "Arrêt",
+  "subscriptionSent": "Envoyée le {date}",
+  "@subscriptionSent": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "subscriptionProofTitle": "Votre preuve de paiement",
+  "statusPendingTitle": "Demande envoyée",
+  "statusPendingBody": "Votre école vérifie votre preuve de paiement. Tirez vers le bas pour voir si une décision a été prise.",
+  "statusApprovedTitle": "Vous êtes abonné",
+  "statusApprovedBody": "Vous pouvez monter à l’arrêt {stop}.",
+  "@statusApprovedBody": {
+    "placeholders": {
+      "stop": {
+        "type": "String"
+      }
+    }
+  },
+  "statusApprovedAction": "Afficher le code d’embarquement",
+  "statusRejectedTitle": "Demande non approuvée",
+  "statusRejectedReason": "Motif de votre école :",
+  "statusRejectedNoReason": "Votre école n’a pas donné de motif.",
+  "statusRequestAgain": "Refaire une demande",
+  "statusExpiredTitle": "Abonnement terminé",
+  "statusExpiredBody": "Cet abonnement n’est plus valide. Vous pouvez envoyer une nouvelle demande."
 }

@@ -37,6 +37,14 @@ Run it each time the device reconnects. Google sign-in also needs the Web client
 ## 4. Local backend
 
 ```bash
-npm run backend:start
+npm run backend:start    # includes the storage service the proof upload needs
 npm run seed:demo        # optional demo people, stops, trips
 ```
+
+The repository tests can also be run against this backend with a real student session (storage and Row Level Security included):
+
+```bash
+cd packages/busin_data && fvm dart test -t live --run-skipped
+```
+
+It creates a throwaway student and removes everything it made.
