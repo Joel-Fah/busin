@@ -179,3 +179,20 @@ export function subscriptionsHref(filters: SubscriptionFilters, page = 1): strin
     page: page > 1 ? page : null,
   });
 }
+
+/** Pending and approved are the live states: a student can have only one of them per semester. */
+export function isLiveStatus(status: SubscriptionStatus): boolean {
+  return status === "pending" || status === "approved";
+}
+
+const SUMMARY_ORDER: readonly SubscriptionStatus[] = ["pending", "approved", "revoked", "rejected", "expired"];
+
+/** How many requests a student has made in each state, in a fixed order, leaving out the states with none. */
+export function summarizeStatuses(statuses: readonly SubscriptionStatus[]): { status: SubscriptionStatus; count: number }[] {
+  return SUMMARY_ORDER.map((status) => ({ status, count: statuses.filter((s) => s === status).length })).filter((item) => item.count > 0);
+}
+
+/** The request that is pending or approved, if any (the history is newest first). */
+export function liveRequest<T extends { status: SubscriptionStatus }>(history: readonly T[]): T | undefined {
+  return history.find((request) => isLiveStatus(request.status));
+}

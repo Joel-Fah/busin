@@ -17,6 +17,9 @@ import {
   eventTone,
   orderHistory,
   reinstateErrorKey,
+  isLiveStatus,
+  liveRequest,
+  summarizeStatuses,
 } from "./subscriptions";
 
 describe("parseStatusFilter", () => {
@@ -178,5 +181,32 @@ describe("orderHistory", () => {
     const input = [{ id: "a", status: "pending" as const, createdAt: "2026-11-01T08:00:00Z", stopName: null, operations: [op("requested", "2026-11-01T08:00:00Z"), op("approved", "2026-11-02T08:00:00Z")] }];
     orderHistory(input);
     expect(input[0].operations[0].action).toBe("requested");
+  });
+});
+
+describe("live requests and the summary of a student's requests", () => {
+  it("knows which states are live", () => {
+    expect(isLiveStatus("pending")).toBe(true);
+    expect(isLiveStatus("approved")).toBe(true);
+    for (const s of ["revoked", "rejected", "expired"] as const) expect(isLiveStatus(s)).toBe(false);
+  });
+
+  it("finds the live request in a history, newest first, or none", () => {
+    expect(liveRequest([{ id: "b", status: "pending" as const }, { id: "a", status: "revoked" as const }])?.id).toBe("b");
+    expect(liveRequest([{ id: "a", status: "revoked" as const }, { id: "c", status: "rejected" as const }])).toBeUndefined();
+    expect(liveRequest([])).toBeUndefined();
+  });
+
+  it("counts requests by state in a fixed order and leaves out the empty states", () => {
+    expect(summarizeStatuses(["revoked", "pending"])).toEqual([
+      { status: "pending", count: 1 },
+      { status: "revoked", count: 1 },
+    ]);
+    expect(summarizeStatuses(["rejected", "rejected", "approved", "revoked", "revoked"])).toEqual([
+      { status: "approved", count: 1 },
+      { status: "revoked", count: 2 },
+      { status: "rejected", count: 2 },
+    ]);
+    expect(summarizeStatuses([])).toEqual([]);
   });
 });

@@ -60,7 +60,9 @@ test.describe("administrator managing semesters", () => {
     await page.goto("/semesters");
     await expect(page.getByRole("heading", { name: "Semesters", level: 1 })).toBeVisible();
     const row = page.getByRole("row").filter({ hasText: `Spring ${YEAR}` });
-    await expect(row).toContainText(`${YEAR}-02-01 - ${YEAR}-06-15`);
+    // The first and last day, each on its own line and labelled.
+    await expect(row).toContainText(`From: Feb 1, ${YEAR}`);
+    await expect(row).toContainText(`To: Jun 15, ${YEAR}`);
     await expect(row).toContainText("Upcoming");
   });
 
