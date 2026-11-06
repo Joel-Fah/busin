@@ -1,6 +1,7 @@
 import 'package:busin_core/busin_core.dart';
 import 'package:busin_student/src/app.dart';
 import 'package:busin_student/src/auth/auth_service.dart';
+import 'package:busin_student/src/providers.dart';
 import 'package:busin_student/src/screens/splash_screen.dart';
 import 'package:busin_student/src/subscription/subscription_status_card.dart';
 import 'package:busin_ui/busin_ui.dart';
@@ -93,7 +94,10 @@ void main() {
   testWidgets('the splash lays out and says it is loading to a screen reader', (tester) async {
     await run(tester, const Size(412, 915), auth: FakeAuthService(signedInAs: 'u1'));
     // The splash is only up while the profile loads, so render it directly as well.
-    await tester.pumpWidget(MaterialApp(theme: BusinTheme.dark(), localizationsDelegates: businLocalizationsDelegates, supportedLocales: businSupportedLocales, home: const SplashScreen()));
+    await tester.pumpWidget(ProviderScope(
+      overrides: [introEnabledProvider.overrideWithValue(false)],
+      child: MaterialApp(theme: BusinTheme.dark(), localizationsDelegates: businLocalizationsDelegates, supportedLocales: businSupportedLocales, home: const SplashScreen()),
+    ));
     await tester.pump(const Duration(milliseconds: 100));
     expect(tester.takeException(), isNull);
     expect(find.bySemanticsLabel('Loading'), findsOneWidget);

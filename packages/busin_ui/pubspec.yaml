@@ -15,6 +15,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_svg: ^2.2.0
+  path_drawing: ^1.0.1
   hugeicons: ^1.1.1
   intl: any
 

@@ -50,6 +50,20 @@ final profileProvider = FutureProvider<Profile?>((ref) async {
   return ref.watch(profileRepositoryProvider).getProfile(userId);
 });
 
+/// Whether the logo is drawn when the app opens. Tests switch it off.
+final introEnabledProvider = Provider<bool>((ref) => true);
+
+/// Whether the opening animation has finished (or was skipped). It plays once per cold start; until then the router
+/// keeps the splash screen up, whatever the access state says.
+class IntroDone extends Notifier<bool> {
+  @override
+  bool build() => !ref.watch(introEnabledProvider);
+
+  void finish() => state = true;
+}
+
+final introDoneProvider = NotifierProvider<IntroDone, bool>(IntroDone.new);
+
 /// What the app may show. The router and every guarded screen read this.
 final accessProvider = Provider<AccessState>((ref) {
   final session = ref.watch(authUserIdProvider);

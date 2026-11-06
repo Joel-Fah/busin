@@ -29,5 +29,16 @@ void main() {
       expect(redirectFor(allowed, Routes.qr), isNull);
       expect(redirectFor(allowed, Routes.history), isNull);
     });
+
+    test('while the logo is drawing, every page waits on the splash screen', () {
+      for (final access in [const SignedOut(), const AccessLoading(), allowed, const Blocked(BlockReason.pending)]) {
+        expect(redirectFor(access, Routes.qr, introDone: false), Routes.loading);
+        expect(redirectFor(access, Routes.signIn, introDone: false), Routes.loading);
+        expect(redirectFor(access, Routes.loading, introDone: false), isNull);
+      }
+      // Once it ends, the usual rules decide.
+      expect(redirectFor(const SignedOut(), Routes.loading), Routes.signIn);
+      expect(redirectFor(allowed, Routes.loading), Routes.subscription);
+    });
   });
 }
