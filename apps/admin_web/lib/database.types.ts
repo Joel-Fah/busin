@@ -355,6 +355,38 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"subscription_events": {
+                  Row: {
+                    "action": string,"actor_id": string | null,"created_at": string,"id": number,"note": string | null,"school_id": string,"student_id": string,"subscription_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "action": string,"actor_id"?: string | null,"created_at"?: string,"id"?: never,"note"?: string | null,"school_id": string,"student_id": string,"subscription_id": string
+                  }
+                  Update: {
+                    "action"?: string,"actor_id"?: string | null,"created_at"?: string,"id"?: never,"note"?: string | null,"school_id"?: string,"student_id"?: string,"subscription_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "subscription_events_actor_id_fkey"
+      columns: ["actor_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "subscription_events_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "subscription_events_subscription_id_school_id_fkey"
+      columns: ["subscription_id","school_id"]
+isOneToOne: false
+      referencedRelation: "subscriptions"
+      referencedColumns: ["id","school_id"]
+    }
+                  ]
                 },"subscriptions": {
                   Row: {
                     "created_at": string,"id": string,"proof_path": string | null,"review_note": string | null,"reviewed_at": string | null,"reviewed_by": string | null,"school_id": string,"semester_id": string,"status": Database["public"]['Enums']["subscription_status"],"stop_id": string,"student_id": string,"updated_at": string
@@ -444,6 +476,9 @@ isOneToOne: false
                            },
 "admin_cancel_trip":
 { Args: { "p_reason"?: string,"p_trip_id": string }; Returns: undefined
+                           },
+"admin_reinstate_subscription":
+{ Args: { "p_note"?: string,"p_subscription_id": string }; Returns: undefined
                            },
 "admin_review_subscription":
 { Args: { "p_decision": string,"p_note"?: string,"p_subscription_id": string }; Returns: undefined

@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 
 import { requireAdmin } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { isUuid, parseReason, revokeErrorKey, reviewErrorKey } from "@/lib/subscriptions";
+import { isUuid, parseReason, reinstateErrorKey, revokeErrorKey, reviewErrorKey } from "@/lib/subscriptions";
 
 /**
  * Approves or rejects a pending subscription.
@@ -65,4 +65,28 @@ export async function revokeSubscription(formData: FormData): Promise<void> {
 
   revalidatePath("/subscriptions");
   redirect(`/subscriptions/${id}?done=revoked`);
+}
+
+/**
+ * Gives a revoked subscription back. The database function `admin_reinstate_subscription` checks the caller again, refuses
+ * anything but a revoked subscription (and one whose student has a newer live request), records it as its own operation
+ * in the subscription's history and tells the student. The note is optional.
+ */
+export async function reinstateSubscription(formData: FormData): Promise<void> {
+  await requireAdmin();
+
+  const id = formData.get("id");
+  if (!isUuid(id)) redirect("/subscriptions");
+
+  const raw = formData.get("note");
+  const note = parseReason(raw);
+  // A note that is there but unusable (too long) is refused; an empty one is simply no note.
+  if (note === null && typeof raw === "string" && raw.trim() !== "") redirect(`/subscriptions/${id}?error=invalid`);
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("admin_reinstate_subscription", { p_subscription_id: id, p_note: note ?? undefined });
+  if (error) redirect(`/subscriptions/${id}?error=${reinstateErrorKey(error.code, error.message)}`);
+
+  revalidatePath("/subscriptions");
+  redirect(`/subscriptions/${id}?done=reinstated`);
 }
