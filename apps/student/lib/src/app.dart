@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'router.dart';
+import 'settings/appearance.dart';
 
 class StudentApp extends ConsumerWidget {
   const StudentApp({super.key});
@@ -13,7 +14,9 @@ class StudentApp extends ConsumerWidget {
       onGenerateTitle: (context) => BusinL10n.of(context).appName,
       theme: BusinTheme.light(),
       darkTheme: BusinTheme.dark(),
-      themeMode: ThemeMode.system,
+      themeMode: ref.watch(themeModeProvider),
+      // Null follows the phone.
+      locale: ref.watch(localeProvider),
       localizationsDelegates: businLocalizationsDelegates,
       supportedLocales: businSupportedLocales,
       routerConfig: ref.watch(routerProvider),

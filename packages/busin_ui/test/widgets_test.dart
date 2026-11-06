@@ -101,6 +101,14 @@ void main() {
       expect(find.text('AL'), findsOneWidget);
     });
 
+    testWidgets('with a picture address the initials wait underneath, and stay if the picture cannot load', (tester) async {
+      // The network is not available in tests, so the picture fails: the initials must still be there.
+      await tester.pumpWidget(app(const UserAvatar(name: 'Ada Lovelace', imageUrl: 'https://example.invalid/ada.jpg')));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.text('AL'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('an avatar is hidden from screen readers unless given a label', (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(app(const UserAvatar(name: 'Ada Lovelace')));

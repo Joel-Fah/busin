@@ -54,6 +54,22 @@ class SupabaseAuthService implements AuthService {
       // The network worked and the server said no: the account is not allowed.
       throw const SignInException(SignInFailure.notAllowed);
     }
+    await _refreshPicture();
+  }
+
+  /// Keeps the profile picture as Google has it now (Google's picture addresses change). A courtesy: if it cannot be
+  /// saved the student simply keeps the picture they had, or their initials. Only a secure address is accepted.
+  Future<void> _refreshPicture() async {
+    try {
+      final user = _client.auth.currentUser;
+      if (user == null) return;
+      final meta = user.userMetadata ?? const <String, dynamic>{};
+      final picture = (meta['avatar_url'] ?? meta['picture']);
+      if (picture is! String || !picture.startsWith('https://')) return;
+      await _client.from('profiles').update({'avatar_url': picture}).eq('id', user.id);
+    } catch (_) {
+      // Not worth stopping a sign-in for.
+    }
   }
 
   @override

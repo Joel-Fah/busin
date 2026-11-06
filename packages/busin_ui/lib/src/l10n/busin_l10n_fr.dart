@@ -288,6 +288,30 @@ class BusinL10nFr extends BusinL10n {
   String get navProfile => 'Profil';
 
   @override
+  String get profileAppearance => 'Apparence';
+
+  @override
+  String get profileAppearanceHint => 'Conservé sur ce téléphone.';
+
+  @override
+  String get profileTheme => 'Thème';
+
+  @override
+  String get themeSystem => 'Système';
+
+  @override
+  String get themeLight => 'Clair';
+
+  @override
+  String get themeDark => 'Sombre';
+
+  @override
+  String get profileLanguage => 'Langue';
+
+  @override
+  String get languageSystem => 'Système';
+
+  @override
   String get profileHistory => 'Historique des trajets';
 
   @override

@@ -1,4 +1,5 @@
 import 'package:busin_core/busin_core.dart';
+import 'package:flutter/painting.dart' show ImageProvider, NetworkImage;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../auth/access.dart';
@@ -83,6 +84,9 @@ final subscriptionOverviewProvider = FutureProvider.autoDispose<SubscriptionOver
   final stop = subscription == null ? null : await ref.watch(stopsRepositoryProvider).getStop(subscription.stopId);
   return SubscriptionOverview(semester: semester, upcoming: upcoming, subscription: subscription, stop: stop);
 });
+
+/// How a proof's address becomes a picture. The network in the app; a test swaps in a picture it has in memory.
+final proofImageProvider = Provider<ImageProvider Function(String address)>((ref) => NetworkImage.new);
 
 /// A short-lived address to show a stored proof. Fetched when the proof is on screen and not kept.
 final proofUrlProvider = FutureProvider.autoDispose.family<String, String>(
