@@ -112,6 +112,16 @@ abstract interface class TripsRepository {
   Future<List<Trip>> listByIds(List<String> tripIds);
 }
 
+abstract interface class DeviceTokensRepository {
+  /// Registers this phone's push token for the signed-in user, or refreshes it. A token another user held moves
+  /// to the caller (a token follows the phone). [platform] is `android` or `ios`, [locale] is `en` or `fr`.
+  /// Throws [NotAllowed] for an account that is not verified.
+  Future<void> register({required String token, required String platform, required String locale});
+
+  /// Forgets this phone's token for the signed-in user (on sign-out). Not an error if it is already gone.
+  Future<void> unregister(String token);
+}
+
 abstract interface class BusesRepository {
   /// The buses with these ids (for plates on a map or a list). At most [PageRequest.maxLimit] at a time.
   Future<List<Bus>> listByIds(List<String> busIds);

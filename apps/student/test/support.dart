@@ -6,6 +6,7 @@ import 'package:busin_student/src/auth/auth_service.dart';
 import 'package:busin_student/src/bus/bus_providers.dart';
 import 'package:busin_student/src/bus/map_scene.dart';
 import 'package:busin_student/src/providers.dart';
+import 'package:busin_student/src/push/push_service.dart';
 import 'package:busin_student/src/qr/qr_providers.dart';
 import 'package:busin_student/src/qr/screen_security.dart';
 import 'package:busin_student/src/qr/secret_store.dart';
@@ -290,6 +291,87 @@ class FakeHistory implements ScansRepository, TripsRepository {
   Future<Trip> getTrip(String tripId) => throw UnimplementedError();
 }
 
+// ---------------------------------------------------------------- push fakes
+
+class FakePushService implements PushService {
+  FakePushService({this.available = true, this.current = PushPermission.notAsked, this.onRequest = PushPermission.granted, this.currentToken = 'fcm-token-of-this-phone-0001'});
+
+  @override
+  bool available;
+
+  PushPermission current;
+
+  /// What the person answers when asked.
+  PushPermission onRequest;
+  String? currentToken;
+  PushMessage? launched;
+
+  int requests = 0;
+  int forgets = 0;
+  final List<String> log = [];
+
+  final refreshes = StreamController<String>.broadcast();
+  final tapped = StreamController<PushMessage>.broadcast();
+  final arrived = StreamController<PushMessage>.broadcast();
+
+  @override
+  Future<PushPermission> permission() async => current;
+
+  @override
+  Future<PushPermission> requestPermission() async {
+    requests++;
+    current = onRequest;
+    return onRequest;
+  }
+
+  @override
+  Future<String?> token() async => current == PushPermission.granted ? currentToken : null;
+
+  @override
+  Stream<String> get tokenRefreshes => refreshes.stream;
+
+  @override
+  Stream<PushMessage> get taps => tapped.stream;
+
+  @override
+  Future<PushMessage?> launchedBy() async => launched;
+
+  @override
+  Stream<PushMessage> get foreground => arrived.stream;
+
+  @override
+  Future<void> forgetToken() async {
+    forgets++;
+    log.add('forgetToken');
+  }
+}
+
+class RegisteredToken {
+  const RegisteredToken(this.token, this.platform, this.locale);
+
+  final String token;
+  final String platform;
+  final String locale;
+}
+
+class FakeDeviceTokens implements DeviceTokensRepository {
+  final List<RegisteredToken> registered = [];
+  final List<String> unregistered = [];
+  Object? error;
+
+  @override
+  Future<void> register({required String token, required String platform, required String locale}) async {
+    if (error != null) throw error!;
+    registered.add(RegisteredToken(token, platform, locale));
+  }
+
+  @override
+  Future<void> unregister(String token) async {
+    if (error != null) throw error!;
+    unregistered.add(token);
+  }
+}
+
 // ---------------------------------------------------------------- live bus fakes
 
 Trip activeTrip(String id, String busId, {TripDirection direction = TripDirection.inbound, int minutesAgo = 10}) => Trip(
@@ -439,6 +521,9 @@ List<Override> overridesFor(
   FakeBackend? backend,
   FakeProofPicker? picker,
   FakeHistory? history,
+  FakePushService? push,
+  FakeDeviceTokens? deviceTokens,
+  String languageCode = 'en',
   FakeBuses? buses,
   FakeLive? live,
   FakeMapSurface? map,
@@ -461,6 +546,9 @@ List<Override> overridesFor(
     schoolClockProvider.overrideWithValue(const SchoolClock()),
     scansRepositoryProvider.overrideWithValue(h),
     tripsRepositoryProvider.overrideWithValue(h),
+    pushServiceProvider.overrideWithValue(push ?? FakePushService(available: false)),
+    deviceTokensRepositoryProvider.overrideWithValue(deviceTokens ?? FakeDeviceTokens()),
+    languageCodeProvider.overrideWithValue(() => languageCode),
     busesRepositoryProvider.overrideWithValue(buses ?? FakeBuses()),
     livePositionsRepositoryProvider.overrideWithValue(live ?? FakeLive()),
     mapSurfaceBuilderProvider.overrideWithValue((map ?? FakeMapSurface()).builder),

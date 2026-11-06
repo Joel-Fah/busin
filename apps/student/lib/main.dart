@@ -6,6 +6,7 @@ import 'src/app.dart';
 import 'src/auth/secure_session_storage.dart';
 import 'src/auth/supabase_auth_service.dart';
 import 'src/config/app_config.dart';
+import 'src/push/push_service.dart';
 import 'src/providers.dart';
 
 Future<void> main() async {
@@ -28,12 +29,15 @@ Future<void> main() async {
     ),
   );
   final client = Supabase.instance.client;
+  // Without Firebase configured this is a stand-in that does nothing, and the app works the same otherwise.
+  final push = await FirebasePushService.tryCreate();
 
   runApp(
     ProviderScope(
       overrides: [
         appConfigProvider.overrideWithValue(config),
         supabaseClientProvider.overrideWithValue(client),
+        pushServiceProvider.overrideWithValue(push),
         authServiceProvider.overrideWithValue(SupabaseAuthService(client, googleServerClientId: config.googleServerClientId)),
       ],
       child: const StudentApp(),

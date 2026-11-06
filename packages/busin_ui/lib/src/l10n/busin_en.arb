@@ -57,7 +57,7 @@
   "fieldRequired": "This field is required.",
   "loadingLabel": "Loading",
   "appName": "BusIn",
-  "signInTitle": "Ride with BusIn",
+  "signInTitle": "Hop on. BusIn handles the rest.",
   "signInSubtitle": "Sign in with your school Google account to subscribe, show your boarding code and follow your bus.",
   "signInWithGoogle": "Continue with Google",
   "signInCancelled": "Sign-in was cancelled.",
@@ -196,5 +196,13 @@
   "busYourStop": "Your stop",
   "busRecenter": "Show the bus",
   "busLiveFailed": "Live updates are not available right now.",
-  "busMapLabel": "Map of the bus and the stops"
+  "busMapLabel": "Map of the bus and the stops",
+  "pushPromptTitle": "Get notified",
+  "pushPromptBody": "We can tell you as soon as your school decides on your request, even when the app is closed.",
+  "pushPromptEnable": "Turn on notifications",
+  "pushPromptLater": "Not now",
+  "pushPromptDenied": "Notifications are off. You can turn them on in your phone's settings.",
+  "pushForegroundApproved": "Your subscription was approved.",
+  "pushForegroundRejected": "Your school has decided on your subscription.",
+  "pushForegroundView": "View"
 }

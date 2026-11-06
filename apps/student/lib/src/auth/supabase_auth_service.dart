@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -22,6 +23,11 @@ class SupabaseAuthService implements AuthService {
     yield* _client.auth.onAuthStateChange.map((state) => state.session?.user.id).distinct();
   }
 
+  /// Why a sign-in failed, for the developer's console. Debug builds only, and never a token or a name.
+  void _debug(String message) {
+    if (kDebugMode) debugPrint('[sign-in] $message');
+  }
+
   Future<void> _initGoogle() => _googleReady ??= GoogleSignIn.instance.initialize(serverClientId: _serverClientId);
 
   @override
@@ -34,14 +40,17 @@ class SupabaseAuthService implements AuthService {
       if (token == null) throw const SignInException(SignInFailure.failed);
       idToken = token;
     } on GoogleSignInException catch (e) {
+      _debug('Google sign-in failed: ${e.code.name} ${e.description ?? ''}');
       throw SignInException(e.code == GoogleSignInExceptionCode.canceled ? SignInFailure.cancelled : SignInFailure.failed);
     }
 
     try {
       await _client.auth.signInWithIdToken(provider: OAuthProvider.google, idToken: idToken);
-    } on AuthRetryableFetchException {
+    } on AuthRetryableFetchException catch (e) {
+      _debug('Supabase could not be reached: ${e.message}');
       throw const SignInException(SignInFailure.failed);
-    } on AuthException {
+    } on AuthException catch (e) {
+      _debug('Supabase refused the sign-in: status ${e.statusCode} ${e.message}');
       // The network worked and the server said no: the account is not allowed.
       throw const SignInException(SignInFailure.notAllowed);
     }

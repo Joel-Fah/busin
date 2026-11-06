@@ -4,10 +4,25 @@
 <dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
-		<key>NSCameraUsageDescription</key>
+	<key>NSCameraUsageDescription</key>
 	<string>BusIn uses the camera so you can photograph your payment receipt.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>BusIn reads the photo you choose as proof of your payment. It cannot see your other photos.</string>
+	<!-- Google sign-in: the iOS OAuth client id, and its reversed form as a URL scheme so Google can return to the app.
+	     Both are public identifiers, not secrets. The Web client id (the server one) comes from config/dev.json. -->
+	<key>GIDClientID</key>
+	<string>649952960204-omkmm8ul4ftc2a4kf5i7c8gbhl1e6vqm.apps.googleusercontent.com</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.649952960204-omkmm8ul4ftc2a4kf5i7c8gbhl1e6vqm</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

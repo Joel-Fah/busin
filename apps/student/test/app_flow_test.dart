@@ -30,13 +30,13 @@ void main() {
     final auth = FakeAuthService();
     await open(tester, auth, FakeProfileRepository({'u1': profile()}));
 
-    expect(find.text('Ride with BusIn'), findsOneWidget);
+    expect(find.text('Hop on. BusIn handles the rest.'), findsOneWidget);
     await tester.tap(find.text('Continue with Google'));
     await tester.pumpAndSettle();
 
     expect(find.byType(NavigationBar), findsOneWidget);
     expect(find.text('Subscription'), findsOneWidget);
-    expect(find.text('Ride with BusIn'), findsNothing);
+    expect(find.text('Hop on. BusIn handles the rest.'), findsNothing);
   });
 
   testWidgets('each failed sign-in says what happened and stays on the page', (tester) async {
@@ -70,7 +70,7 @@ void main() {
     await tester.tap(find.text('Sign out'));
     await tester.pumpAndSettle();
     expect(auth.signOuts, 1);
-    expect(find.text('Ride with BusIn'), findsOneWidget);
+    expect(find.text('Hop on. BusIn handles the rest.'), findsOneWidget);
   });
 
   testWidgets('pending and suspended students see their own explanation', (tester) async {
@@ -111,7 +111,7 @@ void main() {
 
     await auth.signOut();
     await tester.pumpAndSettle();
-    expect(find.text('Ride with BusIn'), findsOneWidget);
+    expect(find.text('Hop on. BusIn handles the rest.'), findsOneWidget);
     expect(find.byType(NavigationBar), findsNothing);
   });
 }

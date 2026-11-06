@@ -328,7 +328,7 @@ abstract class BusinL10n {
   /// No description provided for @signInTitle.
   ///
   /// In en, this message translates to:
-  /// **'Ride with BusIn'**
+  /// **'Hop on. BusIn handles the rest.'**
   String get signInTitle;
 
   /// No description provided for @signInSubtitle.
@@ -786,6 +786,54 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'Map of the bus and the stops'**
   String get busMapLabel;
+
+  /// No description provided for @pushPromptTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Get notified'**
+  String get pushPromptTitle;
+
+  /// No description provided for @pushPromptBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We can tell you as soon as your school decides on your request, even when the app is closed.'**
+  String get pushPromptBody;
+
+  /// No description provided for @pushPromptEnable.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on notifications'**
+  String get pushPromptEnable;
+
+  /// No description provided for @pushPromptLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get pushPromptLater;
+
+  /// No description provided for @pushPromptDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are off. You can turn them on in your phone\'s settings.'**
+  String get pushPromptDenied;
+
+  /// No description provided for @pushForegroundApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Your subscription was approved.'**
+  String get pushForegroundApproved;
+
+  /// No description provided for @pushForegroundRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school has decided on your subscription.'**
+  String get pushForegroundRejected;
+
+  /// No description provided for @pushForegroundView.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get pushForegroundView;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {
