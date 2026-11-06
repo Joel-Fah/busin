@@ -655,6 +655,9 @@ class BusinL10nEn extends BusinL10n {
       'Your school has decided on your subscription.';
 
   @override
+  String get liveRevoked => 'Your school ended your subscription.';
+
+  @override
   String get pushForegroundView => 'View';
 
   @override

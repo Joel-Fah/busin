@@ -128,6 +128,17 @@ class SupabaseSubscriptionsRepository implements SubscriptionsRepository {
   final SupabaseClient _client;
 
   @override
+  Stream<List<Subscription>> watchForStudent(String studentId) {
+    // Filtered on the server to this one student; Row Level Security applies to Realtime as well.
+    return _client
+        .from('subscriptions')
+        .stream(primaryKey: ['id'])
+        .eq('student_id', studentId)
+        .map((rows) => rows.map(Subscription.fromJson).toList(growable: false))
+        .handleError((Object error) => throw mapError(error));
+  }
+
+  @override
   Future<List<Subscription>> listForStudent(
     String studentId, {
     PageRequest page = const PageRequest(),

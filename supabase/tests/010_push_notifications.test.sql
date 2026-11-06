@@ -1,6 +1,9 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 select plan(36);
+-- The test counts the whole outbox, so it starts from an empty one (inside this transaction, which is rolled back: a local database
+-- that already holds queued notifications is not touched).
+delete from private.notification_outbox;
 
 insert into public.schools (id, name) values
   ('10000000-0000-4000-8000-000000000001', 'School A'),

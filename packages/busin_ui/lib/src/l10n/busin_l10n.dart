@@ -1267,6 +1267,12 @@ abstract class BusinL10n {
   /// **'Your school has decided on your subscription.'**
   String get pushForegroundRejected;
 
+  /// No description provided for @liveRevoked.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school ended your subscription.'**
+  String get liveRevoked;
+
   /// No description provided for @pushForegroundView.
   ///
   /// In en, this message translates to:

@@ -225,6 +225,19 @@ class FakeBackend implements SchoolRepository, SemestersRepository, StopsReposit
   Future<Subscription?> liveForSemester({required String studentId, required String semesterId}) async =>
       mine.where((s) => s.studentId == studentId && s.semesterId == semesterId && s.isLive).firstOrNull;
 
+  /// What the live feed gives: the rows now, then whatever a test pushes with [emitLive].
+  final _live = StreamController<List<Subscription>>.broadcast();
+  int liveListeners = 0;
+
+  void emitLive(List<Subscription> rows) => _live.add(rows);
+
+  @override
+  Stream<List<Subscription>> watchForStudent(String studentId) async* {
+    liveListeners++;
+    yield mine.where((s) => s.studentId == studentId).toList();
+    yield* _live.stream;
+  }
+
   @override
   Future<Subscription> request(NewSubscription request) async {
     if (requestError != null) throw requestError!;

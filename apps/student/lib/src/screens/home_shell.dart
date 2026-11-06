@@ -6,6 +6,7 @@ import 'package:hugeicons/hugeicons.dart';
 
 import '../push/push_binder.dart';
 import '../router.dart';
+import '../subscription/live_changes.dart';
 import '../subscription/subscription_providers.dart';
 
 /// The signed-in student's frame: four destinations. On a phone or a portrait tablet a floating glass bar rides over
@@ -51,7 +52,7 @@ class HomeShell extends ConsumerWidget {
           railHeader: BrandMark(color: p.fg, height: 28),
           // The profile is the last destination: on the rail it sits at the bottom end.
           pinLastToRailEnd: true,
-          body: PushBinder(child: SafeArea(bottom: false, child: shell)),
+          body: SubscriptionLiveBinder(child: PushBinder(child: SafeArea(bottom: false, child: shell))),
         ),
       ),
     );

@@ -77,6 +77,10 @@ abstract interface class SubscriptionsRepository {
 
   /// Sends a request. The status is always pending; staff decide in the portal.
   Future<Subscription> request(NewSubscription subscription);
+
+  /// This student's subscriptions: what there is now, then again whenever one changes (approved, rejected, ended).
+  /// Filtered to the student's own rows on the server, and delivered only while someone listens.
+  Stream<List<Subscription>> watchForStudent(String studentId);
 }
 
 /// What a proof of payment may be. The `proofs` bucket enforces the same limits on the server.

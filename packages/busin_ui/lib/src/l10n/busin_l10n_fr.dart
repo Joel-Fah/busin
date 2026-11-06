@@ -669,6 +669,9 @@ class BusinL10nFr extends BusinL10n {
       'Votre école a statué sur votre abonnement.';
 
   @override
+  String get liveRevoked => 'Votre école a mis fin à votre abonnement.';
+
+  @override
   String get pushForegroundView => 'Voir';
 
   @override
