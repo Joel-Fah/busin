@@ -107,6 +107,32 @@ void main() {
     await tester.pump();
   });
 
+  testWidgets('a subscription given back says so, and a push for it does not repeat it', (tester) async {
+    final push = FakePushService();
+    final backend = FakeBackend(current: semester(), mine: [subscription(stopId: 'stop2', status: SubscriptionStatus.revoked, note: 'Payment reversed')]);
+    await open(tester, backend, push);
+
+    final back = subscription(stopId: 'stop2', status: SubscriptionStatus.approved);
+    backend.mine[0] = back;
+    backend.emitLive([back]);
+    await tester.pump();
+    push.arrived.add(PushMessage(kind: 'subscription_approved', refId: back.id));
+    for (var i = 0; i < 6; i++) {
+      await tester.pump(const Duration(milliseconds: 200));
+    }
+    expect(find.text('Your school gave your subscription back.'), findsOneWidget);
+    expect(find.byType(SnackBar), findsNothing);
+    BusinToast.dismiss();
+    await tester.pump();
+  });
+
+  test('an approval after an ending is a reinstatement', () {
+    final known = {'a': SubscriptionStatus.revoked};
+    final change = changesSince(known, [subscription(id: 'a', status: SubscriptionStatus.approved)], first: false).single;
+    expect(change.isReinstatement, isTrue);
+    expect(changesSince({'a': SubscriptionStatus.pending}, [subscription(id: 'a', status: SubscriptionStatus.approved)], first: false).single.isReinstatement, isFalse);
+  });
+
   testWidgets('nobody signed in, nothing is followed', (tester) async {
     final backend = FakeBackend(current: semester());
     await open(tester, backend, FakePushService(), auth: FakeAuthService());

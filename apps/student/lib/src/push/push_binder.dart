@@ -71,7 +71,10 @@ class _PushBinderState extends ConsumerState<PushBinder> {
     // The live feed may have said it already (both arrive together while the app is open).
     final status = message.kind == 'subscription_approved' ? 'approved' : 'rejected';
     final id = message.refId;
-    if (id != null && !ref.read(announcedChangesProvider.notifier).claim(changeKey(id, status))) return;
+    // A reinstatement arrives as an approval: the live feed may have claimed it under its own name.
+    final announced = ref.read(announcedChangesProvider.notifier);
+    if (id != null && status == 'approved' && ref.read(announcedChangesProvider).contains(changeKey(id, 'reinstated'))) return;
+    if (id != null && !announced.claim(changeKey(id, status))) return;
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(text), action: SnackBarAction(label: l10n.pushForegroundView, onPressed: () => _open(message))));

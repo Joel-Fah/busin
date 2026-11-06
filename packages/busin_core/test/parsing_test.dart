@@ -109,6 +109,14 @@ void main() {
       expect(const AcademicUnits().isEmpty, isTrue);
     });
 
+    test('SubscriptionEvent parses, and refuses an action it does not know', () {
+      final e = SubscriptionEvent.fromJson({'id': 7, 'subscription_id': 's1', 'action': 'reinstated', 'note': 'Paid in cash', 'created_at': '2026-11-04T09:00:00+00:00'});
+      expect(e.action, SubscriptionEventAction.reinstated);
+      expect(e.note, 'Paid in cash');
+      expect(e.createdAt.isUtc, isTrue);
+      expect(() => SubscriptionEvent.fromJson({'id': 7, 'subscription_id': 's1', 'action': 'deleted', 'created_at': '2026-11-04T09:00:00+00:00'}), throwsFormatException);
+    });
+
     test('Semester parses dates and checks inclusion on both ends', () {
       final s = Semester.fromJson({
         'id': 'm1',

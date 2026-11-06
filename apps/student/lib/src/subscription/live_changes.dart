@@ -12,10 +12,15 @@ import 'subscription_providers.dart';
 
 /// A subscription whose status is not what it was.
 class StatusChange {
-  const StatusChange({required this.id, required this.status});
+  const StatusChange({required this.id, required this.status, this.from});
 
   final String id;
   final SubscriptionStatus status;
+
+  /// What it was before, if it was known (an approval after an ending is a reinstatement).
+  final SubscriptionStatus? from;
+
+  bool get isReinstatement => from == SubscriptionStatus.revoked && status == SubscriptionStatus.approved;
 }
 
 /// What changed between what was known and what has just arrived: a subscription with a different status, or one that
@@ -23,7 +28,7 @@ class StatusChange {
 List<StatusChange> changesSince(Map<String, SubscriptionStatus> known, List<Subscription> now, {required bool first}) {
   final changes = <StatusChange>[];
   for (final s in now) {
-    if (!first && known[s.id] != s.status) changes.add(StatusChange(id: s.id, status: s.status));
+    if (!first && known[s.id] != s.status) changes.add(StatusChange(id: s.id, status: s.status, from: known[s.id]));
     known[s.id] = s.status;
   }
   return changes;
@@ -93,13 +98,13 @@ class _SubscriptionLiveBinderState extends ConsumerState<SubscriptionLiveBinder>
     final l10n = BusinL10n.of(context);
     for (final change in changes) {
       final (String? text, ToastTone tone) = switch (change.status) {
-        SubscriptionStatus.approved => (l10n.pushForegroundApproved, ToastTone.success),
+        SubscriptionStatus.approved => (change.isReinstatement ? l10n.liveReinstated : l10n.pushForegroundApproved, ToastTone.success),
         SubscriptionStatus.rejected => (l10n.pushForegroundRejected, ToastTone.warning),
         SubscriptionStatus.revoked => (l10n.liveRevoked, ToastTone.warning),
         _ => (null, ToastTone.info),
       };
       if (text == null) continue;
-      if (!ref.read(announcedChangesProvider.notifier).claim(changeKey(change.id, change.status.name))) continue;
+      if (!ref.read(announcedChangesProvider.notifier).claim(changeKey(change.id, change.isReinstatement ? 'reinstated' : change.status.name))) continue;
       BusinToast.show(context, text, tone: tone);
     }
   }
