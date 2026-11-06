@@ -88,7 +88,7 @@ export function ToastProvider({ children, closeLabel = "Close" }: { children: Re
               type="button"
               onClick={() => dismiss(toast.id)}
               aria-label={closeLabel}
-              className="relative -m-1 grid size-9 shrink-0 place-items-center rounded-full text-current opacity-80 transition-[opacity,background-color,transform] duration-[var(--dur-fast)] ease-[var(--ease-soft)] hover:bg-current/10 hover:opacity-100 focus-visible:opacity-100 outline-none focus-visible:bg-current/10 active:scale-90"
+              className="relative -m-1 grid size-9 shrink-0 cursor-pointer appearance-none place-items-center rounded-full border-0 bg-transparent p-0 text-current opacity-80 transition-[opacity,background-color,transform] duration-[var(--dur-fast)] ease-[var(--ease-soft)] hover:bg-current/10 hover:opacity-100 focus-visible:opacity-100 outline-none focus-visible:bg-current/10 active:scale-90"
             >
               {/* The ring empties as the time runs out. */}
               <svg viewBox="0 0 36 36" className="pointer-events-none absolute inset-0 -rotate-90" aria-hidden="true">
