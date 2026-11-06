@@ -38,6 +38,9 @@ export function ToastProvider({ children, closeLabel = "Close" }: { children: Re
   const [leaving, setLeaving] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const exit = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Time left and when the clock last started, so hovering can stop it and carry on from where it was.
+  const left = useRef({ id: 0, ms: 0, since: 0 });
+  const [paused, setPaused] = useState(false);
 
   // Leaving takes a moment so the toast can glide away instead of vanishing.
   const dismiss = useCallback((id?: number) => {
@@ -56,9 +59,27 @@ export function ToastProvider({ children, closeLabel = "Close" }: { children: Re
     if (timer.current) clearTimeout(timer.current);
     if (exit.current) clearTimeout(exit.current);
     setLeaving(false);
+    setPaused(false);
     setToast((current) => nextToast(current, item));
+    left.current = { id: item.id, ms: item.duration, since: Date.now() };
     timer.current = setTimeout(() => dismiss(item.id), item.duration);
   }, [dismiss]);
+
+  // While the pointer or keyboard focus is on the toast the clock stops (and so does the ring).
+  const pause = useCallback(() => {
+    if (leaving || paused) return;
+    if (timer.current) clearTimeout(timer.current);
+    left.current.ms = Math.max(0, left.current.ms - (Date.now() - left.current.since));
+    setPaused(true);
+  }, [leaving, paused]);
+
+  const resume = useCallback(() => {
+    if (leaving || !paused) return;
+    const { id, ms } = left.current;
+    left.current.since = Date.now();
+    timer.current = setTimeout(() => dismiss(id), ms);
+    setPaused(false);
+  }, [dismiss, leaving, paused]);
 
   useEffect(() => () => {
     if (timer.current) clearTimeout(timer.current);
@@ -77,6 +98,10 @@ export function ToastProvider({ children, closeLabel = "Close" }: { children: Re
             role={toast.tone === "bad" || toast.tone === "warn" ? "alert" : "status"}
             className={`${leaving ? "toast-out" : "toast-in"} pointer-events-auto relative flex w-full max-w-md items-start gap-3 rounded-md px-5 py-4 text-sm shadow-float ${LOOK[toast.tone].box}`}
             style={{ ["--thread-color" as string]: "currentColor" }}
+            onMouseEnter={pause}
+            onMouseLeave={resume}
+            onFocus={pause}
+            onBlur={resume}
           >
             <Contour radius={20} inset={4} dash={[5, 5]} />
             <Icon icon={LOOK[toast.tone].icon} size={22} className="mt-0.5 shrink-0" />
@@ -107,7 +132,7 @@ export function ToastProvider({ children, closeLabel = "Close" }: { children: Re
                     strokeLinecap="round"
                     pathLength={100}
                     strokeDasharray={100}
-                    style={{ animationDuration: `${toast.duration}ms` }}
+                    style={{ animationDuration: `${toast.duration}ms`, animationPlayState: paused ? "paused" : "running" }}
                   />
                 )}
               </svg>
