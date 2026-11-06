@@ -491,6 +491,16 @@ class BusinL10nEn extends BusinL10n {
   String get historyLoadMoreFailed => 'Could not load more. Tap to try again.';
 
   @override
+  String get busLockedTitle => 'Following the bus is for subscribers';
+
+  @override
+  String get busLockedBody =>
+      'Once your subscription is approved you can see where your bus is, live.';
+
+  @override
+  String get busLockedAction => 'Go to subscription';
+
+  @override
   String get busNoneTitle => 'No bus is running right now';
 
   @override

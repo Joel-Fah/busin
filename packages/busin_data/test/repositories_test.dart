@@ -163,6 +163,15 @@ void main() {
     });
   });
 
+  group('following buses', () {
+    test('asks the database, which decides', () async {
+      final yes = Harness((_) async => json(true));
+      expect(await yes.repos.livePositions.canFollowBuses(), isTrue);
+      expect(yes.last.url.path, '/rest/v1/rpc/can_follow_buses');
+      expect(await Harness((_) async => json(false)).repos.livePositions.canFollowBuses(), isFalse);
+    });
+  });
+
   group('student history', () {
     Map<String, dynamic> scanRow(String id, String at) => {
           'id': id,

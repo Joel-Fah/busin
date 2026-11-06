@@ -364,6 +364,9 @@ class SupabaseLivePositionsRepository implements LivePositionsRepository {
       });
 
   @override
+  Future<bool> canFollowBuses() => guarded(() async => (await _client.rpc<dynamic>('can_follow_buses')) == true);
+
+  @override
   Stream<LivePosition> watchBus(String busId) {
     // Filtered to one bus on the server, so a phone never receives other buses' positions.
     return _client

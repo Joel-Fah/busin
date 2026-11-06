@@ -175,4 +175,8 @@ abstract interface class LivePositionsRepository {
   /// Positions of one bus as they arrive. The subscription is filtered to that
   /// bus, never to the whole table.
   Stream<LivePosition> watchBus(String busId);
+
+  /// Whether this person may follow buses live: an approved subscription covering today, or staff. The database
+  /// decides (and enforces it on the positions themselves); this is how an app learns the answer.
+  Future<bool> canFollowBuses();
 }
