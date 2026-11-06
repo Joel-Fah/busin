@@ -50,10 +50,12 @@ class _QrScreenState extends ConsumerState<QrScreen> {
     // Tabs that are not showing have animations switched off; use that to know when this one is on screen.
     final active = TickerMode.valuesOf(context).enabled;
     if (active != _active) {
+      final wasHidden = _active == false;
       _active = active;
       _security.setSecure(active);
-      // Coming back after a failure (for example the subscription was approved meanwhile): try again.
-      if (active && ref.read(qrSecretProvider).hasError) {
+      // Coming back to the tab: ask again. The subscription may have been approved meanwhile (after a failure), or taken
+      // away (the code must lock). The page keeps showing what it has while it asks.
+      if (active && wasHidden) {
         // After this frame: a provider cannot be changed while the tree is building.
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) ref.invalidate(qrSecretProvider);

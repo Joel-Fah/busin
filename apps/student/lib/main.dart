@@ -38,6 +38,7 @@ Future<void> main() async {
 
   runApp(
     ProviderScope(
+      retry: noAutomaticRetry,
       overrides: [
         appPreferencesProvider.overrideWithValue(preferences),
         appConfigProvider.overrideWithValue(config),

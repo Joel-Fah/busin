@@ -38,6 +38,11 @@ final pushRegistrarProvider = Provider<PushRegistrar>(
   ),
 );
 
+/// What every provider that asks the server does when it fails: nothing more. Riverpod would otherwise ask again up to ten
+/// times with growing pauses, which hammers a server that just said no (or says "not allowed") and keeps the loading screen
+/// up for a minute when the backend is unreachable. Each screen has its own Try again for a failure.
+Duration? noAutomaticRetry(int retryCount, Object error) => null;
+
 final repositoriesProvider = Provider<SupabaseRepositories>((ref) => SupabaseRepositories(ref.watch(supabaseClientProvider)));
 
 final academicRepositoryProvider = Provider<AcademicRepository>((ref) => ref.watch(repositoriesProvider).academic);
@@ -51,13 +56,13 @@ final profileProvider = FutureProvider<Profile?>((ref) async {
   final userId = ref.watch(authUserIdProvider).value;
   if (userId == null) return null;
   return ref.watch(profileRepositoryProvider).getProfile(userId);
-});
+}, retry: noAutomaticRetry);
 
 /// The faculties, departments and degree levels a student chooses from. Read once for the session; resets with the user.
 final academicUnitsProvider = FutureProvider<AcademicUnits>((ref) async {
   if (ref.watch(authUserIdProvider).value == null) return const AcademicUnits();
   return ref.watch(academicRepositoryProvider).load();
-});
+}, retry: noAutomaticRetry);
 
 /// Whether the logo is drawn when the app opens. Tests switch it off.
 final introEnabledProvider = Provider<bool>((ref) => true);

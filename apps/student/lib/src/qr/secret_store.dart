@@ -12,6 +12,9 @@ abstract interface class SecretStore {
 
   Future<void> write(String userId, Uint8List secret);
 
+  /// Forgets [userId]'s secret (the school took the subscription away).
+  Future<void> delete(String userId);
+
   /// Forgets every secret. Called on sign-out.
   Future<void> deleteAll();
 }
@@ -36,6 +39,9 @@ class SecureSecretStore implements SecretStore {
 
   @override
   Future<void> write(String userId, Uint8List secret) => _storage.write(key: '$_prefix$userId', value: base64.encode(secret));
+
+  @override
+  Future<void> delete(String userId) => _storage.delete(key: '$_prefix$userId');
 
   @override
   Future<void> deleteAll() async {

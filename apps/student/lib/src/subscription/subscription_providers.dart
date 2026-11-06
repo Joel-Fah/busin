@@ -21,7 +21,7 @@ final schoolProvider = FutureProvider.autoDispose<School>((ref) {
   final access = ref.watch(accessProvider);
   if (access is! Allowed) throw StateError('Only an allowed student has a school here.');
   return ref.watch(schoolRepositoryProvider).getSchool(access.profile.schoolId);
-});
+}, retry: noAutomaticRetry);
 
 final schoolClockProvider = Provider<SchoolClock>((ref) => const SchoolClock());
 final proofPickerProvider = Provider<ProofPicker>((ref) => ImagePickerProofPicker());
@@ -30,7 +30,7 @@ final proofPickerProvider = Provider<ProofPicker>((ref) => ImagePickerProofPicke
 final stopsProvider = FutureProvider<List<Stop>>((ref) async {
   if (ref.watch(authUserIdProvider).value == null) return const [];
   return ref.watch(stopsRepositoryProvider).listActiveStops();
-});
+}, retry: noAutomaticRetry);
 
 /// Where a student stands for the semester that matters now.
 class SubscriptionOverview {
@@ -83,7 +83,7 @@ final subscriptionOverviewProvider = FutureProvider.autoDispose<SubscriptionOver
   final subscription = subscriptionToShow(mine, semester.id);
   final stop = subscription == null ? null : await ref.watch(stopsRepositoryProvider).getStop(subscription.stopId);
   return SubscriptionOverview(semester: semester, upcoming: upcoming, subscription: subscription, stop: stop);
-});
+}, retry: noAutomaticRetry);
 
 /// How a proof's address becomes a picture. The network in the app; a test swaps in a picture it has in memory.
 final proofImageProvider = Provider<ImageProvider Function(String address)>((ref) => NetworkImage.new);
@@ -141,4 +141,4 @@ final landingPathProvider = FutureProvider.autoDispose<String>((ref) async {
   } catch (_) {
     return '/subscription';
   }
-});
+}, retry: noAutomaticRetry);
