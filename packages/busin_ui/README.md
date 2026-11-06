@@ -20,3 +20,8 @@ MaterialApp(
 Change the ARB files in `lib/src/l10n`, then run `fvm flutter gen-l10n` inside this folder; the generated files are committed.
 
 Tests: `fvm flutter test`.
+
+## Design language (ADR 0011)
+
+The portal's design language, ported natively: tokens (`BusinMotion`, `BusinElevation`, `BusinRamps`, `BusinRadius.innerRadius`), the stitched `Contour`, `Grain`, `MarkedText`, `BusinCard`, `BusinButton`, `StatusChip` (always with an icon), `EmptyState` with 3D illustrations, `Skeleton`, `showBusinSheet`, `StaggeredIn`, `BusinHaptics`, and navigation that adapts to the window: `FloatingNavBar` on phones and portrait tablets, `BusinNavRail` and two-pane `SplitView` from 840 dp (`AdaptiveScaffold`, `BusinLayout`). Assets (illustrations, wordmark, night-bus photo, grain texture) live in `assets/`. Review everything in the student app's debug styleguide: `fvm flutter run --route /styleguide`.
+
