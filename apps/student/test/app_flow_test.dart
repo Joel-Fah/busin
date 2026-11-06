@@ -17,6 +17,7 @@ Future<void> open(
   addTearDown(tester.platformDispatcher.clearLocalesTestValue);
   await tester.pumpWidget(
     ProviderScope(
+      key: UniqueKey(),
       overrides: overridesFor(auth, profiles),
       child: const StudentApp(),
     ),
@@ -95,7 +96,7 @@ void main() {
 
   testWidgets('the other destinations are reachable and the app speaks French', (tester) async {
     await open(tester, FakeAuthService(signedInAs: 'u1'), FakeProfileRepository({'u1': profile()}), locale: const Locale('fr'));
-    for (final label in ['Code d’embarquement', 'Historique', 'Mon bus']) {
+    for (final label in ['Historique', 'Mon bus']) {
       await tester.tap(find.text(label));
       await tester.pumpAndSettle();
       expect(find.text('Bientôt disponible'), findsOneWidget, reason: label);

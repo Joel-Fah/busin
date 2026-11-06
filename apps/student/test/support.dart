@@ -5,6 +5,9 @@ import 'dart:typed_data';
 import 'package:busin_core/busin_core.dart';
 import 'package:busin_student/src/auth/auth_service.dart';
 import 'package:busin_student/src/providers.dart';
+import 'package:busin_student/src/qr/qr_providers.dart';
+import 'package:busin_student/src/qr/screen_security.dart';
+import 'package:busin_student/src/qr/secret_store.dart';
 import 'package:busin_student/src/school_clock.dart';
 import 'package:busin_student/src/subscription/proof_picker.dart';
 import 'package:busin_student/src/subscription/subscription_providers.dart';
@@ -193,11 +196,77 @@ PickedProof samplePhoto() => PickedProof(
       contentType: 'image/png',
     );
 
+// ---------------------------------------------------------------- boarding code fakes
+
+/// Bytes 0 to 31: the secret from the QR test vector.
+Uint8List testSecret() => Uint8List.fromList(List.generate(32, (i) => i));
+
+class FakeSecretStore implements SecretStore {
+  final Map<String, Uint8List> data = {};
+  int deleteAllCalls = 0;
+
+  @override
+  Future<Uint8List?> read(String userId) async => data[userId];
+
+  @override
+  Future<void> write(String userId, Uint8List secret) async => data[userId] = secret;
+
+  @override
+  Future<void> deleteAll() async {
+    deleteAllCalls++;
+    data.clear();
+  }
+}
+
+class FakeScreenSecurity implements ScreenSecurity {
+  FakeScreenSecurity({this.supported = true});
+
+  @override
+  final bool supported;
+
+  /// Every value the app asked for, in order.
+  final List<bool> calls = [];
+
+  @override
+  Future<void> setSecure(bool secure) async => calls.add(secure);
+}
+
+class FakeQr implements QrRepository {
+  FakeQr({Uint8List? secret}) : secret = secret ?? testSecret();
+
+  Uint8List secret;
+  Object? error;
+  int fetches = 0;
+
+  @override
+  Future<Uint8List> fetchSecret() async {
+    fetches++;
+    if (error != null) throw error!;
+    return secret;
+  }
+
+  @override
+  Future<Uint8List> rotateSecret() async => secret;
+}
+
+/// A clock the test moves by hand.
+class TestClock {
+  TestClock(this.now);
+
+  DateTime now;
+
+  DateTime call() => now;
+}
+
 List<Override> overridesFor(
   FakeAuthService auth,
   FakeProfileRepository profiles, {
   FakeBackend? backend,
   FakeProofPicker? picker,
+  FakeQr? qr,
+  FakeSecretStore? store,
+  FakeScreenSecurity? security,
+  TestClock? clock,
 }) {
   final b = backend ?? FakeBackend();
   return [
@@ -210,5 +279,9 @@ List<Override> overridesFor(
     proofsRepositoryProvider.overrideWithValue(b),
     proofPickerProvider.overrideWithValue(picker ?? FakeProofPicker()),
     schoolClockProvider.overrideWithValue(const SchoolClock()),
+    qrRepositoryProvider.overrideWithValue(qr ?? FakeQr()),
+    secretStoreProvider.overrideWithValue(store ?? FakeSecretStore()),
+    screenSecurityProvider.overrideWithValue(security ?? FakeScreenSecurity()),
+    if (clock != null) nowProvider.overrideWithValue(clock.call),
   ];
 }

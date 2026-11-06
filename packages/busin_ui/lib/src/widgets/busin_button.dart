@@ -80,6 +80,8 @@ class BusinButton extends StatelessWidget {
           minimumSize: Size(expand ? double.infinity : 64, 48),
           padding: const EdgeInsets.symmetric(horizontal: BusinSpace.x5),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(BusinRadius.sm)),
+          // A little heavier than body text, so a button reads as a button on a small, bright screen.
+          textStyle: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
         ),
         child: child,
       ),

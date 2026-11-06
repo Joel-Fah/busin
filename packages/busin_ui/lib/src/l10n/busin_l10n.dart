@@ -630,6 +630,66 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'This subscription is no longer valid. You can send a new request.'**
   String get statusExpiredBody;
+
+  /// No description provided for @qrTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Boarding code'**
+  String get qrTitle;
+
+  /// No description provided for @qrHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Show this code to the driver or staff when you board.'**
+  String get qrHint;
+
+  /// No description provided for @qrImageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Your boarding code. It changes every 30 seconds.'**
+  String get qrImageLabel;
+
+  /// No description provided for @qrRefreshesIn.
+  ///
+  /// In en, this message translates to:
+  /// **'New code in {seconds} s'**
+  String qrRefreshesIn(String seconds);
+
+  /// No description provided for @qrScreenshotsOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Screenshots are turned off here so a copy of your code cannot be shared.'**
+  String get qrScreenshotsOff;
+
+  /// No description provided for @qrNoSubscriptionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No active subscription'**
+  String get qrNoSubscriptionTitle;
+
+  /// No description provided for @qrNoSubscriptionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your boarding code appears as soon as your subscription is approved.'**
+  String get qrNoSubscriptionBody;
+
+  /// No description provided for @qrGoToSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to subscription'**
+  String get qrGoToSubscription;
+
+  /// No description provided for @qrOfflineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect once to set up your code'**
+  String get qrOfflineTitle;
+
+  /// No description provided for @qrOfflineBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone needs the internet one time to get your boarding code. After that it works without a connection.'**
+  String get qrOfflineBody;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {

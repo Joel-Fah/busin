@@ -116,5 +116,22 @@
   "statusRejectedNoReason": "Votre école n’a pas donné de motif.",
   "statusRequestAgain": "Refaire une demande",
   "statusExpiredTitle": "Abonnement terminé",
-  "statusExpiredBody": "Cet abonnement n’est plus valide. Vous pouvez envoyer une nouvelle demande."
+  "statusExpiredBody": "Cet abonnement n’est plus valide. Vous pouvez envoyer une nouvelle demande.",
+  "qrTitle": "Code d’embarquement",
+  "qrHint": "Présentez ce code au conducteur ou au personnel au moment de monter.",
+  "qrImageLabel": "Votre code d’embarquement. Il change toutes les 30 secondes.",
+  "qrRefreshesIn": "Nouveau code dans {seconds} s",
+  "@qrRefreshesIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "qrScreenshotsOff": "Les captures d’écran sont désactivées ici pour qu’une copie de votre code ne puisse pas être partagée.",
+  "qrNoSubscriptionTitle": "Aucun abonnement actif",
+  "qrNoSubscriptionBody": "Votre code d’embarquement apparaît dès que votre abonnement est approuvé.",
+  "qrGoToSubscription": "Aller à l’abonnement",
+  "qrOfflineTitle": "Connectez-vous une fois pour configurer votre code",
+  "qrOfflineBody": "Votre téléphone a besoin d’internet une seule fois pour obtenir votre code d’embarquement. Ensuite, il fonctionne sans connexion."
 }

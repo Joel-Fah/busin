@@ -30,7 +30,7 @@ class BlockedScreen extends ConsumerWidget {
           action: BusinButton(
             label: l10n.actionSignOut,
             variant: BusinButtonVariant.secondary,
-            onPressed: () => ref.read(authServiceProvider).signOut(),
+            onPressed: () => ref.read(signOutProvider)(),
           ),
         ),
       ),

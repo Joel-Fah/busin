@@ -68,7 +68,7 @@ class BusinTheme {
         headlineSmall: text.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
         titleLarge: text.titleLarge?.copyWith(fontWeight: FontWeight.w700),
         titleMedium: text.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-        labelLarge: text.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+        labelLarge: text.labelLarge?.copyWith(fontWeight: FontWeight.w700),
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: p.bg,
@@ -90,7 +90,7 @@ class BusinTheme {
           minimumSize: const Size(64, 48),
           padding: const EdgeInsets.symmetric(horizontal: BusinSpace.x5),
           shape: shape(BusinRadius.sm),
-          textStyle: text.labelLarge,
+          textStyle: text.labelLarge?.copyWith(fontWeight: FontWeight.w700),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -101,7 +101,7 @@ class BusinTheme {
           minimumSize: const Size(64, 48),
           padding: const EdgeInsets.symmetric(horizontal: BusinSpace.x5),
           shape: shape(BusinRadius.sm),
-          textStyle: text.labelLarge,
+          textStyle: text.labelLarge?.copyWith(fontWeight: FontWeight.w700),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
@@ -109,7 +109,7 @@ class BusinTheme {
           foregroundColor: p.fg,
           minimumSize: const Size(64, 48),
           shape: shape(BusinRadius.sm),
-          textStyle: text.labelLarge,
+          textStyle: text.labelLarge?.copyWith(fontWeight: FontWeight.w700),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(

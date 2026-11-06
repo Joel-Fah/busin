@@ -299,4 +299,39 @@ class BusinL10nEn extends BusinL10n {
   @override
   String get statusExpiredBody =>
       'This subscription is no longer valid. You can send a new request.';
+
+  @override
+  String get qrTitle => 'Boarding code';
+
+  @override
+  String get qrHint => 'Show this code to the driver or staff when you board.';
+
+  @override
+  String get qrImageLabel => 'Your boarding code. It changes every 30 seconds.';
+
+  @override
+  String qrRefreshesIn(String seconds) {
+    return 'New code in $seconds s';
+  }
+
+  @override
+  String get qrScreenshotsOff =>
+      'Screenshots are turned off here so a copy of your code cannot be shared.';
+
+  @override
+  String get qrNoSubscriptionTitle => 'No active subscription';
+
+  @override
+  String get qrNoSubscriptionBody =>
+      'Your boarding code appears as soon as your subscription is approved.';
+
+  @override
+  String get qrGoToSubscription => 'Go to subscription';
+
+  @override
+  String get qrOfflineTitle => 'Connect once to set up your code';
+
+  @override
+  String get qrOfflineBody =>
+      'Your phone needs the internet one time to get your boarding code. After that it works without a connection.';
 }

@@ -303,4 +303,42 @@ class BusinL10nFr extends BusinL10n {
   @override
   String get statusExpiredBody =>
       'Cet abonnement n’est plus valide. Vous pouvez envoyer une nouvelle demande.';
+
+  @override
+  String get qrTitle => 'Code d’embarquement';
+
+  @override
+  String get qrHint =>
+      'Présentez ce code au conducteur ou au personnel au moment de monter.';
+
+  @override
+  String get qrImageLabel =>
+      'Votre code d’embarquement. Il change toutes les 30 secondes.';
+
+  @override
+  String qrRefreshesIn(String seconds) {
+    return 'Nouveau code dans $seconds s';
+  }
+
+  @override
+  String get qrScreenshotsOff =>
+      'Les captures d’écran sont désactivées ici pour qu’une copie de votre code ne puisse pas être partagée.';
+
+  @override
+  String get qrNoSubscriptionTitle => 'Aucun abonnement actif';
+
+  @override
+  String get qrNoSubscriptionBody =>
+      'Votre code d’embarquement apparaît dès que votre abonnement est approuvé.';
+
+  @override
+  String get qrGoToSubscription => 'Aller à l’abonnement';
+
+  @override
+  String get qrOfflineTitle =>
+      'Connectez-vous une fois pour configurer votre code';
+
+  @override
+  String get qrOfflineBody =>
+      'Votre téléphone a besoin d’internet une seule fois pour obtenir votre code d’embarquement. Ensuite, il fonctionne sans connexion.';
 }
