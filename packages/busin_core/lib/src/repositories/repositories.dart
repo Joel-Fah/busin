@@ -23,6 +23,17 @@ import 'page.dart';
 abstract interface class ProfileRepository {
   /// A person's own profile. The server decides what a caller may read.
   Future<Profile> getProfile(String userId);
+
+  /// Saves the fields a person may change about themselves and returns the profile as the server now has it. Role,
+  /// status and school cannot be sent from here (see `Profile.editableJson`), and the server refuses them anyway.
+  Future<Profile> updateProfile(
+    String userId, {
+    String? fullName,
+    String? phone,
+    String? matricule,
+    String? department,
+    String? program,
+  });
 }
 
 abstract interface class SchoolRepository {

@@ -24,10 +24,20 @@ void main() {
 
     test('allowed students leave the gate pages and stay where they are otherwise', () {
       for (final gate in [Routes.signIn, Routes.loading, Routes.blocked, Routes.problem, '/']) {
-        expect(redirectFor(allowed, gate), Routes.subscription);
+        expect(redirectFor(allowed, gate), Routes.start);
       }
+      expect(redirectFor(allowed, Routes.start), isNull, reason: 'the landing page decides where to go next');
       expect(redirectFor(allowed, Routes.qr), isNull);
       expect(redirectFor(allowed, Routes.history), isNull);
+    });
+
+    test('a student who has not finished setting up sees only the setup page', () {
+      final setup = NeedsSetup(profile(complete: false));
+      expect(redirectFor(setup, Routes.qr), Routes.setup);
+      expect(redirectFor(setup, Routes.profile), Routes.setup);
+      expect(redirectFor(setup, Routes.setup), isNull);
+      // Once done they leave it, and cannot return by Back.
+      expect(redirectFor(allowed, Routes.setup), Routes.start);
     });
 
     test('while the logo is drawing, every page waits on the splash screen', () {
@@ -38,7 +48,7 @@ void main() {
       }
       // Once it ends, the usual rules decide.
       expect(redirectFor(const SignedOut(), Routes.loading), Routes.signIn);
-      expect(redirectFor(allowed, Routes.loading), Routes.subscription);
+      expect(redirectFor(allowed, Routes.loading), Routes.start);
     });
   });
 }

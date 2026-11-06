@@ -13,12 +13,15 @@ import 'map_scene.dart';
 /// for each stop, a 3D pin for the student's own stop, and a 3D bus for the bus. It does nothing the scene does not say, so all the
 /// decisions live in the screen and its providers, which are tested; this file only draws.
 class MapLibreSurface extends StatefulWidget {
-  const MapLibreSurface({super.key, required this.scene, required this.styleUrl, required this.darkStyleUrl, required this.recenter});
+  const MapLibreSurface({super.key, required this.scene, required this.styleUrl, required this.darkStyleUrl, required this.recenter, required this.busInView});
 
   final MapScene scene;
   final String styleUrl;
   final String darkStyleUrl;
   final ValueListenable<int> recenter;
+
+  /// Written by the surface: true while the bus is inside the visible part of the map.
+  final ValueNotifier<bool> busInView;
 
   @override
   State<MapLibreSurface> createState() => _MapLibreSurfaceState();
@@ -119,6 +122,25 @@ class _MapLibreSurfaceState extends State<MapLibreSurface> {
     }
     // Show the bus the first time it appears; after that the student moves the map and "Show the bus" brings it back.
     if (!_fitted) await _fit();
+    await _checkBusInView();
+  }
+
+  Size _size = Size.zero;
+
+  /// Whether the bus is in the part of the map the student can see: on the map, and above whatever floats over its
+  /// bottom edge. Logical pixels, as the map reports them.
+  Future<void> _checkBusInView() async {
+    final controller = _controller;
+    final bus = widget.scene.bus;
+    if (controller == null || !_styleReady || bus == null || _size.isEmpty) {
+      widget.busInView.value = false;
+      return;
+    }
+    final point = await controller.toScreenLocation(_latLng(bus));
+    if (!mounted) return;
+    const margin = 24.0;
+    final visibleBottom = _size.height - widget.scene.coveredBottom;
+    widget.busInView.value = point.x >= margin && point.x <= _size.width - margin && point.y >= margin && point.y <= visibleBottom - margin;
   }
 
   Future<void> _fit() async {
@@ -158,7 +180,9 @@ class _MapLibreSurfaceState extends State<MapLibreSurface> {
     final style = dark ? widget.darkStyleUrl : widget.styleUrl;
     if (_style != null && _style != style) _styleChanged();
     _style = style;
-    return Semantics(
+    return LayoutBuilder(builder: (context, constraints) {
+      _size = constraints.biggest;
+      return Semantics(
       label: BusinL10n.of(context).busMapLabel,
       child: MapLibreMap(
         styleString: style,
@@ -173,11 +197,13 @@ class _MapLibreSurfaceState extends State<MapLibreSurface> {
           _styleReady = true;
           _draw();
         },
+        onCameraIdle: _checkBusInView,
         compassEnabled: false,
         myLocationEnabled: false,
         rotateGesturesEnabled: false,
         tiltGesturesEnabled: false,
       ),
     );
+    });
   }
 }

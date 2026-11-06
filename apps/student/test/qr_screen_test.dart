@@ -8,7 +8,6 @@ import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 
 import 'support.dart';
 
@@ -202,9 +201,10 @@ void main() {
     tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
     addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
     await openQr(tester);
-    final image = tester.widget<QrImageView>(find.descendant(of: find.byKey(const ValueKey('boarding-code')), matching: find.byType(QrImageView)));
-    expect(image.backgroundColor, Colors.white);
-    expect(image.dataModuleStyle.color, BusinRamps.seed);
+    final painter = tester.widget<CustomPaint>(find.descendant(of: find.byKey(const ValueKey('boarding-code')), matching: find.byType(CustomPaint)).first).painter! as ScrambleQrPainter;
+    expect(painter.color, BoardingCodeImage.ink);
+    expect(BoardingCodeImage.paper, Colors.white);
+    expect(contrastRatio(BoardingCodeImage.ink, BoardingCodeImage.paper), greaterThan(12));
   });
 
   testWidgets('speaks French', (tester) async {

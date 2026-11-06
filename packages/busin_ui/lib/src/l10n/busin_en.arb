@@ -54,6 +54,48 @@
       }
     }
   },
+  "setupWelcome": "Welcome, {name}",
+  "@setupWelcome": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "setupBody": "Tell your school who you are so the driver can find you. It takes a minute.",
+  "setupSave": "Save and continue",
+  "setupNotYou": "Not you? Sign out",
+  "fieldFullName": "Full name",
+  "fieldFullNameHint": "As on your student card",
+  "fieldMatricule": "Student number",
+  "fieldMatriculeHint": "For example ICT2026-0001",
+  "fieldPhone": "Phone number",
+  "fieldPhoneHint": "For example 677 12 34 56",
+  "fieldDepartment": "Department",
+  "fieldDepartmentHint": "Optional, e.g. Engineering",
+  "fieldProgram": "Program",
+  "fieldProgramHint": "Optional, e.g. Computing",
+  "fieldTooShort": "That looks too short.",
+  "fieldTooLong": "That is too long.",
+  "fieldInvalid": "Check this one: it has characters we cannot use.",
+  "profileTitle": "Your profile",
+  "profileOpen": "Open your profile",
+  "profileDetails": "Your details",
+  "profileEdit": "Edit details",
+  "profileNotSet": "Not set",
+  "profileMemberSince": "Member since {date}",
+  "@profileMemberSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "profileSaved": "Details saved.",
+  "profileSignOut": "Sign out",
+  "profileSignOutTitle": "Sign out of BusIn?",
+  "profileSignOutBody": "You will need to sign in with Google again.",
+  "profileCredits": "3D illustrations by Thiings (thiings.co)",
   "fieldRequired": "This field is required.",
   "loadingLabel": "Loading",
   "appName": "BusIn",

@@ -126,3 +126,15 @@ SubscribeFailure failureFor(Object error) => switch (error) {
       Invalid() => SubscribeFailure.rejectedFile,
       _ => SubscribeFailure.other,
     };
+
+/// Where a signed-in student should land when the app opens: on the boarding code if they already have an approved
+/// subscription (that is what they need at the door), otherwise on the subscription tab. Any trouble reading it falls back
+/// to the subscription tab, which explains and can retry.
+final landingPathProvider = FutureProvider.autoDispose<String>((ref) async {
+  try {
+    final overview = await ref.watch(subscriptionOverviewProvider.future);
+    return overview.subscription?.status == SubscriptionStatus.approved ? '/qr' : '/subscription';
+  } catch (_) {
+    return '/subscription';
+  }
+});

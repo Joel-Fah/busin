@@ -119,6 +119,96 @@ class BusinL10nEn extends BusinL10n {
   }
 
   @override
+  String setupWelcome(String name) {
+    return 'Welcome, $name';
+  }
+
+  @override
+  String get setupBody =>
+      'Tell your school who you are so the driver can find you. It takes a minute.';
+
+  @override
+  String get setupSave => 'Save and continue';
+
+  @override
+  String get setupNotYou => 'Not you? Sign out';
+
+  @override
+  String get fieldFullName => 'Full name';
+
+  @override
+  String get fieldFullNameHint => 'As on your student card';
+
+  @override
+  String get fieldMatricule => 'Student number';
+
+  @override
+  String get fieldMatriculeHint => 'For example ICT2026-0001';
+
+  @override
+  String get fieldPhone => 'Phone number';
+
+  @override
+  String get fieldPhoneHint => 'For example 677 12 34 56';
+
+  @override
+  String get fieldDepartment => 'Department';
+
+  @override
+  String get fieldDepartmentHint => 'Optional, e.g. Engineering';
+
+  @override
+  String get fieldProgram => 'Program';
+
+  @override
+  String get fieldProgramHint => 'Optional, e.g. Computing';
+
+  @override
+  String get fieldTooShort => 'That looks too short.';
+
+  @override
+  String get fieldTooLong => 'That is too long.';
+
+  @override
+  String get fieldInvalid => 'Check this one: it has characters we cannot use.';
+
+  @override
+  String get profileTitle => 'Your profile';
+
+  @override
+  String get profileOpen => 'Open your profile';
+
+  @override
+  String get profileDetails => 'Your details';
+
+  @override
+  String get profileEdit => 'Edit details';
+
+  @override
+  String get profileNotSet => 'Not set';
+
+  @override
+  String profileMemberSince(String date) {
+    return 'Member since $date';
+  }
+
+  @override
+  String get profileSaved => 'Details saved.';
+
+  @override
+  String get profileSignOut => 'Sign out';
+
+  @override
+  String get profileSignOutTitle => 'Sign out of BusIn?';
+
+  @override
+  String get profileSignOutBody =>
+      'You will need to sign in with Google again.';
+
+  @override
+  String get profileCredits => '3D illustrations by Thiings (thiings.co)';
+
+  @override
   String get fieldRequired => 'This field is required.';
 
   @override

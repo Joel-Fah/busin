@@ -120,6 +120,96 @@ class BusinL10nFr extends BusinL10n {
   }
 
   @override
+  String setupWelcome(String name) {
+    return 'Bienvenue, $name';
+  }
+
+  @override
+  String get setupBody =>
+      'Dites à votre école qui vous êtes pour que le conducteur puisse vous retrouver. Cela prend une minute.';
+
+  @override
+  String get setupSave => 'Enregistrer et continuer';
+
+  @override
+  String get setupNotYou => 'Ce n’est pas vous ? Se déconnecter';
+
+  @override
+  String get fieldFullName => 'Nom complet';
+
+  @override
+  String get fieldFullNameHint => 'Comme sur votre carte d’étudiant';
+
+  @override
+  String get fieldMatricule => 'Matricule';
+
+  @override
+  String get fieldMatriculeHint => 'Par exemple ICT2026-0001';
+
+  @override
+  String get fieldPhone => 'Numéro de téléphone';
+
+  @override
+  String get fieldPhoneHint => 'Par exemple 677 12 34 56';
+
+  @override
+  String get fieldDepartment => 'Département';
+
+  @override
+  String get fieldDepartmentHint => 'Facultatif, ex. Ingénierie';
+
+  @override
+  String get fieldProgram => 'Filière';
+
+  @override
+  String get fieldProgramHint => 'Facultatif, ex. Informatique';
+
+  @override
+  String get fieldTooShort => 'Cela semble trop court.';
+
+  @override
+  String get fieldTooLong => 'C’est trop long.';
+
+  @override
+  String get fieldInvalid =>
+      'Vérifiez ce champ : il contient des caractères non acceptés.';
+
+  @override
+  String get profileTitle => 'Votre profil';
+
+  @override
+  String get profileOpen => 'Ouvrir votre profil';
+
+  @override
+  String get profileDetails => 'Vos informations';
+
+  @override
+  String get profileEdit => 'Modifier';
+
+  @override
+  String get profileNotSet => 'Non renseigné';
+
+  @override
+  String profileMemberSince(String date) {
+    return 'Membre depuis le $date';
+  }
+
+  @override
+  String get profileSaved => 'Informations enregistrées.';
+
+  @override
+  String get profileSignOut => 'Se déconnecter';
+
+  @override
+  String get profileSignOutTitle => 'Se déconnecter de BusIn ?';
+
+  @override
+  String get profileSignOutBody => 'Vous devrez vous reconnecter avec Google.';
+
+  @override
+  String get profileCredits => 'Illustrations 3D par Thiings (thiings.co)';
+
+  @override
   String get fieldRequired => 'Ce champ est obligatoire.';
 
   @override

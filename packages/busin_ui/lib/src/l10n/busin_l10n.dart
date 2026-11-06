@@ -307,6 +307,174 @@ abstract class BusinL10n {
   /// **'Picture of {name}'**
   String avatarOf(String name);
 
+  /// No description provided for @setupWelcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome, {name}'**
+  String setupWelcome(String name);
+
+  /// No description provided for @setupBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell your school who you are so the driver can find you. It takes a minute.'**
+  String get setupBody;
+
+  /// No description provided for @setupSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save and continue'**
+  String get setupSave;
+
+  /// No description provided for @setupNotYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Not you? Sign out'**
+  String get setupNotYou;
+
+  /// No description provided for @fieldFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name'**
+  String get fieldFullName;
+
+  /// No description provided for @fieldFullNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'As on your student card'**
+  String get fieldFullNameHint;
+
+  /// No description provided for @fieldMatricule.
+  ///
+  /// In en, this message translates to:
+  /// **'Student number'**
+  String get fieldMatricule;
+
+  /// No description provided for @fieldMatriculeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For example ICT2026-0001'**
+  String get fieldMatriculeHint;
+
+  /// No description provided for @fieldPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number'**
+  String get fieldPhone;
+
+  /// No description provided for @fieldPhoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For example 677 12 34 56'**
+  String get fieldPhoneHint;
+
+  /// No description provided for @fieldDepartment.
+  ///
+  /// In en, this message translates to:
+  /// **'Department'**
+  String get fieldDepartment;
+
+  /// No description provided for @fieldDepartmentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional, e.g. Engineering'**
+  String get fieldDepartmentHint;
+
+  /// No description provided for @fieldProgram.
+  ///
+  /// In en, this message translates to:
+  /// **'Program'**
+  String get fieldProgram;
+
+  /// No description provided for @fieldProgramHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional, e.g. Computing'**
+  String get fieldProgramHint;
+
+  /// No description provided for @fieldTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'That looks too short.'**
+  String get fieldTooShort;
+
+  /// No description provided for @fieldTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'That is too long.'**
+  String get fieldTooLong;
+
+  /// No description provided for @fieldInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Check this one: it has characters we cannot use.'**
+  String get fieldInvalid;
+
+  /// No description provided for @profileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your profile'**
+  String get profileTitle;
+
+  /// No description provided for @profileOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open your profile'**
+  String get profileOpen;
+
+  /// No description provided for @profileDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Your details'**
+  String get profileDetails;
+
+  /// No description provided for @profileEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit details'**
+  String get profileEdit;
+
+  /// No description provided for @profileNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get profileNotSet;
+
+  /// No description provided for @profileMemberSince.
+  ///
+  /// In en, this message translates to:
+  /// **'Member since {date}'**
+  String profileMemberSince(String date);
+
+  /// No description provided for @profileSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Details saved.'**
+  String get profileSaved;
+
+  /// No description provided for @profileSignOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get profileSignOut;
+
+  /// No description provided for @profileSignOutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out of BusIn?'**
+  String get profileSignOutTitle;
+
+  /// No description provided for @profileSignOutBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You will need to sign in with Google again.'**
+  String get profileSignOutBody;
+
+  /// No description provided for @profileCredits.
+  ///
+  /// In en, this message translates to:
+  /// **'3D illustrations by Thiings (thiings.co)'**
+  String get profileCredits;
+
   /// No description provided for @fieldRequired.
   ///
   /// In en, this message translates to:

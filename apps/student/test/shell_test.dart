@@ -47,6 +47,8 @@ Future<void> run(
   );
   await tester.pump(const Duration(seconds: 1));
   await tester.pump(const Duration(seconds: 1));
+  // The landing page looks up where to go, then moves on.
+  await tester.pump(const Duration(seconds: 1));
 }
 
 void main() {
@@ -107,6 +109,7 @@ void main() {
     final auth = FakeAuthService();
     await run(tester, const Size(412, 915), auth: auth);
     await tester.tap(find.text('Continue with Google'));
+    await tester.pump(const Duration(seconds: 1));
     await tester.pump(const Duration(seconds: 1));
     await tester.pump(const Duration(seconds: 1));
     expect(find.byType(FloatingNavBar), findsOneWidget, reason: 'signed in, so the app opens');

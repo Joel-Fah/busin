@@ -14,7 +14,7 @@ import 'illustration.dart';
 /// (the banner clips it), and the stitched thread inside. It is the same in light and dark: the banner is always teal.
 /// It grows with its words and never gets shorter than [minHeight].
 class BusinBanner extends StatelessWidget {
-  const BusinBanner({super.key, required this.title, this.eyebrow, this.body, this.art, this.minHeight = 188, this.child});
+  const BusinBanner({super.key, required this.title, this.eyebrow, this.body, this.art, this.minHeight = 188, this.child, this.trailing});
 
   final String title;
 
@@ -26,6 +26,9 @@ class BusinBanner extends StatelessWidget {
 
   /// Anything extra under the words (a chip, a row of facts).
   final Widget? child;
+
+  /// A small control in the top right corner (the person's avatar, opening their profile).
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +55,10 @@ class BusinBanner extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       if (eyebrow != null) ...[
-                        Text(eyebrow!, style: text.labelLarge?.copyWith(color: Colors.white.withValues(alpha: 0.7))),
+                        Padding(
+                          padding: EdgeInsets.only(right: trailing != null ? 52 : 0),
+                          child: Text(eyebrow!, style: text.labelLarge?.copyWith(color: Colors.white.withValues(alpha: 0.7))),
+                        ),
                         const SizedBox(height: BusinSpace.x2),
                       ],
                       // Leave room for the art on the right.
@@ -71,6 +77,7 @@ class BusinBanner extends StatelessWidget {
                     ],
                   ),
                 ),
+                if (trailing != null) Positioned(top: BusinSpace.x4, right: BusinSpace.x4, child: trailing!),
               ],
             ),
           ),
