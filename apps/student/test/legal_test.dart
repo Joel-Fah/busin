@@ -61,6 +61,53 @@ void main() {
     });
   });
 
+  group('on a wide screen', () {
+    testWidgets('the contents stay in place and tapping a part scrolls to it', (tester) async {
+      await openProfile(tester, size: const Size(1280, 800));
+      await tester.scrollUntilVisible(find.text('Privacy policy'), 200, scrollable: find.byType(Scrollable).last);
+      await tester.tap(find.text('Privacy policy'));
+      await tester.pump(const Duration(milliseconds: 800));
+      expect(find.text('On this page'), findsOneWidget);
+
+      final entry = find.text('How long we keep it');
+      expect(entry, findsNWidgets(2), reason: 'once in the contents, once as the part title');
+      final before = tester.getTopLeft(find.text('On this page'));
+      final contentsEntry = entry.first;
+      await tester.tap(contentsEntry);
+      // An animation starts on the first frame, so it needs a second one to move.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 900));
+      // The part now sits near the top of the reading area, and the contents did not move.
+      expect(tester.getTopLeft(entry.last).dy, lessThan(260));
+      expect(tester.getTopLeft(find.text('On this page')), before);
+    });
+
+    testWidgets('on a phone there is no contents column', (tester) async {
+      await openProfile(tester, size: const Size(412, 915));
+      await tester.scrollUntilVisible(find.text('Privacy policy'), 200, scrollable: find.byType(Scrollable).first);
+      await tester.ensureVisible(find.text('Privacy policy'));
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.tap(find.text('Privacy policy'));
+      await tester.pump(const Duration(milliseconds: 800));
+      expect(find.text('What we keep'), findsOneWidget, reason: 'the page opened');
+      expect(find.text('On this page'), findsNothing);
+    });
+  });
+
+  group('the profile on a wide screen', () {
+    testWidgets('the identity is centred in its card and stays while the other column scrolls', (tester) async {
+      await openProfile(tester, size: const Size(1280, 800));
+      final card = find.ancestor(of: find.text('Test Person'), matching: find.byType(BusinCard)).first;
+      expect(tester.getCenter(find.text('Test Person')).dx, closeTo(tester.getCenter(card).dx, 2), reason: 'centred in the card, not at its start');
+
+      final before = tester.getTopLeft(find.text('Test Person'));
+      await tester.drag(find.text('Edit details'), const Offset(0, -400));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(tester.getTopLeft(find.text('Test Person')), before, reason: 'the left column did not move');
+      expect(find.text('Terms of use'), findsOneWidget, reason: 'the right column scrolled to the legal card');
+    });
+  });
+
   group('in the app', () {
     testWidgets('the profile lists the three documents and one opens as a page with the first part open', (tester) async {
       await openProfile(tester);
@@ -73,13 +120,14 @@ void main() {
       expect(find.text('In short'), findsOneWidget);
       expect(find.textContaining('Updated'), findsOneWidget);
       expect(find.text('What we keep'), findsOneWidget);
-      // The first part is open, the second is closed.
+      // Every part is open from the start, and any of them can be closed.
       expect(find.textContaining('Your name, school email'), findsOneWidget);
-      expect(find.textContaining('To let your school review'), findsNothing);
+      expect(find.textContaining('To let your school review'), findsOneWidget);
+      expect(find.byType(Image), findsWidgets, reason: 'the banner photo');
 
       await tester.tap(find.text('Why we keep it'));
       await tester.pump(const Duration(milliseconds: 600));
-      expect(find.textContaining('To let your school review'), findsOneWidget);
+      expect(find.textContaining('To let your school review'), findsNothing);
     });
 
     testWidgets('from a document the other two are one tap away, and back returns to the profile', (tester) async {

@@ -807,4 +807,7 @@ class BusinL10nFr extends BusinL10n {
   String legalReadTime(int minutes) {
     return '$minutes min de lecture';
   }
+
+  @override
+  String get legalOnThisPage => 'Sur cette page';
 }

@@ -397,5 +397,6 @@
         "type": "int"
       }
     }
-  }
+  },
+  "legalOnThisPage": "On this page"
 }

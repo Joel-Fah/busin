@@ -90,7 +90,10 @@ class ProfileScreen extends ConsumerWidget {
     }
 
     final identity = StaggeredIn(
-      child: Column(
+      // Fill the width: a column only as wide as its content sits at the start of a wider card, not in its middle.
+      child: SizedBox(
+        width: double.infinity,
+        child: Column(
         children: [
           UserAvatar(name: profile.fullName, email: profile.email, imageUrl: profile.avatarUrl, size: 96, semanticLabel: profile.fullName),
           const SizedBox(height: BusinSpace.x4),
@@ -108,6 +111,7 @@ class ProfileScreen extends ConsumerWidget {
             ],
           ),
         ],
+      ),
       ),
     );
     final details = StaggeredIn(
@@ -220,18 +224,21 @@ class ProfileScreen extends ConsumerWidget {
     final padding = EdgeInsets.fromLTRB(BusinSpace.x5, BusinSpace.x4, BusinSpace.x5, BusinSpace.x8 + BusinScope.of(context).bottomInset);
     final expanded = BusinLayout.of(context).isExpanded;
 
-    // A wide screen, two columns: who you are, with signing out, on the left; the details and the history on the right.
+    // A wide screen, two columns that scroll on their own: who you are, with signing out, stays in place on the left
+    // (it scrolls by itself only when the screen is too short for it); the details and the rest scroll on the right.
     if (expanded) {
+      final side = EdgeInsets.only(top: padding.top, bottom: padding.bottom);
       return ContentColumn(
         maxWidth: 1180,
-        child: ListView(
-          padding: padding,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  flex: 4,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: padding.left),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 4,
+                child: SingleChildScrollView(
+                  padding: side,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -241,17 +248,20 @@ class ProfileScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: BusinSpace.x8),
-                Expanded(
-                  flex: 5,
+              ),
+              const SizedBox(width: BusinSpace.x8),
+              Expanded(
+                flex: 5,
+                child: SingleChildScrollView(
+                  padding: side,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [details, const SizedBox(height: BusinSpace.x4), history, const SizedBox(height: BusinSpace.x4), appearance, const SizedBox(height: BusinSpace.x4), legal],
                   ),
                 ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       );
     }

@@ -326,5 +326,6 @@
         "type": "int"
       }
     }
-  }
+  },
+  "legalOnThisPage": "Sur cette page"
 }

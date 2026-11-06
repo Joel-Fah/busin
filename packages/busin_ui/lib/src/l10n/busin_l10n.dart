@@ -1518,6 +1518,12 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'{minutes} min read'**
   String legalReadTime(int minutes);
+
+  /// No description provided for @legalOnThisPage.
+  ///
+  /// In en, this message translates to:
+  /// **'On this page'**
+  String get legalOnThisPage;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {
