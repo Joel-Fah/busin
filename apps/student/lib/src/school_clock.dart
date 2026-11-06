@@ -11,6 +11,11 @@ class SchoolClock {
   /// Today at [zone] (an IANA name such as `Africa/Douala`) as a plain date, midnight, no zone.
   /// An unknown zone falls back to UTC rather than failing the screen.
   DateTime today(String zone, {DateTime? now}) {
+    final local = _toZone(zone, now ?? DateTime.now());
+    return DateTime(local.year, local.month, local.day);
+  }
+
+  tz.TZDateTime _toZone(String zone, DateTime instant) {
     if (!_loaded) {
       tz_data.initializeTimeZones();
       _loaded = true;
@@ -21,7 +26,13 @@ class SchoolClock {
     } catch (_) {
       location = tz.UTC;
     }
-    final local = tz.TZDateTime.from(now ?? DateTime.now(), location);
-    return DateTime(local.year, local.month, local.day);
+    return tz.TZDateTime.from(instant, location);
+  }
+
+  /// The wall-clock time an instant was at the school, as a plain date and time with no zone. Used to
+  /// show when a boarding happened and to group boardings by the day it was at the school.
+  DateTime wallClock(String zone, DateTime instant) {
+    final local = _toZone(zone, instant);
+    return DateTime(local.year, local.month, local.day, local.hour, local.minute, local.second);
   }
 }

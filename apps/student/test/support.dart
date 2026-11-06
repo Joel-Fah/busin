@@ -122,6 +122,9 @@ class FakeBackend implements SchoolRepository, SemestersRepository, StopsReposit
   final List<Stop> stops;
   final List<Subscription> mine;
 
+  /// Stops that are not in the active list but can still be fetched by id (a stop taken out of service).
+  final Map<String, Stop> hiddenStops = {};
+
   /// Set to make the next request or upload fail.
   Object? requestError;
   Object? uploadError;
@@ -146,7 +149,11 @@ class FakeBackend implements SchoolRepository, SemestersRepository, StopsReposit
   Future<List<Stop>> listActiveStops() async => stops;
 
   @override
-  Future<Stop> getStop(String stopId) async => stops.firstWhere((s) => s.id == stopId);
+  Future<Stop> getStop(String stopId) async {
+    final hidden = hiddenStops[stopId];
+    if (hidden != null) return hidden;
+    return stops.firstWhere((s) => s.id == stopId, orElse: () => throw const NotFound('stop'));
+  }
 
   @override
   Future<List<Subscription>> listForStudent(String studentId, {PageRequest page = const PageRequest()}) async => mine.where((s) => s.studentId == studentId).toList();
@@ -195,6 +202,78 @@ PickedProof samplePhoto() => PickedProof(
       bytes: base64Decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='),
       contentType: 'image/png',
     );
+
+// ---------------------------------------------------------------- history fakes
+
+Scan scan(int n, {String tripId = 'trip1', String? stopId = 'stop1', required DateTime at}) => Scan(
+      id: 'scan$n',
+      schoolId: 's1',
+      tripId: tripId,
+      studentId: 'u1',
+      subscriptionId: 'sub1',
+      stopId: stopId,
+      scannedBy: 'staff1',
+      scannedAt: at,
+    );
+
+Trip trip(String id, TripDirection direction) => Trip(
+      id: id,
+      schoolId: 's1',
+      busId: 'bus1',
+      direction: direction,
+      status: TripStatus.completed,
+      scheduledStart: DateTime.utc(2026, 11, 1, 6),
+    );
+
+/// The student's scans (newest first, as the server returns them) and the trips they were on.
+class FakeHistory implements ScansRepository, TripsRepository {
+  FakeHistory({List<Scan>? scans, List<Trip>? trips})
+      : scans = scans ?? [],
+        trips = trips ?? [trip('trip1', TripDirection.inbound), trip('trip2', TripDirection.outbound)];
+
+  final List<Scan> scans;
+  final List<Trip> trips;
+
+  /// Offsets asked for, in order.
+  final List<int> offsets = [];
+  final List<int> limits = [];
+  int tripLookups = 0;
+
+  /// Makes the first request for this offset (and only that one) fail.
+  int? failOnceAtOffset;
+  Object? failAlways;
+
+  @override
+  Future<List<Scan>> listForStudent(String studentId, {PageRequest page = const PageRequest()}) async {
+    offsets.add(page.offset);
+    limits.add(page.limit);
+    if (failAlways != null) throw failAlways!;
+    if (failOnceAtOffset == page.offset) {
+      failOnceAtOffset = null;
+      throw const Offline('down');
+    }
+    return scans.skip(page.offset).take(page.limit).toList();
+  }
+
+  @override
+  Future<List<Trip>> listByIds(List<String> tripIds) async {
+    tripLookups++;
+    return trips.where((t) => tripIds.contains(t.id)).toList();
+  }
+
+  @override
+  Future<ScanOutcome> recordScan({required String tripId, required String code, String? stopId, GeoPoint? location, double? accuracyMeters}) =>
+      throw UnimplementedError();
+
+  @override
+  Future<List<Scan>> listForTrip(String tripId, {PageRequest page = const PageRequest()}) => throw UnimplementedError();
+
+  @override
+  Future<List<Trip>> listForDriver(String driverId, {required DateTime from, required DateTime to}) => throw UnimplementedError();
+
+  @override
+  Future<Trip> getTrip(String tripId) => throw UnimplementedError();
+}
 
 // ---------------------------------------------------------------- boarding code fakes
 
@@ -263,12 +342,14 @@ List<Override> overridesFor(
   FakeProfileRepository profiles, {
   FakeBackend? backend,
   FakeProofPicker? picker,
+  FakeHistory? history,
   FakeQr? qr,
   FakeSecretStore? store,
   FakeScreenSecurity? security,
   TestClock? clock,
 }) {
   final b = backend ?? FakeBackend();
+  final h = history ?? FakeHistory();
   return [
     authServiceProvider.overrideWithValue(auth),
     profileRepositoryProvider.overrideWithValue(profiles),
@@ -279,6 +360,8 @@ List<Override> overridesFor(
     proofsRepositoryProvider.overrideWithValue(b),
     proofPickerProvider.overrideWithValue(picker ?? FakeProofPicker()),
     schoolClockProvider.overrideWithValue(const SchoolClock()),
+    scansRepositoryProvider.overrideWithValue(h),
+    tripsRepositoryProvider.overrideWithValue(h),
     qrRepositoryProvider.overrideWithValue(qr ?? FakeQr()),
     secretStoreProvider.overrideWithValue(store ?? FakeSecretStore()),
     screenSecurityProvider.overrideWithValue(security ?? FakeScreenSecurity()),

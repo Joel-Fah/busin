@@ -212,6 +212,14 @@ class SupabaseTripsRepository implements TripsRepository {
         final row = await _client.from('trips').select(Columns.trip).eq('id', tripId).single();
         return Trip.fromJson(row);
       });
+
+  @override
+  Future<List<Trip>> listByIds(List<String> tripIds) => guarded(() async {
+        if (tripIds.isEmpty) return const <Trip>[];
+        if (tripIds.length > PageRequest.maxLimit) throw const Invalid('Too many trips asked for at once.');
+        final data = await _client.from('trips').select(Columns.trip).inFilter('id', tripIds);
+        return _rows(data).map(Trip.fromJson).toList(growable: false);
+      });
 }
 
 class SupabaseScansRepository implements ScansRepository {
@@ -236,6 +244,21 @@ class SupabaseScansRepository implements ScansRepository {
           'p_accuracy': accuracyMeters,
         });
         return ScanOutcome.fromJson(result);
+      });
+
+  @override
+  Future<List<Scan>> listForStudent(
+    String studentId, {
+    PageRequest page = const PageRequest(),
+  }) =>
+      guarded(() async {
+        final data = await _client
+            .from('scans')
+            .select(Columns.scan)
+            .eq('student_id', studentId)
+            .order('scanned_at', ascending: false)
+            .range(page.offset, page.lastIndex);
+        return _rows(data).map(Scan.fromJson).toList(growable: false);
       });
 
   @override

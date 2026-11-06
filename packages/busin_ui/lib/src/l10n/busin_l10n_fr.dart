@@ -341,4 +341,21 @@ class BusinL10nFr extends BusinL10n {
   @override
   String get qrOfflineBody =>
       'Votre téléphone a besoin d’internet une seule fois pour obtenir votre code d’embarquement. Ensuite, il fonctionne sans connexion.';
+
+  @override
+  String get historyTitle => 'Vos embarquements';
+
+  @override
+  String get historyEmptyTitle => 'Aucun embarquement pour le moment';
+
+  @override
+  String get historyEmptyBody =>
+      'Chaque fois que vous montez avec votre code, il apparaît ici.';
+
+  @override
+  String get historyStopUnknown => 'Arrêt non enregistré';
+
+  @override
+  String get historyLoadMoreFailed =>
+      'Impossible de charger la suite. Touchez pour réessayer.';
 }

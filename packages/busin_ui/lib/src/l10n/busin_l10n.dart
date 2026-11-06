@@ -690,6 +690,36 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'Your phone needs the internet one time to get your boarding code. After that it works without a connection.'**
   String get qrOfflineBody;
+
+  /// No description provided for @historyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your boardings'**
+  String get historyTitle;
+
+  /// No description provided for @historyEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No boardings yet'**
+  String get historyEmptyTitle;
+
+  /// No description provided for @historyEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Each time you board with your code, it appears here.'**
+  String get historyEmptyBody;
+
+  /// No description provided for @historyStopUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop not recorded'**
+  String get historyStopUnknown;
+
+  /// No description provided for @historyLoadMoreFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load more. Tap to try again.'**
+  String get historyLoadMoreFailed;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {

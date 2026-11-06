@@ -101,6 +101,10 @@ abstract interface class TripsRepository {
   });
 
   Future<Trip> getTrip(String tripId);
+
+  /// The trips with these ids, in no particular order. At most [PageRequest.maxLimit] ids at a time;
+  /// ids a caller may not read are left out.
+  Future<List<Trip>> listByIds(List<String> tripIds);
 }
 
 abstract interface class ScansRepository {
@@ -113,6 +117,12 @@ abstract interface class ScansRepository {
     String? stopId,
     GeoPoint? location,
     double? accuracyMeters,
+  });
+
+  /// A student's own boardings, newest first. The server returns only the caller's own.
+  Future<List<Scan>> listForStudent(
+    String studentId, {
+    PageRequest page = const PageRequest(),
   });
 
   /// The boardings of one trip, newest first.

@@ -12,6 +12,16 @@ final subscriptionsRepositoryProvider = Provider<SubscriptionsRepository>((ref) 
 final proofsRepositoryProvider = Provider<ProofsRepository>((ref) => ref.watch(repositoriesProvider).proofs);
 final schoolRepositoryProvider = Provider<SchoolRepository>((ref) => ref.watch(repositoriesProvider).schools);
 
+final scansRepositoryProvider = Provider<ScansRepository>((ref) => ref.watch(repositoriesProvider).scans);
+final tripsRepositoryProvider = Provider<TripsRepository>((ref) => ref.watch(repositoriesProvider).trips);
+
+/// The student's school, for its time zone. Read once while the screen that needs it is alive.
+final schoolProvider = FutureProvider.autoDispose<School>((ref) {
+  final access = ref.watch(accessProvider);
+  if (access is! Allowed) throw StateError('Only an allowed student has a school here.');
+  return ref.watch(schoolRepositoryProvider).getSchool(access.profile.schoolId);
+});
+
 final schoolClockProvider = Provider<SchoolClock>((ref) => const SchoolClock());
 final proofPickerProvider = Provider<ProofPicker>((ref) => ImagePickerProofPicker());
 
@@ -56,7 +66,7 @@ final subscriptionOverviewProvider = FutureProvider.autoDispose<SubscriptionOver
   if (access is! Allowed) throw StateError('The subscription page is only for an allowed student.');
   final profile = access.profile;
 
-  final school = await ref.watch(schoolRepositoryProvider).getSchool(profile.schoolId);
+  final school = await ref.watch(schoolProvider.future);
   final today = ref.watch(schoolClockProvider).today(school.timezone);
 
   final semesters = ref.watch(semestersRepositoryProvider);

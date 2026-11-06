@@ -152,5 +152,10 @@
   "qrNoSubscriptionBody": "Your boarding code appears as soon as your subscription is approved.",
   "qrGoToSubscription": "Go to subscription",
   "qrOfflineTitle": "Connect once to set up your code",
-  "qrOfflineBody": "Your phone needs the internet one time to get your boarding code. After that it works without a connection."
+  "qrOfflineBody": "Your phone needs the internet one time to get your boarding code. After that it works without a connection.",
+  "historyTitle": "Your boardings",
+  "historyEmptyTitle": "No boardings yet",
+  "historyEmptyBody": "Each time you board with your code, it appears here.",
+  "historyStopUnknown": "Stop not recorded",
+  "historyLoadMoreFailed": "Could not load more. Tap to try again."
 }

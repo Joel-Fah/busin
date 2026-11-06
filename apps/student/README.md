@@ -11,7 +11,8 @@ Created in [Phase 3](../../docs/phases/phase-3-student-app.md). It contains no s
 | 1 | Shell: theme, English and French, Google sign-in, session in secure storage, role and status gate, four-tab frame | Done |
 | 2 | Subscribe with a stop and a private proof upload, status tracking | Done (this branch) |
 | 3 | Rotating QR code with screenshot protection | Done (this branch) |
-| 4 | Scan history, live bus map | Next |
+| 4a | Scan history | Done (this branch) |
+| 4b | Live bus map | Next |
 | 5 | Push notifications (needs the owner's Firebase project) | |
 
 ## How it fits together
@@ -36,6 +37,12 @@ Created in [Phase 3](../../docs/phases/phase-3-student-app.md). It contains no s
 - The code is drawn dark on white in both themes, with a countdown to the next one.
 - On Android the screen is marked secure while the Boarding code tab shows (no screenshots, no screen recording, blank recent-apps preview). iOS cannot block screenshots, so there the note is not shown and nothing is claimed.
 - Known limit: the code depends on the phone's clock. Phones set to automatic time are fine (the server accepts one 30-second window either side); a badly wrong clock gives codes the server refuses. Detecting clock skew against the server is not built yet.
+
+## Scan history
+
+- The History tab lists the student's own boardings, newest first, grouped by the day **at the school** (the school's IANA zone, not the phone's). Each row shows the stop, the direction of the trip and the time.
+- Pages of 20 load as the list is scrolled near its end, and also when a page does not fill the screen. One trip request per page, not per row. A failed page keeps the list and shows a retry row; scrolling never retries a failure by itself.
+- The server decides what a student may read: asking for another student's boardings returns nothing (see the live test).
 
 ## Run it
 
