@@ -69,6 +69,32 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"departments": {
+                  Row: {
+                    "code": string | null,"created_at": string,"faculty_id": string,"id": string,"name": string,"school_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "code"?: string | null,"created_at"?: string,"faculty_id": string,"id"?: string,"name": string,"school_id": string
+                  }
+                  Update: {
+                    "code"?: string | null,"created_at"?: string,"faculty_id"?: string,"id"?: string,"name"?: string,"school_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "departments_faculty_id_school_id_fkey"
+      columns: ["faculty_id","school_id"]
+isOneToOne: false
+      referencedRelation: "faculties"
+      referencedColumns: ["id","school_id"]
+    },{
+      foreignKeyName: "departments_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"device_tokens": {
                   Row: {
                     "created_at": string,"id": string,"last_seen_at": string,"locale": string,"platform": string,"school_id": string,"token": string,"user_id": string
@@ -93,6 +119,26 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id","school_id"]
+    }
+                  ]
+                },"faculties": {
+                  Row: {
+                    "code": string | null,"created_at": string,"id": string,"name": string,"school_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "code"?: string | null,"created_at"?: string,"id"?: string,"name": string,"school_id": string
+                  }
+                  Update: {
+                    "code"?: string | null,"created_at"?: string,"id"?: string,"name"?: string,"school_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "faculties_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
     }
                   ]
                 },"live_positions": {
@@ -123,18 +169,50 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "avatar_url": string | null,"created_at": string,"department": string | null,"email": string,"full_name": string,"id": string,"matricule": string | null,"phone": string | null,"program": string | null,"role": Database["public"]['Enums']["user_role"],"school_id": string,"status": Database["public"]['Enums']["account_status"],"updated_at": string
+                    "avatar_url": string | null,"created_at": string,"department": string | null,"department_id": string | null,"email": string,"full_name": string,"id": string,"matricule": string | null,"phone": string | null,"program": string | null,"program_id": string | null,"role": Database["public"]['Enums']["user_role"],"school_id": string,"status": Database["public"]['Enums']["account_status"],"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "avatar_url"?: string | null,"created_at"?: string,"department"?: string | null,"email": string,"full_name"?: string,"id": string,"matricule"?: string | null,"phone"?: string | null,"program"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"school_id": string,"status"?: Database["public"]['Enums']["account_status"],"updated_at"?: string
+                    "avatar_url"?: string | null,"created_at"?: string,"department"?: string | null,"department_id"?: string | null,"email": string,"full_name"?: string,"id": string,"matricule"?: string | null,"phone"?: string | null,"program"?: string | null,"program_id"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"school_id": string,"status"?: Database["public"]['Enums']["account_status"],"updated_at"?: string
                   }
                   Update: {
-                    "avatar_url"?: string | null,"created_at"?: string,"department"?: string | null,"email"?: string,"full_name"?: string,"id"?: string,"matricule"?: string | null,"phone"?: string | null,"program"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"school_id"?: string,"status"?: Database["public"]['Enums']["account_status"],"updated_at"?: string
+                    "avatar_url"?: string | null,"created_at"?: string,"department"?: string | null,"department_id"?: string | null,"email"?: string,"full_name"?: string,"id"?: string,"matricule"?: string | null,"phone"?: string | null,"program"?: string | null,"program_id"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"school_id"?: string,"status"?: Database["public"]['Enums']["account_status"],"updated_at"?: string
                   }
                   Relationships: [
                     {
+      foreignKeyName: "profiles_department_id_school_id_fkey"
+      columns: ["department_id","school_id"]
+isOneToOne: false
+      referencedRelation: "departments"
+      referencedColumns: ["id","school_id"]
+    },{
+      foreignKeyName: "profiles_program_id_school_id_fkey"
+      columns: ["program_id","school_id"]
+isOneToOne: false
+      referencedRelation: "programs"
+      referencedColumns: ["id","school_id"]
+    },{
       foreignKeyName: "profiles_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"programs": {
+                  Row: {
+                    "created_at": string,"id": string,"name": string,"school_id": string,"sort_order": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"id"?: string,"name": string,"school_id": string,"sort_order"?: number
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: string,"name"?: string,"school_id"?: string,"sort_order"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "programs_school_id_fkey"
       columns: ["school_id"]
 isOneToOne: false
       referencedRelation: "schools"
