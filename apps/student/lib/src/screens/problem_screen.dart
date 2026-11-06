@@ -1,7 +1,6 @@
 import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hugeicons/hugeicons.dart';
 
 import '../providers.dart';
 
@@ -15,7 +14,7 @@ class ProblemScreen extends ConsumerWidget {
     return Scaffold(
       body: SafeArea(
         child: EmptyState(
-          icon: HugeIcons.strokeRoundedWifiDisconnected01,
+          illustration: BusinIllustration.waiting,
           title: l10n.errorGeneric,
           action: Column(
             mainAxisSize: MainAxisSize.min,

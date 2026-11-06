@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../tokens/palette.dart';
+import '../tokens/shape.dart';
 import 'initials.dart';
 
 /// A person's picture, or their initials on a tinted disc when there is none or it cannot load.
@@ -41,7 +42,21 @@ class UserAvatar extends StatelessWidget {
           color: p.surface2,
           child: url == null || url.isEmpty
               ? letters
-              : Image.network(url, fit: BoxFit.cover, errorBuilder: (_, _, _) => letters),
+              // The initials are there while the picture loads, and the picture fades in over them.
+              : Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    letters,
+                    Image.network(
+                      url,
+                      fit: BoxFit.cover,
+                      frameBuilder: (context, child, frame, sync) => sync
+                          ? child
+                          : AnimatedOpacity(opacity: frame == null ? 0 : 1, duration: BusinMotion.of(context, BusinMotion.normal), child: child),
+                      errorBuilder: (_, _, _) => const SizedBox.shrink(),
+                    ),
+                  ],
+                ),
         ),
       ),
     );

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
 import { ListSkeleton } from "@/components/ui/ListSkeleton";
+import { FlashToast } from "@/components/FlashToast";
 import { Notice } from "@/components/ui/Notice";
 import { Select } from "@/components/ui/Select";
 
@@ -81,7 +82,7 @@ async function PersonDetail({ params, searchParams }: { params: Params; searchPa
         </div>
       </header>
 
-      {done ? <Notice tone="ok">{t.people.done[done]}</Notice> : null}
+      {done ? <FlashToast message={t.people.done[done]} /> : null}
       {errorKey ? <Notice tone="bad">{t.people.errors[errorKey]}</Notice> : null}
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">

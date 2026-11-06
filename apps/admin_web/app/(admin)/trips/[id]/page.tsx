@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/Card";
 import { BackLink } from "@/components/ui/BackLink";
 import { Chip } from "@/components/ui/Chip";
 import { ListSkeleton } from "@/components/ui/ListSkeleton";
+import { FlashToast } from "@/components/FlashToast";
 import { Notice } from "@/components/ui/Notice";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Textarea";
@@ -79,7 +80,7 @@ async function TripDetail({ params, searchParams }: { params: Params; searchPara
         </p>
       </header>
 
-      {done ? <Notice tone="ok">{t.trips.done[done]}</Notice> : null}
+      {done ? <FlashToast message={t.trips.done[done]} /> : null}
       {errorKey ? <Notice tone="bad">{t.trips.errors[errorKey]}</Notice> : null}
 
       {failed ? (

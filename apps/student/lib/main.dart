@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'src/app.dart';
 import 'src/auth/secure_session_storage.dart';
 import 'src/auth/supabase_auth_service.dart';
 import 'src/config/app_config.dart';
+import 'src/push/push_service.dart';
 import 'src/providers.dart';
+import 'src/settings/appearance.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,12 +31,19 @@ Future<void> main() async {
     ),
   );
   final client = Supabase.instance.client;
+  // Without Firebase configured this is a stand-in that does nothing, and the app works the same otherwise.
+  final push = await FirebasePushService.tryCreate();
+  // Read before the first frame, so the chosen theme and language are there from the start (no flash of the other one).
+  final preferences = await SharedPreferences.getInstance();
 
   runApp(
     ProviderScope(
+      retry: noAutomaticRetry,
       overrides: [
+        appPreferencesProvider.overrideWithValue(preferences),
         appConfigProvider.overrideWithValue(config),
         supabaseClientProvider.overrideWithValue(client),
+        pushServiceProvider.overrideWithValue(push),
         authServiceProvider.overrideWithValue(SupabaseAuthService(client, googleServerClientId: config.googleServerClientId)),
       ],
       child: const StudentApp(),

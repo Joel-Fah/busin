@@ -25,6 +25,39 @@ class SupabaseProfileRepository implements ProfileRepository {
         final row = await _client.from('profiles').select(Columns.profile).eq('id', userId).single();
         return Profile.fromJson(row);
       });
+
+  @override
+  Future<Profile> updateProfile(
+    String userId, {
+    String? fullName,
+    String? phone,
+    String? matricule,
+    AcademicChoice? academic,
+  }) =>
+      guarded(() async {
+        final changes = Profile.editableJson(fullName: fullName, phone: phone, matricule: matricule, academic: academic);
+        final row = await _client.from('profiles').update(changes).eq('id', userId).select(Columns.profile).single();
+        return Profile.fromJson(row);
+      });
+}
+
+class SupabaseAcademicRepository implements AcademicRepository {
+  SupabaseAcademicRepository(this._client);
+  final SupabaseClient _client;
+
+  @override
+  Future<AcademicUnits> load() => guarded(() async {
+        final results = await Future.wait([
+          _client.from('faculties').select(Columns.faculty).order('name'),
+          _client.from('departments').select(Columns.department).order('name'),
+          _client.from('programs').select(Columns.program).order('sort_order').order('name'),
+        ]);
+        return AcademicUnits(
+          faculties: _rows(results[0]).map(Faculty.fromJson).toList(),
+          departments: _rows(results[1]).map(Department.fromJson).toList(),
+          programs: _rows(results[2]).map(Program.fromJson).toList(),
+        );
+      });
 }
 
 class SupabaseSchoolRepository implements SchoolRepository {
@@ -93,6 +126,29 @@ class SupabaseSemestersRepository implements SemestersRepository {
 class SupabaseSubscriptionsRepository implements SubscriptionsRepository {
   SupabaseSubscriptionsRepository(this._client);
   final SupabaseClient _client;
+
+  @override
+  Future<List<SubscriptionEvent>> eventsFor(List<String> subscriptionIds) => guarded(() async {
+        if (subscriptionIds.isEmpty) return const [];
+        final data = await _client
+            .from('subscription_events')
+            .select(Columns.subscriptionEvent)
+            .inFilter('subscription_id', subscriptionIds)
+            .order('created_at')
+            .order('id');
+        return _rows(data).map(SubscriptionEvent.fromJson).toList(growable: false);
+      });
+
+  @override
+  Stream<List<Subscription>> watchForStudent(String studentId) {
+    // Filtered on the server to this one student; Row Level Security applies to Realtime as well.
+    return _client
+        .from('subscriptions')
+        .stream(primaryKey: ['id'])
+        .eq('student_id', studentId)
+        .map((rows) => rows.map(Subscription.fromJson).toList(growable: false))
+        .handleError((Object error) => throw mapError(error));
+  }
 
   @override
   Future<List<Subscription>> listForStudent(
@@ -212,6 +268,53 @@ class SupabaseTripsRepository implements TripsRepository {
         final row = await _client.from('trips').select(Columns.trip).eq('id', tripId).single();
         return Trip.fromJson(row);
       });
+
+  @override
+  Future<List<Trip>> listActive() => guarded(() async {
+        final data = await _client
+            .from('trips')
+            .select(Columns.trip)
+            .eq('status', 'active')
+            .order('started_at', ascending: false)
+            .limit(PageRequest.defaultLimit);
+        return _rows(data).map(Trip.fromJson).toList(growable: false);
+      });
+
+  @override
+  Future<List<Trip>> listByIds(List<String> tripIds) => guarded(() async {
+        if (tripIds.isEmpty) return const <Trip>[];
+        if (tripIds.length > PageRequest.maxLimit) throw const Invalid('Too many trips asked for at once.');
+        final data = await _client.from('trips').select(Columns.trip).inFilter('id', tripIds);
+        return _rows(data).map(Trip.fromJson).toList(growable: false);
+      });
+}
+
+class SupabaseDeviceTokensRepository implements DeviceTokensRepository {
+  SupabaseDeviceTokensRepository(this._client);
+  final SupabaseClient _client;
+
+  @override
+  Future<void> register({required String token, required String platform, required String locale}) => guarded(() async {
+        await _client.rpc<void>('register_device_token', params: {'p_token': token, 'p_platform': platform, 'p_locale': locale});
+      });
+
+  @override
+  Future<void> unregister(String token) => guarded(() async {
+        await _client.rpc<void>('unregister_device_token', params: {'p_token': token});
+      });
+}
+
+class SupabaseBusesRepository implements BusesRepository {
+  SupabaseBusesRepository(this._client);
+  final SupabaseClient _client;
+
+  @override
+  Future<List<Bus>> listByIds(List<String> busIds) => guarded(() async {
+        if (busIds.isEmpty) return const <Bus>[];
+        if (busIds.length > PageRequest.maxLimit) throw const Invalid('Too many buses asked for at once.');
+        final data = await _client.from('buses').select(Columns.bus).inFilter('id', busIds);
+        return _rows(data).map(Bus.fromJson).toList(growable: false);
+      });
 }
 
 class SupabaseScansRepository implements ScansRepository {
@@ -236,6 +339,21 @@ class SupabaseScansRepository implements ScansRepository {
           'p_accuracy': accuracyMeters,
         });
         return ScanOutcome.fromJson(result);
+      });
+
+  @override
+  Future<List<Scan>> listForStudent(
+    String studentId, {
+    PageRequest page = const PageRequest(),
+  }) =>
+      guarded(() async {
+        final data = await _client
+            .from('scans')
+            .select(Columns.scan)
+            .eq('student_id', studentId)
+            .order('scanned_at', ascending: false)
+            .range(page.offset, page.lastIndex);
+        return _rows(data).map(Scan.fromJson).toList(growable: false);
       });
 
   @override
@@ -267,6 +385,9 @@ class SupabaseLivePositionsRepository implements LivePositionsRepository {
             .maybeSingle();
         return row == null ? null : LivePosition.fromJson(row);
       });
+
+  @override
+  Future<bool> canFollowBuses() => guarded(() async => (await _client.rpc<dynamic>('can_follow_buses')) == true);
 
   @override
   Stream<LivePosition> watchBus(String busId) {

@@ -10,7 +10,7 @@ import 'package:hugeicons/hugeicons.dart';
 
 import '../auth/access.dart';
 import '../providers.dart';
-import '../qr/boarding_code_image.dart';
+import '../qr/boarding_ticket.dart';
 import '../qr/qr_providers.dart';
 import '../qr/screen_security.dart';
 import '../router.dart';
@@ -50,11 +50,35 @@ class _QrScreenState extends ConsumerState<QrScreen> {
     // Tabs that are not showing have animations switched off; use that to know when this one is on screen.
     final active = TickerMode.valuesOf(context).enabled;
     if (active != _active) {
+      final wasHidden = _active == false;
       _active = active;
       _security.setSecure(active);
-      // Coming back after a failure (for example the subscription was approved meanwhile): try again.
-      if (active && ref.read(qrSecretProvider).hasError) ref.invalidate(qrSecretProvider);
+      // Coming back to the tab: ask again. The subscription may have been approved meanwhile (after a failure), or taken
+      // away (the code must lock). The page keeps showing what it has while it asks.
+      if (active && wasHidden) {
+        // After this frame: a provider cannot be changed while the tree is building.
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) ref.invalidate(qrSecretProvider);
+        });
+      }
     }
+  }
+
+  /// The first time the code is on screen in a session, a short reminder to keep it private (a toast, not a fixture
+  /// on the page). It mentions screenshots only where they are really blocked.
+  void _tellOnce(AsyncValue<Uint8List> secret) {
+    if (!secret.hasValue || _active != true || ref.read(qrPrivacyToldProvider)) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || ref.read(qrPrivacyToldProvider)) return;
+      ref.read(qrPrivacyToldProvider.notifier).told();
+      final l10n = BusinL10n.of(context);
+      BusinToast.show(
+        context,
+        _security.supported ? l10n.qrPrivateBodyProtected : l10n.qrPrivateBody,
+        title: l10n.qrPrivateTitle,
+        tone: ToastTone.warning,
+      );
+    });
   }
 
   @override
@@ -67,36 +91,41 @@ class _QrScreenState extends ConsumerState<QrScreen> {
   @override
   Widget build(BuildContext context) {
     final secret = ref.watch(qrSecretProvider);
+    _tellOnce(secret);
 
-    return RefreshIndicator(
+    // On a wide screen the page is two columns, so it may use the width.
+    return ContentColumn(
+      maxWidth: BusinLayout.of(context).isExpanded ? 1180 : BusinLayout.maxColumn,
+      child: RefreshIndicator(
       onRefresh: () async {
         ref.invalidate(qrSecretProvider);
         try {
           await ref.read(qrSecretProvider.future);
+          if (context.mounted) BusinToast.show(context, BusinL10n.of(context).qrRefreshed, tone: ToastTone.success);
         } catch (_) {
           // The error state on screen says what happened.
         }
       },
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(BusinSpace.x5),
+        padding: EdgeInsets.fromLTRB(BusinSpace.x5, BusinSpace.x5, BusinSpace.x5, BusinSpace.x5 + BusinScope.of(context).bottomInset),
         children: [
           secret.when(
-            loading: () => const Padding(padding: EdgeInsets.only(top: 160), child: Center(child: CircularProgressIndicator())),
+            loading: () => const _CodeSkeleton(),
             error: (error, _) => _Problem(error: error),
-            data: (bytes) => _Code(secret: bytes, security: _security),
+            data: (bytes) => _Code(secret: bytes),
           ),
         ],
+      ),
       ),
     );
   }
 }
 
 class _Code extends ConsumerWidget {
-  const _Code({required this.secret, required this.security});
+  const _Code({required this.secret});
 
   final Uint8List secret;
-  final ScreenSecurity security;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -106,59 +135,95 @@ class _Code extends ConsumerWidget {
     final access = ref.watch(accessProvider);
     if (access is! Allowed) return const SizedBox.shrink();
     final profile = access.profile;
+    final expanded = BusinLayout.of(context).isExpanded;
 
-    final now = ref.read(nowProvider)();
-    final code = QrCodeGenerator.generate(secret: secret, studentId: profile.id, now: now);
-    final remaining = QrCodeGenerator.secondsRemaining(now);
-    final side = (MediaQuery.sizeOf(context).width - BusinSpace.x5 * 2 - BusinSpace.x6 * 2).clamp(180.0, 320.0);
+    final code = QrCodeGenerator.generate(secret: secret, studentId: profile.id, now: ref.read(nowProvider)());
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(l10n.qrTitle, style: text.headlineSmall),
-        const SizedBox(height: BusinSpace.x1),
-        Text(l10n.qrHint, style: text.bodyMedium?.copyWith(color: palette.muted), textAlign: TextAlign.center),
-        const SizedBox(height: BusinSpace.x5),
-        Semantics(
-          image: true,
-          label: l10n.qrImageLabel,
-          child: DecoratedBox(
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(BusinRadius.lg)),
-            child: Padding(
-              padding: const EdgeInsets.all(BusinSpace.x6),
-              child: ExcludeSemantics(
-                child: BoardingCodeImage(key: const ValueKey('boarding-code'), data: code, size: side),
-              ),
+    final ticket = LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth.clamp(0.0, 380.0);
+        // The sticker's side: the ticket's width less the ticket's padding and the sticker's own.
+        final side = (width - BusinSpace.x6 * 2 - BusinSpace.x5 * 2).clamp(160.0, 300.0);
+        return Center(
+          child: SizedBox(
+            width: width,
+            child: BoardingTicket(
+              code: code,
+              name: profile.fullName,
+              matricule: profile.matricule,
+              size: side,
+              liveLabel: l10n.qrLive,
+              imageLabel: l10n.qrImageLabel,
             ),
           ),
-        ),
+        );
+      },
+    );
+
+    final heading = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(l10n.qrTitle, style: text.headlineMedium),
+        const SizedBox(height: BusinSpace.x1),
+        Text(l10n.qrHint, style: text.bodyLarge?.copyWith(color: palette.muted)),
         const SizedBox(height: BusinSpace.x5),
-        Text(profile.fullName, style: text.titleLarge, textAlign: TextAlign.center),
-        if (profile.matricule != null) Text(profile.matricule!, style: text.bodyMedium?.copyWith(color: palette.muted)),
-        const SizedBox(height: BusinSpace.x4),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(BusinRadius.xs),
-          child: LinearProgressIndicator(
-            value: remaining / QrCodeGenerator.windowSeconds,
-            minHeight: 8,
-            color: palette.accent,
-            backgroundColor: palette.surface2,
-          ),
-        ),
-        const SizedBox(height: BusinSpace.x2),
-        ExcludeSemantics(child: Text(l10n.qrRefreshesIn('$remaining'), style: text.bodySmall?.copyWith(color: palette.muted))),
-        if (security.supported) ...[
-          const SizedBox(height: BusinSpace.x5),
+      ],
+    );
+
+    if (!expanded) {
+      return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [heading, StaggeredIn(child: ticket)]);
+    }
+    // A wide screen, two columns: the words and how to board on the left, the ticket alone in the right one.
+    return SplitView(
+      primary: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [heading, StaggeredIn(child: const _BoardingSteps())]),
+      secondary: StaggeredIn(index: 1, child: ticket),
+      primaryFlex: 5,
+      secondaryFlex: 5,
+      gap: BusinSpace.x8,
+    );
+  }
+}
+
+class _BoardingSteps extends StatelessWidget {
+  const _BoardingSteps();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = BusinL10n.of(context);
+    final p = BusinPalette.of(context);
+    final text = Theme.of(context).textTheme;
+    final steps = [l10n.boardStep1, l10n.boardStep2, l10n.boardStep3];
+    return BusinCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              HugeIcon(icon: HugeIcons.strokeRoundedShield01, size: 16, color: palette.muted),
-              const SizedBox(width: BusinSpace.x2),
-              Flexible(child: Text(l10n.qrScreenshotsOff, style: text.bodySmall?.copyWith(color: palette.muted))),
+              Expanded(child: Text(l10n.boardTitle, style: text.titleLarge)),
+              const Illustration(BusinIllustration.seat, width: 72, height: 72),
             ],
           ),
+          const SizedBox(height: BusinSpace.x4),
+          for (var i = 0; i < steps.length; i++)
+            Padding(
+              padding: const EdgeInsets.only(bottom: BusinSpace.x4),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(color: p.surface2, borderRadius: BorderRadius.circular(BusinRadius.xs)),
+                    alignment: Alignment.center,
+                    child: Text('${i + 1}', style: text.labelLarge?.copyWith(fontWeight: FontWeight.w800)),
+                  ),
+                  const SizedBox(width: BusinSpace.x3),
+                  Expanded(child: Padding(padding: const EdgeInsets.only(top: 5), child: Text(steps[i], style: text.bodyLarge))),
+                ],
+              ),
+            ),
         ],
-      ],
+      ),
     );
   }
 }
@@ -186,6 +251,83 @@ class _Problem extends ConsumerWidget {
         Offline() => EmptyState(icon: HugeIcons.strokeRoundedWifiDisconnected01, title: l10n.qrOfflineTitle, body: l10n.qrOfflineBody, action: retry()),
         _ => EmptyState(icon: HugeIcons.strokeRoundedAlert02, title: l10n.errorGeneric, action: retry()),
       },
+    );
+  }
+}
+
+/// What the page looks like while it finds out whether there is a subscription: the same layout as the ticket, with
+/// shimmering blocks where the heading, the code and the name will be, so nothing jumps when the real page arrives.
+class _CodeSkeleton extends StatelessWidget {
+  const _CodeSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = BusinL10n.of(context);
+    final expanded = BusinLayout.of(context).isExpanded;
+
+    Widget bars(List<double> widths, {double height = 16}) => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [for (final w in widths) Padding(padding: const EdgeInsets.only(bottom: BusinSpace.x2), child: Skeleton(width: w, height: height))],
+        );
+
+    final heading = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Skeleton(width: 200, height: 30, radius: BusinRadius.xs),
+        const SizedBox(height: BusinSpace.x3),
+        bars(const [260, 180]),
+        const SizedBox(height: BusinSpace.x4),
+      ],
+    );
+
+    final ticket = LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth.clamp(0.0, 380.0);
+        final side = (width - BusinSpace.x6 * 2 - BusinSpace.x5 * 2).clamp(160.0, 300.0);
+        return Center(
+          child: SizedBox(
+            width: width,
+            child: BusinCard(
+              child: Column(
+                children: [
+                  Row(children: [const Skeleton(width: 96, height: 14), const Spacer(), const Skeleton(width: 56, height: 22, radius: BusinRadius.xs)]),
+                  const SizedBox(height: BusinSpace.x5),
+                  Skeleton(width: side + BusinSpace.x5 * 2, height: side + BusinSpace.x5 * 2, radius: BusinRadius.md),
+                  const SizedBox(height: BusinSpace.x5),
+                  const Skeleton(width: 160, height: 20),
+                  const SizedBox(height: BusinSpace.x2),
+                  const Skeleton(width: 110, height: 14),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+
+    final steps = BusinCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Skeleton(width: 140, height: 22),
+          const SizedBox(height: BusinSpace.x4),
+          for (var i = 0; i < 3; i++)
+            const Padding(
+              padding: EdgeInsets.only(bottom: BusinSpace.x4),
+              child: Row(children: [Skeleton(width: 32, height: 32, radius: BusinRadius.xs), SizedBox(width: BusinSpace.x3), Expanded(child: Skeleton(height: 16))]),
+            ),
+        ],
+      ),
+    );
+
+    return Semantics(
+      liveRegion: true,
+      label: l10n.qrChecking,
+      child: ExcludeSemantics(
+        child: expanded
+            ? SplitView(primary: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [heading, steps]), secondary: ticket, primaryFlex: 5, secondaryFlex: 5, gap: BusinSpace.x8)
+            : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [heading, ticket]),
+      ),
     );
   }
 }

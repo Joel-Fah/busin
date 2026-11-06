@@ -235,6 +235,12 @@ abstract class BusinL10n {
   /// **'Rejected'**
   String get subscriptionRejected;
 
+  /// No description provided for @subscriptionRevoked.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoked'**
+  String get subscriptionRevoked;
+
   /// No description provided for @subscriptionExpired.
   ///
   /// In en, this message translates to:
@@ -307,11 +313,215 @@ abstract class BusinL10n {
   /// **'Picture of {name}'**
   String avatarOf(String name);
 
+  /// No description provided for @setupWelcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome, {name}'**
+  String setupWelcome(String name);
+
+  /// No description provided for @setupBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell your school who you are so the driver can find you. It takes a minute.'**
+  String get setupBody;
+
+  /// No description provided for @setupSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save and continue'**
+  String get setupSave;
+
+  /// No description provided for @setupNotYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Not you? Sign out'**
+  String get setupNotYou;
+
+  /// No description provided for @fieldFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name'**
+  String get fieldFullName;
+
+  /// No description provided for @fieldFullNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'As on your student card'**
+  String get fieldFullNameHint;
+
+  /// No description provided for @fieldMatricule.
+  ///
+  /// In en, this message translates to:
+  /// **'Student number'**
+  String get fieldMatricule;
+
+  /// No description provided for @fieldMatriculeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For example ICT2026-0001'**
+  String get fieldMatriculeHint;
+
+  /// No description provided for @fieldPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number'**
+  String get fieldPhone;
+
+  /// No description provided for @fieldPhoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For example 677 12 34 56'**
+  String get fieldPhoneHint;
+
+  /// No description provided for @fieldDepartment.
+  ///
+  /// In en, this message translates to:
+  /// **'Department'**
+  String get fieldDepartment;
+
+  /// No description provided for @fieldDepartmentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your department'**
+  String get fieldDepartmentHint;
+
+  /// No description provided for @fieldProgram.
+  ///
+  /// In en, this message translates to:
+  /// **'Program'**
+  String get fieldProgram;
+
+  /// No description provided for @fieldProgramHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your degree level'**
+  String get fieldProgramHint;
+
+  /// No description provided for @fieldFaculty.
+  ///
+  /// In en, this message translates to:
+  /// **'Faculty'**
+  String get fieldFaculty;
+
+  /// No description provided for @fieldFacultyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your faculty'**
+  String get fieldFacultyHint;
+
+  /// No description provided for @fieldDepartmentFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a faculty first'**
+  String get fieldDepartmentFirst;
+
+  /// No description provided for @choiceNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Not chosen'**
+  String get choiceNone;
+
+  /// No description provided for @fieldTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'That looks too short.'**
+  String get fieldTooShort;
+
+  /// No description provided for @fieldTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'That is too long.'**
+  String get fieldTooLong;
+
+  /// No description provided for @fieldInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Check this one: it has characters we cannot use.'**
+  String get fieldInvalid;
+
+  /// No description provided for @profileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your profile'**
+  String get profileTitle;
+
+  /// No description provided for @profileOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open your profile'**
+  String get profileOpen;
+
+  /// No description provided for @profileDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Your details'**
+  String get profileDetails;
+
+  /// No description provided for @profileEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit details'**
+  String get profileEdit;
+
+  /// No description provided for @profileNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get profileNotSet;
+
+  /// No description provided for @profileMemberSince.
+  ///
+  /// In en, this message translates to:
+  /// **'Member since {date}'**
+  String profileMemberSince(String date);
+
+  /// No description provided for @profileSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Details saved.'**
+  String get profileSaved;
+
+  /// No description provided for @profileSignOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get profileSignOut;
+
+  /// No description provided for @profileSignOutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out of BusIn?'**
+  String get profileSignOutTitle;
+
+  /// No description provided for @profileSignOutBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You will need to sign in with Google again.'**
+  String get profileSignOutBody;
+
+  /// No description provided for @profileCredits.
+  ///
+  /// In en, this message translates to:
+  /// **'3D illustrations by Thiings (thiings.co)'**
+  String get profileCredits;
+
   /// No description provided for @fieldRequired.
   ///
   /// In en, this message translates to:
   /// **'This field is required.'**
   String get fieldRequired;
+
+  /// No description provided for @loadingSlowTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This is taking longer than usual'**
+  String get loadingSlowTitle;
+
+  /// No description provided for @loadingSlowBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your connection. BusIn keeps trying.'**
+  String get loadingSlowBody;
 
   /// No description provided for @loadingLabel.
   ///
@@ -328,7 +538,7 @@ abstract class BusinL10n {
   /// No description provided for @signInTitle.
   ///
   /// In en, this message translates to:
-  /// **'Ride with BusIn'**
+  /// **'Hop on. BusIn handles the rest.'**
   String get signInTitle;
 
   /// No description provided for @signInSubtitle.
@@ -414,6 +624,72 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'History'**
   String get navHistory;
+
+  /// No description provided for @navProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get navProfile;
+
+  /// No description provided for @profileAppearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get profileAppearance;
+
+  /// No description provided for @profileAppearanceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Kept on this phone.'**
+  String get profileAppearanceHint;
+
+  /// No description provided for @profileTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get profileTheme;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get themeSystem;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
+
+  /// No description provided for @profileLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get profileLanguage;
+
+  /// No description provided for @languageSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get languageSystem;
+
+  /// No description provided for @profileHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Boarding history'**
+  String get profileHistory;
+
+  /// No description provided for @profileHistoryBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Every time you boarded, newest first.'**
+  String get profileHistoryBody;
 
   /// No description provided for @navBus.
   ///
@@ -559,6 +835,66 @@ abstract class BusinL10n {
   /// **'Sent {date}'**
   String subscriptionSent(String date);
 
+  /// No description provided for @proofView.
+  ///
+  /// In en, this message translates to:
+  /// **'View your payment proof full screen'**
+  String get proofView;
+
+  /// No description provided for @proofClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get proofClose;
+
+  /// No description provided for @requestsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your requests this semester'**
+  String get requestsTitle;
+
+  /// No description provided for @requestsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything that happened, the latest first.'**
+  String get requestsHint;
+
+  /// No description provided for @requestOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Request of {date}'**
+  String requestOf(String date);
+
+  /// No description provided for @requestEventRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'You sent the request'**
+  String get requestEventRequested;
+
+  /// No description provided for @requestEventApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school approved it'**
+  String get requestEventApproved;
+
+  /// No description provided for @requestEventRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school declined it'**
+  String get requestEventRejected;
+
+  /// No description provided for @requestEventRevoked.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school ended it'**
+  String get requestEventRevoked;
+
+  /// No description provided for @requestEventReinstated.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school gave it back'**
+  String get requestEventReinstated;
+
   /// No description provided for @subscriptionProofTitle.
   ///
   /// In en, this message translates to:
@@ -619,6 +955,18 @@ abstract class BusinL10n {
   /// **'Request again'**
   String get statusRequestAgain;
 
+  /// No description provided for @statusRevokedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription ended by your school'**
+  String get statusRevokedTitle;
+
+  /// No description provided for @statusRevokedReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school\'s reason:'**
+  String get statusRevokedReason;
+
   /// No description provided for @statusExpiredTitle.
   ///
   /// In en, this message translates to:
@@ -630,6 +978,12 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'This subscription is no longer valid. You can send a new request.'**
   String get statusExpiredBody;
+
+  /// No description provided for @qrChecking.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking your subscription'**
+  String get qrChecking;
 
   /// No description provided for @qrTitle.
   ///
@@ -649,17 +1003,59 @@ abstract class BusinL10n {
   /// **'Your boarding code. It changes every 30 seconds.'**
   String get qrImageLabel;
 
-  /// No description provided for @qrRefreshesIn.
+  /// No description provided for @qrLive.
   ///
   /// In en, this message translates to:
-  /// **'New code in {seconds} s'**
-  String qrRefreshesIn(String seconds);
+  /// **'Live code'**
+  String get qrLive;
 
-  /// No description provided for @qrScreenshotsOff.
+  /// No description provided for @qrPrivateTitle.
   ///
   /// In en, this message translates to:
-  /// **'Screenshots are turned off here so a copy of your code cannot be shared.'**
-  String get qrScreenshotsOff;
+  /// **'Keep your code to yourself'**
+  String get qrPrivateTitle;
+
+  /// No description provided for @qrPrivateBodyProtected.
+  ///
+  /// In en, this message translates to:
+  /// **'It changes by itself, and screenshots are turned off here.'**
+  String get qrPrivateBodyProtected;
+
+  /// No description provided for @qrPrivateBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It changes by itself and only works for you.'**
+  String get qrPrivateBody;
+
+  /// No description provided for @qrRefreshed.
+  ///
+  /// In en, this message translates to:
+  /// **'Code refreshed.'**
+  String get qrRefreshed;
+
+  /// No description provided for @boardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How to board'**
+  String get boardTitle;
+
+  /// No description provided for @boardStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'Have this screen open when you reach the door.'**
+  String get boardStep1;
+
+  /// No description provided for @boardStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold your phone to the scanner until it confirms.'**
+  String get boardStep2;
+
+  /// No description provided for @boardStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Take any seat. Your ride is saved in History.'**
+  String get boardStep3;
 
   /// No description provided for @qrNoSubscriptionTitle.
   ///
@@ -690,6 +1086,444 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'Your phone needs the internet one time to get your boarding code. After that it works without a connection.'**
   String get qrOfflineBody;
+
+  /// No description provided for @historyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your boardings'**
+  String get historyTitle;
+
+  /// No description provided for @historyStatWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Boardings this week'**
+  String get historyStatWeek;
+
+  /// No description provided for @historyStatStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Most used stop'**
+  String get historyStatStop;
+
+  /// No description provided for @historyStatStopNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None yet'**
+  String get historyStatStopNone;
+
+  /// No description provided for @historyDayCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 boarding} other{{count} boardings}}'**
+  String historyDayCount(int count);
+
+  /// No description provided for @historyDayFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'First boarding'**
+  String get historyDayFirst;
+
+  /// No description provided for @historyDayLast.
+  ///
+  /// In en, this message translates to:
+  /// **'Last boarding'**
+  String get historyDayLast;
+
+  /// No description provided for @historyDayStops.
+  ///
+  /// In en, this message translates to:
+  /// **'Stops used'**
+  String get historyDayStops;
+
+  /// No description provided for @historySelectedDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected day'**
+  String get historySelectedDay;
+
+  /// No description provided for @historyEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No boardings yet'**
+  String get historyEmptyTitle;
+
+  /// No description provided for @historyEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Each time you board with your code, it appears here.'**
+  String get historyEmptyBody;
+
+  /// No description provided for @historyStopUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop not recorded'**
+  String get historyStopUnknown;
+
+  /// No description provided for @historyLoadMoreFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load more. Tap to try again.'**
+  String get historyLoadMoreFailed;
+
+  /// No description provided for @busLockedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Following the bus is for subscribers'**
+  String get busLockedTitle;
+
+  /// No description provided for @busLockedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Once your subscription is approved you can see where your bus is, live.'**
+  String get busLockedBody;
+
+  /// No description provided for @busLockedAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to subscription'**
+  String get busLockedAction;
+
+  /// No description provided for @busNoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No bus is running right now'**
+  String get busNoneTitle;
+
+  /// No description provided for @busNoneBody.
+  ///
+  /// In en, this message translates to:
+  /// **'When a trip starts you can follow its bus here.'**
+  String get busNoneBody;
+
+  /// No description provided for @busWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the bus to share its location.'**
+  String get busWaiting;
+
+  /// No description provided for @busUpdatedSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated {seconds} s ago'**
+  String busUpdatedSeconds(String seconds);
+
+  /// No description provided for @busUpdatedMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated {minutes} min ago'**
+  String busUpdatedMinutes(String minutes);
+
+  /// No description provided for @busStale.
+  ///
+  /// In en, this message translates to:
+  /// **'Last seen {minutes} min ago. The bus may be out of signal.'**
+  String busStale(String minutes);
+
+  /// No description provided for @busSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'{kmh} km/h'**
+  String busSpeed(String kmh);
+
+  /// No description provided for @busEtaMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String busEtaMinutes(String minutes);
+
+  /// No description provided for @busEtaArriving.
+  ///
+  /// In en, this message translates to:
+  /// **'Arriving'**
+  String get busEtaArriving;
+
+  /// No description provided for @busEtaCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'{km} km from {stop}'**
+  String busEtaCaption(String km, String stop);
+
+  /// No description provided for @busDistanceKm.
+  ///
+  /// In en, this message translates to:
+  /// **'{km} km'**
+  String busDistanceKm(String km);
+
+  /// No description provided for @busEtaLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated arrival'**
+  String get busEtaLabel;
+
+  /// No description provided for @busRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'Running buses'**
+  String get busRunning;
+
+  /// No description provided for @busYourStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Your stop'**
+  String get busYourStop;
+
+  /// No description provided for @busRecenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the bus'**
+  String get busRecenter;
+
+  /// No description provided for @busLiveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Live updates are not available right now.'**
+  String get busLiveFailed;
+
+  /// No description provided for @busMapLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Map of the bus and the stops'**
+  String get busMapLabel;
+
+  /// No description provided for @pushPromptTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Get notified'**
+  String get pushPromptTitle;
+
+  /// No description provided for @pushPromptBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We can tell you as soon as your school decides on your request, even when the app is closed.'**
+  String get pushPromptBody;
+
+  /// No description provided for @pushPromptEnable.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on notifications'**
+  String get pushPromptEnable;
+
+  /// No description provided for @pushPromptLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get pushPromptLater;
+
+  /// No description provided for @pushPromptDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are off. You can turn them on in your phone\'s settings.'**
+  String get pushPromptDenied;
+
+  /// No description provided for @pushForegroundApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Your subscription was approved.'**
+  String get pushForegroundApproved;
+
+  /// No description provided for @pushForegroundRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school has decided on your subscription.'**
+  String get pushForegroundRejected;
+
+  /// No description provided for @liveReinstated.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school gave your subscription back.'**
+  String get liveReinstated;
+
+  /// No description provided for @liveRevoked.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school ended your subscription.'**
+  String get liveRevoked;
+
+  /// No description provided for @pushForegroundView.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get pushForegroundView;
+
+  /// No description provided for @navQrShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Code'**
+  String get navQrShort;
+
+  /// No description provided for @greetMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Good morning'**
+  String get greetMorning;
+
+  /// No description provided for @greetAfternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Good afternoon'**
+  String get greetAfternoon;
+
+  /// No description provided for @greetEvening.
+  ///
+  /// In en, this message translates to:
+  /// **'Good evening'**
+  String get greetEvening;
+
+  /// No description provided for @stageSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get stageSent;
+
+  /// No description provided for @stageChecking.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking'**
+  String get stageChecking;
+
+  /// No description provided for @stageDecided.
+  ///
+  /// In en, this message translates to:
+  /// **'Decision'**
+  String get stageDecided;
+
+  /// No description provided for @stageSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {number} of {total}: {label}'**
+  String stageSemantics(String number, String total, String label);
+
+  /// No description provided for @howTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How it works'**
+  String get howTitle;
+
+  /// No description provided for @howStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose where you board.'**
+  String get howStep1;
+
+  /// No description provided for @howStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a photo of your payment receipt.'**
+  String get howStep2;
+
+  /// No description provided for @howStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school checks it and decides.'**
+  String get howStep3;
+
+  /// No description provided for @howStep4.
+  ///
+  /// In en, this message translates to:
+  /// **'Show your boarding code and ride.'**
+  String get howStep4;
+
+  /// No description provided for @proofAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo added'**
+  String get proofAdded;
+
+  /// No description provided for @legalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal'**
+  String get legalTitle;
+
+  /// No description provided for @legalHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms and privacy. They are in the app, so you can read them offline.'**
+  String get legalHint;
+
+  /// No description provided for @legalTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of use'**
+  String get legalTerms;
+
+  /// No description provided for @legalTermsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The rules for using BusIn'**
+  String get legalTermsBody;
+
+  /// No description provided for @legalPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy policy'**
+  String get legalPrivacy;
+
+  /// No description provided for @legalPrivacyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'What we keep about you, and why'**
+  String get legalPrivacyBody;
+
+  /// No description provided for @legalAcceptable.
+  ///
+  /// In en, this message translates to:
+  /// **'Acceptable use'**
+  String get legalAcceptable;
+
+  /// No description provided for @legalAcceptableBody.
+  ///
+  /// In en, this message translates to:
+  /// **'What is and is not allowed'**
+  String get legalAcceptableBody;
+
+  /// No description provided for @legalInShort.
+  ///
+  /// In en, this message translates to:
+  /// **'In short'**
+  String get legalInShort;
+
+  /// No description provided for @legalUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated {date}'**
+  String legalUpdated(String date);
+
+  /// No description provided for @legalAppliesTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Applies to {school}'**
+  String legalAppliesTo(String school);
+
+  /// No description provided for @legalAlsoRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Also read'**
+  String get legalAlsoRead;
+
+  /// No description provided for @legalQuestionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions about your data?'**
+  String get legalQuestionsTitle;
+
+  /// No description provided for @legalQuestionsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask your school\'s administration. They can correct your details and answer requests about your account.'**
+  String get legalQuestionsBody;
+
+  /// No description provided for @legalReadTime.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min read'**
+  String legalReadTime(int minutes);
+
+  /// No description provided for @legalOnThisPage.
+  ///
+  /// In en, this message translates to:
+  /// **'On this page'**
+  String get legalOnThisPage;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {

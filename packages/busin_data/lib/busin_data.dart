@@ -17,6 +17,7 @@ export 'src/repositories.dart';
 class SupabaseRepositories {
   SupabaseRepositories(SupabaseClient client)
       : profiles = SupabaseProfileRepository(client),
+        academic = SupabaseAcademicRepository(client),
         schools = SupabaseSchoolRepository(client),
         stops = SupabaseStopsRepository(client),
         semesters = SupabaseSemestersRepository(client),
@@ -24,10 +25,13 @@ class SupabaseRepositories {
         proofs = SupabaseProofsRepository(client),
         qr = SupabaseQrRepository(client),
         trips = SupabaseTripsRepository(client),
+        buses = SupabaseBusesRepository(client),
+        deviceTokens = SupabaseDeviceTokensRepository(client),
         scans = SupabaseScansRepository(client),
         livePositions = SupabaseLivePositionsRepository(client);
 
   final ProfileRepository profiles;
+  final AcademicRepository academic;
   final SchoolRepository schools;
   final StopsRepository stops;
   final SemestersRepository semesters;
@@ -35,6 +39,8 @@ class SupabaseRepositories {
   final ProofsRepository proofs;
   final QrRepository qr;
   final TripsRepository trips;
+  final BusesRepository buses;
+  final DeviceTokensRepository deviceTokens;
   final ScansRepository scans;
   final LivePositionsRepository livePositions;
 }

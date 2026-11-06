@@ -58,6 +58,8 @@ void main() {
   late String serviceKey;
   late String studentId;
   late String otherId;
+  String? historyTripId;
+  final feedBuses = <String>[];
   late SupabaseClient client;
   late SupabaseRepositories repos;
   final uploaded = <String>[];
@@ -99,6 +101,9 @@ void main() {
     final admin = SupabaseClient(url, serviceKey);
     if (uploaded.isNotEmpty) await admin.storage.from('proofs').remove(uploaded);
     // Rotating a secret writes an audit entry that points at the student; remove it with the throwaway user.
+    if (feedBuses.isNotEmpty) await _sql("delete from public.live_positions where bus_id in (${feedBuses.map((b) => "'$b'").join(',')});");
+    await _sql("delete from public.scans where student_id in ('$studentId', '$otherId');");
+    if (historyTripId != null) await _sql("delete from public.trips where id = '$historyTripId';");
     await _sql("delete from public.audit_log where actor_id in ('$studentId', '$otherId');");
     await _sql("delete from public.subscriptions where student_id in ('$studentId', '$otherId');");
     await _sql("delete from auth.users where id in ('$studentId', '$otherId');");
@@ -172,6 +177,94 @@ void main() {
       repos.subscriptions.request(NewSubscription(schoolId: _school, studentId: studentId, semesterId: _semester, stopId: _stop)),
       throwsA(isA<Conflict>()),
     );
+  });
+
+  test('a student reads only their own boardings, and the trips they were on', () async {
+    final random = Random.secure();
+    final tripId = _uuid(random);
+    historyTripId = tripId;
+    final bus = await _query('select id from public.buses order by created_at limit 1');
+    final subscription = await _query("select id from public.subscriptions where student_id = '$studentId' limit 1");
+    await _sql("""
+      insert into public.subscriptions (school_id, student_id, semester_id, stop_id, status)
+        values ('$_school', '$otherId', '$_semester', '$_stop', 'approved');
+      insert into public.trips (id, school_id, bus_id, direction, status, scheduled_start, started_at, ended_at)
+        values ('$tripId', '$_school', '$bus', 'inbound', 'completed', now() - interval '2 hours', now() - interval '2 hours', now() - interval '1 hour');
+      insert into public.scans (school_id, trip_id, student_id, subscription_id, stop_id, scanned_by, scanned_at)
+        values ('$_school', '$tripId', '$studentId', '$subscription', '$_stop', '$studentId', now() - interval '90 minutes'),
+               ('$_school', '$tripId', '$otherId', (select id from public.subscriptions where student_id = '$otherId'), '$_stop', '$studentId', now() - interval '80 minutes');
+    """);
+
+    final mine = await repos.scans.listForStudent(studentId, page: const PageRequest(limit: 20));
+    expect(mine, hasLength(1));
+    expect(mine.single.studentId, studentId);
+    expect(mine.single.stopId, _stop);
+
+    // Asking for another student's history returns nothing: Row Level Security, not the app, hides it.
+    expect(await repos.scans.listForStudent(otherId), isEmpty);
+
+    final trips = await repos.trips.listByIds([tripId]);
+    expect(trips.single.direction, TripDirection.inbound);
+  });
+
+  test('the live feed of one bus carries that bus only, as it moves', () async {
+    final ids = (await _query("select id from public.buses where school_id = '$_school' order by created_at limit 2")).split('\n');
+    expect(ids, hasLength(2), reason: 'the local data needs two buses (npm run seed:demo)');
+    final (mine, other) = (ids[0], ids[1]);
+    feedBuses.addAll([mine, other]);
+
+    final received = <LivePosition>[];
+    final subscription = repos.livePositions.watchBus(mine).listen(received.add);
+    addTearDown(subscription.cancel);
+    await Future<void>.delayed(const Duration(seconds: 3)); // let the channel join
+
+    String upsert(String bus, double lat, double lng) => """
+      insert into public.live_positions (bus_id, school_id, location, source, recorded_at)
+      values ('$bus', '$_school', extensions.st_point($lng, $lat)::extensions.geography, 'phone', now())
+      on conflict (bus_id) do update set location = excluded.location, recorded_at = excluded.recorded_at;""";
+
+    await _sql(upsert(other, 3.90, 11.60)); // another bus moves: must not arrive
+    await _sql(upsert(mine, 3.851, 11.501));
+    await _sql(upsert(other, 3.91, 11.61));
+    await _sql(upsert(mine, 3.852, 11.502));
+
+    for (var i = 0; i < 40 && !received.any((p) => (p.location.latitude - 3.852).abs() < 1e-6); i++) {
+      await Future<void>.delayed(const Duration(milliseconds: 250));
+    }
+    expect(received, isNotEmpty, reason: 'the student receives the bus they follow');
+    expect(received.map((p) => p.busId).toSet(), {mine}, reason: 'and nothing from other buses');
+    expect(received.last.location.latitude, closeTo(3.852, 1e-6));
+    expect(received.any((p) => p.location.latitude > 3.89), isFalse);
+
+    final latest = await repos.livePositions.latestForBus(mine);
+    expect(latest?.location.longitude, closeTo(11.502, 1e-6));
+  });
+
+  test('a student registers and removes their own push token, and cannot read the outbox', () async {
+    const token = 'live-test-token-0123456789abcdef-student';
+    await repos.deviceTokens.register(token: token, platform: 'android', locale: 'fr');
+    final mine = await client.from('device_tokens').select('token, platform, locale');
+    expect(mine, [
+      {'token': token, 'platform': 'android', 'locale': 'fr'},
+    ]);
+
+    // Registering again from the same phone only refreshes it.
+    await repos.deviceTokens.register(token: token, platform: 'android', locale: 'en');
+    expect(await client.from('device_tokens').select('locale'), [
+      {'locale': 'en'},
+    ]);
+
+    // Changing an already decided subscription queues nothing (a decision on a pending one does, covered by the database tests).
+    final queuedBefore = int.parse(await _query("select count(*) from private.notification_outbox where user_id = '$studentId'"));
+    await _sql("update public.subscriptions set status = 'rejected' where student_id = '$studentId' and status = 'approved';");
+    final queuedAfter = int.parse(await _query("select count(*) from private.notification_outbox where user_id = '$studentId'"));
+    expect(queuedAfter, queuedBefore, reason: 'only a pending request that is decided queues a notification');
+
+    // The outbox is not reachable by a signed-in student at all.
+    await expectLater(client.from('notification_outbox').select(), throwsA(anything));
+
+    await repos.deviceTokens.unregister(token);
+    expect(await client.from('device_tokens').select('token'), isEmpty);
   });
 
   test('a student cannot upload into someone else\'s folder', () async {

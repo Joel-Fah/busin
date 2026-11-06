@@ -43,6 +43,17 @@ void main() {
     expect((state as Allowed).profile.id, 'u1');
   });
 
+  test('a verified student who has not finished setting up goes to set up first', () {
+    final state = check(loaded: profile(complete: false));
+    expect(state, isA<NeedsSetup>());
+    expect((state as NeedsSetup).profile.id, 'u1');
+  });
+
+  test('a blocked account is blocked before setup is asked of it', () {
+    expect(check(loaded: profile(status: AccountStatus.pending, complete: false)), isA<Blocked>());
+    expect(check(loaded: profile(role: UserRole.admin, complete: false)), isA<Blocked>());
+  });
+
   test('a pending or suspended student is blocked with the reason', () {
     expect((check(loaded: profile(status: AccountStatus.pending)) as Blocked).reason, BlockReason.pending);
     expect((check(loaded: profile(status: AccountStatus.suspended)) as Blocked).reason, BlockReason.suspended);

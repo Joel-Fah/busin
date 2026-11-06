@@ -23,6 +23,7 @@
   "subscriptionPending": "En attente",
   "subscriptionApproved": "Approuvé",
   "subscriptionRejected": "Refusé",
+  "subscriptionRevoked": "Révoqué",
   "subscriptionExpired": "Expiré",
   "tripScheduled": "Planifié",
   "tripActive": "En cours",
@@ -35,10 +36,44 @@
   "semesterSummer": "Été",
   "semesterLabel": "{name} {year}",
   "avatarOf": "Photo de {name}",
+  "setupWelcome": "Bienvenue, {name}",
+  "setupBody": "Dites à votre école qui vous êtes pour que le conducteur puisse vous retrouver. Cela prend une minute.",
+  "setupSave": "Enregistrer et continuer",
+  "setupNotYou": "Ce n’est pas vous ? Se déconnecter",
+  "fieldFullName": "Nom complet",
+  "fieldFullNameHint": "Comme sur votre carte d’étudiant",
+  "fieldMatricule": "Matricule",
+  "fieldMatriculeHint": "Par exemple ICT2026-0001",
+  "fieldPhone": "Numéro de téléphone",
+  "fieldPhoneHint": "Par exemple 677 12 34 56",
+  "fieldDepartment": "Département",
+  "fieldDepartmentHint": "Choisissez votre département",
+  "fieldProgram": "Programme",
+  "fieldProgramHint": "Choisissez votre niveau d'études",
+  "fieldFaculty": "Faculté",
+  "fieldFacultyHint": "Choisissez votre faculté",
+  "fieldDepartmentFirst": "Choisissez d'abord une faculté",
+  "choiceNone": "Non renseigné",
+  "fieldTooShort": "Cela semble trop court.",
+  "fieldTooLong": "C’est trop long.",
+  "fieldInvalid": "Vérifiez ce champ : il contient des caractères non acceptés.",
+  "profileTitle": "Votre profil",
+  "profileOpen": "Ouvrir votre profil",
+  "profileDetails": "Vos informations",
+  "profileEdit": "Modifier",
+  "profileNotSet": "Non renseigné",
+  "profileMemberSince": "Membre depuis le {date}",
+  "profileSaved": "Informations enregistrées.",
+  "profileSignOut": "Se déconnecter",
+  "profileSignOutTitle": "Se déconnecter de BusIn ?",
+  "profileSignOutBody": "Vous devrez vous reconnecter avec Google.",
+  "profileCredits": "Illustrations 3D par Thiings (thiings.co)",
   "fieldRequired": "Ce champ est obligatoire.",
+  "loadingSlowTitle": "Cela prend plus de temps que d’habitude",
+  "loadingSlowBody": "Vérifiez votre connexion. BusIn continue d’essayer.",
   "loadingLabel": "Chargement",
   "appName": "BusIn",
-  "signInTitle": "Voyagez avec BusIn",
+  "signInTitle": "Montez à bord. BusIn s’occupe du reste.",
   "signInSubtitle": "Connectez-vous avec votre compte Google de l’école pour vous abonner, présenter votre code d’embarquement et suivre votre bus.",
   "signInWithGoogle": "Continuer avec Google",
   "signInCancelled": "La connexion a été annulée.",
@@ -53,6 +88,17 @@
   "navSubscription": "Abonnement",
   "navQr": "Code d’embarquement",
   "navHistory": "Historique",
+  "navProfile": "Profil",
+  "profileAppearance": "Apparence",
+  "profileAppearanceHint": "Conservé sur ce téléphone.",
+  "profileTheme": "Thème",
+  "themeSystem": "Système",
+  "themeLight": "Clair",
+  "themeDark": "Sombre",
+  "profileLanguage": "Langue",
+  "languageSystem": "Système",
+  "profileHistory": "Historique des trajets",
+  "profileHistoryBody": "Chacune de vos montées, de la plus récente à la plus ancienne.",
   "navBus": "Mon bus",
   "comingSoonTitle": "Bientôt disponible",
   "comingSoonBody": "Cette partie de l’application est en cours de création.",
@@ -98,6 +144,16 @@
       }
     }
   },
+  "proofView": "Voir votre preuve de paiement en plein écran",
+  "proofClose": "Fermer",
+  "requestsTitle": "Vos demandes ce semestre",
+  "requestsHint": "Tout ce qui s’est passé, le plus récent en premier.",
+  "requestOf": "Demande du {date}",
+  "requestEventRequested": "Vous avez envoyé la demande",
+  "requestEventApproved": "Votre école l’a approuvée",
+  "requestEventRejected": "Votre école l’a refusée",
+  "requestEventRevoked": "Votre école y a mis fin",
+  "requestEventReinstated": "Votre école vous l’a rendue",
   "subscriptionProofTitle": "Votre preuve de paiement",
   "statusPendingTitle": "Demande envoyée",
   "statusPendingBody": "Votre école vérifie votre preuve de paiement. Tirez vers le bas pour voir si une décision a été prise.",
@@ -115,23 +171,161 @@
   "statusRejectedReason": "Motif de votre école :",
   "statusRejectedNoReason": "Votre école n’a pas donné de motif.",
   "statusRequestAgain": "Refaire une demande",
+  "statusRevokedTitle": "Abonnement terminé par votre école",
+  "statusRevokedReason": "Motif de votre école :",
   "statusExpiredTitle": "Abonnement terminé",
   "statusExpiredBody": "Cet abonnement n’est plus valide. Vous pouvez envoyer une nouvelle demande.",
+  "qrChecking": "Vérification de votre abonnement",
   "qrTitle": "Code d’embarquement",
   "qrHint": "Présentez ce code au conducteur ou au personnel au moment de monter.",
   "qrImageLabel": "Votre code d’embarquement. Il change toutes les 30 secondes.",
-  "qrRefreshesIn": "Nouveau code dans {seconds} s",
-  "@qrRefreshesIn": {
+  "qrLive": "Code en direct",
+  "qrPrivateTitle": "Gardez votre code pour vous",
+  "qrPrivateBodyProtected": "Il change tout seul, et les captures d’écran sont désactivées ici.",
+  "qrPrivateBody": "Il change tout seul et ne fonctionne que pour vous.",
+  "qrRefreshed": "Code actualisé.",
+  "boardTitle": "Comment monter",
+  "boardStep1": "Ayez cet écran ouvert en arrivant à la porte.",
+  "boardStep2": "Approchez votre téléphone du lecteur jusqu’à la confirmation.",
+  "boardStep3": "Prenez n’importe quelle place. Votre trajet est enregistré dans l’historique.",
+  "qrNoSubscriptionTitle": "Aucun abonnement actif",
+  "qrNoSubscriptionBody": "Votre code d’embarquement apparaît dès que votre abonnement est approuvé.",
+  "qrGoToSubscription": "Aller à l’abonnement",
+  "qrOfflineTitle": "Connectez-vous une fois pour configurer votre code",
+  "qrOfflineBody": "Votre téléphone a besoin d’internet une seule fois pour obtenir votre code d’embarquement. Ensuite, il fonctionne sans connexion.",
+  "historyTitle": "Vos embarquements",
+  "historyStatWeek": "Montées cette semaine",
+  "historyStatStop": "Arrêt le plus utilisé",
+  "historyStatStopNone": "Aucun pour l’instant",
+  "historyDayCount": "{count, plural, =1{1 montée} other{{count} montées}}",
+  "historyDayFirst": "Première montée",
+  "historyDayLast": "Dernière montée",
+  "historyDayStops": "Arrêts utilisés",
+  "historySelectedDay": "Jour choisi",
+  "historyEmptyTitle": "Aucun embarquement pour le moment",
+  "historyEmptyBody": "Chaque fois que vous montez avec votre code, il apparaît ici.",
+  "historyStopUnknown": "Arrêt non enregistré",
+  "historyLoadMoreFailed": "Impossible de charger la suite. Touchez pour réessayer.",
+  "busLockedTitle": "Le suivi du bus est réservé aux abonnés",
+  "busLockedBody": "Dès que votre abonnement est approuvé, vous voyez où est votre bus, en direct.",
+  "busLockedAction": "Aller à l’abonnement",
+  "busNoneTitle": "Aucun bus n’est en service pour le moment",
+  "busNoneBody": "Dès qu’un trajet démarre, vous pouvez suivre son bus ici.",
+  "busWaiting": "En attente de la position du bus.",
+  "busUpdatedSeconds": "Mis à jour il y a {seconds} s",
+  "@busUpdatedSeconds": {
     "placeholders": {
       "seconds": {
         "type": "String"
       }
     }
   },
-  "qrScreenshotsOff": "Les captures d’écran sont désactivées ici pour qu’une copie de votre code ne puisse pas être partagée.",
-  "qrNoSubscriptionTitle": "Aucun abonnement actif",
-  "qrNoSubscriptionBody": "Votre code d’embarquement apparaît dès que votre abonnement est approuvé.",
-  "qrGoToSubscription": "Aller à l’abonnement",
-  "qrOfflineTitle": "Connectez-vous une fois pour configurer votre code",
-  "qrOfflineBody": "Votre téléphone a besoin d’internet une seule fois pour obtenir votre code d’embarquement. Ensuite, il fonctionne sans connexion."
+  "busUpdatedMinutes": "Mis à jour il y a {minutes} min",
+  "@busUpdatedMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "busStale": "Dernière position il y a {minutes} min. Le bus est peut-être hors réseau.",
+  "@busStale": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "busSpeed": "{kmh} km/h",
+  "@busSpeed": {
+    "placeholders": {
+      "kmh": {
+        "type": "String"
+      }
+    }
+  },
+  "busEtaMinutes": "{minutes} min",
+  "busEtaArriving": "Arrive",
+  "busEtaCaption": "{km} km de {stop}",
+  "busDistanceKm": "{km} km",
+  "busEtaLabel": "Arrivée estimée",
+  "busRunning": "Bus en service",
+  "busYourStop": "Votre arrêt",
+  "busRecenter": "Afficher le bus",
+  "busLiveFailed": "Les mises à jour en direct ne sont pas disponibles pour le moment.",
+  "busMapLabel": "Carte du bus et des arrêts",
+  "pushPromptTitle": "Soyez prévenu",
+  "pushPromptBody": "Nous pouvons vous prévenir dès que votre école statue sur votre demande, même lorsque l’application est fermée.",
+  "pushPromptEnable": "Activer les notifications",
+  "pushPromptLater": "Plus tard",
+  "pushPromptDenied": "Les notifications sont désactivées. Vous pouvez les activer dans les réglages de votre téléphone.",
+  "pushForegroundApproved": "Votre abonnement a été approuvé.",
+  "pushForegroundRejected": "Votre école a statué sur votre abonnement.",
+  "liveReinstated": "Votre école vous a rendu votre abonnement.",
+  "liveRevoked": "Votre école a mis fin à votre abonnement.",
+  "pushForegroundView": "Voir",
+  "navQrShort": "Code",
+  "greetMorning": "Bonjour",
+  "greetAfternoon": "Bon après-midi",
+  "greetEvening": "Bonsoir",
+  "stageSent": "Envoyée",
+  "stageChecking": "Vérification",
+  "stageDecided": "Décision",
+  "stageSemantics": "Étape {number} sur {total} : {label}",
+  "@stageSemantics": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "howTitle": "Comment ça marche",
+  "howStep1": "Choisissez où vous montez.",
+  "howStep2": "Ajoutez une photo de votre reçu de paiement.",
+  "howStep3": "Votre école la vérifie et décide.",
+  "howStep4": "Présentez votre code d’embarquement et voyagez.",
+  "proofAdded": "Photo ajoutée",
+  "legalTitle": "Mentions légales",
+  "legalHint": "Conditions et confidentialité. Elles sont dans l’application, donc lisibles hors connexion.",
+  "legalTerms": "Conditions d’utilisation",
+  "legalTermsBody": "Les règles pour utiliser BusIn",
+  "legalPrivacy": "Politique de confidentialité",
+  "legalPrivacyBody": "Ce que nous gardons sur vous, et pourquoi",
+  "legalAcceptable": "Usage acceptable",
+  "legalAcceptableBody": "Ce qui est permis et ce qui ne l’est pas",
+  "legalInShort": "En bref",
+  "legalUpdated": "Mis à jour le {date}",
+  "legalAppliesTo": "S’applique à {school}",
+  "legalAlsoRead": "À lire aussi",
+  "legalQuestionsTitle": "Des questions sur vos données ?",
+  "legalQuestionsBody": "Adressez-vous à l’administration de votre école. Elle peut corriger vos informations et répondre aux demandes concernant votre compte.",
+  "legalReadTime": "{minutes} min de lecture",
+  "@legalUpdated": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@legalAppliesTo": {
+    "placeholders": {
+      "school": {
+        "type": "String"
+      }
+    }
+  },
+  "@legalReadTime": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "legalOnThisPage": "Sur cette page"
 }

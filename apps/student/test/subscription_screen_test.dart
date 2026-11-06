@@ -27,6 +27,11 @@ Future<void> open(
     ),
   );
   await tester.pumpAndSettle();
+  // A student with an approved subscription opens on the boarding code; these tests look at the subscription tab.
+  if (find.text('Boarding code').evaluate().isNotEmpty) {
+    await tester.tap(find.text('Subscription').first);
+    await tester.pumpAndSettle();
+  }
 }
 
 bool sendEnabled(WidgetTester tester) => tester.widget<BusinButton>(find.widgetWithText(BusinButton, 'Send request')).onPressed != null;
@@ -62,7 +67,7 @@ void main() {
 
   testWidgets('an upcoming semester can already be subscribed to, and says when it starts', (tester) async {
     await open(tester, FakeBackend(next: semester(start: '2030-09-01', end: '2031-01-31')));
-    expect(find.text('Subscribe for Fall 2026'), findsOneWidget);
+    expect(find.textContaining('Subscribe for Fall 2026'), findsOneWidget);
     expect(find.textContaining('Starts'), findsOneWidget);
   });
 
@@ -80,7 +85,7 @@ void main() {
 
     await choosePhoto(tester);
     expect(picker.asked, [ProofSource.gallery]);
-    expect(find.text('Change photo'), findsOneWidget);
+    expect(find.text('Photo added'), findsOneWidget);
     expect(sendEnabled(tester), isTrue);
 
     await tester.tap(find.text('Send request'));
@@ -95,7 +100,7 @@ void main() {
     expect(sent.proofPath, 's1/u1/file1.jpg', reason: 'the request carries the path the upload returned');
 
     expect(find.text('Request sent'), findsOneWidget);
-    expect(find.text('Pending'), findsOneWidget);
+    expect(find.text('Pending'), findsWidgets);
     expect(find.text('Mvan'), findsOneWidget);
     expect(find.text('Send request'), findsNothing);
   });
@@ -119,7 +124,7 @@ void main() {
   testWidgets('backing out of the camera or gallery changes nothing', (tester) async {
     await open(tester, FakeBackend(current: semester()), picker: FakeProofPicker(null));
     await choosePhoto(tester);
-    expect(find.text('Change photo'), findsNothing);
+    expect(find.text('Photo added'), findsNothing);
     expect(find.text('Add a clear photo of your receipt'), findsOneWidget);
   });
 
@@ -183,7 +188,7 @@ void main() {
     await tester.tap(find.text('Show boarding code'));
     await tester.pumpAndSettle();
     expect(find.text('Your boarding code. It changes every 30 seconds.').evaluate(), isEmpty, reason: 'the image label is a semantics label, not text');
-    expect(find.text('Boarding code'), findsNWidgets(2), reason: 'the tab and the screen title');
+    expect(find.text('Boarding code'), findsOneWidget, reason: 'the screen title; the tab says Code');
   });
 
   testWidgets('a rejected request shows the school\'s reason and lets the student ask again', (tester) async {
@@ -207,6 +212,18 @@ void main() {
     await open(tester, FakeBackend(current: semester(), mine: [subscription(status: SubscriptionStatus.expired)]));
     expect(find.text('Subscription ended'), findsOneWidget);
     expect(find.text('Request again'), findsOneWidget);
+  });
+
+  testWidgets('a revoked subscription says so with the school\'s reason and lets the student ask again', (tester) async {
+    await open(tester, FakeBackend(current: semester(), mine: [subscription(status: SubscriptionStatus.revoked, note: 'Payment was reversed.')]));
+    expect(find.text('Subscription ended by your school'), findsOneWidget);
+    expect(find.text('Revoked'), findsWidgets);
+    expect(find.text('Payment was reversed.'), findsOneWidget);
+    expect(find.text('Show boarding code'), findsNothing);
+
+    await tester.tap(find.text('Request again'));
+    await tester.pumpAndSettle();
+    expect(find.text('Send request'), findsOneWidget);
   });
 
   testWidgets('requests for another semester do not count', (tester) async {

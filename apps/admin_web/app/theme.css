@@ -133,6 +133,30 @@
   }
 }
 
+/*
+ * Accordion (details): the panel eases its height and fades its content. Uses ::details-content and interpolate-size,
+ * so a browser without them (older Firefox and Safari) simply opens and closes at once. Reduced motion collapses the
+ * durations through the tokens above.
+ */
+.accordion {
+  interpolate-size: allow-keywords;
+}
+
+.accordion::details-content {
+  block-size: 0;
+  overflow: clip;
+  opacity: 0;
+  transition:
+    block-size var(--dur) var(--ease-soft),
+    opacity var(--dur-fast) var(--ease-soft),
+    content-visibility var(--dur) allow-discrete;
+}
+
+.accordion[open]::details-content {
+  block-size: auto;
+  opacity: 1;
+}
+
 @keyframes shimmer {
   to {
     background-position-x: -200%;
@@ -251,6 +275,61 @@ input::-webkit-calendar-picker-indicator {
 
 input::-webkit-calendar-picker-indicator:hover {
   opacity: 1;
+}
+
+/* A toast eases down from above and settles, and glides back up when it leaves. Reduced motion: a plain fade. */
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-18px) scale(0.97);
+  }
+}
+
+@keyframes toast-out {
+  to {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.98);
+  }
+}
+
+.toast-in {
+  animation: toast-in 460ms var(--ease-soft) both;
+}
+
+.toast-out {
+  animation: toast-out 380ms cubic-bezier(0.4, 0, 0.7, 0.2) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast-in {
+    animation: toast-fade 160ms linear both;
+  }
+
+  .toast-out {
+    animation: toast-fade-out 160ms linear both;
+  }
+}
+
+@keyframes toast-ring {
+  to {
+    stroke-dashoffset: 100;
+  }
+}
+
+.toast-ring {
+  animation: toast-ring linear forwards;
+}
+
+@keyframes toast-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes toast-fade-out {
+  to {
+    opacity: 0;
+  }
 }
 
 @keyframes panel-in {

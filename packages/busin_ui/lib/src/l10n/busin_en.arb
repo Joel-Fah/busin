@@ -23,6 +23,7 @@
   "subscriptionPending": "Pending",
   "subscriptionApproved": "Approved",
   "subscriptionRejected": "Rejected",
+  "subscriptionRevoked": "Revoked",
   "subscriptionExpired": "Expired",
   "tripScheduled": "Scheduled",
   "tripActive": "Running",
@@ -54,10 +55,58 @@
       }
     }
   },
+  "setupWelcome": "Welcome, {name}",
+  "@setupWelcome": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "setupBody": "Tell your school who you are so the driver can find you. It takes a minute.",
+  "setupSave": "Save and continue",
+  "setupNotYou": "Not you? Sign out",
+  "fieldFullName": "Full name",
+  "fieldFullNameHint": "As on your student card",
+  "fieldMatricule": "Student number",
+  "fieldMatriculeHint": "For example ICT2026-0001",
+  "fieldPhone": "Phone number",
+  "fieldPhoneHint": "For example 677 12 34 56",
+  "fieldDepartment": "Department",
+  "fieldDepartmentHint": "Choose your department",
+  "fieldProgram": "Program",
+  "fieldProgramHint": "Choose your degree level",
+  "fieldFaculty": "Faculty",
+  "fieldFacultyHint": "Choose your faculty",
+  "fieldDepartmentFirst": "Choose a faculty first",
+  "choiceNone": "Not chosen",
+  "fieldTooShort": "That looks too short.",
+  "fieldTooLong": "That is too long.",
+  "fieldInvalid": "Check this one: it has characters we cannot use.",
+  "profileTitle": "Your profile",
+  "profileOpen": "Open your profile",
+  "profileDetails": "Your details",
+  "profileEdit": "Edit details",
+  "profileNotSet": "Not set",
+  "profileMemberSince": "Member since {date}",
+  "@profileMemberSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "profileSaved": "Details saved.",
+  "profileSignOut": "Sign out",
+  "profileSignOutTitle": "Sign out of BusIn?",
+  "profileSignOutBody": "You will need to sign in with Google again.",
+  "profileCredits": "3D illustrations by Thiings (thiings.co)",
   "fieldRequired": "This field is required.",
+  "loadingSlowTitle": "This is taking longer than usual",
+  "loadingSlowBody": "Check your connection. BusIn keeps trying.",
   "loadingLabel": "Loading",
   "appName": "BusIn",
-  "signInTitle": "Ride with BusIn",
+  "signInTitle": "Hop on. BusIn handles the rest.",
   "signInSubtitle": "Sign in with your school Google account to subscribe, show your boarding code and follow your bus.",
   "signInWithGoogle": "Continue with Google",
   "signInCancelled": "Sign-in was cancelled.",
@@ -72,6 +121,17 @@
   "navSubscription": "Subscription",
   "navQr": "Boarding code",
   "navHistory": "History",
+  "navProfile": "Profile",
+  "profileAppearance": "Appearance",
+  "profileAppearanceHint": "Kept on this phone.",
+  "profileTheme": "Theme",
+  "themeSystem": "System",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "profileLanguage": "Language",
+  "languageSystem": "System",
+  "profileHistory": "Boarding history",
+  "profileHistoryBody": "Every time you boarded, newest first.",
   "navBus": "My bus",
   "comingSoonTitle": "Coming soon",
   "comingSoonBody": "This part of the app is being built.",
@@ -117,6 +177,23 @@
       }
     }
   },
+  "proofView": "View your payment proof full screen",
+  "proofClose": "Close",
+  "requestsTitle": "Your requests this semester",
+  "requestsHint": "Everything that happened, the latest first.",
+  "requestOf": "Request of {date}",
+  "@requestOf": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "requestEventRequested": "You sent the request",
+  "requestEventApproved": "Your school approved it",
+  "requestEventRejected": "Your school declined it",
+  "requestEventRevoked": "Your school ended it",
+  "requestEventReinstated": "Your school gave it back",
   "subscriptionProofTitle": "Your payment proof",
   "statusPendingTitle": "Request sent",
   "statusPendingBody": "Your school is checking your payment proof. Pull down to see if it has been decided.",
@@ -134,23 +211,192 @@
   "statusRejectedReason": "Your school's reason:",
   "statusRejectedNoReason": "Your school did not give a reason.",
   "statusRequestAgain": "Request again",
+  "statusRevokedTitle": "Subscription ended by your school",
+  "statusRevokedReason": "Your school's reason:",
   "statusExpiredTitle": "Subscription ended",
   "statusExpiredBody": "This subscription is no longer valid. You can send a new request.",
+  "qrChecking": "Checking your subscription",
   "qrTitle": "Boarding code",
   "qrHint": "Show this code to the driver or staff when you board.",
   "qrImageLabel": "Your boarding code. It changes every 30 seconds.",
-  "qrRefreshesIn": "New code in {seconds} s",
-  "@qrRefreshesIn": {
+  "qrLive": "Live code",
+  "qrPrivateTitle": "Keep your code to yourself",
+  "qrPrivateBodyProtected": "It changes by itself, and screenshots are turned off here.",
+  "qrPrivateBody": "It changes by itself and only works for you.",
+  "qrRefreshed": "Code refreshed.",
+  "boardTitle": "How to board",
+  "boardStep1": "Have this screen open when you reach the door.",
+  "boardStep2": "Hold your phone to the scanner until it confirms.",
+  "boardStep3": "Take any seat. Your ride is saved in History.",
+  "qrNoSubscriptionTitle": "No active subscription",
+  "qrNoSubscriptionBody": "Your boarding code appears as soon as your subscription is approved.",
+  "qrGoToSubscription": "Go to subscription",
+  "qrOfflineTitle": "Connect once to set up your code",
+  "qrOfflineBody": "Your phone needs the internet one time to get your boarding code. After that it works without a connection.",
+  "historyTitle": "Your boardings",
+  "historyStatWeek": "Boardings this week",
+  "historyStatStop": "Most used stop",
+  "historyStatStopNone": "None yet",
+  "historyDayCount": "{count, plural, =1{1 boarding} other{{count} boardings}}",
+  "@historyDayCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "historyDayFirst": "First boarding",
+  "historyDayLast": "Last boarding",
+  "historyDayStops": "Stops used",
+  "historySelectedDay": "Selected day",
+  "historyEmptyTitle": "No boardings yet",
+  "historyEmptyBody": "Each time you board with your code, it appears here.",
+  "historyStopUnknown": "Stop not recorded",
+  "historyLoadMoreFailed": "Could not load more. Tap to try again.",
+  "busLockedTitle": "Following the bus is for subscribers",
+  "busLockedBody": "Once your subscription is approved you can see where your bus is, live.",
+  "busLockedAction": "Go to subscription",
+  "busNoneTitle": "No bus is running right now",
+  "busNoneBody": "When a trip starts you can follow its bus here.",
+  "busWaiting": "Waiting for the bus to share its location.",
+  "busUpdatedSeconds": "Updated {seconds} s ago",
+  "@busUpdatedSeconds": {
     "placeholders": {
       "seconds": {
         "type": "String"
       }
     }
   },
-  "qrScreenshotsOff": "Screenshots are turned off here so a copy of your code cannot be shared.",
-  "qrNoSubscriptionTitle": "No active subscription",
-  "qrNoSubscriptionBody": "Your boarding code appears as soon as your subscription is approved.",
-  "qrGoToSubscription": "Go to subscription",
-  "qrOfflineTitle": "Connect once to set up your code",
-  "qrOfflineBody": "Your phone needs the internet one time to get your boarding code. After that it works without a connection."
+  "busUpdatedMinutes": "Updated {minutes} min ago",
+  "@busUpdatedMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "busStale": "Last seen {minutes} min ago. The bus may be out of signal.",
+  "@busStale": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "busSpeed": "{kmh} km/h",
+  "@busSpeed": {
+    "placeholders": {
+      "kmh": {
+        "type": "String"
+      }
+    }
+  },
+  "busEtaMinutes": "{minutes} min",
+  "@busEtaMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "busEtaArriving": "Arriving",
+  "busEtaCaption": "{km} km from {stop}",
+  "@busEtaCaption": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      },
+      "stop": {
+        "type": "String"
+      }
+    }
+  },
+  "busDistanceKm": "{km} km",
+  "@busDistanceKm": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "busEtaLabel": "Estimated arrival",
+  "busRunning": "Running buses",
+  "busYourStop": "Your stop",
+  "busRecenter": "Show the bus",
+  "busLiveFailed": "Live updates are not available right now.",
+  "busMapLabel": "Map of the bus and the stops",
+  "pushPromptTitle": "Get notified",
+  "pushPromptBody": "We can tell you as soon as your school decides on your request, even when the app is closed.",
+  "pushPromptEnable": "Turn on notifications",
+  "pushPromptLater": "Not now",
+  "pushPromptDenied": "Notifications are off. You can turn them on in your phone's settings.",
+  "pushForegroundApproved": "Your subscription was approved.",
+  "pushForegroundRejected": "Your school has decided on your subscription.",
+  "liveReinstated": "Your school gave your subscription back.",
+  "liveRevoked": "Your school ended your subscription.",
+  "pushForegroundView": "View",
+  "navQrShort": "Code",
+  "greetMorning": "Good morning",
+  "greetAfternoon": "Good afternoon",
+  "greetEvening": "Good evening",
+  "stageSent": "Sent",
+  "stageChecking": "Checking",
+  "stageDecided": "Decision",
+  "stageSemantics": "Step {number} of {total}: {label}",
+  "@stageSemantics": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "howTitle": "How it works",
+  "howStep1": "Choose where you board.",
+  "howStep2": "Add a photo of your payment receipt.",
+  "howStep3": "Your school checks it and decides.",
+  "howStep4": "Show your boarding code and ride.",
+  "proofAdded": "Photo added",
+  "legalTitle": "Legal",
+  "legalHint": "Terms and privacy. They are in the app, so you can read them offline.",
+  "legalTerms": "Terms of use",
+  "legalTermsBody": "The rules for using BusIn",
+  "legalPrivacy": "Privacy policy",
+  "legalPrivacyBody": "What we keep about you, and why",
+  "legalAcceptable": "Acceptable use",
+  "legalAcceptableBody": "What is and is not allowed",
+  "legalInShort": "In short",
+  "legalUpdated": "Updated {date}",
+  "legalAppliesTo": "Applies to {school}",
+  "legalAlsoRead": "Also read",
+  "legalQuestionsTitle": "Questions about your data?",
+  "legalQuestionsBody": "Ask your school's administration. They can correct your details and answer requests about your account.",
+  "legalReadTime": "{minutes} min read",
+  "@legalUpdated": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@legalAppliesTo": {
+    "placeholders": {
+      "school": {
+        "type": "String"
+      }
+    }
+  },
+  "@legalReadTime": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "legalOnThisPage": "On this page"
 }

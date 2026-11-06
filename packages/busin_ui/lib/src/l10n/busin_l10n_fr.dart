@@ -80,6 +80,9 @@ class BusinL10nFr extends BusinL10n {
   String get subscriptionRejected => 'Refusé';
 
   @override
+  String get subscriptionRevoked => 'Révoqué';
+
+  @override
   String get subscriptionExpired => 'Expiré';
 
   @override
@@ -120,7 +123,116 @@ class BusinL10nFr extends BusinL10n {
   }
 
   @override
+  String setupWelcome(String name) {
+    return 'Bienvenue, $name';
+  }
+
+  @override
+  String get setupBody =>
+      'Dites à votre école qui vous êtes pour que le conducteur puisse vous retrouver. Cela prend une minute.';
+
+  @override
+  String get setupSave => 'Enregistrer et continuer';
+
+  @override
+  String get setupNotYou => 'Ce n’est pas vous ? Se déconnecter';
+
+  @override
+  String get fieldFullName => 'Nom complet';
+
+  @override
+  String get fieldFullNameHint => 'Comme sur votre carte d’étudiant';
+
+  @override
+  String get fieldMatricule => 'Matricule';
+
+  @override
+  String get fieldMatriculeHint => 'Par exemple ICT2026-0001';
+
+  @override
+  String get fieldPhone => 'Numéro de téléphone';
+
+  @override
+  String get fieldPhoneHint => 'Par exemple 677 12 34 56';
+
+  @override
+  String get fieldDepartment => 'Département';
+
+  @override
+  String get fieldDepartmentHint => 'Choisissez votre département';
+
+  @override
+  String get fieldProgram => 'Programme';
+
+  @override
+  String get fieldProgramHint => 'Choisissez votre niveau d\'études';
+
+  @override
+  String get fieldFaculty => 'Faculté';
+
+  @override
+  String get fieldFacultyHint => 'Choisissez votre faculté';
+
+  @override
+  String get fieldDepartmentFirst => 'Choisissez d\'abord une faculté';
+
+  @override
+  String get choiceNone => 'Non renseigné';
+
+  @override
+  String get fieldTooShort => 'Cela semble trop court.';
+
+  @override
+  String get fieldTooLong => 'C’est trop long.';
+
+  @override
+  String get fieldInvalid =>
+      'Vérifiez ce champ : il contient des caractères non acceptés.';
+
+  @override
+  String get profileTitle => 'Votre profil';
+
+  @override
+  String get profileOpen => 'Ouvrir votre profil';
+
+  @override
+  String get profileDetails => 'Vos informations';
+
+  @override
+  String get profileEdit => 'Modifier';
+
+  @override
+  String get profileNotSet => 'Non renseigné';
+
+  @override
+  String profileMemberSince(String date) {
+    return 'Membre depuis le $date';
+  }
+
+  @override
+  String get profileSaved => 'Informations enregistrées.';
+
+  @override
+  String get profileSignOut => 'Se déconnecter';
+
+  @override
+  String get profileSignOutTitle => 'Se déconnecter de BusIn ?';
+
+  @override
+  String get profileSignOutBody => 'Vous devrez vous reconnecter avec Google.';
+
+  @override
+  String get profileCredits => 'Illustrations 3D par Thiings (thiings.co)';
+
+  @override
   String get fieldRequired => 'Ce champ est obligatoire.';
+
+  @override
+  String get loadingSlowTitle => 'Cela prend plus de temps que d’habitude';
+
+  @override
+  String get loadingSlowBody =>
+      'Vérifiez votre connexion. BusIn continue d’essayer.';
 
   @override
   String get loadingLabel => 'Chargement';
@@ -129,7 +241,7 @@ class BusinL10nFr extends BusinL10n {
   String get appName => 'BusIn';
 
   @override
-  String get signInTitle => 'Voyagez avec BusIn';
+  String get signInTitle => 'Montez à bord. BusIn s’occupe du reste.';
 
   @override
   String get signInSubtitle =>
@@ -178,6 +290,40 @@ class BusinL10nFr extends BusinL10n {
 
   @override
   String get navHistory => 'Historique';
+
+  @override
+  String get navProfile => 'Profil';
+
+  @override
+  String get profileAppearance => 'Apparence';
+
+  @override
+  String get profileAppearanceHint => 'Conservé sur ce téléphone.';
+
+  @override
+  String get profileTheme => 'Thème';
+
+  @override
+  String get themeSystem => 'Système';
+
+  @override
+  String get themeLight => 'Clair';
+
+  @override
+  String get themeDark => 'Sombre';
+
+  @override
+  String get profileLanguage => 'Langue';
+
+  @override
+  String get languageSystem => 'Système';
+
+  @override
+  String get profileHistory => 'Historique des trajets';
+
+  @override
+  String get profileHistoryBody =>
+      'Chacune de vos montées, de la plus récente à la plus ancienne.';
 
   @override
   String get navBus => 'Mon bus';
@@ -265,6 +411,39 @@ class BusinL10nFr extends BusinL10n {
   }
 
   @override
+  String get proofView => 'Voir votre preuve de paiement en plein écran';
+
+  @override
+  String get proofClose => 'Fermer';
+
+  @override
+  String get requestsTitle => 'Vos demandes ce semestre';
+
+  @override
+  String get requestsHint =>
+      'Tout ce qui s’est passé, le plus récent en premier.';
+
+  @override
+  String requestOf(String date) {
+    return 'Demande du $date';
+  }
+
+  @override
+  String get requestEventRequested => 'Vous avez envoyé la demande';
+
+  @override
+  String get requestEventApproved => 'Votre école l’a approuvée';
+
+  @override
+  String get requestEventRejected => 'Votre école l’a refusée';
+
+  @override
+  String get requestEventRevoked => 'Votre école y a mis fin';
+
+  @override
+  String get requestEventReinstated => 'Votre école vous l’a rendue';
+
+  @override
   String get subscriptionProofTitle => 'Votre preuve de paiement';
 
   @override
@@ -298,11 +477,20 @@ class BusinL10nFr extends BusinL10n {
   String get statusRequestAgain => 'Refaire une demande';
 
   @override
+  String get statusRevokedTitle => 'Abonnement terminé par votre école';
+
+  @override
+  String get statusRevokedReason => 'Motif de votre école :';
+
+  @override
   String get statusExpiredTitle => 'Abonnement terminé';
 
   @override
   String get statusExpiredBody =>
       'Cet abonnement n’est plus valide. Vous pouvez envoyer une nouvelle demande.';
+
+  @override
+  String get qrChecking => 'Vérification de votre abonnement';
 
   @override
   String get qrTitle => 'Code d’embarquement';
@@ -316,13 +504,35 @@ class BusinL10nFr extends BusinL10n {
       'Votre code d’embarquement. Il change toutes les 30 secondes.';
 
   @override
-  String qrRefreshesIn(String seconds) {
-    return 'Nouveau code dans $seconds s';
-  }
+  String get qrLive => 'Code en direct';
 
   @override
-  String get qrScreenshotsOff =>
-      'Les captures d’écran sont désactivées ici pour qu’une copie de votre code ne puisse pas être partagée.';
+  String get qrPrivateTitle => 'Gardez votre code pour vous';
+
+  @override
+  String get qrPrivateBodyProtected =>
+      'Il change tout seul, et les captures d’écran sont désactivées ici.';
+
+  @override
+  String get qrPrivateBody =>
+      'Il change tout seul et ne fonctionne que pour vous.';
+
+  @override
+  String get qrRefreshed => 'Code actualisé.';
+
+  @override
+  String get boardTitle => 'Comment monter';
+
+  @override
+  String get boardStep1 => 'Ayez cet écran ouvert en arrivant à la porte.';
+
+  @override
+  String get boardStep2 =>
+      'Approchez votre téléphone du lecteur jusqu’à la confirmation.';
+
+  @override
+  String get boardStep3 =>
+      'Prenez n’importe quelle place. Votre trajet est enregistré dans l’historique.';
 
   @override
   String get qrNoSubscriptionTitle => 'Aucun abonnement actif';
@@ -341,4 +551,263 @@ class BusinL10nFr extends BusinL10n {
   @override
   String get qrOfflineBody =>
       'Votre téléphone a besoin d’internet une seule fois pour obtenir votre code d’embarquement. Ensuite, il fonctionne sans connexion.';
+
+  @override
+  String get historyTitle => 'Vos embarquements';
+
+  @override
+  String get historyStatWeek => 'Montées cette semaine';
+
+  @override
+  String get historyStatStop => 'Arrêt le plus utilisé';
+
+  @override
+  String get historyStatStopNone => 'Aucun pour l’instant';
+
+  @override
+  String historyDayCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count montées',
+      one: '1 montée',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get historyDayFirst => 'Première montée';
+
+  @override
+  String get historyDayLast => 'Dernière montée';
+
+  @override
+  String get historyDayStops => 'Arrêts utilisés';
+
+  @override
+  String get historySelectedDay => 'Jour choisi';
+
+  @override
+  String get historyEmptyTitle => 'Aucun embarquement pour le moment';
+
+  @override
+  String get historyEmptyBody =>
+      'Chaque fois que vous montez avec votre code, il apparaît ici.';
+
+  @override
+  String get historyStopUnknown => 'Arrêt non enregistré';
+
+  @override
+  String get historyLoadMoreFailed =>
+      'Impossible de charger la suite. Touchez pour réessayer.';
+
+  @override
+  String get busLockedTitle => 'Le suivi du bus est réservé aux abonnés';
+
+  @override
+  String get busLockedBody =>
+      'Dès que votre abonnement est approuvé, vous voyez où est votre bus, en direct.';
+
+  @override
+  String get busLockedAction => 'Aller à l’abonnement';
+
+  @override
+  String get busNoneTitle => 'Aucun bus n’est en service pour le moment';
+
+  @override
+  String get busNoneBody =>
+      'Dès qu’un trajet démarre, vous pouvez suivre son bus ici.';
+
+  @override
+  String get busWaiting => 'En attente de la position du bus.';
+
+  @override
+  String busUpdatedSeconds(String seconds) {
+    return 'Mis à jour il y a $seconds s';
+  }
+
+  @override
+  String busUpdatedMinutes(String minutes) {
+    return 'Mis à jour il y a $minutes min';
+  }
+
+  @override
+  String busStale(String minutes) {
+    return 'Dernière position il y a $minutes min. Le bus est peut-être hors réseau.';
+  }
+
+  @override
+  String busSpeed(String kmh) {
+    return '$kmh km/h';
+  }
+
+  @override
+  String busEtaMinutes(String minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get busEtaArriving => 'Arrive';
+
+  @override
+  String busEtaCaption(String km, String stop) {
+    return '$km km de $stop';
+  }
+
+  @override
+  String busDistanceKm(String km) {
+    return '$km km';
+  }
+
+  @override
+  String get busEtaLabel => 'Arrivée estimée';
+
+  @override
+  String get busRunning => 'Bus en service';
+
+  @override
+  String get busYourStop => 'Votre arrêt';
+
+  @override
+  String get busRecenter => 'Afficher le bus';
+
+  @override
+  String get busLiveFailed =>
+      'Les mises à jour en direct ne sont pas disponibles pour le moment.';
+
+  @override
+  String get busMapLabel => 'Carte du bus et des arrêts';
+
+  @override
+  String get pushPromptTitle => 'Soyez prévenu';
+
+  @override
+  String get pushPromptBody =>
+      'Nous pouvons vous prévenir dès que votre école statue sur votre demande, même lorsque l’application est fermée.';
+
+  @override
+  String get pushPromptEnable => 'Activer les notifications';
+
+  @override
+  String get pushPromptLater => 'Plus tard';
+
+  @override
+  String get pushPromptDenied =>
+      'Les notifications sont désactivées. Vous pouvez les activer dans les réglages de votre téléphone.';
+
+  @override
+  String get pushForegroundApproved => 'Votre abonnement a été approuvé.';
+
+  @override
+  String get pushForegroundRejected =>
+      'Votre école a statué sur votre abonnement.';
+
+  @override
+  String get liveReinstated => 'Votre école vous a rendu votre abonnement.';
+
+  @override
+  String get liveRevoked => 'Votre école a mis fin à votre abonnement.';
+
+  @override
+  String get pushForegroundView => 'Voir';
+
+  @override
+  String get navQrShort => 'Code';
+
+  @override
+  String get greetMorning => 'Bonjour';
+
+  @override
+  String get greetAfternoon => 'Bon après-midi';
+
+  @override
+  String get greetEvening => 'Bonsoir';
+
+  @override
+  String get stageSent => 'Envoyée';
+
+  @override
+  String get stageChecking => 'Vérification';
+
+  @override
+  String get stageDecided => 'Décision';
+
+  @override
+  String stageSemantics(String number, String total, String label) {
+    return 'Étape $number sur $total : $label';
+  }
+
+  @override
+  String get howTitle => 'Comment ça marche';
+
+  @override
+  String get howStep1 => 'Choisissez où vous montez.';
+
+  @override
+  String get howStep2 => 'Ajoutez une photo de votre reçu de paiement.';
+
+  @override
+  String get howStep3 => 'Votre école la vérifie et décide.';
+
+  @override
+  String get howStep4 => 'Présentez votre code d’embarquement et voyagez.';
+
+  @override
+  String get proofAdded => 'Photo ajoutée';
+
+  @override
+  String get legalTitle => 'Mentions légales';
+
+  @override
+  String get legalHint =>
+      'Conditions et confidentialité. Elles sont dans l’application, donc lisibles hors connexion.';
+
+  @override
+  String get legalTerms => 'Conditions d’utilisation';
+
+  @override
+  String get legalTermsBody => 'Les règles pour utiliser BusIn';
+
+  @override
+  String get legalPrivacy => 'Politique de confidentialité';
+
+  @override
+  String get legalPrivacyBody => 'Ce que nous gardons sur vous, et pourquoi';
+
+  @override
+  String get legalAcceptable => 'Usage acceptable';
+
+  @override
+  String get legalAcceptableBody => 'Ce qui est permis et ce qui ne l’est pas';
+
+  @override
+  String get legalInShort => 'En bref';
+
+  @override
+  String legalUpdated(String date) {
+    return 'Mis à jour le $date';
+  }
+
+  @override
+  String legalAppliesTo(String school) {
+    return 'S’applique à $school';
+  }
+
+  @override
+  String get legalAlsoRead => 'À lire aussi';
+
+  @override
+  String get legalQuestionsTitle => 'Des questions sur vos données ?';
+
+  @override
+  String get legalQuestionsBody =>
+      'Adressez-vous à l’administration de votre école. Elle peut corriger vos informations et répondre aux demandes concernant votre compte.';
+
+  @override
+  String legalReadTime(int minutes) {
+    return '$minutes min de lecture';
+  }
+
+  @override
+  String get legalOnThisPage => 'Sur cette page';
 }

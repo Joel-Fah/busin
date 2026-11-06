@@ -18,8 +18,7 @@ void main() {
       for (final theme in [BusinTheme.light(), BusinTheme.dark()]) {
         for (final variant in BusinButtonVariant.values) {
           await tester.pumpWidget(app(BusinButton(label: 'Save', variant: variant, onPressed: () {}), theme: theme));
-          final style = tester.widget<DefaultTextStyle>(find.descendant(of: find.byType(TextButton), matching: find.byType(DefaultTextStyle)).first).style;
-          expect(style.fontWeight, FontWeight.w700, reason: '$variant');
+          expect(tester.widget<Text>(find.text('Save')).style?.fontWeight, FontWeight.w700, reason: '$variant');
         }
       }
     });
@@ -41,7 +40,7 @@ void main() {
 
     testWidgets('is disabled without a callback', (tester) async {
       await tester.pumpWidget(app(const BusinButton(label: 'Save', onPressed: null)));
-      expect(tester.widget<TextButton>(find.byType(TextButton)).onPressed, isNull);
+      expect(tester.widget<InkWell>(find.descendant(of: find.byType(BusinButton), matching: find.byType(InkWell))).onTap, isNull);
     });
 
     testWidgets('every variant draws in light and dark', (tester) async {
@@ -58,7 +57,7 @@ void main() {
 
     testWidgets('can fill the width', (tester) async {
       await tester.pumpWidget(app(SizedBox(width: 300, child: BusinButton(label: 'Wide', expand: true, onPressed: () {}))));
-      expect(tester.getSize(find.byType(TextButton)).width, 300);
+      expect(tester.getSize(find.byType(BusinButton)).width, 300);
     });
   });
 
@@ -100,6 +99,14 @@ void main() {
     testWidgets('an avatar without a picture shows initials', (tester) async {
       await tester.pumpWidget(app(const UserAvatar(name: 'Ada Lovelace')));
       expect(find.text('AL'), findsOneWidget);
+    });
+
+    testWidgets('with a picture address the initials wait underneath, and stay if the picture cannot load', (tester) async {
+      // The network is not available in tests, so the picture fails: the initials must still be there.
+      await tester.pumpWidget(app(const UserAvatar(name: 'Ada Lovelace', imageUrl: 'https://example.invalid/ada.jpg')));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.text('AL'), findsOneWidget);
+      expect(tester.takeException(), isNull);
     });
 
     testWidgets('an avatar is hidden from screen readers unless given a label', (tester) async {

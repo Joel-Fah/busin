@@ -3,7 +3,10 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import { Suspense } from "react";
 import { ArrowLeft01Icon, ArrowUpRight01Icon, Cancel01Icon, Comment01Icon, Tick02Icon } from "@hugeicons/core-free-icons";
+import Link from "next/link";
 
+import { FlashToast } from "@/components/FlashToast";
+import { Accordion } from "@/components/ui/Accordion";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -16,9 +19,18 @@ import { requireAdmin } from "@/lib/auth";
 import { format } from "@/lib/i18n/messages";
 import { getMessages } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
-import { MAX_REASON_LENGTH, isReviewErrorKey, isUuid, statusTone } from "@/lib/subscriptions";
+import {
+  MAX_REASON_LENGTH,
+  eventTone,
+  isEventAction,
+  isReviewErrorKey,
+  isUuid,
+  orderHistory,
+  statusTone,
+  type RequestHistory,
+} from "@/lib/subscriptions";
 
-import { reviewSubscription } from "../actions";
+import { reinstateSubscription, reviewSubscription, revokeSubscription } from "../actions";
 
 export const metadata: Metadata = { title: "Subscription" };
 
@@ -50,7 +62,7 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
   const { data: row } = await supabase
     .from("subscriptions")
     .select(
-      `id, status, created_at, proof_path, review_note, reviewed_at,
+      `id, status, created_at, proof_path, review_note, reviewed_at, student_id, semester_id,
        student:profiles!subscriptions_student_id_school_id_fkey(full_name, email, matricule),
        semester:semesters!subscriptions_semester_id_school_id_fkey(name, year),
        stop:stops!subscriptions_stop_id_school_id_fkey(name),
@@ -59,6 +71,41 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
     .eq("id", id)
     .maybeSingle();
   if (!row) notFound();
+
+  // Everything this student asked for in this semester, and what happened to each: the history.
+  const { data: siblings } = await supabase
+    .from("subscriptions")
+    .select("id, status, created_at, stop:stops!subscriptions_stop_id_school_id_fkey(name)")
+    .eq("student_id", row.student_id)
+    .eq("semester_id", row.semester_id)
+    .order("created_at", { ascending: false })
+    .limit(50);
+  const siblingIds = (siblings ?? []).map((s) => s.id);
+  const { data: events } = siblingIds.length
+    ? await supabase
+        .from("subscription_events")
+        .select("subscription_id, action, note, created_at, actor_id, actor:profiles!subscription_events_actor_id_fkey(full_name)")
+        .in("subscription_id", siblingIds)
+        .order("created_at", { ascending: false })
+        .limit(500)
+    : { data: [] };
+  const history: RequestHistory[] = orderHistory(
+    (siblings ?? []).map((s) => ({
+      id: s.id,
+      status: s.status,
+      createdAt: s.created_at,
+      stopName: s.stop?.name ?? null,
+      operations: (events ?? [])
+        .filter((e) => e.subscription_id === s.id && isEventAction(e.action))
+        .map((e) => ({
+          action: e.action as RequestHistory["operations"][number]["action"],
+          at: e.created_at,
+          actorName: e.actor?.full_name || null,
+          byStudent: e.actor_id === row.student_id,
+          note: e.note,
+        })),
+    })),
+  );
 
   // A short-lived link: the proof bucket is private and the link stops working after a minute.
   let proofUrl: string | null = null;
@@ -98,11 +145,7 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
         </div>
       </header>
 
-      {done === "approved" || done === "rejected" ? (
-        <p className="rounded-md bg-ok-bg px-5 py-4 text-sm font-semibold text-ok" role="status">
-          {t.subscriptions.done[done]}
-        </p>
-      ) : null}
+      {done === "approved" || done === "rejected" || done === "revoked" || done === "reinstated" ? <FlashToast message={t.subscriptions.done[done]} /> : null}
       {errorKey ? (
         <p className="rounded-md bg-bad-bg px-5 py-4 text-sm text-bad" role="alert">
           {t.subscriptions.errors[errorKey]}
@@ -186,6 +229,57 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
                   <p className="mt-1">{row.review_note}</p>
                 </div>
               ) : null}
+              {row.status === "approved" ? (
+                <details className="group">
+                  <summary className="inline-flex cursor-pointer list-none items-center gap-2 rounded-sm px-4 py-2.5 text-sm font-semibold text-bad transition-colors duration-(--dur-fast) hover:bg-bad-bg focus-visible:outline-3 focus-visible:outline-focus [&::-webkit-details-marker]:hidden">
+                    {t.subscriptions.detail.revokeOpen}
+                  </summary>
+                  <form action={revokeSubscription} className="mt-4 flex flex-col gap-4">
+                    <input type="hidden" name="id" value={row.id} />
+                    <p className="text-sm text-muted">{t.subscriptions.detail.revokeHint}</p>
+                    <Textarea
+                      id="revoke-note"
+                      name="note"
+                      label={t.subscriptions.detail.revokeReasonLabel}
+                      icon={Comment01Icon}
+                      required
+                      maxLength={MAX_REASON_LENGTH}
+                      rows={3}
+                      hint={t.subscriptions.detail.reasonHint}
+                      placeholder={t.subscriptions.detail.reasonPlaceholder}
+                    />
+                    <div>
+                      <Button type="submit" variant="danger" icon={Cancel01Icon}>
+                        {t.subscriptions.detail.revokeConfirm}
+                      </Button>
+                    </div>
+                  </form>
+                </details>
+              ) : null}
+              {row.status === "revoked" ? (
+                <details className="group">
+                  <summary className="inline-flex cursor-pointer list-none items-center gap-2 rounded-sm px-4 py-2.5 text-sm font-semibold text-ok transition-colors duration-(--dur-fast) hover:bg-ok-bg focus-visible:outline-3 focus-visible:outline-focus [&::-webkit-details-marker]:hidden">
+                    {t.subscriptions.detail.reinstateOpen}
+                  </summary>
+                  <form action={reinstateSubscription} className="mt-4 flex flex-col gap-4">
+                    <input type="hidden" name="id" value={row.id} />
+                    <p className="text-sm text-muted">{t.subscriptions.detail.reinstateHint}</p>
+                    <Textarea
+                      id="reinstate-note"
+                      name="note"
+                      label={t.subscriptions.detail.reinstateNoteLabel}
+                      icon={Comment01Icon}
+                      maxLength={MAX_REASON_LENGTH}
+                      rows={3}
+                    />
+                    <div>
+                      <Button type="submit" icon={Tick02Icon}>
+                        {t.subscriptions.detail.reinstateConfirm}
+                      </Button>
+                    </div>
+                  </form>
+                </details>
+              ) : null}
             </Card>
           )}
         </div>
@@ -221,6 +315,56 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
           )}
         </Card>
       </div>
+
+      <Card className="flex flex-col gap-4">
+        <div>
+          <h2 className="text-xl font-bold">{t.subscriptions.detail.history.title}</h2>
+          <p className="mt-1 text-sm text-muted">{t.subscriptions.detail.history.hint}</p>
+        </div>
+        <div className="flex flex-col gap-3">
+          {history.map((request, index) => (
+            // The latest request opens first; the others wait closed.
+            <Accordion
+              key={request.id}
+              defaultOpen={index === 0}
+              summary={
+                <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <span className="font-semibold">{format(t.subscriptions.detail.history.request, { date: dateTime(request.createdAt) })}</span>
+                  <Chip tone={statusTone(request.status)}>{t.status[request.status]}</Chip>
+                  {request.stopName ? <span className="text-sm text-muted">{request.stopName}</span> : null}
+                  {request.id === row.id ? <span className="text-sm text-muted">{t.subscriptions.detail.history.thisOne}</span> : null}
+                </span>
+              }
+            >
+              <ol className="m-0 flex list-none flex-col gap-3 p-0">
+                {request.operations.map((op, i) => (
+                  <li key={`${op.action}-${op.at}-${i}`} className="flex flex-col gap-1 border-l-2 border-line pl-4">
+                    <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <Chip tone={eventTone(op.action)}>{t.subscriptions.detail.history.events[op.action]}</Chip>
+                      <span className="text-sm text-muted">
+                        {dateTime(op.at)}
+                        {op.byStudent
+                          ? ` ${t.subscriptions.detail.history.byStudent}`
+                          : op.actorName
+                            ? ` ${format(t.subscriptions.detail.history.by, { name: op.actorName })}`
+                            : ""}
+                      </span>
+                    </p>
+                    {op.note ? <p className="text-sm">{op.note}</p> : null}
+                  </li>
+                ))}
+              </ol>
+              {request.id !== row.id ? (
+                <p className="mt-3">
+                  <Link href={`/subscriptions/${request.id}`} className="text-sm font-semibold">
+                    {t.subscriptions.detail.history.open}
+                  </Link>
+                </p>
+              ) : null}
+            </Accordion>
+          ))}
+        </div>
+      </Card>
     </>
   );
 }

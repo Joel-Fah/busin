@@ -1,5 +1,6 @@
 import '../enums.dart';
 import '../json.dart';
+import 'academic.dart';
 import '../value_object.dart';
 
 /// A signed-in person. The role and status are set by the server; the app only reads them.
@@ -18,6 +19,8 @@ class Profile extends ValueObject {
     this.matricule,
     this.department,
     this.program,
+    this.departmentId,
+    this.programId,
   });
 
   factory Profile.fromJson(Map<String, dynamic> json) => Profile(
@@ -32,6 +35,8 @@ class Profile extends ValueObject {
         matricule: optString(json, 'matricule'),
         department: optString(json, 'department'),
         program: optString(json, 'program'),
+        departmentId: optString(json, 'department_id'),
+        programId: optString(json, 'program_id'),
         createdAt: reqTimestamp(json, 'created_at'),
         updatedAt: reqTimestamp(json, 'updated_at'),
       );
@@ -47,10 +52,18 @@ class Profile extends ValueObject {
   final String? matricule;
   final String? department;
   final String? program;
+
+  /// What the person chose from the school's lists. [department] and [program] are the readable names.
+  final String? departmentId;
+  final String? programId;
   final DateTime createdAt;
   final DateTime updatedAt;
 
   bool get isVerified => status == AccountStatus.verified;
+
+  /// A student has finished setting up when the school can recognise and reach them: a name, a student number and
+  /// a phone number. Department and program are optional.
+  bool get isSetupComplete => fullName.trim().isNotEmpty && (matricule ?? '').trim().isNotEmpty && (phone ?? '').trim().isNotEmpty;
 
   /// Up to two capital letters for an avatar placeholder.
   String get initials {
@@ -71,15 +84,14 @@ class Profile extends ValueObject {
     String? fullName,
     String? phone,
     String? matricule,
-    String? department,
-    String? program,
+    AcademicChoice? academic,
   }) =>
       {
         'full_name': ?fullName,
         'phone': ?phone,
         'matricule': ?matricule,
-        'department': ?department,
-        'program': ?program,
+        if (academic != null) 'department_id': academic.departmentId,
+        if (academic != null) 'program_id': academic.programId,
       };
 
   @override
@@ -95,6 +107,8 @@ class Profile extends ValueObject {
         matricule,
         department,
         program,
+        departmentId,
+        programId,
         createdAt,
         updatedAt,
       ];

@@ -1,3 +1,5 @@
+import 'package:flutter/widgets.dart';
+
 /// The shape scale, the same as the admin portal: rounded beyond normal, never a pill and never a
 /// squircle. A shape drawn inside another uses [innerRadius], so corners stay concentric.
 class BusinRadius {
@@ -31,11 +33,22 @@ class BusinSpace {
   static const double x12 = 48;
 }
 
-/// Motion lengths, shared so screens feel alike. Honour the platform's reduced motion setting.
+/// Motion, the same lengths and easing as the admin portal (app/theme.css): 160 ms for presses, 280 ms for
+/// menus, tabs and cards, 520 ms for larger moves, all on one soft curve. Under the platform's reduced-motion
+/// setting every duration collapses (use [of]), so nothing moves.
 class BusinMotion {
   const BusinMotion._();
 
-  static const Duration fast = Duration(milliseconds: 150);
-  static const Duration normal = Duration(milliseconds: 250);
-  static const Duration slow = Duration(milliseconds: 400);
+  static const Duration fast = Duration(milliseconds: 160);
+  static const Duration normal = Duration(milliseconds: 280);
+  static const Duration slow = Duration(milliseconds: 520);
+
+  /// The portal's `--ease-soft`: cubic-bezier(0.22, 1, 0.36, 1).
+  static const Curve soft = Cubic(0.22, 1, 0.36, 1);
+
+  /// True when the person has asked the system for less motion.
+  static bool reduced(BuildContext context) => MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+
+  /// [duration], or no time at all when motion is reduced.
+  static Duration of(BuildContext context, Duration duration) => reduced(context) ? Duration.zero : duration;
 }

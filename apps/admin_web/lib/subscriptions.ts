@@ -11,10 +11,10 @@ export { isUuid } from "./ids";
 
 export const MAX_REASON_LENGTH = 500;
 
-export const STATUSES = ["pending", "approved", "rejected", "expired"] as const;
+export const STATUSES = ["pending", "approved", "rejected", "expired", "revoked"] as const;
 export type SubscriptionStatus = (typeof STATUSES)[number];
 export type StatusFilter = SubscriptionStatus | "all";
-export const FILTERS: readonly StatusFilter[] = ["pending", "approved", "rejected", "expired", "all"];
+export const FILTERS: readonly StatusFilter[] = ["pending", "approved", "rejected", "expired", "revoked", "all"];
 
 /** The status shown in the list. Anything unknown falls back to the review queue. */
 export function parseStatusFilter(value: string | string[] | undefined): StatusFilter {
@@ -28,6 +28,7 @@ export function statusTone(status: SubscriptionStatus): ChipTone {
     case "approved":
       return "ok";
     case "rejected":
+    case "revoked":
       return "bad";
     case "expired":
       return "neutral";
@@ -44,6 +45,7 @@ export function tabCounts(byStatus: Partial<Record<SubscriptionStatus, number | 
     approved: get("approved"),
     rejected: get("rejected"),
     expired: get("expired"),
+    revoked: get("revoked"),
     all: STATUSES.reduce((sum, status) => sum + get(status), 0),
   };
 }
@@ -56,7 +58,7 @@ export function parseReason(raw: unknown): string | null {
   return value;
 }
 
-export type ReviewErrorKey = "already_reviewed" | "invalid" | "not_found" | "generic";
+export type ReviewErrorKey = "already_reviewed" | "invalid" | "not_found" | "not_approved" | "not_revoked" | "live_exists" | "generic";
 
 /** Maps the database error code of `admin_review_subscription` to a message key. */
 export function reviewErrorKey(code: string | undefined): ReviewErrorKey {
@@ -72,8 +74,83 @@ export function reviewErrorKey(code: string | undefined): ReviewErrorKey {
   }
 }
 
+/** Maps the database error code of `admin_revoke_subscription` to a message key. */
+export function revokeErrorKey(code: string | undefined): ReviewErrorKey {
+  switch (code) {
+    case "55000":
+      return "not_approved";
+    case "22023":
+      return "invalid";
+    case "P0002":
+      return "not_found";
+    default:
+      return "generic";
+  }
+}
+
+/**
+ * Maps the database error of `admin_reinstate_subscription`. The two 55000 refusals have different messages: the message
+ * text of the database tells them apart (not revoked, or a newer live subscription in the way).
+ */
+export function reinstateErrorKey(code: string | undefined, message?: string): ReviewErrorKey {
+  switch (code) {
+    case "55000":
+      return message?.includes("already has a live") ? "live_exists" : "not_revoked";
+    case "22023":
+      return "invalid";
+    case "P0002":
+      return "not_found";
+    default:
+      return "generic";
+  }
+}
+
+const REVIEW_ERRORS: readonly string[] = ["already_reviewed", "invalid", "not_found", "not_approved", "not_revoked", "live_exists", "generic"];
+
 export function isReviewErrorKey(value: string | undefined): value is ReviewErrorKey {
-  return value === "already_reviewed" || value === "invalid" || value === "not_found" || value === "generic";
+  return typeof value === "string" && REVIEW_ERRORS.includes(value);
+}
+
+export const EVENT_ACTIONS = ["requested", "approved", "rejected", "revoked", "reinstated"] as const;
+export type EventAction = (typeof EVENT_ACTIONS)[number];
+
+/** One operation on a subscription, as the history shows it. */
+export type SubscriptionOperation = { action: EventAction; at: string; actorName: string | null; byStudent: boolean; note: string | null };
+
+/** The tone of an operation's chip. Words always come with it. */
+export function eventTone(action: EventAction): ChipTone {
+  switch (action) {
+    case "approved":
+    case "reinstated":
+      return "ok";
+    case "rejected":
+    case "revoked":
+      return "bad";
+    default:
+      return "info";
+  }
+}
+
+export function isEventAction(value: string): value is EventAction {
+  return (EVENT_ACTIONS as readonly string[]).includes(value);
+}
+
+export type RequestHistory = {
+  id: string;
+  status: SubscriptionStatus;
+  createdAt: string;
+  stopName: string | null;
+  operations: SubscriptionOperation[];
+};
+
+/**
+ * Puts a student's requests of a semester in the order the history shows them: the latest request first (it opens), and
+ * inside each, the latest operation first. Unknown actions are left out rather than guessed.
+ */
+export function orderHistory(requests: RequestHistory[]): RequestHistory[] {
+  return [...requests]
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    .map((r) => ({ ...r, operations: [...r.operations].sort((a, b) => b.at.localeCompare(a.at)) }));
 }
 
 export type SubscriptionFilters = {

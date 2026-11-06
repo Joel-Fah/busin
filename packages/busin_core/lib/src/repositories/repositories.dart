@@ -1,6 +1,8 @@
+import '../models/academic.dart';
 import 'dart:typed_data';
 
 import '../geo_point.dart';
+import '../models/bus.dart';
 import '../models/live_position.dart';
 import '../models/profile.dart';
 import '../models/scan.dart';
@@ -9,6 +11,7 @@ import '../models/school.dart';
 import '../models/semester.dart';
 import '../models/stop.dart';
 import '../models/subscription.dart';
+import '../models/subscription_event.dart';
 import '../models/trip.dart';
 import 'page.dart';
 
@@ -22,6 +25,21 @@ import 'page.dart';
 abstract interface class ProfileRepository {
   /// A person's own profile. The server decides what a caller may read.
   Future<Profile> getProfile(String userId);
+
+  /// Saves the fields a person may change about themselves and returns the profile as the server now has it. Role,
+  /// status and school cannot be sent from here (see `Profile.editableJson`), and the server refuses them anyway.
+  Future<Profile> updateProfile(
+    String userId, {
+    String? fullName,
+    String? phone,
+    String? matricule,
+    AcademicChoice? academic,
+  });
+}
+
+abstract interface class AcademicRepository {
+  /// The faculties, departments and degree levels of the caller's school. Small lists: one read, kept for the session.
+  Future<AcademicUnits> load();
 }
 
 abstract interface class SchoolRepository {
@@ -60,6 +78,13 @@ abstract interface class SubscriptionsRepository {
 
   /// Sends a request. The status is always pending; staff decide in the portal.
   Future<Subscription> request(NewSubscription subscription);
+
+  /// This student's subscriptions: what there is now, then again whenever one changes (approved, rejected, ended).
+  /// Filtered to the student's own rows on the server, and delivered only while someone listens.
+  Stream<List<Subscription>> watchForStudent(String studentId);
+
+  /// Everything that happened to these subscriptions (the student's own), oldest first.
+  Future<List<SubscriptionEvent>> eventsFor(List<String> subscriptionIds);
 }
 
 /// What a proof of payment may be. The `proofs` bucket enforces the same limits on the server.
@@ -101,6 +126,29 @@ abstract interface class TripsRepository {
   });
 
   Future<Trip> getTrip(String tripId);
+
+  /// The trips running right now at the caller's school, most recently started first. A school runs a
+  /// handful at a time; the list is capped at [PageRequest.defaultLimit].
+  Future<List<Trip>> listActive();
+
+  /// The trips with these ids, in no particular order. At most [PageRequest.maxLimit] ids at a time;
+  /// ids a caller may not read are left out.
+  Future<List<Trip>> listByIds(List<String> tripIds);
+}
+
+abstract interface class DeviceTokensRepository {
+  /// Registers this phone's push token for the signed-in user, or refreshes it. A token another user held moves
+  /// to the caller (a token follows the phone). [platform] is `android` or `ios`, [locale] is `en` or `fr`.
+  /// Throws [NotAllowed] for an account that is not verified.
+  Future<void> register({required String token, required String platform, required String locale});
+
+  /// Forgets this phone's token for the signed-in user (on sign-out). Not an error if it is already gone.
+  Future<void> unregister(String token);
+}
+
+abstract interface class BusesRepository {
+  /// The buses with these ids (for plates on a map or a list). At most [PageRequest.maxLimit] at a time.
+  Future<List<Bus>> listByIds(List<String> busIds);
 }
 
 abstract interface class ScansRepository {
@@ -113,6 +161,12 @@ abstract interface class ScansRepository {
     String? stopId,
     GeoPoint? location,
     double? accuracyMeters,
+  });
+
+  /// A student's own boardings, newest first. The server returns only the caller's own.
+  Future<List<Scan>> listForStudent(
+    String studentId, {
+    PageRequest page = const PageRequest(),
   });
 
   /// The boardings of one trip, newest first.
@@ -129,4 +183,8 @@ abstract interface class LivePositionsRepository {
   /// Positions of one bus as they arrive. The subscription is filtered to that
   /// bus, never to the whole table.
   Stream<LivePosition> watchBus(String busId);
+
+  /// Whether this person may follow buses live: an approved subscription covering today, or staff. The database
+  /// decides (and enforces it on the positions themselves); this is how an app learns the answer.
+  Future<bool> canFollowBuses();
 }

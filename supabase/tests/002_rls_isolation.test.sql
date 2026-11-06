@@ -63,7 +63,7 @@ select is((select count(*)::int from public.subscriptions), 0, 'student cannot r
 select is((select count(*)::int from public.stops), 1, 'student reads stops of their school only');
 select is((select count(*)::int from public.schools), 1, 'student reads only their own school');
 select is((select count(*)::int from public.scans), 0, 'student cannot read another student scans');
-select is((select count(*)::int from public.live_positions), 1, 'student reads live positions of their school');
+select is((select count(*)::int from public.live_positions), 0, 'a student without a subscription does not see live positions (see 013)');
 select is((select count(*)::int from public.audit_log), 0, 'student cannot read the audit log');
 
 select lives_ok(

@@ -4,10 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import {
-  Bus01Icon,
-  Calendar02Icon,
   Cancel01Icon,
-  FlagTriangleRightIcon,
   GeometricShapes01Icon,
   Menu03Icon,
   Navigation03Icon,
@@ -27,28 +24,22 @@ import { INTRO_DONE_EVENT } from "@/lib/intro";
 
 import { NAV_DOCK_ID } from "./NavDock";
 
-export type NavKey = "overview" | "subscriptions" | "people" | "stops" | "trips" | "scans" | "semesters" | "buses";
+export type NavKey = "overview" | "subscriptions" | "people" | "trips" | "scans";
 
 const ICONS: Record<NavKey, IconSvgElement> = {
   overview: GeometricShapes01Icon,
   subscriptions: Ticket03Icon,
   people: UserMultiple02Icon,
-  stops: FlagTriangleRightIcon,
   trips: Navigation03Icon,
   scans: ReceiptTextIcon,
-  semesters: Calendar02Icon,
-  buses: Bus01Icon,
 };
 
 const HREFS: Record<NavKey, string> = {
   overview: "/",
   subscriptions: "/subscriptions",
   people: "/people",
-  stops: "/stops",
   trips: "/trips",
   scans: "/scans",
-  semesters: "/semesters",
-  buses: "/buses",
 };
 
 type Props = {
@@ -57,7 +48,8 @@ type Props = {
   labels: Record<NavKey, string>;
   /** How the tabs are grouped in the menu on small screens. */
   groups: { label: string; keys: NavKey[] }[];
-  profile: { name: string; avatarUrl: string | null; href: string };
+  /** `also` lists the setup pages the profile page opens: the Profile tab stays lit while the admin is on one. */
+  profile: { name: string; avatarUrl: string | null; href: string; also?: string[] };
   text: { primary: string; menu: string; closeMenu: string; profile: string; profileTab: string; home: string; current: string };
 };
 
@@ -83,6 +75,7 @@ export function FloatingNav({ keys, labels, groups, profile, text }: Props) {
   const barRef = useRef<HTMLElement>(null);
   const [open, setOpen] = useState(false);
   const current = keys.find((key) => isActive(pathname, key));
+  const profileActive = pathname === profile.href || (profile.also ?? []).some((base) => pathname === base || pathname.startsWith(`${base}/`));
 
   // Slide in from below when the dashboard loads (after the logo intro, when there is one).
   useEffect(() => {
@@ -236,8 +229,8 @@ export function FloatingNav({ keys, labels, groups, profile, text }: Props) {
           <Link
             href={profile.href}
             data-nav-tab=""
-            aria-current={pathname === profile.href ? "page" : undefined}
-            className={`${TAB} ${pathname === profile.href ? TAB_ACTIVE_TEXT : TAB_OFF}`}
+            aria-current={profileActive ? "page" : undefined}
+            className={`${TAB} ${profileActive ? TAB_ACTIVE_TEXT : TAB_OFF}`}
           >
             <Avatar name={profile.name} url={profile.avatarUrl} size={24} />
             {text.profileTab}

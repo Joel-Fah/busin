@@ -1,4 +1,5 @@
 import 'package:busin_core/busin_core.dart';
+import 'package:flutter/painting.dart' show ImageProvider, NetworkImage;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../auth/access.dart';
@@ -12,6 +13,16 @@ final subscriptionsRepositoryProvider = Provider<SubscriptionsRepository>((ref) 
 final proofsRepositoryProvider = Provider<ProofsRepository>((ref) => ref.watch(repositoriesProvider).proofs);
 final schoolRepositoryProvider = Provider<SchoolRepository>((ref) => ref.watch(repositoriesProvider).schools);
 
+final scansRepositoryProvider = Provider<ScansRepository>((ref) => ref.watch(repositoriesProvider).scans);
+final tripsRepositoryProvider = Provider<TripsRepository>((ref) => ref.watch(repositoriesProvider).trips);
+
+/// The student's school, for its time zone. Read once while the screen that needs it is alive.
+final schoolProvider = FutureProvider.autoDispose<School>((ref) {
+  final access = ref.watch(accessProvider);
+  if (access is! Allowed) throw StateError('Only an allowed student has a school here.');
+  return ref.watch(schoolRepositoryProvider).getSchool(access.profile.schoolId);
+}, retry: noAutomaticRetry);
+
 final schoolClockProvider = Provider<SchoolClock>((ref) => const SchoolClock());
 final proofPickerProvider = Provider<ProofPicker>((ref) => ImagePickerProofPicker());
 
@@ -19,7 +30,7 @@ final proofPickerProvider = Provider<ProofPicker>((ref) => ImagePickerProofPicke
 final stopsProvider = FutureProvider<List<Stop>>((ref) async {
   if (ref.watch(authUserIdProvider).value == null) return const [];
   return ref.watch(stopsRepositoryProvider).listActiveStops();
-});
+}, retry: noAutomaticRetry);
 
 /// Where a student stands for the semester that matters now.
 class SubscriptionOverview {
@@ -56,7 +67,7 @@ final subscriptionOverviewProvider = FutureProvider.autoDispose<SubscriptionOver
   if (access is! Allowed) throw StateError('The subscription page is only for an allowed student.');
   final profile = access.profile;
 
-  final school = await ref.watch(schoolRepositoryProvider).getSchool(profile.schoolId);
+  final school = await ref.watch(schoolProvider.future);
   final today = ref.watch(schoolClockProvider).today(school.timezone);
 
   final semesters = ref.watch(semestersRepositoryProvider);
@@ -72,7 +83,10 @@ final subscriptionOverviewProvider = FutureProvider.autoDispose<SubscriptionOver
   final subscription = subscriptionToShow(mine, semester.id);
   final stop = subscription == null ? null : await ref.watch(stopsRepositoryProvider).getStop(subscription.stopId);
   return SubscriptionOverview(semester: semester, upcoming: upcoming, subscription: subscription, stop: stop);
-});
+}, retry: noAutomaticRetry);
+
+/// How a proof's address becomes a picture. The network in the app; a test swaps in a picture it has in memory.
+final proofImageProvider = Provider<ImageProvider Function(String address)>((ref) => NetworkImage.new);
 
 /// A short-lived address to show a stored proof. Fetched when the proof is on screen and not kept.
 final proofUrlProvider = FutureProvider.autoDispose.family<String, String>(
@@ -116,3 +130,15 @@ SubscribeFailure failureFor(Object error) => switch (error) {
       Invalid() => SubscribeFailure.rejectedFile,
       _ => SubscribeFailure.other,
     };
+
+/// Where a signed-in student should land when the app opens: on the boarding code if they already have an approved
+/// subscription (that is what they need at the door), otherwise on the subscription tab. Any trouble reading it falls back
+/// to the subscription tab, which explains and can retry.
+final landingPathProvider = FutureProvider.autoDispose<String>((ref) async {
+  try {
+    final overview = await ref.watch(subscriptionOverviewProvider.future);
+    return overview.subscription?.status == SubscriptionStatus.approved ? '/qr' : '/subscription';
+  } catch (_) {
+    return '/subscription';
+  }
+}, retry: noAutomaticRetry);

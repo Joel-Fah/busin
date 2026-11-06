@@ -33,9 +33,8 @@ class _SubscribeFormState extends ConsumerState<SubscribeForm> {
 
   Future<void> _chooseProof() async {
     final l10n = BusinL10n.of(context);
-    final source = await showModalBottomSheet<ProofSource>(
-      context: context,
-      showDragHandle: true,
+    final source = await showBusinSheet<ProofSource>(
+      context,
       builder: (context) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -110,102 +109,55 @@ class _SubscribeFormState extends ConsumerState<SubscribeForm> {
       children: [
         Text(l10n.subscribeIntro, style: text.bodyMedium?.copyWith(color: palette.muted)),
         const SizedBox(height: BusinSpace.x5),
-        _Field(
-          label: l10n.subscribeStopLabel,
-          icon: HugeIcons.strokeRoundedFlag02,
-          value: _stop?.name,
-          placeholder: l10n.subscribeStopHint,
-          onTap: stops.hasValue && !_busy ? () => _chooseStop(stops.requireValue) : null,
+        StaggeredIn(
+          child: FieldTile(
+            label: l10n.subscribeStopLabel,
+            icon: HugeIcons.strokeRoundedFlag02,
+            value: _stop?.name,
+            placeholder: l10n.subscribeStopHint,
+            onTap: stops.hasValue && !_busy ? () => _chooseStop(stops.requireValue) : null,
+          ),
         ),
         if (stops.hasError) ...[
           const SizedBox(height: BusinSpace.x2),
-          Row(
-            children: [
-              Expanded(child: Text(l10n.errorGeneric, style: text.bodySmall?.copyWith(color: palette.bad))),
-              TextButton(onPressed: () => ref.invalidate(stopsProvider), child: Text(l10n.actionRetry)),
-            ],
+          Notice(
+            tone: StatusTone.bad,
+            child: Row(
+              children: [
+                Expanded(child: Text(l10n.errorGeneric)),
+                TextButton(onPressed: () => ref.invalidate(stopsProvider), child: Text(l10n.actionRetry)),
+              ],
+            ),
           ),
         ],
         const SizedBox(height: BusinSpace.x4),
-        _Field(
-          label: l10n.subscribeProofLabel,
-          icon: HugeIcons.strokeRoundedReceiptText,
-          value: _proof == null ? null : l10n.proofChange,
-          placeholder: l10n.subscribeProofHint,
-          onTap: _busy ? null : _chooseProof,
-          preview: _proof == null ? null : Image.memory(_proof!.bytes, height: 160, fit: BoxFit.cover, semanticLabel: l10n.subscribeProofLabel),
+        StaggeredIn(
+          index: 1,
+          child: FieldTile(
+            label: l10n.subscribeProofLabel,
+            icon: HugeIcons.strokeRoundedReceiptText,
+            value: _proof == null ? null : l10n.proofAdded,
+            placeholder: l10n.subscribeProofHint,
+            onTap: _busy ? null : _chooseProof,
+            preview: _proof == null ? null : Image.memory(_proof!.bytes, height: 180, fit: BoxFit.cover, semanticLabel: l10n.subscribeProofLabel),
+          ),
         ),
-        const SizedBox(height: BusinSpace.x2),
-        Text(l10n.subscribeProofPrivacy, style: text.bodySmall?.copyWith(color: palette.muted)),
+        const SizedBox(height: BusinSpace.x3),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(padding: const EdgeInsets.only(top: 2), child: HugeIcon(icon: HugeIcons.strokeRoundedShield01, size: 16, color: palette.muted)),
+            const SizedBox(width: BusinSpace.x2),
+            Expanded(child: Text(l10n.subscribeProofPrivacy, style: text.bodySmall?.copyWith(color: palette.muted))),
+          ],
+        ),
         if (_error != null) ...[
           const SizedBox(height: BusinSpace.x4),
-          Semantics(liveRegion: true, child: Text(_error!, style: text.bodyMedium?.copyWith(color: palette.bad))),
+          Notice(tone: StatusTone.bad, child: Text(_error!)),
         ],
         const SizedBox(height: BusinSpace.x6),
         BusinButton(label: l10n.subscribeSubmit, onPressed: ready ? _submit : null, loading: _busy, expand: true),
       ],
-    );
-  }
-}
-
-/// A tappable row that looks like a form field: label, the chosen value or a prompt, and an optional preview.
-class _Field extends StatelessWidget {
-  const _Field({required this.label, required this.icon, required this.placeholder, this.value, this.onTap, this.preview});
-
-  final String label;
-  final List<List<dynamic>> icon;
-  final String placeholder;
-  final String? value;
-  final VoidCallback? onTap;
-  final Widget? preview;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = BusinPalette.of(context);
-    final text = Theme.of(context).textTheme;
-    return Semantics(
-      button: true,
-      label: '$label. ${value ?? placeholder}',
-      excludeSemantics: true,
-      onTap: onTap,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(BusinRadius.sm),
-        onTap: onTap,
-        child: Ink(
-          decoration: BoxDecoration(
-            border: Border.all(color: palette.line),
-            borderRadius: BorderRadius.circular(BusinRadius.sm),
-            color: palette.surface,
-          ),
-          padding: const EdgeInsets.all(BusinSpace.x4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                children: [
-                  HugeIcon(icon: icon, color: palette.muted),
-                  const SizedBox(width: BusinSpace.x3),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(label, style: text.labelMedium?.copyWith(color: palette.muted)),
-                        const SizedBox(height: 2),
-                        Text(value ?? placeholder, style: text.bodyLarge?.copyWith(color: value == null ? palette.muted : palette.fg)),
-                      ],
-                    ),
-                  ),
-                  HugeIcon(icon: HugeIcons.strokeRoundedArrowRight01, color: palette.muted, size: 20),
-                ],
-              ),
-              if (preview != null) ...[
-                const SizedBox(height: BusinSpace.x3),
-                ClipRRect(borderRadius: BorderRadius.circular(BusinRadius.xs), child: preview!),
-              ],
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

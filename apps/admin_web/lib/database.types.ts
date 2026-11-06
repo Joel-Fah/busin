@@ -69,6 +69,78 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"departments": {
+                  Row: {
+                    "code": string | null,"created_at": string,"faculty_id": string,"id": string,"name": string,"school_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "code"?: string | null,"created_at"?: string,"faculty_id": string,"id"?: string,"name": string,"school_id": string
+                  }
+                  Update: {
+                    "code"?: string | null,"created_at"?: string,"faculty_id"?: string,"id"?: string,"name"?: string,"school_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "departments_faculty_id_school_id_fkey"
+      columns: ["faculty_id","school_id"]
+isOneToOne: false
+      referencedRelation: "faculties"
+      referencedColumns: ["id","school_id"]
+    },{
+      foreignKeyName: "departments_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"device_tokens": {
+                  Row: {
+                    "created_at": string,"id": string,"last_seen_at": string,"locale": string,"platform": string,"school_id": string,"token": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"id"?: string,"last_seen_at"?: string,"locale"?: string,"platform": string,"school_id": string,"token": string,"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: string,"last_seen_at"?: string,"locale"?: string,"platform"?: string,"school_id"?: string,"token"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "device_tokens_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "device_tokens_user_id_school_id_fkey"
+      columns: ["user_id","school_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id","school_id"]
+    }
+                  ]
+                },"faculties": {
+                  Row: {
+                    "code": string | null,"created_at": string,"id": string,"name": string,"school_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "code"?: string | null,"created_at"?: string,"id"?: string,"name": string,"school_id": string
+                  }
+                  Update: {
+                    "code"?: string | null,"created_at"?: string,"id"?: string,"name"?: string,"school_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "faculties_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"live_positions": {
                   Row: {
                     "accuracy_m": number | null,"bus_id": string,"heading_deg": number | null,"location": unknown,"recorded_at": string,"school_id": string,"source": string,"speed_mps": number | null,"trip_id": string | null
@@ -97,18 +169,50 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "avatar_url": string | null,"created_at": string,"department": string | null,"email": string,"full_name": string,"id": string,"matricule": string | null,"phone": string | null,"program": string | null,"role": Database["public"]['Enums']["user_role"],"school_id": string,"status": Database["public"]['Enums']["account_status"],"updated_at": string
+                    "avatar_url": string | null,"created_at": string,"department": string | null,"department_id": string | null,"email": string,"full_name": string,"id": string,"matricule": string | null,"phone": string | null,"program": string | null,"program_id": string | null,"role": Database["public"]['Enums']["user_role"],"school_id": string,"status": Database["public"]['Enums']["account_status"],"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "avatar_url"?: string | null,"created_at"?: string,"department"?: string | null,"email": string,"full_name"?: string,"id": string,"matricule"?: string | null,"phone"?: string | null,"program"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"school_id": string,"status"?: Database["public"]['Enums']["account_status"],"updated_at"?: string
+                    "avatar_url"?: string | null,"created_at"?: string,"department"?: string | null,"department_id"?: string | null,"email": string,"full_name"?: string,"id": string,"matricule"?: string | null,"phone"?: string | null,"program"?: string | null,"program_id"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"school_id": string,"status"?: Database["public"]['Enums']["account_status"],"updated_at"?: string
                   }
                   Update: {
-                    "avatar_url"?: string | null,"created_at"?: string,"department"?: string | null,"email"?: string,"full_name"?: string,"id"?: string,"matricule"?: string | null,"phone"?: string | null,"program"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"school_id"?: string,"status"?: Database["public"]['Enums']["account_status"],"updated_at"?: string
+                    "avatar_url"?: string | null,"created_at"?: string,"department"?: string | null,"department_id"?: string | null,"email"?: string,"full_name"?: string,"id"?: string,"matricule"?: string | null,"phone"?: string | null,"program"?: string | null,"program_id"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"school_id"?: string,"status"?: Database["public"]['Enums']["account_status"],"updated_at"?: string
                   }
                   Relationships: [
                     {
+      foreignKeyName: "profiles_department_id_school_id_fkey"
+      columns: ["department_id","school_id"]
+isOneToOne: false
+      referencedRelation: "departments"
+      referencedColumns: ["id","school_id"]
+    },{
+      foreignKeyName: "profiles_program_id_school_id_fkey"
+      columns: ["program_id","school_id"]
+isOneToOne: false
+      referencedRelation: "programs"
+      referencedColumns: ["id","school_id"]
+    },{
       foreignKeyName: "profiles_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"programs": {
+                  Row: {
+                    "created_at": string,"id": string,"name": string,"school_id": string,"sort_order": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"id"?: string,"name": string,"school_id": string,"sort_order"?: number
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: string,"name"?: string,"school_id"?: string,"sort_order"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "programs_school_id_fkey"
       columns: ["school_id"]
 isOneToOne: false
       referencedRelation: "schools"
@@ -251,6 +355,38 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"subscription_events": {
+                  Row: {
+                    "action": string,"actor_id": string | null,"created_at": string,"id": number,"note": string | null,"school_id": string,"student_id": string,"subscription_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "action": string,"actor_id"?: string | null,"created_at"?: string,"id"?: never,"note"?: string | null,"school_id": string,"student_id": string,"subscription_id": string
+                  }
+                  Update: {
+                    "action"?: string,"actor_id"?: string | null,"created_at"?: string,"id"?: never,"note"?: string | null,"school_id"?: string,"student_id"?: string,"subscription_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "subscription_events_actor_id_fkey"
+      columns: ["actor_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "subscription_events_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "subscription_events_subscription_id_school_id_fkey"
+      columns: ["subscription_id","school_id"]
+isOneToOne: false
+      referencedRelation: "subscriptions"
+      referencedColumns: ["id","school_id"]
+    }
+                  ]
                 },"subscriptions": {
                   Row: {
                     "created_at": string,"id": string,"proof_path": string | null,"review_note": string | null,"reviewed_at": string | null,"reviewed_by": string | null,"school_id": string,"semester_id": string,"status": Database["public"]['Enums']["subscription_status"],"stop_id": string,"student_id": string,"updated_at": string
@@ -341,8 +477,14 @@ isOneToOne: false
 "admin_cancel_trip":
 { Args: { "p_reason"?: string,"p_trip_id": string }; Returns: undefined
                            },
+"admin_reinstate_subscription":
+{ Args: { "p_note"?: string,"p_subscription_id": string }; Returns: undefined
+                           },
 "admin_review_subscription":
 { Args: { "p_decision": string,"p_note"?: string,"p_subscription_id": string }; Returns: undefined
+                           },
+"admin_revoke_subscription":
+{ Args: { "p_note": string,"p_subscription_id": string }; Returns: undefined
                            },
 "admin_set_trip_archived":
 { Args: { "p_archived": boolean,"p_trip_id": string }; Returns: undefined
@@ -358,8 +500,22 @@ isOneToOne: false
               "pending": number,"stop_id": string,"students": number
             }[]
                            },
+"can_follow_buses":
+{ Args: Record<PropertyKey, never>; Returns: boolean
+                           },
+"claim_notifications":
+{ Args: { "p_limit"?: number }; Returns: {
+              "id": number,"kind": string,"ref_id": string,"tokens": Json
+            }[]
+                           },
+"complete_notification":
+{ Args: { "p_error"?: string,"p_id": number }; Returns: undefined
+                           },
 "custom_access_token_hook":
 { Args: { "event": Json }; Returns: Json
+                           },
+"drop_device_token":
+{ Args: { "p_token": string }; Returns: undefined
                            },
 "get_my_qr_secret":
 { Args: Record<PropertyKey, never>; Returns: string
@@ -367,12 +523,18 @@ isOneToOne: false
 "record_qr_scan":
 { Args: { "p_accuracy"?: number,"p_code": string,"p_lat"?: number,"p_lng"?: number,"p_stop_id"?: string,"p_trip_id": string }; Returns: Json
                            },
+"register_device_token":
+{ Args: { "p_locale"?: string,"p_platform": string,"p_token": string }; Returns: undefined
+                           },
 "rotate_my_qr_secret":
 { Args: Record<PropertyKey, never>; Returns: string
+                           },
+"unregister_device_token":
+{ Args: { "p_token": string }; Returns: undefined
                            }
           }
           Enums: {
-            "account_status": "pending"|"verified"|"suspended","semester_name": "fall"|"spring"|"summer","subscription_status": "pending"|"approved"|"rejected"|"expired","trip_direction": "inbound"|"outbound","trip_status": "scheduled"|"active"|"completed"|"cancelled","user_role": "student"|"staff"|"admin"
+            "account_status": "pending"|"verified"|"suspended","semester_name": "fall"|"spring"|"summer","subscription_status": "pending"|"approved"|"rejected"|"expired"|"revoked","trip_direction": "inbound"|"outbound","trip_status": "scheduled"|"active"|"completed"|"cancelled","user_role": "student"|"staff"|"admin"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -492,7 +654,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "account_status": ["pending", "verified", "suspended"],"semester_name": ["fall", "spring", "summer"],"subscription_status": ["pending", "approved", "rejected", "expired"],"trip_direction": ["inbound", "outbound"],"trip_status": ["scheduled", "active", "completed", "cancelled"],"user_role": ["student", "staff", "admin"]
+            "account_status": ["pending", "verified", "suspended"],"semester_name": ["fall", "spring", "summer"],"subscription_status": ["pending", "approved", "rejected", "expired", "revoked"],"trip_direction": ["inbound", "outbound"],"trip_status": ["scheduled", "active", "completed", "cancelled"],"user_role": ["student", "staff", "admin"]
           }
         }
 } as const

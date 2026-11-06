@@ -44,6 +44,18 @@ Map<String, dynamic> stopRow(String name, {bool active = true}) => {
       'active': active,
     };
 
+Map<String, dynamic> tripRow({String status = 'scheduled'}) => {
+      'id': _id,
+      'school_id': _school,
+      'bus_id': _other,
+      'driver_id': _id,
+      'direction': 'inbound',
+      'status': status,
+      'scheduled_start': '2026-11-05T06:30:00Z',
+      'started_at': null,
+      'ended_at': null,
+    };
+
 Map<String, dynamic> subscriptionRow({String status = 'pending'}) => {
       'id': _id,
       'school_id': _school,
@@ -129,6 +141,165 @@ void main() {
       expect(await h.repos.scans.listForTrip(_id), isEmpty);
       expect(h.last.url.queryParameters['trip_id'], 'eq.$_id');
       expect(h.last.url.queryParameters['limit'], '20');
+    });
+  });
+
+  group('academic units', () {
+    test('reads the three lists with named columns and builds the choices', () async {
+      final h = Harness((request) async {
+        return switch (request.url.path) {
+          '/rest/v1/faculties' => json([{'id': 'f1', 'name': 'Faculty One', 'code': 'F1'}]),
+          '/rest/v1/departments' => json([{'id': 'd1', 'faculty_id': 'f1', 'name': 'Department One', 'code': null}]),
+          _ => json([{'id': 'p1', 'name': 'Bachelor'}]),
+        };
+      });
+      final units = await h.repos.academic.load();
+      expect(units.departmentsOf('f1').single.name, 'Department One');
+      expect(units.facultyOfDepartment('d1')?.name, 'Faculty One');
+      expect(units.program('p1')?.name, 'Bachelor');
+      for (final r in h.requests) {
+        expect(r.url.queryParameters['select'], isNot('*'));
+      }
+    });
+  });
+
+  group('subscription history', () {
+    test('asks for the events of these subscriptions only, with named columns, oldest first', () async {
+      final h = Harness((_) async => json([
+            {'id': 1, 'subscription_id': _id, 'action': 'requested', 'note': null, 'created_at': '2026-11-03T09:00:00Z'},
+            {'id': 2, 'subscription_id': _id, 'action': 'revoked', 'note': 'Payment reversed', 'created_at': '2026-11-04T09:00:00Z'},
+          ]));
+      final events = await h.repos.subscriptions.eventsFor([_id, _other]);
+      expect(events.map((e) => e.action.name), ['requested', 'revoked']);
+      expect(h.last.url.path, '/rest/v1/subscription_events');
+      expect(h.last.url.queryParameters['select'], isNot('*'));
+      expect(h.last.url.queryParameters['subscription_id'], contains(_id));
+      expect(h.last.url.queryParameters['order'], contains('created_at'));
+    });
+
+    test('with nothing to ask about it asks nothing', () async {
+      final h = Harness((_) async => json([]));
+      expect(await h.repos.subscriptions.eventsFor(const []), isEmpty);
+      expect(h.requests, isEmpty);
+    });
+  });
+
+  group('following buses', () {
+    test('asks the database, which decides', () async {
+      final yes = Harness((_) async => json(true));
+      expect(await yes.repos.livePositions.canFollowBuses(), isTrue);
+      expect(yes.last.url.path, '/rest/v1/rpc/can_follow_buses');
+      expect(await Harness((_) async => json(false)).repos.livePositions.canFollowBuses(), isFalse);
+    });
+  });
+
+  group('student history', () {
+    Map<String, dynamic> scanRow(String id, String at) => {
+          'id': id,
+          'school_id': _school,
+          'trip_id': _id,
+          'student_id': _other,
+          'subscription_id': _id,
+          'stop_id': _id,
+          'scanned_by': _id,
+          'scanned_at': at,
+          'location': null,
+          'accuracy_m': null,
+        };
+
+    test('a student\'s own boardings come newest first, a page at a time', () async {
+      final h = Harness((_) async => json([scanRow(_id, '2026-11-05T07:00:00Z'), scanRow(_other, '2026-11-04T07:00:00Z')]));
+      final scans = await h.repos.scans.listForStudent(_other, page: const PageRequest(limit: 2, offset: 4));
+
+      expect(scans, hasLength(2));
+      final query = h.last.url.queryParameters;
+      expect(query['student_id'], 'eq.$_other');
+      expect(query['order'], startsWith('scanned_at.desc'));
+      expect(query['limit'], '2');
+      expect(query['offset'], '4');
+      expect(query['select'], isNot(contains('*')));
+    });
+
+    test('trips are fetched by id in one request, and not at all for none', () async {
+      final h = Harness((_) async => json([tripRow()]));
+      expect(await h.repos.trips.listByIds(const []), isEmpty);
+      expect(h.requests, isEmpty);
+
+      final trips = await h.repos.trips.listByIds([_id, _other]);
+      expect(trips, hasLength(1));
+      expect(h.requests, hasLength(1));
+      expect(h.last.url.queryParameters['id'], 'in.("$_id","$_other")');
+    });
+
+    test('asking for too many trips at once is refused before any request', () async {
+      final h = Harness((_) async => json(<Object>[]));
+      await expectLater(h.repos.trips.listByIds(List.filled(PageRequest.maxLimit + 1, _id)), throwsA(isA<Invalid>()));
+      expect(h.requests, isEmpty);
+    });
+  });
+
+  group('device tokens', () {
+    test('registering sends the token, platform and language to the function and nothing else', () async {
+      final h = Harness((_) async => http.Response('', 204));
+      await h.repos.deviceTokens.register(token: 'token-of-this-phone-aaaaaaaaaaaa', platform: 'android', locale: 'fr');
+
+      expect(h.last.url.path, '/rest/v1/rpc/register_device_token');
+      expect(jsonDecode(h.last.body), {'p_token': 'token-of-this-phone-aaaaaaaaaaaa', 'p_platform': 'android', 'p_locale': 'fr'});
+    });
+
+    test('unregistering names only the token', () async {
+      final h = Harness((_) async => http.Response('', 204));
+      await h.repos.deviceTokens.unregister('token-of-this-phone-aaaaaaaaaaaa');
+      expect(h.last.url.path, '/rest/v1/rpc/unregister_device_token');
+      expect(jsonDecode(h.last.body), {'p_token': 'token-of-this-phone-aaaaaaaaaaaa'});
+    });
+
+    test('an account that may not register is NotAllowed, a bad value is Invalid, no network is Offline', () async {
+      Future<Object> failure(Harness h) async {
+        try {
+          await h.repos.deviceTokens.register(token: 'token-of-this-phone-aaaaaaaaaaaa', platform: 'android', locale: 'en');
+        } catch (e) {
+          return e;
+        }
+        return 'no error';
+      }
+
+      expect(await failure(Harness((_) async => json({'code': '42501', 'message': 'no', 'details': null, 'hint': null}, status: 403))), isA<NotAllowed>());
+      expect(await failure(Harness((_) async => json({'code': '22023', 'message': 'bad', 'details': null, 'hint': null}, status: 400))), isA<Invalid>());
+      expect(await failure(Harness((_) async => throw const SocketException('down'))), isA<Offline>());
+    });
+  });
+
+  group('live bus lookups', () {
+    test('active trips are asked for by status, newest started first, and capped', () async {
+      final h = Harness((_) async => json([tripRow(status: 'active')]));
+      final trips = await h.repos.trips.listActive();
+
+      expect(trips.single.status, TripStatus.active);
+      final query = h.last.url.queryParameters;
+      expect(query['status'], 'eq.active');
+      expect(query['order'], startsWith('started_at.desc'));
+      expect(query['limit'], '20');
+      expect(query['select'], isNot(contains('*')));
+    });
+
+    test('buses are fetched by id in one request with named columns, and not at all for none', () async {
+      final h = Harness((_) async => json([
+            {'id': _id, 'school_id': _school, 'plate': 'DEMO-101', 'capacity': 50, 'in_service': true},
+          ]));
+      expect(await h.repos.buses.listByIds(const []), isEmpty);
+      expect(h.requests, isEmpty);
+
+      final buses = await h.repos.buses.listByIds([_id]);
+      expect(buses.single.plate, 'DEMO-101');
+      expect(h.last.url.queryParameters['id'], 'in.("$_id")');
+      expect(h.last.url.queryParameters['select'], 'id,school_id,plate,capacity,in_service');
+    });
+
+    test('too many buses at once is refused before any request', () async {
+      final h = Harness((_) async => json(<Object>[]));
+      await expectLater(h.repos.buses.listByIds(List.filled(PageRequest.maxLimit + 1, _id)), throwsA(isA<Invalid>()));
+      expect(h.requests, isEmpty);
     });
   });
 
@@ -254,7 +425,7 @@ void main() {
     });
 
     test('a refused role or school is NotAllowed', () async {
-      expect(await failure(Harness((_) async => refusal('42501', status: 403))), isA<NotAllowed>());
+      expect(await failure(Harness((_) async => json({'code': '42501', 'message': 'no', 'details': null, 'hint': null}, status: 403))), isA<NotAllowed>());
     });
 
     test('a second live subscription is a Conflict', () async {
