@@ -12,6 +12,7 @@ import 'screens/home_shell.dart';
 import 'screens/problem_screen.dart';
 import 'screens/qr_screen.dart';
 import 'screens/subscription_screen.dart';
+import 'styleguide/qr_preview.dart';
 import 'styleguide/styleguide_screen.dart';
 import 'screens/sign_in_screen.dart';
 import 'screens/splash_screen.dart';
@@ -75,6 +76,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         GoRoute(path: '${Routes.previewPrefix}splash', builder: (_, _) => const SplashScreen()),
         GoRoute(path: '${Routes.previewPrefix}blocked', builder: (_, _) => const BlockedScreen()),
         GoRoute(path: '${Routes.previewPrefix}problem', builder: (_, _) => const ProblemScreen()),
+        GoRoute(path: '${Routes.previewPrefix}qr', builder: (_, _) => const QrPreviewScreen()),
       ],
       GoRoute(path: Routes.signIn, builder: (_, _) => const SignInScreen()),
       GoRoute(path: Routes.blocked, builder: (_, _) => const BlockedScreen()),

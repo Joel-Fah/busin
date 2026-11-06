@@ -4,6 +4,7 @@ import 'package:busin_core/busin_core.dart';
 import 'package:busin_student/src/app.dart';
 import 'package:busin_student/src/qr/boarding_code_image.dart';
 import 'package:busin_student/src/providers.dart';
+import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -61,9 +62,11 @@ void main() {
     expect(find.text('Test Person'), findsOneWidget);
   });
 
-  testWidgets('counts down to the next code', (tester) async {
+  testWidgets('no countdown is shown: the student does not need to know about it', (tester) async {
     await openQr(tester);
-    expect(find.text('New code in 23 s'), findsOneWidget);
+    expect(find.textContaining('New code in'), findsNothing);
+    expect(find.byType(LinearProgressIndicator), findsNothing);
+    expect(find.text('Live code'), findsOneWidget);
   });
 
   testWidgets('a new code appears when the 30-second window changes', (tester) async {
@@ -77,7 +80,6 @@ void main() {
 
     expect(second, isNot(first));
     expect(second, codeAt(clock.now));
-    expect(find.text('New code in 29 s'), findsOneWidget);
   });
 
   testWidgets('within a window the code stays the same', (tester) async {
@@ -87,7 +89,6 @@ void main() {
     clock.now = DateTime.utc(2026, 11, 5, 12, 0, 20);
     await tester.pump(const Duration(seconds: 1));
     expect(shownCode(tester), first);
-    expect(find.text('New code in 10 s'), findsOneWidget);
   });
 
   testWidgets('fetches the secret once, keeps it for this user, and later needs no connection', (tester) async {
@@ -174,12 +175,27 @@ void main() {
     expect(security.calls.last, isTrue);
   });
 
-  testWidgets('the screenshot note appears only where blocking works', (tester) async {
-    await openQr(tester, security: FakeScreenSecurity());
-    expect(find.textContaining('Screenshots are turned off'), findsOneWidget);
+  testWidgets('a reminder toast mentions screenshots only where blocking works, and shows once per session', (tester) async {
+    Future<void> openTab(FakeScreenSecurity security) async {
+      await openQr(tester, security: security, goToQr: false);
+      await tester.tap(find.text('Code'));
+      // Not settled: the toast leaves by itself after a few seconds.
+      for (var i = 0; i < 6; i++) {
+        await tester.pump(const Duration(milliseconds: 200));
+      }
+    }
 
-    await openQr(tester, security: FakeScreenSecurity(supported: false));
-    expect(find.textContaining('Screenshots are turned off'), findsNothing);
+    await openTab(FakeScreenSecurity());
+    expect(find.text('Keep your code to yourself'), findsOneWidget);
+    expect(find.textContaining('screenshots are turned off'), findsOneWidget);
+    BusinToast.dismiss();
+    await tester.pump();
+
+    await openTab(FakeScreenSecurity(supported: false));
+    expect(find.text('Keep your code to yourself'), findsOneWidget);
+    expect(find.textContaining('screenshots are turned off'), findsNothing);
+    BusinToast.dismiss();
+    await tester.pump();
   });
 
   testWidgets('the code is drawn dark on white in the dark theme too', (tester) async {
@@ -188,12 +204,12 @@ void main() {
     await openQr(tester);
     final image = tester.widget<QrImageView>(find.descendant(of: find.byKey(const ValueKey('boarding-code')), matching: find.byType(QrImageView)));
     expect(image.backgroundColor, Colors.white);
-    expect(image.dataModuleStyle.color, Colors.black);
+    expect(image.dataModuleStyle.color, BusinRamps.seed);
   });
 
   testWidgets('speaks French', (tester) async {
     await openQr(tester, locale: const Locale('fr'));
-    expect(find.text('Nouveau code dans 23 s'), findsOneWidget);
+    expect(find.text('Code en direct'), findsOneWidget);
   });
 
   test('signing out forgets the stored secret before ending the session', () async {

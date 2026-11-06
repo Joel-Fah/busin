@@ -310,13 +310,32 @@ class BusinL10nEn extends BusinL10n {
   String get qrImageLabel => 'Your boarding code. It changes every 30 seconds.';
 
   @override
-  String qrRefreshesIn(String seconds) {
-    return 'New code in $seconds s';
-  }
+  String get qrLive => 'Live code';
 
   @override
-  String get qrScreenshotsOff =>
-      'Screenshots are turned off here so a copy of your code cannot be shared.';
+  String get qrPrivateTitle => 'Keep your code to yourself';
+
+  @override
+  String get qrPrivateBodyProtected =>
+      'It changes by itself, and screenshots are turned off here.';
+
+  @override
+  String get qrPrivateBody => 'It changes by itself and only works for you.';
+
+  @override
+  String get qrRefreshed => 'Code refreshed.';
+
+  @override
+  String get boardTitle => 'How to board';
+
+  @override
+  String get boardStep1 => 'Have this screen open when you reach the door.';
+
+  @override
+  String get boardStep2 => 'Hold your phone to the scanner until it confirms.';
+
+  @override
+  String get boardStep3 => 'Take any seat. Your ride is saved in History.';
 
   @override
   String get qrNoSubscriptionTitle => 'No active subscription';

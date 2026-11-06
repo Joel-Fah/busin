@@ -120,15 +120,15 @@
   "qrTitle": "Code d’embarquement",
   "qrHint": "Présentez ce code au conducteur ou au personnel au moment de monter.",
   "qrImageLabel": "Votre code d’embarquement. Il change toutes les 30 secondes.",
-  "qrRefreshesIn": "Nouveau code dans {seconds} s",
-  "@qrRefreshesIn": {
-    "placeholders": {
-      "seconds": {
-        "type": "String"
-      }
-    }
-  },
-  "qrScreenshotsOff": "Les captures d’écran sont désactivées ici pour qu’une copie de votre code ne puisse pas être partagée.",
+  "qrLive": "Code en direct",
+  "qrPrivateTitle": "Gardez votre code pour vous",
+  "qrPrivateBodyProtected": "Il change tout seul, et les captures d’écran sont désactivées ici.",
+  "qrPrivateBody": "Il change tout seul et ne fonctionne que pour vous.",
+  "qrRefreshed": "Code actualisé.",
+  "boardTitle": "Comment monter",
+  "boardStep1": "Ayez cet écran ouvert en arrivant à la porte.",
+  "boardStep2": "Approchez votre téléphone du lecteur jusqu’à la confirmation.",
+  "boardStep3": "Prenez n’importe quelle place. Votre trajet est enregistré dans l’historique.",
   "qrNoSubscriptionTitle": "Aucun abonnement actif",
   "qrNoSubscriptionBody": "Votre code d’embarquement apparaît dès que votre abonnement est approuvé.",
   "qrGoToSubscription": "Aller à l’abonnement",

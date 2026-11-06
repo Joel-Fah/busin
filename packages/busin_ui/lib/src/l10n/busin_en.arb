@@ -139,15 +139,15 @@
   "qrTitle": "Boarding code",
   "qrHint": "Show this code to the driver or staff when you board.",
   "qrImageLabel": "Your boarding code. It changes every 30 seconds.",
-  "qrRefreshesIn": "New code in {seconds} s",
-  "@qrRefreshesIn": {
-    "placeholders": {
-      "seconds": {
-        "type": "String"
-      }
-    }
-  },
-  "qrScreenshotsOff": "Screenshots are turned off here so a copy of your code cannot be shared.",
+  "qrLive": "Live code",
+  "qrPrivateTitle": "Keep your code to yourself",
+  "qrPrivateBodyProtected": "It changes by itself, and screenshots are turned off here.",
+  "qrPrivateBody": "It changes by itself and only works for you.",
+  "qrRefreshed": "Code refreshed.",
+  "boardTitle": "How to board",
+  "boardStep1": "Have this screen open when you reach the door.",
+  "boardStep2": "Hold your phone to the scanner until it confirms.",
+  "boardStep3": "Take any seat. Your ride is saved in History.",
   "qrNoSubscriptionTitle": "No active subscription",
   "qrNoSubscriptionBody": "Your boarding code appears as soon as your subscription is approved.",
   "qrGoToSubscription": "Go to subscription",

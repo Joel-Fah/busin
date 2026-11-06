@@ -316,13 +316,35 @@ class BusinL10nFr extends BusinL10n {
       'Votre code d’embarquement. Il change toutes les 30 secondes.';
 
   @override
-  String qrRefreshesIn(String seconds) {
-    return 'Nouveau code dans $seconds s';
-  }
+  String get qrLive => 'Code en direct';
 
   @override
-  String get qrScreenshotsOff =>
-      'Les captures d’écran sont désactivées ici pour qu’une copie de votre code ne puisse pas être partagée.';
+  String get qrPrivateTitle => 'Gardez votre code pour vous';
+
+  @override
+  String get qrPrivateBodyProtected =>
+      'Il change tout seul, et les captures d’écran sont désactivées ici.';
+
+  @override
+  String get qrPrivateBody =>
+      'Il change tout seul et ne fonctionne que pour vous.';
+
+  @override
+  String get qrRefreshed => 'Code actualisé.';
+
+  @override
+  String get boardTitle => 'Comment monter';
+
+  @override
+  String get boardStep1 => 'Ayez cet écran ouvert en arrivant à la porte.';
+
+  @override
+  String get boardStep2 =>
+      'Approchez votre téléphone du lecteur jusqu’à la confirmation.';
+
+  @override
+  String get boardStep3 =>
+      'Prenez n’importe quelle place. Votre trajet est enregistré dans l’historique.';
 
   @override
   String get qrNoSubscriptionTitle => 'Aucun abonnement actif';
