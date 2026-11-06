@@ -290,5 +290,41 @@
   "howStep2": "Ajoutez une photo de votre reçu de paiement.",
   "howStep3": "Votre école la vérifie et décide.",
   "howStep4": "Présentez votre code d’embarquement et voyagez.",
-  "proofAdded": "Photo ajoutée"
+  "proofAdded": "Photo ajoutée",
+  "legalTitle": "Mentions légales",
+  "legalHint": "Conditions et confidentialité. Elles sont dans l’application, donc lisibles hors connexion.",
+  "legalTerms": "Conditions d’utilisation",
+  "legalTermsBody": "Les règles pour utiliser BusIn",
+  "legalPrivacy": "Politique de confidentialité",
+  "legalPrivacyBody": "Ce que nous gardons sur vous, et pourquoi",
+  "legalAcceptable": "Usage acceptable",
+  "legalAcceptableBody": "Ce qui est permis et ce qui ne l’est pas",
+  "legalInShort": "En bref",
+  "legalUpdated": "Mis à jour le {date}",
+  "legalAppliesTo": "S’applique à {school}",
+  "legalAlsoRead": "À lire aussi",
+  "legalQuestionsTitle": "Des questions sur vos données ?",
+  "legalQuestionsBody": "Adressez-vous à l’administration de votre école. Elle peut corriger vos informations et répondre aux demandes concernant votre compte.",
+  "legalReadTime": "{minutes} min de lecture",
+  "@legalUpdated": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@legalAppliesTo": {
+    "placeholders": {
+      "school": {
+        "type": "String"
+      }
+    }
+  },
+  "@legalReadTime": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  }
 }

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../auth/access.dart';
+import '../legal/legal_screen.dart';
 import '../profile/profile_form.dart';
 import '../providers.dart';
 import '../router.dart';
@@ -203,12 +204,14 @@ class ProfileScreen extends ConsumerWidget {
       ),
     );
 
+    const legal = StaggeredIn(index: 4, child: LegalLinksCard());
+
     final footer = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Center(child: Text(l10n.profileMemberSince(material.formatMediumDate(profile.createdAt.toLocal())), style: text.bodySmall?.copyWith(color: p.muted))),
         const SizedBox(height: BusinSpace.x6),
-        StaggeredIn(index: 4, child: BusinButton(label: l10n.profileSignOut, variant: BusinButtonVariant.danger, icon: HugeIcons.strokeRoundedLogout01, expand: true, onPressed: signOut)),
+        StaggeredIn(index: 5, child: BusinButton(label: l10n.profileSignOut, variant: BusinButtonVariant.danger, icon: HugeIcons.strokeRoundedLogout01, expand: true, onPressed: signOut)),
         const SizedBox(height: BusinSpace.x6),
         Center(child: Text(l10n.profileCredits, style: text.bodySmall?.copyWith(color: p.muted), textAlign: TextAlign.center)),
       ],
@@ -243,7 +246,7 @@ class ProfileScreen extends ConsumerWidget {
                   flex: 5,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [details, const SizedBox(height: BusinSpace.x4), history, const SizedBox(height: BusinSpace.x4), appearance],
+                    children: [details, const SizedBox(height: BusinSpace.x4), history, const SizedBox(height: BusinSpace.x4), appearance, const SizedBox(height: BusinSpace.x4), legal],
                   ),
                 ),
               ],
@@ -264,6 +267,8 @@ class ProfileScreen extends ConsumerWidget {
           history,
           const SizedBox(height: BusinSpace.x4),
           appearance,
+          const SizedBox(height: BusinSpace.x4),
+          legal,
           const SizedBox(height: BusinSpace.x3),
           footer,
         ],

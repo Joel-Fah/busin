@@ -14,11 +14,11 @@ type Props = {
 
 /**
  * A row that opens to show more, built on the browser's own details element: keyboard and screen reader behaviour
- * come with it, nothing needs scripting. The arrow turns when it is open.
+ * come with it, nothing needs scripting. The arrow turns and the panel eases open and shut (see .accordion in theme.css).
  */
 export function Accordion({ summary, children, defaultOpen = false, className = "" }: Props) {
   return (
-    <details open={defaultOpen} className={`group rounded-md bg-surface-2 ${className}`}>
+    <details open={defaultOpen} className={`accordion group rounded-md bg-surface-2 ${className}`}>
       <summary className="flex cursor-pointer list-none items-center gap-3 rounded-md px-4 py-3.5 transition-colors duration-(--dur-fast) hover:bg-line focus-visible:outline-3 focus-visible:outline-focus [&::-webkit-details-marker]:hidden">
         <div className="min-w-0 flex-1">{summary}</div>
         <Icon icon={ArrowDown01Icon} size={20} className="shrink-0 text-muted transition-transform duration-(--dur) ease-soft group-open:rotate-180 motion-reduce:transition-none" />

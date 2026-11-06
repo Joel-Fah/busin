@@ -1428,6 +1428,96 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'Photo added'**
   String get proofAdded;
+
+  /// No description provided for @legalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal'**
+  String get legalTitle;
+
+  /// No description provided for @legalHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms and privacy. They are in the app, so you can read them offline.'**
+  String get legalHint;
+
+  /// No description provided for @legalTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of use'**
+  String get legalTerms;
+
+  /// No description provided for @legalTermsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The rules for using BusIn'**
+  String get legalTermsBody;
+
+  /// No description provided for @legalPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy policy'**
+  String get legalPrivacy;
+
+  /// No description provided for @legalPrivacyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'What we keep about you, and why'**
+  String get legalPrivacyBody;
+
+  /// No description provided for @legalAcceptable.
+  ///
+  /// In en, this message translates to:
+  /// **'Acceptable use'**
+  String get legalAcceptable;
+
+  /// No description provided for @legalAcceptableBody.
+  ///
+  /// In en, this message translates to:
+  /// **'What is and is not allowed'**
+  String get legalAcceptableBody;
+
+  /// No description provided for @legalInShort.
+  ///
+  /// In en, this message translates to:
+  /// **'In short'**
+  String get legalInShort;
+
+  /// No description provided for @legalUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated {date}'**
+  String legalUpdated(String date);
+
+  /// No description provided for @legalAppliesTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Applies to {school}'**
+  String legalAppliesTo(String school);
+
+  /// No description provided for @legalAlsoRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Also read'**
+  String get legalAlsoRead;
+
+  /// No description provided for @legalQuestionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions about your data?'**
+  String get legalQuestionsTitle;
+
+  /// No description provided for @legalQuestionsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask your school\'s administration. They can correct your details and answer requests about your account.'**
+  String get legalQuestionsBody;
+
+  /// No description provided for @legalReadTime.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min read'**
+  String legalReadTime(int minutes);
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {

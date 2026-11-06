@@ -754,4 +754,57 @@ class BusinL10nFr extends BusinL10n {
 
   @override
   String get proofAdded => 'Photo ajoutée';
+
+  @override
+  String get legalTitle => 'Mentions légales';
+
+  @override
+  String get legalHint =>
+      'Conditions et confidentialité. Elles sont dans l’application, donc lisibles hors connexion.';
+
+  @override
+  String get legalTerms => 'Conditions d’utilisation';
+
+  @override
+  String get legalTermsBody => 'Les règles pour utiliser BusIn';
+
+  @override
+  String get legalPrivacy => 'Politique de confidentialité';
+
+  @override
+  String get legalPrivacyBody => 'Ce que nous gardons sur vous, et pourquoi';
+
+  @override
+  String get legalAcceptable => 'Usage acceptable';
+
+  @override
+  String get legalAcceptableBody => 'Ce qui est permis et ce qui ne l’est pas';
+
+  @override
+  String get legalInShort => 'En bref';
+
+  @override
+  String legalUpdated(String date) {
+    return 'Mis à jour le $date';
+  }
+
+  @override
+  String legalAppliesTo(String school) {
+    return 'S’applique à $school';
+  }
+
+  @override
+  String get legalAlsoRead => 'À lire aussi';
+
+  @override
+  String get legalQuestionsTitle => 'Des questions sur vos données ?';
+
+  @override
+  String get legalQuestionsBody =>
+      'Adressez-vous à l’administration de votre école. Elle peut corriger vos informations et répondre aux demandes concernant votre compte.';
+
+  @override
+  String legalReadTime(int minutes) {
+    return '$minutes min de lecture';
+  }
 }
