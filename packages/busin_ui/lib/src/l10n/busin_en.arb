@@ -102,6 +102,8 @@
   "profileSignOutBody": "You will need to sign in with Google again.",
   "profileCredits": "3D illustrations by Thiings (thiings.co)",
   "fieldRequired": "This field is required.",
+  "loadingSlowTitle": "This is taking longer than usual",
+  "loadingSlowBody": "Check your connection. BusIn keeps trying.",
   "loadingLabel": "Loading",
   "appName": "BusIn",
   "signInTitle": "Hop on. BusIn handles the rest.",

@@ -228,6 +228,13 @@ class BusinL10nFr extends BusinL10n {
   String get fieldRequired => 'Ce champ est obligatoire.';
 
   @override
+  String get loadingSlowTitle => 'Cela prend plus de temps que d’habitude';
+
+  @override
+  String get loadingSlowBody =>
+      'Vérifiez votre connexion. BusIn continue d’essayer.';
+
+  @override
   String get loadingLabel => 'Chargement';
 
   @override

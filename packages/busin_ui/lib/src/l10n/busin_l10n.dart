@@ -511,6 +511,18 @@ abstract class BusinL10n {
   /// **'This field is required.'**
   String get fieldRequired;
 
+  /// No description provided for @loadingSlowTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This is taking longer than usual'**
+  String get loadingSlowTitle;
+
+  /// No description provided for @loadingSlowBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your connection. BusIn keeps trying.'**
+  String get loadingSlowBody;
+
   /// No description provided for @loadingLabel.
   ///
   /// In en, this message translates to:
