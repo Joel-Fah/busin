@@ -205,25 +205,25 @@ class _ToastViewState extends State<_ToastView> with TickerProviderStateMixin {
                                           ),
                                         ),
                                         const SizedBox(width: BusinSpace.x2),
-                                        // The ring empties as the time runs out.
+                                        // A rounded tile in the toast's colour; a ring around it empties as the time runs out.
                                         SizedBox(
-                                          width: 28,
-                                          height: 28,
+                                          width: 32,
+                                          height: 32,
                                           child: Stack(
                                             alignment: Alignment.center,
                                             children: [
                                               Positioned.fill(
-                                                child: AnimatedBuilder(
-                                                  animation: _life,
-                                                  builder: (context, _) => CircularProgressIndicator(
-                                                    value: 1 - _life.value,
-                                                    strokeWidth: 2,
-                                                    strokeCap: StrokeCap.round,
-                                                    color: ink,
-                                                  ),
+                                                child: DecoratedBox(
+                                                  decoration: BoxDecoration(color: ink.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(BusinRadius.xs + 2)),
                                                 ),
                                               ),
-                                              HugeIcon(icon: HugeIcons.strokeRoundedCancel01, size: 12, color: ink),
+                                              Positioned.fill(
+                                                child: AnimatedBuilder(
+                                                  animation: _life,
+                                                  builder: (context, _) => CustomPaint(painter: _RingPainter(remaining: 1 - _life.value, color: ink, radius: BusinRadius.xs + 2)),
+                                                ),
+                                              ),
+                                              HugeIcon(icon: HugeIcons.strokeRoundedCancel01, size: 14, color: ink),
                                             ],
                                           ),
                                         ),
@@ -247,4 +247,31 @@ class _ToastViewState extends State<_ToastView> with TickerProviderStateMixin {
       ),
     );
   }
+}
+
+/// The time left, as the part of a rounded square's outline that is still drawn.
+class _RingPainter extends CustomPainter {
+  const _RingPainter({required this.remaining, required this.color, required this.radius});
+
+  final double remaining;
+  final Color color;
+  final double radius;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const stroke = 2.0;
+    final rect = (Offset.zero & size).deflate(stroke / 2);
+    final path = Path()..addRRect(RRect.fromRectAndRadius(rect, Radius.circular(radius)));
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = stroke
+      ..strokeCap = StrokeCap.round
+      ..color = color;
+    for (final metric in path.computeMetrics()) {
+      canvas.drawPath(metric.extractPath(0, metric.length * remaining.clamp(0.0, 1.0)), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_RingPainter old) => old.remaining != remaining || old.color != color || old.radius != radius;
 }
