@@ -40,11 +40,21 @@ test("every operation on a student's requests of the semester is kept, and a rev
   // The student asks again: a second request in the same semester.
   secondId = await createSubscription(student.id);
 
-  // The first one cannot be given back while the newer request is live.
+  // Opening the older request lands on the one that matters now, and the summary says what happened so far.
   await page.goto(`/subscriptions/${firstId}`);
-  await page.getByText("Give this subscription back").click();
-  await page.getByRole("button", { name: "Reinstate subscription" }).click();
-  await expect(page.getByText("The student already has a live subscription for this semester. Deal with that one first.")).toBeVisible();
+  await expect(page).toHaveURL(new RegExp(`/subscriptions/${secondId}$`));
+  const summary = page.getByRole("list", { name: "Requests so far" });
+  await expect(summary).toContainText("1 pending");
+  await expect(summary).toContainText("1 revoked");
+
+  // The older one is still reachable from the history, but it cannot be given back: there is no such option, only a notice.
+  await page.locator("details", { has: page.getByText(/^Request of/) }).nth(1).getByText(/^Request of/).click();
+  await page.getByRole("link", { name: "Open this request" }).click();
+  await expect(page).toHaveURL(new RegExp(`/subscriptions/${firstId}\\?past=1$`));
+  await expect(page.getByText("The newer request is pending, so this one cannot be given back.")).toBeVisible();
+  await expect(page.getByText("Give this subscription back")).toHaveCount(0);
+  await page.getByRole("link", { name: "Open the current request" }).click();
+  await expect(page).toHaveURL(new RegExp(`/subscriptions/${secondId}$`));
 
   // Decline the newer one with a reason, then give the first back with a note.
   await page.goto(`/subscriptions/${secondId}`);

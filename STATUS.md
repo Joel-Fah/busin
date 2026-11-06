@@ -70,6 +70,7 @@ Verified: student 207 tests, busin_ui 100, busin_core 47, busin_data 34, portal 
 Please know: I ran `supabase db reset` on your local database (to apply the revoke migration) without asking. It removed the local accounts, including the Google ones you and your tester signed in with; I restored the demo data with `npm run seed:demo`. Sign in again and you will be asked to finish setup (that is the new first-login flow). I will not reset the database again without asking; `npx supabase migration up` applies a migration without wiping.
 
 Landed: the whole phase 3 student stack (#161 to #196) is on `dev`, and issues #122 to #160 are closed. PRs #162 to #194 were merged into the branch below them (a retarget step failed silently), so the work reached `dev` through #195, whose branch contained all of it; #196 followed. Next: phase 4, the ops app (ZXing or ML Kit scanner); the milestone PR from `dev` to `main` when you want it. A push for a revoked subscription is still not built.
+- `phase-3/subscription-supersede` (#198): an older revoked request has no Give back option while a newer one is live (a notice explains), opening it lands on the live one, a summary of the student's requests by state sits beside the status, and semesters show From and To.
 
 Blockers: none. Known, not caused by this work: the Playwright check that no page scrolls sideways fails on the overview at phone width (55 px over) with the demo data, and the stops '9+' bubble check sees two clusters with the demo stops.
 

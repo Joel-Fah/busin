@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Image from "next/image";
 import { Suspense } from "react";
 import { ArrowLeft01Icon, ArrowUpRight01Icon, Cancel01Icon, Comment01Icon, Tick02Icon } from "@hugeicons/core-free-icons";
 import Link from "next/link";
 
 import { FlashToast } from "@/components/FlashToast";
+import { StatusSummary } from "@/components/subscriptions/StatusSummary";
 import { Accordion } from "@/components/ui/Accordion";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button, ButtonLink } from "@/components/ui/Button";
@@ -13,6 +14,7 @@ import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
 import { Icon } from "@/components/ui/Icon";
 import { ListSkeleton } from "@/components/ui/ListSkeleton";
+import { Notice } from "@/components/ui/Notice";
 import { Textarea } from "@/components/ui/Textarea";
 
 import { requireAdmin } from "@/lib/auth";
@@ -25,6 +27,7 @@ import {
   isEventAction,
   isReviewErrorKey,
   isUuid,
+  liveRequest,
   orderHistory,
   statusTone,
   type RequestHistory,
@@ -38,7 +41,7 @@ export const metadata: Metadata = { title: "Subscription" };
 export const instant = false;
 
 type Params = Promise<{ id: string }>;
-type SearchParams = Promise<{ done?: string | string[]; error?: string | string[] }>;
+type SearchParams = Promise<{ done?: string | string[]; error?: string | string[]; past?: string | string[] }>;
 
 export default function SubscriptionPage({ params, searchParams }: { params: Params; searchParams: SearchParams }) {
   return (
@@ -107,6 +110,25 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
     })),
   );
 
+  // A student who asked again has one request that matters now (pending or approved). Opening an older one lands on it,
+  // unless the admin came here on purpose from the history ("past").
+  const query = await searchParams;
+  const live = liveRequest(history);
+  const asked = single(query.past) === "1";
+  if (live && live.id !== row.id && !asked) {
+    const keep = new URLSearchParams();
+    for (const key of ["done", "error"] as const) {
+      const value = single(query[key]);
+      if (value) keep.set(key, value);
+    }
+    redirect(`/subscriptions/${live.id}${keep.size ? `?${keep}` : ""}`);
+  }
+  const supersededBy = live && live.id !== row.id ? live : null;
+
+  // How many requests the student has made so far, by state.
+  const { data: everything } = await supabase.from("subscriptions").select("status").eq("student_id", row.student_id).limit(200);
+  const allStatuses = (everything ?? []).map((s) => s.status);
+
   // A short-lived link: the proof bucket is private and the link stops working after a minute.
   let proofUrl: string | null = null;
   let proofFailed = false;
@@ -116,7 +138,6 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
     else proofUrl = data.signedUrl;
   }
 
-  const query = await searchParams;
   const done = single(query.done);
   const errorParam = single(query.error);
   const errorKey = isReviewErrorKey(errorParam) ? errorParam : null;
@@ -139,13 +160,22 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
         <Avatar name={studentName} url={null} size={64} />
         <div>
           <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">{studentName}</h1>
-          <p className="mt-2">
+          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
             <Chip tone={statusTone(row.status)}>{t.status[row.status]}</Chip>
-          </p>
+            <StatusSummary statuses={allStatuses} label={t.subscriptions.detail.summaryLabel} names={t.status} />
+          </div>
         </div>
       </header>
 
       {done === "approved" || done === "rejected" || done === "revoked" || done === "reinstated" ? <FlashToast message={t.subscriptions.done[done]} /> : null}
+      {supersededBy ? (
+        <Notice tone="warn" className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <span>{format(t.subscriptions.detail.superseded, { status: t.status[supersededBy.status].toLowerCase() })}</span>
+          <Link href={`/subscriptions/${supersededBy.id}`} className="font-semibold">
+            {t.subscriptions.detail.supersededOpen}
+          </Link>
+        </Notice>
+      ) : null}
       {errorKey ? (
         <p className="rounded-md bg-bad-bg px-5 py-4 text-sm text-bad" role="alert">
           {t.subscriptions.errors[errorKey]}
@@ -256,7 +286,7 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
                   </form>
                 </details>
               ) : null}
-              {row.status === "revoked" ? (
+              {row.status === "revoked" && !supersededBy ? (
                 <details className="group">
                   <summary className="inline-flex cursor-pointer list-none items-center gap-2 rounded-sm px-4 py-2.5 text-sm font-semibold text-ok transition-colors duration-(--dur-fast) hover:bg-ok-bg focus-visible:outline-3 focus-visible:outline-focus [&::-webkit-details-marker]:hidden">
                     {t.subscriptions.detail.reinstateOpen}
@@ -356,7 +386,7 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
               </ol>
               {request.id !== row.id ? (
                 <p className="mt-3">
-                  <Link href={`/subscriptions/${request.id}`} className="text-sm font-semibold">
+                  <Link href={`/subscriptions/${request.id}?past=1`} className="text-sm font-semibold">
                     {t.subscriptions.detail.history.open}
                   </Link>
                 </p>
