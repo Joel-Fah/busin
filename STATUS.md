@@ -1,8 +1,8 @@
 # Status
 
-Updated: 2026-11-03
+Updated: 2026-11-07
 
-Current phase: **Phase 2, shared packages and admin portal** ([docs/phases/phase-2-shared-and-admin-web.md](docs/phases/phase-2-shared-and-admin-web.md))
+Current phase: **Phase 3, student app** ([docs/phases/phase-3-student-app.md](docs/phases/phase-3-student-app.md)): feature complete, waiting for the owner's device sign-off and the PR review and merges (see the last handoff)
 
 ## Phases
 
@@ -11,7 +11,7 @@ Current phase: **Phase 2, shared packages and admin portal** ([docs/phases/phase
 | 0 Foundation | Monorepo layout, docs, skills, workflow, GitHub setup | Done and merged into `dev` |
 | 1 Backend | Secure multi-tenant Supabase backend | Done and merged into `dev` (126 database tests) |
 | 2 Shared and admin web | Shared Dart packages, admin portal | **Done and merged into `dev`.** Admin portal (with the bento overview); `busin_core` has the models and the repository interfaces, `busin_data` the Supabase implementations, `busin_ui` the design system. Flutter 3.47.9 through fvm resolves, analyzes and tests the workspace |
-| 3 Student app | Lightweight student app | **In progress.** Slice 1 (shell, Google sign-in, role gate) on branch `phase-3/student-shell`; see [apps/student](apps/student/README.md) for the slices |
+| 3 Student app | Lightweight student app | **Feature complete, not yet signed off.** Every item of the scope is built and tested (sign-in, subscribe with proof, status, rotating code, history, live bus for subscribers, push, English and French, light and dark, plus the profile, setup, history, revoke and live changes). Waiting on: the owner's device test, review and merge of the stacked branches (#123 first), a hosted Supabase project (none exists yet), iOS configuration |
 | 4 Ops app | Scanner and driver mode | Not started |
 | 5 Insights | Density map, pickup and route suggestions | Not started |
 | 6 Scale | More schools, payments, hardware tracker | Not started |
@@ -56,6 +56,7 @@ Done this session (all pushed, stacked on each other, no PRs opened yet because 
 Asked and answered, not built: realtime on subscription changes. Recommendation: yes, a Realtime subscription filtered to the student's own subscription row while the app is open (push already covers the background); needs the table added to the Realtime publication in a migration. Say go and it becomes its own issue.
 - `phase-3/proof-fix-appearance` (#148 fix, #149 feature): the payment proof thumbnail shows again on the subscription tab (my full-screen preview change had collapsed it; now a test loads a real picture); the profile has Appearance with a theme (system, light, dark) and language (system, English, Francais) choice, remembered on the phone and used for notifications; the profile picture is read from Google at each sign-in and fades in over the initials.
 - `phase-3/realtime-subscription` (#150): while the app is open, a change to the student's own subscription (approved, rejected, ended) refreshes the screens and shows a toast, once even if a push arrives too; `subscriptions` is in the Realtime publication (RLS applies). Applied locally with `migration up`.
+- `phase-3/student-polish`: the polish pass. Accessibility checks (tap target size, labels, contrast) run on 7 screens in light and dark and pass; one real finding fixed (unselected navigation labels were under the contrast minimum on some backgrounds, now `BusinPalette.navLabel`); motion audit: every animation respects reduced motion. Dark mode was not looked at on a device (the tablet was disconnected).
 
 Verified: student 207 tests, busin_ui 100, busin_core 47, busin_data 34, portal 222 unit tests, database 215 pgTAP tests, all analyzers clean. On the phone I checked the ticket, My bus (with a demo bus and your stop) and the setup screen. I did not see the scramble animation or the logo hand-off in motion.
 
@@ -68,6 +69,9 @@ Blockers: none. Known, not caused by this work: the Playwright check that no pag
 Hosted migrations: there is no hosted Supabase project at all yet (only the local one has ever been used), so every migration so far exists only locally; when a hosted project is created they all apply in order with `npx supabase db push`. This project has no hosted Supabase project linked here (no project ref, no access token), so I cannot apply any migration to a hosted project. To do it, link the project (`npx supabase link --project-ref <ref>`, needs your access token) and tell me; I will then run `npx supabase db push` after listing exactly which migrations are pending.
 
 Owner must do:
+- Phase 3 sign-off: on a device with real internet, sign in with Google and walk through: subscribe with a proof (tap it to enlarge), see the approval arrive live while the app is open, the code (round markers), My bus (empty state without a subscription), the profile (theme, language, history), and a back gesture from each tab. Also look at dark mode and at the landscape tablet layouts (code, profile, history, rail), which I could only test in code.
+- Create the hosted Supabase project when you are ready (none exists): every migration so far is local only and applies in order with `npx supabase db push` once it is linked. The student app must ship with them (older versions cannot save a department or program).
+- The ops scanner must be built on a ZXing or ML Kit based scanner: the code now has round corner markers that OpenCV's classic detector cannot read.
 - Merge #123 so the stacked PRs can open in order (tell me and I open them).
 - Thiings licence: the free licence is personal and non-commercial and requires credit (credited on the profile page). Before a commercial release you need the Indie licence (one-time, thiings.co/pricing) or the art must be replaced. Nothing was bought.
 - Try on the phone: the boarding code scramble, the logo hand-off, revoke from the portal (Subscriptions, an approved one), and the profile page.

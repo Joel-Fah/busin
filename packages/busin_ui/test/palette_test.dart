@@ -16,10 +16,10 @@ void main() {
     test('text on the glass bar stays readable over the page in the ${entry.key} theme', () {
       final p = entry.value;
       // The bar keeps 72% of the surface colour and shows 28% of what is behind it: the page, or a card (surface).
-      for (final behind in [p.bg, p.surface, p.surface2]) {
+      for (final behind in [p.bg, p.surface, p.surface2, p.line]) {
         final glass = Color.alphaBlend(p.surface.withValues(alpha: BusinElevation.glassOpacity), behind);
         expect(contrastRatio(p.fg, glass), greaterThanOrEqualTo(4.5), reason: 'selected label on glass over $behind');
-        expect(contrastRatio(p.muted, glass), greaterThanOrEqualTo(4.5), reason: 'other labels on glass over $behind');
+        expect(contrastRatio(p.navLabel, glass), greaterThanOrEqualTo(4.5), reason: 'other labels on glass over $behind');
       }
     });
   }
