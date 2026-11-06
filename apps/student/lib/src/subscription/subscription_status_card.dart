@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
 
+import 'proof_viewer.dart';
 import 'subscription_providers.dart';
 
 /// Where the student's request stands, with what they need to know next.
@@ -141,15 +142,42 @@ class _ProofPreview extends ConsumerWidget {
     final l10n = BusinL10n.of(context);
     final url = ref.watch(proofUrlProvider(path));
     return url.maybeWhen(
-      data: (address) => ClipRRect(
-        borderRadius: BorderRadius.circular(BusinRadius.xs),
-        child: Image.network(
-          address,
-          height: 160,
-          width: double.infinity,
-          fit: BoxFit.cover,
-          semanticLabel: l10n.subscriptionProofTitle,
-          errorBuilder: (_, _, _) => const SizedBox.shrink(),
+      data: (address) => Semantics(
+        button: true,
+        label: l10n.proofView,
+        excludeSemantics: true,
+        onTap: () => showProofViewer(context, address),
+        child: GestureDetector(
+          onTap: () {
+            BusinHaptics.light();
+            showProofViewer(context, address);
+          },
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(BusinRadius.xs),
+            child: Image.network(
+              address,
+              height: 160,
+              width: double.infinity,
+              fit: BoxFit.cover,
+              // A hint that it opens, drawn only once the picture is really there.
+              frameBuilder: (context, child, frame, _) => frame == null
+                  ? child
+                  : Stack(
+                      children: [
+                        Positioned.fill(child: child),
+                        Positioned(
+                          right: BusinSpace.x2,
+                          bottom: BusinSpace.x2,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(BusinRadius.xs)),
+                            child: const Padding(padding: EdgeInsets.all(6), child: HugeIcon(icon: HugeIcons.strokeRoundedArrowExpand, color: Colors.white, size: 16)),
+                          ),
+                        ),
+                      ],
+                    ),
+              errorBuilder: (_, _, _) => const SizedBox.shrink(),
+            ),
+          ),
         ),
       ),
       orElse: () => const SizedBox.shrink(),

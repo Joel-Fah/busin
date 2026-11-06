@@ -134,6 +134,8 @@
       }
     }
   },
+  "proofView": "Voir votre preuve de paiement en plein écran",
+  "proofClose": "Fermer",
   "subscriptionProofTitle": "Votre preuve de paiement",
   "statusPendingTitle": "Demande envoyée",
   "statusPendingBody": "Votre école vérifie votre preuve de paiement. Tirez vers le bas pour voir si une décision a été prise.",

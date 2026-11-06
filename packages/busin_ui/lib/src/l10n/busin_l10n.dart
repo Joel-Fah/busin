@@ -775,6 +775,18 @@ abstract class BusinL10n {
   /// **'Sent {date}'**
   String subscriptionSent(String date);
 
+  /// No description provided for @proofView.
+  ///
+  /// In en, this message translates to:
+  /// **'View your payment proof full screen'**
+  String get proofView;
+
+  /// No description provided for @proofClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get proofClose;
+
   /// No description provided for @subscriptionProofTitle.
   ///
   /// In en, this message translates to:

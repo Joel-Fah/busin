@@ -167,6 +167,8 @@
       }
     }
   },
+  "proofView": "View your payment proof full screen",
+  "proofClose": "Close",
   "subscriptionProofTitle": "Your payment proof",
   "statusPendingTitle": "Request sent",
   "statusPendingBody": "Your school is checking your payment proof. Pull down to see if it has been decided.",
