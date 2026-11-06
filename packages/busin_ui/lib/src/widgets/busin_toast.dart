@@ -112,7 +112,9 @@ class _ToastViewState extends State<_ToastView> with SingleTickerProviderStateMi
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_controller.duration == null) {
-      _controller.duration = BusinMotion.of(context, BusinMotion.normal);
+      // In a little slower than the usual 280 ms and out quicker, so it arrives gently and leaves without lingering.
+      _controller.duration = BusinMotion.of(context, const Duration(milliseconds: 460));
+      _controller.reverseDuration = BusinMotion.of(context, const Duration(milliseconds: 320));
       _controller.forward();
     }
   }
@@ -143,7 +145,7 @@ class _ToastViewState extends State<_ToastView> with SingleTickerProviderStateMi
       ToastTone.error => (p.badBg, p.bad, HugeIcons.strokeRoundedCancelCircle),
     };
     const radius = BorderRadius.all(Radius.circular(BusinRadius.md));
-    final curved = CurvedAnimation(parent: _controller, curve: BusinMotion.soft, reverseCurve: Curves.easeIn);
+    final curved = CurvedAnimation(parent: _controller, curve: const Cubic(0.16, 1, 0.3, 1), reverseCurve: const Cubic(0.4, 0, 0.7, 0.2));
 
     return Positioned(
       top: 0,
@@ -159,7 +161,9 @@ class _ToastViewState extends State<_ToastView> with SingleTickerProviderStateMi
               child: FadeTransition(
                 opacity: curved,
                 child: SlideTransition(
-                  position: Tween<Offset>(begin: const Offset(0, -0.6), end: Offset.zero).animate(curved),
+                  position: Tween<Offset>(begin: const Offset(0, -0.4), end: Offset.zero).animate(curved),
+                  child: ScaleTransition(
+                  scale: Tween<double>(begin: 0.96, end: 1).animate(curved),
                   child: Dismissible(
                     key: ValueKey(widget.message),
                     direction: DismissDirection.up,
@@ -207,6 +211,7 @@ class _ToastViewState extends State<_ToastView> with SingleTickerProviderStateMi
                         ),
                       ),
                     ),
+                  ),
                   ),
                 ),
               ),
