@@ -17,6 +17,9 @@ export function useToast(): Show {
   return useContext(ToastContext);
 }
 
+/** Keep in step with `toast-out` in theme.css. */
+const TOAST_EXIT_MS = 380;
+
 const LOOK = {
   ok: { box: "bg-ok-bg text-ok", icon: CheckmarkCircle02Icon },
   info: { box: "bg-info-bg text-info", icon: InformationCircleIcon },
@@ -32,23 +35,34 @@ const LOOK = {
 export function ToastProvider({ children, closeLabel = "Close" }: { children: ReactNode; closeLabel?: string }) {
   const [toast, setToast] = useState<ToastItem | null>(null);
   const counter = useRef(0);
+  const [leaving, setLeaving] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const exit = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const dismiss = useCallback(() => {
+  // Leaving takes a moment so the toast can glide away instead of vanishing.
+  const dismiss = useCallback((id?: number) => {
     if (timer.current) clearTimeout(timer.current);
-    setToast(null);
+    if (exit.current) clearTimeout(exit.current);
+    setLeaving(true);
+    exit.current = setTimeout(() => {
+      setToast((c) => (id === undefined || c?.id === id ? null : c));
+      setLeaving(false);
+    }, TOAST_EXIT_MS);
   }, []);
 
   const show = useCallback<Show>((message, options = {}) => {
     const tone = options.tone ?? "info";
     const item: ToastItem = { id: ++counter.current, tone, message, title: options.title, duration: toastDuration(tone, options.duration) };
     if (timer.current) clearTimeout(timer.current);
+    if (exit.current) clearTimeout(exit.current);
+    setLeaving(false);
     setToast((current) => nextToast(current, item));
-    timer.current = setTimeout(() => setToast((c) => (c?.id === item.id ? null : c)), item.duration);
-  }, []);
+    timer.current = setTimeout(() => dismiss(item.id), item.duration);
+  }, [dismiss]);
 
   useEffect(() => () => {
     if (timer.current) clearTimeout(timer.current);
+    if (exit.current) clearTimeout(exit.current);
   }, []);
 
   const value = useMemo(() => show, [show]);
@@ -61,7 +75,7 @@ export function ToastProvider({ children, closeLabel = "Close" }: { children: Re
           <div
             key={toast.id}
             role={toast.tone === "bad" || toast.tone === "warn" ? "alert" : "status"}
-            className={`toast-in pointer-events-auto relative flex w-full max-w-md items-start gap-3 rounded-md px-5 py-4 text-sm shadow-float ${LOOK[toast.tone].box}`}
+            className={`${leaving ? "toast-out" : "toast-in"} pointer-events-auto relative flex w-full max-w-md items-start gap-3 rounded-md px-5 py-4 text-sm shadow-float ${LOOK[toast.tone].box}`}
             style={{ ["--thread-color" as string]: "currentColor" }}
           >
             <Contour radius={20} inset={4} dash={[5, 5]} />
@@ -70,8 +84,32 @@ export function ToastProvider({ children, closeLabel = "Close" }: { children: Re
               {toast.title && <p className="font-bold">{toast.title}</p>}
               <p>{toast.message}</p>
             </div>
-            <button type="button" onClick={dismiss} aria-label={closeLabel} className="-m-1 rounded-sm p-1 text-muted hover:text-fg">
-              <Icon icon={Cancel01Icon} size={18} />
+            <button
+              type="button"
+              onClick={() => dismiss(toast.id)}
+              aria-label={closeLabel}
+              className="relative -m-1 grid size-9 shrink-0 place-items-center rounded-full text-current opacity-80 transition-[opacity,background-color,transform] duration-[var(--dur-fast)] ease-[var(--ease-soft)] hover:bg-current/10 hover:opacity-100 focus-visible:opacity-100 outline-none focus-visible:bg-current/10 active:scale-90"
+            >
+              {/* The ring empties as the time runs out. */}
+              <svg viewBox="0 0 36 36" className="pointer-events-none absolute inset-0 -rotate-90" aria-hidden="true">
+                {!leaving && (
+                  <circle
+                    key={toast.id}
+                    className="toast-ring"
+                    cx="18"
+                    cy="18"
+                    r="16"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    pathLength={100}
+                    strokeDasharray={100}
+                    style={{ animationDuration: `${toast.duration}ms` }}
+                  />
+                )}
+              </svg>
+              <Icon icon={Cancel01Icon} size={14} />
             </button>
           </div>
         )}
