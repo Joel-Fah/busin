@@ -1,7 +1,9 @@
+import 'dart:ui' as ui;
 import 'dart:math' as math;
 
 import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -412,6 +414,25 @@ void main() {
       await tester.pumpWidget(host(const BrandMark(color: Colors.white, height: 40)));
       await tester.pump();
       expect(tester.takeException(), isNull);
+      expect(tester.getSize(find.byType(BrandMark)).aspectRatio, closeTo(205 / 126, 0.01));
+    });
+
+    testWidgets('the brand mark is drawn in the colour it is given, not the SVG\'s own teal', (tester) async {
+      await tester.pumpWidget(host(RepaintBoundary(
+        key: const Key('mark'),
+        child: Container(color: BusinRamps.seed, child: const BrandMark(color: Colors.white, height: 126)),
+      )));
+      await tester.pump();
+      await tester.runAsync(() async {
+        final boundary = tester.renderObject<RenderRepaintBoundary>(find.byKey(const Key('mark')));
+        final image = await boundary.toImage();
+        final bytes = (await image.toByteData(format: ui.ImageByteFormat.rawRgba))!;
+        var white = 0;
+        for (var i = 0; i < bytes.lengthInBytes; i += 4) {
+          if (bytes.getUint8(i) > 240 && bytes.getUint8(i + 1) > 240 && bytes.getUint8(i + 2) > 240) white++;
+        }
+        expect(white, greaterThan(2000), reason: 'a white mark on the dark background');
+      });
     });
   });
 }
