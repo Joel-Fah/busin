@@ -67,9 +67,11 @@ Verified: student 207 tests, busin_ui 100, busin_core 47, busin_data 34, portal 
 
 Please know: I ran `supabase db reset` on your local database (to apply the revoke migration) without asking. It removed the local accounts, including the Google ones you and your tester signed in with; I restored the demo data with `npm run seed:demo`. Sign in again and you will be asked to finish setup (that is the new first-login flow). I will not reset the database again without asking; `npx supabase migration up` applies a migration without wiping.
 
-Next: B4 history redesign, B6 polish (dark mode, accessibility, motion audit), a push notification for a revoked subscription (not built).
+Next: open the stacked PRs in order once #123 is merged (toast-polish through legal-polish, plus dev-device-command, which stacks on legal-and-accordion); then phase 4, the ops app (ZXing or ML Kit scanner). A push for a revoked subscription is still not built.
 
 Blockers: none. Known, not caused by this work: the Playwright check that no page scrolls sideways fails on the overview at phone width (55 px over) with the demo data, and the stops '9+' bubble check sees two clusters with the demo stops.
+
+Checked and closed this session: the owner saw the legal pages on the tablet and they are fine. "Try again does not work when back online" could not be reproduced (refused and stalled backend both recovered); the owner found the backend simply was not reachable. Observations not acted on: a failed read takes 10 to 30 seconds to show its error because the Supabase client retries GET requests itself (3 tries with growing pauses; can be switched off in `Supabase.initialize` if wanted), and the logo on the long-wait loading screen is nearly invisible (dark teal on dark teal).
 
 Hosted migrations: there is no hosted Supabase project at all yet (only the local one has ever been used), so every migration so far exists only locally; when a hosted project is created they all apply in order with `npx supabase db push`. This project has no hosted Supabase project linked here (no project ref, no access token), so I cannot apply any migration to a hosted project. To do it, link the project (`npx supabase link --project-ref <ref>`, needs your access token) and tell me; I will then run `npx supabase db push` after listing exactly which migrations are pending.
 
