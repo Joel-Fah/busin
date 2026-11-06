@@ -79,3 +79,26 @@ test("every operation on a student's requests of the semester is kept, and a rev
   await expect(accordions.nth(0).locator("li").nth(0)).toContainText("Declined");
   await expect(accordions.nth(0).locator("li").nth(0)).toContainText("Receipt unreadable");
 });
+
+test("an accordion eases its height instead of jumping", async ({ context, page }) => {
+  // The suite runs with reduced motion on; this check needs the real durations.
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await signInBrowser(context, admin);
+  await page.goto(`/subscriptions/${firstId}`);
+  const closed = page.locator("details.accordion:not([open])").first();
+  await expect(closed).toBeVisible();
+
+  // Sample the height on every frame after the click: it grows over several frames, it does not jump.
+  const samples = await closed.evaluate(async (el) => {
+    const seen: number[] = [el.getBoundingClientRect().height];
+    (el.querySelector("summary") as HTMLElement).click();
+    for (let i = 0; i < 30; i++) {
+      await new Promise((r) => requestAnimationFrame(() => r(null)));
+      seen.push(el.getBoundingClientRect().height);
+    }
+    return seen;
+  });
+  const end = samples[samples.length - 1];
+  const between = samples.filter((h) => h > samples[0] + 2 && h < end - 2);
+  expect(between.length, `heights per frame: ${samples.join(", ")}`).toBeGreaterThan(3);
+});

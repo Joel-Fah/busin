@@ -133,6 +133,30 @@
   }
 }
 
+/*
+ * Accordion (details): the panel eases its height and fades its content. Uses ::details-content and interpolate-size,
+ * so a browser without them (older Firefox and Safari) simply opens and closes at once. Reduced motion collapses the
+ * durations through the tokens above.
+ */
+.accordion {
+  interpolate-size: allow-keywords;
+}
+
+.accordion::details-content {
+  block-size: 0;
+  overflow: clip;
+  opacity: 0;
+  transition:
+    block-size var(--dur) var(--ease-soft),
+    opacity var(--dur-fast) var(--ease-soft),
+    content-visibility var(--dur) allow-discrete;
+}
+
+.accordion[open]::details-content {
+  block-size: auto;
+  opacity: 1;
+}
+
 @keyframes shimmer {
   to {
     background-position-x: -200%;
