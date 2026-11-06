@@ -220,6 +220,26 @@ void main() {
       handle.dispose();
     });
 
+    for (final locale in [const Locale('en'), const Locale('fr')]) {
+      for (final scale in [1.0, 1.6]) {
+        testWidgets('on a landscape tablet it is two columns, in ${locale.languageCode} at text size $scale', (tester) async {
+          tester.platformDispatcher.textScaleFactorTestValue = scale;
+          addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+          await open(tester, FakeAuthService(signedInAs: 'u1'), FakeProfileRepository({'u1': profile()}), size: const Size(1280, 800), locale: locale);
+          await tester.tap(find.text(locale.languageCode == 'fr' ? 'Profil' : 'Profile'));
+          await tester.pumpAndSettle();
+
+          final who = tester.getRect(find.text('Test Person'));
+          final details = tester.getRect(find.text(locale.languageCode == 'fr' ? 'Vos informations' : 'Your details'));
+          final history = tester.getRect(find.text(locale.languageCode == 'fr' ? 'Historique des trajets' : 'Boarding history'));
+          expect(details.left, greaterThan(who.right), reason: 'the details are in the right column');
+          expect(history.left, greaterThan(who.right), reason: 'and so is the history');
+          expect(details.top, lessThan(history.top));
+          expect(tester.takeException(), isNull);
+        });
+      }
+    }
+
     testWidgets('fits a small phone at large text and credits the 3D art', (tester) async {
       final handle = tester.ensureSemantics();
       tester.platformDispatcher.textScaleFactorTestValue = 1.6;
