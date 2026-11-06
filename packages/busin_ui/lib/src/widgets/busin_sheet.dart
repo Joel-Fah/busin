@@ -37,6 +37,9 @@ class BusinSheetFrame extends StatelessWidget {
   /// Space between the card and the screen's edges.
   static const double margin = 16;
 
+  /// Space between the card's edge and its content: the thread's inset plus air, so nothing touches the thread.
+  static final double contentInset = ContourStyle.sheet.inset + BusinSpace.x2;
+
   @override
   Widget build(BuildContext context) {
     final p = BusinPalette.of(context);
@@ -58,8 +61,9 @@ class BusinSheetFrame extends StatelessWidget {
                 clipBehavior: Clip.antiAlias,
                 child: Stack(
                   children: [
-                    Padding(padding: const EdgeInsets.only(top: BusinSpace.x2), child: child),
                     Positioned.fill(child: Contour(color: threadColor(text: p.fg, background: p.surface, mix: 0.16), style: ContourStyle.sheet)),
+                    // Inside the thread: its inset plus a little air, on every side.
+                    Padding(padding: EdgeInsets.all(contentInset), child: child),
                   ],
                 ),
               ),

@@ -47,6 +47,7 @@ class _EmptyStateState extends State<EmptyState> {
           padding: const EdgeInsets.all(BusinSpace.x4),
           child: Stack(
             children: [
+              Positioned.fill(child: Contour(color: threadColor(text: p.fg, background: p.bg, mix: 0.16), style: ContourStyle.emptyState, active: _shown)),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: BusinSpace.x6, vertical: BusinSpace.x10),
                 child: Column(
@@ -69,7 +70,6 @@ class _EmptyStateState extends State<EmptyState> {
                   ],
                 ),
               ),
-              Positioned.fill(child: Contour(color: threadColor(text: p.fg, background: p.bg, mix: 0.16), style: ContourStyle.emptyState, active: _shown)),
             ],
           ),
         ),
