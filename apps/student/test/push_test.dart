@@ -216,7 +216,7 @@ void main() {
     await openApp(tester, push: push, backend: backend);
     expect(find.text('Request sent'), findsOneWidget);
 
-    await tester.tap(find.text('History'));
+    await tester.tap(find.text('Profile'));
     await tester.pumpAndSettle();
     backend.mine[0] = subscription(status: SubscriptionStatus.approved);
     push.tapped.add(const PushMessage(kind: 'subscription_approved', refId: 'sub1'));

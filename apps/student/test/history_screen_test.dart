@@ -28,7 +28,9 @@ Future<void> openHistory(
     ),
   );
   await tester.pumpAndSettle();
-  await tester.tap(find.text(locale.languageCode == 'fr' ? 'Historique' : 'History'));
+  await tester.tap(find.text(locale.languageCode == 'fr' ? 'Profil' : 'Profile'));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(locale.languageCode == 'fr' ? 'Historique des trajets' : 'Boarding history'));
   await tester.pumpAndSettle();
 }
 

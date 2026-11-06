@@ -613,6 +613,24 @@ abstract class BusinL10n {
   /// **'History'**
   String get navHistory;
 
+  /// No description provided for @navProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get navProfile;
+
+  /// No description provided for @profileHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Boarding history'**
+  String get profileHistory;
+
+  /// No description provided for @profileHistoryBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Every time you boarded, newest first.'**
+  String get profileHistoryBody;
+
   /// No description provided for @navBus.
   ///
   /// In en, this message translates to:

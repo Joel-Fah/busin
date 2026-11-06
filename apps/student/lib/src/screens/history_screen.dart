@@ -2,12 +2,14 @@ import 'package:busin_core/busin_core.dart';
 import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../history/history_providers.dart';
+import '../router.dart';
 
-/// The third tab: the student's own boardings, newest first, grouped by the day at the school.
-/// Pages load as the list is scrolled near its end.
+/// The student's own boardings, newest first, grouped by the day at the school. Pages load as the list is scrolled
+/// near its end. Opened from the profile.
 class HistoryScreen extends ConsumerWidget {
   const HistoryScreen({super.key});
 
@@ -146,6 +148,20 @@ class _HistoryListState extends ConsumerState<_HistoryList> {
         return false;
       },
       child: ListView(controller: _controller, physics: const AlwaysScrollableScrollPhysics(), padding: EdgeInsets.only(bottom: BusinSpace.x6 + BusinScope.of(context).bottomInset), children: rows),
+    );
+  }
+}
+
+/// The history as a page of its own, above the tabs, with a way back to the profile.
+class HistoryPage extends StatelessWidget {
+  const HistoryPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = BusinL10n.of(context);
+    return Scaffold(
+      appBar: AppBar(title: Text(l10n.navHistory), leading: BackButton(onPressed: () => context.canPop() ? context.pop() : context.go(Routes.profile))),
+      body: const SafeArea(child: HistoryScreen()),
     );
   }
 }

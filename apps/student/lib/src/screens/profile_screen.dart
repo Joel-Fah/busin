@@ -7,10 +7,11 @@ import 'package:hugeicons/hugeicons.dart';
 import '../auth/access.dart';
 import '../profile/profile_form.dart';
 import '../providers.dart';
+import '../router.dart';
 import '../subscription/subscription_providers.dart';
 
-/// The student's profile: who they are to the school, the details they can change, and signing out. A page above the
-/// tabs, opened from the avatar on the subscription tab.
+/// The student's profile, the last tab: who they are to the school, the details they can change, the boarding history
+/// and signing out.
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
@@ -20,7 +21,7 @@ class ProfileScreen extends ConsumerWidget {
     final p = BusinPalette.of(context);
     final text = Theme.of(context).textTheme;
     final access = ref.watch(accessProvider);
-    if (access is! Allowed) return const Scaffold(body: SizedBox.shrink());
+    if (access is! Allowed) return const SizedBox.shrink();
     final profile = access.profile;
     final school = ref.watch(schoolProvider).value;
     final material = MaterialLocalizations.of(context);
@@ -86,12 +87,9 @@ class ProfileScreen extends ConsumerWidget {
       if (confirmed == true) await ref.read(signOutProvider)();
     }
 
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.profileTitle), leading: BackButton(onPressed: () => context.canPop() ? context.pop() : context.go('/')),),
-      body: SafeArea(
-        child: ContentColumn(
+    return ContentColumn(
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(BusinSpace.x5, BusinSpace.x2, BusinSpace.x5, BusinSpace.x8),
+            padding: EdgeInsets.fromLTRB(BusinSpace.x5, BusinSpace.x4, BusinSpace.x5, BusinSpace.x8 + BusinScope.of(context).bottomInset),
             children: [
               StaggeredIn(
                 child: Column(
@@ -140,16 +138,43 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                 ),
               ),
+              const SizedBox(height: BusinSpace.x4),
+              StaggeredIn(
+                index: 2,
+                child: BusinCard(
+                  onTap: () {
+                    BusinHaptics.light();
+                    context.push(Routes.history);
+                  },
+                  child: Row(
+                    children: [
+                      DecoratedBox(
+                        decoration: BoxDecoration(color: p.surface2, borderRadius: BorderRadius.circular(BusinRadius.sm)),
+                        child: Padding(padding: const EdgeInsets.all(BusinSpace.x3), child: HugeIcon(icon: HugeIcons.strokeRoundedReceiptText, size: 20, color: p.fg)),
+                      ),
+                      const SizedBox(width: BusinSpace.x3),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(l10n.profileHistory, style: text.titleMedium),
+                            Text(l10n.profileHistoryBody, style: text.bodySmall?.copyWith(color: p.muted)),
+                          ],
+                        ),
+                      ),
+                      HugeIcon(icon: HugeIcons.strokeRoundedArrowRight01, size: 20, color: p.muted),
+                    ],
+                  ),
+                ),
+              ),
               const SizedBox(height: BusinSpace.x3),
               Center(child: Text(l10n.profileMemberSince(material.formatMediumDate(profile.createdAt.toLocal())), style: text.bodySmall?.copyWith(color: p.muted))),
               const SizedBox(height: BusinSpace.x6),
-              StaggeredIn(index: 2, child: BusinButton(label: l10n.profileSignOut, variant: BusinButtonVariant.danger, icon: HugeIcons.strokeRoundedLogout01, expand: true, onPressed: signOut)),
+              StaggeredIn(index: 3, child: BusinButton(label: l10n.profileSignOut, variant: BusinButtonVariant.danger, icon: HugeIcons.strokeRoundedLogout01, expand: true, onPressed: signOut)),
               const SizedBox(height: BusinSpace.x6),
               Center(child: Text(l10n.profileCredits, style: text.bodySmall?.copyWith(color: p.muted), textAlign: TextAlign.center)),
             ],
           ),
-        ),
-      ),
     );
   }
 }

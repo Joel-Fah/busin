@@ -283,6 +283,15 @@ class BusinL10nEn extends BusinL10n {
   String get navHistory => 'History';
 
   @override
+  String get navProfile => 'Profile';
+
+  @override
+  String get profileHistory => 'Boarding history';
+
+  @override
+  String get profileHistoryBody => 'Every time you boarded, newest first.';
+
+  @override
   String get navBus => 'My bus';
 
   @override

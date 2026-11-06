@@ -132,7 +132,7 @@ void main() {
     expect(find.text('No active subscription'), findsOneWidget);
 
     qr.error = null;
-    await tester.tap(find.text('History'));
+    await tester.tap(find.text('Profile'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Code'));
     await tester.pumpAndSettle();
@@ -165,7 +165,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(security.calls.last, isTrue);
 
-    await tester.tap(find.text('History'));
+    await tester.tap(find.text('Profile'));
     await tester.pumpAndSettle();
     expect(security.calls.last, isFalse);
 

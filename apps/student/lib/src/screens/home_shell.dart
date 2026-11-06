@@ -21,8 +21,8 @@ class HomeShell extends StatelessWidget {
     final destinations = [
       BusinDestination(label: l10n.navSubscription, icon: HugeIcons.strokeRoundedTicket03),
       BusinDestination(label: l10n.navQrShort, icon: HugeIcons.strokeRoundedQrCode, semanticLabel: l10n.navQr),
-      BusinDestination(label: l10n.navHistory, icon: HugeIcons.strokeRoundedReceiptText),
       BusinDestination(label: l10n.navBus, icon: HugeIcons.strokeRoundedBus01),
+      BusinDestination(label: l10n.navProfile, icon: HugeIcons.strokeRoundedUser),
     ];
 
     // A Scaffold stays at the root: snack bars need one to appear in.
