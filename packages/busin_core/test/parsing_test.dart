@@ -90,6 +90,25 @@ void main() {
       expect(json.containsKey('school_id'), isFalse);
     });
 
+    test('the academic choice is written together, and null clears', () {
+      expect(Profile.editableJson(academic: const AcademicChoice(departmentId: 'd1')), {'department_id': 'd1', 'program_id': null});
+      expect(Profile.editableJson(fullName: 'A B').containsKey('department_id'), isFalse);
+    });
+
+    test('departments narrow to their faculty and find their faculty back', () {
+      const units = AcademicUnits(
+        faculties: [Faculty(id: 'f1', name: 'One'), Faculty(id: 'f2', name: 'Two')],
+        departments: [Department(id: 'd1', facultyId: 'f1', name: 'A'), Department(id: 'd2', facultyId: 'f2', name: 'B')],
+        programs: [Program(id: 'p1', name: 'Bachelor')],
+      );
+      expect(units.departmentsOf('f2').map((d) => d.name), ['B']);
+      expect(units.departmentsOf(null), isEmpty);
+      expect(units.facultyOfDepartment('d1')?.id, 'f1');
+      expect(units.facultyOfDepartment('missing'), isNull);
+      expect(units.isEmpty, isFalse);
+      expect(const AcademicUnits().isEmpty, isTrue);
+    });
+
     test('Semester parses dates and checks inclusion on both ends', () {
       final s = Semester.fromJson({
         'id': 'm1',

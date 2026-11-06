@@ -22,6 +22,8 @@ Profile profile({
   UserRole role = UserRole.student,
   AccountStatus status = AccountStatus.verified,
   bool complete = true,
+  String? departmentId,
+  String? programId,
 }) =>
     Profile(
       id: id,
@@ -30,6 +32,8 @@ Profile profile({
       fullName: 'Test Person',
       matricule: complete ? 'ICT2026-0001' : null,
       phone: complete ? '677123456' : null,
+      departmentId: departmentId,
+      programId: programId,
       role: role,
       status: status,
       createdAt: DateTime.utc(2026, 11, 1),
@@ -70,10 +74,31 @@ class FakeAuthService implements AuthService {
   }
 }
 
+/// A small school: two faculties, each with its own departments, and two degree levels.
+const testUnits = AcademicUnits(
+  faculties: [Faculty(id: 'f1', name: 'Faculty of Computing', code: 'FOC'), Faculty(id: 'f2', name: 'Faculty of Business', code: 'FOB')],
+  departments: [
+    Department(id: 'd1', facultyId: 'f1', name: 'Computer Science', code: 'CSC'),
+    Department(id: 'd2', facultyId: 'f1', name: 'Cybersecurity', code: 'CYS'),
+    Department(id: 'd3', facultyId: 'f2', name: 'Accounting', code: 'ACC'),
+  ],
+  programs: [Program(id: 'p1', name: 'Bachelor'), Program(id: 'p2', name: 'Master')],
+);
+
+class FakeAcademic implements AcademicRepository {
+  FakeAcademic([this.units = testUnits]);
+
+  AcademicUnits units;
+
+  @override
+  Future<AcademicUnits> load() async => units;
+}
+
 class FakeProfileRepository implements ProfileRepository {
-  FakeProfileRepository(this.byId);
+  FakeProfileRepository(this.byId, {this.units = testUnits});
 
   final Map<String, Profile> byId;
+  final AcademicUnits units;
   Object? error;
 
   @override
@@ -84,11 +109,13 @@ class FakeProfileRepository implements ProfileRepository {
 
   /// What was last saved, to check in tests.
   Map<String, String?>? lastUpdate;
+  AcademicChoice? lastAcademic;
 
   @override
-  Future<Profile> updateProfile(String userId, {String? fullName, String? phone, String? matricule, String? department, String? program}) async {
+  Future<Profile> updateProfile(String userId, {String? fullName, String? phone, String? matricule, AcademicChoice? academic}) async {
     if (error != null) throw error!;
-    lastUpdate = {'fullName': fullName, 'phone': phone, 'matricule': matricule, 'department': department, 'program': program};
+    lastUpdate = {'fullName': fullName, 'phone': phone, 'matricule': matricule, 'departmentId': academic?.departmentId, 'programId': academic?.programId};
+    lastAcademic = academic;
     final old = byId[userId] ?? (throw const NotFound('profile'));
     final updated = Profile(
       id: old.id,
@@ -100,8 +127,10 @@ class FakeProfileRepository implements ProfileRepository {
       role: old.role,
       status: old.status,
       matricule: matricule ?? old.matricule,
-      department: department ?? old.department,
-      program: program ?? old.program,
+      department: academic == null ? old.department : units.department(academic.departmentId)?.name,
+      program: academic == null ? old.program : units.program(academic.programId)?.name,
+      departmentId: academic == null ? old.departmentId : academic.departmentId,
+      programId: academic == null ? old.programId : academic.programId,
       createdAt: old.createdAt,
       updatedAt: DateTime.now().toUtc(),
     );
@@ -552,6 +581,7 @@ class TestClock {
 List<Override> overridesFor(
   FakeAuthService auth,
   FakeProfileRepository profiles, {
+  FakeAcademic? academic,
   FakeBackend? backend,
   FakeProofPicker? picker,
   FakeHistory? history,
@@ -572,6 +602,7 @@ List<Override> overridesFor(
     introEnabledProvider.overrideWithValue(false),
     authServiceProvider.overrideWithValue(auth),
     profileRepositoryProvider.overrideWithValue(profiles),
+    academicRepositoryProvider.overrideWithValue(academic ?? FakeAcademic()),
     schoolRepositoryProvider.overrideWithValue(b),
     semestersRepositoryProvider.overrideWithValue(b),
     stopsRepositoryProvider.overrideWithValue(b),

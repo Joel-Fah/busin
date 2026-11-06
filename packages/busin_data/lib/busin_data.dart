@@ -17,6 +17,7 @@ export 'src/repositories.dart';
 class SupabaseRepositories {
   SupabaseRepositories(SupabaseClient client)
       : profiles = SupabaseProfileRepository(client),
+        academic = SupabaseAcademicRepository(client),
         schools = SupabaseSchoolRepository(client),
         stops = SupabaseStopsRepository(client),
         semesters = SupabaseSemestersRepository(client),
@@ -30,6 +31,7 @@ class SupabaseRepositories {
         livePositions = SupabaseLivePositionsRepository(client);
 
   final ProfileRepository profiles;
+  final AcademicRepository academic;
   final SchoolRepository schools;
   final StopsRepository stops;
   final SemestersRepository semesters;

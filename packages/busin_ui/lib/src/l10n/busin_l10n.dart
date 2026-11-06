@@ -382,7 +382,7 @@ abstract class BusinL10n {
   /// No description provided for @fieldDepartmentHint.
   ///
   /// In en, this message translates to:
-  /// **'Optional, e.g. Engineering'**
+  /// **'Choose your department'**
   String get fieldDepartmentHint;
 
   /// No description provided for @fieldProgram.
@@ -394,8 +394,32 @@ abstract class BusinL10n {
   /// No description provided for @fieldProgramHint.
   ///
   /// In en, this message translates to:
-  /// **'Optional, e.g. Computing'**
+  /// **'Choose your degree level'**
   String get fieldProgramHint;
+
+  /// No description provided for @fieldFaculty.
+  ///
+  /// In en, this message translates to:
+  /// **'Faculty'**
+  String get fieldFaculty;
+
+  /// No description provided for @fieldFacultyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your faculty'**
+  String get fieldFacultyHint;
+
+  /// No description provided for @fieldDepartmentFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a faculty first'**
+  String get fieldDepartmentFirst;
+
+  /// No description provided for @choiceNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Not chosen'**
+  String get choiceNone;
 
   /// No description provided for @fieldTooShort.
   ///

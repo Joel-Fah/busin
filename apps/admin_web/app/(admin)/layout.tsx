@@ -19,7 +19,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   );
 }
 
-const KEYS: NavKey[] = ["overview", "subscriptions", "people", "stops", "trips", "scans", "semesters", "buses"];
+const KEYS: NavKey[] = ["overview", "subscriptions", "people", "stops", "trips", "scans", "semesters", "academics", "buses"];
 
 async function AdminShell({ children }: { children: React.ReactNode }) {
   const admin = await requireAdmin();
@@ -37,7 +37,7 @@ async function AdminShell({ children }: { children: React.ReactNode }) {
         labels={t.nav}
         groups={[
           { label: t.nav.groupDaily, keys: ["subscriptions", "trips", "scans"] },
-          { label: t.nav.groupSetup, keys: ["stops", "buses", "semesters"] },
+          { label: t.nav.groupSetup, keys: ["stops", "buses", "semesters", "academics"] },
           { label: t.nav.groupGeneral, keys: ["overview", "people"] },
         ]}
         profile={{ name: admin.fullName || admin.email, avatarUrl: admin.avatarUrl, href: "/profile" }}

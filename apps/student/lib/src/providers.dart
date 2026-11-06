@@ -38,6 +38,7 @@ final pushRegistrarProvider = Provider<PushRegistrar>(
 
 final repositoriesProvider = Provider<SupabaseRepositories>((ref) => SupabaseRepositories(ref.watch(supabaseClientProvider)));
 
+final academicRepositoryProvider = Provider<AcademicRepository>((ref) => ref.watch(repositoriesProvider).academic);
 final profileRepositoryProvider = Provider<ProfileRepository>((ref) => ref.watch(repositoriesProvider).profiles);
 
 /// The signed-in user's id, or null. Everything that holds user data watches this, so it resets on sign-out.
@@ -48,6 +49,12 @@ final profileProvider = FutureProvider<Profile?>((ref) async {
   final userId = ref.watch(authUserIdProvider).value;
   if (userId == null) return null;
   return ref.watch(profileRepositoryProvider).getProfile(userId);
+});
+
+/// The faculties, departments and degree levels a student chooses from. Read once for the session; resets with the user.
+final academicUnitsProvider = FutureProvider<AcademicUnits>((ref) async {
+  if (ref.watch(authUserIdProvider).value == null) return const AcademicUnits();
+  return ref.watch(academicRepositoryProvider).load();
 });
 
 /// Whether the logo is drawn when the app opens. Tests switch it off.

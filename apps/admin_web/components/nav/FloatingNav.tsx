@@ -14,6 +14,7 @@ import {
   ReceiptTextIcon,
   Ticket03Icon,
   UserMultiple02Icon,
+  Building03Icon,
 } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 import { gsap } from "gsap";
@@ -27,7 +28,7 @@ import { INTRO_DONE_EVENT } from "@/lib/intro";
 
 import { NAV_DOCK_ID } from "./NavDock";
 
-export type NavKey = "overview" | "subscriptions" | "people" | "stops" | "trips" | "scans" | "semesters" | "buses";
+export type NavKey = "overview" | "subscriptions" | "people" | "stops" | "trips" | "scans" | "semesters" | "academics" | "buses";
 
 const ICONS: Record<NavKey, IconSvgElement> = {
   overview: GeometricShapes01Icon,
@@ -37,6 +38,7 @@ const ICONS: Record<NavKey, IconSvgElement> = {
   trips: Navigation03Icon,
   scans: ReceiptTextIcon,
   semesters: Calendar02Icon,
+  academics: Building03Icon,
   buses: Bus01Icon,
 };
 
@@ -48,6 +50,7 @@ const HREFS: Record<NavKey, string> = {
   trips: "/trips",
   scans: "/scans",
   semesters: "/semesters",
+  academics: "/academics",
   buses: "/buses",
 };
 
