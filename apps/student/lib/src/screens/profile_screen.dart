@@ -87,94 +87,143 @@ class ProfileScreen extends ConsumerWidget {
       if (confirmed == true) await ref.read(signOutProvider)();
     }
 
-    return ContentColumn(
-          child: ListView(
-            padding: EdgeInsets.fromLTRB(BusinSpace.x5, BusinSpace.x4, BusinSpace.x5, BusinSpace.x8 + BusinScope.of(context).bottomInset),
+    final identity = StaggeredIn(
+      child: Column(
+        children: [
+          UserAvatar(name: profile.fullName, email: profile.email, imageUrl: profile.avatarUrl, size: 96, semanticLabel: profile.fullName),
+          const SizedBox(height: BusinSpace.x4),
+          Text(profile.fullName, style: text.headlineMedium, textAlign: TextAlign.center),
+          const SizedBox(height: BusinSpace.x1),
+          Text(profile.email, style: text.bodyMedium?.copyWith(color: p.muted), textAlign: TextAlign.center),
+          const SizedBox(height: BusinSpace.x3),
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: BusinSpace.x2,
+            runSpacing: BusinSpace.x2,
             children: [
-              StaggeredIn(
-                child: Column(
-                  children: [
-                    UserAvatar(name: profile.fullName, email: profile.email, imageUrl: profile.avatarUrl, size: 96, semanticLabel: profile.fullName),
-                    const SizedBox(height: BusinSpace.x4),
-                    Text(profile.fullName, style: text.headlineMedium, textAlign: TextAlign.center),
-                    const SizedBox(height: BusinSpace.x1),
-                    Text(profile.email, style: text.bodyMedium?.copyWith(color: p.muted), textAlign: TextAlign.center),
-                    const SizedBox(height: BusinSpace.x3),
-                    Wrap(
-                      alignment: WrapAlignment.center,
-                      spacing: BusinSpace.x2,
-                      runSpacing: BusinSpace.x2,
-                      children: [
-                        StatusChip(label: l10n.accountStatus(profile.status), tone: accountTone(profile.status)),
-                        if (school != null) StatusChip(label: school.name, tone: StatusTone.neutral, icon: HugeIcons.strokeRoundedBuilding03),
-                      ],
-                    ),
-                  ],
-                ),
+              StatusChip(label: l10n.accountStatus(profile.status), tone: accountTone(profile.status)),
+              if (school != null) StatusChip(label: school.name, tone: StatusTone.neutral, icon: HugeIcons.strokeRoundedBuilding03),
+            ],
+          ),
+        ],
+      ),
+    );
+    final details = StaggeredIn(
+      index: 1,
+      child: BusinCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: BusinSpace.x3,
+              runSpacing: BusinSpace.x3,
+              children: [
+                Text(l10n.profileDetails, style: text.titleLarge),
+                BusinButton(label: l10n.profileEdit, variant: BusinButtonVariant.secondary, icon: HugeIcons.strokeRoundedEdit02, onPressed: edit),
+              ],
+            ),
+            const SizedBox(height: BusinSpace.x2),
+            row(HugeIcons.strokeRoundedIdVerified, l10n.fieldMatricule, profile.matricule),
+            row(HugeIcons.strokeRoundedSmartPhone01, l10n.fieldPhone, profile.phone),
+            row(HugeIcons.strokeRoundedBuilding03, l10n.fieldDepartment, profile.department),
+            row(HugeIcons.strokeRoundedMortarboard02, l10n.fieldProgram, profile.program),
+          ],
+        ),
+      ),
+    );
+    final history = StaggeredIn(
+      index: 2,
+      child: BusinCard(
+        onTap: () {
+          BusinHaptics.light();
+          context.push(Routes.history);
+        },
+        child: Row(
+          children: [
+            DecoratedBox(
+              decoration: BoxDecoration(color: p.surface2, borderRadius: BorderRadius.circular(BusinRadius.sm)),
+              child: Padding(padding: const EdgeInsets.all(BusinSpace.x3), child: HugeIcon(icon: HugeIcons.strokeRoundedReceiptText, size: 20, color: p.fg)),
+            ),
+            const SizedBox(width: BusinSpace.x3),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l10n.profileHistory, style: text.titleMedium),
+                  Text(l10n.profileHistoryBody, style: text.bodySmall?.copyWith(color: p.muted)),
+                ],
               ),
-              const SizedBox(height: BusinSpace.x6),
-              StaggeredIn(
-                index: 1,
-                child: BusinCard(
+            ),
+            HugeIcon(icon: HugeIcons.strokeRoundedArrowRight01, size: 20, color: p.muted),
+          ],
+        ),
+      ),
+    );
+    final footer = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Center(child: Text(l10n.profileMemberSince(material.formatMediumDate(profile.createdAt.toLocal())), style: text.bodySmall?.copyWith(color: p.muted))),
+        const SizedBox(height: BusinSpace.x6),
+        StaggeredIn(index: 3, child: BusinButton(label: l10n.profileSignOut, variant: BusinButtonVariant.danger, icon: HugeIcons.strokeRoundedLogout01, expand: true, onPressed: signOut)),
+        const SizedBox(height: BusinSpace.x6),
+        Center(child: Text(l10n.profileCredits, style: text.bodySmall?.copyWith(color: p.muted), textAlign: TextAlign.center)),
+      ],
+    );
+
+    final padding = EdgeInsets.fromLTRB(BusinSpace.x5, BusinSpace.x4, BusinSpace.x5, BusinSpace.x8 + BusinScope.of(context).bottomInset);
+    final expanded = BusinLayout.of(context).isExpanded;
+
+    // A wide screen, two columns: who you are, with signing out, on the left; the details and the history on the right.
+    if (expanded) {
+      return ContentColumn(
+        maxWidth: 1180,
+        child: ListView(
+          padding: padding,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 4,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Wrap(
-                        alignment: WrapAlignment.spaceBetween,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        spacing: BusinSpace.x3,
-                        runSpacing: BusinSpace.x3,
-                        children: [
-                          Text(l10n.profileDetails, style: text.titleLarge),
-                          BusinButton(label: l10n.profileEdit, variant: BusinButtonVariant.secondary, icon: HugeIcons.strokeRoundedEdit02, onPressed: edit),
-                        ],
-                      ),
-                      const SizedBox(height: BusinSpace.x2),
-                      row(HugeIcons.strokeRoundedIdVerified, l10n.fieldMatricule, profile.matricule),
-                      row(HugeIcons.strokeRoundedSmartPhone01, l10n.fieldPhone, profile.phone),
-                      row(HugeIcons.strokeRoundedBuilding03, l10n.fieldDepartment, profile.department),
-                      row(HugeIcons.strokeRoundedMortarboard02, l10n.fieldProgram, profile.program),
+                      BusinCard(child: identity),
+                      const SizedBox(height: BusinSpace.x6),
+                      footer,
                     ],
                   ),
                 ),
-              ),
-              const SizedBox(height: BusinSpace.x4),
-              StaggeredIn(
-                index: 2,
-                child: BusinCard(
-                  onTap: () {
-                    BusinHaptics.light();
-                    context.push(Routes.history);
-                  },
-                  child: Row(
-                    children: [
-                      DecoratedBox(
-                        decoration: BoxDecoration(color: p.surface2, borderRadius: BorderRadius.circular(BusinRadius.sm)),
-                        child: Padding(padding: const EdgeInsets.all(BusinSpace.x3), child: HugeIcon(icon: HugeIcons.strokeRoundedReceiptText, size: 20, color: p.fg)),
-                      ),
-                      const SizedBox(width: BusinSpace.x3),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(l10n.profileHistory, style: text.titleMedium),
-                            Text(l10n.profileHistoryBody, style: text.bodySmall?.copyWith(color: p.muted)),
-                          ],
-                        ),
-                      ),
-                      HugeIcon(icon: HugeIcons.strokeRoundedArrowRight01, size: 20, color: p.muted),
-                    ],
+                const SizedBox(width: BusinSpace.x8),
+                Expanded(
+                  flex: 5,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [details, const SizedBox(height: BusinSpace.x4), history],
                   ),
                 ),
-              ),
-              const SizedBox(height: BusinSpace.x3),
-              Center(child: Text(l10n.profileMemberSince(material.formatMediumDate(profile.createdAt.toLocal())), style: text.bodySmall?.copyWith(color: p.muted))),
-              const SizedBox(height: BusinSpace.x6),
-              StaggeredIn(index: 3, child: BusinButton(label: l10n.profileSignOut, variant: BusinButtonVariant.danger, icon: HugeIcons.strokeRoundedLogout01, expand: true, onPressed: signOut)),
-              const SizedBox(height: BusinSpace.x6),
-              Center(child: Text(l10n.profileCredits, style: text.bodySmall?.copyWith(color: p.muted), textAlign: TextAlign.center)),
-            ],
-          ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ContentColumn(
+      child: ListView(
+        padding: padding,
+        children: [
+          identity,
+          const SizedBox(height: BusinSpace.x6),
+          details,
+          const SizedBox(height: BusinSpace.x4),
+          history,
+          const SizedBox(height: BusinSpace.x3),
+          footer,
+        ],
+      ),
     );
   }
 }
