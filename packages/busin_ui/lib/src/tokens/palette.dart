@@ -100,6 +100,10 @@ class BusinPalette extends ThemeExtension<BusinPalette> {
       Theme.of(context).extension<BusinPalette>() ?? light;
 
   /// The text and background pairs that must reach WCAG AA (4.5:1). The tests check them.
+  /// The label of a navigation item that is not selected: the quiet text colour, a little closer to the main one so it
+  /// stays readable on the glass over any card or divider behind the bar.
+  Color get navLabel => Color.lerp(muted, fg, 0.3)!;
+
   List<(String, Color, Color)> get textPairs => [
         ('fg on bg', fg, bg),
         ('fg on surface', fg, surface),

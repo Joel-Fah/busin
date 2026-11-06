@@ -107,7 +107,7 @@ class _NavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = BusinPalette.of(context);
-    final color = selected ? p.fg : p.muted;
+    final color = selected ? p.fg : p.navLabel;
     return Semantics(
       button: true,
       selected: selected,
