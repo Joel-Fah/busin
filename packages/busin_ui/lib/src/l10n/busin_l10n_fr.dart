@@ -498,6 +498,38 @@ class BusinL10nFr extends BusinL10n {
   String get historyTitle => 'Vos embarquements';
 
   @override
+  String get historyStatWeek => 'Montées cette semaine';
+
+  @override
+  String get historyStatStop => 'Arrêt le plus utilisé';
+
+  @override
+  String get historyStatStopNone => 'Aucun pour l’instant';
+
+  @override
+  String historyDayCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count montées',
+      one: '1 montée',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get historyDayFirst => 'Première montée';
+
+  @override
+  String get historyDayLast => 'Dernière montée';
+
+  @override
+  String get historyDayStops => 'Arrêts utilisés';
+
+  @override
+  String get historySelectedDay => 'Jour choisi';
+
+  @override
   String get historyEmptyTitle => 'Aucun embarquement pour le moment';
 
   @override

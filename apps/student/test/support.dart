@@ -311,8 +311,12 @@ class FakeHistory implements ScansRepository, TripsRepository {
   int? failOnceAtOffset;
   Object? failAlways;
 
+  /// When set, the first page is not given until this completes (to look at the waiting state).
+  Completer<void>? hold;
+
   @override
   Future<List<Scan>> listForStudent(String studentId, {PageRequest page = const PageRequest()}) async {
+    if (hold != null) await hold!.future;
     offsets.add(page.offset);
     limits.add(page.limit);
     if (failAlways != null) throw failAlways!;
