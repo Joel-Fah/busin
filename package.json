@@ -20,6 +20,7 @@
     "backend:test": "supabase test db",
     "web:setup": "node tools/write-web-env.mjs",
     "web": "npm run dev -w apps/admin_web",
+    "dev:device": "node tools/dev-device.mjs",
     "dev:user": "node tools/dev-user.mjs",
     "seed:demo": "node tools/seed-demo.mjs",
     "dev:bus": "node tools/simulate-bus.mjs",
