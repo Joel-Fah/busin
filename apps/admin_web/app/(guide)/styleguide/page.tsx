@@ -693,9 +693,12 @@ async function Styleguide() {
         <ToastDemo />
         <p className="mt-3 max-w-2xl text-sm text-muted">
           A short message that floats at the top and leaves by itself: the stitched thread, an icon for its state and a
-          close button. One at a time. Good news leaves quickly (2.8 s), a problem stays to be read (7 s). Use it for
-          confirmations and reminders; an error the person must act on also stays on the page. The apps have the same
-          component with the same times (swipe up to dismiss).
+          close button. The button is a rounded tile in a slightly deeper tint of the state, and a ring along its edge empties
+          as the time runs out; there is no other stroke. It eases in over 460 ms, glides back up over 380 ms (a plain fade under reduced motion)
+          and takes one at a time. Hovering it, or focusing it with the keyboard, pauses the clock and the ring; moving away carries on from where it stopped. Good news leaves quickly (2.8 s), a problem stays to be read (7 s). After a save, a
+          page opens with its confirmation as a toast (FlashToast reads the done value in the address and then clears
+          it). Use it for confirmations and reminders; an error the person must act on stays on the page, as a notice.
+          The apps have the same component with the same times and ring (swipe up to dismiss).
         </p>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Notices</h3>

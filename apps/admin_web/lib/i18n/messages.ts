@@ -86,6 +86,14 @@ export const en = {
     language: 'Language',
     session: 'Session',
     sessionHint: 'Sign out when you are using a shared computer.',
+    setup: {
+      title: 'Set up',
+      hint: 'The things you change now and then, not every day.',
+      stops: { title: 'Stops', body: 'Where the buses pick students up, with a position on the map.' },
+      buses: { title: 'Buses', body: 'The fleet: plates, seats and which buses are in service.' },
+      semesters: { title: 'Semesters', body: 'The periods students subscribe for.' },
+      academics: { title: 'Faculties and departments', body: 'What students choose from on their profile, and the degree levels.' },
+    },
   },
   overview: {
     title: 'Overview',
@@ -765,6 +773,14 @@ export const fr: Messages = {
     language: 'Langue',
     session: 'Session',
     sessionHint: 'Déconnectez-vous si vous utilisez un ordinateur partagé.',
+    setup: {
+      title: 'Configuration',
+      hint: 'Ce que vous modifiez de temps en temps, pas tous les jours.',
+      stops: { title: 'Arrêts', body: 'Les lieux de prise en charge des étudiants, avec leur position sur la carte.' },
+      buses: { title: 'Bus', body: 'La flotte : plaques, places et bus en service.' },
+      semesters: { title: 'Semestres', body: "Les périodes pour lesquelles les étudiants s'abonnent." },
+      academics: { title: 'Facultés et départements', body: 'Ce que les étudiants choisissent sur leur profil, et les niveaux d\'études.' },
+    },
   },
   overview: {
     title: "Vue d'ensemble",

@@ -290,7 +290,7 @@ class _Parts extends StatelessWidget {
         const Notice(tone: StatusTone.bad, title: 'Your school\'s reason:', child: Text('The receipt is unreadable.')),
         const SizedBox(height: BusinSpace.x3),
         const Notice(tone: StatusTone.info, child: Text('Only you and your school can see your receipt.')),
-        const _Title('Toasts', note: 'A short message that floats at the top and leaves by itself. Good news is quick, problems stay. Swipe up to dismiss.'),
+        const _Title('Toasts', note: 'A short message that floats at the top and leaves by itself. Good news is quick, problems stay. A ring around the close icon empties as the time runs out. It eases in gently and leaves faster. Swipe up to dismiss.'),
         Builder(
           builder: (context) => Wrap(
             spacing: BusinSpace.x3,

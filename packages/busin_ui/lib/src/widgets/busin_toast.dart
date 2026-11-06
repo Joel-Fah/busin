@@ -97,8 +97,9 @@ class _ToastView extends StatefulWidget {
   State<_ToastView> createState() => _ToastViewState();
 }
 
-class _ToastViewState extends State<_ToastView> with SingleTickerProviderStateMixin {
+class _ToastViewState extends State<_ToastView> with TickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(vsync: this);
+  late final AnimationController _life = AnimationController(vsync: this, duration: widget.duration);
   Timer? _timer;
   bool _leaving = false;
 
@@ -106,13 +107,16 @@ class _ToastViewState extends State<_ToastView> with SingleTickerProviderStateMi
   void initState() {
     super.initState();
     _timer = Timer(widget.duration, _leave);
+    _life.forward();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_controller.duration == null) {
-      _controller.duration = BusinMotion.of(context, BusinMotion.normal);
+      // In a little slower than the usual 280 ms and out quicker, so it arrives gently and leaves without lingering.
+      _controller.duration = BusinMotion.of(context, const Duration(milliseconds: 460));
+      _controller.reverseDuration = BusinMotion.of(context, const Duration(milliseconds: 320));
       _controller.forward();
     }
   }
@@ -129,6 +133,7 @@ class _ToastViewState extends State<_ToastView> with SingleTickerProviderStateMi
   void dispose() {
     _timer?.cancel();
     _controller.dispose();
+    _life.dispose();
     super.dispose();
   }
 
@@ -143,7 +148,7 @@ class _ToastViewState extends State<_ToastView> with SingleTickerProviderStateMi
       ToastTone.error => (p.badBg, p.bad, HugeIcons.strokeRoundedCancelCircle),
     };
     const radius = BorderRadius.all(Radius.circular(BusinRadius.md));
-    final curved = CurvedAnimation(parent: _controller, curve: BusinMotion.soft, reverseCurve: Curves.easeIn);
+    final curved = CurvedAnimation(parent: _controller, curve: const Cubic(0.16, 1, 0.3, 1), reverseCurve: const Cubic(0.4, 0, 0.7, 0.2));
 
     return Positioned(
       top: 0,
@@ -159,7 +164,9 @@ class _ToastViewState extends State<_ToastView> with SingleTickerProviderStateMi
               child: FadeTransition(
                 opacity: curved,
                 child: SlideTransition(
-                  position: Tween<Offset>(begin: const Offset(0, -0.6), end: Offset.zero).animate(curved),
+                  position: Tween<Offset>(begin: const Offset(0, -0.4), end: Offset.zero).animate(curved),
+                  child: ScaleTransition(
+                  scale: Tween<double>(begin: 0.96, end: 1).animate(curved),
                   child: Dismissible(
                     key: ValueKey(widget.message),
                     direction: DismissDirection.up,
@@ -197,6 +204,29 @@ class _ToastViewState extends State<_ToastView> with SingleTickerProviderStateMi
                                             ],
                                           ),
                                         ),
+                                        const SizedBox(width: BusinSpace.x2),
+                                        // A rounded tile in the toast's colour; a ring around it empties as the time runs out.
+                                        SizedBox(
+                                          width: 32,
+                                          height: 32,
+                                          child: Stack(
+                                            alignment: Alignment.center,
+                                            children: [
+                                              Positioned.fill(
+                                                child: DecoratedBox(
+                                                  decoration: BoxDecoration(color: ink.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(BusinRadius.xs + 2)),
+                                                ),
+                                              ),
+                                              Positioned.fill(
+                                                child: AnimatedBuilder(
+                                                  animation: _life,
+                                                  builder: (context, _) => CustomPaint(painter: _RingPainter(remaining: 1 - _life.value, color: ink, radius: BusinRadius.xs + 2)),
+                                                ),
+                                              ),
+                                              HugeIcon(icon: HugeIcons.strokeRoundedCancel01, size: 14, color: ink),
+                                            ],
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -208,6 +238,7 @@ class _ToastViewState extends State<_ToastView> with SingleTickerProviderStateMi
                       ),
                     ),
                   ),
+                  ),
                 ),
               ),
             ),
@@ -216,4 +247,31 @@ class _ToastViewState extends State<_ToastView> with SingleTickerProviderStateMi
       ),
     );
   }
+}
+
+/// The time left, as the part of a rounded square's outline that is still drawn.
+class _RingPainter extends CustomPainter {
+  const _RingPainter({required this.remaining, required this.color, required this.radius});
+
+  final double remaining;
+  final Color color;
+  final double radius;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const stroke = 2.0;
+    final rect = (Offset.zero & size).deflate(stroke / 2);
+    final path = Path()..addRRect(RRect.fromRectAndRadius(rect, Radius.circular(radius)));
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = stroke
+      ..strokeCap = StrokeCap.round
+      ..color = color;
+    for (final metric in path.computeMetrics()) {
+      canvas.drawPath(metric.extractPath(0, metric.length * remaining.clamp(0.0, 1.0)), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_RingPainter old) => old.remaining != remaining || old.color != color || old.radius != radius;
 }

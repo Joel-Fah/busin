@@ -43,6 +43,7 @@ Done this session (all pushed, stacked on each other, no PRs opened yet because 
 - `phase-3/revoke-subscription` (#136): revoke an approved subscription (database, portal, student app).
 - `phase-3/toast-polish` (#137): the portal toast eases in and out, a themed close button with a countdown ring (no track, no outline); the app toast has the same ring and a gentler curve.
 - `phase-3/academic-units` (#138): faculties, departments and degree levels per school; the admin manages them on a new Faculties page of the portal; students pick faculty, then a department of it, then a degree level (setup and profile). Demo data: ICT and BMS faculties with full department names. Applied locally with `migration up` (no reset).
+- `phase-3/admin-nav-profile` (#139): the portal bar keeps Overview, Subscriptions, People, Trips and Boardings; Stops, Buses, Semesters and Faculties and departments are tiles on the profile (the Profile tab stays lit on those pages); saved confirmations in the portal now appear as toasts.
 
 Verified: student 207 tests, busin_ui 100, busin_core 47, busin_data 34, portal 222 unit tests, database 215 pgTAP tests, all analyzers clean. On the phone I checked the ticket, My bus (with a demo bus and your stop) and the setup screen. I did not see the scramble animation or the logo hand-off in motion.
 
@@ -50,7 +51,9 @@ Please know: I ran `supabase db reset` on your local database (to apply the revo
 
 Next: B4 history redesign, B6 polish (dark mode, accessibility, motion audit), a push notification for a revoked subscription (not built).
 
-Blockers: none.
+Blockers: none. Known, not caused by this work: the Playwright check that no page scrolls sideways fails on the overview at phone width (55 px over) with the demo data, and the stops '9+' bubble check sees two clusters with the demo stops.
+
+Hosted migrations: this project has no hosted Supabase project linked here (no project ref, no access token), so I cannot apply any migration to a hosted project. To do it, link the project (`npx supabase link --project-ref <ref>`, needs your access token) and tell me; I will then run `npx supabase db push` after listing exactly which migrations are pending.
 
 Owner must do:
 - Merge #123 so the stacked PRs can open in order (tell me and I open them).

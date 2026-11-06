@@ -5,6 +5,7 @@ import { UnitRow } from "@/components/UnitRow";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ListSkeleton } from "@/components/ui/ListSkeleton";
+import { FlashToast } from "@/components/FlashToast";
 import { Notice } from "@/components/ui/Notice";
 import { PageHeader } from "@/components/ui/PageHeader";
 
@@ -57,7 +58,7 @@ async function Academics({ searchParams }: { searchParams: SearchParams }) {
       />
 
       {isUnitErrorKey(error) ? <Notice tone="bad">{a.errors[error]}</Notice> : null}
-      {isUnitDoneKey(done) ? <Notice tone="ok">{a.done[done]}</Notice> : null}
+      {isUnitDoneKey(done) ? <FlashToast message={a.done[done]} /> : null}
 
       {failed ? (
         <Notice tone="bad">{a.loadError}</Notice>
