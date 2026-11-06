@@ -2,25 +2,25 @@ import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-/// Shows a stored proof full screen: pinch to zoom, drag to look around, tap the cross (or go back) to close. [address]
-/// is the short-lived signed address the thumbnail already loaded.
-Future<void> showProofViewer(BuildContext context, String address) {
+/// Shows a stored proof full screen: pinch to zoom, drag to look around, tap the cross (or go back) to close. [image] is
+/// the picture the thumbnail already loaded (from the short-lived signed address), so it opens at once.
+Future<void> showProofViewer(BuildContext context, ImageProvider image) {
   return Navigator.of(context, rootNavigator: true).push(
     PageRouteBuilder<void>(
       opaque: false,
       barrierColor: Colors.black,
       transitionDuration: BusinMotion.of(context, BusinMotion.normal),
       reverseTransitionDuration: BusinMotion.of(context, BusinMotion.fast),
-      pageBuilder: (_, _, _) => _ProofViewer(address: address),
+      pageBuilder: (_, _, _) => _ProofViewer(image: image),
       transitionsBuilder: (_, animation, _, child) => FadeTransition(opacity: CurvedAnimation(parent: animation, curve: BusinMotion.soft), child: child),
     ),
   );
 }
 
 class _ProofViewer extends StatelessWidget {
-  const _ProofViewer({required this.address});
+  const _ProofViewer({required this.image});
 
-  final String address;
+  final ImageProvider image;
 
   @override
   Widget build(BuildContext context) {
@@ -34,8 +34,8 @@ class _ProofViewer extends StatelessWidget {
             minScale: 1,
             maxScale: 5,
             child: Center(
-              child: Image.network(
-                address,
+              child: Image(
+                image: image,
                 fit: BoxFit.contain,
                 semanticLabel: l10n.subscriptionProofTitle,
                 loadingBuilder: (_, child, progress) => progress == null ? child : const Center(child: CircularProgressIndicator()),
