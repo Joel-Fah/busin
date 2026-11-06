@@ -33,12 +33,26 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 
 ## Last handoff
 
-Done: the opening logo animation (branch `phase-3/ui-intro`, issue #130, on top of the B2 branch). On a cold start the BusIn logo draws itself once on the teal splash (about 2.8 s, a tap skips it, reduced motion shows the finished mark for half a second); after it the finished mark stays with a thin progress bar while the session loads. The native launch screen (generated with `flutter_native_splash`, teal with the same wordmark at 144 dp, Android 12 included, dark variants, iOS storyboard) and the animated mark are the same size and in the same place, so the hand-off should be invisible. The path data comes from the portal logo (`node tools/export-brand-paths.mjs`; splash image: `node tools/render-app-icons.mjs`). The router holds every page on the splash until the intro is done (`introDoneProvider`); tests switch it off with `introEnabledProvider`.
+Done this session (all pushed, stacked on each other, no PRs opened yet because #123 is not merged):
+- `phase-3/ui-intro` (#130): the logo drawing animation with a matching native splash.
+- `phase-3/ui-fixes` (#131): 3D art above the thread, sheet content inside the thread.
+- `phase-3/toast` (#132): toast component for the apps and the portal.
+- `phase-3/qr-redesign` (#133): the boarding pass.
+- `phase-3/my-bus-redesign` (#134): My bus with ETA, 3D markers, dark map, compact card.
+- `phase-3/student-profile` (#135): first-login setup, profile page, landing on the code, code scramble, "Show the bus" only when needed.
+- `phase-3/revoke-subscription` (#136): revoke an approved subscription (database, portal, student app).
 
-Verified: analyze clean, student 173 tests and busin_ui 95 tests pass, debug APK installed on the connected phone: the native splash shows teal with the mark, then sign-in. I could not capture the animation itself in a debug build (slow start), so the hand-off needs your eyes.
+Verified: student 207 tests, busin_ui 100, busin_core 47, busin_data 34, portal 222 unit tests, database 215 pgTAP tests, all analyzers clean. On the phone I checked the ticket, My bus (with a demo bus and your stop) and the setup screen. I did not see the scramble animation or the logo hand-off in motion.
 
-Next: B3 boarding code, B4 history, B5 my bus, B6 polish.
+Please know: I ran `supabase db reset` on your local database (to apply the revoke migration) without asking. It removed the local accounts, including the Google ones you and your tester signed in with; I restored the demo data with `npm run seed:demo`. Sign in again and you will be asked to finish setup (that is the new first-login flow). I will not reset the database again without asking; `npx supabase migration up` applies a migration without wiping.
+
+Next: B4 history redesign, B6 polish (dark mode, accessibility, motion audit), a push notification for a revoked subscription (not built).
 
 Blockers: none.
 
-Owner must do: cold-start the app on a phone and the tablet and tell me if the splash-to-drawing hand-off jumps (size, position, flash); a release build is smoother than debug. Merge #123 so the stacked PRs open in order. Earlier items still stand: approve the hosted migrations, review ADR 0010, Firebase service account key for the push test, iOS push setup when wanted.
+Owner must do:
+- Merge #123 so the stacked PRs can open in order (tell me and I open them).
+- Thiings licence: the free licence is personal and non-commercial and requires credit (credited on the profile page). Before a commercial release you need the Indie licence (one-time, thiings.co/pricing) or the art must be replaced. Nothing was bought.
+- Try on the phone: the boarding code scramble, the logo hand-off, revoke from the portal (Subscriptions, an approved one), and the profile page.
+- Scan the new round-dot code with the ops scanner when it exists (OpenCV decodes it).
+- Still pending from before: hosted migrations approval (now also the revoke one), ADR 0010 review, Firebase key for the push test, iOS push setup.

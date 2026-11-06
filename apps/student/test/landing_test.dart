@@ -39,6 +39,12 @@ void main() {
     expect(find.textContaining('Fall 2026'), findsWidgets);
   });
 
+  testWidgets('a student whose subscription was revoked opens on the subscription tab, not the code', (tester) async {
+    await open(tester, FakeBackend(current: semester(), mine: [subscription(stopId: 'stop2', status: SubscriptionStatus.revoked, note: 'Payment was reversed.')]));
+    expect(find.text('Boarding code'), findsNothing);
+    expect(find.text('Subscription ended by your school'), findsOneWidget);
+  });
+
   testWidgets('a student with no subscription opens on the subscription tab', (tester) async {
     await open(tester, FakeBackend(current: semester()));
     expect(find.text('Boarding code'), findsNothing);

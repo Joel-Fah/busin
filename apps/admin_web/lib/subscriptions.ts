@@ -11,10 +11,10 @@ export { isUuid } from "./ids";
 
 export const MAX_REASON_LENGTH = 500;
 
-export const STATUSES = ["pending", "approved", "rejected", "expired"] as const;
+export const STATUSES = ["pending", "approved", "rejected", "expired", "revoked"] as const;
 export type SubscriptionStatus = (typeof STATUSES)[number];
 export type StatusFilter = SubscriptionStatus | "all";
-export const FILTERS: readonly StatusFilter[] = ["pending", "approved", "rejected", "expired", "all"];
+export const FILTERS: readonly StatusFilter[] = ["pending", "approved", "rejected", "expired", "revoked", "all"];
 
 /** The status shown in the list. Anything unknown falls back to the review queue. */
 export function parseStatusFilter(value: string | string[] | undefined): StatusFilter {
@@ -28,6 +28,7 @@ export function statusTone(status: SubscriptionStatus): ChipTone {
     case "approved":
       return "ok";
     case "rejected":
+    case "revoked":
       return "bad";
     case "expired":
       return "neutral";
@@ -44,6 +45,7 @@ export function tabCounts(byStatus: Partial<Record<SubscriptionStatus, number | 
     approved: get("approved"),
     rejected: get("rejected"),
     expired: get("expired"),
+    revoked: get("revoked"),
     all: STATUSES.reduce((sum, status) => sum + get(status), 0),
   };
 }
@@ -56,7 +58,7 @@ export function parseReason(raw: unknown): string | null {
   return value;
 }
 
-export type ReviewErrorKey = "already_reviewed" | "invalid" | "not_found" | "generic";
+export type ReviewErrorKey = "already_reviewed" | "invalid" | "not_found" | "not_approved" | "generic";
 
 /** Maps the database error code of `admin_review_subscription` to a message key. */
 export function reviewErrorKey(code: string | undefined): ReviewErrorKey {
@@ -72,8 +74,22 @@ export function reviewErrorKey(code: string | undefined): ReviewErrorKey {
   }
 }
 
+/** Maps the database error code of `admin_revoke_subscription` to a message key. */
+export function revokeErrorKey(code: string | undefined): ReviewErrorKey {
+  switch (code) {
+    case "55000":
+      return "not_approved";
+    case "22023":
+      return "invalid";
+    case "P0002":
+      return "not_found";
+    default:
+      return "generic";
+  }
+}
+
 export function isReviewErrorKey(value: string | undefined): value is ReviewErrorKey {
-  return value === "already_reviewed" || value === "invalid" || value === "not_found" || value === "generic";
+  return value === "already_reviewed" || value === "invalid" || value === "not_found" || value === "not_approved" || value === "generic";
 }
 
 export type SubscriptionFilters = {

@@ -370,6 +370,9 @@ isOneToOne: false
 "admin_review_subscription":
 { Args: { "p_decision": string,"p_note"?: string,"p_subscription_id": string }; Returns: undefined
                            },
+"admin_revoke_subscription":
+{ Args: { "p_note": string,"p_subscription_id": string }; Returns: undefined
+                           },
 "admin_set_trip_archived":
 { Args: { "p_archived": boolean,"p_trip_id": string }; Returns: undefined
                            },
@@ -415,7 +418,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "account_status": "pending"|"verified"|"suspended","semester_name": "fall"|"spring"|"summer","subscription_status": "pending"|"approved"|"rejected"|"expired","trip_direction": "inbound"|"outbound","trip_status": "scheduled"|"active"|"completed"|"cancelled","user_role": "student"|"staff"|"admin"
+            "account_status": "pending"|"verified"|"suspended","semester_name": "fall"|"spring"|"summer","subscription_status": "pending"|"approved"|"rejected"|"expired"|"revoked","trip_direction": "inbound"|"outbound","trip_status": "scheduled"|"active"|"completed"|"cancelled","user_role": "student"|"staff"|"admin"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -535,7 +538,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "account_status": ["pending", "verified", "suspended"],"semester_name": ["fall", "spring", "summer"],"subscription_status": ["pending", "approved", "rejected", "expired"],"trip_direction": ["inbound", "outbound"],"trip_status": ["scheduled", "active", "completed", "cancelled"],"user_role": ["student", "staff", "admin"]
+            "account_status": ["pending", "verified", "suspended"],"semester_name": ["fall", "spring", "summer"],"subscription_status": ["pending", "approved", "rejected", "expired", "revoked"],"trip_direction": ["inbound", "outbound"],"trip_status": ["scheduled", "active", "completed", "cancelled"],"user_role": ["student", "staff", "admin"]
           }
         }
 } as const

@@ -18,7 +18,7 @@ import { getMessages } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 import { MAX_REASON_LENGTH, isReviewErrorKey, isUuid, statusTone } from "@/lib/subscriptions";
 
-import { reviewSubscription } from "../actions";
+import { reviewSubscription, revokeSubscription } from "../actions";
 
 export const metadata: Metadata = { title: "Subscription" };
 
@@ -98,7 +98,7 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
         </div>
       </header>
 
-      {done === "approved" || done === "rejected" ? (
+      {done === "approved" || done === "rejected" || done === "revoked" ? (
         <p className="rounded-md bg-ok-bg px-5 py-4 text-sm font-semibold text-ok" role="status">
           {t.subscriptions.done[done]}
         </p>
@@ -185,6 +185,33 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
                   <p className="text-sm font-semibold text-muted">{t.subscriptions.detail.note}</p>
                   <p className="mt-1">{row.review_note}</p>
                 </div>
+              ) : null}
+              {row.status === "approved" ? (
+                <details className="group">
+                  <summary className="inline-flex cursor-pointer list-none items-center gap-2 rounded-sm px-4 py-2.5 text-sm font-semibold text-bad transition-colors duration-(--dur-fast) hover:bg-bad-bg focus-visible:outline-3 focus-visible:outline-focus [&::-webkit-details-marker]:hidden">
+                    {t.subscriptions.detail.revokeOpen}
+                  </summary>
+                  <form action={revokeSubscription} className="mt-4 flex flex-col gap-4">
+                    <input type="hidden" name="id" value={row.id} />
+                    <p className="text-sm text-muted">{t.subscriptions.detail.revokeHint}</p>
+                    <Textarea
+                      id="revoke-note"
+                      name="note"
+                      label={t.subscriptions.detail.revokeReasonLabel}
+                      icon={Comment01Icon}
+                      required
+                      maxLength={MAX_REASON_LENGTH}
+                      rows={3}
+                      hint={t.subscriptions.detail.reasonHint}
+                      placeholder={t.subscriptions.detail.reasonPlaceholder}
+                    />
+                    <div>
+                      <Button type="submit" variant="danger" icon={Cancel01Icon}>
+                        {t.subscriptions.detail.revokeConfirm}
+                      </Button>
+                    </div>
+                  </form>
+                </details>
               ) : null}
             </Card>
           )}

@@ -235,6 +235,12 @@ abstract class BusinL10n {
   /// **'Rejected'**
   String get subscriptionRejected;
 
+  /// No description provided for @subscriptionRevoked.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoked'**
+  String get subscriptionRevoked;
+
   /// No description provided for @subscriptionExpired.
   ///
   /// In en, this message translates to:
@@ -786,6 +792,18 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'Request again'**
   String get statusRequestAgain;
+
+  /// No description provided for @statusRevokedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription ended by your school'**
+  String get statusRevokedTitle;
+
+  /// No description provided for @statusRevokedReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school\'s reason:'**
+  String get statusRevokedReason;
 
   /// No description provided for @statusExpiredTitle.
   ///

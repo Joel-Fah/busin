@@ -31,12 +31,13 @@ class SubscriptionStatusCard extends ConsumerWidget {
       SubscriptionStatus.approved => (l10n.statusApprovedTitle, l10n.statusApprovedBody(stopName)),
       SubscriptionStatus.rejected => (l10n.statusRejectedTitle, null),
       SubscriptionStatus.expired => (l10n.statusExpiredTitle, l10n.statusExpiredBody),
+      SubscriptionStatus.revoked => (l10n.statusRevokedTitle, null),
     };
 
     // Where it stands: sent is always done; checking while pending; the decision is approved, rejected or (expired) over.
     final stage = switch (status) {
       SubscriptionStatus.pending => 1,
-      SubscriptionStatus.rejected => 2,
+      SubscriptionStatus.rejected || SubscriptionStatus.revoked => 2,
       SubscriptionStatus.approved || SubscriptionStatus.expired => 3,
     };
 
@@ -70,7 +71,7 @@ class SubscriptionStatusCard extends ConsumerWidget {
             StepLine(
               labels: [l10n.stageSent, l10n.stageChecking, l10n.stageDecided],
               current: stage,
-              failed: status == SubscriptionStatus.rejected,
+              failed: status == SubscriptionStatus.rejected || status == SubscriptionStatus.revoked,
               stepSemantics: (n, total, label) => l10n.stageSemantics('$n', '$total', label),
             ),
           ],
@@ -79,6 +80,14 @@ class SubscriptionStatusCard extends ConsumerWidget {
             Notice(
               tone: StatusTone.bad,
               title: l10n.statusRejectedReason,
+              child: Text((subscription.reviewNote?.trim().isNotEmpty ?? false) ? subscription.reviewNote! : l10n.statusRejectedNoReason),
+            ),
+          ],
+          if (status == SubscriptionStatus.revoked) ...[
+            const SizedBox(height: BusinSpace.x5),
+            Notice(
+              tone: StatusTone.bad,
+              title: l10n.statusRevokedReason,
               child: Text((subscription.reviewNote?.trim().isNotEmpty ?? false) ? subscription.reviewNote! : l10n.statusRejectedNoReason),
             ),
           ],
@@ -111,7 +120,7 @@ class SubscriptionStatusCard extends ConsumerWidget {
             const SizedBox(height: BusinSpace.x5),
             BusinButton(label: l10n.statusApprovedAction, icon: HugeIcons.strokeRoundedQrCode, onPressed: onShowCode, expand: true),
           ],
-          if ((status == SubscriptionStatus.rejected || status == SubscriptionStatus.expired) && onRequestAgain != null) ...[
+          if ((status == SubscriptionStatus.rejected || status == SubscriptionStatus.expired || status == SubscriptionStatus.revoked) && onRequestAgain != null) ...[
             const SizedBox(height: BusinSpace.x5),
             BusinButton(label: l10n.statusRequestAgain, onPressed: onRequestAgain, expand: true),
           ],
