@@ -4,18 +4,20 @@ import 'package:busin_core/busin_core.dart';
 import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:maplibre_gl/maplibre_gl.dart';
 
 import 'map_scene.dart';
 
-/// Draws a [MapScene] with MapLibre: the base map from [styleUrl] (OpenFreeMap by default), a small dot for each
-/// stop, a larger one for the student's own stop, and the bus. It does nothing the scene does not say, so all the
+/// Draws a [MapScene] with MapLibre: the base map (OpenFreeMap by default, light or dark with the theme), a small dot
+/// for each stop, a 3D pin for the student's own stop, and a 3D bus for the bus. It does nothing the scene does not say, so all the
 /// decisions live in the screen and its providers, which are tested; this file only draws.
 class MapLibreSurface extends StatefulWidget {
-  const MapLibreSurface({super.key, required this.scene, required this.styleUrl, required this.recenter});
+  const MapLibreSurface({super.key, required this.scene, required this.styleUrl, required this.darkStyleUrl, required this.recenter});
 
   final MapScene scene;
   final String styleUrl;
+  final String darkStyleUrl;
   final ValueListenable<int> recenter;
 
   @override
@@ -24,15 +26,17 @@ class MapLibreSurface extends StatefulWidget {
 
 class _MapLibreSurfaceState extends State<MapLibreSurface> {
   static const _stopColor = '#7A8C90';
-  static const _myStopColor = '#F5951F';
-  static const _busColor = '#002A33';
+  // The 3D art is 256 px on its long side; at 5 px per dp the bus is about 50 dp wide and the pin 51 dp tall.
+  static const _artPixelRatio = 5.0;
 
   MapLibreMapController? _controller;
   bool _styleReady = false;
   bool _fitted = false;
   List<Circle> _stopCircles = const [];
-  Circle? _busCircle;
+  Symbol? _busSymbol;
+  Symbol? _myStopSymbol;
   MapScene? _drawn;
+  String? _style;
 
   @override
   void initState() {
@@ -50,6 +54,23 @@ class _MapLibreSurfaceState extends State<MapLibreSurface> {
     if (oldWidget.scene != widget.scene) _draw();
   }
 
+  /// A new base map (the phone switched between light and dark) drops everything drawn on the old one; the style's
+  /// load callback then draws it again.
+  void _styleChanged() {
+    _styleReady = false;
+    _stopCircles = const [];
+    _busSymbol = null;
+    _myStopSymbol = null;
+    _drawn = null;
+  }
+
+  Future<void> _addArt(MapLibreMapController controller) async {
+    for (final name in const ['bus', 'pin']) {
+      final data = await rootBundle.load('assets/map/$name.webp');
+      await controller.addImage(name, data.buffer.asUint8List(), false, _artPixelRatio);
+    }
+  }
+
   @override
   void dispose() {
     widget.recenter.removeListener(_fit);
@@ -65,35 +86,36 @@ class _MapLibreSurfaceState extends State<MapLibreSurface> {
     final previous = _drawn;
     _drawn = scene;
 
-    // Stops change rarely; redraw them only when they or the highlighted one did.
+    // Stops change rarely; redraw them only when they or the highlighted one did. The student's own stop is a pin.
     if (previous == null || previous.myStopId != scene.myStopId || previous.stops.length != scene.stops.length) {
       if (_stopCircles.isNotEmpty) await controller.removeCircles(_stopCircles);
       _stopCircles = await controller.addCircles([
         for (final stop in scene.stops)
-          CircleOptions(
-            geometry: _latLng(stop.location),
-            circleRadius: stop.id == scene.myStopId ? 9 : 5,
-            circleColor: stop.id == scene.myStopId ? _myStopColor : _stopColor,
-            circleStrokeWidth: 2,
-            circleStrokeColor: '#FFFFFF',
-          ),
+          if (stop.id != scene.myStopId)
+            CircleOptions(geometry: _latLng(stop.location), circleRadius: 5, circleColor: _stopColor, circleStrokeWidth: 2, circleStrokeColor: '#FFFFFF'),
       ]);
+      if (_myStopSymbol != null) {
+        await controller.removeSymbol(_myStopSymbol!);
+        _myStopSymbol = null;
+      }
+      final mine = scene.stops.where((s) => s.id == scene.myStopId).firstOrNull;
+      if (mine != null) {
+        _myStopSymbol = await controller.addSymbol(SymbolOptions(geometry: _latLng(mine.location), iconImage: 'pin', iconAnchor: 'bottom'));
+      }
     }
 
     final bus = scene.bus;
     if (bus == null) {
-      if (_busCircle != null) {
-        await controller.removeCircle(_busCircle!);
-        _busCircle = null;
+      if (_busSymbol != null) {
+        await controller.removeSymbol(_busSymbol!);
+        _busSymbol = null;
       }
       return;
     }
-    if (_busCircle == null) {
-      _busCircle = await controller.addCircle(
-        CircleOptions(geometry: _latLng(bus), circleRadius: 12, circleColor: _busColor, circleStrokeWidth: 3, circleStrokeColor: '#FFFFFF'),
-      );
+    if (_busSymbol == null) {
+      _busSymbol = await controller.addSymbol(SymbolOptions(geometry: _latLng(bus), iconImage: 'bus', iconAnchor: 'center'));
     } else {
-      await controller.updateCircle(_busCircle!, CircleOptions(geometry: _latLng(bus)));
+      await controller.updateSymbol(_busSymbol!, SymbolOptions(geometry: _latLng(bus)));
     }
     // Show the bus the first time it appears; after that the student moves the map and "Show the bus" brings it back.
     if (!_fitted) await _fit();
@@ -118,7 +140,7 @@ class _MapLibreSurfaceState extends State<MapLibreSurface> {
     final west = points.map((p) => p.longitude).reduce(math.min);
     final east = points.map((p) => p.longitude).reduce(math.max);
     await controller.animateCamera(
-      CameraUpdate.newLatLngBounds(LatLngBounds(southwest: LatLng(south, west), northeast: LatLng(north, east)), left: 64, top: 64, right: 64, bottom: 64),
+      CameraUpdate.newLatLngBounds(LatLngBounds(southwest: LatLng(south, west), northeast: LatLng(north, east)), left: 64, top: 120, right: 64, bottom: 64 + scene.coveredBottom),
     );
   }
 
@@ -132,13 +154,22 @@ class _MapLibreSurfaceState extends State<MapLibreSurface> {
 
   @override
   Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final style = dark ? widget.darkStyleUrl : widget.styleUrl;
+    if (_style != null && _style != style) _styleChanged();
+    _style = style;
     return Semantics(
       label: BusinL10n.of(context).busMapLabel,
       child: MapLibreMap(
-        styleString: widget.styleUrl,
+        styleString: style,
         initialCameraPosition: CameraPosition(target: _initialTarget, zoom: 13),
         onMapCreated: (controller) => _controller = controller,
-        onStyleLoadedCallback: () {
+        onStyleLoadedCallback: () async {
+          final controller = _controller;
+          if (controller == null) return;
+          await _addArt(controller);
+          // Two stops or a bus can sit close together: never hide one for the other.
+          await controller.setSymbolIconAllowOverlap(true);
           _styleReady = true;
           _draw();
         },

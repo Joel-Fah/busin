@@ -116,6 +116,24 @@ void main() {
     expect(find.textContaining('Updated'), findsNothing);
   });
 
+  testWidgets('the estimated arrival at the student\'s stop is shown from a fresh position, and not from a stale one', (tester) async {
+    final rig = Rig(
+      active: [activeTrip('t1', 'bus1')],
+      backend: FakeBackend(mine: [subscription(stopId: 'stop2', status: SubscriptionStatus.approved)]),
+    );
+    await openBus(tester, rig);
+    expect(find.text('Estimated arrival'), findsNothing, reason: 'nothing to estimate before the bus reports');
+
+    rig.live.emit(position('bus1', 3.86, 11.5, at: noon, speed: 10));
+    await tester.pumpAndSettle();
+    expect(find.text('3 min'), findsOneWidget);
+    expect(find.text('1.4 km'), findsOneWidget);
+
+    rig.live.emit(position('bus1', 3.86, 11.5, at: noon.subtract(const Duration(minutes: 3)), speed: 10));
+    await tester.pumpAndSettle();
+    expect(find.text('3 min'), findsNothing);
+  });
+
   testWidgets('the student\'s own stop is marked and named', (tester) async {
     final rig = Rig(
       active: [activeTrip('t1', 'bus1')],

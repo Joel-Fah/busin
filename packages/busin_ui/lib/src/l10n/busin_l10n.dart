@@ -805,6 +805,42 @@ abstract class BusinL10n {
   /// **'{kmh} km/h'**
   String busSpeed(String kmh);
 
+  /// No description provided for @busEtaMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String busEtaMinutes(String minutes);
+
+  /// No description provided for @busEtaArriving.
+  ///
+  /// In en, this message translates to:
+  /// **'Arriving'**
+  String get busEtaArriving;
+
+  /// No description provided for @busEtaCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'{km} km from {stop}'**
+  String busEtaCaption(String km, String stop);
+
+  /// No description provided for @busDistanceKm.
+  ///
+  /// In en, this message translates to:
+  /// **'{km} km'**
+  String busDistanceKm(String km);
+
+  /// No description provided for @busEtaLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated arrival'**
+  String get busEtaLabel;
+
+  /// No description provided for @busRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'Running buses'**
+  String get busRunning;
+
   /// No description provided for @busYourStop.
   ///
   /// In en, this message translates to:
