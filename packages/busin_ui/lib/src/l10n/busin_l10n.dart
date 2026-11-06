@@ -847,6 +847,54 @@ abstract class BusinL10n {
   /// **'Close'**
   String get proofClose;
 
+  /// No description provided for @requestsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your requests this semester'**
+  String get requestsTitle;
+
+  /// No description provided for @requestsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything that happened, the latest first.'**
+  String get requestsHint;
+
+  /// No description provided for @requestOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Request of {date}'**
+  String requestOf(String date);
+
+  /// No description provided for @requestEventRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'You sent the request'**
+  String get requestEventRequested;
+
+  /// No description provided for @requestEventApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school approved it'**
+  String get requestEventApproved;
+
+  /// No description provided for @requestEventRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school declined it'**
+  String get requestEventRejected;
+
+  /// No description provided for @requestEventRevoked.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school ended it'**
+  String get requestEventRevoked;
+
+  /// No description provided for @requestEventReinstated.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school gave it back'**
+  String get requestEventReinstated;
+
   /// No description provided for @subscriptionProofTitle.
   ///
   /// In en, this message translates to:
@@ -1278,6 +1326,12 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'Your school has decided on your subscription.'**
   String get pushForegroundRejected;
+
+  /// No description provided for @liveReinstated.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school gave your subscription back.'**
+  String get liveReinstated;
 
   /// No description provided for @liveRevoked.
   ///

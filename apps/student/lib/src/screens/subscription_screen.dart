@@ -12,6 +12,7 @@ import '../qr/qr_providers.dart';
 import '../router.dart';
 import '../subscription/how_it_works_card.dart';
 import '../subscription/subscribe_form.dart';
+import '../subscription/request_history.dart';
 import '../subscription/subscription_providers.dart';
 import '../subscription/subscription_status_card.dart';
 
@@ -130,6 +131,8 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                   ),
                 // The moment there is something to wait for is the moment to offer to tell them.
                 if (!showForm && subscription.status == SubscriptionStatus.pending) const PushPromptCard(),
+                // Everything that happened to this semester's requests: the latest open.
+                const RequestHistorySection(),
               ],
             );
 

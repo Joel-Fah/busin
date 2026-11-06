@@ -411,6 +411,32 @@ class BusinL10nEn extends BusinL10n {
   String get proofClose => 'Close';
 
   @override
+  String get requestsTitle => 'Your requests this semester';
+
+  @override
+  String get requestsHint => 'Everything that happened, the latest first.';
+
+  @override
+  String requestOf(String date) {
+    return 'Request of $date';
+  }
+
+  @override
+  String get requestEventRequested => 'You sent the request';
+
+  @override
+  String get requestEventApproved => 'Your school approved it';
+
+  @override
+  String get requestEventRejected => 'Your school declined it';
+
+  @override
+  String get requestEventRevoked => 'Your school ended it';
+
+  @override
+  String get requestEventReinstated => 'Your school gave it back';
+
+  @override
   String get subscriptionProofTitle => 'Your payment proof';
 
   @override
@@ -659,6 +685,9 @@ class BusinL10nEn extends BusinL10n {
   @override
   String get pushForegroundRejected =>
       'Your school has decided on your subscription.';
+
+  @override
+  String get liveReinstated => 'Your school gave your subscription back.';
 
   @override
   String get liveRevoked => 'Your school ended your subscription.';

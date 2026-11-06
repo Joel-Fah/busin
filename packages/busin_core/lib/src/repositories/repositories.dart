@@ -11,6 +11,7 @@ import '../models/school.dart';
 import '../models/semester.dart';
 import '../models/stop.dart';
 import '../models/subscription.dart';
+import '../models/subscription_event.dart';
 import '../models/trip.dart';
 import 'page.dart';
 
@@ -81,6 +82,9 @@ abstract interface class SubscriptionsRepository {
   /// This student's subscriptions: what there is now, then again whenever one changes (approved, rejected, ended).
   /// Filtered to the student's own rows on the server, and delivered only while someone listens.
   Stream<List<Subscription>> watchForStudent(String studentId);
+
+  /// Everything that happened to these subscriptions (the student's own), oldest first.
+  Future<List<SubscriptionEvent>> eventsFor(List<String> subscriptionIds);
 }
 
 /// What a proof of payment may be. The `proofs` bucket enforces the same limits on the server.

@@ -163,6 +163,27 @@ void main() {
     });
   });
 
+  group('subscription history', () {
+    test('asks for the events of these subscriptions only, with named columns, oldest first', () async {
+      final h = Harness((_) async => json([
+            {'id': 1, 'subscription_id': _id, 'action': 'requested', 'note': null, 'created_at': '2026-11-03T09:00:00Z'},
+            {'id': 2, 'subscription_id': _id, 'action': 'revoked', 'note': 'Payment reversed', 'created_at': '2026-11-04T09:00:00Z'},
+          ]));
+      final events = await h.repos.subscriptions.eventsFor([_id, _other]);
+      expect(events.map((e) => e.action.name), ['requested', 'revoked']);
+      expect(h.last.url.path, '/rest/v1/subscription_events');
+      expect(h.last.url.queryParameters['select'], isNot('*'));
+      expect(h.last.url.queryParameters['subscription_id'], contains(_id));
+      expect(h.last.url.queryParameters['order'], contains('created_at'));
+    });
+
+    test('with nothing to ask about it asks nothing', () async {
+      final h = Harness((_) async => json([]));
+      expect(await h.repos.subscriptions.eventsFor(const []), isEmpty);
+      expect(h.requests, isEmpty);
+    });
+  });
+
   group('following buses', () {
     test('asks the database, which decides', () async {
       final yes = Harness((_) async => json(true));

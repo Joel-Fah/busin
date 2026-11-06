@@ -26,6 +26,7 @@ export 'src/tokens/elevation.dart';
 export 'src/tokens/palette.dart';
 export 'src/tokens/ramps.dart';
 export 'src/tokens/shape.dart';
+export 'src/widgets/accordion.dart';
 export 'src/widgets/busin_banner.dart';
 export 'src/widgets/busin_button.dart';
 export 'src/widgets/busin_card.dart';

@@ -166,6 +166,7 @@ Subscription subscription({
   SubscriptionStatus status = SubscriptionStatus.pending,
   String? proofPath,
   String? note,
+  DateTime? createdAt,
 }) =>
     Subscription(
       id: id,
@@ -176,8 +177,8 @@ Subscription subscription({
       status: status,
       proofPath: proofPath,
       reviewNote: note,
-      createdAt: DateTime.utc(2026, 11, 3, 9),
-      updatedAt: DateTime.utc(2026, 11, 3, 9),
+      createdAt: createdAt ?? DateTime.utc(2026, 11, 3, 9),
+      updatedAt: createdAt ?? DateTime.utc(2026, 11, 3, 9),
     );
 
 /// The school, semester, stop and subscription repositories in one fake that remembers what was asked.
@@ -244,12 +245,19 @@ class FakeBackend implements SchoolRepository, SemestersRepository, StopsReposit
     yield* _live.stream;
   }
 
+  /// What happened to the subscriptions, for the history (oldest first, as the server gives it).
+  final List<SubscriptionEvent> events = [];
+
+  @override
+  Future<List<SubscriptionEvent>> eventsFor(List<String> subscriptionIds) async => events.where((e) => subscriptionIds.contains(e.subscriptionId)).toList();
+
   @override
   Future<Subscription> request(NewSubscription request) async {
     if (requestError != null) throw requestError!;
     requests.add(request);
     final created = subscription(id: 'new', studentId: request.studentId, semesterId: request.semesterId, stopId: request.stopId, proofPath: request.proofPath);
     mine.insert(0, created);
+    events.add(SubscriptionEvent(id: events.length + 1, subscriptionId: created.id, action: SubscriptionEventAction.requested, createdAt: DateTime.utc(2026, 11, 3, 9)));
     return created;
   }
 

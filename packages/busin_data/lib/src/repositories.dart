@@ -128,6 +128,18 @@ class SupabaseSubscriptionsRepository implements SubscriptionsRepository {
   final SupabaseClient _client;
 
   @override
+  Future<List<SubscriptionEvent>> eventsFor(List<String> subscriptionIds) => guarded(() async {
+        if (subscriptionIds.isEmpty) return const [];
+        final data = await _client
+            .from('subscription_events')
+            .select(Columns.subscriptionEvent)
+            .inFilter('subscription_id', subscriptionIds)
+            .order('created_at')
+            .order('id');
+        return _rows(data).map(SubscriptionEvent.fromJson).toList(growable: false);
+      });
+
+  @override
   Stream<List<Subscription>> watchForStudent(String studentId) {
     // Filtered on the server to this one student; Row Level Security applies to Realtime as well.
     return _client

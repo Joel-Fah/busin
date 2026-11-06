@@ -100,7 +100,7 @@ void main() {
     expect(sent.proofPath, 's1/u1/file1.jpg', reason: 'the request carries the path the upload returned');
 
     expect(find.text('Request sent'), findsOneWidget);
-    expect(find.text('Pending'), findsOneWidget);
+    expect(find.text('Pending'), findsWidgets);
     expect(find.text('Mvan'), findsOneWidget);
     expect(find.text('Send request'), findsNothing);
   });
@@ -217,7 +217,7 @@ void main() {
   testWidgets('a revoked subscription says so with the school\'s reason and lets the student ask again', (tester) async {
     await open(tester, FakeBackend(current: semester(), mine: [subscription(status: SubscriptionStatus.revoked, note: 'Payment was reversed.')]));
     expect(find.text('Subscription ended by your school'), findsOneWidget);
-    expect(find.text('Revoked'), findsOneWidget);
+    expect(find.text('Revoked'), findsWidgets);
     expect(find.text('Payment was reversed.'), findsOneWidget);
     expect(find.text('Show boarding code'), findsNothing);
 

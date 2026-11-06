@@ -8,6 +8,7 @@ class Columns {
   static const faculty = 'id, name, code';
   static const department = 'id, faculty_id, name, code';
   static const program = 'id, name';
+  static const subscriptionEvent = 'id, subscription_id, action, note, created_at';
   static const school = 'id, name, short_name, timezone, status';
   static const stop = 'id, school_id, name, location, photo_path, active';
   static const semester = 'id, school_id, name, year, start_date, end_date';
