@@ -4,12 +4,14 @@ import 'package:busin_core/busin_core.dart';
 import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../bus/bus_providers.dart';
 import '../bus/eta.dart';
 import '../bus/map_scene.dart';
 import '../qr/qr_providers.dart';
+import '../router.dart';
 import '../subscription/subscription_providers.dart';
 
 /// The fourth tab: where the bus is. The buses on a trip right now, the live position of the chosen one on a map,
@@ -45,7 +47,10 @@ class _BusScreenState extends ConsumerState<BusScreen> {
     // After this frame: a provider cannot be changed while the tree is building.
     if (active && _active == false) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) ref.invalidate(runningBusesProvider);
+        if (mounted) {
+          ref.invalidate(canFollowBusesProvider);
+          ref.invalidate(runningBusesProvider);
+        }
       });
     }
     _active = active;
@@ -62,6 +67,35 @@ class _BusScreenState extends ConsumerState<BusScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = BusinL10n.of(context);
+    final canFollow = ref.watch(canFollowBusesProvider);
+    // Not subscribed: say so and lead to the subscription, instead of an empty map. (The database refuses the
+    // positions anyway; this is the explanation.)
+    if (canFollow.hasValue && !canFollow.requireValue) {
+      return ListView(
+        children: [
+          const SizedBox(height: 80),
+          EmptyState(
+            icon: HugeIcons.strokeRoundedBus01,
+            title: l10n.busLockedTitle,
+            body: l10n.busLockedBody,
+            action: BusinButton(label: l10n.busLockedAction, onPressed: () => context.go(Routes.subscription)),
+          ),
+        ],
+      );
+    }
+    if (canFollow.hasError) {
+      return ListView(
+        children: [
+          const SizedBox(height: 80),
+          EmptyState(
+            icon: HugeIcons.strokeRoundedWifiDisconnected01,
+            title: canFollow.error is RepositoryException ? l10n.failure(canFollow.error! as RepositoryException) : l10n.errorGeneric,
+            action: BusinButton(label: l10n.actionRetry, onPressed: () => ref.invalidate(canFollowBusesProvider)),
+          ),
+        ],
+      );
+    }
+    if (!canFollow.hasValue) return const Center(child: CircularProgressIndicator());
     final running = ref.watch(runningBusesProvider);
 
     return running.when(

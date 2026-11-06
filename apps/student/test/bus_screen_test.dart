@@ -173,6 +173,47 @@ void main() {
     expect(rig.live.cancelled, contains('bus1'));
   });
 
+  testWidgets('a student without a valid subscription is told, no bus is looked up and the way to subscribe is offered', (tester) async {
+    final rig = Rig(active: [activeTrip('t1', 'bus1')]);
+    rig.live.canFollow = false;
+    await openBus(tester, rig);
+
+    expect(find.text('Following the bus is for subscribers'), findsOneWidget);
+    expect(find.byKey(const ValueKey('fake-map')), findsNothing);
+    expect(rig.live.subscribed, isEmpty, reason: 'nothing is listened to');
+    expect(rig.history.activeLookups, 0, reason: 'not even the running trips are asked for');
+
+    await tester.tap(find.text('Go to subscription'));
+    await tester.pumpAndSettle();
+    expect(find.text('Following the bus is for subscribers'), findsNothing);
+  });
+
+  testWidgets('once the subscription is approved, coming back to the tab shows the bus', (tester) async {
+    final rig = Rig(active: [activeTrip('t1', 'bus1')]);
+    rig.live.canFollow = false;
+    await openBus(tester, rig);
+    expect(find.text('Following the bus is for subscribers'), findsOneWidget);
+
+    rig.live.canFollow = true;
+    await tester.tap(find.text('Profile'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('My bus'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('fake-map')), findsOneWidget);
+  });
+
+  testWidgets('if the check fails it says so and can be retried', (tester) async {
+    final rig = Rig(active: [activeTrip('t1', 'bus1')]);
+    rig.live.canFollowError = const Offline('down');
+    await openBus(tester, rig);
+    expect(find.text('Try again'), findsOneWidget);
+
+    rig.live.canFollowError = null;
+    await tester.tap(find.text('Try again'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('fake-map')), findsOneWidget);
+  });
+
   testWidgets('the live subscription is dropped while another tab shows and taken up again on return', (tester) async {
     final rig = Rig(active: [activeTrip('t1', 'bus1')]);
     await openBus(tester, rig);

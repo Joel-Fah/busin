@@ -465,6 +465,9 @@ isOneToOne: false
               "pending": number,"stop_id": string,"students": number
             }[]
                            },
+"can_follow_buses":
+{ Args: Record<PropertyKey, never>; Returns: boolean
+                           },
 "claim_notifications":
 { Args: { "p_limit"?: number }; Returns: {
               "id": number,"kind": string,"ref_id": string,"tokens": Json

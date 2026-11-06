@@ -466,6 +466,18 @@ class FakeBuses implements BusesRepository {
 
 /// Live positions by bus. A test pushes positions with [emit]; [subscribed] shows which buses were listened to.
 class FakeLive implements LivePositionsRepository {
+  /// Whether the signed-in student may follow buses (an approved subscription covering today).
+  bool canFollow = true;
+  Object? canFollowError;
+  int canFollowChecks = 0;
+
+  @override
+  Future<bool> canFollowBuses() async {
+    canFollowChecks++;
+    if (canFollowError != null) throw canFollowError!;
+    return canFollow;
+  }
+
   final Map<String, StreamController<LivePosition>> _controllers = {};
   final List<String> subscribed = [];
   final List<String> cancelled = [];

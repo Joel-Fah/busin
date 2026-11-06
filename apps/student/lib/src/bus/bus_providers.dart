@@ -21,6 +21,13 @@ class RunningBus {
   String get plate => bus?.plate ?? '';
 }
 
+/// Whether this student may follow buses live. The database answers it (an approved subscription covering today), and
+/// the positions themselves are refused to anyone else, so this only decides what the tab explains.
+final canFollowBusesProvider = FutureProvider.autoDispose<bool>((ref) async {
+  if (ref.watch(accessProvider) is! Allowed) return false;
+  return ref.watch(livePositionsRepositoryProvider).canFollowBuses();
+});
+
 /// The buses on a trip right now at the student's school, with their plates. A school runs a handful at a time.
 final runningBusesProvider = FutureProvider.autoDispose<List<RunningBus>>((ref) async {
   if (ref.watch(accessProvider) is! Allowed) return const [];

@@ -991,6 +991,24 @@ abstract class BusinL10n {
   /// **'Could not load more. Tap to try again.'**
   String get historyLoadMoreFailed;
 
+  /// No description provided for @busLockedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Following the bus is for subscribers'**
+  String get busLockedTitle;
+
+  /// No description provided for @busLockedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Once your subscription is approved you can see where your bus is, live.'**
+  String get busLockedBody;
+
+  /// No description provided for @busLockedAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to subscription'**
+  String get busLockedAction;
+
   /// No description provided for @busNoneTitle.
   ///
   /// In en, this message translates to:

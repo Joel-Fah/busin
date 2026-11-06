@@ -503,6 +503,16 @@ class BusinL10nFr extends BusinL10n {
       'Impossible de charger la suite. Touchez pour réessayer.';
 
   @override
+  String get busLockedTitle => 'Le suivi du bus est réservé aux abonnés';
+
+  @override
+  String get busLockedBody =>
+      'Dès que votre abonnement est approuvé, vous voyez où est votre bus, en direct.';
+
+  @override
+  String get busLockedAction => 'Aller à l’abonnement';
+
+  @override
   String get busNoneTitle => 'Aucun bus n’est en service pour le moment';
 
   @override
