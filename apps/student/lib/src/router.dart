@@ -29,6 +29,9 @@ abstract final class Routes {
   /// Debug builds only: the design language on a screen (`fvm flutter run --route /styleguide`).
   static const styleguide = '/styleguide';
 
+  /// Debug builds only: the first-run screens, previewed without signing out (`--route /styleguide/sign-in`).
+  static const previewPrefix = '/styleguide/';
+
   static const _gate = {signIn, loading, blocked, problem};
 }
 
@@ -38,7 +41,7 @@ abstract final class Routes {
 /// Signed-in students never see those pages, so Back cannot lead to them.
 String? redirectFor(AccessState access, String location, {bool debug = kDebugMode}) {
   // The styleguide needs no account, and exists only in debug builds.
-  if (debug && location == Routes.styleguide) return null;
+  if (debug && (location == Routes.styleguide || location.startsWith(Routes.previewPrefix))) return null;
   final target = switch (access) {
     SignedOut() => Routes.signIn,
     AccessLoading() => Routes.loading,
@@ -57,12 +60,18 @@ final routerProvider = Provider<GoRouter>((ref) {
   ref.onDispose(changes.dispose);
 
   final router = GoRouter(
-    initialLocation: kDebugMode && WidgetsBinding.instance.platformDispatcher.defaultRouteName == Routes.styleguide ? Routes.styleguide : Routes.loading,
+    initialLocation: kDebugMode && WidgetsBinding.instance.platformDispatcher.defaultRouteName.startsWith(Routes.styleguide) ? WidgetsBinding.instance.platformDispatcher.defaultRouteName : Routes.loading,
     refreshListenable: changes,
     redirect: (context, state) => redirectFor(ref.read(accessProvider), state.matchedLocation),
     routes: [
       GoRoute(path: Routes.loading, builder: (_, _) => const SplashScreen()),
-      if (kDebugMode) GoRoute(path: Routes.styleguide, builder: (_, _) => const StyleguideScreen()),
+      if (kDebugMode) ...[
+        GoRoute(path: Routes.styleguide, builder: (_, _) => const StyleguideScreen()),
+        GoRoute(path: '${Routes.previewPrefix}sign-in', builder: (_, _) => const SignInScreen()),
+        GoRoute(path: '${Routes.previewPrefix}splash', builder: (_, _) => const SplashScreen()),
+        GoRoute(path: '${Routes.previewPrefix}blocked', builder: (_, _) => const BlockedScreen()),
+        GoRoute(path: '${Routes.previewPrefix}problem', builder: (_, _) => const ProblemScreen()),
+      ],
       GoRoute(path: Routes.signIn, builder: (_, _) => const SignInScreen()),
       GoRoute(path: Routes.blocked, builder: (_, _) => const BlockedScreen()),
       GoRoute(path: Routes.problem, builder: (_, _) => const ProblemScreen()),

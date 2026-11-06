@@ -33,9 +33,8 @@ class _SubscribeFormState extends ConsumerState<SubscribeForm> {
 
   Future<void> _chooseProof() async {
     final l10n = BusinL10n.of(context);
-    final source = await showModalBottomSheet<ProofSource>(
-      context: context,
-      showDragHandle: true,
+    final source = await showBusinSheet<ProofSource>(
+      context,
       builder: (context) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,

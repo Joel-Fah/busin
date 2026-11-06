@@ -204,5 +204,6 @@
   "pushPromptDenied": "Notifications are off. You can turn them on in your phone's settings.",
   "pushForegroundApproved": "Your subscription was approved.",
   "pushForegroundRejected": "Your school has decided on your subscription.",
-  "pushForegroundView": "View"
+  "pushForegroundView": "View",
+  "navQrShort": "Code"
 }

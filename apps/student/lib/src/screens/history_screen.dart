@@ -16,7 +16,8 @@ class HistoryScreen extends ConsumerWidget {
     final l10n = BusinL10n.of(context);
     final history = ref.watch(scanHistoryProvider);
 
-    return RefreshIndicator(
+    return ContentColumn(
+      child: RefreshIndicator(
       onRefresh: () async {
         ref.invalidate(scanHistoryProvider);
         try {
@@ -50,6 +51,7 @@ class HistoryScreen extends ConsumerWidget {
           }
           return _HistoryList(state: state);
         },
+      ),
       ),
     );
   }
@@ -143,7 +145,7 @@ class _HistoryListState extends ConsumerState<_HistoryList> {
         }
         return false;
       },
-      child: ListView(controller: _controller, physics: const AlwaysScrollableScrollPhysics(), padding: const EdgeInsets.only(bottom: BusinSpace.x6), children: rows),
+      child: ListView(controller: _controller, physics: const AlwaysScrollableScrollPhysics(), padding: EdgeInsets.only(bottom: BusinSpace.x6 + BusinScope.of(context).bottomInset), children: rows),
     );
   }
 }

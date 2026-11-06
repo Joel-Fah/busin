@@ -1,7 +1,6 @@
 import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hugeicons/hugeicons.dart';
 
 import '../auth/access.dart';
 import '../providers.dart';
@@ -15,16 +14,16 @@ class BlockedScreen extends ConsumerWidget {
     final l10n = BusinL10n.of(context);
     final access = ref.watch(accessProvider);
     final reason = access is Blocked ? access.reason : BlockReason.notStudent;
-    final (title, body) = switch (reason) {
-      BlockReason.notStudent => (l10n.blockedStaffTitle, l10n.blockedStaffBody),
-      BlockReason.pending => (l10n.blockedPendingTitle, l10n.blockedPendingBody),
-      BlockReason.suspended => (l10n.blockedSuspendedTitle, l10n.blockedSuspendedBody),
+    final (title, body, art) = switch (reason) {
+      BlockReason.notStudent => (l10n.blockedStaffTitle, l10n.blockedStaffBody, BusinIllustration.staff),
+      BlockReason.pending => (l10n.blockedPendingTitle, l10n.blockedPendingBody, BusinIllustration.waiting),
+      BlockReason.suspended => (l10n.blockedSuspendedTitle, l10n.blockedSuspendedBody, BusinIllustration.blocked),
     };
 
     return Scaffold(
       body: SafeArea(
         child: EmptyState(
-          icon: HugeIcons.strokeRoundedShield01,
+          illustration: art,
           title: title,
           body: body,
           action: BusinButton(

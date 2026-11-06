@@ -12,7 +12,8 @@ enum BusinIllustration {
   waiting('waiting'),
   blocked('blocked'),
   semester('semester'),
-  seat('seat');
+  seat('seat'),
+  staff('staff');
 
   const BusinIllustration(this.file);
 

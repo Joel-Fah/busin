@@ -41,8 +41,7 @@ class _EmptyStateState extends State<EmptyState> {
     final p = BusinPalette.of(context);
     final text = Theme.of(context).textTheme;
 
-    return Center(
-      child: ConstrainedBox(
+    final content = ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 420),
         child: Padding(
           padding: const EdgeInsets.all(BusinSpace.x4),
@@ -74,7 +73,16 @@ class _EmptyStateState extends State<EmptyState> {
             ],
           ),
         ),
-      ),
+      );
+
+    // In a bounded space (a whole screen) it centres, and scrolls if the text is too big to fit; in a list it just sits.
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (!constraints.hasBoundedHeight) return Center(child: content);
+        return SingleChildScrollView(
+          child: ConstrainedBox(constraints: BoxConstraints(minHeight: constraints.maxHeight), child: Center(child: content)),
+        );
+      },
     );
   }
 }

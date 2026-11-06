@@ -428,4 +428,7 @@ class BusinL10nFr extends BusinL10n {
 
   @override
   String get pushForegroundView => 'Voir';
+
+  @override
+  String get navQrShort => 'Code';
 }

@@ -183,7 +183,7 @@ void main() {
     await tester.tap(find.text('Show boarding code'));
     await tester.pumpAndSettle();
     expect(find.text('Your boarding code. It changes every 30 seconds.').evaluate(), isEmpty, reason: 'the image label is a semantics label, not text');
-    expect(find.text('Boarding code'), findsNWidgets(2), reason: 'the tab and the screen title');
+    expect(find.text('Boarding code'), findsOneWidget, reason: 'the screen title; the tab says Code');
   });
 
   testWidgets('a rejected request shows the school\'s reason and lets the student ask again', (tester) async {

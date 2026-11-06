@@ -1,11 +1,19 @@
+import 'dart:math' as math;
+
 import 'package:busin_ui/busin_ui.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../auth/auth_service.dart';
 import '../providers.dart';
+import '../router.dart';
 
+/// The first thing a student sees: a full-bleed night-bus photo under a teal gradient, the wordmark, a headline with the
+/// marker under it, and a rotated orange call to action. On a wide screen (a tablet in landscape) the photo takes the
+/// left and the words and the button sit on the brand teal at the right.
 class SignInScreen extends ConsumerStatefulWidget {
   const SignInScreen({super.key});
 
@@ -35,8 +43,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = BusinL10n.of(context);
-    final palette = BusinPalette.of(context);
-    final text = Theme.of(context).textTheme;
+    final wide = BusinLayout.of(context).isExpanded;
     final message = switch (_failure) {
       SignInFailure.cancelled => l10n.signInCancelled,
       SignInFailure.notAllowed => l10n.signInNotAllowed,
@@ -44,40 +51,198 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       null => null,
     };
 
+    final words = _Words(message: message, busy: _busy, onSignIn: _signIn);
+
     return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 440),
-            child: Padding(
-              padding: const EdgeInsets.all(BusinSpace.x6),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+      backgroundColor: BusinRamps.seed,
+      body: wide
+          ? Row(
+              children: [
+                const Expanded(flex: 6, child: _Photo(fade: false)),
+                Expanded(
+                  flex: 5,
+                  child: Stack(
+                    children: [
+                      const Positioned.fill(child: Grain(opacity: 1)),
+                      SafeArea(child: Center(child: SingleChildScrollView(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 460), child: Padding(padding: const EdgeInsets.all(BusinSpace.x8), child: words))))),
+                    ],
+                  ),
+                ),
+              ],
+            )
+          : Stack(
+              fit: StackFit.expand,
+              children: [
+                const _Photo(fade: true),
+                SafeArea(
+                  // Scrolls only when the screen is too short or the text too big for everything to fit.
+                  child: CustomScrollView(
+                    slivers: [
+                      SliverFillRemaining(
+                        hasScrollBody: false,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(BusinSpace.x6, BusinSpace.x4, BusinSpace.x6, BusinSpace.x6),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              const Align(alignment: Alignment.centerLeft, child: BrandMark(color: Colors.white, height: 44)),
+                              const Spacer(),
+                              Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 520), child: words)),
+                              if (kDebugMode) const _StyleguideLink(),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+    );
+  }
+}
+
+/// The photo, decorative. With [fade] a teal gradient lets the words sit on it; without, the photo is shown whole.
+class _Photo extends StatelessWidget {
+  const _Photo({required this.fade});
+
+  final bool fade;
+
+  @override
+  Widget build(BuildContext context) {
+    return ExcludeSemantics(
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset('assets/photos/night-bus.webp', package: 'busin_ui', fit: BoxFit.cover, alignment: const Alignment(0.1, 0.35), filterQuality: FilterQuality.medium),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: fade
+                    ? [BusinRamps.seed.withValues(alpha: 0.25), BusinRamps.seed.withValues(alpha: 0.45), BusinRamps.seed.withValues(alpha: 0.96)]
+                    : [BusinRamps.seed.withValues(alpha: 0.12), BusinRamps.seed.withValues(alpha: 0.25)],
+                stops: fade ? const [0, 0.4, 0.82] : const [0, 1],
+              ),
+            ),
+          ),
+          if (!fade) const Align(alignment: Alignment.topLeft, child: Padding(padding: EdgeInsets.all(BusinSpace.x8), child: BrandMark(color: Colors.white, height: 48))),
+        ],
+      ),
+    );
+  }
+}
+
+class _Words extends StatelessWidget {
+  const _Words({required this.message, required this.busy, required this.onSignIn});
+
+  final String? message;
+  final bool busy;
+  final VoidCallback onSignIn;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = BusinL10n.of(context);
+    final text = Theme.of(context).textTheme;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        StaggeredIn(
+          child: MarkedText(l10n.signInTitle, opacity: 0.7, style: text.displaySmall?.copyWith(color: Colors.white, height: 1.1)),
+        ),
+        const SizedBox(height: BusinSpace.x4),
+        StaggeredIn(index: 1, child: Text(l10n.signInSubtitle, style: text.bodyLarge?.copyWith(color: Colors.white.withValues(alpha: 0.85), height: 1.45))),
+        const SizedBox(height: BusinSpace.x8),
+        if (message != null) ...[
+          Semantics(
+            liveRegion: true,
+            child: DecoratedBox(
+              decoration: BoxDecoration(color: BusinPalette.dark.badBg, borderRadius: BorderRadius.circular(BusinRadius.md)),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: BusinSpace.x4, vertical: BusinSpace.x3),
+                child: Row(
+                  children: [
+                    HugeIcon(icon: HugeIcons.strokeRoundedAlert02, size: 18, color: BusinPalette.dark.bad),
+                    const SizedBox(width: BusinSpace.x3),
+                    Expanded(child: Text(message!, style: text.bodyMedium?.copyWith(color: BusinPalette.dark.bad))),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: BusinSpace.x4),
+        ],
+        StaggeredIn(index: 2, child: _GoogleBanner(label: l10n.signInWithGoogle, busy: busy, onPressed: busy ? null : onSignIn)),
+      ],
+    );
+  }
+}
+
+/// The call to action: a wide orange band, tilted a little, with grain and the stitched thread. It squeezes when pressed.
+class _GoogleBanner extends StatefulWidget {
+  const _GoogleBanner({required this.label, required this.busy, required this.onPressed});
+
+  final String label;
+  final bool busy;
+  final VoidCallback? onPressed;
+
+  @override
+  State<_GoogleBanner> createState() => _GoogleBannerState();
+}
+
+class _GoogleBannerState extends State<_GoogleBanner> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    const radius = BorderRadius.all(Radius.circular(BusinRadius.md));
+    final ink = BusinPalette.light.onAccent;
+
+    return Semantics(
+      button: true,
+      enabled: widget.onPressed != null,
+      label: widget.label,
+      excludeSemantics: true,
+      child: AnimatedScale(
+        scale: _pressed ? 0.98 : 1,
+        duration: BusinMotion.of(context, BusinMotion.fast),
+        curve: BusinMotion.soft,
+        child: Transform.rotate(
+          angle: -2 * math.pi / 180,
+          child: DecoratedBox(
+            decoration: const BoxDecoration(borderRadius: radius, boxShadow: BusinElevation.float),
+            child: Material(
+              color: BusinPalette.orange,
+              borderRadius: radius,
+              clipBehavior: Clip.antiAlias,
+              child: Stack(
                 children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(color: palette.brand, borderRadius: BorderRadius.circular(BusinRadius.lg)),
-                      child: Padding(
-                        padding: const EdgeInsets.all(BusinSpace.x5),
-                        child: HugeIcon(icon: HugeIcons.strokeRoundedBus01, size: 36, color: palette.onBrand),
+                  const Positioned.fill(child: Grain(opacity: 0.5)),
+                  InkWell(
+                    onTap: widget.onPressed == null
+                        ? null
+                        : () {
+                            BusinHaptics.medium();
+                            widget.onPressed!();
+                          },
+                    onHighlightChanged: (down) => setState(() => _pressed = down),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: BusinSpace.x6, vertical: BusinSpace.x5),
+                      child: Row(
+                        children: [
+                          Expanded(child: Text(widget.label, style: text.titleMedium?.copyWith(color: ink, fontWeight: FontWeight.w800))),
+                          if (widget.busy)
+                            SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.5, color: ink))
+                          else
+                            HugeIcon(icon: HugeIcons.strokeRoundedArrowRight02, color: ink),
+                        ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: BusinSpace.x6),
-                  Text(l10n.signInTitle, style: text.headlineLarge),
-                  const SizedBox(height: BusinSpace.x3),
-                  Text(l10n.signInSubtitle, style: text.bodyLarge?.copyWith(color: palette.muted)),
-                  const SizedBox(height: BusinSpace.x8),
-                  BusinButton(label: l10n.signInWithGoogle, onPressed: _busy ? null : _signIn, loading: _busy, expand: true),
-                  if (message != null) ...[
-                    const SizedBox(height: BusinSpace.x4),
-                    Semantics(
-                      liveRegion: true,
-                      child: Text(message, style: text.bodyMedium?.copyWith(color: palette.bad)),
-                    ),
-                  ],
+                  Positioned.fill(child: Contour(color: threadColor(text: ink, background: BusinPalette.orange, mix: 0.38), style: const ContourStyle(radius: 20, inset: 6, dash: 5, gap: 5, live: true), active: _pressed)),
                 ],
               ),
             ),
@@ -86,4 +251,20 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       ),
     );
   }
+}
+
+/// Debug builds only: a way into the styleguide from the first screen.
+class _StyleguideLink extends StatelessWidget {
+  const _StyleguideLink();
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.only(top: BusinSpace.x4),
+        child: Center(
+          child: TextButton(
+            onPressed: () => context.go(Routes.styleguide),
+            child: const Text('Styleguide', style: TextStyle(color: Colors.white70)),
+          ),
+        ),
+      );
 }

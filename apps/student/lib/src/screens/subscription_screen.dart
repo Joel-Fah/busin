@@ -33,7 +33,8 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
     final l10n = BusinL10n.of(context);
     final overview = ref.watch(subscriptionOverviewProvider);
 
-    return RefreshIndicator(
+    return ContentColumn(
+      child: RefreshIndicator(
       onRefresh: _refresh,
       child: overview.when(
         loading: () => ListView(physics: const AlwaysScrollableScrollPhysics(), children: const [SizedBox(height: 240), Center(child: CircularProgressIndicator())]),
@@ -67,7 +68,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
 
           return ListView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(BusinSpace.x5),
+            padding: EdgeInsets.fromLTRB(BusinSpace.x5, BusinSpace.x5, BusinSpace.x5, BusinSpace.x5 + BusinScope.of(context).bottomInset),
             children: [
               Text(showForm ? l10n.subscribeHeading(name) : name, style: text.headlineSmall),
               if (data.upcoming) ...[
@@ -92,6 +93,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
             ],
           );
         },
+      ),
       ),
     );
   }

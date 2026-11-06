@@ -5,8 +5,9 @@ import 'package:hugeicons/hugeicons.dart';
 
 import '../push/push_binder.dart';
 
-/// The signed-in student's frame: four destinations along the bottom. Each keeps its own place when you
-/// switch away and back.
+/// The signed-in student's frame: four destinations. On a phone or a portrait tablet a floating glass bar rides over
+/// the page; on a wide screen (a tablet in landscape) a slim rail sits at the left. Each destination keeps its own
+/// place when you switch away and back. The page inside learns how much room the bar takes from [BusinScope].
 class HomeShell extends StatelessWidget {
   const HomeShell({super.key, required this.shell});
 
@@ -15,19 +16,24 @@ class HomeShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = BusinL10n.of(context);
-    return PushBinder(
-      child: Scaffold(
-      body: SafeArea(bottom: false, child: shell),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: shell.currentIndex,
+    final p = BusinPalette.of(context);
+    // The short label sits under the icon; the full name is what a screen reader says.
+    final destinations = [
+      BusinDestination(label: l10n.navSubscription, icon: HugeIcons.strokeRoundedTicket03),
+      BusinDestination(label: l10n.navQrShort, icon: HugeIcons.strokeRoundedQrCode, semanticLabel: l10n.navQr),
+      BusinDestination(label: l10n.navHistory, icon: HugeIcons.strokeRoundedReceiptText),
+      BusinDestination(label: l10n.navBus, icon: HugeIcons.strokeRoundedBus01),
+    ];
+
+    // A Scaffold stays at the root: snack bars need one to appear in.
+    return Scaffold(
+      backgroundColor: p.bg,
+      body: AdaptiveScaffold(
+        destinations: destinations,
+        currentIndex: shell.currentIndex,
         onDestinationSelected: (index) => shell.goBranch(index, initialLocation: index == shell.currentIndex),
-        destinations: [
-          NavigationDestination(icon: const HugeIcon(icon: HugeIcons.strokeRoundedTicket03), label: l10n.navSubscription),
-          NavigationDestination(icon: const HugeIcon(icon: HugeIcons.strokeRoundedQrCode), label: l10n.navQr),
-          NavigationDestination(icon: const HugeIcon(icon: HugeIcons.strokeRoundedReceiptText), label: l10n.navHistory),
-          NavigationDestination(icon: const HugeIcon(icon: HugeIcons.strokeRoundedBus01), label: l10n.navBus),
-        ],
-      ),
+        railHeader: BrandMark(color: p.fg, height: 28),
+        body: PushBinder(child: SafeArea(bottom: false, child: shell)),
       ),
     );
   }
