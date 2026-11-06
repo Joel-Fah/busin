@@ -73,13 +73,25 @@ class ScrambleQrPainter extends CustomPainter {
     for (var r = 0; r < n; r++) {
       for (var c = 0; c < n; c++) {
         final rect = Rect.fromLTWH(c * cell, r * cell, cell, cell);
-        if (to.isFinder(r, c)) {
-          if (to.isDark(r, c)) canvas.drawRRect(RRect.fromRectAndRadius(rect.inflate(0.3), Radius.circular(cell * 0.18)), paint);
-          continue;
-        }
+        if (to.isFinder(r, c)) continue;
         final v = dotAt(from.isDark(r, c), to.isDark(r, c), r, c, t);
         if (v > 0) canvas.drawCircle(rect.center, cell * 0.47 * v, paint);
       }
+    }
+    paintFinders(canvas, cell, n, paint);
+  }
+
+  /// The three corner markers as rings with a dot in the middle: the same 1 : 1 : 3 : 1 : 1 rhythm a scanner looks for
+  /// along any line through the centre, drawn round like the rest. They never change from one code to the next.
+  static void paintFinders(Canvas canvas, double cell, int n, Paint fill) {
+    final ring = Paint()
+      ..color = fill.color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = cell;
+    for (final (row, col) in [(0, 0), (0, n - 7), (n - 7, 0)]) {
+      final center = Offset((col + 3.5) * cell, (row + 3.5) * cell);
+      canvas.drawCircle(center, cell * 3, ring);
+      canvas.drawCircle(center, cell * 1.5, fill);
     }
   }
 
@@ -89,15 +101,11 @@ class ScrambleQrPainter extends CustomPainter {
     final paint = Paint()..color = color;
     for (var r = 0; r < n; r++) {
       for (var c = 0; c < n; c++) {
-        if (!grid.isDark(r, c)) continue;
-        final rect = Rect.fromLTWH(c * cell, r * cell, cell, cell);
-        if (grid.isFinder(r, c)) {
-          canvas.drawRRect(RRect.fromRectAndRadius(rect.inflate(0.3), Radius.circular(cell * 0.18)), paint);
-        } else {
-          canvas.drawCircle(rect.center, cell * 0.47, paint);
-        }
+        if (!grid.isDark(r, c) || grid.isFinder(r, c)) continue;
+        canvas.drawCircle(Rect.fromLTWH(c * cell, r * cell, cell, cell).center, cell * 0.47, paint);
       }
     }
+    paintFinders(canvas, cell, n, paint);
   }
 
   @override

@@ -190,6 +190,7 @@
   "statusRevokedReason": "Your school's reason:",
   "statusExpiredTitle": "Subscription ended",
   "statusExpiredBody": "This subscription is no longer valid. You can send a new request.",
+  "qrChecking": "Checking your subscription",
   "qrTitle": "Boarding code",
   "qrHint": "Show this code to the driver or staff when you board.",
   "qrImageLabel": "Your boarding code. It changes every 30 seconds.",

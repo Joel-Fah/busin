@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:busin_core/busin_core.dart';
@@ -59,6 +60,48 @@ void main() {
     expect(shownCode(tester), codeAt(noon));
     expect(shownCode(tester), startsWith('busin1.u1.'));
     expect(find.text('Test Person'), findsOneWidget);
+  });
+
+  testWidgets('while it checks the subscription a skeleton the shape of the ticket waits, then the real page replaces it', (tester) async {
+    final qr = FakeQr()..hold = Completer<void>();
+    await openQr(tester, qr: qr, goToQr: false);
+    await tester.tap(find.text('Code'));
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.byType(Skeleton), findsWidgets);
+    expect(find.byType(CircularProgressIndicator), findsNothing, reason: 'not a lone spinner');
+    expect(find.byKey(const ValueKey('boarding-code')), findsNothing);
+
+    qr.hold!.complete();
+    await tester.pumpAndSettle();
+    expect(find.byType(Skeleton), findsNothing);
+    expect(shownCode(tester), codeAt(noon));
+  });
+
+  testWidgets('on a landscape tablet it is two columns with the ticket alone in the right one', (tester) async {
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    tester.platformDispatcher.localesTestValue = [const Locale('en')];
+    addTearDown(tester.platformDispatcher.clearLocalesTestValue);
+    await tester.pumpWidget(
+      ProviderScope(
+        key: UniqueKey(),
+        overrides: overridesFor(FakeAuthService(signedInAs: 'u1'), FakeProfileRepository({'u1': profile()}), clock: TestClock(noon)),
+        child: const StudentApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Code'));
+    await tester.pumpAndSettle();
+
+    final ticket = tester.getRect(find.byKey(const ValueKey('boarding-code')));
+    final steps = tester.getRect(find.text('How to board'));
+    final heading = tester.getRect(find.text('Boarding code').first);
+    expect(ticket.center.dx, greaterThan(steps.center.dx), reason: 'the ticket is in the right column');
+    expect(ticket.left, greaterThan(steps.right), reason: 'and nothing else shares that column');
+    expect(heading.left, lessThan(ticket.left), reason: 'the heading is in the left column');
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('no countdown is shown: the student does not need to know about it', (tester) async {

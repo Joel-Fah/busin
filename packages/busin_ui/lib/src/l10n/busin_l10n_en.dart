@@ -427,6 +427,9 @@ class BusinL10nEn extends BusinL10n {
       'This subscription is no longer valid. You can send a new request.';
 
   @override
+  String get qrChecking => 'Checking your subscription';
+
+  @override
   String get qrTitle => 'Boarding code';
 
   @override

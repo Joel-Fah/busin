@@ -157,6 +157,7 @@
   "statusRevokedReason": "Motif de votre école :",
   "statusExpiredTitle": "Abonnement terminé",
   "statusExpiredBody": "Cet abonnement n’est plus valide. Vous pouvez envoyer une nouvelle demande.",
+  "qrChecking": "Vérification de votre abonnement",
   "qrTitle": "Code d’embarquement",
   "qrHint": "Présentez ce code au conducteur ou au personnel au moment de monter.",
   "qrImageLabel": "Votre code d’embarquement. Il change toutes les 30 secondes.",

@@ -570,9 +570,13 @@ class FakeQr implements QrRepository {
   Object? error;
   int fetches = 0;
 
+  /// When set, the secret is not given until this completes (to look at the waiting state).
+  Completer<void>? hold;
+
   @override
   Future<Uint8List> fetchSecret() async {
     fetches++;
+    if (hold != null) await hold!.future;
     if (error != null) throw error!;
     return secret;
   }

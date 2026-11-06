@@ -91,7 +91,9 @@ class _QrScreenState extends ConsumerState<QrScreen> {
     final secret = ref.watch(qrSecretProvider);
     _tellOnce(secret);
 
+    // On a wide screen the page is two columns, so it may use the width.
     return ContentColumn(
+      maxWidth: BusinLayout.of(context).isExpanded ? 1180 : BusinLayout.maxColumn,
       child: RefreshIndicator(
       onRefresh: () async {
         ref.invalidate(qrSecretProvider);
@@ -107,7 +109,7 @@ class _QrScreenState extends ConsumerState<QrScreen> {
         padding: EdgeInsets.fromLTRB(BusinSpace.x5, BusinSpace.x5, BusinSpace.x5, BusinSpace.x5 + BusinScope.of(context).bottomInset),
         children: [
           secret.when(
-            loading: () => const Padding(padding: EdgeInsets.only(top: 160), child: Center(child: CircularProgressIndicator())),
+            loading: () => const _CodeSkeleton(),
             error: (error, _) => _Problem(error: error),
             data: (bytes) => _Code(secret: bytes),
           ),
@@ -169,13 +171,13 @@ class _Code extends ConsumerWidget {
     if (!expanded) {
       return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [heading, StaggeredIn(child: ticket)]);
     }
-    // A wide screen: the ticket on the left, how to board on the right.
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        heading,
-        SplitView(primary: StaggeredIn(child: ticket), secondary: StaggeredIn(index: 1, child: const _BoardingSteps()), primaryFlex: 5, secondaryFlex: 4, gap: BusinSpace.x6),
-      ],
+    // A wide screen, two columns: the words and how to board on the left, the ticket alone in the right one.
+    return SplitView(
+      primary: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [heading, StaggeredIn(child: const _BoardingSteps())]),
+      secondary: StaggeredIn(index: 1, child: ticket),
+      primaryFlex: 5,
+      secondaryFlex: 5,
+      gap: BusinSpace.x8,
     );
   }
 }
@@ -247,6 +249,83 @@ class _Problem extends ConsumerWidget {
         Offline() => EmptyState(icon: HugeIcons.strokeRoundedWifiDisconnected01, title: l10n.qrOfflineTitle, body: l10n.qrOfflineBody, action: retry()),
         _ => EmptyState(icon: HugeIcons.strokeRoundedAlert02, title: l10n.errorGeneric, action: retry()),
       },
+    );
+  }
+}
+
+/// What the page looks like while it finds out whether there is a subscription: the same layout as the ticket, with
+/// shimmering blocks where the heading, the code and the name will be, so nothing jumps when the real page arrives.
+class _CodeSkeleton extends StatelessWidget {
+  const _CodeSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = BusinL10n.of(context);
+    final expanded = BusinLayout.of(context).isExpanded;
+
+    Widget bars(List<double> widths, {double height = 16}) => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [for (final w in widths) Padding(padding: const EdgeInsets.only(bottom: BusinSpace.x2), child: Skeleton(width: w, height: height))],
+        );
+
+    final heading = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Skeleton(width: 200, height: 30, radius: BusinRadius.xs),
+        const SizedBox(height: BusinSpace.x3),
+        bars(const [260, 180]),
+        const SizedBox(height: BusinSpace.x4),
+      ],
+    );
+
+    final ticket = LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth.clamp(0.0, 380.0);
+        final side = (width - BusinSpace.x6 * 2 - BusinSpace.x5 * 2).clamp(160.0, 300.0);
+        return Center(
+          child: SizedBox(
+            width: width,
+            child: BusinCard(
+              child: Column(
+                children: [
+                  Row(children: [const Skeleton(width: 96, height: 14), const Spacer(), const Skeleton(width: 56, height: 22, radius: BusinRadius.xs)]),
+                  const SizedBox(height: BusinSpace.x5),
+                  Skeleton(width: side + BusinSpace.x5 * 2, height: side + BusinSpace.x5 * 2, radius: BusinRadius.md),
+                  const SizedBox(height: BusinSpace.x5),
+                  const Skeleton(width: 160, height: 20),
+                  const SizedBox(height: BusinSpace.x2),
+                  const Skeleton(width: 110, height: 14),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+
+    final steps = BusinCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Skeleton(width: 140, height: 22),
+          const SizedBox(height: BusinSpace.x4),
+          for (var i = 0; i < 3; i++)
+            const Padding(
+              padding: EdgeInsets.only(bottom: BusinSpace.x4),
+              child: Row(children: [Skeleton(width: 32, height: 32, radius: BusinRadius.xs), SizedBox(width: BusinSpace.x3), Expanded(child: Skeleton(height: 16))]),
+            ),
+        ],
+      ),
+    );
+
+    return Semantics(
+      liveRegion: true,
+      label: l10n.qrChecking,
+      child: ExcludeSemantics(
+        child: expanded
+            ? SplitView(primary: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [heading, steps]), secondary: ticket, primaryFlex: 5, secondaryFlex: 5, gap: BusinSpace.x8)
+            : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [heading, ticket]),
+      ),
     );
   }
 }
