@@ -46,6 +46,7 @@ Done this session (all pushed, stacked on each other, no PRs opened yet because 
 - `phase-3/admin-nav-profile` (#139): the portal bar keeps Overview, Subscriptions, People, Trips and Boardings; Stops, Buses, Semesters and Faculties and departments are tiles on the profile (the Profile tab stays lit on those pages); saved confirmations in the portal now appear as toasts.
 - `phase-3/student-nav-profile` (#140): student bottom bar is Subscription, Code, My bus, Profile; boarding history opens from a tile in the profile as its own page; the avatar shortcut on the subscription banner is gone.
 - `phase-3/bus-for-subscribers` (#141): live bus positions only for students with an approved subscription covering today (staff and admins always); enforced by RLS on `live_positions` (so Realtime too), mirrored by `public.can_follow_buses()`; the My bus tab explains and leads to the subscription. Applied locally with `migration up`.
+- `phase-3/logo-handoff` (#142): after the logo draws it travels to the top left corner while the sign-in screen fades in around it (once per cold start; the sign-in route no longer slides).
 
 Verified: student 207 tests, busin_ui 100, busin_core 47, busin_data 34, portal 222 unit tests, database 215 pgTAP tests, all analyzers clean. On the phone I checked the ticket, My bus (with a demo bus and your stop) and the setup screen. I did not see the scramble animation or the logo hand-off in motion.
 

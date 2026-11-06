@@ -10,6 +10,7 @@ import 'package:hugeicons/hugeicons.dart';
 import '../auth/auth_service.dart';
 import '../providers.dart';
 import '../router.dart';
+import 'splash_screen.dart';
 
 /// The first thing a student sees: a full-bleed night-bus photo under a teal gradient, the wordmark, a headline with the
 /// marker under it, and a rotated orange call to action. On a wide screen (a tablet in landscape) the photo takes the
@@ -21,9 +22,37 @@ class SignInScreen extends ConsumerStatefulWidget {
   ConsumerState<SignInScreen> createState() => _SignInScreenState();
 }
 
-class _SignInScreenState extends ConsumerState<SignInScreen> {
+class _SignInScreenState extends ConsumerState<SignInScreen> with SingleTickerProviderStateMixin {
   bool _busy = false;
   SignInFailure? _failure;
+
+  // The hand-off from the opening animation: the mark starts where the splash left it (the centre, 144 wide) and
+  // travels to the top left corner while the photo and the words fade in around it.
+  late final AnimationController _hand = AnimationController(vsync: this);
+  bool _handoff = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _handoff = ref.read(logoHandoffProvider);
+    if (_handoff) {
+      // After this frame: a provider cannot be changed while the tree is building.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ref.read(logoHandoffProvider.notifier).consume();
+        _hand.duration = BusinMotion.of(context, const Duration(milliseconds: 1100));
+        _hand.forward().whenComplete(() {
+          if (mounted) setState(() => _handoff = false);
+        });
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _hand.dispose();
+    super.dispose();
+  }
 
   Future<void> _signIn() async {
     setState(() {
@@ -53,12 +82,10 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
 
     final words = _Words(message: message, busy: _busy, onSignIn: _signIn);
 
-    return Scaffold(
-      backgroundColor: BusinRamps.seed,
-      body: wide
+    final content = wide
           ? Row(
               children: [
-                const Expanded(flex: 6, child: _Photo(fade: false)),
+                Expanded(flex: 6, child: _Photo(fade: false, showMark: !_handoff)),
                 Expanded(
                   flex: 5,
                   child: Stack(
@@ -85,7 +112,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              const Align(alignment: Alignment.centerLeft, child: BrandMark(color: Colors.white, height: 44)),
+                              Align(alignment: Alignment.centerLeft, child: Opacity(opacity: _handoff ? 0 : 1, child: const BrandMark(color: Colors.white, height: 44))),
                               const Spacer(),
                               Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 520), child: words)),
                               if (kDebugMode) const _StyleguideLink(),
@@ -97,16 +124,56 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   ),
                 ),
               ],
-            ),
+            );
+
+    return Scaffold(
+      backgroundColor: BusinRamps.seed,
+      body: _handoff ? _withHandoff(context, content, wide) : content,
+    );
+  }
+
+  /// The screen fading in while the mark travels from the centre to its corner. The corner is where the screen's own
+  /// mark sits (hidden until the end), so the traveller lands exactly on it.
+  Widget _withHandoff(BuildContext context, Widget content, bool wide) {
+    final size = MediaQuery.sizeOf(context);
+    final safe = MediaQuery.paddingOf(context);
+    const startWidth = splashMarkWidth;
+    final startHeight = startWidth * 126 / 205;
+    final start = Rect.fromCenter(center: Offset(size.width / 2, size.height / 2), width: startWidth, height: startHeight);
+    final endHeight = wide ? 48.0 : 44.0;
+    final endLeft = wide ? BusinSpace.x8 : BusinSpace.x6 + safe.left;
+    final endTop = wide ? BusinSpace.x8 : safe.top + BusinSpace.x4;
+    final end = Rect.fromLTWH(endLeft, endTop, endHeight * 205 / 126, endHeight);
+    final travel = CurvedAnimation(parent: _hand, curve: Curves.easeInOutCubicEmphasized);
+    final reveal = CurvedAnimation(parent: _hand, curve: const Interval(0.35, 1, curve: Curves.easeOut));
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        FadeTransition(opacity: reveal, child: content),
+        AnimatedBuilder(
+          animation: travel,
+          builder: (context, _) {
+            final rect = Rect.lerp(start, end, travel.value)!;
+            return Positioned.fromRect(
+              rect: rect,
+              child: const IgnorePointer(key: ValueKey('logo-handoff'), child: FittedBox(child: BrandMark(color: Colors.white, height: 100))),
+            );
+          },
+        ),
+      ],
     );
   }
 }
 
 /// The photo, decorative. With [fade] a teal gradient lets the words sit on it; without, the photo is shown whole.
 class _Photo extends StatelessWidget {
-  const _Photo({required this.fade});
+  const _Photo({required this.fade, this.showMark = true});
 
   final bool fade;
+
+  /// The wide layout's mark. Hidden while the travelling mark of the opening hand-off is on its way to it.
+  final bool showMark;
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +194,7 @@ class _Photo extends StatelessWidget {
               ),
             ),
           ),
-          if (!fade) const Align(alignment: Alignment.topLeft, child: Padding(padding: EdgeInsets.all(BusinSpace.x8), child: BrandMark(color: Colors.white, height: 48))),
+          if (!fade) Align(alignment: Alignment.topLeft, child: Padding(padding: const EdgeInsets.all(BusinSpace.x8), child: Opacity(opacity: showMark ? 1 : 0, child: const BrandMark(color: Colors.white, height: 48)))),
         ],
       ),
     );

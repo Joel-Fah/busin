@@ -66,10 +66,27 @@ class IntroDone extends Notifier<bool> {
   @override
   bool build() => !ref.watch(introEnabledProvider);
 
-  void finish() => state = true;
+  void finish() {
+    state = true;
+    // The mark that was just drawn travels to its place on the next screen, once.
+    ref.read(logoHandoffProvider.notifier).arm();
+  }
 }
 
 final introDoneProvider = NotifierProvider<IntroDone, bool>(IntroDone.new);
+
+/// True from the end of the opening animation until the first screen after it has taken the mark and moved it to its
+/// corner. Only that one arrival does it: coming back to sign-in after signing out does not.
+class LogoHandoff extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void arm() => state = true;
+
+  void consume() => state = false;
+}
+
+final logoHandoffProvider = NotifierProvider<LogoHandoff, bool>(LogoHandoff.new);
 
 /// What the app may show. The router and every guarded screen read this.
 final accessProvider = Provider<AccessState>((ref) {
