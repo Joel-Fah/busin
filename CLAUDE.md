@@ -70,6 +70,7 @@ npm run check                    # emoji + markdown link checks
 npm run backend:start            # local backend (Docker Desktop required)
 npm run backend:test             # database tests
 npm run web:setup && npm run web # admin portal at http://127.0.0.1:3000
+npm run dev:device               # run the student app on a connected Android device (backend check, USB tunnels, flutter run)
 ```
 
 Legacy app: `cd apps/legacy && fvm flutter run` (uses its own pin, 3.35.6).
