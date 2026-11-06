@@ -871,6 +871,12 @@ abstract class BusinL10n {
   /// **'This subscription is no longer valid. You can send a new request.'**
   String get statusExpiredBody;
 
+  /// No description provided for @qrChecking.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking your subscription'**
+  String get qrChecking;
+
   /// No description provided for @qrTitle.
   ///
   /// In en, this message translates to:

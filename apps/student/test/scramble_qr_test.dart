@@ -1,4 +1,5 @@
 import 'package:busin_student/src/qr/boarding_code_image.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -17,6 +18,29 @@ void main() {
     expect(grid.isFinder(n - 1, 0), isTrue);
     expect(grid.isFinder(n - 1, n - 1), isFalse);
     expect(grid.isFinder(n ~/ 2, n ~/ 2), isFalse);
+  });
+
+  test('the corner markers are rings with a dot, not squares', () {
+    final canvas = _Recorder();
+    const n = 29;
+    const cell = 10.0;
+    ScrambleQrPainter.paintFinders(canvas, cell, n, Paint()..color = Colors.black);
+
+    // Per corner: a stroked ring one module thick and a filled dot three modules across.
+    expect(canvas.circles.length, 6);
+    final rings = canvas.circles.where((c) => c.paint.style == PaintingStyle.stroke).toList();
+    final dots = canvas.circles.where((c) => c.paint.style == PaintingStyle.fill).toList();
+    expect(rings.length, 3);
+    expect(dots.length, 3);
+    for (final ring in rings) {
+      expect(ring.radius, cell * 3);
+      expect(ring.paint.strokeWidth, cell);
+    }
+    for (final dot in dots) {
+      expect(dot.radius, cell * 1.5);
+    }
+    expect({for (final r in rings) r.center}, {const Offset(35, 35), const Offset(35 + 22 * cell, 35), const Offset(35, 35 + 22 * cell)});
+    expect(canvas.otherShapes, 0, reason: 'no squares');
   });
 
   test('every code has its finder squares drawn the same way', () {
@@ -60,4 +84,32 @@ void main() {
       expect(seen.every((v) => v == 0 || v == 1 || v == 0.85), isTrue);
     });
   });
+}
+
+class _Circle {
+  _Circle(this.center, this.radius, this.paint);
+  final Offset center;
+  final double radius;
+  final Paint paint;
+}
+
+/// A canvas that only remembers what was drawn.
+class _Recorder implements Canvas {
+  final circles = <_Circle>[];
+  int otherShapes = 0;
+
+  @override
+  void drawCircle(Offset c, double radius, Paint paint) => circles.add(_Circle(c, radius, paint));
+
+  @override
+  void drawRect(Rect rect, Paint paint) => otherShapes++;
+
+  @override
+  void drawRRect(RRect rrect, Paint paint) => otherShapes++;
+
+  @override
+  void drawPath(Path path, Paint paint) => otherShapes++;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => null;
 }

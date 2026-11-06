@@ -432,6 +432,9 @@ class BusinL10nFr extends BusinL10n {
       'Cet abonnement n’est plus valide. Vous pouvez envoyer une nouvelle demande.';
 
   @override
+  String get qrChecking => 'Vérification de votre abonnement';
+
+  @override
   String get qrTitle => 'Code d’embarquement';
 
   @override
