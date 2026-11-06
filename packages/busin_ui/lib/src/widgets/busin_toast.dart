@@ -220,7 +220,6 @@ class _ToastViewState extends State<_ToastView> with TickerProviderStateMixin {
                                                     strokeWidth: 2,
                                                     strokeCap: StrokeCap.round,
                                                     color: ink,
-                                                    backgroundColor: ink.withValues(alpha: 0.18),
                                                   ),
                                                 ),
                                               ),
