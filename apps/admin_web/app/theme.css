@@ -286,6 +286,16 @@ input::-webkit-calendar-picker-indicator:hover {
   }
 }
 
+@keyframes toast-ring {
+  to {
+    stroke-dashoffset: 100;
+  }
+}
+
+.toast-ring {
+  animation: toast-ring linear forwards;
+}
+
 @keyframes toast-fade {
   from {
     opacity: 0;

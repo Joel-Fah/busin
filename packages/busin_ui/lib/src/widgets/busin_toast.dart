@@ -97,8 +97,9 @@ class _ToastView extends StatefulWidget {
   State<_ToastView> createState() => _ToastViewState();
 }
 
-class _ToastViewState extends State<_ToastView> with SingleTickerProviderStateMixin {
+class _ToastViewState extends State<_ToastView> with TickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(vsync: this);
+  late final AnimationController _life = AnimationController(vsync: this, duration: widget.duration);
   Timer? _timer;
   bool _leaving = false;
 
@@ -106,6 +107,7 @@ class _ToastViewState extends State<_ToastView> with SingleTickerProviderStateMi
   void initState() {
     super.initState();
     _timer = Timer(widget.duration, _leave);
+    _life.forward();
   }
 
   @override
@@ -131,6 +133,7 @@ class _ToastViewState extends State<_ToastView> with SingleTickerProviderStateMi
   void dispose() {
     _timer?.cancel();
     _controller.dispose();
+    _life.dispose();
     super.dispose();
   }
 
@@ -198,6 +201,30 @@ class _ToastViewState extends State<_ToastView> with SingleTickerProviderStateMi
                                             children: [
                                               if (widget.title != null) Text(widget.title!, style: text.labelLarge?.copyWith(color: p.fg, fontWeight: FontWeight.w800)),
                                               Text(widget.message, style: text.bodyMedium?.copyWith(color: p.fg)),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(width: BusinSpace.x2),
+                                        // The ring empties as the time runs out.
+                                        SizedBox(
+                                          width: 28,
+                                          height: 28,
+                                          child: Stack(
+                                            alignment: Alignment.center,
+                                            children: [
+                                              Positioned.fill(
+                                                child: AnimatedBuilder(
+                                                  animation: _life,
+                                                  builder: (context, _) => CircularProgressIndicator(
+                                                    value: 1 - _life.value,
+                                                    strokeWidth: 2,
+                                                    strokeCap: StrokeCap.round,
+                                                    color: ink,
+                                                    backgroundColor: ink.withValues(alpha: 0.18),
+                                                  ),
+                                                ),
+                                              ),
+                                              HugeIcon(icon: HugeIcons.strokeRoundedCancel01, size: 12, color: ink),
                                             ],
                                           ),
                                         ),

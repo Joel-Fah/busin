@@ -88,9 +88,29 @@ export function ToastProvider({ children, closeLabel = "Close" }: { children: Re
               type="button"
               onClick={() => dismiss(toast.id)}
               aria-label={closeLabel}
-              className="-m-1 grid size-8 shrink-0 place-items-center rounded-full text-current opacity-70 transition-[opacity,background-color,transform] duration-[var(--dur-fast)] ease-[var(--ease-soft)] hover:bg-current/10 hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-current active:scale-90"
+              className="relative -m-1 grid size-9 shrink-0 place-items-center rounded-full text-current opacity-80 transition-[opacity,background-color,transform] duration-[var(--dur-fast)] ease-[var(--ease-soft)] hover:bg-current/10 hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-current active:scale-90"
             >
-              <Icon icon={Cancel01Icon} size={16} />
+              {/* The ring empties as the time runs out. */}
+              <svg viewBox="0 0 36 36" className="pointer-events-none absolute inset-0 -rotate-90" aria-hidden="true">
+                <circle cx="18" cy="18" r="16" fill="none" stroke="currentColor" strokeOpacity="0.18" strokeWidth="2" />
+                {!leaving && (
+                  <circle
+                    key={toast.id}
+                    className="toast-ring"
+                    cx="18"
+                    cy="18"
+                    r="16"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    pathLength={100}
+                    strokeDasharray={100}
+                    style={{ animationDuration: `${toast.duration}ms` }}
+                  />
+                )}
+              </svg>
+              <Icon icon={Cancel01Icon} size={14} />
             </button>
           </div>
         )}
