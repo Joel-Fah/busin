@@ -487,6 +487,38 @@ class BusinL10nEn extends BusinL10n {
   String get historyTitle => 'Your boardings';
 
   @override
+  String get historyStatWeek => 'Boardings this week';
+
+  @override
+  String get historyStatStop => 'Most used stop';
+
+  @override
+  String get historyStatStopNone => 'None yet';
+
+  @override
+  String historyDayCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count boardings',
+      one: '1 boarding',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get historyDayFirst => 'First boarding';
+
+  @override
+  String get historyDayLast => 'Last boarding';
+
+  @override
+  String get historyDayStops => 'Stops used';
+
+  @override
+  String get historySelectedDay => 'Selected day';
+
+  @override
   String get historyEmptyTitle => 'No boardings yet';
 
   @override

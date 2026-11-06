@@ -985,6 +985,54 @@ abstract class BusinL10n {
   /// **'Your boardings'**
   String get historyTitle;
 
+  /// No description provided for @historyStatWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Boardings this week'**
+  String get historyStatWeek;
+
+  /// No description provided for @historyStatStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Most used stop'**
+  String get historyStatStop;
+
+  /// No description provided for @historyStatStopNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None yet'**
+  String get historyStatStopNone;
+
+  /// No description provided for @historyDayCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 boarding} other{{count} boardings}}'**
+  String historyDayCount(int count);
+
+  /// No description provided for @historyDayFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'First boarding'**
+  String get historyDayFirst;
+
+  /// No description provided for @historyDayLast.
+  ///
+  /// In en, this message translates to:
+  /// **'Last boarding'**
+  String get historyDayLast;
+
+  /// No description provided for @historyDayStops.
+  ///
+  /// In en, this message translates to:
+  /// **'Stops used'**
+  String get historyDayStops;
+
+  /// No description provided for @historySelectedDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected day'**
+  String get historySelectedDay;
+
   /// No description provided for @historyEmptyTitle.
   ///
   /// In en, this message translates to:

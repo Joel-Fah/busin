@@ -47,6 +47,13 @@ Done this session (all pushed, stacked on each other, no PRs opened yet because 
 - `phase-3/student-nav-profile` (#140): student bottom bar is Subscription, Code, My bus, Profile; boarding history opens from a tile in the profile as its own page; the avatar shortcut on the subscription banner is gone.
 - `phase-3/bus-for-subscribers` (#141): live bus positions only for students with an approved subscription covering today (staff and admins always); enforced by RLS on `live_positions` (so Realtime too), mirrored by `public.can_follow_buses()`; the My bus tab explains and leads to the subscription. Applied locally with `migration up`.
 - `phase-3/logo-handoff` (#142): after the logo draws it travels to the top left corner while the sign-in screen fades in around it (once per cold start; the sign-in route no longer slides).
+- `phase-3/proof-preview` (#143): tap the payment proof to view it full screen with zoom.
+- `phase-3/code-page-polish` (#144): QR corner markers are rings with a dot (decodes with ZXing at a quarter of the size; OpenCV's classic detector cannot read round finders, so test scanning with a ZXing or ML Kit based scanner), two columns with the ticket alone on the right on a wide screen, a ticket-shaped skeleton while the subscription is checked.
+- `phase-3/shell-back-rail` (#145): the profile sits at the bottom end of the rail; back from any tab other than the main one (code for a subscriber, subscription otherwise) goes to the main tab, and from the main tab leaves the app.
+- `phase-3/profile-two-columns` (#146): the profile page is two columns on a wide screen.
+- `phase-3/history-redesign` (#147): history has two numbers (boardings this week, most used stop), a card per day, skeletons, an empty state with the seat art, and on a wide screen the days on the left with the chosen day's summary on the right.
+
+Asked and answered, not built: realtime on subscription changes. Recommendation: yes, a Realtime subscription filtered to the student's own subscription row while the app is open (push already covers the background); needs the table added to the Realtime publication in a migration. Say go and it becomes its own issue.
 
 Verified: student 207 tests, busin_ui 100, busin_core 47, busin_data 34, portal 222 unit tests, database 215 pgTAP tests, all analyzers clean. On the phone I checked the ticket, My bus (with a demo bus and your stop) and the setup screen. I did not see the scramble animation or the logo hand-off in motion.
 
