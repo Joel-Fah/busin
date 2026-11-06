@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'auth/access.dart';
+import 'legal/legal_documents.dart';
+import 'legal/legal_screen.dart';
 import 'providers.dart';
 import 'screens/blocked_screen.dart';
 import 'screens/bus_screen.dart';
@@ -34,6 +36,10 @@ abstract final class Routes {
   static const subscription = '/subscription';
   static const qr = '/qr';
   static const history = '/history';
+  static const legal = '/legal';
+
+  /// The page of one legal document.
+  static String legalFor(LegalDoc doc) => '$legal/${doc.name}';
   static const bus = '/bus';
 
   /// Debug builds only: the design language on a screen (`fvm flutter run --route /styleguide`).
@@ -96,6 +102,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: Routes.setup, builder: (_, _) => const SetupScreen()),
       GoRoute(path: Routes.start, builder: (_, _) => const LandingScreen()),
       GoRoute(path: Routes.history, builder: (_, _) => const HistoryPage()),
+      GoRoute(
+        path: '${Routes.legal}/:doc',
+        builder: (_, state) {
+          final doc = LegalDoc.values.where((d) => d.name == state.pathParameters['doc']).firstOrNull;
+          return doc == null ? const HistoryPage() : LegalPage(doc: doc);
+        },
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => HomeShell(shell: shell),
         branches: [
