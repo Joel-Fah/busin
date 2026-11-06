@@ -282,12 +282,28 @@ class _Parts extends StatelessWidget {
             StatusChip(label: 'Expired'),
           ],
         ),
+        const _Title('Field tiles', note: 'For choices that are not typed: a stop, a photo. The thread slides when pressed.'),
+        FieldTile(label: 'Your stop', icon: HugeIcons.strokeRoundedFlag02, placeholder: 'Choose where you board', onTap: () {}),
+        const SizedBox(height: BusinSpace.x3),
+        FieldTile(label: 'Payment proof', icon: HugeIcons.strokeRoundedReceiptText, placeholder: 'Add a photo', value: 'Photo added', onTap: () {}),
+        const _Title('Notices', note: 'Tone, an icon and words together.'),
+        const Notice(tone: StatusTone.bad, title: 'Your school\'s reason:', child: Text('The receipt is unreadable.')),
+        const SizedBox(height: BusinSpace.x3),
+        const Notice(tone: StatusTone.info, child: Text('Only you and your school can see your receipt.')),
+        const _Title('Stage line', note: 'Where something stands: done, current, coming; or ending badly.'),
+        const BusinCard(child: Column(children: [
+          StepLine(labels: ['Sent', 'Checking', 'Decision'], current: 1),
+          SizedBox(height: 24),
+          StepLine(labels: ['Sent', 'Checking', 'Decision'], current: 2, failed: true),
+          SizedBox(height: 24),
+          StepLine(labels: ['Sent', 'Checking', 'Decision'], current: 3),
+        ])),
         const _Title('Cards', note: 'Still threads for cards, sliding threads for links.'),
         BusinCard(child: Text('A card holds one idea. The thread sits inside it, clear of the content.', style: t.bodyLarge)),
         const SizedBox(height: BusinSpace.x4),
         BusinCard(onTap: () {}, child: Row(children: [HugeIcon(icon: HugeIcons.strokeRoundedBus01, color: p.fg), const SizedBox(width: 12), Expanded(child: Text('A card that is a link: press it.', style: t.bodyLarge))])),
         const _Title('Banner', note: 'Seed teal with grain, the marker, and art that overflows its edge.'),
-        const _BannerDemo(),
+        const BusinBanner(eyebrow: 'Thursday, 5 November', title: 'Good afternoon, Joel', body: 'Subscribe for Fall 2026', art: BusinIllustration.ticket),
         const _Title('Empty state', note: 'Not a card: a framed space with art, words and one next step.'),
         EmptyState(
           illustration: BusinIllustration.seat,
@@ -327,49 +343,6 @@ class _Parts extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _BannerDemo extends StatelessWidget {
-  const _BannerDemo();
-
-  @override
-  Widget build(BuildContext context) {
-    const radius = BorderRadius.all(Radius.circular(BusinRadius.lg));
-    return DecoratedBox(
-      decoration: const BoxDecoration(borderRadius: radius, boxShadow: [BoxShadow(color: Color(0x1A000000), blurRadius: 16, offset: Offset(0, 4))]),
-      child: ClipRRect(
-        borderRadius: radius,
-        child: ColoredBox(
-          color: BusinRamps.seed,
-          child: ConstrainedBox(
-            // A banner is at least this tall and grows with its words.
-            constraints: const BoxConstraints(minHeight: 220),
-            child: Stack(
-              children: [
-                const Positioned.fill(child: Grain(opacity: 1)),
-                const Positioned(right: -70, bottom: -50, child: Illustration(BusinIllustration.busLarge, width: 320)),
-                Positioned.fill(child: Contour(color: Colors.white.withValues(alpha: 0.26), style: ContourStyle.banner)),
-                Padding(
-                  padding: const EdgeInsets.all(BusinSpace.x6),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text('Thursday, 5 November', style: Theme.of(context).textTheme.labelLarge?.copyWith(color: Colors.white70)),
-                      const SizedBox(height: 8),
-                      MarkedText('Good afternoon, Joel', opacity: 0.7, style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.white)),
-                      const SizedBox(height: 8),
-                      Text('One subscription is waiting.', style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white.withValues(alpha: 0.85))),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

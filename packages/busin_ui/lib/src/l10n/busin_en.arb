@@ -205,5 +205,31 @@
   "pushForegroundApproved": "Your subscription was approved.",
   "pushForegroundRejected": "Your school has decided on your subscription.",
   "pushForegroundView": "View",
-  "navQrShort": "Code"
+  "navQrShort": "Code",
+  "greetMorning": "Good morning",
+  "greetAfternoon": "Good afternoon",
+  "greetEvening": "Good evening",
+  "stageSent": "Sent",
+  "stageChecking": "Checking",
+  "stageDecided": "Decision",
+  "stageSemantics": "Step {number} of {total}: {label}",
+  "@stageSemantics": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "howTitle": "How it works",
+  "howStep1": "Choose where you board.",
+  "howStep2": "Add a photo of your payment receipt.",
+  "howStep3": "Your school checks it and decides.",
+  "howStep4": "Show your boarding code and ride.",
+  "proofAdded": "Photo added"
 }

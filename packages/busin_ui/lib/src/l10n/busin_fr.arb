@@ -186,5 +186,31 @@
   "pushForegroundApproved": "Votre abonnement a été approuvé.",
   "pushForegroundRejected": "Votre école a statué sur votre abonnement.",
   "pushForegroundView": "Voir",
-  "navQrShort": "Code"
+  "navQrShort": "Code",
+  "greetMorning": "Bonjour",
+  "greetAfternoon": "Bon après-midi",
+  "greetEvening": "Bonsoir",
+  "stageSent": "Envoyée",
+  "stageChecking": "Vérification",
+  "stageDecided": "Décision",
+  "stageSemantics": "Étape {number} sur {total} : {label}",
+  "@stageSemantics": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "howTitle": "Comment ça marche",
+  "howStep1": "Choisissez où vous montez.",
+  "howStep2": "Ajoutez une photo de votre reçu de paiement.",
+  "howStep3": "Votre école la vérifie et décide.",
+  "howStep4": "Présentez votre code d’embarquement et voyagez.",
+  "proofAdded": "Photo ajoutée"
 }

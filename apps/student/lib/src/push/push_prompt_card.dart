@@ -41,38 +41,40 @@ class _PushPromptCardState extends ConsumerState<PushPromptCard> {
     if (!show) return const SizedBox.shrink();
 
     final l10n = BusinL10n.of(context);
-    final palette = BusinPalette.of(context);
     final text = Theme.of(context).textTheme;
 
+    // Insight-card style: pale teal with the brand's dark teal for every word, in both themes.
+    const ink = BusinRamps.seed;
     return Padding(
       padding: const EdgeInsets.only(top: BusinSpace.x4),
-      child: DecoratedBox(
-        decoration: BoxDecoration(color: palette.infoBg, borderRadius: BorderRadius.circular(BusinRadius.lg)),
-        child: Padding(
-          padding: const EdgeInsets.all(BusinSpace.x5),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                children: [
-                  HugeIcon(icon: HugeIcons.strokeRoundedNotification01, color: palette.info),
-                  const SizedBox(width: BusinSpace.x3),
-                  Expanded(child: Text(l10n.pushPromptTitle, style: text.titleMedium)),
-                ],
-              ),
-              const SizedBox(height: BusinSpace.x2),
-              Text(_denied ? l10n.pushPromptDenied : l10n.pushPromptBody, style: text.bodyMedium),
-              const SizedBox(height: BusinSpace.x4),
-              if (!_denied)
-                BusinButton(label: l10n.pushPromptEnable, onPressed: _busy ? null : _enable, loading: _busy, expand: true),
-              BusinButton(
-                label: l10n.pushPromptLater,
-                variant: BusinButtonVariant.ghost,
-                onPressed: _busy ? null : () => dismissPushPrompt(ref),
-                expand: true,
-              ),
-            ],
-          ),
+      child: BusinCard(
+        color: BusinRamps.teal50,
+        padding: const EdgeInsets.all(BusinSpace.x6),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(color: BusinRamps.teal100, borderRadius: BorderRadius.circular(BusinRadius.sm)),
+                  child: const Center(child: HugeIcon(icon: HugeIcons.strokeRoundedNotification01, size: 22, color: ink)),
+                ),
+                const SizedBox(width: BusinSpace.x3),
+                Expanded(child: Text(l10n.pushPromptTitle, style: text.titleMedium?.copyWith(color: ink, fontWeight: FontWeight.w700))),
+              ],
+            ),
+            const SizedBox(height: BusinSpace.x3),
+            Text(_denied ? l10n.pushPromptDenied : l10n.pushPromptBody, style: text.bodyMedium?.copyWith(color: ink)),
+            const SizedBox(height: BusinSpace.x4),
+            if (!_denied) BusinButton(label: l10n.pushPromptEnable, onPressed: _busy ? null : _enable, loading: _busy, expand: true),
+            // Ghost buttons take the page's text colour; on this pale card the label must be dark.
+            Theme(
+              data: Theme.of(context).copyWith(extensions: [BusinPalette.light]),
+              child: BusinButton(label: l10n.pushPromptLater, variant: BusinButtonVariant.ghost, onPressed: _busy ? null : () => dismissPushPrompt(ref), expand: true),
+            ),
+          ],
         ),
       ),
     );

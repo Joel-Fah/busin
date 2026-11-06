@@ -62,7 +62,7 @@ void main() {
 
   testWidgets('an upcoming semester can already be subscribed to, and says when it starts', (tester) async {
     await open(tester, FakeBackend(next: semester(start: '2030-09-01', end: '2031-01-31')));
-    expect(find.text('Subscribe for Fall 2026'), findsOneWidget);
+    expect(find.textContaining('Subscribe for Fall 2026'), findsOneWidget);
     expect(find.textContaining('Starts'), findsOneWidget);
   });
 
@@ -80,7 +80,7 @@ void main() {
 
     await choosePhoto(tester);
     expect(picker.asked, [ProofSource.gallery]);
-    expect(find.text('Change photo'), findsOneWidget);
+    expect(find.text('Photo added'), findsOneWidget);
     expect(sendEnabled(tester), isTrue);
 
     await tester.tap(find.text('Send request'));
@@ -119,7 +119,7 @@ void main() {
   testWidgets('backing out of the camera or gallery changes nothing', (tester) async {
     await open(tester, FakeBackend(current: semester()), picker: FakeProofPicker(null));
     await choosePhoto(tester);
-    expect(find.text('Change photo'), findsNothing);
+    expect(find.text('Photo added'), findsNothing);
     expect(find.text('Add a clear photo of your receipt'), findsOneWidget);
   });
 
