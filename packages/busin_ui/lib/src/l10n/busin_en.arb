@@ -309,6 +309,7 @@
   "pushPromptDenied": "Notifications are off. You can turn them on in your phone's settings.",
   "pushForegroundApproved": "Your subscription was approved.",
   "pushForegroundRejected": "Your school has decided on your subscription.",
+  "liveRevoked": "Your school ended your subscription.",
   "pushForegroundView": "View",
   "navQrShort": "Code",
   "greetMorning": "Good morning",

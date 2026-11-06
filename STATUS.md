@@ -55,6 +55,7 @@ Done this session (all pushed, stacked on each other, no PRs opened yet because 
 
 Asked and answered, not built: realtime on subscription changes. Recommendation: yes, a Realtime subscription filtered to the student's own subscription row while the app is open (push already covers the background); needs the table added to the Realtime publication in a migration. Say go and it becomes its own issue.
 - `phase-3/proof-fix-appearance` (#148 fix, #149 feature): the payment proof thumbnail shows again on the subscription tab (my full-screen preview change had collapsed it; now a test loads a real picture); the profile has Appearance with a theme (system, light, dark) and language (system, English, Francais) choice, remembered on the phone and used for notifications; the profile picture is read from Google at each sign-in and fades in over the initials.
+- `phase-3/realtime-subscription` (#150): while the app is open, a change to the student's own subscription (approved, rejected, ended) refreshes the screens and shows a toast, once even if a push arrives too; `subscriptions` is in the Realtime publication (RLS applies). Applied locally with `migration up`.
 
 Verified: student 207 tests, busin_ui 100, busin_core 47, busin_data 34, portal 222 unit tests, database 215 pgTAP tests, all analyzers clean. On the phone I checked the ticket, My bus (with a demo bus and your stop) and the setup screen. I did not see the scramble animation or the logo hand-off in motion.
 

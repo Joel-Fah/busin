@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../providers.dart';
+import '../subscription/live_changes.dart';
 import '../subscription/subscription_providers.dart';
 import 'push_registrar.dart';
 import 'push_service.dart';
@@ -67,6 +68,10 @@ class _PushBinderState extends ConsumerState<PushBinder> {
       _ => null,
     };
     if (text == null) return;
+    // The live feed may have said it already (both arrive together while the app is open).
+    final status = message.kind == 'subscription_approved' ? 'approved' : 'rejected';
+    final id = message.refId;
+    if (id != null && !ref.read(announcedChangesProvider.notifier).claim(changeKey(id, status))) return;
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(text), action: SnackBarAction(label: l10n.pushForegroundView, onPressed: () => _open(message))));

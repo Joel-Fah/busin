@@ -251,6 +251,7 @@
   "pushPromptDenied": "Les notifications sont désactivées. Vous pouvez les activer dans les réglages de votre téléphone.",
   "pushForegroundApproved": "Votre abonnement a été approuvé.",
   "pushForegroundRejected": "Votre école a statué sur votre abonnement.",
+  "liveRevoked": "Votre école a mis fin à votre abonnement.",
   "pushForegroundView": "Voir",
   "navQrShort": "Code",
   "greetMorning": "Bonjour",
