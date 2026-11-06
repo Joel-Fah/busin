@@ -121,17 +121,68 @@ void main() {
       await openProfile(tester, FakeAuthService(signedInAs: 'u1'), profiles);
       await tester.tap(find.text('Edit details'));
       await tester.pumpAndSettle();
-      final fields = find.byType(TextField);
-      await tester.enterText(fields.at(3), 'Engineering');
+      await tester.enterText(find.byType(TextField).at(1), 'ICT2026-0099');
       await tester.tap(find.text('Save'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 600));
-      expect(profiles.lastUpdate?['department'], 'Engineering');
+      expect(profiles.lastUpdate?['matricule'], 'ICT2026-0099');
       expect(find.text('Details saved.'), findsOneWidget);
       BusinToast.dismiss();
       await tester.pumpAndSettle(const Duration(seconds: 1));
-      expect(find.text('Engineering'), findsOneWidget);
       handle.dispose();
+    });
+
+    testWidgets('the department list depends on the faculty, and the choice is saved', (tester) async {
+      final profiles = FakeProfileRepository({'u1': profile()});
+      await openProfile(tester, FakeAuthService(signedInAs: 'u1'), profiles);
+      await tester.tap(find.text('Edit details'));
+      await tester.pumpAndSettle();
+
+      // Departments cannot be chosen before a faculty.
+      expect(find.text('Choose a faculty first'), findsOneWidget);
+
+      await tester.tap(find.text('Choose your faculty'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Faculty of Business'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Choose your department'));
+      await tester.pumpAndSettle();
+      expect(find.text('Accounting'), findsOneWidget);
+      expect(find.text('Computer Science'), findsNothing, reason: 'that belongs to the other faculty');
+      await tester.tap(find.text('Accounting'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Choose your degree level'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Master'));
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.text('Save'));
+      await tester.tap(find.text('Save'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 600));
+      expect(profiles.lastAcademic, const AcademicChoice(departmentId: 'd3', programId: 'p2'));
+      BusinToast.dismiss();
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+      expect(find.text('Accounting'), findsOneWidget);
+      expect(find.text('Master'), findsOneWidget);
+    });
+
+    testWidgets('changing the faculty forgets the department of the old one', (tester) async {
+      final saved = profile(departmentId: 'd1', programId: 'p1');
+      final profiles = FakeProfileRepository({'u1': saved});
+      await openProfile(tester, FakeAuthService(signedInAs: 'u1'), profiles);
+      await tester.tap(find.text('Edit details'));
+      await tester.pumpAndSettle();
+      expect(find.text('Faculty of Computing'), findsOneWidget, reason: 'derived from the saved department');
+      expect(find.text('Computer Science'), findsWidgets);
+
+      await tester.tap(find.text('Faculty of Computing'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Faculty of Business'));
+      await tester.pumpAndSettle();
+      expect(find.text('Choose your department'), findsOneWidget);
     });
 
     testWidgets('signing out asks first, and Cancel keeps the student signed in', (tester) async {

@@ -9,6 +9,7 @@ library;
 
 export 'src/enums.dart';
 export 'src/geo_point.dart';
+export 'src/models/academic.dart';
 export 'src/models/bus.dart';
 export 'src/models/live_position.dart';
 export 'src/models/profile.dart';

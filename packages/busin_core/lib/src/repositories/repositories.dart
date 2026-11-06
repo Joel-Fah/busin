@@ -1,3 +1,4 @@
+import '../models/academic.dart';
 import 'dart:typed_data';
 
 import '../geo_point.dart';
@@ -31,9 +32,13 @@ abstract interface class ProfileRepository {
     String? fullName,
     String? phone,
     String? matricule,
-    String? department,
-    String? program,
+    AcademicChoice? academic,
   });
+}
+
+abstract interface class AcademicRepository {
+  /// The faculties, departments and degree levels of the caller's school. Small lists: one read, kept for the session.
+  Future<AcademicUnits> load();
 }
 
 abstract interface class SchoolRepository {

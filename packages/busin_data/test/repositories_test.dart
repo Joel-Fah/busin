@@ -144,6 +144,25 @@ void main() {
     });
   });
 
+  group('academic units', () {
+    test('reads the three lists with named columns and builds the choices', () async {
+      final h = Harness((request) async {
+        return switch (request.url.path) {
+          '/rest/v1/faculties' => json([{'id': 'f1', 'name': 'Faculty One', 'code': 'F1'}]),
+          '/rest/v1/departments' => json([{'id': 'd1', 'faculty_id': 'f1', 'name': 'Department One', 'code': null}]),
+          _ => json([{'id': 'p1', 'name': 'Bachelor'}]),
+        };
+      });
+      final units = await h.repos.academic.load();
+      expect(units.departmentsOf('f1').single.name, 'Department One');
+      expect(units.facultyOfDepartment('d1')?.name, 'Faculty One');
+      expect(units.program('p1')?.name, 'Bachelor');
+      for (final r in h.requests) {
+        expect(r.url.queryParameters['select'], isNot('*'));
+      }
+    });
+  });
+
   group('student history', () {
     Map<String, dynamic> scanRow(String id, String at) => {
           'id': id,

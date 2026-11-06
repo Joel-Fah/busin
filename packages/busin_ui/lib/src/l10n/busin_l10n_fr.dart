@@ -159,13 +159,25 @@ class BusinL10nFr extends BusinL10n {
   String get fieldDepartment => 'Département';
 
   @override
-  String get fieldDepartmentHint => 'Facultatif, ex. Ingénierie';
+  String get fieldDepartmentHint => 'Choisissez votre département';
 
   @override
-  String get fieldProgram => 'Filière';
+  String get fieldProgram => 'Programme';
 
   @override
-  String get fieldProgramHint => 'Facultatif, ex. Informatique';
+  String get fieldProgramHint => 'Choisissez votre niveau d\'études';
+
+  @override
+  String get fieldFaculty => 'Faculté';
+
+  @override
+  String get fieldFacultyHint => 'Choisissez votre faculté';
+
+  @override
+  String get fieldDepartmentFirst => 'Choisissez d\'abord une faculté';
+
+  @override
+  String get choiceNone => 'Non renseigné';
 
   @override
   String get fieldTooShort => 'Cela semble trop court.';

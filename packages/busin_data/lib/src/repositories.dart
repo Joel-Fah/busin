@@ -32,13 +32,31 @@ class SupabaseProfileRepository implements ProfileRepository {
     String? fullName,
     String? phone,
     String? matricule,
-    String? department,
-    String? program,
+    AcademicChoice? academic,
   }) =>
       guarded(() async {
-        final changes = Profile.editableJson(fullName: fullName, phone: phone, matricule: matricule, department: department, program: program);
+        final changes = Profile.editableJson(fullName: fullName, phone: phone, matricule: matricule, academic: academic);
         final row = await _client.from('profiles').update(changes).eq('id', userId).select(Columns.profile).single();
         return Profile.fromJson(row);
+      });
+}
+
+class SupabaseAcademicRepository implements AcademicRepository {
+  SupabaseAcademicRepository(this._client);
+  final SupabaseClient _client;
+
+  @override
+  Future<AcademicUnits> load() => guarded(() async {
+        final results = await Future.wait([
+          _client.from('faculties').select(Columns.faculty).order('name'),
+          _client.from('departments').select(Columns.department).order('name'),
+          _client.from('programs').select(Columns.program).order('sort_order').order('name'),
+        ]);
+        return AcademicUnits(
+          faculties: _rows(results[0]).map(Faculty.fromJson).toList(),
+          departments: _rows(results[1]).map(Department.fromJson).toList(),
+          programs: _rows(results[2]).map(Program.fromJson).toList(),
+        );
       });
 }
 

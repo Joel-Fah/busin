@@ -41,6 +41,8 @@ Done this session (all pushed, stacked on each other, no PRs opened yet because 
 - `phase-3/my-bus-redesign` (#134): My bus with ETA, 3D markers, dark map, compact card.
 - `phase-3/student-profile` (#135): first-login setup, profile page, landing on the code, code scramble, "Show the bus" only when needed.
 - `phase-3/revoke-subscription` (#136): revoke an approved subscription (database, portal, student app).
+- `phase-3/toast-polish` (#137): the portal toast eases in and out, a themed close button with a countdown ring (no track, no outline); the app toast has the same ring and a gentler curve.
+- `phase-3/academic-units` (#138): faculties, departments and degree levels per school; the admin manages them on a new Faculties page of the portal; students pick faculty, then a department of it, then a degree level (setup and profile). Demo data: ICT and BMS faculties with full department names. Applied locally with `migration up` (no reset).
 
 Verified: student 207 tests, busin_ui 100, busin_core 47, busin_data 34, portal 222 unit tests, database 215 pgTAP tests, all analyzers clean. On the phone I checked the ticket, My bus (with a demo bus and your stop) and the setup screen. I did not see the scramble animation or the logo hand-off in motion.
 
@@ -55,4 +57,4 @@ Owner must do:
 - Thiings licence: the free licence is personal and non-commercial and requires credit (credited on the profile page). Before a commercial release you need the Indie licence (one-time, thiings.co/pricing) or the art must be replaced. Nothing was bought.
 - Try on the phone: the boarding code scramble, the logo hand-off, revoke from the portal (Subscriptions, an approved one), and the profile page.
 - Scan the new round-dot code with the ops scanner when it exists (OpenCV decodes it).
-- Still pending from before: hosted migrations approval (now also the revoke one), ADR 0010 review, Firebase key for the push test, iOS push setup.
+- Still pending from before: hosted migrations approval (now also the revoke and academic units ones; the academic units one stops clients writing the free-text department and program, so the student app must be released with it), ADR 0010 review, Firebase key for the push test, iOS push setup.

@@ -53,6 +53,32 @@ insert into auth.identities (id, user_id, provider_id, provider, identity_data, 
 select gen_random_uuid(), id, id::text, 'google', jsonb_build_object('sub', id::text, 'email', email), now(), now(), now()
 from demo_people;
 
+-- ---------------------------------------------------------------- faculties, departments, degree levels
+insert into public.faculties (id, school_id, name, code) values
+  ('de600000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-000000000001', 'Faculty of Information and Communication Technology', 'ICT'),
+  ('de600000-0000-4000-8000-000000000002', '00000000-0000-4000-8000-000000000001', 'Faculty of Business and Management Sciences', 'BMS')
+on conflict (id) do nothing;
+
+insert into public.departments (id, school_id, faculty_id, name, code) values
+  ('de400000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-000000000001', 'de600000-0000-4000-8000-000000000001', 'Computer Science', 'CSC'),
+  ('de400000-0000-4000-8000-000000000002', '00000000-0000-4000-8000-000000000001', 'de600000-0000-4000-8000-000000000001', 'Software Engineering', 'SEN'),
+  ('de400000-0000-4000-8000-000000000003', '00000000-0000-4000-8000-000000000001', 'de600000-0000-4000-8000-000000000001', 'Cybersecurity', 'CYS'),
+  ('de400000-0000-4000-8000-000000000004', '00000000-0000-4000-8000-000000000001', 'de600000-0000-4000-8000-000000000001', 'Information Systems and Networks', 'ISN'),
+  ('de400000-0000-4000-8000-000000000005', '00000000-0000-4000-8000-000000000001', 'de600000-0000-4000-8000-000000000001', 'Information and Communication Technology', 'ICT'),
+  ('de400000-0000-4000-8000-000000000006', '00000000-0000-4000-8000-000000000001', 'de600000-0000-4000-8000-000000000002', 'Accounting and Finance', 'ACF'),
+  ('de400000-0000-4000-8000-000000000007', '00000000-0000-4000-8000-000000000001', 'de600000-0000-4000-8000-000000000002', 'Marketing and Communication', 'MKC'),
+  ('de400000-0000-4000-8000-000000000008', '00000000-0000-4000-8000-000000000001', 'de600000-0000-4000-8000-000000000002', 'Human Resource Management', 'HRM'),
+  ('de400000-0000-4000-8000-000000000009', '00000000-0000-4000-8000-000000000001', 'de600000-0000-4000-8000-000000000002', 'Banking and Insurance', 'BNI'),
+  ('de400000-0000-4000-8000-000000000010', '00000000-0000-4000-8000-000000000001', 'de600000-0000-4000-8000-000000000002', 'Entrepreneurship and Innovation', 'ENI'),
+  ('de400000-0000-4000-8000-000000000011', '00000000-0000-4000-8000-000000000001', 'de600000-0000-4000-8000-000000000002', 'Logistics and Supply Chain Management', 'LSC')
+on conflict (id) do nothing;
+
+insert into public.programs (id, school_id, name, sort_order) values
+  ('de500000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-000000000001', 'Bachelor', 1),
+  ('de500000-0000-4000-8000-000000000002', '00000000-0000-4000-8000-000000000001', 'Master', 2),
+  ('de500000-0000-4000-8000-000000000003', '00000000-0000-4000-8000-000000000001', 'Doctorate', 3)
+on conflict (id) do nothing;
+
 update public.profiles p
 set role = d.role::public.user_role,
     full_name = d.first_name || ' ' || d.last_name,
@@ -63,9 +89,10 @@ set role = d.role::public.user_role,
       else 'verified' end::public.account_status,
     phone = '+2376' || lpad((70000000 + abs(d.n) * 137911 % 29999999)::text, 8, '0'),
     matricule = case when d.role = 'student' then 'ICTU2026' || lpad(d.n::text, 4, '0') end,
-    department = case when d.role = 'student'
-      then (array['Computer Science','Software Engineering','Networks and Telecoms','Business Administration'])[1 + d.n % 4] end,
-    program = case when d.role = 'student' then (array['BSc','BSc','BSc','MSc'])[1 + d.n % 4] end
+    department_id = case when d.role = 'student'
+      then ('de400000-0000-4000-8000-' || lpad((1 + d.n % 11)::text, 12, '0'))::uuid end,
+    program_id = case when d.role = 'student'
+      then ('de500000-0000-4000-8000-' || lpad((case when d.n % 4 = 3 then 2 else 1 end)::text, 12, '0'))::uuid end
 from demo_people d
 where p.id = d.id;
 
