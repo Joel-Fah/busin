@@ -227,6 +227,12 @@ class BusinL10nEn extends BusinL10n {
   String get fieldRequired => 'This field is required.';
 
   @override
+  String get loadingSlowTitle => 'This is taking longer than usual';
+
+  @override
+  String get loadingSlowBody => 'Check your connection. BusIn keeps trying.';
+
+  @override
   String get loadingLabel => 'Loading';
 
   @override

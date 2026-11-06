@@ -101,8 +101,14 @@ class FakeProfileRepository implements ProfileRepository {
   final AcademicUnits units;
   Object? error;
 
+  /// When set, the profile is not given until this completes (a slow or unreachable backend).
+  Completer<void>? hold;
+  int reads = 0;
+
   @override
   Future<Profile> getProfile(String userId) async {
+    reads++;
+    if (hold != null) await hold!.future;
     if (error != null) throw error!;
     return byId[userId] ?? (throw const NotFound('profile'));
   }

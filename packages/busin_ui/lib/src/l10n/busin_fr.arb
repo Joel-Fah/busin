@@ -69,6 +69,8 @@
   "profileSignOutBody": "Vous devrez vous reconnecter avec Google.",
   "profileCredits": "Illustrations 3D par Thiings (thiings.co)",
   "fieldRequired": "Ce champ est obligatoire.",
+  "loadingSlowTitle": "Cela prend plus de temps que d’habitude",
+  "loadingSlowBody": "Vérifiez votre connexion. BusIn continue d’essayer.",
   "loadingLabel": "Chargement",
   "appName": "BusIn",
   "signInTitle": "Montez à bord. BusIn s’occupe du reste.",
