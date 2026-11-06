@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { BackLink } from "@/components/ui/BackLink";
 import { ListSkeleton } from "@/components/ui/ListSkeleton";
+import { FlashToast } from "@/components/FlashToast";
 import { Notice } from "@/components/ui/Notice";
 import { PageHeader } from "@/components/ui/PageHeader";
 
@@ -60,7 +61,7 @@ async function SemesterDetail({ params, searchParams }: { params: Params; search
       <BackLink href="/semesters">{t.semesters.form.back}</BackLink>
       <PageHeader title={`${t.semester[semester.name]} ${semester.year}`} />
 
-      {done ? <Notice tone="ok">{t.semesters.done[done]}</Notice> : null}
+      {done ? <FlashToast message={t.semesters.done[done]} /> : null}
       {errorKey ? <Notice tone="bad">{t.semesters.errors[errorKey]}</Notice> : null}
 
       <SemesterForm

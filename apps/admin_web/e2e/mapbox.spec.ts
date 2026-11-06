@@ -37,7 +37,8 @@ test("one map is created for the tab and reused across the stops pages", async (
   const nav = page.getByRole("navigation", { name: "Main navigation" });
   await nav.getByRole("link", { name: "Trips", exact: true }).click();
   await expect(page).toHaveURL(/\/trips$/);
-  await nav.getByRole("link", { name: "Stops", exact: true }).click();
+  await nav.getByRole("link", { name: "Profile", exact: true }).click();
+  await page.getByRole("link", { name: /^Stops/ }).click();
   await expect(page).toHaveURL(/\/stops$/);
   await expect(page.locator(".mapboxgl-canvas")).toBeVisible({ timeout: 30_000 });
 

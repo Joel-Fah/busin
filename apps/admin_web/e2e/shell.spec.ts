@@ -15,7 +15,7 @@ test.afterAll(async () => {
   await deleteUser(admin);
 });
 
-const TABS = ["Overview", "Subscriptions", "People", "Stops", "Trips", "Boardings", "Semesters", "Buses"];
+const TABS = ["Overview", "Subscriptions", "People", "Trips", "Boardings"];
 
 test.describe("floating navigation on a wide screen", () => {
   test.use({ viewport: { width: 1280, height: 800 } });
@@ -29,7 +29,7 @@ test.describe("floating navigation on a wide screen", () => {
     const nav = page.getByRole("navigation", { name: "Main navigation" });
     for (const name of TABS) await expect(nav.getByRole("link", { name, exact: true })).toBeVisible();
     await expect(nav.getByRole("link", { name: "Trips", exact: true })).toHaveAttribute("aria-current", "page");
-    await expect(nav.getByRole("link", { name: "Buses", exact: true })).not.toHaveAttribute("aria-current", "page");
+    await expect(nav.getByRole("link", { name: "Subscriptions", exact: true })).not.toHaveAttribute("aria-current", "page");
   });
 
   test("the profile tab has a label like the others", async ({ page }) => {
@@ -62,8 +62,8 @@ test.describe("floating navigation on a wide screen", () => {
     };
     await expect(indicator).toHaveCSS("opacity", "1");
     await near("Trips");
-    await nav.getByRole("link", { name: "Buses", exact: true }).click();
-    await near("Buses");
+    await nav.getByRole("link", { name: "Subscriptions", exact: true }).click();
+    await near("Subscriptions");
     await nav.getByRole("link", { name: "Profile", exact: true }).click();
     await near("Profile");
   });
@@ -80,9 +80,19 @@ test.describe("floating navigation on a wide screen", () => {
   test("moves between pages and keeps its place", async ({ page }) => {
     await page.goto("/");
     const nav = page.getByRole("navigation", { name: "Main navigation" });
-    await nav.getByRole("link", { name: "Semesters", exact: true }).click();
+    await nav.getByRole("link", { name: "Trips", exact: true }).click();
+    await expect(page).toHaveURL(/\/trips$/);
+    await expect(nav.getByRole("link", { name: "Trips", exact: true })).toHaveAttribute("aria-current", "page");
+  });
+
+  test("setup pages are tiles on the profile, and the Profile tab stays lit on them", async ({ page }) => {
+    await page.goto("/");
+    const nav = page.getByRole("navigation", { name: "Main navigation" });
+    for (const gone of ["Stops", "Buses", "Semesters", "Faculties"]) await expect(nav.getByRole("link", { name: gone, exact: true })).toHaveCount(0);
+    await nav.getByRole("link", { name: "Profile", exact: true }).click();
+    await page.getByRole("link", { name: /^Semesters/ }).click();
     await expect(page).toHaveURL(/\/semesters$/);
-    await expect(nav.getByRole("link", { name: "Semesters", exact: true })).toHaveAttribute("aria-current", "page");
+    await expect(nav.getByRole("link", { name: "Profile", exact: true })).toHaveAttribute("aria-current", "page");
   });
 
   test("stays at the bottom of the screen while the page scrolls", async ({ page }) => {
@@ -172,14 +182,14 @@ for (const [label, width, height] of [
       await page.goto("/trips");
       const nav = page.getByRole("navigation", { name: "Main navigation" });
       await expect(nav.locator("p", { hasText: "You are on Trips" })).toBeVisible();
-      await expect(nav.getByRole("link", { name: "Buses", exact: true })).toBeHidden();
+      await expect(nav.getByRole("link", { name: "People", exact: true })).toBeHidden();
 
       await nav.getByRole("button", { name: "Menu" }).click();
       for (const name of TABS) await expect(nav.getByRole("link", { name, exact: true })).toBeVisible();
 
-      await nav.getByRole("link", { name: "Buses", exact: true }).click();
-      await expect(page).toHaveURL(/\/buses$/);
-      await expect(nav.getByRole("link", { name: "Buses", exact: true })).toBeHidden();
+      await nav.getByRole("link", { name: "People", exact: true }).click();
+      await expect(page).toHaveURL(/\/people$/);
+      await expect(nav.getByRole("link", { name: "People", exact: true })).toBeHidden();
     });
 
     test("closes the menu with Escape", async ({ page }) => {
@@ -230,7 +240,7 @@ test.describe("opening animation", () => {
 
   test("the indicator stretches while it travels between far tabs", async ({ page }) => {
     // Visit the target first so the dev server has compiled it and the slide starts right after the click.
-    await page.goto("/buses");
+    await page.goto("/scans");
     await page.goto("/");
     await page.mouse.click(10, 10);
     await expect(page.locator(".brand-intro")).toBeHidden({ timeout: 8000 });
@@ -238,9 +248,9 @@ test.describe("opening animation", () => {
     await expect(nav).toHaveCSS("opacity", "1", { timeout: 8000 });
     const indicator = nav.getByTestId("nav-indicator");
     const start = (await indicator.boundingBox())!;
-    const target = (await nav.getByRole("link", { name: "Buses", exact: true }).boundingBox())!;
+    const target = (await nav.getByRole("link", { name: "Boardings", exact: true }).boundingBox())!;
 
-    await nav.getByRole("link", { name: "Buses", exact: true }).click();
+    await nav.getByRole("link", { name: "Boardings", exact: true }).click();
     let widest = 0;
     for (let i = 0; i < 60; i++) {
       const box = await indicator.boundingBox();

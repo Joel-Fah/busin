@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { BusForm } from "@/components/BusForm";
 import { BackLink } from "@/components/ui/BackLink";
 import { ListSkeleton } from "@/components/ui/ListSkeleton";
+import { FlashToast } from "@/components/FlashToast";
 import { Notice } from "@/components/ui/Notice";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { requireAdmin } from "@/lib/auth";
@@ -60,7 +61,7 @@ async function BusDetail({ params, searchParams }: { params: Params; searchParam
       <BackLink href="/buses">{t.buses.form.back}</BackLink>
       <PageHeader title={bus.plate} />
 
-      {done ? <Notice tone="ok">{t.buses.done[done]}</Notice> : null}
+      {done ? <FlashToast message={t.buses.done[done]} /> : null}
       {errorKey ? <Notice tone="bad">{t.buses.errors[errorKey]}</Notice> : null}
 
       <BusForm action={updateBus} t={t} bus={{ id: bus.id, plate: bus.plate, capacity: bus.capacity, inService: bus.in_service }} />
