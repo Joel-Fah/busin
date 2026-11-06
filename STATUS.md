@@ -44,6 +44,7 @@ Done this session (all pushed, stacked on each other, no PRs opened yet because 
 - `phase-3/toast-polish` (#137): the portal toast eases in and out, a themed close button with a countdown ring (no track, no outline); the app toast has the same ring and a gentler curve.
 - `phase-3/academic-units` (#138): faculties, departments and degree levels per school; the admin manages them on a new Faculties page of the portal; students pick faculty, then a department of it, then a degree level (setup and profile). Demo data: ICT and BMS faculties with full department names. Applied locally with `migration up` (no reset).
 - `phase-3/admin-nav-profile` (#139): the portal bar keeps Overview, Subscriptions, People, Trips and Boardings; Stops, Buses, Semesters and Faculties and departments are tiles on the profile (the Profile tab stays lit on those pages); saved confirmations in the portal now appear as toasts.
+- `phase-3/student-nav-profile` (#140): student bottom bar is Subscription, Code, My bus, Profile; boarding history opens from a tile in the profile as its own page; the avatar shortcut on the subscription banner is gone.
 
 Verified: student 207 tests, busin_ui 100, busin_core 47, busin_data 34, portal 222 unit tests, database 215 pgTAP tests, all analyzers clean. On the phone I checked the ticket, My bus (with a demo bus and your stop) and the setup screen. I did not see the scramble animation or the logo hand-off in motion.
 

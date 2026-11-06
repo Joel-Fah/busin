@@ -93,14 +93,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: Routes.problem, builder: (_, _) => const ProblemScreen()),
       GoRoute(path: Routes.setup, builder: (_, _) => const SetupScreen()),
       GoRoute(path: Routes.start, builder: (_, _) => const LandingScreen()),
-      GoRoute(path: Routes.profile, builder: (_, _) => const ProfileScreen()),
+      GoRoute(path: Routes.history, builder: (_, _) => const HistoryPage()),
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => HomeShell(shell: shell),
         branches: [
           StatefulShellBranch(routes: [GoRoute(path: Routes.subscription, builder: (_, _) => const SubscriptionScreen())]),
           StatefulShellBranch(routes: [GoRoute(path: Routes.qr, builder: (_, _) => const QrScreen())]),
-          StatefulShellBranch(routes: [GoRoute(path: Routes.history, builder: (_, _) => const HistoryScreen())]),
           StatefulShellBranch(routes: [GoRoute(path: Routes.bus, builder: (_, _) => const BusScreen())]),
+          StatefulShellBranch(routes: [GoRoute(path: Routes.profile, builder: (_, _) => const ProfileScreen())]),
         ],
       ),
     ],

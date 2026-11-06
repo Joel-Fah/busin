@@ -98,21 +98,36 @@ void main() {
   group('profile', () {
     Future<void> openProfile(WidgetTester tester, FakeAuthService auth, FakeProfileRepository profiles, {Size size = const Size(800, 1800)}) async {
       await open(tester, auth, profiles, size: size);
-      expect(find.byWidgetPredicate((w) => w is Semantics && w.properties.label == 'Open your profile' && w.properties.button == true), findsOneWidget);
-      await tester.tap(find.text('TP'));
+      await tester.tap(find.text('Profile'));
       await tester.pumpAndSettle();
     }
 
-    testWidgets('opens from the avatar and shows the student\'s details', (tester) async {
+    testWidgets('opens from the bottom bar and shows the student\'s details', (tester) async {
       final handle = tester.ensureSemantics();
       await openProfile(tester, FakeAuthService(signedInAs: 'u1'), FakeProfileRepository({'u1': profile()}));
-      expect(find.text('Your profile'), findsOneWidget);
       expect(find.text('Test Person'), findsOneWidget);
       expect(find.text('u1@school.edu'), findsOneWidget);
       expect(find.text('ICT2026-0001'), findsOneWidget);
       expect(find.text('677123456'), findsOneWidget);
       expect(find.text('Not set'), findsNWidgets(2), reason: 'department and program');
       handle.dispose();
+    });
+
+    testWidgets('the history is inside the profile, opens as its own page and comes back', (tester) async {
+      await openProfile(tester, FakeAuthService(signedInAs: 'u1'), FakeProfileRepository({'u1': profile()}));
+      // Four tabs, and history is not one of them.
+      for (final label in ['Subscription', 'Code', 'My bus', 'Profile']) {
+        expect(find.text(label), findsWidgets, reason: label);
+      }
+      expect(find.text('History'), findsNothing);
+
+      await tester.tap(find.text('Boarding history'));
+      await tester.pumpAndSettle();
+      expect(find.text('History'), findsOneWidget, reason: 'the page title');
+
+      await tester.tap(find.byType(BackButton));
+      await tester.pumpAndSettle();
+      expect(find.text('Boarding history'), findsOneWidget);
     });
 
     testWidgets('editing saves and confirms with a toast', (tester) async {

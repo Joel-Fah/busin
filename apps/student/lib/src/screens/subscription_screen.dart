@@ -33,26 +33,6 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
     await ref.read(subscriptionOverviewProvider.future).catchError((_) => const SubscriptionOverview.none());
   }
 
-  /// The student's avatar in the banner's corner: it opens their profile.
-  Widget? _profileButton(BusinL10n l10n) {
-    final access = ref.watch(accessProvider);
-    if (access is! Allowed) return null;
-    return Semantics(
-      button: true,
-      label: l10n.profileOpen,
-      child: GestureDetector(
-        onTap: () {
-          BusinHaptics.light();
-          context.push(Routes.profile);
-        },
-        child: DecoratedBox(
-          decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.white.withValues(alpha: 0.6), width: 2)),
-          child: ExcludeSemantics(child: UserAvatar(name: access.profile.fullName, imageUrl: access.profile.avatarUrl, size: 40)),
-        ),
-      ),
-    );
-  }
-
   /// The greeting for the hour it is at the school, with the student's first name.
   String _greeting(BusinL10n l10n) {
     final access = ref.watch(accessProvider);
@@ -106,7 +86,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: padding,
                 children: [
-                  BusinBanner(title: _greeting(l10n), eyebrow: MaterialLocalizations.of(context).formatFullDate(DateTime.now()), art: BusinIllustration.semester, trailing: _profileButton(l10n)),
+                  BusinBanner(title: _greeting(l10n), eyebrow: MaterialLocalizations.of(context).formatFullDate(DateTime.now()), art: BusinIllustration.semester),
                   const SizedBox(height: BusinSpace.x4),
                   EmptyState(illustration: BusinIllustration.semester, title: l10n.subscriptionNoSemesterTitle, body: l10n.subscriptionNoSemesterBody),
                 ],
@@ -132,7 +112,6 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
               title: _greeting(l10n),
               body: [showForm ? l10n.subscribeHeading(name) : name, if (data.upcoming) l10n.subscriptionStarts(material.formatMediumDate(semester.startDate))].join('\n'),
               art: art,
-              trailing: _profileButton(l10n),
             );
 
             final main = Column(

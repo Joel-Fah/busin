@@ -83,7 +83,7 @@ void main() {
         expect(find.byType(BusinNavRail), wide ? findsOneWidget : findsNothing);
         expect(find.byType(FloatingNavBar), wide ? findsNothing : findsOneWidget);
 
-        for (final label in ['Code', 'History', 'My bus', 'Subscription']) {
+        for (final label in ['Code', 'Profile', 'My bus', 'Subscription']) {
           await tester.tap(find.text(label).first);
           await tester.pump(const Duration(milliseconds: 700));
           await tester.pump(const Duration(milliseconds: 300));

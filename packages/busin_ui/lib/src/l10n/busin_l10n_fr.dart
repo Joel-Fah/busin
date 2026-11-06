@@ -285,6 +285,16 @@ class BusinL10nFr extends BusinL10n {
   String get navHistory => 'Historique';
 
   @override
+  String get navProfile => 'Profil';
+
+  @override
+  String get profileHistory => 'Historique des trajets';
+
+  @override
+  String get profileHistoryBody =>
+      'Chacune de vos montées, de la plus récente à la plus ancienne.';
+
+  @override
   String get navBus => 'Mon bus';
 
   @override

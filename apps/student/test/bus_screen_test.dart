@@ -178,7 +178,7 @@ void main() {
     await openBus(tester, rig);
     expect(rig.live.subscribed, ['bus1']);
 
-    await tester.tap(find.text('History'));
+    await tester.tap(find.text('Profile'));
     await tester.pumpAndSettle();
     expect(rig.live.cancelled, ['bus1'], reason: 'nothing is listening in the background');
 

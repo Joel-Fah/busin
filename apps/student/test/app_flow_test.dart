@@ -97,7 +97,7 @@ void main() {
 
   testWidgets('all four destinations are reachable and the app speaks French', (tester) async {
     await open(tester, FakeAuthService(signedInAs: 'u1'), FakeProfileRepository({'u1': profile()}), locale: const Locale('fr'));
-    for (final label in ['Code', 'Historique', 'Mon bus', 'Abonnement']) {
+    for (final label in ['Code', 'Profil', 'Mon bus', 'Abonnement']) {
       await tester.tap(find.text(label));
       await tester.pumpAndSettle();
       expect(find.byType(FloatingNavBar), findsOneWidget, reason: label);
