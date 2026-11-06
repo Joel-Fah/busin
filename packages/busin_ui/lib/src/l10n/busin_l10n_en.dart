@@ -375,6 +375,12 @@ class BusinL10nEn extends BusinL10n {
   }
 
   @override
+  String get proofView => 'View your payment proof full screen';
+
+  @override
+  String get proofClose => 'Close';
+
+  @override
   String get subscriptionProofTitle => 'Your payment proof';
 
   @override
