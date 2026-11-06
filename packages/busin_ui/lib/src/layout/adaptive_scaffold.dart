@@ -35,6 +35,7 @@ class AdaptiveScaffold extends StatelessWidget {
     required this.onDestinationSelected,
     required this.body,
     this.railHeader,
+    this.pinLastToRailEnd = false,
   });
 
   final List<BusinDestination> destinations;
@@ -44,6 +45,9 @@ class AdaptiveScaffold extends StatelessWidget {
 
   /// The brand mark shown on top of the rail.
   final Widget? railHeader;
+
+  /// On the rail, puts the last destination at the bottom end, apart from the rest.
+  final bool pinLastToRailEnd;
 
   /// Space around the floating bar.
   static const double barMargin = 16;
@@ -63,7 +67,7 @@ class AdaptiveScaffold extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                BusinNavRail(destinations: destinations, currentIndex: currentIndex, onSelected: onDestinationSelected, header: railHeader),
+                BusinNavRail(destinations: destinations, currentIndex: currentIndex, onSelected: onDestinationSelected, header: railHeader, pinLast: pinLastToRailEnd),
                 const SizedBox(width: BusinSpace.x3),
                 Expanded(child: BusinScope(layout: layout, bottomInset: 0, child: body)),
               ],

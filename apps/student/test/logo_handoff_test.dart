@@ -1,4 +1,3 @@
-import 'package:busin_student/src/auth/auth_service.dart';
 import 'package:busin_student/src/providers.dart';
 import 'package:busin_student/src/screens/sign_in_screen.dart';
 import 'package:busin_ui/busin_ui.dart';
