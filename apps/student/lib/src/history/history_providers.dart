@@ -121,4 +121,4 @@ class ScanHistory extends AsyncNotifier<HistoryState> {
   }
 }
 
-final scanHistoryProvider = AsyncNotifierProvider.autoDispose<ScanHistory, HistoryState>(ScanHistory.new);
+final scanHistoryProvider = AsyncNotifierProvider.autoDispose<ScanHistory, HistoryState>(ScanHistory.new, retry: noAutomaticRetry);

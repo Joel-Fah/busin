@@ -566,6 +566,14 @@ class FakeSecretStore implements SecretStore {
   @override
   Future<void> write(String userId, Uint8List secret) async => data[userId] = secret;
 
+  final List<String> deleted = [];
+
+  @override
+  Future<void> delete(String userId) async {
+    deleted.add(userId);
+    data.remove(userId);
+  }
+
   @override
   Future<void> deleteAll() async {
     deleteAllCalls++;

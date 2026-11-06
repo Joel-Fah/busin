@@ -26,7 +26,7 @@ class RunningBus {
 final canFollowBusesProvider = FutureProvider.autoDispose<bool>((ref) async {
   if (ref.watch(accessProvider) is! Allowed) return false;
   return ref.watch(livePositionsRepositoryProvider).canFollowBuses();
-});
+}, retry: noAutomaticRetry);
 
 /// The buses on a trip right now at the student's school, with their plates. A school runs a handful at a time.
 final runningBusesProvider = FutureProvider.autoDispose<List<RunningBus>>((ref) async {
@@ -36,7 +36,7 @@ final runningBusesProvider = FutureProvider.autoDispose<List<RunningBus>>((ref) 
   final buses = await ref.watch(busesRepositoryProvider).listByIds({for (final t in trips) t.busId}.toList());
   final byId = {for (final b in buses) b.id: b};
   return [for (final t in trips) RunningBus(trip: t, bus: byId[t.busId])];
-});
+}, retry: noAutomaticRetry);
 
 /// The bus the student picked by hand, if any.
 class SelectedBus extends Notifier<String?> {
@@ -63,7 +63,7 @@ final defaultBusIdProvider = FutureProvider.autoDispose<String?>((ref) async {
     }
   }
   return running.first.busId;
-});
+}, retry: noAutomaticRetry);
 
 /// The bus on screen: the student's pick if it is still running, otherwise the default.
 final currentBusProvider = FutureProvider.autoDispose<RunningBus?>((ref) async {
@@ -77,7 +77,7 @@ final currentBusProvider = FutureProvider.autoDispose<RunningBus?>((ref) async {
   }
   final fallback = await ref.watch(defaultBusIdProvider.future);
   return running.firstWhere((r) => r.busId == fallback, orElse: () => running.first);
-});
+}, retry: noAutomaticRetry);
 
 /// The live position of one bus. The subscription is filtered to that bus on the server, and it ends
 /// when the screen goes away, so a phone never receives other buses' positions or keeps listening in the background.
@@ -94,7 +94,7 @@ final myStopProvider = FutureProvider.autoDispose<Stop?>((ref) async {
   if (live == null) return null;
   final stops = await ref.watch(stopsProvider.future);
   return stops.where((s) => s.id == live.stopId).firstOrNull;
-});
+}, retry: noAutomaticRetry);
 
 // ---------------------------------------------------------------- plain helpers
 

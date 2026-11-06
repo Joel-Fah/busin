@@ -133,7 +133,7 @@ void main() {
     expect(shownCode(tester), first);
   });
 
-  testWidgets('fetches the secret once, keeps it for this user, and later needs no connection', (tester) async {
+  testWidgets('the server is asked, the secret is kept for this user, and without a connection the kept one is used', (tester) async {
     final qr = FakeQr();
     final store = FakeSecretStore();
     await openQr(tester, qr: qr, store: store);
@@ -141,11 +141,86 @@ void main() {
     expect(store.data.keys, ['u1']);
     expect(store.data['u1'], testSecret());
 
-    // A later start finds it on the phone, even with the network gone.
+    // Later with no network at all: the phone's own copy keeps the code working.
     final offline = FakeQr()..error = const Offline('down');
     await openQr(tester, qr: offline, store: store);
-    expect(offline.fetches, 0);
+    expect(offline.fetches, 1, reason: 'it asked first');
     expect(shownCode(tester), codeAt(noon));
+  });
+
+  testWidgets('a student whose subscription was taken away loses the code and the phone forgets the secret', (tester) async {
+    final store = FakeSecretStore()..data['u1'] = testSecret();
+    await openQr(tester, qr: FakeQr()..error = const NotAllowed('no sub'), store: store);
+
+    expect(find.byKey(const ValueKey('boarding-code')), findsNothing, reason: 'the kept secret is not enough');
+    expect(find.text('No active subscription'), findsOneWidget);
+    expect(store.deleted, ['u1']);
+    expect(store.data, isEmpty);
+  });
+
+  testWidgets('a refusal is asked once, not again and again in the background', (tester) async {
+    final qr = FakeQr()..error = const NotAllowed('no sub');
+    await openQr(tester, qr: qr);
+    final after = qr.fetches;
+    await tester.pump(const Duration(seconds: 30));
+    expect(qr.fetches, after, reason: 'only the person asking again (Try again, pull down, coming back) asks again');
+  });
+
+  testWidgets('a server error is not a reason to show the kept code', (tester) async {
+    final store = FakeSecretStore()..data['u1'] = testSecret();
+    await openQr(tester, qr: FakeQr()..error = const Unexpected('boom'), store: store);
+    expect(find.byKey(const ValueKey('boarding-code')), findsNothing);
+    expect(find.text('Try again'), findsOneWidget);
+    expect(store.data, isNotEmpty, reason: 'nothing was deleted: it may be a hiccup');
+  });
+
+  testWidgets('revoked while the code is on screen: it locks at once', (tester) async {
+    final qr = FakeQr();
+    final backend = FakeBackend(current: semester(), mine: [subscription(status: SubscriptionStatus.approved)]);
+    final store = FakeSecretStore();
+    tester.view.physicalSize = const Size(800, 1800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        key: UniqueKey(),
+        overrides: overridesFor(FakeAuthService(signedInAs: 'u1'), FakeProfileRepository({'u1': profile()}), qr: qr, store: store, backend: backend, clock: TestClock(noon)),
+        child: const StudentApp(),
+      ),
+    );
+    for (var i = 0; i < 12; i++) {
+      await tester.pump(const Duration(milliseconds: 200));
+    }
+    expect(shownCode(tester), codeAt(noon));
+
+    // The school revokes: the server now refuses, and the live feed tells the app.
+    qr.error = const NotAllowed('revoked');
+    final ended = subscription(status: SubscriptionStatus.revoked, note: 'Payment reversed');
+    backend.mine[0] = ended;
+    backend.emitLive([ended]);
+    for (var i = 0; i < 10; i++) {
+      await tester.pump(const Duration(milliseconds: 200));
+    }
+
+    expect(find.byKey(const ValueKey('boarding-code')), findsNothing, reason: 'the pass is locked');
+    expect(find.text('No active subscription'), findsOneWidget);
+    expect(store.data, isEmpty);
+    BusinToast.dismiss();
+    await tester.pump();
+  });
+
+  testWidgets('coming back to the tab asks again, so a revoke while away is noticed', (tester) async {
+    final qr = FakeQr();
+    await openQr(tester, qr: qr);
+    expect(shownCode(tester), codeAt(noon));
+
+    await tester.tap(find.text('Profile'));
+    await tester.pumpAndSettle();
+    qr.error = const NotAllowed('revoked');
+    await tester.tap(find.text('Code'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('boarding-code')), findsNothing);
+    expect(find.text('No active subscription'), findsOneWidget);
   });
 
   testWidgets('another user\'s stored secret is never used', (tester) async {
