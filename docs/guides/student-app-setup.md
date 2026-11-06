@@ -26,13 +26,16 @@ The school's email domain must be in `school_domains` or the server refuses the 
 
 ## 3. Reaching the local backend from a phone
 
-`127.0.0.1` on a phone or emulator is the phone itself. Forward the port over USB (or the emulator bridge) so the same `config/dev.json` works:
+`127.0.0.1` on a phone or emulator is the phone itself, so the backend and portal ports are forwarded over USB. One command does everything:
 
 ```bash
-adb reverse tcp:54321 tcp:54321
+npm run dev:device                  # student app on the connected device
+npm run dev:device -- ops           # ops app
+npm run dev:device -- --device ID   # pick one when several are connected (or --all)
+npm run dev:device -- --no-run      # only check the backend and set up the tunnels
 ```
 
-Run it each time the device reconnects. Google sign-in also needs the Web client id and secret in `supabase/.env` (see the Google sign-in guide) with the local backend started.
+It checks the local backend (and starts it if Docker is running), runs `adb reverse` for ports 54321 and 3000 on each device, starts the app with `config/dev.json`, and restores the tunnels whenever a USB reset drops them while the app runs. By hand, the equivalent is `adb reverse tcp:54321 tcp:54321`, repeated on every reconnect. Google sign-in also needs the Web client id and secret in `supabase/.env` (see the Google sign-in guide) with the local backend started.
 
 ## 4. Local backend
 
