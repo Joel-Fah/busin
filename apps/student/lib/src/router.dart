@@ -88,7 +88,9 @@ final routerProvider = Provider<GoRouter>((ref) {
         GoRoute(path: '${Routes.previewPrefix}problem', builder: (_, _) => const ProblemScreen()),
         GoRoute(path: '${Routes.previewPrefix}qr', builder: (_, _) => const QrPreviewScreen()),
       ],
-      GoRoute(path: Routes.signIn, builder: (_, _) => const SignInScreen()),
+      // No slide: the splash and this screen share the seed colour and the mark, so the swap is invisible and the mark
+      // then travels to its corner by itself.
+      GoRoute(path: Routes.signIn, pageBuilder: (_, state) => NoTransitionPage(key: state.pageKey, child: const SignInScreen())),
       GoRoute(path: Routes.blocked, builder: (_, _) => const BlockedScreen()),
       GoRoute(path: Routes.problem, builder: (_, _) => const ProblemScreen()),
       GoRoute(path: Routes.setup, builder: (_, _) => const SetupScreen()),
