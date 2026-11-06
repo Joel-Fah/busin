@@ -50,6 +50,9 @@ IntroFrame introFrame(double t, int count) => IntroFrame(
       strokeOpacity: 1 - _unit((t - IntroTiming.fillStart(count)) / IntroTiming.fadeDuration),
     );
 
+/// The finished picture: every shape filled, no outline. What the animation ends on, and what [BrandMark] shows.
+final IntroFrame finishedBrandFrame = IntroFrame(stroke: List.filled(brandPaths.length, 1.0), fill: 1, strokeOpacity: 0);
+
 /// The wordmark parsed once: each shape as a path, with its fill rule.
 final List<({Path path, bool evenOdd})> _shapes = [
   for (final shape in brandPaths)

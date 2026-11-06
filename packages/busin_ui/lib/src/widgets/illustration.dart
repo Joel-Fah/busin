@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import '../brand/brand_intro.dart';
+import '../brand/brand_paths.dart';
 
 /// The 3D illustrations (the same set as the portal), used where they carry meaning: an empty state, a hero.
 enum BusinIllustration {
@@ -46,6 +47,10 @@ class Illustration extends StatelessWidget {
 }
 
 /// The BusIn wordmark in one colour. Never stretch it: give a height and it keeps its proportions (205 by 126).
+///
+/// It is painted from the same shapes the opening animation draws, so the finished animation and this mark are the same
+/// picture. (Recolouring the SVG with a colour filter came out in the SVG's own dark teal on the dev tablet, which made
+/// the mark vanish on the dark loading screen.)
 class BrandMark extends StatelessWidget {
   const BrandMark({super.key, required this.color, this.height = 32, this.semanticLabel});
 
@@ -56,12 +61,11 @@ class BrandMark extends StatelessWidget {
   final String? semanticLabel;
 
   @override
-  Widget build(BuildContext context) => SvgPicture.asset(
-        'assets/brand/wordmark.svg',
-        package: 'busin_ui',
-        height: height,
-        colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
-        semanticsLabel: semanticLabel,
-        excludeFromSemantics: semanticLabel == null,
-      );
+  Widget build(BuildContext context) {
+    final mark = CustomPaint(
+      size: Size(height * brandWidth / brandHeight, height),
+      painter: BrandIntroPainter(frame: finishedBrandFrame, color: color),
+    );
+    return semanticLabel == null ? ExcludeSemantics(child: mark) : Semantics(label: semanticLabel, image: true, child: ExcludeSemantics(child: mark));
+  }
 }
