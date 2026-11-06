@@ -224,7 +224,7 @@ class FloatingNavBar extends StatelessWidget {
 /// The tablet's navigation: a slim floating glass rail down the left edge, brand mark on top, the same items and the
 /// same elastic highlight running vertically.
 class BusinNavRail extends StatelessWidget {
-  const BusinNavRail({super.key, required this.destinations, required this.currentIndex, required this.onSelected, this.header});
+  const BusinNavRail({super.key, required this.destinations, required this.currentIndex, required this.onSelected, this.header, this.pinLast = false});
 
   final List<BusinDestination> destinations;
   final int currentIndex;
@@ -233,13 +233,61 @@ class BusinNavRail extends StatelessWidget {
   /// Shown above the items: the brand mark.
   final Widget? header;
 
+  /// Puts the last destination at the bottom end of the rail, apart from the others (the profile).
+  final bool pinLast;
+
   static const double width = 88;
   static const double _item = 64;
   static const double _gap = 4;
 
+  /// One run of items with its own highlight. The highlight fades out when the selected item is in the other run.
+  Widget _group(BuildContext context, int from, int to) {
+    final p = BusinPalette.of(context);
+    final count = to - from;
+    final inGroup = currentIndex >= from && currentIndex < to;
+    return SizedBox(
+      height: count * (_item + _gap) - _gap,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: AnimatedOpacity(
+              opacity: inGroup ? 1 : 0,
+              duration: BusinMotion.of(context, BusinMotion.fast),
+              child: Stack(
+                children: [
+                  _SlidingHighlight(
+                    axis: Axis.vertical,
+                    count: count,
+                    index: (currentIndex - from).clamp(0, count - 1),
+                    itemExtent: _item,
+                    gap: _gap,
+                    color: p.fg.withValues(alpha: 0.09),
+                    crossExtent: width - 16,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Column(
+            children: [
+              for (var i = from; i < to; i++) ...[
+                if (i > from) const SizedBox(height: _gap),
+                SizedBox(
+                  height: _item,
+                  width: double.infinity,
+                  child: _NavItem(destination: destinations[i], selected: i == currentIndex, onTap: () => onSelected(i), labelSize: 11),
+                ),
+              ],
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final p = BusinPalette.of(context);
+    final split = pinLast && destinations.length > 1 ? destinations.length - 1 : destinations.length;
     return SizedBox(
       width: width,
       child: _GlassPanel(
@@ -248,34 +296,11 @@ class BusinNavRail extends StatelessWidget {
           child: Column(
             children: [
               if (header != null) ...[header!, const SizedBox(height: 20)],
-              SizedBox(
-                height: destinations.length * (_item + _gap) - _gap,
-                child: Stack(
-                  children: [
-                    _SlidingHighlight(
-                      axis: Axis.vertical,
-                      count: destinations.length,
-                      index: currentIndex,
-                      itemExtent: _item,
-                      gap: _gap,
-                      color: p.fg.withValues(alpha: 0.09),
-                      crossExtent: width - 16,
-                    ),
-                    Column(
-                      children: [
-                        for (var i = 0; i < destinations.length; i++) ...[
-                          if (i > 0) const SizedBox(height: _gap),
-                          SizedBox(
-                            height: _item,
-                            width: double.infinity,
-                            child: _NavItem(destination: destinations[i], selected: i == currentIndex, onTap: () => onSelected(i), labelSize: 11),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+              _group(context, 0, split),
+              if (split < destinations.length) ...[
+                const Spacer(),
+                _group(context, split, destinations.length),
+              ],
             ],
           ),
         ),
