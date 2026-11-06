@@ -12,8 +12,8 @@ Created in [Phase 3](../../docs/phases/phase-3-student-app.md). It contains no s
 | 2 | Subscribe with a stop and a private proof upload, status tracking | Done (this branch) |
 | 3 | Rotating QR code with screenshot protection | Done (this branch) |
 | 4a | Scan history | Done (this branch) |
-| 4b | Live bus map | Next |
-| 5 | Push notifications (needs the owner's Firebase project) | |
+| 4b | Live bus map | Done (this branch) |
+| 5 | Push notifications (needs the owner's Firebase project) | Next |
 
 ## How it fits together
 
@@ -43,6 +43,14 @@ Created in [Phase 3](../../docs/phases/phase-3-student-app.md). It contains no s
 - The History tab lists the student's own boardings, newest first, grouped by the day **at the school** (the school's IANA zone, not the phone's). Each row shows the stop, the direction of the trip and the time.
 - Pages of 20 load as the list is scrolled near its end, and also when a page does not fill the screen. One trip request per page, not per row. A failed page keeps the list and shows a retry row; scrolling never retries a failure by itself.
 - The server decides what a student may read: asking for another student's boardings returns nothing (see the live test).
+
+## The live bus
+
+- The My bus tab lists the buses on a trip right now (one request for trips, one for their plates), and shows the live position of one on a map with the stops and the student's own stop marked. The schema has no link between a student and a bus (there are no routes yet), so the bus shown first is the one on the trip the student boarded last, otherwise the one that started most recently; with several running, chips switch between them.
+- The position arrives through one Realtime subscription **filtered to that bus on the server**, which the live test proves; a phone never receives other buses' positions. The subscription is dropped while another tab shows and taken up again on return, so nothing listens in the background.
+- A position older than two minutes is shown as "last seen", never as fresh. A failed feed says so and can be retried.
+- The map is MapLibre with OpenFreeMap (no key, no account; ADR 0008). `MAP_STYLE_URL` in `config/dev.json` points it elsewhere. The screen talks to a `MapScene` and a swappable surface, so everything but the drawing is unit tested; the drawing itself (`maplibre_surface.dart`) needs a device to judge.
+- To see a bus move locally: `npm run backend:start` (now includes Realtime), then in another terminal `npm run dev:bus` (see `tools/simulate-bus.mjs`).
 
 ## Run it
 

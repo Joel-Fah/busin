@@ -37,7 +37,7 @@ Run it each time the device reconnects. Google sign-in also needs the Web client
 ## 4. Local backend
 
 ```bash
-npm run backend:start    # includes the storage service the proof upload needs
+npm run backend:start    # includes the storage and Realtime services (proof upload, live bus)
 npm run seed:demo        # optional demo people, stops, trips
 ```
 
@@ -48,3 +48,10 @@ cd packages/busin_data && fvm dart test -t live --run-skipped
 ```
 
 It creates a throwaway student and removes everything it made.
+
+To watch a bus move in the app, run the simulator while a trip is running (the demo data has one):
+
+```bash
+npm run dev:bus                 # drives the bus of the most recently started trip along the stops
+npm run dev:bus -- DEMO-101     # or a bus by plate
+```

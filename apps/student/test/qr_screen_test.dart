@@ -126,6 +126,19 @@ void main() {
     expect(find.text('Subscribe for Fall 2026').evaluate().isNotEmpty || find.text('No semester open yet').evaluate().isNotEmpty, isTrue);
   });
 
+  testWidgets('coming back to the tab after the subscription was approved shows the code without a tap', (tester) async {
+    final qr = FakeQr()..error = const NotAllowed('no sub');
+    await openQr(tester, qr: qr);
+    expect(find.text('No active subscription'), findsOneWidget);
+
+    qr.error = null;
+    await tester.tap(find.text('History'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Boarding code'));
+    await tester.pumpAndSettle();
+    expect(shownCode(tester), codeAt(noon));
+  });
+
   testWidgets('first use without a connection explains and can retry', (tester) async {
     final qr = FakeQr()..error = const Offline('down');
     await openQr(tester, qr: qr);

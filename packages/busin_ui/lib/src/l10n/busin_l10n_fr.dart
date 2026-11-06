@@ -358,4 +358,47 @@ class BusinL10nFr extends BusinL10n {
   @override
   String get historyLoadMoreFailed =>
       'Impossible de charger la suite. Touchez pour réessayer.';
+
+  @override
+  String get busNoneTitle => 'Aucun bus n’est en service pour le moment';
+
+  @override
+  String get busNoneBody =>
+      'Dès qu’un trajet démarre, vous pouvez suivre son bus ici.';
+
+  @override
+  String get busWaiting => 'En attente de la position du bus.';
+
+  @override
+  String busUpdatedSeconds(String seconds) {
+    return 'Mis à jour il y a $seconds s';
+  }
+
+  @override
+  String busUpdatedMinutes(String minutes) {
+    return 'Mis à jour il y a $minutes min';
+  }
+
+  @override
+  String busStale(String minutes) {
+    return 'Dernière position il y a $minutes min. Le bus est peut-être hors réseau.';
+  }
+
+  @override
+  String busSpeed(String kmh) {
+    return '$kmh km/h';
+  }
+
+  @override
+  String get busYourStop => 'Votre arrêt';
+
+  @override
+  String get busRecenter => 'Afficher le bus';
+
+  @override
+  String get busLiveFailed =>
+      'Les mises à jour en direct ne sont pas disponibles pour le moment.';
+
+  @override
+  String get busMapLabel => 'Carte du bus et des arrêts';
 }

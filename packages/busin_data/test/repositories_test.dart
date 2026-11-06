@@ -189,6 +189,39 @@ void main() {
     });
   });
 
+  group('live bus lookups', () {
+    test('active trips are asked for by status, newest started first, and capped', () async {
+      final h = Harness((_) async => json([tripRow(status: 'active')]));
+      final trips = await h.repos.trips.listActive();
+
+      expect(trips.single.status, TripStatus.active);
+      final query = h.last.url.queryParameters;
+      expect(query['status'], 'eq.active');
+      expect(query['order'], startsWith('started_at.desc'));
+      expect(query['limit'], '20');
+      expect(query['select'], isNot(contains('*')));
+    });
+
+    test('buses are fetched by id in one request with named columns, and not at all for none', () async {
+      final h = Harness((_) async => json([
+            {'id': _id, 'school_id': _school, 'plate': 'DEMO-101', 'capacity': 50, 'in_service': true},
+          ]));
+      expect(await h.repos.buses.listByIds(const []), isEmpty);
+      expect(h.requests, isEmpty);
+
+      final buses = await h.repos.buses.listByIds([_id]);
+      expect(buses.single.plate, 'DEMO-101');
+      expect(h.last.url.queryParameters['id'], 'in.("$_id")');
+      expect(h.last.url.queryParameters['select'], 'id,school_id,plate,capacity,in_service');
+    });
+
+    test('too many buses at once is refused before any request', () async {
+      final h = Harness((_) async => json(<Object>[]));
+      await expectLater(h.repos.buses.listByIds(List.filled(PageRequest.maxLimit + 1, _id)), throwsA(isA<Invalid>()));
+      expect(h.requests, isEmpty);
+    });
+  });
+
   group('semesters', () {
     test('the current one contains the day', () async {
       final h = Harness((_) async => json(semesterRow()));

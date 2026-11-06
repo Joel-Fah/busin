@@ -350,4 +350,45 @@ class BusinL10nEn extends BusinL10n {
 
   @override
   String get historyLoadMoreFailed => 'Could not load more. Tap to try again.';
+
+  @override
+  String get busNoneTitle => 'No bus is running right now';
+
+  @override
+  String get busNoneBody => 'When a trip starts you can follow its bus here.';
+
+  @override
+  String get busWaiting => 'Waiting for the bus to share its location.';
+
+  @override
+  String busUpdatedSeconds(String seconds) {
+    return 'Updated $seconds s ago';
+  }
+
+  @override
+  String busUpdatedMinutes(String minutes) {
+    return 'Updated $minutes min ago';
+  }
+
+  @override
+  String busStale(String minutes) {
+    return 'Last seen $minutes min ago. The bus may be out of signal.';
+  }
+
+  @override
+  String busSpeed(String kmh) {
+    return '$kmh km/h';
+  }
+
+  @override
+  String get busYourStop => 'Your stop';
+
+  @override
+  String get busRecenter => 'Show the bus';
+
+  @override
+  String get busLiveFailed => 'Live updates are not available right now.';
+
+  @override
+  String get busMapLabel => 'Map of the bus and the stops';
 }

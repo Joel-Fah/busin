@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:busin_core/busin_core.dart';
 import 'package:busin_student/src/auth/auth_service.dart';
+import 'package:busin_student/src/bus/bus_providers.dart';
+import 'package:busin_student/src/bus/map_scene.dart';
 import 'package:busin_student/src/providers.dart';
 import 'package:busin_student/src/qr/qr_providers.dart';
 import 'package:busin_student/src/qr/screen_security.dart';
@@ -11,6 +12,8 @@ import 'package:busin_student/src/qr/secret_store.dart';
 import 'package:busin_student/src/school_clock.dart';
 import 'package:busin_student/src/subscription/proof_picker.dart';
 import 'package:busin_student/src/subscription/subscription_providers.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 
 Profile profile({
@@ -234,6 +237,11 @@ class FakeHistory implements ScansRepository, TripsRepository {
   final List<Scan> scans;
   final List<Trip> trips;
 
+  /// Trips running now, for the live bus tab.
+  final List<Trip> active = [];
+  int activeLookups = 0;
+  Object? activeError;
+
   /// Offsets asked for, in order.
   final List<int> offsets = [];
   final List<int> limits = [];
@@ -256,6 +264,13 @@ class FakeHistory implements ScansRepository, TripsRepository {
   }
 
   @override
+  Future<List<Trip>> listActive() async {
+    activeLookups++;
+    if (activeError != null) throw activeError!;
+    return List.of(active);
+  }
+
+  @override
   Future<List<Trip>> listByIds(List<String> tripIds) async {
     tripLookups++;
     return trips.where((t) => tripIds.contains(t.id)).toList();
@@ -273,6 +288,87 @@ class FakeHistory implements ScansRepository, TripsRepository {
 
   @override
   Future<Trip> getTrip(String tripId) => throw UnimplementedError();
+}
+
+// ---------------------------------------------------------------- live bus fakes
+
+Trip activeTrip(String id, String busId, {TripDirection direction = TripDirection.inbound, int minutesAgo = 10}) => Trip(
+      id: id,
+      schoolId: 's1',
+      busId: busId,
+      direction: direction,
+      status: TripStatus.active,
+      scheduledStart: DateTime.utc(2026, 11, 5, 11),
+      startedAt: DateTime.utc(2026, 11, 5, 12).subtract(Duration(minutes: minutesAgo)),
+    );
+
+Bus bus(String id, String plate) => Bus(id: id, schoolId: 's1', plate: plate, capacity: 50, inService: true);
+
+LivePosition position(String busId, double lat, double lng, {required DateTime at, double? speed, double? heading}) => LivePosition(
+      busId: busId,
+      schoolId: 's1',
+      location: GeoPoint(lat, lng),
+      source: PositionSource.phone,
+      recordedAt: at,
+      speedMps: speed,
+      headingDeg: heading,
+    );
+
+class FakeBuses implements BusesRepository {
+  FakeBuses([List<Bus>? buses]) : buses = buses ?? [bus('bus1', 'DEMO-101'), bus('bus2', 'DEMO-102')];
+
+  final List<Bus> buses;
+
+  @override
+  Future<List<Bus>> listByIds(List<String> busIds) async => buses.where((b) => busIds.contains(b.id)).toList();
+}
+
+/// Live positions by bus. A test pushes positions with [emit]; [subscribed] shows which buses were listened to.
+class FakeLive implements LivePositionsRepository {
+  final Map<String, StreamController<LivePosition>> _controllers = {};
+  final List<String> subscribed = [];
+  final List<String> cancelled = [];
+
+  StreamController<LivePosition> _controller(String busId) => _controllers.putIfAbsent(busId, StreamController<LivePosition>.broadcast);
+
+  void emit(LivePosition p) => _controller(p.busId).add(p);
+
+  void fail(String busId, Object error) => _controller(busId).addError(error);
+
+  @override
+  Future<LivePosition?> latestForBus(String busId) async => null;
+
+  @override
+  Stream<LivePosition> watchBus(String busId) {
+    subscribed.add(busId);
+    late StreamController<LivePosition> mine;
+    mine = StreamController<LivePosition>(
+      onListen: () => _controller(busId).stream.listen(mine.add, onError: mine.addError),
+      onCancel: () => cancelled.add(busId),
+    );
+    return mine.stream;
+  }
+}
+
+/// Stands in for the native map: shows the scene as text and remembers every scene and recenter request.
+class FakeMapSurface {
+  final List<MapScene> scenes = [];
+  int recenters = 0;
+  ValueListenable<int>? _listening;
+
+  MapSurfaceBuilder get builder => (context, scene, recenter) {
+        scenes.add(scene);
+        // The screen rebuilds the surface often; listen to the one notifier once.
+        if (!identical(_listening, recenter)) {
+          _listening = recenter;
+          recenter.addListener(() => recenters++);
+        }
+        final bus = scene.bus;
+        return Center(
+          key: const ValueKey('fake-map'),
+          child: Text('map stops=${scene.stops.length} mine=${scene.myStopId ?? '-'} bus=${bus == null ? '-' : '${bus.latitude},${bus.longitude}'}'),
+        );
+      };
 }
 
 // ---------------------------------------------------------------- boarding code fakes
@@ -343,6 +439,9 @@ List<Override> overridesFor(
   FakeBackend? backend,
   FakeProofPicker? picker,
   FakeHistory? history,
+  FakeBuses? buses,
+  FakeLive? live,
+  FakeMapSurface? map,
   FakeQr? qr,
   FakeSecretStore? store,
   FakeScreenSecurity? security,
@@ -362,6 +461,9 @@ List<Override> overridesFor(
     schoolClockProvider.overrideWithValue(const SchoolClock()),
     scansRepositoryProvider.overrideWithValue(h),
     tripsRepositoryProvider.overrideWithValue(h),
+    busesRepositoryProvider.overrideWithValue(buses ?? FakeBuses()),
+    livePositionsRepositoryProvider.overrideWithValue(live ?? FakeLive()),
+    mapSurfaceBuilderProvider.overrideWithValue((map ?? FakeMapSurface()).builder),
     qrRepositoryProvider.overrideWithValue(qr ?? FakeQr()),
     secretStoreProvider.overrideWithValue(store ?? FakeSecretStore()),
     screenSecurityProvider.overrideWithValue(security ?? FakeScreenSecurity()),

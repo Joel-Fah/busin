@@ -157,5 +157,44 @@
   "historyEmptyTitle": "No boardings yet",
   "historyEmptyBody": "Each time you board with your code, it appears here.",
   "historyStopUnknown": "Stop not recorded",
-  "historyLoadMoreFailed": "Could not load more. Tap to try again."
+  "historyLoadMoreFailed": "Could not load more. Tap to try again.",
+  "busNoneTitle": "No bus is running right now",
+  "busNoneBody": "When a trip starts you can follow its bus here.",
+  "busWaiting": "Waiting for the bus to share its location.",
+  "busUpdatedSeconds": "Updated {seconds} s ago",
+  "@busUpdatedSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "busUpdatedMinutes": "Updated {minutes} min ago",
+  "@busUpdatedMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "busStale": "Last seen {minutes} min ago. The bus may be out of signal.",
+  "@busStale": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "busSpeed": "{kmh} km/h",
+  "@busSpeed": {
+    "placeholders": {
+      "kmh": {
+        "type": "String"
+      }
+    }
+  },
+  "busYourStop": "Your stop",
+  "busRecenter": "Show the bus",
+  "busLiveFailed": "Live updates are not available right now.",
+  "busMapLabel": "Map of the bus and the stops"
 }

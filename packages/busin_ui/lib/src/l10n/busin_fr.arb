@@ -138,5 +138,44 @@
   "historyEmptyTitle": "Aucun embarquement pour le moment",
   "historyEmptyBody": "Chaque fois que vous montez avec votre code, il apparaît ici.",
   "historyStopUnknown": "Arrêt non enregistré",
-  "historyLoadMoreFailed": "Impossible de charger la suite. Touchez pour réessayer."
+  "historyLoadMoreFailed": "Impossible de charger la suite. Touchez pour réessayer.",
+  "busNoneTitle": "Aucun bus n’est en service pour le moment",
+  "busNoneBody": "Dès qu’un trajet démarre, vous pouvez suivre son bus ici.",
+  "busWaiting": "En attente de la position du bus.",
+  "busUpdatedSeconds": "Mis à jour il y a {seconds} s",
+  "@busUpdatedSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "busUpdatedMinutes": "Mis à jour il y a {minutes} min",
+  "@busUpdatedMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "busStale": "Dernière position il y a {minutes} min. Le bus est peut-être hors réseau.",
+  "@busStale": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "busSpeed": "{kmh} km/h",
+  "@busSpeed": {
+    "placeholders": {
+      "kmh": {
+        "type": "String"
+      }
+    }
+  },
+  "busYourStop": "Votre arrêt",
+  "busRecenter": "Afficher le bus",
+  "busLiveFailed": "Les mises à jour en direct ne sont pas disponibles pour le moment.",
+  "busMapLabel": "Carte du bus et des arrêts"
 }
