@@ -8,6 +8,7 @@ import '../auth/access.dart';
 import '../profile/profile_form.dart';
 import '../providers.dart';
 import '../router.dart';
+import '../settings/appearance.dart';
 import '../subscription/subscription_providers.dart';
 
 /// The student's profile, the last tab: who they are to the school, the details they can change, the boarding history
@@ -161,12 +162,53 @@ class ProfileScreen extends ConsumerWidget {
         ),
       ),
     );
+    final appearance = StaggeredIn(
+      index: 3,
+      child: BusinCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(l10n.profileAppearance, style: text.titleLarge),
+            const SizedBox(height: BusinSpace.x1),
+            Text(l10n.profileAppearanceHint, style: text.bodySmall?.copyWith(color: p.muted)),
+            const SizedBox(height: BusinSpace.x4),
+            Text(l10n.profileTheme, style: text.labelLarge),
+            const SizedBox(height: BusinSpace.x2),
+            BusinSegmented<ThemeMode>(
+              groupLabel: l10n.profileTheme,
+              selected: ref.watch(themeModeProvider),
+              onChanged: ref.read(themeModeProvider.notifier).choose,
+              segments: [
+                BusinSegment(value: ThemeMode.system, label: l10n.themeSystem, icon: HugeIcons.strokeRoundedSmartPhone01),
+                BusinSegment(value: ThemeMode.light, label: l10n.themeLight, icon: HugeIcons.strokeRoundedSun03),
+                BusinSegment(value: ThemeMode.dark, label: l10n.themeDark, icon: HugeIcons.strokeRoundedMoon02),
+              ],
+            ),
+            const SizedBox(height: BusinSpace.x4),
+            Text(l10n.profileLanguage, style: text.labelLarge),
+            const SizedBox(height: BusinSpace.x2),
+            BusinSegmented<String>(
+              groupLabel: l10n.profileLanguage,
+              selected: ref.watch(localeProvider)?.languageCode ?? 'system',
+              onChanged: (code) => ref.read(localeProvider.notifier).choose(code == 'system' ? null : Locale(code)),
+              segments: [
+                BusinSegment(value: 'system', label: l10n.languageSystem),
+                // Each language is named in itself, whatever the app speaks now.
+                const BusinSegment(value: 'en', label: 'English'),
+                const BusinSegment(value: 'fr', label: 'Français'),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+
     final footer = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Center(child: Text(l10n.profileMemberSince(material.formatMediumDate(profile.createdAt.toLocal())), style: text.bodySmall?.copyWith(color: p.muted))),
         const SizedBox(height: BusinSpace.x6),
-        StaggeredIn(index: 3, child: BusinButton(label: l10n.profileSignOut, variant: BusinButtonVariant.danger, icon: HugeIcons.strokeRoundedLogout01, expand: true, onPressed: signOut)),
+        StaggeredIn(index: 4, child: BusinButton(label: l10n.profileSignOut, variant: BusinButtonVariant.danger, icon: HugeIcons.strokeRoundedLogout01, expand: true, onPressed: signOut)),
         const SizedBox(height: BusinSpace.x6),
         Center(child: Text(l10n.profileCredits, style: text.bodySmall?.copyWith(color: p.muted), textAlign: TextAlign.center)),
       ],
@@ -201,7 +243,7 @@ class ProfileScreen extends ConsumerWidget {
                   flex: 5,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [details, const SizedBox(height: BusinSpace.x4), history],
+                    children: [details, const SizedBox(height: BusinSpace.x4), history, const SizedBox(height: BusinSpace.x4), appearance],
                   ),
                 ),
               ],
@@ -220,6 +262,8 @@ class ProfileScreen extends ConsumerWidget {
           details,
           const SizedBox(height: BusinSpace.x4),
           history,
+          const SizedBox(height: BusinSpace.x4),
+          appearance,
           const SizedBox(height: BusinSpace.x3),
           footer,
         ],

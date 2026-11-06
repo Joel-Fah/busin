@@ -54,6 +54,7 @@ Done this session (all pushed, stacked on each other, no PRs opened yet because 
 - `phase-3/history-redesign` (#147): history has two numbers (boardings this week, most used stop), a card per day, skeletons, an empty state with the seat art, and on a wide screen the days on the left with the chosen day's summary on the right.
 
 Asked and answered, not built: realtime on subscription changes. Recommendation: yes, a Realtime subscription filtered to the student's own subscription row while the app is open (push already covers the background); needs the table added to the Realtime publication in a migration. Say go and it becomes its own issue.
+- `phase-3/proof-fix-appearance` (#148 fix, #149 feature): the payment proof thumbnail shows again on the subscription tab (my full-screen preview change had collapsed it; now a test loads a real picture); the profile has Appearance with a theme (system, light, dark) and language (system, English, Francais) choice, remembered on the phone and used for notifications; the profile picture is read from Google at each sign-in and fades in over the initials.
 
 Verified: student 207 tests, busin_ui 100, busin_core 47, busin_data 34, portal 222 unit tests, database 215 pgTAP tests, all analyzers clean. On the phone I checked the ticket, My bus (with a demo bus and your stop) and the setup screen. I did not see the scramble animation or the logo hand-off in motion.
 

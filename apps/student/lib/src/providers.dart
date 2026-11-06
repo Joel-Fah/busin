@@ -8,6 +8,7 @@ import 'auth/access.dart';
 import 'auth/auth_service.dart';
 import 'config/app_config.dart';
 import 'push/push_registrar.dart';
+import 'settings/appearance.dart';
 import 'push/push_service.dart';
 import 'qr/secret_store.dart';
 
@@ -25,7 +26,8 @@ final pushServiceProvider = Provider<PushService>((ref) => const NoPushService()
 
 final deviceTokensRepositoryProvider = Provider<DeviceTokensRepository>((ref) => ref.watch(repositoriesProvider).deviceTokens);
 
-final languageCodeProvider = Provider<String Function()>((ref) => systemLanguageCode);
+/// The language notifications should come in: the one chosen on the profile, else the phone's.
+final languageCodeProvider = Provider<String Function()>((ref) => () => ref.read(localeProvider)?.languageCode ?? systemLanguageCode());
 
 final pushRegistrarProvider = Provider<PushRegistrar>(
   (ref) => PushRegistrar(

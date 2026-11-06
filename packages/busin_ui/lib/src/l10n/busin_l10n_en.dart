@@ -286,6 +286,30 @@ class BusinL10nEn extends BusinL10n {
   String get navProfile => 'Profile';
 
   @override
+  String get profileAppearance => 'Appearance';
+
+  @override
+  String get profileAppearanceHint => 'Kept on this phone.';
+
+  @override
+  String get profileTheme => 'Theme';
+
+  @override
+  String get themeSystem => 'System';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get profileLanguage => 'Language';
+
+  @override
+  String get languageSystem => 'System';
+
+  @override
   String get profileHistory => 'Boarding history';
 
   @override

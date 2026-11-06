@@ -303,6 +303,8 @@ class _Parts extends StatelessWidget {
             ],
           ),
         ),
+        const _Title('Segmented control', note: 'A few exclusive choices (theme, language). The chosen one is a raised pill that slides in; each has its words.'),
+        const _SegmentedDemo(),
         const _Title('Stage line', note: 'Where something stands: done, current, coming; or ending badly.'),
         const BusinCard(child: Column(children: [
           StepLine(labels: ['Sent', 'Checking', 'Decision'], current: 1),
@@ -439,6 +441,31 @@ class _MotionSectionState extends State<_MotionSection> {
             BusinButton(label: 'Medium', variant: BusinButtonVariant.secondary, onPressed: BusinHaptics.medium),
           ],
         ),
+      ],
+    );
+  }
+}
+
+class _SegmentedDemo extends StatefulWidget {
+  const _SegmentedDemo();
+
+  @override
+  State<_SegmentedDemo> createState() => _SegmentedDemoState();
+}
+
+class _SegmentedDemoState extends State<_SegmentedDemo> {
+  String _value = 'light';
+
+  @override
+  Widget build(BuildContext context) {
+    return BusinSegmented<String>(
+      groupLabel: 'Theme',
+      selected: _value,
+      onChanged: (v) => setState(() => _value = v),
+      segments: [
+        BusinSegment(value: 'system', label: 'System', icon: HugeIcons.strokeRoundedSmartPhone01),
+        BusinSegment(value: 'light', label: 'Light', icon: HugeIcons.strokeRoundedSun03),
+        BusinSegment(value: 'dark', label: 'Dark', icon: HugeIcons.strokeRoundedMoon02),
       ],
     );
   }
