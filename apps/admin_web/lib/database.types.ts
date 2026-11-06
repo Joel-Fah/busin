@@ -69,6 +69,32 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"device_tokens": {
+                  Row: {
+                    "created_at": string,"id": string,"last_seen_at": string,"locale": string,"platform": string,"school_id": string,"token": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"id"?: string,"last_seen_at"?: string,"locale"?: string,"platform": string,"school_id": string,"token": string,"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: string,"last_seen_at"?: string,"locale"?: string,"platform"?: string,"school_id"?: string,"token"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "device_tokens_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "device_tokens_user_id_school_id_fkey"
+      columns: ["user_id","school_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id","school_id"]
+    }
+                  ]
                 },"live_positions": {
                   Row: {
                     "accuracy_m": number | null,"bus_id": string,"heading_deg": number | null,"location": unknown,"recorded_at": string,"school_id": string,"source": string,"speed_mps": number | null,"trip_id": string | null
@@ -358,8 +384,19 @@ isOneToOne: false
               "pending": number,"stop_id": string,"students": number
             }[]
                            },
+"claim_notifications":
+{ Args: { "p_limit"?: number }; Returns: {
+              "id": number,"kind": string,"ref_id": string,"tokens": Json
+            }[]
+                           },
+"complete_notification":
+{ Args: { "p_error"?: string,"p_id": number }; Returns: undefined
+                           },
 "custom_access_token_hook":
 { Args: { "event": Json }; Returns: Json
+                           },
+"drop_device_token":
+{ Args: { "p_token": string }; Returns: undefined
                            },
 "get_my_qr_secret":
 { Args: Record<PropertyKey, never>; Returns: string
@@ -367,8 +404,14 @@ isOneToOne: false
 "record_qr_scan":
 { Args: { "p_accuracy"?: number,"p_code": string,"p_lat"?: number,"p_lng"?: number,"p_stop_id"?: string,"p_trip_id": string }; Returns: Json
                            },
+"register_device_token":
+{ Args: { "p_locale"?: string,"p_platform": string,"p_token": string }; Returns: undefined
+                           },
 "rotate_my_qr_secret":
 { Args: Record<PropertyKey, never>; Returns: string
+                           },
+"unregister_device_token":
+{ Args: { "p_token": string }; Returns: undefined
                            }
           }
           Enums: {
