@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "@fontsource-variable/plus-jakarta-sans";
 
 import { ScrollbarFade } from "@/components/ScrollbarFade";
+import { ToastProvider } from "@/components/ui/Toast";
 import { TooltipLayer } from "@/components/ui/TooltipLayer";
 import { introInitScript } from "@/lib/intro";
 import { themeInitScript } from "@/lib/theme";
@@ -25,7 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <ScrollbarFade />
         <TooltipLayer />
-        {children}
+        <ToastProvider>{children}</ToastProvider>
       </body>
     </html>
   );
