@@ -20,8 +20,8 @@ export function LandingFooter({ copy, locale, t }: { copy: LandingCopy["footer"]
           </Link>
         </div>
         <div className="flex flex-wrap items-center gap-4">
-          <LanguageSwitch locale={locale} t={t} />
-          <ThemeToggle labels={t.profile.theme} />
+          <LanguageSwitch locale={locale} t={t} compact />
+          <ThemeToggle labels={t.profile.theme} iconOnly />
         </div>
       </div>
       <p className="m-0 mt-8 text-sm text-muted">

@@ -7,16 +7,7 @@ import type { Locale } from "@/lib/i18n/messages";
 export type LandingCopy = {
   meta: { title: string; description: string; shareTitle: string };
   nav: { label: string; menu: string; day: string; people: string; schools: string; faq: string; cta: string };
-  hero: {
-    eyebrow: string;
-    titleLead: string;
-    titleMarked: string;
-    sub: string;
-    primary: string;
-    secondary: string;
-    note: string;
-    mock: { pass: string; live: string; refresh: string; riderLabel: string; rider: string; stopLabel: string; stop: string; approved: string; eta: string };
-  };
+  hero: { eyebrow: string; line1: string; line2: string; marked: string; sub: string; secondary: string; note: string; eta: string };
   sections: Record<"day" | "people" | "private" | "download" | "schools" | "faq", { eyebrow: string; title: string; sub: string }>;
   footer: { tagline: string; staff: string; theme: string; rights: string };
 };
@@ -31,13 +22,13 @@ const en: LandingCopy = {
   nav: { label: "Main", menu: "Menu", day: "A day with BusIn", people: "Who it helps", schools: "For schools", faq: "Questions", cta: "Get the app" },
   hero: {
     eyebrow: "Your campus ride, handled",
-    titleLead: "Your bus. On time.",
-    titleMarked: "On your side.",
+    line1: "Your bus.",
+    line2: "On time.",
+    marked: "On your side.",
     sub: "BusIn is the companion that rides along. Subscribe once, show a code, watch the bus come. No queues, no guessing, no arguments at the door.",
-    primary: "Get the app",
     secondary: "See how a day goes",
     note: "Free for students. Your school sets it up.",
-    mock: { pass: "Boarding pass", live: "Live code", refresh: "New code every 30 seconds", riderLabel: "Student", rider: "Amina N.", stopLabel: "Stop", stop: "Etoudi palace road", approved: "Your school approved your subscription.", eta: "Your bus is 4 min away" },
+    eta: "Your bus is 4 min away",
   },
   sections: {
     day: { eyebrow: "A day with BusIn", title: "From 6:40 to the last bell", sub: "Follow one student through a morning that used to be stressful." },
@@ -60,13 +51,13 @@ const fr: LandingCopy = {
   nav: { label: "Principale", menu: "Menu", day: "Une journée avec BusIn", people: "Qui ça aide", schools: "Pour les écoles", faq: "Questions", cta: "Obtenir l'application" },
   hero: {
     eyebrow: "Votre trajet au campus, simplifié",
-    titleLead: "Votre bus. À l'heure.",
-    titleMarked: "De votre côté.",
+    line1: "Votre bus.",
+    line2: "À l'heure.",
+    marked: "De votre côté.",
     sub: "BusIn est le compagnon qui voyage avec vous. Abonnez-vous une fois, montrez un code, regardez le bus arriver. Plus de files, plus d'incertitude, plus de discussions à la porte.",
-    primary: "Obtenir l'application",
     secondary: "Voir une journée type",
     note: "Gratuit pour les étudiants. Votre école s'occupe de la mise en place.",
-    mock: { pass: "Pass d'embarquement", live: "Code en direct", refresh: "Nouveau code toutes les 30 secondes", riderLabel: "Étudiant", rider: "Amina N.", stopLabel: "Arrêt", stop: "Etoudi palace road", approved: "Votre école a approuvé votre abonnement.", eta: "Votre bus arrive dans 4 min" },
+    eta: "Votre bus arrive dans 4 min",
   },
   sections: {
     day: { eyebrow: "Une journée avec BusIn", title: "De 6 h 40 à la dernière sonnerie", sub: "Suivez un étudiant dans un matin qui était stressant." },

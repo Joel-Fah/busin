@@ -1,42 +1,49 @@
-/* Motion that belongs to the landing page only. Every animation here stops under reduced motion. */
+/* Motion that belongs to the landing page only. It is soft on purpose: slow fades, no loops that draw the eye. */
 
-@keyframes landing-code-ring {
+@keyframes landing-fade {
   from {
-    stroke-dashoffset: 0;
-  }
-  to {
-    stroke-dashoffset: 100;
+    opacity: 0;
   }
 }
 
-.landing-code-ring {
-  animation: landing-code-ring 30s linear infinite;
+.landing-fade {
+  animation: landing-fade 1.8s var(--ease-soft) both;
 }
 
-@keyframes landing-route-march {
-  to {
-    stroke-dashoffset: -64;
+@keyframes landing-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
   }
 }
 
-.landing-route {
-  animation: landing-route-march 5s linear infinite;
+.landing-rise {
+  animation: landing-rise 1.3s var(--ease-soft) both;
 }
 
-@keyframes landing-float {
+.landing-rise:nth-child(2) {
+  animation-delay: 0.12s;
+}
+
+.landing-rise:nth-child(3) {
+  animation-delay: 0.24s;
+}
+
+/* A few stars breathe, very slowly. */
+@keyframes landing-twinkle {
   50% {
-    transform: translateY(-8px);
+    opacity: 0.2;
   }
 }
 
-.landing-float {
-  animation: landing-float 6s var(--ease-soft) infinite;
+.landing-twinkle {
+  animation: landing-twinkle 7s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .landing-code-ring,
-  .landing-route,
-  .landing-float {
+  .landing-fade,
+  .landing-rise,
+  .landing-twinkle {
     animation: none;
   }
 }
@@ -44,7 +51,7 @@
 /* Smooth anchor jumps from the nav, unless the visitor asked for less motion. */
 html:has([data-landing]) {
   scroll-behavior: smooth;
-  scroll-padding-top: 6rem;
+  scroll-padding-top: 5rem;
 }
 
 @media (prefers-reduced-motion: reduce) {

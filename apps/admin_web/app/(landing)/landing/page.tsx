@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
-import { Hero } from "@/components/landing/Hero";
+import { BusStopScene } from "@/components/landing/BusStopScene";
+import { HeroHead, HeroLead } from "@/components/landing/HeroHead";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import { LandingNav } from "@/components/landing/LandingNav";
 import { SectionHead } from "@/components/landing/SectionHead";
+import { Sky } from "@/components/landing/Sky";
 import "@/components/landing/landing.css";
+import { LanguageSwitch } from "@/components/LanguageSwitch";
 import { RoughFilter } from "@/components/ui/RoughFilter";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { landingCatalogues } from "@/lib/i18n/landing";
 import { getMessages } from "@/lib/i18n/server";
 import { siteUrl } from "@/lib/landing/site";
@@ -42,12 +46,23 @@ async function LandingContent() {
   const sections = copy.sections;
 
   return (
-    <div lang={locale} data-landing className="bg-bg text-fg">
+    <div lang={locale} data-landing className="relative bg-bg text-fg">
       <RoughFilter />
-      <LandingNav copy={copy.nav} />
-      <main>
-        <Hero copy={copy.hero} />
+      <Sky />
+      <HeroHead copy={copy.hero} />
+      <LandingNav
+        copy={copy.nav}
+        switches={
+          <>
+            <ThemeToggle labels={t.profile.theme} iconOnly />
+            <LanguageSwitch locale={locale} t={t} compact />
+          </>
+        }
+      />
+      <HeroLead copy={copy.hero} />
+      <BusStopScene eta={copy.hero.eta} />
 
+      <main className="relative z-10">
         {/* The scenes arrive in the next slices; each already has its place and its anchor. */}
         {(["day", "people", "private", "download", "schools", "faq"] as const).map((key) => (
           <section key={key} aria-labelledby={key} className="mx-auto max-w-[88rem] px-5 pt-28 sm:px-8">

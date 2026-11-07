@@ -41,10 +41,12 @@ function applyTheme(theme: Theme) {
 
 type Props = {
   labels: { group: string } & Record<Theme, string>;
+  /** Only the icons show; each button keeps its name for screen readers and as a tooltip. */
+  iconOnly?: boolean;
 };
 
 /** System, light or dark. The choice stays in this browser and is applied before first paint. */
-export function ThemeToggle({ labels }: Props) {
+export function ThemeToggle({ labels, iconOnly = false }: Props) {
   const current = useSyncExternalStore(subscribe, readTheme, () => "system" as Theme);
 
   return (
@@ -54,15 +56,18 @@ export function ThemeToggle({ labels }: Props) {
           key={theme}
           type="button"
           aria-pressed={current === theme}
+          aria-label={iconOnly ? labels[theme] : undefined}
+          title={iconOnly ? labels[theme] : undefined}
           onClick={() => applyTheme(theme)}
           className={
-            "inline-flex h-10 cursor-pointer items-center gap-2 rounded-sm border-0 px-4 font-sans text-sm font-semibold " +
+            "inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-sm border-0 font-sans text-sm font-semibold " +
+            (iconOnly ? "w-10 px-0 " : "px-4 ") +
             "transition-colors duration-(--dur-fast) focus-visible:outline-3 focus-visible:outline-focus " +
             (current === theme ? "bg-surface text-fg shadow-soft" : "bg-transparent text-muted hover:text-fg")
           }
         >
           <Icon icon={ICONS[theme]} size={18} />
-          {labels[theme]}
+          {iconOnly ? null : labels[theme]}
         </button>
       ))}
     </div>
