@@ -31,9 +31,11 @@ export default function SemestersPage() {
 
 async function SemestersList() {
   await requireAdmin();
-  const { t } = await getMessages();
+  const { locale, t } = await getMessages();
   const { semesters, failed } = await loadSemesters();
   const today = todayIso();
+  // A calendar day, not a moment: read it as UTC so the time zone cannot move it.
+  const plainDate = (iso: string) => new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeZone: "UTC" }).format(new Date(`${iso}T00:00:00Z`));
 
   return (
     <>
@@ -78,7 +80,12 @@ async function SemestersList() {
                       </Link>
                     </Td>
                     <Td className="text-muted">
-                      {semester.startDate} - {semester.endDate}
+                      <span className="block">
+                        {t.semesters.dateFrom}: <span className="font-semibold text-fg">{plainDate(semester.startDate)}</span>
+                      </span>
+                      <span className="block">
+                        {t.semesters.dateTo}: <span className="font-semibold text-fg">{plainDate(semester.endDate)}</span>
+                      </span>
                     </Td>
                     <Td>
                       <Chip tone={phase === "current" ? "ok" : phase === "upcoming" ? "info" : "neutral"}>{t.semesters.phase[phase]}</Chip>
