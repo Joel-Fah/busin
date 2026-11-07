@@ -7,7 +7,7 @@ import type { Locale } from "@/lib/i18n/messages";
 export type LandingCopy = {
   meta: { title: string; description: string; shareTitle: string };
   nav: { label: string; menu: string; day: string; people: string; schools: string; faq: string; cta: string };
-  hero: { eyebrow: string; line1: string; marked: string; sub: string; note: string; chips: [string, string, string, string] };
+  hero: { line1: string; marked: string; sub: string; note: string; chips: [string, string, string, string] };
   sections: Record<"day" | "people" | "private" | "download" | "schools" | "faq", { eyebrow: string; title: string; sub: string }>;
   footer: { tagline: string; staff: string; theme: string; rights: string };
 };
@@ -21,7 +21,6 @@ const en: LandingCopy = {
   },
   nav: { label: "Main", menu: "Menu", day: "A day with BusIn", people: "Who it helps", schools: "For schools", faq: "Questions", cta: "Get the app" },
   hero: {
-    eyebrow: "Your campus ride, handled",
     line1: "Your bus. On time.",
     marked: "On your side.",
     sub: "BusIn is the companion that rides along. Subscribe once, show a code, watch the bus come. No queues, no guessing, no arguments at the door.",
@@ -48,7 +47,6 @@ const fr: LandingCopy = {
   },
   nav: { label: "Principale", menu: "Menu", day: "Une journée avec BusIn", people: "Qui ça aide", schools: "Pour les écoles", faq: "Questions", cta: "Obtenir l'application" },
   hero: {
-    eyebrow: "Votre trajet au campus, simplifié",
     line1: "Votre bus. À l'heure.",
     marked: "De votre côté.",
     sub: "BusIn est le compagnon qui voyage avec vous. Abonnez-vous une fois, montrez un code, regardez le bus arriver. Plus de files, plus d'incertitude, plus de discussions à la porte.",

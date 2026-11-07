@@ -1,11 +1,12 @@
 import Image from "next/image";
 
+import { BrandMark } from "@/components/brand/BrandMark";
 import type { LandingCopy } from "@/lib/i18n/landing";
 
 /** Where each sticker sits around the headline, how it leans and how big it is. Alternating tilts, none too big. */
 const STICKERS = [
-  { src: "alarm-clock", pos: "left-[3%] top-0 sm:left-[4%] sm:top-[10%]", tilt: "-13deg", size: "w-[clamp(3.4rem,8.5vw,8rem)]", delay: "0.5s" },
-  { src: "flip-phone", pos: "right-[4%] top-0 sm:right-[6%] sm:top-[8%]", tilt: "11deg", size: "w-[clamp(3rem,7.5vw,7rem)]", delay: "0.8s" },
+  { src: "alarm-clock", pos: "left-[3%] top-0 sm:left-[1%] sm:top-[6%]", tilt: "-13deg", size: "w-[clamp(3.4rem,7.4vw,7rem)]", delay: "0.5s" },
+  { src: "folding-phone", pos: "right-[4%] top-0 sm:right-[6%] sm:top-[8%]", tilt: "11deg", size: "w-[clamp(3rem,7.5vw,7rem)]", delay: "0.8s" },
   { src: "bus", pos: "left-[3%] bottom-0 sm:left-[9%] sm:bottom-[4%]", tilt: "-6deg", size: "w-[clamp(3.8rem,9.5vw,9rem)]", delay: "1.1s" },
   { src: "ticket", pos: "right-[4%] bottom-0 sm:right-[8%] sm:bottom-[6%]", tilt: "9deg", size: "w-[clamp(3rem,7vw,6.5rem)]", delay: "1.4s" },
 ] as const;
@@ -14,10 +15,7 @@ const STICKERS = [
 export function HeroHead({ copy }: { copy: LandingCopy["hero"] }) {
   return (
     <header className="relative z-10 px-4 pb-8 pt-16 text-center sm:pb-10 sm:pt-20">
-      <p className="landing-rise m-0 mb-5 inline-flex items-center gap-2 rounded-xs bg-fg/8 px-3 py-1.5 text-sm font-semibold text-fg/80 sm:mb-6">
-        <span aria-hidden className="size-2 rounded-full bg-accent" />
-        {copy.eyebrow}
-      </p>
+      <BrandMark className="landing-rise mx-auto mb-3 h-11 w-auto text-fg sm:mb-4 sm:h-14" label="BusIn" />
 
       <div className="relative mx-auto max-w-[96rem] py-16 sm:py-12">
         {STICKERS.map((sticker) => (

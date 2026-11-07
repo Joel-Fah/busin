@@ -109,31 +109,167 @@ function Lamp({ x }: { x: number }) {
   );
 }
 
-/** A student: legs, body, bag, head and hair, in flat shapes. */
-function Person({ x, skin, shirt, hair = "fill-[#1d2b30]", bag, scale = 1 }: { x: number; skin: string; shirt: string; hair?: string; bag: string; scale?: number }) {
+/** A limb as a thick rounded line, the way these flat characters are built: easy to bend into any pose. */
+function Limb({ d, tone, w = 9 }: { d: string; tone: string; w?: number }) {
+  return <path d={d} fill="none" strokeWidth={w} strokeLinecap="round" strokeLinejoin="round" className={tone} />;
+}
+
+const stroke = {
+  pants: "stroke-[#243b46] dark:stroke-[#3b5a68]",
+  teal: "stroke-[#0c5d6d] dark:stroke-[#17808f]",
+  orange: "stroke-[#ef7611]",
+  cream: "stroke-[#f3e7cc]",
+  blue: "stroke-[#35709a]",
+  coral: "stroke-[#e8694a]",
+  navy: "stroke-[#1f3b57] dark:stroke-[#4a7396]",
+};
+const fill = {
+  shoe: "fill-[#f6efdc] dark:fill-[#d9d2bd]",
+  dark: "fill-[#1b2a30]",
+  hairBlack: "fill-[#161f23]",
+  hairBrown: "fill-[#5a3a24]",
+  coral: "fill-[#e8694a]",
+  blue: "fill-[#35709a]",
+  navy: "fill-[#1f3b57] dark:fill-[#4a7396]",
+};
+
+/** The face: two eyes looking where the person looks, a brow each, and a mouth that says how they feel. */
+function Face({ x, y, look = 1, mood }: { x: number; y: number; look?: 1 | -1 | 0; mood: "chat" | "laugh" | "focus" | "bored" }) {
+  const dx = look * 4.5;
+  const eyes: [number, number][] = [[x - 4 + dx, y], [x + 5 + dx, y]];
   return (
-    <g transform={`translate(${x} 490) scale(${scale})`}>
-      <ellipse cx="0" cy="2" rx="22" ry="4" className={c.shadow} />
-      <rect x="-9" y="-44" width="7" height="44" rx="3.5" className="fill-[#243b46] dark:fill-[#3b5a68]" />
-      <rect x="2" y="-44" width="7" height="44" rx="3.5" className="fill-[#243b46] dark:fill-[#3b5a68]" />
-      <rect x="-20" y="-96" width="12" height="40" rx="6" className={bag} />
-      <rect x="-13" y="-98" width="26" height="58" rx="11" className={shirt} />
-      <rect x="-20" y="-92" width="7" height="30" rx="3.5" className={shirt} />
-      <circle cx="0" cy="-114" r="11.5" className={skin} />
-      <path d="M-12 -116 Q -10 -130 2 -128 Q 13 -126 12 -114 Q 6 -121 -12 -116 Z" className={hair} />
+    <g>
+      {eyes.map(([ex, ey]) => (
+        <circle key={ex} cx={ex} cy={ey} r="1.7" className={fill.dark} />
+      ))}
+      {mood === "bored" ? (
+        <>
+          <path d={`M${x - 8 + dx} ${y - 6} L${x - 1 + dx} ${y - 4}`} stroke="#1b2a30" strokeWidth="1.6" strokeLinecap="round" />
+          <path d={`M${x + 2 + dx} ${y - 4} L${x + 9 + dx} ${y - 6}`} stroke="#1b2a30" strokeWidth="1.6" strokeLinecap="round" />
+          <path d={`M${x - 3 + dx} ${y + 8} L${x + 5 + dx} ${y + 8}`} stroke="#1b2a30" strokeWidth="1.8" strokeLinecap="round" />
+        </>
+      ) : (
+        <>
+          <path d={`M${x - 7 + dx} ${y - 5} Q ${x - 4 + dx} ${y - 7} ${x - 1 + dx} ${y - 5} M${x + 2 + dx} ${y - 5} Q ${x + 5 + dx} ${y - 7} ${x + 8 + dx} ${y - 5}`} fill="none" stroke="#1b2a30" strokeWidth="1.3" strokeLinecap="round" />
+          {mood === "laugh" ? (
+            <path d={`M${x - 4 + dx} ${y + 6} Q ${x + dx} ${y + 13} ${x + 5 + dx} ${y + 6} Z`} fill="#fff" stroke="#1b2a30" strokeWidth="1.3" strokeLinejoin="round" />
+          ) : (
+            <path d={`M${x - 4 + dx} ${y + 7} Q ${x + dx} ${y + 11} ${x + 5 + dx} ${y + 7}`} fill="none" stroke="#1b2a30" strokeWidth="1.5" strokeLinecap="round" />
+          )}
+          <circle cx={x - 7 + dx} cy={y + 5} r="3" fill="#ef7611" opacity="0.28" />
+        </>
+      )}
     </g>
   );
 }
 
-function SittingPerson({ x }: { x: number }) {
+/** Two students arriving, mid-stride and mid-sentence, a step apart so they can talk. */
+function WalkingPair({ x }: { x: number }) {
   return (
-    <g transform={`translate(${x} 0)`}>
-      <rect x="-3" y="404" width="26" height="30" rx="10" className={c.orange} />
-      <rect x="-4" y="432" width="42" height="11" rx="5.5" className="fill-[#243b46] dark:fill-[#3b5a68]" />
-      <rect x="29" y="440" width="10" height="48" rx="5" className="fill-[#243b46] dark:fill-[#3b5a68]" />
-      <circle cx="10" cy="391" r="11" className={c.skin2} />
-      <path d="M-1 388 Q 2 376 12 377 Q 23 378 21 390 Q 14 383 -1 388 Z" className="fill-[#161f23]" />
-      <rect x="-12" y="408" width="11" height="26" rx="5" className={c.teal} />
+    <g transform={`translate(${x} 490)`}>
+      {/* She talks with her hands. */}
+      <g transform="translate(0 0)">
+        <ellipse cx="0" cy="2" rx="30" ry="5" className={c.shadow} />
+        <rect x="-27" y="-98" width="16" height="40" rx="7" className={c.teal} />
+        <Limb d="M-3 -48 L-17 -25 L-25 -4" tone={stroke.pants} w={11} />
+        <ellipse cx="-27" cy="-1" rx="9" ry="4.5" className={fill.shoe} />
+        <Limb d="M-6 -86 L-19 -68 L-23 -52" tone={stroke.orange} w={8} />
+        <circle cx="-23" cy="-49" r="4.6" className={c.skin1} />
+        <rect x="-14" y="-100" width="29" height="56" rx="13" className={c.orange} />
+        <rect x="-14" y="-52" width="29" height="14" rx="6" className={c.teal} />
+        <Limb d="M3 -48 L15 -26 L21 -4" tone={stroke.teal} w={11} />
+        <ellipse cx="24" cy="-1" rx="9" ry="4.5" className={fill.shoe} />
+        <rect x="-3" y="-108" width="8" height="10" rx="3" className={c.skin1} />
+        <circle cx="-11" cy="-117" r="7.5" className={fill.hairBlack} />
+        <circle cx="3" cy="-116" r="13" className={c.skin1} />
+        <path d="M-10 -118 C -11 -136 15 -139 17 -121 C 12 -128 0 -126 -10 -118 Z" className={fill.hairBlack} />
+        <Face x={3} y={-114} look={1} mood="chat" />
+        <Limb d="M9 -86 L25 -90 L33 -108" tone={stroke.orange} w={8} />
+        <circle cx="33" cy="-111" r="5" className={c.skin1} />
+        <path d="M30 -115 l-3 -6 M35 -116 l1 -7" stroke="#1b2a30" strokeWidth="1.8" strokeLinecap="round" opacity="0.5" />
+      </g>
+
+      {/* He laughs and looks back at her. */}
+      <g transform="translate(78 0)">
+        <ellipse cx="0" cy="2" rx="30" ry="5" className={c.shadow} />
+        <rect x="-27" y="-96" width="16" height="38" rx="7" className={fill.coral} />
+        <Limb d="M-3 -48 L-9 -25 L-13 -4" tone={stroke.pants} w={11} />
+        <ellipse cx="-14" cy="-1" rx="9" ry="4.5" className={fill.shoe} />
+        <Limb d="M-6 -86 L-13 -68 L-8 -52" tone={stroke.cream} w={8} />
+        <circle cx="-8" cy="-49" r="4.6" className={c.skin2} />
+        <rect x="-14" y="-100" width="29" height="56" rx="13" className={c.cream} />
+        <rect x="-8" y="-62" width="16" height="9" rx="4" className="fill-[#e2d4b4]" />
+        <Limb d="M3 -48 L19 -24 L29 -5" tone={stroke.pants} w={11} />
+        <ellipse cx="32" cy="-1" rx="9" ry="4.5" className={fill.shoe} />
+        <rect x="-4" y="-108" width="8" height="10" rx="3" className={c.skin2} />
+        <circle cx="-1" cy="-116" r="13" className={c.skin2} />
+        <path d="M-13 -117 C -14 -132 8 -134 12 -120 C 6 -123 -4 -122 -13 -117 Z" className={fill.hairBlack} />
+        <Face x={-1} y={-114} look={-1} mood="laugh" />
+        <Limb d="M9 -86 L17 -68 L11 -54" tone={stroke.cream} w={8} />
+        <circle cx="11" cy="-51" r="4.6" className={c.skin2} />
+      </g>
+    </g>
+  );
+}
+
+/** Waiting on the bench, head down over his phone, its light on his face. */
+function SeatedWithPhone() {
+  return (
+    <g transform="translate(106 0)">
+      <ellipse cx="22" cy="492" rx="34" ry="5" className={c.shadow} />
+      <Limb d="M2 441 L36 441" tone={stroke.pants} w={12} />
+      <Limb d="M36 441 L42 483" tone={stroke.pants} w={11} />
+      <ellipse cx="48" cy="489" rx="10" ry="4.5" className={fill.shoe} />
+      <rect x="-8" y="398" width="26" height="52" rx="12" transform="rotate(12 5 446)" className={fill.coral} />
+      <Limb d="M8 414 L12 432 L32 424" tone={stroke.coral} w={8} />
+      <circle cx="35" cy="423" r="4.4" className={c.skin2} />
+      <rect x="31" y="406" width="12" height="20" rx="2.5" transform="rotate(-14 37 416)" className={fill.dark} />
+      <rect x="33" y="408" width="8" height="15" rx="1.5" transform="rotate(-14 37 416)" fill="#bfe6f2" />
+      <circle cx="38" cy="414" r="18" fill="#bfe6f2" opacity="0.14" />
+      <rect x="2" y="386" width="7" height="12" rx="3" transform="rotate(14 5 392)" className={c.skin2} />
+      <circle cx="17" cy="388" r="12.5" className={c.skin2} />
+      <path d="M5 386 C 3 372 24 368 29 382 C 22 378 12 380 5 386 Z" className={fill.hairBlack} />
+      <path d="M19 389 q 3 2 6 0 M26 389 q 3 2 6 0" fill="none" stroke="#1b2a30" strokeWidth="1.5" strokeLinecap="round" transform="translate(-3 1)" />
+      <path d="M21 396 Q 25 399 29 396" fill="none" stroke="#1b2a30" strokeWidth="1.5" strokeLinecap="round" />
+    </g>
+  );
+}
+
+/** His bag, left on the bench beside his friend, so he can stand. */
+function BagOnBench() {
+  return (
+    <g transform="translate(166 0)">
+      <ellipse cx="14" cy="448" rx="20" ry="3.5" className={c.shadow} />
+      <path d="M6 418 Q 14 406 22 418" fill="none" stroke="#c45f0a" strokeWidth="4" strokeLinecap="round" />
+      <rect x="0" y="416" width="28" height="32" rx="9" className={c.orange} />
+      <rect x="5" y="430" width="18" height="14" rx="5" fill="#c45f0a" />
+      <rect x="9" y="420" width="10" height="3" rx="1.5" fill="#fff" opacity="0.5" />
+      <path d="M2 440 q -8 6 -4 10" fill="none" stroke="#c45f0a" strokeWidth="3.5" strokeLinecap="round" />
+    </g>
+  );
+}
+
+/** Standing apart, arms crossed, glancing at his watch with a foot tapping: he has been waiting a while. */
+function ImpatientStudent({ x }: { x: number }) {
+  return (
+    <g transform={`translate(${x} 490)`}>
+      <ellipse cx="0" cy="2" rx="28" ry="5" className={c.shadow} />
+      <Limb d="M-5 -48 L-7 -24 L-8 -4" tone={stroke.pants} w={11} />
+      <ellipse cx="-8" cy="-1" rx="9" ry="4.5" className={fill.shoe} />
+      <Limb d="M5 -48 L16 -26 L25 -9" tone={stroke.pants} w={11} />
+      <ellipse cx="30" cy="-8" rx="9" ry="4.5" transform="rotate(-24 30 -8)" className={fill.shoe} />
+      <path d="M40 -4 q 5 -2 8 3 M42 -11 q 6 -3 10 3 M43 1 q 5 0 7 5" fill="none" stroke="#1b2a30" strokeWidth="1.8" strokeLinecap="round" opacity="0.45" />
+      <rect x="-14" y="-100" width="29" height="56" rx="13" className={fill.blue} />
+      <Limb d="M-9 -86 L-16 -70 L6 -64" tone={stroke.blue} w={8} />
+      <Limb d="M10 -86 L17 -72 L-6 -77" tone={stroke.navy} w={8} />
+      <circle cx="8" cy="-65" r="4.4" className={c.skin3} />
+      <circle cx="-8" cy="-78" r="4.4" className={c.skin3} />
+      <circle cx="-3" cy="-71" r="3.4" fill="#f7b552" />
+      <path d="M-3 -71 l0 -2 M-3 -71 l2 1" stroke="#1b2a30" strokeWidth="1" strokeLinecap="round" />
+      <rect x="-3" y="-108" width="8" height="10" rx="3" className={c.skin3} />
+      <circle cx="4" cy="-116" r="13" className={c.skin3} />
+      <path d="M-9 -117 C -9 -133 15 -134 17 -119 C 11 -124 0 -123 -9 -117 Z" className={fill.hairBrown} />
+      <Face x={4} y={-114} look={1} mood="bored" />
     </g>
   );
 }
@@ -183,15 +319,16 @@ function BusStop() {
       ].map(([fx, fy]) => (
         <circle key={fx} cx={fx} cy={fy} r="2.6" fill="#f7b552" />
       ))}
-      <SittingPerson x={118} />
+      <SeatedWithPhone />
+      <BagOnBench />
     </g>
   );
 }
 
 const CHIPS: { icon: IconSvgElement; tone: string; pos: string }[] = [
-  { icon: Navigation03Icon, tone: "text-info", pos: "left-[33%] bottom-[60%] sm:left-[45%] sm:bottom-[62%]" },
-  { icon: BadgeCheckIcon, tone: "text-ok", pos: "hidden sm:flex left-[16%] bottom-[72%]" },
-  { icon: WifiOff01Icon, tone: "text-warn", pos: "left-[24%] bottom-[36%] sm:left-[27%] sm:bottom-[40%]" },
+  { icon: Navigation03Icon, tone: "text-info", pos: "left-[33%] bottom-[66%] sm:left-[45%] sm:bottom-[64%]" },
+  { icon: BadgeCheckIcon, tone: "text-ok", pos: "hidden sm:flex left-[6%] bottom-[77%]" },
+  { icon: WifiOff01Icon, tone: "text-warn", pos: "left-[22%] bottom-[50%] sm:left-[22%] sm:bottom-[62%]" },
   { icon: Clock01Icon, tone: "text-fg", pos: "hidden sm:flex left-[78%] bottom-[82%]" },
 ];
 
@@ -275,9 +412,8 @@ export function BusStopScene({ chips }: { chips: LandingCopy["hero"]["chips"] })
 
           <g data-scene-layer>
             <BusStop />
-            <Person x={700} skin={c.skin1} shirt={c.teal} bag={c.orange} />
-            <Person x={742} skin={c.skin3} shirt={c.cream} bag={c.teal} hair="fill-[#5a3a24]" scale={0.92} />
-            <Person x={1160} skin={c.skin2} shirt={c.orange} bag={c.teal} scale={0.96} />
+            <WalkingPair x={330} />
+            <ImpatientStudent x={1036} />
           </g>
         </svg>
 
