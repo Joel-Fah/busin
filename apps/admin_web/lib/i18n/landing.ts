@@ -7,7 +7,7 @@ import type { Locale } from "@/lib/i18n/messages";
 export type LandingCopy = {
   meta: { title: string; description: string; shareTitle: string };
   nav: { label: string; menu: string; day: string; people: string; schools: string; faq: string; cta: string };
-  hero: { eyebrow: string; line1: string; line2: string; marked: string; sub: string; secondary: string; note: string; eta: string };
+  hero: { eyebrow: string; line1: string; marked: string; sub: string; note: string; chips: [string, string, string, string] };
   sections: Record<"day" | "people" | "private" | "download" | "schools" | "faq", { eyebrow: string; title: string; sub: string }>;
   footer: { tagline: string; staff: string; theme: string; rights: string };
 };
@@ -22,13 +22,11 @@ const en: LandingCopy = {
   nav: { label: "Main", menu: "Menu", day: "A day with BusIn", people: "Who it helps", schools: "For schools", faq: "Questions", cta: "Get the app" },
   hero: {
     eyebrow: "Your campus ride, handled",
-    line1: "Your bus.",
-    line2: "On time.",
+    line1: "Your bus. On time.",
     marked: "On your side.",
     sub: "BusIn is the companion that rides along. Subscribe once, show a code, watch the bus come. No queues, no guessing, no arguments at the door.",
-    secondary: "See how a day goes",
     note: "Free for students. Your school sets it up.",
-    eta: "Your bus is 4 min away",
+    chips: ["Your bus is 4 min away", "Approved for this semester", "Your pass works offline", "Next bus at 7:40"],
   },
   sections: {
     day: { eyebrow: "A day with BusIn", title: "From 6:40 to the last bell", sub: "Follow one student through a morning that used to be stressful." },
@@ -51,13 +49,11 @@ const fr: LandingCopy = {
   nav: { label: "Principale", menu: "Menu", day: "Une journée avec BusIn", people: "Qui ça aide", schools: "Pour les écoles", faq: "Questions", cta: "Obtenir l'application" },
   hero: {
     eyebrow: "Votre trajet au campus, simplifié",
-    line1: "Votre bus.",
-    line2: "À l'heure.",
+    line1: "Votre bus. À l'heure.",
     marked: "De votre côté.",
     sub: "BusIn est le compagnon qui voyage avec vous. Abonnez-vous une fois, montrez un code, regardez le bus arriver. Plus de files, plus d'incertitude, plus de discussions à la porte.",
-    secondary: "Voir une journée type",
     note: "Gratuit pour les étudiants. Votre école s'occupe de la mise en place.",
-    eta: "Votre bus arrive dans 4 min",
+    chips: ["Votre bus arrive dans 4 min", "Approuvé pour ce semestre", "Votre pass marche hors connexion", "Prochain bus à 7 h 40"],
   },
   sections: {
     day: { eyebrow: "Une journée avec BusIn", title: "De 6 h 40 à la dernière sonnerie", sub: "Suivez un étudiant dans un matin qui était stressant." },

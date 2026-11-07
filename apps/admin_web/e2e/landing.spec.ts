@@ -14,8 +14,8 @@ test.describe("the landing page", () => {
       await expect(page.locator(`#${id}`)).toHaveCount(1);
     }
     await expect(page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Get the app" })).toHaveAttribute("href", "#download");
-    // The scene under the headline is there, with its pictures.
-    await expect(page.locator("[data-scene-bus]")).toHaveCount(1);
+    // The scene under the headline is there, with its small messages.
+    await expect(page.locator("[data-scene-chip]")).toHaveCount(4);
   });
 
   test("may be indexed, and the portal may not", async ({ page, request }) => {
@@ -33,7 +33,7 @@ test.describe("the landing page", () => {
 
   test("speaks French when asked, and keeps the choice", async ({ page }) => {
     await page.goto("/");
-    await page.getByRole("navigation", { name: /Main|Principale/ }).getByRole("button", { name: "Français" }).click();
+    await page.getByRole("button", { name: "Français", exact: true }).click();
     await expect(page.getByRole("heading", { level: 1 })).toContainText("De votre côté.");
     await expect(page.locator("[data-landing]")).toHaveAttribute("lang", "fr");
     await page.reload();
@@ -43,34 +43,58 @@ test.describe("the landing page", () => {
   test("shows everything at once for a visitor who asked for less motion", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/");
-    await expect(page.locator("[data-scene-bus]")).toBeVisible();
-    // No starting state was applied: the bus is fully opaque and not moved.
-    const style = await page.locator("[data-scene-bus]").evaluate((el) => ({ opacity: getComputedStyle(el).opacity, transform: getComputedStyle(el).transform }));
+    await expect(page.locator("[data-scene-chip]").first()).toBeVisible();
+    // No starting state was applied: the message is fully opaque and not moved.
+    const style = await page.locator("[data-scene-chip]").first().evaluate((el) => ({ opacity: getComputedStyle(el).opacity, transform: getComputedStyle(el).transform }));
     expect(style.opacity).toBe("1");
     expect(["none", "matrix(1, 0, 0, 1, 0, 0)"]).toContain(style.transform);
   });
 
-  test("the navigation sits under the headline, then stays at the top as the page scrolls", async ({ page }) => {
+  test("the navigation sits under the headline with only the tabs and the main button, then floats at the top with the rest", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto("/");
     const nav = page.getByRole("navigation", { name: "Main" });
     const h1 = page.getByRole("heading", { level: 1 });
-    const h1Bottom = (await h1.boundingBox())!.y + (await h1.boundingBox())!.height;
-    expect((await nav.boundingBox())!.y).toBeGreaterThanOrEqual(h1Bottom - 4);
+    const h1Box = (await h1.boundingBox())!;
+    expect((await nav.boundingBox())!.y).toBeGreaterThanOrEqual(h1Box.y + h1Box.height - 4);
     await expect(nav).toHaveAttribute("data-stuck", "false");
+    await expect(nav.getByRole("link", { name: "Get the app" })).toBeVisible();
+    // The wordmark and the two choices are folded away (and cannot be tabbed to) until the bar floats.
+    await expect(nav.locator("[inert]")).toHaveCount(2);
 
     await page.mouse.wheel(0, 1400);
     await expect(nav).toHaveAttribute("data-stuck", "true");
-    expect(Math.abs((await nav.boundingBox())!.y)).toBeLessThanOrEqual(1);
+    const box = (await nav.boundingBox())!;
+    expect(box.y).toBeGreaterThanOrEqual(0);
+    expect(box.y).toBeLessThanOrEqual(16);
+    await expect(nav.locator("[inert]")).toHaveCount(0);
+    await expect(nav.getByRole("link", { name: "BusIn", exact: true })).toBeVisible();
+    await expect(nav.getByRole("button", { name: /^Theme/ })).toBeVisible();
+    await expect(nav.getByRole("button", { name: /^Language/ })).toBeVisible();
   });
 
-  test("the choices are icons and language codes, with names for assistive technology", async ({ page }) => {
+  test("when floating, one button changes the language and one cycles the theme", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto("/");
     const nav = page.getByRole("navigation", { name: "Main" });
-    await expect(nav.getByRole("button", { name: "Dark" })).toHaveText("");
-    await expect(nav.getByRole("button", { name: "Français" })).toHaveText("FR");
-    await expect(nav.getByRole("button", { name: "English" })).toHaveText("EN");
+    await page.mouse.wheel(0, 1400);
+    await expect(nav).toHaveAttribute("data-stuck", "true");
+
+    // Language: shows the current code; a press switches to the other language.
+    await expect(nav.getByRole("button", { name: /^Language/ })).toHaveText("EN");
+    await nav.getByRole("button", { name: /^Language/ }).click();
+    await page.mouse.wheel(0, -2000);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("De votre côté.");
+    await page.mouse.wheel(0, 1400);
+    const frenchNav = page.getByRole("navigation", { name: /Main|Principale/ });
+    await expect(frenchNav.getByRole("button", { name: /^Langue/ })).toHaveText("FR");
+
+    // Theme: one press moves to the next choice and the page follows.
+    const theme = frenchNav.getByRole("button", { name: /^Thème/ });
+    await theme.click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+    await theme.click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   });
 
   test("has nothing wider than the screen on a phone", async ({ page }) => {

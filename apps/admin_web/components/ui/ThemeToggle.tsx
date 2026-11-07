@@ -10,7 +10,7 @@ import { Icon } from "./Icon";
 const CHANGE_EVENT = "busin-theme-change";
 const ICONS = { system: ComputerIcon, light: Sun03Icon, dark: Moon02Icon } as const;
 
-function subscribe(onChange: () => void) {
+export function subscribeTheme(onChange: () => void) {
   window.addEventListener("storage", onChange);
   window.addEventListener(CHANGE_EVENT, onChange);
   return () => {
@@ -19,7 +19,7 @@ function subscribe(onChange: () => void) {
   };
 }
 
-function readTheme(): Theme {
+export function readTheme(): Theme {
   try {
     return parseTheme(localStorage.getItem(THEME_STORAGE_KEY));
   } catch {
@@ -27,7 +27,7 @@ function readTheme(): Theme {
   }
 }
 
-function applyTheme(theme: Theme) {
+export function applyTheme(theme: Theme) {
   try {
     if (theme === "system") localStorage.removeItem(THEME_STORAGE_KEY);
     else localStorage.setItem(THEME_STORAGE_KEY, theme);
@@ -47,7 +47,7 @@ type Props = {
 
 /** System, light or dark. The choice stays in this browser and is applied before first paint. */
 export function ThemeToggle({ labels, iconOnly = false }: Props) {
-  const current = useSyncExternalStore(subscribe, readTheme, () => "system" as Theme);
+  const current = useSyncExternalStore(subscribeTheme, readTheme, () => "system" as Theme);
 
   return (
     <div role="group" aria-label={labels.group} className="inline-flex gap-1 rounded-md bg-surface-2 p-1">

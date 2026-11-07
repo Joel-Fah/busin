@@ -8,9 +8,7 @@ import { LandingNav } from "@/components/landing/LandingNav";
 import { SectionHead } from "@/components/landing/SectionHead";
 import { Sky } from "@/components/landing/Sky";
 import "@/components/landing/landing.css";
-import { LanguageSwitch } from "@/components/LanguageSwitch";
 import { RoughFilter } from "@/components/ui/RoughFilter";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { landingCatalogues } from "@/lib/i18n/landing";
 import { getMessages } from "@/lib/i18n/server";
 import { siteUrl } from "@/lib/landing/site";
@@ -50,17 +48,9 @@ async function LandingContent() {
       <RoughFilter />
       <Sky />
       <HeroHead copy={copy.hero} />
-      <LandingNav
-        copy={copy.nav}
-        switches={
-          <>
-            <ThemeToggle labels={t.profile.theme} iconOnly />
-            <LanguageSwitch locale={locale} t={t} compact />
-          </>
-        }
-      />
+      <LandingNav copy={copy.nav} locale={locale} labels={{ theme: t.profile.theme, language: t.language }} />
       <HeroLead copy={copy.hero} />
-      <BusStopScene eta={copy.hero.eta} />
+      <BusStopScene chips={copy.hero.chips} />
 
       <main className="relative z-10">
         {/* The scenes arrive in the next slices; each already has its place and its anchor. */}
