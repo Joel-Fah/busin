@@ -1524,6 +1524,30 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'On this page'**
   String get legalOnThisPage;
+
+  /// No description provided for @offlineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection'**
+  String get offlineTitle;
+
+  /// No description provided for @offlineBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your saved pass still works at the door. Last updated {when}.'**
+  String offlineBody(String when);
+
+  /// No description provided for @offlineSavedCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'This is the copy saved on this phone ({when}). Connect to the internet to send or change a request.'**
+  String offlineSavedCopy(String when);
+
+  /// No description provided for @offlineNeedsConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to the internet to send your request.'**
+  String get offlineNeedsConnection;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {

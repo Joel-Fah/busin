@@ -327,5 +327,23 @@
       }
     }
   },
-  "legalOnThisPage": "Sur cette page"
+  "legalOnThisPage": "Sur cette page",
+  "offlineTitle": "Pas de connexion",
+  "offlineBody": "Votre pass enregistré fonctionne toujours à la porte. Dernière mise à jour : {when}.",
+  "offlineSavedCopy": "Ceci est la copie enregistrée sur ce téléphone ({when}). Connectez-vous à Internet pour envoyer ou modifier une demande.",
+  "offlineNeedsConnection": "Connectez-vous à Internet pour envoyer votre demande.",
+  "@offlineBody": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "@offlineSavedCopy": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  }
 }

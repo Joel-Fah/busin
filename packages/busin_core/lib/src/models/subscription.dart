@@ -49,6 +49,22 @@ class Subscription extends ValueObject {
   final DateTime createdAt;
   final DateTime updatedAt;
 
+  /// The same shape the API returns, so [Subscription.fromJson] reads it back.
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'school_id': schoolId,
+        'student_id': studentId,
+        'semester_id': semesterId,
+        'stop_id': stopId,
+        'status': status.name,
+        'proof_path': proofPath,
+        'review_note': reviewNote,
+        'reviewed_by': reviewedBy,
+        'reviewed_at': reviewedAt?.toUtc().toIso8601String(),
+        'created_at': createdAt.toUtc().toIso8601String(),
+        'updated_at': updatedAt.toUtc().toIso8601String(),
+      };
+
   /// A student may have only one pending or approved request per semester.
   bool get isLive =>
       status == SubscriptionStatus.pending ||

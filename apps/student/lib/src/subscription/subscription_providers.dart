@@ -3,9 +3,13 @@ import 'package:flutter/painting.dart' show ImageProvider, NetworkImage;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../auth/access.dart';
+import '../offline/offline_providers.dart';
 import '../providers.dart';
 import '../school_clock.dart';
 import 'proof_picker.dart';
+import 'subscription_overview.dart';
+
+export 'subscription_overview.dart';
 
 final stopsRepositoryProvider = Provider<StopsRepository>((ref) => ref.watch(repositoriesProvider).stops);
 final semestersRepositoryProvider = Provider<SemestersRepository>((ref) => ref.watch(repositoriesProvider).semesters);
@@ -17,10 +21,22 @@ final scansRepositoryProvider = Provider<ScansRepository>((ref) => ref.watch(rep
 final tripsRepositoryProvider = Provider<TripsRepository>((ref) => ref.watch(repositoriesProvider).trips);
 
 /// The student's school, for its time zone. Read once while the screen that needs it is alive.
-final schoolProvider = FutureProvider.autoDispose<School>((ref) {
+final schoolProvider = FutureProvider.autoDispose<School>((ref) async {
   final access = ref.watch(accessProvider);
   if (access is! Allowed) throw StateError('Only an allowed student has a school here.');
-  return ref.watch(schoolRepositoryProvider).getSchool(access.profile.schoolId);
+  final userId = access.profile.id;
+  final keeper = ref.watch(snapshotKeeperProvider);
+  return serverOrSaved<School>(
+    ref,
+    source: 'school',
+    live: () => ref.watch(schoolRepositoryProvider).getSchool(access.profile.schoolId),
+    save: (school) => keeper.saveSchool(userId, school),
+    saved: () async {
+      final snapshot = await keeper.load(userId);
+      final school = snapshot?.school;
+      return school == null ? null : (value: school, savedAt: snapshot!.savedAt);
+    },
+  );
 }, retry: noAutomaticRetry);
 
 final schoolClockProvider = Provider<SchoolClock>((ref) => const SchoolClock());
@@ -31,26 +47,6 @@ final stopsProvider = FutureProvider<List<Stop>>((ref) async {
   if (ref.watch(authUserIdProvider).value == null) return const [];
   return ref.watch(stopsRepositoryProvider).listActiveStops();
 }, retry: noAutomaticRetry);
-
-/// Where a student stands for the semester that matters now.
-class SubscriptionOverview {
-  const SubscriptionOverview({this.semester, this.upcoming = false, this.subscription, this.stop});
-
-  /// No semester is open or coming.
-  const SubscriptionOverview.none() : this();
-
-  /// The current semester, or the next one when none is running.
-  final Semester? semester;
-
-  /// True when [semester] has not started yet.
-  final bool upcoming;
-
-  /// The student's pending or approved request, or else the latest one that ended in rejection or expiry.
-  final Subscription? subscription;
-
-  /// The stop of [subscription].
-  final Stop? stop;
-}
 
 /// Picks what to show for a semester: a live request wins; otherwise the newest of the rest. The
 /// list arrives newest first.
@@ -66,23 +62,36 @@ final subscriptionOverviewProvider = FutureProvider.autoDispose<SubscriptionOver
   final access = ref.watch(accessProvider);
   if (access is! Allowed) throw StateError('The subscription page is only for an allowed student.');
   final profile = access.profile;
+  final keeper = ref.watch(snapshotKeeperProvider);
 
-  final school = await ref.watch(schoolProvider.future);
-  final today = ref.watch(schoolClockProvider).today(school.timezone);
+  return serverOrSaved<SubscriptionOverview>(
+    ref,
+    source: 'overview',
+    live: () async {
+      final school = await ref.watch(schoolProvider.future);
+      final today = ref.watch(schoolClockProvider).today(school.timezone, now: ref.read(nowProvider)());
 
-  final semesters = ref.watch(semestersRepositoryProvider);
-  var semester = await semesters.currentSemester(today);
-  var upcoming = false;
-  if (semester == null) {
-    semester = await semesters.nextSemester(today);
-    upcoming = semester != null;
-  }
-  if (semester == null) return const SubscriptionOverview.none();
+      final semesters = ref.watch(semestersRepositoryProvider);
+      var semester = await semesters.currentSemester(today);
+      var upcoming = false;
+      if (semester == null) {
+        semester = await semesters.nextSemester(today);
+        upcoming = semester != null;
+      }
+      if (semester == null) return const SubscriptionOverview.none();
 
-  final mine = await ref.watch(subscriptionsRepositoryProvider).listForStudent(profile.id, page: const PageRequest(limit: 20));
-  final subscription = subscriptionToShow(mine, semester.id);
-  final stop = subscription == null ? null : await ref.watch(stopsRepositoryProvider).getStop(subscription.stopId);
-  return SubscriptionOverview(semester: semester, upcoming: upcoming, subscription: subscription, stop: stop);
+      final mine = await ref.watch(subscriptionsRepositoryProvider).listForStudent(profile.id, page: const PageRequest(limit: 20));
+      final subscription = subscriptionToShow(mine, semester.id);
+      final stop = subscription == null ? null : await ref.watch(stopsRepositoryProvider).getStop(subscription.stopId);
+      return SubscriptionOverview(semester: semester, upcoming: upcoming, subscription: subscription, stop: stop);
+    },
+    save: (overview) => keeper.saveOverview(profile.id, overview.toJson()),
+    saved: () async {
+      final snapshot = await keeper.load(profile.id);
+      final overview = snapshot?.overview;
+      return overview == null ? null : (value: SubscriptionOverview.fromJson(overview, savedAt: snapshot!.savedAt), savedAt: snapshot.savedAt);
+    },
+  );
 }, retry: noAutomaticRetry);
 
 /// How a proof's address becomes a picture. The network in the app; a test swaps in a picture it has in memory.
@@ -137,7 +146,10 @@ SubscribeFailure failureFor(Object error) => switch (error) {
 final landingPathProvider = FutureProvider.autoDispose<String>((ref) async {
   try {
     final overview = await ref.watch(subscriptionOverviewProvider.future);
-    return overview.subscription?.status == SubscriptionStatus.approved ? '/qr' : '/subscription';
+    final school = await ref.watch(schoolProvider.future);
+    final today = ref.watch(schoolClockProvider).today(school.timezone, now: ref.read(nowProvider)());
+    // A copy saved on the phone opens the code only while its semester is running; a fresh answer is taken as it is.
+    return overview.passUsable(today) ? '/qr' : '/subscription';
   } catch (_) {
     return '/subscription';
   }

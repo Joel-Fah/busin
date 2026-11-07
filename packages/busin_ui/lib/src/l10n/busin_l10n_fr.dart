@@ -810,4 +810,21 @@ class BusinL10nFr extends BusinL10n {
 
   @override
   String get legalOnThisPage => 'Sur cette page';
+
+  @override
+  String get offlineTitle => 'Pas de connexion';
+
+  @override
+  String offlineBody(String when) {
+    return 'Votre pass enregistré fonctionne toujours à la porte. Dernière mise à jour : $when.';
+  }
+
+  @override
+  String offlineSavedCopy(String when) {
+    return 'Ceci est la copie enregistrée sur ce téléphone ($when). Connectez-vous à Internet pour envoyer ou modifier une demande.';
+  }
+
+  @override
+  String get offlineNeedsConnection =>
+      'Connectez-vous à Internet pour envoyer votre demande.';
 }

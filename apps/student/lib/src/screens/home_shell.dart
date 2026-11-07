@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
+import '../offline/offline_banner.dart';
+import '../offline/offline_binder.dart';
 import '../push/push_binder.dart';
 import '../router.dart';
 import '../subscription/live_changes.dart';
@@ -52,7 +54,14 @@ class HomeShell extends ConsumerWidget {
           railHeader: BrandMark(color: p.fg, height: 28),
           // The profile is the last destination: on the rail it sits at the bottom end.
           pinLastToRailEnd: true,
-          body: SubscriptionLiveBinder(child: PushBinder(child: SafeArea(bottom: false, child: shell))),
+          body: OfflineBinder(
+            child: SubscriptionLiveBinder(
+              child: PushBinder(
+                // The notice sits above whichever tab is showing; it takes no room while everything is fresh.
+                child: SafeArea(bottom: false, child: Column(children: [const OfflineBanner(), Expanded(child: shell)])),
+              ),
+            ),
+          ),
         ),
       ),
     );

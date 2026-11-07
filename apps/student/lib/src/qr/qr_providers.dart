@@ -5,8 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../auth/access.dart';
 import '../providers.dart';
+import '../subscription/subscription_providers.dart';
 import 'screen_security.dart';
 import 'secret_store.dart';
+
+export '../providers.dart' show nowProvider;
 
 final qrRepositoryProvider = Provider<QrRepository>((ref) => ref.watch(repositoriesProvider).qr);
 
@@ -22,9 +25,6 @@ class QrPrivacyTold extends Notifier<bool> {
 
 final qrPrivacyToldProvider = NotifierProvider<QrPrivacyTold, bool>(QrPrivacyTold.new);
 
-/// The current time. The boarding code is a function of it; tests replace it to move through windows.
-final nowProvider = Provider<DateTime Function()>((ref) => DateTime.now);
-
 /// Gets the boarding secret. The server is asked every time, because only it knows whether the student still has an
 /// approved subscription: a refusal deletes the secret kept on the phone and the code is gone. Only when there is no
 /// connection at all does the phone use the secret it kept, so the code keeps working underground; the scan itself is
@@ -37,7 +37,10 @@ class BoardingCodeService {
 
   /// Throws [NotAllowed] when the student has no approved subscription (now, or no longer), and [Offline] when there is
   /// no connection and nothing on the phone to use instead.
-  Future<Uint8List> secretFor(String userId) async {
+  ///
+  /// [offlineAllowed] is asked only when there is no connection: it says whether the saved pass may still be shown (the
+  /// semester it was approved for must be running). Without it the kept secret is always used offline.
+  Future<Uint8List> secretFor(String userId, {bool Function()? offlineAllowed}) async {
     final Uint8List fresh;
     try {
       fresh = await _qr.fetchSecret();
@@ -46,7 +49,7 @@ class BoardingCodeService {
       rethrow;
     } on Offline {
       final cached = await _store.read(userId);
-      if (cached != null) return cached;
+      if (cached != null && (offlineAllowed?.call() ?? true)) return cached;
       rethrow;
     }
     final cached = await _store.read(userId);
@@ -71,5 +74,19 @@ final boardingCodeServiceProvider = Provider<BoardingCodeService>(
 final qrSecretProvider = FutureProvider.autoDispose<Uint8List>((ref) {
   final access = ref.watch(accessProvider);
   if (access is! Allowed) throw StateError('The boarding code is only for an allowed student.');
-  return ref.watch(boardingCodeServiceProvider).secretFor(access.profile.id);
+  final userId = access.profile.id;
+  final keeper = ref.watch(snapshotKeeperProvider);
+  final clock = ref.watch(schoolClockProvider);
+  final now = ref.read(nowProvider);
+  return ref.watch(boardingCodeServiceProvider).secretFor(
+        userId,
+        // Offline, the saved pass counts only while its semester is running at the school.
+        offlineAllowed: () {
+          final snapshot = keeper.peek(userId);
+          final saved = snapshot?.overview;
+          if (snapshot == null || saved == null) return true;
+          final today = clock.today(snapshot.school?.timezone ?? 'UTC', now: now());
+          return SubscriptionOverview.fromJson(saved, savedAt: snapshot.savedAt).passUsable(today);
+        },
+      );
 }, retry: noAutomaticRetry);

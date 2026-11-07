@@ -29,6 +29,9 @@ Future<void> main() async {
       // Sign-in uses the Google ID token, so no deep link is involved.
       detectSessionInUri: false,
     ),
+    // No silent retries of failed reads: with no connection the answer must come at once, so the app can use the pass saved
+    // on the phone instead of waiting half a minute. Every screen has its own Try again.
+    postgrestOptions: const PostgrestClientOptions(retryEnabled: false),
   );
   final client = Supabase.instance.client;
   // Without Firebase configured this is a stand-in that does nothing, and the app works the same otherwise.
