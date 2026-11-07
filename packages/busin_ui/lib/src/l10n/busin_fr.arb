@@ -345,5 +345,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "proofUnavailable": "Votre preuve de paiement",
+  "proofUnavailableHint": "Elle n’a pas pu être chargée. Touchez pour réessayer."
 }

@@ -200,6 +200,9 @@ class FakeBackend implements SchoolRepository, SemestersRepository, StopsReposit
   /// Set to make every read fail (no connection, a refusal).
   Object? readError;
 
+  /// Set to make the link to a stored proof fail.
+  Object? proofError;
+
   /// Set to make the next request or upload fail.
   Object? requestError;
   Object? uploadError;
@@ -285,7 +288,10 @@ class FakeBackend implements SchoolRepository, SemestersRepository, StopsReposit
   }
 
   @override
-  Future<String> signedUrl(String path, {Duration expiresIn = const Duration(minutes: 10)}) async => 'http://localhost/proof/$path';
+  Future<String> signedUrl(String path, {Duration expiresIn = const Duration(minutes: 10)}) async {
+    if (proofError != null) throw proofError!;
+    return 'http://localhost/proof/$path';
+  }
 }
 
 class FakeProofPicker implements ProofPicker {

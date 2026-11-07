@@ -416,5 +416,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "proofUnavailable": "Your payment proof",
+  "proofUnavailableHint": "It could not be loaded. Tap to try again."
 }

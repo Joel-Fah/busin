@@ -14,6 +14,8 @@ void refreshFromServer(WidgetRef ref) {
   ref.invalidate(schoolProvider);
   ref.invalidate(subscriptionOverviewProvider);
   ref.invalidate(qrSecretProvider);
+  // The payment proof's link failed while offline and was remembered as failed: ask again.
+  ref.invalidate(proofUrlProvider);
   ref.invalidate(canFollowBusesProvider);
 }
 

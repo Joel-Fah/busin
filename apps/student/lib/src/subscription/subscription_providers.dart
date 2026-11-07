@@ -100,6 +100,8 @@ final proofImageProvider = Provider<ImageProvider Function(String address)>((ref
 /// A short-lived address to show a stored proof. Fetched when the proof is on screen and not kept.
 final proofUrlProvider = FutureProvider.autoDispose.family<String, String>(
   (ref, path) => ref.watch(proofsRepositoryProvider).signedUrl(path),
+  // A failure is shown (with Try again) at once, not retried behind the scenes while the proof silently stays hidden.
+  retry: noAutomaticRetry,
 );
 
 /// Why a request could not be sent, as the screen explains it.

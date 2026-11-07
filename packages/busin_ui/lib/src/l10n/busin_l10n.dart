@@ -1548,6 +1548,18 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'Connect to the internet to send your request.'**
   String get offlineNeedsConnection;
+
+  /// No description provided for @proofUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Your payment proof'**
+  String get proofUnavailable;
+
+  /// No description provided for @proofUnavailableHint.
+  ///
+  /// In en, this message translates to:
+  /// **'It could not be loaded. Tap to try again.'**
+  String get proofUnavailableHint;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {

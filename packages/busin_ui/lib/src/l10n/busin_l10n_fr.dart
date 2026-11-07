@@ -827,4 +827,11 @@ class BusinL10nFr extends BusinL10n {
   @override
   String get offlineNeedsConnection =>
       'Connectez-vous à Internet pour envoyer votre demande.';
+
+  @override
+  String get proofUnavailable => 'Votre preuve de paiement';
+
+  @override
+  String get proofUnavailableHint =>
+      'Elle n’a pas pu être chargée. Touchez pour réessayer.';
 }
