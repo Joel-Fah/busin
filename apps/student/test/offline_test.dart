@@ -26,6 +26,7 @@ Future<void> launch(
   TestClock? clock,
   Stream<bool>? connectivity,
   Duration? gateTimeout,
+  Duration? copyWait,
   FakeAuthService? auth,
 }) async {
   tester.view.physicalSize = const Size(800, 1800);
@@ -44,6 +45,7 @@ Future<void> launch(
         clock: clock,
         connectivity: connectivity,
         gateTimeout: gateTimeout,
+        copyWait: copyWait,
       ),
       child: const StudentApp(),
     ),
@@ -95,15 +97,32 @@ void main() {
       expect(find.text('Boarding code'), findsNothing);
     });
 
-    testWidgets('a connection that never answers falls back to the saved copy after the timeout', (tester) async {
+    testWidgets('a read that never answers does not hold the saved pass up, and the late answer replaces it', (tester) async {
       final phone = await usedOnline(tester);
-      final profiles = students()..hold = Completer<void>();
-      await launch(tester, phone, profiles: profiles, backend: approvedBackend()..readError = const Offline('x'), qr: FakeQr()..error = const Offline('x'), gateTimeout: const Duration(seconds: 1));
-      for (var i = 0; i < 12; i++) {
-        await tester.pump(const Duration(milliseconds: 200));
-      }
+      final hold = Completer<void>();
+      final profiles = students()..hold = hold;
+      await launch(tester, phone, profiles: profiles, backend: approvedBackend(), copyWait: const Duration(seconds: 1));
+      // The wait is one second: by now the saved profile is shown, with the notice.
       expect(find.text('Boarding code'), findsOneWidget);
       expect(find.text('No connection'), findsOneWidget);
+
+      // The server finally answers: the answer replaces the copy and the notice goes.
+      profiles.hold = null;
+      hold.complete();
+      for (var i = 0; i < 6; i++) {
+        await tester.pump(const Duration(milliseconds: 200));
+      }
+      expect(find.text('No connection'), findsNothing);
+      expect(find.text('Boarding code'), findsOneWidget);
+    });
+
+    testWidgets('with no saved copy a stalled read ends in the problem screen at the limit, not before', (tester) async {
+      final profiles = students()..hold = Completer<void>();
+      await launch(tester, Phone(), profiles: profiles, backend: approvedBackend(), gateTimeout: const Duration(seconds: 5));
+      expect(find.text('Try again'), findsNothing, reason: 'still waiting');
+      await tester.pump(const Duration(seconds: 6));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.text('Try again'), findsOneWidget);
     });
 
     testWidgets('once the semester has ended the saved pass is no longer shown as working', (tester) async {

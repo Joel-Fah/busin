@@ -690,6 +690,7 @@ List<Override> overridesFor(
   FakeSnapshotStore? snapshots,
   Stream<bool>? connectivity,
   Duration? gateTimeout,
+  Duration? copyWait,
 }) {
   final b = backend ?? FakeBackend();
   final h = history ?? FakeHistory();
@@ -699,6 +700,7 @@ List<Override> overridesFor(
     connectivityProvider.overrideWith((ref) => connectivity ?? Stream<bool>.value(true)),
     // No limit unless a test asks for one: a held read must not leave a timer behind.
     gateTimeoutProvider.overrideWithValue(gateTimeout),
+    copyWaitProvider.overrideWithValue(copyWait),
     authServiceProvider.overrideWithValue(auth),
     profileRepositoryProvider.overrideWithValue(profiles),
     academicRepositoryProvider.overrideWithValue(academic ?? FakeAcademic()),

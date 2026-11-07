@@ -15,6 +15,7 @@ ProviderContainer containerFor({bool introEnabled = true, FakeAuthService? auth,
       introEnabledProvider.overrideWithValue(introEnabled),
       snapshotStoreProvider.overrideWithValue(FakeSnapshotStore()),
       gateTimeoutProvider.overrideWithValue(null),
+      copyWaitProvider.overrideWithValue(null),
       authServiceProvider.overrideWithValue(auth ?? FakeAuthService()),
       profileRepositoryProvider.overrideWithValue(profiles ?? FakeProfileRepository({})),
     ]);
