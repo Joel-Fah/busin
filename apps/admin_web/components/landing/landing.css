@@ -1,0 +1,54 @@
+/* Motion that belongs to the landing page only. Every animation here stops under reduced motion. */
+
+@keyframes landing-code-ring {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: 100;
+  }
+}
+
+.landing-code-ring {
+  animation: landing-code-ring 30s linear infinite;
+}
+
+@keyframes landing-route-march {
+  to {
+    stroke-dashoffset: -64;
+  }
+}
+
+.landing-route {
+  animation: landing-route-march 5s linear infinite;
+}
+
+@keyframes landing-float {
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.landing-float {
+  animation: landing-float 6s var(--ease-soft) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-code-ring,
+  .landing-route,
+  .landing-float {
+    animation: none;
+  }
+}
+
+/* Smooth anchor jumps from the nav, unless the visitor asked for less motion. */
+html:has([data-landing]) {
+  scroll-behavior: smooth;
+  scroll-padding-top: 6rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:has([data-landing]) {
+    scroll-behavior: auto;
+  }
+}

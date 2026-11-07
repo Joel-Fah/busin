@@ -109,7 +109,8 @@ test.describe("administrator reviewing", () => {
     await page.getByRole("button", { name: "Confirm rejection" }).click();
 
     await expect(page.getByRole("status")).toContainText("Subscription rejected.");
-    await expect(page.getByText("The receipt is unreadable. Upload a clearer photo.")).toBeVisible();
+    // The reason shows in the decision card and again in the history of the semester.
+    await expect(page.getByText("The receipt is unreadable. Upload a clearer photo.").first()).toBeVisible();
 
     const { data: row } = await db.from("subscriptions").select("status, review_note").eq("id", rejectId).single();
     expect(row?.status).toBe("rejected");
