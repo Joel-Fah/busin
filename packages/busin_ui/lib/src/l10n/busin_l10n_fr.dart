@@ -1082,4 +1082,28 @@ class BusinL10nFr extends BusinL10n {
 
   @override
   String get streakToday => 'Aujourd\'hui';
+
+  @override
+  String get streakViewLabel => 'Vue de la série';
+
+  @override
+  String get streakTabCalendar => 'Calendrier';
+
+  @override
+  String get streakTabBoard => 'Classement';
+
+  @override
+  String get leaderboardNote =>
+      'Les étudiants de votre école qui tiennent une série, par série en cours.';
+
+  @override
+  String get leaderboardEmpty => 'Personne n’est encore au classement.';
+
+  @override
+  String get leaderboardYou => 'Vous';
+
+  @override
+  String leaderboardRank(int rank) {
+    return 'Rang $rank';
+  }
 }

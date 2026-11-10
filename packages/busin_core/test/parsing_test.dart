@@ -333,4 +333,19 @@ void main() {
       expect(() => ScanOutcome.fromJson({'valid': true}), throwsFormatException);
     });
   });
+
+  group('leaderboard', () {
+    test('reads a row, with or without a picture', () {
+      final row = LeaderboardEntry.fromJson({
+        'rank': 2,
+        'display_name': 'Kofi M.',
+        'avatar_url': null,
+        'current_streak': 4,
+        'rides': 9,
+        'is_me': true,
+      });
+      expect(row, const LeaderboardEntry(rank: 2, displayName: 'Kofi M.', currentStreak: 4, rides: 9, isMe: true));
+      expect(() => LeaderboardEntry.fromJson({'rank': 1}), throwsFormatException);
+    });
+  });
 }

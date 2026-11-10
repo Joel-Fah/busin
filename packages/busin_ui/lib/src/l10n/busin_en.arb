@@ -586,5 +586,13 @@
   "streakRode": "Rode",
   "streakMissed": "Missed",
   "streakRest": "Rest or no bus",
-  "streakToday": "Today"
+  "streakToday": "Today",
+  "streakViewLabel": "Streak view",
+  "streakTabCalendar": "Calendar",
+  "streakTabBoard": "Leaderboard",
+  "leaderboardNote": "Students of your school who keep a streak, by current streak.",
+  "leaderboardEmpty": "No one is on the board yet.",
+  "leaderboardYou": "You",
+  "leaderboardRank": "Rank {rank}",
+  "@leaderboardRank": {"placeholders": {"rank": {"type": "int"}}}
 }

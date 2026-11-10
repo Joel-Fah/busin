@@ -48,17 +48,25 @@ class StreakChip extends ConsumerWidget {
   }
 }
 
-/// The streak in full: the current and best runs, the rides this semester, and a calendar of every day since opting in.
-class StreakSheet extends ConsumerWidget {
+enum _StreakView { calendar, board }
+
+/// The streak in full: the current and best runs, the rides this semester, then either a calendar of every day since
+/// opting in or the school's leaderboard.
+class StreakSheet extends ConsumerStatefulWidget {
   const StreakSheet({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<StreakSheet> createState() => _StreakSheetState();
+}
+
+class _StreakSheetState extends ConsumerState<StreakSheet> {
+  var _view = _StreakView.calendar;
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = BusinL10n.of(context);
-    final p = BusinPalette.of(context);
     final text = Theme.of(context).textTheme;
     final streak = ref.watch(streakProvider).value;
-    final days = ref.watch(rideDaysProvider);
     return Padding(
       padding: EdgeInsets.all(BusinSheetFrame.contentInset),
       child: SingleChildScrollView(
@@ -82,15 +90,135 @@ class StreakSheet extends ConsumerWidget {
                 ],
               ),
             const SizedBox(height: BusinSpace.x4),
-            days.when(
-              data: (list) => StreakCalendar(days: list),
-              loading: () => const Padding(
-                padding: EdgeInsets.all(BusinSpace.x6),
-                child: Center(child: CircularProgressIndicator()),
-              ),
-              error: (_, _) => Text(l10n.errorGeneric, style: text.bodyMedium?.copyWith(color: p.muted)),
+            BusinSegmented<_StreakView>(
+              groupLabel: l10n.streakViewLabel,
+              selected: _view,
+              onChanged: (view) => setState(() => _view = view),
+              segments: [
+                BusinSegment(value: _StreakView.calendar, label: l10n.streakTabCalendar, icon: HugeIcons.strokeRoundedCalendar03),
+                BusinSegment(value: _StreakView.board, label: l10n.streakTabBoard, icon: HugeIcons.strokeRoundedAward01),
+              ],
             ),
+            const SizedBox(height: BusinSpace.x4),
+            // The board is only fetched once its tab is opened.
+            if (_view == _StreakView.calendar) const _CalendarView() else const Leaderboard(),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CalendarView extends ConsumerWidget {
+  const _CalendarView();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = BusinL10n.of(context);
+    final p = BusinPalette.of(context);
+    return ref.watch(rideDaysProvider).when(
+          data: (list) => StreakCalendar(days: list),
+          loading: () => const _Loading(),
+          error: (_, _) => Text(l10n.errorGeneric, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: p.muted)),
+        );
+  }
+}
+
+class _Loading extends StatelessWidget {
+  const _Loading();
+
+  @override
+  Widget build(BuildContext context) => const Padding(
+        padding: EdgeInsets.all(BusinSpace.x6),
+        child: Center(child: CircularProgressIndicator()),
+      );
+}
+
+/// The school's board: rank, avatar, first name and initial, and the current streak. The student's own row is
+/// highlighted, and shown below a gap when it falls outside the top of the board.
+class Leaderboard extends ConsumerWidget {
+  const Leaderboard({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = BusinL10n.of(context);
+    final p = BusinPalette.of(context);
+    final text = Theme.of(context).textTheme;
+    return ref.watch(leaderboardProvider).when(
+          loading: () => const _Loading(),
+          error: (_, _) => Text(l10n.errorGeneric, style: text.bodyMedium?.copyWith(color: p.muted)),
+          data: (rows) {
+            if (rows.isEmpty) return Text(l10n.leaderboardEmpty, style: text.bodyMedium?.copyWith(color: p.muted));
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(l10n.leaderboardNote, style: text.bodySmall?.copyWith(color: p.muted)),
+                const SizedBox(height: BusinSpace.x3),
+                for (var i = 0; i < rows.length; i++) ...[
+                  if (i > 0 && rows[i].rank > rows[i - 1].rank + 1)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: BusinSpace.x1),
+                      child: Center(child: HugeIcon(icon: HugeIcons.strokeRoundedMoreHorizontal, size: 18, color: p.muted)),
+                    )
+                  else if (i > 0)
+                    const SizedBox(height: BusinSpace.x2),
+                  _BoardRow(entry: rows[i]),
+                ],
+              ],
+            );
+          },
+        );
+  }
+}
+
+class _BoardRow extends StatelessWidget {
+  const _BoardRow({required this.entry});
+
+  final LeaderboardEntry entry;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = BusinL10n.of(context);
+    final p = BusinPalette.of(context);
+    final text = Theme.of(context).textTheme;
+    final name = entry.isMe ? '${entry.displayName} (${l10n.leaderboardYou})' : entry.displayName;
+    final podium = entry.rank <= 3 && entry.currentStreak > 0;
+    return Semantics(
+      container: true,
+      label: '${l10n.leaderboardRank(entry.rank)}, $name, ${l10n.streakDays(entry.currentStreak)}',
+      child: ExcludeSemantics(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: BusinSpace.x3, vertical: BusinSpace.x2),
+          decoration: BoxDecoration(
+            color: entry.isMe ? p.accent.withValues(alpha: 0.14) : p.surface2,
+            borderRadius: BorderRadius.circular(BusinRadius.sm),
+            border: entry.isMe ? Border.all(color: p.accent.withValues(alpha: 0.6)) : null,
+          ),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 32,
+                child: Text(
+                  '${entry.rank}',
+                  style: text.titleSmall?.copyWith(fontWeight: FontWeight.w800, color: podium ? p.accent : p.muted),
+                ),
+              ),
+              UserAvatar(name: entry.displayName, imageUrl: entry.avatarUrl, size: 32),
+              const SizedBox(width: BusinSpace.x3),
+              Expanded(
+                child: Text(
+                  name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: text.bodyLarge?.copyWith(fontWeight: entry.isMe ? FontWeight.w700 : null),
+                ),
+              ),
+              const SizedBox(width: BusinSpace.x2),
+              HugeIcon(icon: HugeIcons.strokeRoundedFire, size: 16, color: entry.currentStreak > 0 ? p.accent : p.muted),
+              const SizedBox(width: BusinSpace.x1),
+              Text('${entry.currentStreak}', style: text.labelLarge?.copyWith(fontWeight: FontWeight.w700)),
+            ],
+          ),
         ),
       ),
     );

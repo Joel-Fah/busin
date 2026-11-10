@@ -116,6 +116,12 @@ class SupabaseStreaksRepository implements StreaksRepository {
         final rows = await _client.rpc<List<dynamic>>('my_streak', params: {'p_semester_id': semesterId});
         return rows.isEmpty ? null : Streak.fromJson(rows.first as Map<String, dynamic>);
       });
+
+  @override
+  Future<List<LeaderboardEntry>> leaderboard(String semesterId, {int limit = 50}) => guarded(() async {
+        final rows = await _client.rpc<List<dynamic>>('school_leaderboard', params: {'p_semester_id': semesterId, 'p_limit': limit});
+        return rows.cast<Map<String, dynamic>>().map(LeaderboardEntry.fromJson).toList(growable: false);
+      });
 }
 
 class SupabaseJoinRepository implements JoinRepository {

@@ -50,3 +50,36 @@ class Streak extends ValueObject {
   @override
   List<Object?> get props => [current, best, rides];
 }
+
+/// One row of a school's leaderboard: students who keep a streak, shown as first name and initial.
+class LeaderboardEntry extends ValueObject {
+  const LeaderboardEntry({
+    required this.rank,
+    required this.displayName,
+    required this.currentStreak,
+    required this.rides,
+    required this.isMe,
+    this.avatarUrl,
+  });
+
+  factory LeaderboardEntry.fromJson(Map<String, dynamic> json) => LeaderboardEntry(
+        rank: reqInt(json, 'rank'),
+        displayName: reqString(json, 'display_name'),
+        avatarUrl: optString(json, 'avatar_url'),
+        currentStreak: reqInt(json, 'current_streak'),
+        rides: reqInt(json, 'rides'),
+        isMe: reqBool(json, 'is_me'),
+      );
+
+  final int rank;
+  final String displayName;
+  final String? avatarUrl;
+  final int currentStreak;
+  final int rides;
+
+  /// The signed-in student's own row (always included, even below the limit).
+  final bool isMe;
+
+  @override
+  List<Object?> get props => [rank, displayName, avatarUrl, currentStreak, rides, isMe];
+}
