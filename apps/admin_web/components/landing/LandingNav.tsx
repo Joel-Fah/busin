@@ -106,12 +106,13 @@ export function LandingNav({ copy, locale, labels }: Props) {
   return (
     <>
       <div ref={sentinel} aria-hidden className="h-px" />
-      <div className="pointer-events-none sticky top-3 z-40 flex justify-center px-3">
+      {/* The slot keeps the height of the bar's row; the bar lies over it, so the phone menu opens above the page, not into it. */}
+      <div className="pointer-events-none sticky top-3 z-40 h-[60px]">
         <nav
           ref={bar}
           aria-label={copy.label}
           data-stuck={stuck}
-          className="group pointer-events-auto relative flex max-w-full flex-col rounded-[28px] transition-[background-color,box-shadow,backdrop-filter] duration-(--dur-slow) ease-soft [--thread-color:color-mix(in_srgb,var(--fg)_16%,transparent)] data-[stuck=true]:bg-glass data-[stuck=true]:shadow-float data-[stuck=true]:backdrop-blur-(--glass-blur) max-md:data-[stuck=true]:w-full max-md:data-[stuck=true]:max-w-md"
+          className="group pointer-events-auto absolute left-1/2 top-0 flex w-max max-w-[calc(100vw-1.5rem)] -translate-x-1/2 flex-col rounded-[28px] transition-[background-color,box-shadow,backdrop-filter] duration-(--dur-slow) ease-soft [--thread-color:color-mix(in_srgb,var(--fg)_16%,transparent)] data-[stuck=true]:bg-glass data-[stuck=true]:shadow-float data-[stuck=true]:backdrop-blur-(--glass-blur) max-md:data-[stuck=true]:w-[calc(100vw-1.5rem)] max-md:data-[stuck=true]:max-w-md"
         >
           <span aria-hidden className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-(--dur-slow) group-data-[stuck=true]:opacity-100">
             <Contour radius={28} inset={5} dash={[6, 6]} />

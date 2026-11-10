@@ -8,7 +8,7 @@ import { innerRadius } from "@/lib/ui/radius";
 
 import { PeopleTrack } from "./PeopleTrack";
 
-/** One photo per role (Pexels, chosen by the owner, cropped to 4:5) and a sticker from the portal's illustrations on its corner. */
+/** One photo per role (Pexels, chosen by the owner, cropped to 4:5, shown a little shorter: square on phones, 6:7 above) and a sticker from the portal's illustrations on its corner. */
 const ART = [
   { photo: "/landing/people/students.webp", sticker: "/illustrations/ticket1.webp", tilt: "-rotate-6" },
   { photo: "/landing/people/driver.webp", sticker: "/illustrations/bus.webp", tilt: "rotate-3" },
@@ -31,7 +31,7 @@ export function PeopleSection({ copy }: { copy: LandingCopy["people"] }) {
               width={720}
               height={900}
               sizes="(min-width: 1280px) 22rem, (min-width: 640px) 45vw, 90vw"
-              className="aspect-[4/5] h-auto w-full bg-surface-2 object-cover"
+              className="aspect-square h-auto w-full bg-surface-2 object-cover object-[50%_35%] sm:aspect-[6/7]"
               style={{ borderRadius: innerRadius(36, 24) }}
             />
             <Image

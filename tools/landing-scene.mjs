@@ -657,11 +657,12 @@ function planter(x, w) {
   );
 }
 
-/** A street lamp standing on the pavement, about twice a person's height, glowing at night. */
-function lamp(x, h = 360) {
+/** A street lamp standing on the pavement, well above a person's height, glowing at night. */
+function lamp(x, h = 330) {
   const top = GROUND - h;
+  // The glow stays inside the drawing (top at y 110), so the frame never cuts it.
   return (
-    `<circle cx="${x + 30}" cy="${top + 14}" r="110" fill="url(#s-glow)" opacity="${V("glow-o")}"/>` +
+    `<circle cx="${x + 30}" cy="${top + 20}" r="84" fill="url(#s-glow)" opacity="${V("glow-o")}"/>` +
     groundShadow(x + 3, GROUND + 1, 14, 3) +
     rect(x - 6, GROUND - 9, 18, 9, 2, V("struct")) +
     rect(x - 2, GROUND - 40, 10, 34, 2, V("struct")) +
