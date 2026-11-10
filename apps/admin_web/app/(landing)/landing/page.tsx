@@ -7,6 +7,12 @@ import { LandingFooter } from "@/components/landing/LandingFooter";
 import { LandingNav } from "@/components/landing/LandingNav";
 import { SectionHead } from "@/components/landing/SectionHead";
 import { Sky } from "@/components/landing/Sky";
+import { DownloadSection } from "@/components/landing/DownloadSection";
+import { InterestProvider } from "@/components/landing/interest/Interest";
+import { downloads } from "@/lib/landing/downloads";
+import { DayStory } from "@/components/landing/day/DayStory";
+import { PeopleSection } from "@/components/landing/people/PeopleSection";
+import { PrivateSection } from "@/components/landing/PrivateSection";
 import "@/components/landing/landing.css";
 import { RoughFilter } from "@/components/ui/RoughFilter";
 import { landingCatalogues } from "@/lib/i18n/landing";
@@ -25,7 +31,14 @@ export async function generateMetadata(): Promise<Metadata> {
     description: copy.description,
     alternates: { canonical: "/" },
     robots: { index: true, follow: true },
-    openGraph: { title: copy.shareTitle, description: copy.description, type: "website", url: "/", siteName: "BusIn", locale: locale === "fr" ? "fr_FR" : "en_US" },
+    openGraph: {
+      title: copy.shareTitle,
+      description: copy.description,
+      type: "website",
+      url: "/",
+      siteName: "BusIn",
+      locale: locale === "fr" ? "fr_FR" : "en_US",
+    },
     twitter: { card: "summary_large_image", title: copy.shareTitle, description: copy.description },
   };
 }
@@ -44,23 +57,48 @@ async function LandingContent() {
   const sections = copy.sections;
 
   return (
-    <div lang={locale} data-landing className="relative bg-bg text-fg">
-      <RoughFilter />
-      <Sky />
-      <HeroHead copy={copy.hero} />
-      <LandingNav copy={copy.nav} locale={locale} labels={{ theme: t.profile.theme, language: t.language }} />
-      <HeroLead copy={copy.hero} />
-      <BusStopScene chips={copy.hero.chips} />
+    <InterestProvider copy={copy.form} locale={locale}>
+      <div lang={locale} data-landing className="relative bg-bg text-fg">
+        <RoughFilter />
+        <Sky />
+        <HeroHead copy={copy.hero} />
+        <LandingNav copy={copy.nav} locale={locale} labels={{ theme: t.profile.theme, language: t.language }} />
+        <HeroLead copy={copy.hero} />
+        <BusStopScene chips={copy.hero.chips} />
 
-      <main className="relative z-10">
-        {/* The scenes arrive in the next slices; each already has its place and its anchor. */}
-        {(["day", "people", "private", "download", "schools", "faq"] as const).map((key) => (
-          <section key={key} aria-labelledby={key} className="mx-auto max-w-[88rem] px-5 pt-28 sm:px-8">
-            <SectionHead id={key} {...sections[key]} />
+        <main className="relative z-10">
+          <section aria-labelledby="day" className="mx-auto max-w-[88rem] px-5 pt-28 sm:px-8 sm:pt-36">
+            <SectionHead id="day" {...sections.day} />
+            <DayStory copy={copy.day} />
           </section>
-        ))}
-      </main>
-      <LandingFooter copy={copy.footer} locale={locale} t={t} />
-    </div>
+
+          <section aria-labelledby="people" className="pt-28 sm:pt-36">
+            <div className="mx-auto max-w-[88rem] px-5 sm:px-8">
+              <SectionHead id="people" {...sections.people} />
+            </div>
+            <div className="mx-auto max-w-[88rem] px-5 sm:px-8 lg:max-w-none lg:px-0">
+              <PeopleSection copy={copy.people} />
+            </div>
+          </section>
+
+          <section aria-labelledby="private" className="mx-auto max-w-[88rem] px-3 pt-28 sm:px-8 sm:pt-36">
+            <PrivateSection head={sections.private} copy={copy.private} />
+          </section>
+
+          <section aria-labelledby="download" className="mx-auto max-w-[88rem] px-5 pt-28 sm:px-8 sm:pt-36">
+            <SectionHead id="download" {...sections.download} />
+            <DownloadSection copy={copy.download} links={downloads()} />
+          </section>
+
+          {/* The next slice fills these; each already has its place and its anchor. */}
+          {(["schools", "faq"] as const).map((key) => (
+            <section key={key} aria-labelledby={key} className="mx-auto max-w-[88rem] px-5 pt-28 sm:px-8">
+              <SectionHead id={key} {...sections[key]} />
+            </section>
+          ))}
+        </main>
+        <LandingFooter copy={copy.footer} locale={locale} t={t} />
+      </div>
+    </InterestProvider>
   );
 }

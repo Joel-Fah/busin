@@ -141,6 +141,20 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"interest_requests": {
+                  Row: {
+                    "created_at": string,"email": string,"id": string,"kind": string,"locale": string,"message": string | null,"name": string | null,"organisation": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"email": string,"id"?: string,"kind": string,"locale"?: string,"message"?: string | null,"name"?: string | null,"organisation"?: string | null
+                  }
+                  Update: {
+                    "created_at"?: string,"email"?: string,"id"?: string,"kind"?: string,"locale"?: string,"message"?: string | null,"name"?: string | null,"organisation"?: string | null
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"live_positions": {
                   Row: {
                     "accuracy_m": number | null,"bus_id": string,"heading_deg": number | null,"location": unknown,"recorded_at": string,"school_id": string,"source": string,"speed_mps": number | null,"trip_id": string | null
@@ -528,6 +542,9 @@ isOneToOne: false
                            },
 "rotate_my_qr_secret":
 { Args: Record<PropertyKey, never>; Returns: string
+                           },
+"submit_interest":
+{ Args: { "p_email": string,"p_kind": string,"p_locale"?: string,"p_message"?: string,"p_name"?: string,"p_organisation"?: string,"p_trap"?: string }; Returns: string
                            },
 "unregister_device_token":
 { Args: { "p_token": string }; Returns: undefined

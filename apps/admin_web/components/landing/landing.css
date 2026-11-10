@@ -126,3 +126,146 @@ html:has([data-landing]) {
     scroll-behavior: auto;
   }
 }
+
+/* ---- A day with BusIn: the phone's screen follows the step in the middle of the window (data-step on .day-story). */
+.day-screen {
+  opacity: 0;
+  translate: 0 18px;
+  scale: 0.98;
+  transition:
+    opacity 0.5s var(--ease-soft),
+    translate 0.7s var(--ease-soft),
+    scale 0.7s var(--ease-soft);
+}
+
+.day-screen.is-shown,
+.day-story[data-step="0"] [data-screen="0"],
+.day-story[data-step="1"] [data-screen="1"],
+.day-story[data-step="2"] [data-screen="2"],
+.day-story[data-step="3"] [data-screen="3"] {
+  opacity: 1;
+  translate: 0 0;
+  scale: 1;
+}
+
+@media (min-width: 64rem) {
+  .day-step {
+    opacity: 0.35;
+    transition: opacity 0.6s var(--ease-soft);
+  }
+
+  .day-story[data-step="0"] [data-day-step="0"],
+  .day-story[data-step="1"] [data-day-step="1"],
+  .day-story[data-step="2"] [data-day-step="2"],
+  .day-story[data-step="3"] [data-day-step="3"] {
+    opacity: 1;
+  }
+}
+
+/* What moves inside the screens. Each animation starts again whenever its screen comes back. */
+@keyframes day-push {
+  0%,
+  30% {
+    opacity: 0;
+    translate: 0 -120%;
+  }
+  45%,
+  100% {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes day-approve {
+  0%,
+  25% {
+    opacity: 0.2;
+    scale: 0.6;
+  }
+  40%,
+  100% {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+@keyframes day-refresh {
+  from {
+    scale: 1 1;
+  }
+  to {
+    scale: 0 1;
+  }
+}
+
+@keyframes day-bus {
+  from {
+    offset-distance: 0%;
+  }
+  to {
+    offset-distance: 52%;
+  }
+}
+
+@keyframes day-tick {
+  0% {
+    scale: 0.4;
+    opacity: 0;
+  }
+  60% {
+    scale: 1.08;
+    opacity: 1;
+  }
+  100% {
+    scale: 1;
+  }
+}
+
+.day-bus {
+  offset-rotate: 0deg;
+  offset-distance: 52%;
+  translate: -50% -50%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :is(.is-shown, .day-story[data-step="0"] [data-screen="0"]) .day-push {
+    animation: day-push 3.2s var(--ease-soft) both;
+  }
+
+  :is(.is-shown, .day-story[data-step="0"] [data-screen="0"]) .day-approve {
+    animation: day-approve 3.2s var(--ease-soft) both;
+  }
+
+  .day-refresh {
+    animation: day-refresh 12s linear infinite;
+  }
+
+  :is(.is-shown, .day-story[data-step="2"] [data-screen="2"]) .day-bus {
+    animation: day-bus 7s var(--ease-soft) both;
+  }
+
+  :is(.is-shown, .day-story[data-step="3"] [data-screen="3"]) .day-tick {
+    animation: day-tick 0.8s var(--ease-soft) both;
+  }
+}
+
+/* ---- Who it helps: when the row is pinned (wide screens with motion), the cards sit side by side at a fixed width. */
+.people-track.is-pinned {
+  overflow: hidden;
+}
+
+.people-track.is-pinned [data-people-track] {
+  display: flex;
+  width: max-content;
+  padding-inline: max(1.25rem, calc((100vw - 88rem) / 2 + 2rem));
+}
+
+.people-track.is-pinned .people-card {
+  width: min(26rem, 34vw);
+}
+
+@media (min-width: 64rem) {
+  .people-track:not(.is-pinned) {
+    padding-inline: max(2rem, calc((100vw - 88rem) / 2 + 2rem));
+  }
+}

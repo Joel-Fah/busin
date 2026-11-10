@@ -105,6 +105,27 @@ test.describe("the landing page", () => {
     expect(overflow).toBeLessThanOrEqual(0);
   });
 
+  test("a day with BusIn: on a wide screen the phone shows the step in the middle of the window", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    const story = page.locator(".day-story");
+    await expect(story).toHaveAttribute("data-step", "0");
+    await page.getByRole("heading", { name: "See it coming" }).scrollIntoViewIfNeeded();
+    await page.evaluate(() => window.scrollBy(0, 1));
+    await expect(story).toHaveAttribute("data-step", "2");
+    await expect(page.getByRole("heading", { level: 3 })).toContainText(["Subscribe once", "Your pass, even offline", "See it coming", "Show, scan, sit"]);
+  });
+
+  test("who it helps and the privacy facts are all readable on a phone, in French too", async ({ page, context }) => {
+    await context.addCookies([{ name: "locale", value: "fr", url: "http://127.0.0.1:3000" }]);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/");
+    for (const role of ["Étudiants", "Chauffeurs", "Personnel à la porte", "Bureau de l'école", "Personne ne suit votre téléphone"]) {
+      await page.getByRole("heading", { name: role, exact: true }).scrollIntoViewIfNeeded();
+      await expect(page.getByRole("heading", { name: role, exact: true })).toBeVisible();
+    }
+  });
+
   test("the menu opens on a phone without any script", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/");
