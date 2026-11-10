@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:busin_core/busin_core.dart';
 import 'package:busin_student/src/auth/auth_service.dart';
 import 'package:busin_student/src/bus/bus_providers.dart';
+import 'package:busin_student/src/config/app_config.dart';
 import 'package:busin_student/src/bus/map_scene.dart';
 import 'package:busin_student/src/offline/offline_providers.dart';
 import 'package:busin_student/src/offline/pass_snapshot.dart';
@@ -676,6 +677,9 @@ class TestClock {
   DateTime call() => now;
 }
 
+/// The public settings a test app is built with (nothing is reached over the network).
+const testConfig = AppConfig(supabaseUrl: 'http://127.0.0.1:54321', publishableKey: 'test', googleServerClientId: 'test', environment: 'test');
+
 List<Override> overridesFor(
   FakeAuthService auth,
   FakeProfileRepository profiles, {
@@ -701,6 +705,7 @@ List<Override> overridesFor(
   final b = backend ?? FakeBackend();
   final h = history ?? FakeHistory();
   return [
+    appConfigProvider.overrideWithValue(testConfig),
     introEnabledProvider.overrideWithValue(false),
     snapshotStoreProvider.overrideWithValue(snapshots ?? FakeSnapshotStore()),
     connectivityProvider.overrideWith((ref) => connectivity ?? Stream<bool>.value(true)),

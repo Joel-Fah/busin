@@ -33,6 +33,7 @@ import { DatePicker } from "@/components/ui/DatePicker";
 import { DateTimePicker } from "@/components/ui/DateTimePicker";
 import { TimePicker } from "@/components/ui/TimePicker";
 import { Input } from "@/components/ui/Input";
+import { DomainsTagInput } from "@/components/ui/TagInput";
 import { Select } from "@/components/ui/Select";
 import { ListSkeleton } from "@/components/ui/ListSkeleton";
 import { Notice } from "@/components/ui/Notice";
@@ -560,6 +561,23 @@ async function Styleguide() {
           <Input id="sg-email" label="Email" icon={Mail01Icon} type="email" hint="We never share it." />
           <Input id="sg-error" label="Plate" icon={Bus01Icon} defaultValue="LT 123" error="That plate is already used." />
         </div>
+        <div className="mt-4 max-w-3xl">
+          <DomainsTagInput
+            id="sg-tags"
+            name="sg-tags"
+            label="Allowed email domains"
+            hint="Type a domain and press comma, space or Enter. Click a tag to edit it."
+            placeholder="gmail.com, yahoo.fr"
+            defaultValue={["gmail.com", "yahoo.fr"]}
+            invalidHint="One of these is not a valid domain. Click it to edit it."
+            removeLabel="Remove"
+          />
+        </div>
+        <p className="mt-3 max-w-2xl text-sm text-muted">
+          Tags: a comma, a space or Enter turns the text into a tag; each tag has a remove button, and clicking it puts it
+          back in the field to edit. Backspace in the empty field edits the last tag. A tag that breaks the rule is shown
+          in the error colour. The tags are sent with the form as one comma-separated field.
+        </p>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Dropdown, date and time</h3>
         <div className="grid max-w-3xl gap-4 sm:grid-cols-2">

@@ -21,6 +21,7 @@ import { RoughFilter } from "@/components/ui/RoughFilter";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { landingCatalogues } from "@/lib/i18n/landing";
 import { getMessages } from "@/lib/i18n/server";
+import { loadWallSchools } from "@/lib/landing/schools";
 import { siteUrl } from "@/lib/landing/site";
 
 // Depends on the visitor's language (a cookie), so it is rendered per request.
@@ -103,7 +104,7 @@ async function LandingContent() {
 
           <section aria-labelledby="schools" className="mx-auto max-w-[88rem] px-5 pt-28 sm:px-8 sm:pt-36">
             <SectionHead id="schools" {...sections.schools} />
-            <SchoolsSection copy={copy.schools} />
+            <SchoolsSection copy={copy.schools} schools={await loadWallSchools()} />
           </section>
 
           <section aria-labelledby="faq" className="mx-auto max-w-[88rem] px-5 pt-28 sm:px-8 sm:pt-36">

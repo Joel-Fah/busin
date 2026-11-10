@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { serviceClient } from "./support";
+import { SEED, serviceClient } from "./support";
 
 const rowsFor = async (email: string) => {
   const { data } = await serviceClient().from("interest_requests").select("kind, name, organisation, locale").eq("email", email);
@@ -10,7 +10,16 @@ const rowsFor = async (email: string) => {
 test.describe("the landing page's interest form", () => {
   const stamp = Date.now();
 
+  // The wall shows only schools that accepted the terms and chose to be listed: list the seeded school for these tests.
+  let listedBefore: { public_listing: boolean; terms_accepted_at: string | null; terms_version: string | null } | null = null;
+  test.beforeAll(async () => {
+    const { data } = await serviceClient().from("schools").select("public_listing, terms_accepted_at, terms_version").eq("id", SEED.schoolId).single();
+    listedBefore = data;
+    await serviceClient().from("schools").update({ terms_accepted_at: data?.terms_accepted_at ?? new Date().toISOString(), terms_version: data?.terms_version ?? "2026-11", public_listing: true }).eq("id", SEED.schoolId);
+  });
+
   test.afterAll(async () => {
+    if (listedBefore) await serviceClient().from("schools").update(listedBefore).eq("id", SEED.schoolId);
     await serviceClient().from("interest_requests").delete().like("email", `%${stamp}%`);
   });
 
