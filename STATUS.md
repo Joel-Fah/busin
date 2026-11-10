@@ -43,6 +43,8 @@ Next:
 
 Blockers: none. The 016 test fails locally until #215 is merged.
 
+Finding (My area): place search works end to end locally, but Mapbox knows few Yaounde neighbourhoods (found Nkolbisson, Mendong placed about 15 km off; not Bastos, Biyem-Assi, Essos, Ngoa-Ekelle). The at-home reading and "Not seeing your street?" still cover it. A geocoder built on OpenStreetMap data (whose names the free map already shows) would likely do better; that is a new vendor, so it is your call. Also: the `MAPBOX_API_KEY` line in `supabase/.env` ends with stray spaces (the function now trims it).
+
 Owner must do: review and merge the stack above; check with Mapbox whether storing a snapped cell and label needs permanent geocoding, and give a server token without a URL restriction for the hosted project; review `docs/legal/school-terms.md`; on the tablet, check the streak chip, the calendar and the Leaderboard tab, the reminders (Profile, Notifications), the on-board card and the school join screens; Firebase project and a scheduler for `send-push` (ADR 0010) so pushes leave the outbox.
 
 ## Last handoff
