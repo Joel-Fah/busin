@@ -75,8 +75,9 @@ void main() {
   });
 
   testWidgets('pending and suspended students see their own explanation', (tester) async {
+    // Pending with a school: waiting for that school to verify them (ADR 0012).
     await open(tester, FakeAuthService(signedInAs: 'u1'), FakeProfileRepository({'u1': profile(status: AccountStatus.pending)}));
-    expect(find.text('Your account is waiting for approval'), findsOneWidget);
+    expect(find.textContaining('Waiting for'), findsOneWidget);
 
     await open(tester, FakeAuthService(signedInAs: 'u1'), FakeProfileRepository({'u1': profile(status: AccountStatus.suspended)}));
     expect(find.text('Your account is suspended'), findsOneWidget);

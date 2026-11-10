@@ -818,4 +818,99 @@ class BusinL10nEn extends BusinL10n {
   @override
   String get proofUnavailableHint =>
       'It could not be loaded. Tap to try again.';
+
+  @override
+  String get joinTitle => 'Choose your school';
+
+  @override
+  String get joinBody =>
+      'Your Google account is not a school email, so ask your school to let you in. An administrator there will check it is you.';
+
+  @override
+  String get joinSearch => 'Search for your school';
+
+  @override
+  String get joinSearchHint => 'Name or city';
+
+  @override
+  String get joinEmptyTitle => 'No school accepts your email yet';
+
+  @override
+  String get joinEmptyBody =>
+      'Sign in with your school email, or ask your school to accept students with other email addresses.';
+
+  @override
+  String get joinNoMatch => 'No school matches your search.';
+
+  @override
+  String joinConfirmTitle(String school) {
+    return 'Ask to join $school?';
+  }
+
+  @override
+  String joinConfirmBody(String school) {
+    return 'An administrator of $school will check that you are their student. You can change your request while you wait.';
+  }
+
+  @override
+  String get joinConfirmAction => 'Ask to join';
+
+  @override
+  String get joinSent => 'Request sent.';
+
+  @override
+  String get joinTooSoon => 'Wait a few seconds before changing your request.';
+
+  @override
+  String joinDeclinedTitle(String school) {
+    return '$school declined your request';
+  }
+
+  @override
+  String get joinDeclinedNoReason =>
+      'They did not give a reason. You can ask another school, or contact them.';
+
+  @override
+  String joinDeclinedReason(String reason) {
+    return 'Their reason: $reason';
+  }
+
+  @override
+  String waitingTitle(String school) {
+    return 'Waiting for $school';
+  }
+
+  @override
+  String waitingBody(String date) {
+    return 'You asked to join on $date. An administrator of your school will check your request; you can use BusIn as soon as they accept it.';
+  }
+
+  @override
+  String get waitingCheck => 'Check again';
+
+  @override
+  String get waitingStill =>
+      'Still waiting. We will check again when you come back to the app.';
+
+  @override
+  String get waitingChange => 'Choose another school';
+
+  @override
+  String joiningTitle(String school) {
+    return 'You are joining $school';
+  }
+
+  @override
+  String get joiningBody => 'Your school email puts you in this school.';
+
+  @override
+  String get joiningNotMine => 'Not my school?';
+
+  @override
+  String get joiningNotMineTitle => 'Not your school?';
+
+  @override
+  String joiningNotMineBody(String school) {
+    return 'You signed in with an email of $school. If you study somewhere else, sign out and sign in with your own school\'s account.';
+  }
 }

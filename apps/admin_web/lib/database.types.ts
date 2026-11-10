@@ -183,14 +183,14 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "avatar_url": string | null,"created_at": string,"department": string | null,"department_id": string | null,"email": string,"full_name": string,"id": string,"matricule": string | null,"phone": string | null,"program": string | null,"program_id": string | null,"role": Database["public"]['Enums']["user_role"],"school_id": string,"status": Database["public"]['Enums']["account_status"],"updated_at": string
+                    "avatar_url": string | null,"created_at": string,"department": string | null,"department_id": string | null,"email": string,"full_name": string,"id": string,"join_decline_note": string | null,"join_declined_at": string | null,"join_declined_school": string | null,"join_requested_at": string | null,"matricule": string | null,"phone": string | null,"program": string | null,"program_id": string | null,"role": Database["public"]['Enums']["user_role"],"school_id": string | null,"status": Database["public"]['Enums']["account_status"],"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "avatar_url"?: string | null,"created_at"?: string,"department"?: string | null,"department_id"?: string | null,"email": string,"full_name"?: string,"id": string,"matricule"?: string | null,"phone"?: string | null,"program"?: string | null,"program_id"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"school_id": string,"status"?: Database["public"]['Enums']["account_status"],"updated_at"?: string
+                    "avatar_url"?: string | null,"created_at"?: string,"department"?: string | null,"department_id"?: string | null,"email": string,"full_name"?: string,"id": string,"join_decline_note"?: string | null,"join_declined_at"?: string | null,"join_declined_school"?: string | null,"join_requested_at"?: string | null,"matricule"?: string | null,"phone"?: string | null,"program"?: string | null,"program_id"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"school_id"?: string | null,"status"?: Database["public"]['Enums']["account_status"],"updated_at"?: string
                   }
                   Update: {
-                    "avatar_url"?: string | null,"created_at"?: string,"department"?: string | null,"department_id"?: string | null,"email"?: string,"full_name"?: string,"id"?: string,"matricule"?: string | null,"phone"?: string | null,"program"?: string | null,"program_id"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"school_id"?: string,"status"?: Database["public"]['Enums']["account_status"],"updated_at"?: string
+                    "avatar_url"?: string | null,"created_at"?: string,"department"?: string | null,"department_id"?: string | null,"email"?: string,"full_name"?: string,"id"?: string,"join_decline_note"?: string | null,"join_declined_at"?: string | null,"join_declined_school"?: string | null,"join_requested_at"?: string | null,"matricule"?: string | null,"phone"?: string | null,"program"?: string | null,"program_id"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"school_id"?: string | null,"status"?: Database["public"]['Enums']["account_status"],"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -494,6 +494,9 @@ isOneToOne: false
 "admin_cancel_trip":
 { Args: { "p_reason"?: string,"p_trip_id": string }; Returns: undefined
                            },
+"admin_decline_member":
+{ Args: { "p_reason"?: string,"p_user_id": string }; Returns: undefined
+                           },
 "admin_reinstate_subscription":
 { Args: { "p_note"?: string,"p_subscription_id": string }; Returns: undefined
                            },
@@ -523,6 +526,9 @@ isOneToOne: false
 "admin_update_school_profile":
 { Args: { "p_about": string,"p_accepts_open_signup": boolean,"p_address": string,"p_city": string,"p_contact_email": string,"p_country": string,"p_name": string,"p_open_signup_domains"?: (string)[],"p_phone": string,"p_public_listing": boolean,"p_short_name": string,"p_website": string }; Returns: undefined
                            },
+"admin_verify_member":
+{ Args: { "p_user_id": string }; Returns: undefined
+                           },
 "can_follow_buses":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
@@ -543,6 +549,16 @@ isOneToOne: false
 "get_my_qr_secret":
 { Args: Record<PropertyKey, never>; Returns: string
                            },
+"list_open_schools":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "city": string,"country": string,"id": string,"logo_path": string,"name": string,"short_name": string
+            }[]
+                           },
+"my_join_request":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "decline_note": string,"declined_at": string,"declined_school_name": string,"requested_at": string,"school_id": string,"school_logo_path": string,"school_name": string
+            }[]
+                           },
 "public_schools":
 { Args: Record<PropertyKey, never>; Returns: {
               "city": string,"country": string,"id": string,"logo_path": string,"name": string,"short_name": string
@@ -553,6 +569,9 @@ isOneToOne: false
                            },
 "register_device_token":
 { Args: { "p_locale"?: string,"p_platform": string,"p_token": string }; Returns: undefined
+                           },
+"request_school":
+{ Args: { "p_school_id": string }; Returns: undefined
                            },
 "rotate_my_qr_secret":
 { Args: Record<PropertyKey, never>; Returns: string

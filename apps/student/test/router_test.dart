@@ -18,8 +18,8 @@ void main() {
       expect(redirectFor(const AccessLoading(), Routes.subscription), Routes.loading);
       expect(redirectFor(const AccessLoading(), Routes.loading), isNull);
       expect(redirectFor(const AccessLoadFailed(), Routes.qr), Routes.problem);
-      expect(redirectFor(const Blocked(BlockReason.pending), Routes.bus), Routes.blocked);
-      expect(redirectFor(const Blocked(BlockReason.pending), Routes.blocked), isNull);
+      expect(redirectFor(const Blocked(BlockReason.suspended), Routes.bus), Routes.blocked);
+      expect(redirectFor(const Blocked(BlockReason.suspended), Routes.blocked), isNull);
     });
 
     test('allowed students leave the gate pages and stay where they are otherwise', () {
@@ -41,7 +41,7 @@ void main() {
     });
 
     test('while the logo is drawing, every page waits on the splash screen', () {
-      for (final access in [const SignedOut(), const AccessLoading(), allowed, const Blocked(BlockReason.pending)]) {
+      for (final access in [const SignedOut(), const AccessLoading(), allowed, const Blocked(BlockReason.suspended)]) {
         expect(redirectFor(access, Routes.qr, introDone: false), Routes.loading);
         expect(redirectFor(access, Routes.signIn, introDone: false), Routes.loading);
         expect(redirectFor(access, Routes.loading, introDone: false), isNull);

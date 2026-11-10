@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 
 import { requireAdmin } from "@/lib/auth";
 import { isUuid } from "@/lib/ids";
-import { isRole, peopleErrorKey } from "@/lib/people";
+import { MAX_DECLINE_REASON, isRole, peopleErrorKey } from "@/lib/people";
 import { createClient } from "@/lib/supabase/server";
 
 /**
@@ -46,4 +46,39 @@ export async function changeStatus(formData: FormData): Promise<void> {
 
   revalidatePath("/people");
   redirect(`/people/${id}?done=${status === "suspended" ? "suspended" : "restored"}`);
+}
+
+/** Where to go back to after deciding a request: the queue, or the person's page when the decision was made there. */
+function back(formData: FormData, id: string, outcome: string): string {
+  return formData.get("from") === "detail" ? `/people/${id}?${outcome}` : `/people?role=verify&${outcome}`;
+}
+
+/** Lets in a student who asked to join the school. The database checks the request is for this school and still open. */
+export async function verifyMember(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const id = formData.get("id");
+  if (!isUuid(id)) redirect("/people?role=verify");
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("admin_verify_member", { p_user_id: id });
+  if (error) redirect(back(formData, id, `error=${peopleErrorKey(error.code)}`));
+
+  revalidatePath("/people");
+  redirect(back(formData, id, "done=verified"));
+}
+
+/** Declines a request to join, with an optional reason the student will see. */
+export async function declineMember(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const id = formData.get("id");
+  if (!isUuid(id)) redirect("/people?role=verify");
+  const raw = formData.get("reason");
+  const reason = typeof raw === "string" ? raw.trim().slice(0, MAX_DECLINE_REASON) : "";
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("admin_decline_member", { p_user_id: id, p_reason: reason });
+  if (error) redirect(back(formData, id, `error=${peopleErrorKey(error.code)}`));
+
+  revalidatePath("/people");
+  redirect(formData.get("from") === "detail" ? "/people?role=verify&done=declined" : back(formData, id, "done=declined"));
 }

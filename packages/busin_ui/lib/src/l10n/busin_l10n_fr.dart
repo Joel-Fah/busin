@@ -834,4 +834,101 @@ class BusinL10nFr extends BusinL10n {
   @override
   String get proofUnavailableHint =>
       'Elle n’a pas pu être chargée. Touchez pour réessayer.';
+
+  @override
+  String get joinTitle => 'Choisissez votre école';
+
+  @override
+  String get joinBody =>
+      'Votre compte Google n\'est pas un e-mail d\'école : demandez à votre école de vous accepter. Un administrateur vérifiera que c\'est bien vous.';
+
+  @override
+  String get joinSearch => 'Rechercher votre école';
+
+  @override
+  String get joinSearchHint => 'Nom ou ville';
+
+  @override
+  String get joinEmptyTitle => 'Aucune école n\'accepte encore votre e-mail';
+
+  @override
+  String get joinEmptyBody =>
+      'Connectez-vous avec l\'e-mail de votre école, ou demandez à votre école d\'accepter les étudiants avec d\'autres adresses.';
+
+  @override
+  String get joinNoMatch => 'Aucune école ne correspond à votre recherche.';
+
+  @override
+  String joinConfirmTitle(String school) {
+    return 'Demander à rejoindre $school ?';
+  }
+
+  @override
+  String joinConfirmBody(String school) {
+    return 'Un administrateur de $school vérifiera que vous êtes bien son étudiant. Vous pouvez changer votre demande pendant l\'attente.';
+  }
+
+  @override
+  String get joinConfirmAction => 'Demander à rejoindre';
+
+  @override
+  String get joinSent => 'Demande envoyée.';
+
+  @override
+  String get joinTooSoon =>
+      'Attendez quelques secondes avant de changer votre demande.';
+
+  @override
+  String joinDeclinedTitle(String school) {
+    return '$school a refusé votre demande';
+  }
+
+  @override
+  String get joinDeclinedNoReason =>
+      'Aucune raison n\'a été donnée. Vous pouvez demander une autre école, ou la contacter.';
+
+  @override
+  String joinDeclinedReason(String reason) {
+    return 'Leur raison : $reason';
+  }
+
+  @override
+  String waitingTitle(String school) {
+    return 'En attente de $school';
+  }
+
+  @override
+  String waitingBody(String date) {
+    return 'Vous avez demandé à rejoindre le $date. Un administrateur de votre école vérifiera votre demande ; vous pourrez utiliser BusIn dès qu\'il l\'acceptera.';
+  }
+
+  @override
+  String get waitingCheck => 'Vérifier à nouveau';
+
+  @override
+  String get waitingStill =>
+      'Toujours en attente. Nous vérifierons à nouveau quand vous reviendrez dans l\'application.';
+
+  @override
+  String get waitingChange => 'Choisir une autre école';
+
+  @override
+  String joiningTitle(String school) {
+    return 'Vous rejoignez $school';
+  }
+
+  @override
+  String get joiningBody =>
+      'L\'e-mail de votre école vous place dans cette école.';
+
+  @override
+  String get joiningNotMine => 'Pas mon école ?';
+
+  @override
+  String get joiningNotMineTitle => 'Pas votre école ?';
+
+  @override
+  String joiningNotMineBody(String school) {
+    return 'Vous vous êtes connecté avec un e-mail de $school. Si vous étudiez ailleurs, déconnectez-vous et connectez-vous avec le compte de votre école.';
+  }
 }

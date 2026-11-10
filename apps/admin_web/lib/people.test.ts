@@ -18,6 +18,7 @@ import {
 describe("parseRoleFilter", () => {
   it("defaults to everyone", () => {
     expect(parseRoleFilter(undefined)).toBe("all");
+    expect(parseRoleFilter("verify")).toBe("verify");
     expect(parseRoleFilter("")).toBe("all");
     expect(parseRoleFilter("owner")).toBe("all");
   });
@@ -121,7 +122,9 @@ describe("tones and tab counts", () => {
   });
 
   it("adds up the total and treats a missing count as zero", () => {
-    expect(roleTabCounts({ student: 120, staff: 6, admin: 2 })).toEqual({ all: 128, student: 120, staff: 6, admin: 2 });
+    expect(roleTabCounts({ student: 120, staff: 6, admin: 2 })).toEqual({ all: 128, verify: 0, student: 120, staff: 6, admin: 2 });
+    expect(roleTabCounts({ student: 120 }, 3).verify).toBe(3);
+    expect(roleTabCounts({ student: 120 }, null).verify).toBe(0);
     expect(roleTabCounts({ student: null }).all).toBe(0);
   });
 });

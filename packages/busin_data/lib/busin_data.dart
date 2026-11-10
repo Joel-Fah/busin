@@ -19,6 +19,7 @@ class SupabaseRepositories {
       : profiles = SupabaseProfileRepository(client),
         academic = SupabaseAcademicRepository(client),
         schools = SupabaseSchoolRepository(client),
+        joining = SupabaseJoinRepository(client),
         stops = SupabaseStopsRepository(client),
         semesters = SupabaseSemestersRepository(client),
         subscriptions = SupabaseSubscriptionsRepository(client),
@@ -33,6 +34,7 @@ class SupabaseRepositories {
   final ProfileRepository profiles;
   final AcademicRepository academic;
   final SchoolRepository schools;
+  final JoinRepository joining;
   final StopsRepository stops;
   final SemestersRepository semesters;
   final SubscriptionsRepository subscriptions;

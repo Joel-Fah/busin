@@ -25,7 +25,7 @@ class Profile extends ValueObject {
 
   factory Profile.fromJson(Map<String, dynamic> json) => Profile(
         id: reqString(json, 'id'),
-        schoolId: reqString(json, 'school_id'),
+        schoolId: optString(json, 'school_id'),
         email: reqString(json, 'email'),
         fullName: reqString(json, 'full_name'),
         avatarUrl: optString(json, 'avatar_url'),
@@ -42,7 +42,9 @@ class Profile extends ValueObject {
       );
 
   final String id;
-  final String schoolId;
+
+  /// The school, or null for a student without a school email who has not asked to join one yet (ADR 0012).
+  final String? schoolId;
   final String email;
   final String fullName;
   final String? avatarUrl;

@@ -27,10 +27,11 @@ Profile profile({
   bool complete = true,
   String? departmentId,
   String? programId,
+  String? schoolId = 's1',
 }) =>
     Profile(
       id: id,
-      schoolId: 's1',
+      schoolId: schoolId,
       email: '$id@school.edu',
       fullName: 'Test Person',
       matricule: complete ? 'ICT2026-0001' : null,
@@ -694,6 +695,7 @@ List<Override> overridesFor(
   FakeLive? live,
   FakeMapSurface? map,
   FakeQr? qr,
+  FakeJoin? join,
   FakeSecretStore? store,
   FakeScreenSecurity? security,
   TestClock? clock,
@@ -714,6 +716,7 @@ List<Override> overridesFor(
     copyWaitProvider.overrideWithValue(copyWait),
     authServiceProvider.overrideWithValue(auth),
     profileRepositoryProvider.overrideWithValue(profiles),
+    joinRepositoryProvider.overrideWithValue(join ?? FakeJoin(profiles)),
     academicRepositoryProvider.overrideWithValue(academic ?? FakeAcademic()),
     schoolRepositoryProvider.overrideWithValue(b),
     semestersRepositoryProvider.overrideWithValue(b),
@@ -735,4 +738,46 @@ List<Override> overridesFor(
     screenSecurityProvider.overrideWithValue(security ?? FakeScreenSecurity()),
     if (clock != null) nowProvider.overrideWithValue(clock.call),
   ];
+}
+
+/// Joining a school (ADR 0012), done the way the server does it: asking sets the profile's school (still pending),
+/// withdrawing clears it.
+class FakeJoin implements JoinRepository {
+  FakeJoin(this.profiles, {this.schools = const [], this.request});
+
+  final FakeProfileRepository profiles;
+  List<OpenSchool> schools;
+  JoinRequest? request;
+  Object? error;
+  final List<String?> asked = [];
+
+  @override
+  Future<List<OpenSchool>> listOpenSchools() async {
+    if (error != null) throw error!;
+    return schools;
+  }
+
+  @override
+  Future<JoinRequest?> myRequest() async => request;
+
+  @override
+  Future<void> requestSchool(String? schoolId) async {
+    if (error != null) throw error!;
+    asked.add(schoolId);
+    for (final entry in profiles.byId.entries.toList()) {
+      final p = entry.value;
+      profiles.byId[entry.key] = Profile(
+        id: p.id,
+        schoolId: schoolId,
+        email: p.email,
+        fullName: p.fullName,
+        role: p.role,
+        status: p.status,
+        createdAt: p.createdAt,
+        updatedAt: p.updatedAt,
+      );
+    }
+    final school = schools.where((s) => s.id == schoolId).firstOrNull;
+    request = schoolId == null ? null : JoinRequest(schoolId: schoolId, schoolName: school?.name, requestedAt: DateTime.utc(2026, 11, 11, 8));
+  }
 }
