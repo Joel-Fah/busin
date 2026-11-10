@@ -450,6 +450,11 @@ void main() {
       expect((error as Unexpected).message, 'database XX000');
     });
 
+    test('a session that could not be refreshed offline is Offline, a real auth refusal is NotAllowed', () {
+      expect(mapError(AuthRetryableFetchException(message: 'no network')), isA<Offline>());
+      expect(mapError(const AuthException('invalid token', statusCode: '401')), isA<NotAllowed>());
+    });
+
     test('mapError leaves an already mapped error alone', () {
       const original = NotFound('x');
       expect(identical(mapError(original), original), isTrue);

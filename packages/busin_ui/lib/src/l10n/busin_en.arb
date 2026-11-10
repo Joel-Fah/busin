@@ -398,5 +398,25 @@
       }
     }
   },
-  "legalOnThisPage": "On this page"
+  "legalOnThisPage": "On this page",
+  "offlineTitle": "No connection",
+  "offlineBody": "Your saved pass still works at the door. Last updated {when}.",
+  "offlineSavedCopy": "This is the copy saved on this phone ({when}). Connect to the internet to send or change a request.",
+  "offlineNeedsConnection": "Connect to the internet to send your request.",
+  "@offlineBody": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "@offlineSavedCopy": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "proofUnavailable": "Your payment proof",
+  "proofUnavailableHint": "It could not be loaded. Tap to try again."
 }

@@ -78,6 +78,25 @@ class Profile extends ValueObject {
     return (word.length >= 2 ? word.substring(0, 2) : word).toUpperCase();
   }
 
+  /// The same shape the API returns, so [Profile.fromJson] reads it back (the app's saved copy for offline use).
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'school_id': schoolId,
+        'email': email,
+        'full_name': fullName,
+        'avatar_url': avatarUrl,
+        'phone': phone,
+        'role': role.name,
+        'status': status.name,
+        'matricule': matricule,
+        'department': department,
+        'program': program,
+        'department_id': departmentId,
+        'program_id': programId,
+        'created_at': createdAt.toUtc().toIso8601String(),
+        'updated_at': updatedAt.toUtc().toIso8601String(),
+      };
+
   /// The only fields a user may change on their own profile.
   /// Role, status and school are never sent from a client.
   static Map<String, dynamic> editableJson({

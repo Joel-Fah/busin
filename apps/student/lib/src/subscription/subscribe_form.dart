@@ -12,9 +12,12 @@ import 'subscription_providers.dart';
 
 /// The request form: a stop, a photo of the payment receipt, and Send. Nothing is sent until both are chosen.
 class SubscribeForm extends ConsumerStatefulWidget {
-  const SubscribeForm({super.key, required this.semester});
+  const SubscribeForm({super.key, required this.semester, this.offline = false});
 
   final Semester semester;
+
+  /// The screen is showing the copy saved on the phone: nothing can be sent until the phone is connected again.
+  final bool offline;
 
   @override
   ConsumerState<SubscribeForm> createState() => _SubscribeFormState();
@@ -156,7 +159,11 @@ class _SubscribeFormState extends ConsumerState<SubscribeForm> {
           Notice(tone: StatusTone.bad, child: Text(_error!)),
         ],
         const SizedBox(height: BusinSpace.x6),
-        BusinButton(label: l10n.subscribeSubmit, onPressed: ready ? _submit : null, loading: _busy, expand: true),
+        BusinButton(label: l10n.subscribeSubmit, onPressed: ready && !widget.offline ? _submit : null, loading: _busy, expand: true),
+        if (widget.offline) ...[
+          const SizedBox(height: BusinSpace.x2),
+          Text(l10n.offlineNeedsConnection, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: BusinPalette.of(context).muted), textAlign: TextAlign.center),
+        ],
       ],
     );
   }
