@@ -91,6 +91,27 @@ test.describe("administrator managing buses", () => {
     await expect(page.getByRole("alert").filter({ hasText: "Another bus already has this plate." })).toBeVisible();
   });
 
+  test("names a bus: the name is shown instead of the plate, and two buses cannot share it", async ({ page }) => {
+    const name = `Line ${tag}`;
+    await page.goto(`/buses/${existingId}`);
+    await page.getByLabel("Name (optional)").fill(`  ${name} `);
+    await page.getByRole("button", { name: "Save bus" }).click();
+    await expect(page.getByRole("status")).toContainText("Bus saved.");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(name);
+
+    await page.goto("/buses");
+    const row = page.getByRole("row").filter({ hasText: `${prefix} EXISTING` });
+    await expect(row.getByRole("link")).toHaveText(name);
+
+    await page.goto("/buses/new");
+    await page.getByLabel("Plate").fill(`${prefix} TWIN`);
+    await page.getByLabel("Name (optional)").fill(name.toUpperCase());
+    await page.getByLabel("Seats").fill("30");
+    await page.getByRole("button", { name: "Add bus" }).click();
+    await expect(page.getByRole("alert").filter({ hasText: "Another bus already has this name." })).toBeVisible();
+    expect(await busByPlate(`${prefix} TWIN`)).toBeNull();
+  });
+
   test("the browser blocks zero seats", async ({ page }) => {
     await page.goto("/buses/new");
     await page.getByLabel("Plate").fill(`${prefix} ZERO`);

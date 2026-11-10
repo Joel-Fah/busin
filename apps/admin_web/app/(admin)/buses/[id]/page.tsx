@@ -9,7 +9,7 @@ import { FlashToast } from "@/components/FlashToast";
 import { Notice } from "@/components/ui/Notice";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { requireAdmin } from "@/lib/auth";
-import { isBusDone, isBusFormErrorKey } from "@/lib/buses";
+import { isBusDone, isBusFormErrorKey, busLabel } from "@/lib/buses";
 import { getMessages } from "@/lib/i18n/server";
 import { isUuid } from "@/lib/ids";
 import { createClient } from "@/lib/supabase/server";
@@ -45,7 +45,7 @@ async function BusDetail({ params, searchParams }: { params: Params; searchParam
   const supabase = await createClient();
   const { data: bus } = await supabase
     .from("buses")
-    .select("id, plate, capacity, in_service")
+    .select("id, plate, name, capacity, in_service")
     .eq("id", id)
     .maybeSingle();
   if (!bus) notFound();
@@ -59,12 +59,12 @@ async function BusDetail({ params, searchParams }: { params: Params; searchParam
   return (
     <>
       <BackLink href="/buses">{t.buses.form.back}</BackLink>
-      <PageHeader title={bus.plate} />
+      <PageHeader title={busLabel(bus)} />
 
       {done ? <FlashToast message={t.buses.done[done]} /> : null}
       {errorKey ? <Notice tone="bad">{t.buses.errors[errorKey]}</Notice> : null}
 
-      <BusForm action={updateBus} t={t} bus={{ id: bus.id, plate: bus.plate, capacity: bus.capacity, inService: bus.in_service }} />
+      <BusForm action={updateBus} t={t} bus={{ id: bus.id, plate: bus.plate, name: bus.name, capacity: bus.capacity, inService: bus.in_service }} />
     </>
   );
 }

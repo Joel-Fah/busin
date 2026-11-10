@@ -293,7 +293,7 @@ void main() {
       final buses = await h.repos.buses.listByIds([_id]);
       expect(buses.single.plate, 'DEMO-101');
       expect(h.last.url.queryParameters['id'], 'in.("$_id")');
-      expect(h.last.url.queryParameters['select'], 'id,school_id,plate,capacity,in_service');
+      expect(h.last.url.queryParameters['select'], 'id,school_id,plate,name,capacity,in_service');
     });
 
     test('too many buses at once is refused before any request', () async {

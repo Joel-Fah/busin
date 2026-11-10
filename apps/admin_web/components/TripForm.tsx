@@ -35,7 +35,7 @@ export function TripForm({ action, t, locale, buses, drivers, timeZone, trip }: 
           placeholder={f.choose}
           defaultValue={trip?.busId ?? ""}
           hint={buses.length === 0 ? f.noBuses : undefined}
-          options={buses.map((bus) => ({ value: bus.id, label: `${bus.plate}${bus.inService ? "" : ` (${f.outOfService})`}` }))}
+          options={buses.map((bus) => ({ value: bus.id, label: `${bus.label}${bus.inService ? "" : ` (${f.outOfService})`}` }))}
         />
 
         <Select

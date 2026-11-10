@@ -14,7 +14,7 @@ class Columns {
   static const semester = 'id, school_id, name, year, start_date, end_date';
   static const subscription =
       'id, school_id, student_id, semester_id, stop_id, status, proof_path, review_note, reviewed_by, reviewed_at, created_at, updated_at';
-  static const bus = 'id, school_id, plate, capacity, in_service';
+  static const bus = 'id, school_id, plate, name, capacity, in_service';
   static const trip = 'id, school_id, bus_id, driver_id, direction, status, scheduled_start, started_at, ended_at';
   static const scan =
       'id, school_id, trip_id, student_id, subscription_id, stop_id, scanned_by, scanned_at, location, accuracy_m';

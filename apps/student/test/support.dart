@@ -496,7 +496,7 @@ Trip activeTrip(String id, String busId, {TripDirection direction = TripDirectio
       startedAt: DateTime.utc(2026, 11, 5, 12).subtract(Duration(minutes: minutesAgo)),
     );
 
-Bus bus(String id, String plate) => Bus(id: id, schoolId: 's1', plate: plate, capacity: 50, inService: true);
+Bus bus(String id, String plate, {String? name}) => Bus(id: id, schoolId: 's1', plate: plate, name: name, capacity: 50, inService: true);
 
 LivePosition position(String busId, double lat, double lng, {required DateTime at, double? speed, double? heading}) => LivePosition(
       busId: busId,

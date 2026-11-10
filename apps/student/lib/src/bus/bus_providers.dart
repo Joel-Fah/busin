@@ -17,8 +17,8 @@ class RunningBus {
 
   String get busId => trip.busId;
 
-  /// The number plate, or an empty string if the bus could not be read.
-  String get plate => bus?.plate ?? '';
+  /// What the bus is called (its name, or its plate), or an empty string if the bus could not be read.
+  String get label => bus?.label ?? '';
 }
 
 /// Whether this student may follow buses live. The database answers it (an approved subscription covering today), and
@@ -28,7 +28,7 @@ final canFollowBusesProvider = FutureProvider.autoDispose<bool>((ref) async {
   return ref.watch(livePositionsRepositoryProvider).canFollowBuses();
 }, retry: noAutomaticRetry);
 
-/// The buses on a trip right now at the student's school, with their plates. A school runs a handful at a time.
+/// The buses on a trip right now at the student's school, with their names or plates. A school runs a handful at a time.
 final runningBusesProvider = FutureProvider.autoDispose<List<RunningBus>>((ref) async {
   if (ref.watch(accessProvider) is! Allowed) return const [];
   final trips = await ref.watch(tripsRepositoryProvider).listActive();

@@ -18,15 +18,15 @@ export async function createBus(formData: FormData): Promise<void> {
 
   const parsed = parseBusForm(formData);
   if (!parsed.ok) redirect(`/buses/new?error=${parsed.error}`);
-  const { plate, capacity, inService } = parsed.value;
+  const { plate, name, capacity, inService } = parsed.value;
 
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("buses")
-    .insert({ school_id: admin.schoolId, plate, capacity, in_service: inService })
+    .insert({ school_id: admin.schoolId, plate, name, capacity, in_service: inService })
     .select("id")
     .single();
-  if (error || !data) redirect(`/buses/new?error=${busSaveErrorKey(error?.code)}`);
+  if (error || !data) redirect(`/buses/new?error=${busSaveErrorKey(error?.code, error?.message)}`);
 
   revalidatePath("/buses");
   redirect(`/buses/${data.id}?done=created`);
@@ -41,16 +41,16 @@ export async function updateBus(formData: FormData): Promise<void> {
 
   const parsed = parseBusForm(formData);
   if (!parsed.ok) redirect(`/buses/${id}?error=${parsed.error}`);
-  const { plate, capacity, inService } = parsed.value;
+  const { plate, name, capacity, inService } = parsed.value;
 
   const supabase = await createClient();
   const { error } = await supabase
     .from("buses")
-    .update({ plate, capacity, in_service: inService })
+    .update({ plate, name, capacity, in_service: inService })
     .eq("id", id)
     .select("id")
     .single();
-  if (error) redirect(`/buses/${id}?error=${busSaveErrorKey(error.code)}`);
+  if (error) redirect(`/buses/${id}?error=${busSaveErrorKey(error.code, error.message)}`);
 
   revalidatePath("/buses");
   redirect(`/buses/${id}?done=saved`);
