@@ -16,6 +16,7 @@ import { StickyToolbar } from "@/components/ui/StickyToolbar";
 import { ColumnFilter } from "@/components/ui/ColumnFilter";
 import { FilterChips, type FilterChip } from "@/components/ui/FilterChips";
 
+import { busLabel } from "@/lib/buses";
 import { requireAdmin } from "@/lib/auth";
 import { chipText, filterText } from "@/lib/filter-text";
 import { VALUE_TOKEN } from "@/lib/filters";
@@ -107,15 +108,15 @@ async function TripsList({ searchParams }: { searchParams: SearchParams }) {
   const busIds = [...new Set(rows.map((row) => row.bus_id))];
   const driverIds = [...new Set(rows.flatMap((row) => (row.driver_id ? [row.driver_id] : [])))];
   const [busRows, driverRows] = await Promise.all([
-    busIds.length ? supabase.from("buses").select("id, plate").in("id", busIds) : { data: [] },
+    busIds.length ? supabase.from("buses").select("id, plate, name").in("id", busIds) : { data: [] },
     driverIds.length ? supabase.from("profiles").select("id, full_name, email").in("id", driverIds) : { data: [] },
   ]);
-  const plates = new Map((busRows.data ?? []).map((bus) => [bus.id, bus.plate]));
+  const plates = new Map((busRows.data ?? []).map((bus) => [bus.id, busLabel(bus)]));
   const drivers = new Map((driverRows.data ?? []).map((row) => [row.id, row.full_name || row.email]));
 
   const text = filterText(t);
   const cf = t.columnFilter;
-  const plateOf = new Map(options.buses.map((bus) => [bus.id, bus.plate]));
+  const plateOf = new Map(options.buses.map((bus) => [bus.id, bus.label]));
   const driverName = new Map(options.drivers.map((driver) => [driver.id, driver.name]));
   const without = (change: Partial<TripFilters>) => tripsHref({ ...filters, ...change });
   const dayLabel = filters.date
@@ -199,7 +200,7 @@ async function TripsList({ searchParams }: { searchParams: SearchParams }) {
                     value={filters.bus}
                     clearHref={without({ bus: null })}
                     allLabel={cf.allBuses}
-                    options={options.buses.map((bus) => ({ value: bus.id, label: bus.plate, href: without({ bus: bus.id }) }))}
+                    options={options.buses.map((bus) => ({ value: bus.id, label: bus.label, href: without({ bus: bus.id }) }))}
                     {...text}
                   />
                 </Th>

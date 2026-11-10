@@ -12,6 +12,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Pager } from "@/components/ui/Pager";
 import { DataTable, Head, TableCard, Td, Th, Tr } from "@/components/ui/Table";
 
+import { busLabel } from "@/lib/buses";
 import { requireAdmin } from "@/lib/auth";
 import { chipText, filterText } from "@/lib/filter-text";
 import { VALUE_TOKEN } from "@/lib/filters";
@@ -76,7 +77,7 @@ async function ScansList({ searchParams }: { searchParams: SearchParams }) {
   const [listed, stopOptions, busOptions, chipTrip] = await Promise.all([
     request,
     supabase.from("stops").select("id, name").order("name", { ascending: true }).limit(500),
-    supabase.from("buses").select("id, plate").order("plate", { ascending: true }).limit(200),
+    supabase.from("buses").select("id, plate, name").order("plate", { ascending: true }).limit(200),
     filters.trip
       ? supabase.from("trips").select("id, bus_id, direction, scheduled_start").eq("id", filters.trip).maybeSingle()
       : Promise.resolve({ data: null }),
@@ -97,7 +98,7 @@ async function ScansList({ searchParams }: { searchParams: SearchParams }) {
 
   const studentById = new Map((students.data ?? []).map((row) => [row.id, row]));
   const stopById = new Map((stops.data ?? []).map((row) => [row.id, row.name]));
-  const plateById = new Map((busOptions.data ?? []).map((row) => [row.id, row.plate]));
+  const plateById = new Map((busOptions.data ?? []).map((row) => [row.id, busLabel(row)]));
 
   const chipLabel =
     chipTrip.data && isDirection(chipTrip.data.direction)
@@ -191,7 +192,7 @@ async function ScansList({ searchParams }: { searchParams: SearchParams }) {
                     value={filters.bus}
                     clearHref={without({ bus: null })}
                     allLabel={cf.allBuses}
-                    options={(busOptions.data ?? []).map((bus) => ({ value: bus.id, label: bus.plate, href: without({ bus: bus.id }) }))}
+                    options={(busOptions.data ?? []).map((bus) => ({ value: bus.id, label: busLabel(bus), href: without({ bus: bus.id }) }))}
                     {...text}
                   />
                 </Th>

@@ -23,6 +23,7 @@ import { Icon } from "@/components/ui/Icon";
 import { Notice } from "@/components/ui/Notice";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { busLabel } from "@/lib/buses";
 import { requireAdmin } from "@/lib/auth";
 import { format } from "@/lib/i18n/messages";
 import { getMessages } from "@/lib/i18n/server";
@@ -125,10 +126,10 @@ async function Overview() {
     ]),
   ];
   const [busRows, personRows] = await Promise.all([
-    busIds.length ? supabase.from("buses").select("id, plate").in("id", busIds) : { data: [], error: null },
+    busIds.length ? supabase.from("buses").select("id, plate, name").in("id", busIds) : { data: [], error: null },
     personIds.length ? supabase.from("profiles").select("id, full_name, email, matricule").in("id", personIds) : { data: [], error: null },
   ]);
-  const plateOf = new Map((busRows.data ?? []).map((bus) => [bus.id, bus.plate]));
+  const plateOf = new Map((busRows.data ?? []).map((bus) => [bus.id, busLabel(bus)]));
   const personOf = new Map((personRows.data ?? []).map((person) => [person.id, person]));
   const nameOf = (id: string | null) => {
     const person = id ? personOf.get(id) : undefined;

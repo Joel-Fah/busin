@@ -277,7 +277,7 @@ class _BusPills extends ConsumerWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: BusinSpace.x4, vertical: BusinSpace.x3),
               child: Text(
-                '${bus.plate} · ${l10n.direction(bus.trip.direction)}',
+                '${bus.label} · ${l10n.direction(bus.trip.direction)}',
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(color: chosen ? Colors.white : p.fg),
               ),
             ),
@@ -300,7 +300,7 @@ class _BusPills extends ConsumerWidget {
   }
 }
 
-/// The bus's details: a 3D bus, the plate and direction, the estimated arrival at the student's stop when it can be
+/// The bus's details: a 3D bus, its name (or plate) and direction, the estimated arrival at the student's stop when it can be
 /// worked out, how fresh the position is, and the student's stop.
 class _InfoCard extends ConsumerWidget {
   const _InfoCard({required this.bus, required this.position, required this.myStop});
@@ -347,7 +347,7 @@ class _InfoCard extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(bus.plate, style: text.titleMedium, maxLines: 1, overflow: TextOverflow.ellipsis),
+                    Text(bus.label, style: text.titleMedium, maxLines: 1, overflow: TextOverflow.ellipsis),
                     Text(status, style: text.bodySmall?.copyWith(color: stale ? palette.warn : palette.muted), maxLines: 2, overflow: TextOverflow.ellipsis),
                   ],
                 ),

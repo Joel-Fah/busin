@@ -51,14 +51,14 @@ isOneToOne: false
                   ]
                 },"buses": {
                   Row: {
-                    "capacity": number,"created_at": string,"id": string,"in_service": boolean,"plate": string,"school_id": string
+                    "capacity": number,"created_at": string,"id": string,"in_service": boolean,"name": string | null,"plate": string,"school_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "capacity": number,"created_at"?: string,"id"?: string,"in_service"?: boolean,"plate": string,"school_id": string
+                    "capacity": number,"created_at"?: string,"id"?: string,"in_service"?: boolean,"name"?: string | null,"plate": string,"school_id": string
                   }
                   Update: {
-                    "capacity"?: number,"created_at"?: string,"id"?: string,"in_service"?: boolean,"plate"?: string,"school_id"?: string
+                    "capacity"?: number,"created_at"?: string,"id"?: string,"in_service"?: boolean,"name"?: string | null,"plate"?: string,"school_id"?: string
                   }
                   Relationships: [
                     {

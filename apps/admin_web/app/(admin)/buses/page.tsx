@@ -1,3 +1,4 @@
+import { busLabel } from "@/lib/buses";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -60,6 +61,7 @@ async function BusesList() {
         <TableCard>
           <DataTable minWidth="28rem">
             <Head>
+              <Th>{t.buses.columns.name}</Th>
               <Th>{t.buses.columns.plate}</Th>
               <Th>{t.buses.columns.capacity}</Th>
               <Th>{t.buses.columns.status}</Th>
@@ -69,9 +71,10 @@ async function BusesList() {
                 <Tr key={bus.id}>
                   <Td>
                     <Link href={`/buses/${bus.id}`} className="font-semibold text-fg no-underline hover:text-link">
-                      {bus.plate}
+                      {busLabel(bus)}
                     </Link>
                   </Td>
+                  <Td className="tabular-nums text-muted">{bus.plate}</Td>
                   <Td>{bus.capacity}</Td>
                   <Td>
                     <Chip tone={bus.inService ? "ok" : "neutral"}>{bus.inService ? t.buses.status.inService : t.buses.status.outOfService}</Chip>

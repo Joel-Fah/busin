@@ -1,16 +1,16 @@
-import { Bus01Icon, UserMultiple02Icon } from "@hugeicons/core-free-icons";
+import { Bus01Icon, Tag01Icon, UserMultiple02Icon } from "@hugeicons/core-free-icons";
 
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Switch } from "@/components/ui/Choice";
 import { Input } from "@/components/ui/Input";
-import { MAX_CAPACITY, MAX_PLATE_LENGTH } from "@/lib/buses";
+import { MAX_CAPACITY, MAX_NAME_LENGTH, MAX_PLATE_LENGTH } from "@/lib/buses";
 import type { Messages } from "@/lib/i18n/messages";
 
 type Props = {
   action: (formData: FormData) => Promise<void>;
   t: Messages;
-  bus?: { id: string; plate: string; capacity: number; inService: boolean };
+  bus?: { id: string; plate: string; name: string | null; capacity: number; inService: boolean };
 };
 
 /** The form used to add and to edit a bus. Server rendered; no client code needed. */
@@ -30,6 +30,18 @@ export function BusForm({ action, t, bus }: Props) {
           maxLength={MAX_PLATE_LENGTH}
           defaultValue={bus?.plate ?? ""}
           hint={f.plateHint}
+          autoComplete="off"
+        />
+
+        <Input
+          id="name"
+          name="name"
+          label={f.name}
+          icon={Tag01Icon}
+          maxLength={MAX_NAME_LENGTH}
+          defaultValue={bus?.name ?? ""}
+          hint={f.nameHint}
+          placeholder={f.namePlaceholder}
           autoComplete="off"
         />
 
