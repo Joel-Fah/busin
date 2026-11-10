@@ -50,8 +50,36 @@ type Props = {
   groups: { label: string; keys: NavKey[] }[];
   /** `also` lists the setup pages the profile page opens: the Profile tab stays lit while the admin is on one. */
   profile: { name: string; avatarUrl: string | null; href: string; also?: string[] };
-  text: { primary: string; menu: string; closeMenu: string; profile: string; profileTab: string; home: string; current: string };
+  text: { primary: string; menu: string; closeMenu: string; profile: string; profileTab: string; home: string; current: string; waiting: string };
+  /** Things waiting for the admin, by tab (pending subscriptions, students to verify). Zero or missing shows nothing. */
+  counts?: Partial<Record<NavKey, number>>;
 };
+
+/** A small count on a tab's icon, "9+" above nine. Seen only: the exact number is read after the label (WaitingText). */
+function Badge({ count }: { count: number }) {
+  if (count <= 0) return null;
+  return (
+    <span
+      aria-hidden
+      data-nav-badge
+      className="absolute -top-1.5 -right-2.5 grid h-[18px] min-w-[18px] place-items-center rounded-xs bg-accent px-1 text-[11px] leading-none font-extrabold text-on-accent tabular-nums shadow-soft"
+    >
+      {count > 9 ? "9+" : count}
+    </span>
+  );
+}
+
+/**
+ * "3 waiting", for assistive technology: the tab's description (aria-describedby), so its name stays "Subscriptions".
+ * A hidden element can still describe another.
+ */
+function WaitingText({ id, count, label }: { id: string; count: number; label: string }) {
+  return count > 0 ? (
+    <span id={id} hidden>
+      {label.replace("{count}", String(count))}
+    </span>
+  ) : null;
+}
 
 function isActive(pathname: string, key: NavKey): boolean {
   const href = HREFS[key];
@@ -70,7 +98,8 @@ const TAB_OFF = "text-muted hover:text-fg";
  * label. Smaller screens show the current page and a menu button that opens the tabs upward in
  * place. A dock above the tabs (see NavDock) lets a page add its own content to the bar.
  */
-export function FloatingNav({ keys, labels, groups, profile, text }: Props) {
+export function FloatingNav({ keys, labels, groups, profile, text, counts = {} }: Props) {
+  const waitingTotal = keys.reduce((sum, key) => sum + (counts[key] ?? 0), 0);
   const pathname = usePathname();
   const barRef = useRef<HTMLElement>(null);
   const [open, setOpen] = useState(false);
@@ -151,11 +180,16 @@ export function FloatingNav({ keys, labels, groups, profile, text }: Props) {
         href={HREFS[key]}
         data-nav-tab={slides ? "" : undefined}
         aria-current={active ? "page" : undefined}
+        aria-describedby={(counts[key] ?? 0) > 0 ? `nav-waiting-${key}-${slides ? "bar" : "menu"}` : undefined}
         onClick={onNavigate}
         className={`${TAB} ${active ? (slides ? TAB_ACTIVE_TEXT : TAB_ON) : TAB_OFF}`}
       >
-        <Icon icon={ICONS[key]} size={22} />
+        <span className="relative">
+          <Icon icon={ICONS[key]} size={22} />
+          <Badge count={counts[key] ?? 0} />
+        </span>
         {labels[key]}
+        <WaitingText id={`nav-waiting-${key}-${slides ? "bar" : "menu"}`} count={counts[key] ?? 0} label={text.waiting} />
       </Link>
     );
   };
@@ -219,10 +253,15 @@ export function FloatingNav({ keys, labels, groups, profile, text }: Props) {
               type="button"
               onClick={() => setOpen((value) => !value)}
               aria-expanded={open}
+              aria-describedby={!open && waitingTotal > 0 ? "nav-waiting-total" : undefined}
               className={`${TAB} cursor-pointer border-0 bg-transparent ${open ? TAB_ON : TAB_OFF}`}
             >
-              <Icon icon={open ? Cancel01Icon : Menu03Icon} size={22} />
+              <span className="relative">
+                <Icon icon={open ? Cancel01Icon : Menu03Icon} size={22} />
+                {open ? null : <Badge count={waitingTotal} />}
+              </span>
               {open ? text.closeMenu : text.menu}
+              {open ? null : <WaitingText id="nav-waiting-total" count={waitingTotal} label={text.waiting} />}
             </button>
           </div>
 
