@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { Cancel01Icon, ComputerIcon, Menu03Icon, Moon02Icon, SmartPhone01Icon, Sun03Icon } from "@hugeicons/core-free-icons";
 
 import { BrandMark } from "@/components/brand/BrandMark";
@@ -21,7 +21,8 @@ type Labels = {
   language: { label: string; en: string; fr: string };
 };
 
-type Props = { copy: LandingCopy["nav"]; locale: Locale; labels: Labels };
+/** `menuControls`: the language and theme controls of the phone menu, the same ones as in the footer (rendered by the page). */
+type Props = { copy: LandingCopy["nav"]; locale: Locale; labels: Labels; menuControls: ReactNode };
 
 /** One round button for the theme: it shows the current choice and a press moves to the next one. */
 function ThemeButton({ labels }: { labels: Labels["theme"] }) {
@@ -66,7 +67,7 @@ function LocaleButton({ locale, labels }: { locale: Locale; labels: Labels["lang
  * tabs open inside the bar, the way the portal's bar does: the panel eases open and shut, and Escape, a tap outside or
  * picking a section closes it.
  */
-export function LandingNav({ copy, locale, labels }: Props) {
+export function LandingNav({ copy, locale, labels, menuControls }: Props) {
   const sentinel = useRef<HTMLDivElement>(null);
   const bar = useRef<HTMLElement>(null);
   const [stuck, setStuck] = useState(false);
@@ -181,10 +182,7 @@ export function LandingNav({ copy, locale, labels }: Props) {
                     {copy[key]}
                   </a>
                 ))}
-                <div className="mt-2 flex items-center gap-1 rounded-sm bg-fg/5 p-1">
-                  <ThemeButton labels={labels.theme} />
-                  <LocaleButton locale={locale} labels={labels.language} />
-                </div>
+                <div className="mt-2 flex flex-wrap items-center gap-3 px-1">{menuControls}</div>
               </div>
             </div>
           </div>

@@ -28,7 +28,7 @@ export function CalmPanel({ head, copy }: { head: LandingCopy["sections"]["priva
         </div>
         <div className="mt-12 grid gap-5 md:grid-cols-3">
           {copy.facts.map((fact, i) => (
-            <div key={fact.title} data-calm-rise className="flex flex-col gap-4 rounded-lg bg-white/10 p-6 backdrop-blur-md">
+            <div key={fact.title} data-calm-rise className="calm-fact flex flex-col gap-4 rounded-lg bg-white/10 p-6 backdrop-blur-md">
               <span className="grid size-12 place-items-center rounded-md bg-accent text-on-accent">
                 <Icon icon={ICONS[i]} size={24} />
               </span>

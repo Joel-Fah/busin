@@ -286,7 +286,7 @@ html:has([data-landing]) {
   inset: 0;
   margin: 0;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   border-radius: 0;
   background: none;
 }
@@ -298,6 +298,51 @@ html:has([data-landing]) {
 
 .people-stage.is-pinned .calm-inner {
   width: 100%;
+  padding-bottom: max(3.5rem, 9vh);
+}
+
+/* On a phone the pinned cards are narrower, and the three facts become short rows so they fit one screen. */
+@media (max-width: 56.24rem) {
+  .people-stage.is-pinned .people-card {
+    width: min(19rem, 78vw);
+  }
+
+  .people-stage.is-pinned .calm-inner {
+    padding-inline: 1.25rem;
+    padding-bottom: 2.5rem;
+  }
+
+  .people-stage.is-pinned .calm-inner > .grid {
+    margin-top: 1.5rem;
+    gap: 0.625rem;
+  }
+
+  .people-stage.is-pinned .calm-fact {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 0.875rem;
+    row-gap: 0.125rem;
+    padding: 0.875rem 1rem;
+  }
+
+  .people-stage.is-pinned .calm-fact > span {
+    grid-row: span 2;
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .people-stage.is-pinned .calm-fact > h3 {
+    font-size: 1rem;
+  }
+
+  .people-stage.is-pinned .calm-fact > p {
+    font-size: 0.875rem;
+    line-height: 1.4;
+  }
+
+  .people-stage.is-pinned [data-calm] h2 {
+    font-size: 2rem;
+  }
 }
 
 @media (min-width: 64rem) {
@@ -325,4 +370,33 @@ html:has([data-landing]) {
   .landing-band:hover .landing-marquee {
     animation-play-state: paused;
   }
+}
+
+/* ---- The opening (LandingIntro). While the cover is up, the hero waits: its entrance animations are paused and its logo
+   is hidden, because the drawn logo flies onto that spot. Once the intro has played, the hero logo does not rise in. */
+.landing-intro {
+  background: transparent;
+}
+
+/* The logo starts undrawn before any script runs, so it never flashes filled. */
+.landing-intro path {
+  fill-opacity: 0;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-dasharray: 4000;
+  stroke-dashoffset: 4000;
+}
+
+html[data-intro] .landing-rise,
+html[data-intro] .landing-sticker,
+html[data-intro] .landing-fade {
+  animation-play-state: paused;
+}
+
+html[data-intro] [data-hero-mark] {
+  visibility: hidden;
+}
+
+html[data-intro-played] [data-hero-mark] {
+  animation: none;
 }

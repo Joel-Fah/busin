@@ -5,16 +5,16 @@ import { useRef, type ReactNode } from "react";
 import { useScrollScene } from "../motion/useScrollScene";
 
 /**
- * Who it helps, then Calm by design, as one scene. On a wide screen with motion allowed the section holds still: the row
+ * Who it helps, then Calm by design, as one scene. With motion allowed (on any screen) the section holds still: the row
  * of cards slides across, the last card (a photo) grows from where it is until it fills the screen, and Calm by design
- * comes up over it. Otherwise (phones, reduced motion, no scripts) the cards sit in a grid and Calm by design is a photo
+ * comes up over it, at the bottom. Otherwise (reduced motion, no scripts) the cards sit in a grid and Calm by design is a photo
  * panel under them; the last card is not shown, since the panel is the same photo.
  */
 export function PeopleStage({ cards, final, calm }: { cards: ReactNode; final: ReactNode; calm: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
 
   useScrollScene(ref, ({ gsap, ScrollTrigger, wide, reduced, root }) => {
-    if (!wide || reduced) return;
+    if (reduced) return;
     const track = root.querySelector<HTMLElement>("[data-people-track]");
     const last = root.querySelector<HTMLElement>("[data-people-final]");
     const panel = root.querySelector<HTMLElement>("[data-calm]");
@@ -23,7 +23,8 @@ export function PeopleStage({ cards, final, calm }: { cards: ReactNode; final: R
     // The photo card is as tall as the other cards, and 16:9, so its width follows their height.
     const fit = () => {
       const card = others[0] as HTMLElement | undefined;
-      if (card) root.style.setProperty("--final-w", `${Math.round(card.offsetHeight * (16 / 9))}px`);
+      // On a phone a 16:9 card that tall would be wider than the screen, so there it is the other cards' size.
+      if (card) root.style.setProperty("--final-w", `${Math.round(wide ? card.offsetHeight * (16 / 9) : card.offsetWidth)}px`);
     };
 
     const distance = () => Math.max(0, track.scrollWidth - root.clientWidth);

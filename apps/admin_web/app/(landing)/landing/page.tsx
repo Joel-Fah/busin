@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { BusStopScene } from "@/components/landing/BusStopScene";
 import { HeroHead, HeroLead } from "@/components/landing/HeroHead";
 import { LandingFooter } from "@/components/landing/LandingFooter";
+import { LandingIntro } from "@/components/landing/LandingIntro";
 import { LandingNav } from "@/components/landing/LandingNav";
 import { SectionHead } from "@/components/landing/SectionHead";
 import { Sky } from "@/components/landing/Sky";
@@ -15,7 +16,9 @@ import { downloads } from "@/lib/landing/downloads";
 import { DayStory } from "@/components/landing/day/DayStory";
 import { PeopleSection } from "@/components/landing/people/PeopleSection";
 import "@/components/landing/landing.css";
+import { LanguageSwitch } from "@/components/LanguageSwitch";
 import { RoughFilter } from "@/components/ui/RoughFilter";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { landingCatalogues } from "@/lib/i18n/landing";
 import { getMessages } from "@/lib/i18n/server";
 import { siteUrl } from "@/lib/landing/site";
@@ -61,9 +64,20 @@ async function LandingContent() {
     <InterestProvider copy={copy.form} locale={locale}>
       <div lang={locale} data-landing className="relative bg-bg text-fg">
         <RoughFilter />
+        <LandingIntro />
         <Sky />
         <HeroHead copy={copy.hero} />
-        <LandingNav copy={copy.nav} locale={locale} labels={{ theme: t.profile.theme, language: t.language }} />
+        <LandingNav
+          copy={copy.nav}
+          locale={locale}
+          labels={{ theme: t.profile.theme, language: t.language }}
+          menuControls={
+            <>
+              <LanguageSwitch locale={locale} t={t} compact />
+              <ThemeToggle labels={t.profile.theme} iconOnly />
+            </>
+          }
+        />
         <HeroLead copy={copy.hero} />
         <BusStopScene chips={copy.hero.chips} />
 
@@ -88,15 +102,15 @@ async function LandingContent() {
           </section>
 
           <section aria-labelledby="schools" className="mx-auto max-w-[88rem] px-5 pt-28 sm:px-8 sm:pt-36">
-          <SectionHead id="schools" {...sections.schools} />
-          <SchoolsSection copy={copy.schools} />
-        </section>
+            <SectionHead id="schools" {...sections.schools} />
+            <SchoolsSection copy={copy.schools} />
+          </section>
 
-        <section aria-labelledby="faq" className="mx-auto max-w-[88rem] px-5 pt-28 sm:px-8 sm:pt-36">
-          <SectionHead id="faq" {...sections.faq} />
-          <FaqSection copy={copy.faq} />
-        </section>
-      </main>
+          <section aria-labelledby="faq" className="mx-auto max-w-[88rem] px-5 pt-28 sm:px-8 sm:pt-36">
+            <SectionHead id="faq" {...sections.faq} />
+            <FaqSection copy={copy.faq} />
+          </section>
+        </main>
         <LandingFooter copy={copy.footer} nav={copy.nav} invite={copy.schools.invite} locale={locale} t={t} />
       </div>
     </InterestProvider>
