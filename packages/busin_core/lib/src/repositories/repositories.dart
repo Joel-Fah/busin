@@ -5,6 +5,7 @@ import '../geo_point.dart';
 import '../models/bus.dart';
 import '../models/joining.dart';
 import '../models/live_position.dart';
+import '../models/notification_preferences.dart';
 import '../models/profile.dart';
 import '../models/scan.dart';
 import '../models/scan_outcome.dart';
@@ -45,6 +46,12 @@ abstract interface class AcademicRepository {
 
 abstract interface class SchoolRepository {
   Future<School> getSchool(String schoolId);
+}
+
+/// The student's notification preferences. Reads give the defaults until something is saved.
+abstract interface class NotificationPreferencesRepository {
+  Future<NotificationPreferences> load();
+  Future<void> save(NotificationPreferences preferences);
 }
 
 /// Joining a school without a school email (ADR 0012). Only a pending account uses it.

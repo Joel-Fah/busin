@@ -74,7 +74,7 @@ select lives_ok($$select public.admin_decline_member('e1000000-0000-4000-8000-00
 reset role;
 
 select is((select status::text from public.profiles where id = 'e1000000-0000-4000-8000-000000000001'), 'verified', 'the verified student is in');
-select is((select count(*)::int from public.audit_log where action in ('member.verified', 'member.declined', 'member.join_requested')), 4, 'requests and decisions are audited');
+select is((select count(*)::int from public.audit_log where school_id = '10000000-0000-4000-8000-000000000001' and action in ('member.verified', 'member.declined', 'member.join_requested')), 4, 'requests and decisions are audited');
 
 set local role authenticated;
 set local "request.jwt.claims" = '{"sub":"e1000000-0000-4000-8000-000000000001","role":"authenticated"}';

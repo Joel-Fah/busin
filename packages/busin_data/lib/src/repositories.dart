@@ -71,6 +71,31 @@ class SupabaseSchoolRepository implements SchoolRepository {
       });
 }
 
+class SupabaseNotificationPreferencesRepository implements NotificationPreferencesRepository {
+  SupabaseNotificationPreferencesRepository(this._client);
+  final SupabaseClient _client;
+
+  @override
+  Future<NotificationPreferences> load() => guarded(() async {
+        final rows = await _client.rpc<List<dynamic>>('my_notification_preferences');
+        return rows.isEmpty ? const NotificationPreferences() : NotificationPreferences.fromJson(rows.first as Map<String, dynamic>);
+      });
+
+  @override
+  Future<void> save(NotificationPreferences p) => guarded(() async {
+        await _client.rpc<void>('set_notification_preferences', params: {
+          'p_riding_days': NotificationPreferences.maskOf(p.ridingDays),
+          'p_morning_on': p.morningOn,
+          'p_morning_time': p.morningTime.text,
+          'p_evening_on': p.eveningOn,
+          'p_evening_time': p.eveningTime.text,
+          'p_bus_near_on': p.busNearOn,
+          'p_bus_near_minutes': p.busNearMinutes,
+          'p_boarding_messages_on': p.boardingMessagesOn,
+        });
+      });
+}
+
 class SupabaseJoinRepository implements JoinRepository {
   SupabaseJoinRepository(this._client);
   final SupabaseClient _client;

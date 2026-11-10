@@ -1710,6 +1710,138 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'You signed in with an email of {school}. If you study somewhere else, sign out and sign in with your own school\'s account.'**
   String joiningNotMineBody(String school);
+
+  /// No description provided for @notificationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notificationsTitle;
+
+  /// No description provided for @notificationsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your bus days and what BusIn reminds you of.'**
+  String get notificationsHint;
+
+  /// No description provided for @notificationsDays.
+  ///
+  /// In en, this message translates to:
+  /// **'My bus days'**
+  String get notificationsDays;
+
+  /// No description provided for @notificationsDaysHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders come only on these days.'**
+  String get notificationsDaysHint;
+
+  /// No description provided for @notificationsMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning reminder'**
+  String get notificationsMorning;
+
+  /// No description provided for @notificationsMorningHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A nudge before you leave home.'**
+  String get notificationsMorningHint;
+
+  /// No description provided for @notificationsEvening.
+  ///
+  /// In en, this message translates to:
+  /// **'Evening reminder'**
+  String get notificationsEvening;
+
+  /// No description provided for @notificationsEveningHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Almost time to head back to the bus.'**
+  String get notificationsEveningHint;
+
+  /// No description provided for @notificationsBusNear.
+  ///
+  /// In en, this message translates to:
+  /// **'Bus near my stop'**
+  String get notificationsBusNear;
+
+  /// No description provided for @notificationsBusNearHint.
+  ///
+  /// In en, this message translates to:
+  /// **'When your bus is about this far from your stop.'**
+  String get notificationsBusNearHint;
+
+  /// No description provided for @notificationsBusNearMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String notificationsBusNearMinutes(int minutes);
+
+  /// No description provided for @notificationsBoarding.
+  ///
+  /// In en, this message translates to:
+  /// **'A word when I board'**
+  String get notificationsBoarding;
+
+  /// No description provided for @notificationsBoardingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A short message on screen when your code is scanned.'**
+  String get notificationsBoardingHint;
+
+  /// No description provided for @notificationsSchool.
+  ///
+  /// In en, this message translates to:
+  /// **'From your school'**
+  String get notificationsSchool;
+
+  /// No description provided for @notificationsSchoolHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes to your semester or service. Always on.'**
+  String get notificationsSchoolHint;
+
+  /// No description provided for @notificationsAt.
+  ///
+  /// In en, this message translates to:
+  /// **'At {time}'**
+  String notificationsAt(String time);
+
+  /// No description provided for @notificationsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved.'**
+  String get notificationsSaved;
+
+  /// No description provided for @notificationsPermission.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow notifications in your phone\'s settings so reminders can show.'**
+  String get notificationsPermission;
+
+  /// No description provided for @reminderMorningTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bus day'**
+  String get reminderMorningTitle;
+
+  /// No description provided for @reminderMorningBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your pass is ready. Open BusIn to see where the bus is.'**
+  String get reminderMorningBody;
+
+  /// No description provided for @reminderEveningTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Heading home?'**
+  String get reminderEveningTitle;
+
+  /// No description provided for @reminderEveningBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Time to get ready for the bus. Open BusIn to see where it is.'**
+  String get reminderEveningBody;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {
