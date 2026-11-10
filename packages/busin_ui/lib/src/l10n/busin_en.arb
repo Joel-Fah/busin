@@ -535,5 +535,15 @@
   "reminderMorningTitle": "Bus day",
   "reminderMorningBody": "Your pass is ready. Open BusIn to see where the bus is.",
   "reminderEveningTitle": "Heading home?",
-  "reminderEveningBody": "Time to get ready for the bus. Open BusIn to see where it is."
+  "reminderEveningBody": "Time to get ready for the bus. Open BusIn to see where it is.",
+  "boardedTitle": "On board",
+  "boardedEarlier": "You boarded at {time}",
+  "boardedClose": "Close",
+  "@boardedEarlier": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -394,5 +394,8 @@
   "reminderMorningTitle": "Jour de bus",
   "reminderMorningBody": "Votre pass est prêt. Ouvrez BusIn pour voir où est le bus.",
   "reminderEveningTitle": "Vous rentrez ?",
-  "reminderEveningBody": "C'est bientôt l'heure du bus. Ouvrez BusIn pour voir où il est."
+  "reminderEveningBody": "C'est bientôt l'heure du bus. Ouvrez BusIn pour voir où il est.",
+  "boardedTitle": "À bord",
+  "boardedEarlier": "Vous êtes monté à {time}",
+  "boardedClose": "Fermer"
 }

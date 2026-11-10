@@ -189,6 +189,13 @@ abstract interface class ScansRepository {
     PageRequest page = const PageRequest(),
   });
 
+  /// The student's newest boarding, then each new one as it is recorded (Realtime, one row, own rows only). Null when
+  /// there is none yet.
+  Stream<Scan?> watchLatestForStudent(String studentId);
+
+  /// How many times the student boarded since [since] (for "your 10th ride this semester").
+  Future<int> countForStudentSince(String studentId, DateTime since);
+
   /// The boardings of one trip, newest first.
   Future<List<Scan>> listForTrip(
     String tripId, {

@@ -351,6 +351,18 @@ class FakeHistory implements ScansRepository, TripsRepository {
   final List<Scan> scans;
   final List<Trip> trips;
 
+  /// What the live "newest boarding" feed delivers; a test adds a scan to announce a boarding.
+  final StreamController<Scan?> latest = StreamController<Scan?>.broadcast();
+
+  /// How many rides this semester the count answers.
+  int ridesThisSemester = 3;
+
+  @override
+  Stream<Scan?> watchLatestForStudent(String studentId) => latest.stream;
+
+  @override
+  Future<int> countForStudentSince(String studentId, DateTime since) async => ridesThisSemester;
+
   /// Trips running now, for the live bus tab.
   final List<Trip> active = [];
   int activeLookups = 0;
