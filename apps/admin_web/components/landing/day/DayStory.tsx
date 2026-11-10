@@ -44,7 +44,7 @@ export function DayStory({ copy }: { copy: LandingCopy["day"] }) {
         <div className="sticky top-[14vh]">
           <div aria-hidden className="absolute -inset-x-[14%] -inset-y-[8%] bg-[radial-gradient(closest-side,rgb(245_149_31/0.2),transparent)] dark:bg-[radial-gradient(closest-side,rgb(0_180_201/0.16),transparent)]" />
           <Phone
-            className="w-[16.5rem]"
+            className="mx-auto w-[16.5rem]"
             time={copy.steps.map((step, i) => (
               <span key={step.time} data-time={i} className="day-time">
                 {clock(step.time)}
@@ -73,7 +73,7 @@ export function DayStory({ copy }: { copy: LandingCopy["day"] }) {
               <p className="m-0 max-w-[30rem] text-pretty text-lg leading-relaxed text-muted">{step.text}</p>
             </div>
             <div className="lg:hidden">
-              <Phone className="day-inline w-[16.5rem]" time={clock(step.time)} kind={i % 2 ? "android" : "iphone"}>
+              <Phone className="day-inline mx-auto w-[16.5rem]" time={clock(step.time)} kind={i % 2 ? "android" : "iphone"}>
                 <div className="day-screen is-shown absolute inset-0">
                   <DayScreen index={i} copy={copy} />
                 </div>

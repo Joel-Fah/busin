@@ -135,11 +135,11 @@ export function DownloadSection({ copy, day, links }: { copy: LandingCopy["downl
           </>
         }
         devices={
-          <div className="absolute inset-x-0 top-6 flex justify-center gap-6">
+          <div className="absolute inset-x-0 top-6 flex justify-center">
             <Phone kind="android" time="7:05" className="w-[14rem] -rotate-3 sm:w-[15rem]">
               <DayScreen index={1} copy={day} />
             </Phone>
-            <Phone kind="iphone" time="7:22" className="mt-10 hidden w-[15rem] rotate-3 sm:block">
+            <Phone kind="iphone" time="7:22" className="relative z-10 -ml-9 mt-12 hidden w-[15rem] rotate-3 sm:block">
               <DayScreen index={2} copy={day} />
             </Phone>
           </div>
@@ -158,7 +158,7 @@ export function DownloadSection({ copy, day, links }: { copy: LandingCopy["downl
             <Laptop className="w-[34rem] translate-x-[14%] sm:w-[38rem]">
               <OfficeScreen />
             </Laptop>
-            <div className="absolute left-[3%] top-24 sm:left-[5%]">
+            <div className="absolute left-[3%] top-36 sm:left-[5%] sm:top-40">
               <Tablet className="w-[16rem] -rotate-2 sm:w-[19rem]">
                 <TripScreen />
               </Tablet>

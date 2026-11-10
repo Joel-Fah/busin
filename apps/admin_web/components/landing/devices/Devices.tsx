@@ -46,7 +46,7 @@ type PhoneProps = { children: ReactNode; time?: ReactNode; kind?: "iphone" | "an
 export function Phone({ children, time = "6:40", kind = "iphone", className = "" }: PhoneProps) {
   const iphone = kind === "iphone";
   return (
-    <div aria-hidden className={`relative mx-auto aspect-[9/18.6] shrink-0 ${className}`}>
+    <div aria-hidden className={`relative aspect-[9/18.6] shrink-0 ${className}`}>
       {/* side buttons, just outside the frame */}
       <span className={`absolute -left-[3px] top-[18%] h-7 w-[4px] rounded-l-[2px] ${FRAME}`} />
       {iphone ? <span className={`absolute -left-[3px] top-[26%] h-12 w-[4px] rounded-l-[2px] ${FRAME}`} /> : null}
