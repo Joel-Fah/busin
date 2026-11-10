@@ -46,10 +46,18 @@ async function countRows(table: "subscriptions" | "profiles" | "trips" | "scans"
 }
 
 test.describe("signed out", () => {
-  test("is sent to the login page", async ({ page }) => {
+  test("sees the landing page at the root and reaches the login page from it", async ({ page }) => {
     await page.goto("/");
+    await expect(page).toHaveURL(/\/$/);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("On your side.");
+    await page.getByRole("link", { name: "Staff sign in" }).click();
     await expect(page).toHaveURL(/\/login$/);
     await expect(page.getByRole("button", { name: "Continue with Google" })).toBeVisible();
+  });
+
+  test("is sent to the login page from any portal page", async ({ page }) => {
+    await page.goto("/people");
+    await expect(page).toHaveURL(/\/login$/);
   });
 
   test("shows a sign-in error from the callback", async ({ page }) => {
@@ -198,7 +206,10 @@ test.describe("administrator", () => {
     await page.goto("/profile");
     await page.getByRole("button", { name: "Sign out" }).click();
     await expect(page).toHaveURL(/\/login$/);
+    // The root is the public landing page now; the portal itself stays closed.
     await page.goto("/");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("On your side.");
+    await page.goto("/people");
     await expect(page).toHaveURL(/\/login$/);
   });
 

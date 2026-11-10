@@ -1,0 +1,128 @@
+/* Motion that belongs to the landing page only. It is soft on purpose: slow fades, no loops that draw the eye. */
+
+@keyframes landing-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+.landing-fade {
+  animation: landing-fade 1.8s var(--ease-soft) both;
+}
+
+@keyframes landing-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+.landing-rise {
+  animation: landing-rise 1.3s var(--ease-soft) both;
+}
+
+.landing-rise:nth-child(2) {
+  animation-delay: 0.12s;
+}
+
+.landing-rise:nth-child(3) {
+  animation-delay: 0.24s;
+}
+
+/* Clouds drift across, slowly and for ever (the long durations are set on each cloud). */
+@keyframes landing-drift {
+  from {
+    translate: -460px 0;
+  }
+  to {
+    translate: 2060px 0;
+  }
+}
+
+.landing-drift {
+  animation: landing-drift 220s linear infinite;
+}
+
+/* Stars fade in and out, each at its own pace. */
+@keyframes landing-twinkle {
+  50% {
+    opacity: 0.08;
+  }
+}
+
+.landing-twinkle {
+  animation: landing-twinkle 7s ease-in-out infinite;
+}
+
+/* A shooting star: it crosses the sky in about a second and a half, then waits for most of its long turn. */
+@keyframes landing-shoot {
+  0% {
+    opacity: 0;
+    translate: 0 0;
+  }
+  1% {
+    opacity: 1;
+  }
+  5% {
+    opacity: 0;
+    translate: 430px 178px;
+  }
+  100% {
+    opacity: 0;
+    translate: 430px 178px;
+  }
+}
+
+.landing-shoot {
+  opacity: 0;
+  animation: landing-shoot 20s linear infinite;
+}
+
+/* The stickers around the headline arrive one after another. */
+@keyframes landing-pop {
+  from {
+    opacity: 0;
+    transform: translateY(14px) rotate(calc(var(--tilt) * 0.4)) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(var(--tilt)) scale(1);
+  }
+}
+
+.landing-sticker {
+  transform: rotate(var(--tilt));
+  animation: landing-pop 1.4s var(--ease-soft) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-fade,
+  .landing-rise,
+  .landing-twinkle,
+  .landing-shoot,
+  .landing-sticker {
+    animation: none;
+  }
+
+  .landing-shoot {
+    display: none;
+  }
+
+  /* Still clouds, each at a different place across the sky. */
+  .landing-drift {
+    animation: none;
+    translate: var(--rest) 0;
+  }
+}
+
+/* Smooth anchor jumps from the nav, unless the visitor asked for less motion. */
+html:has([data-landing]) {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:has([data-landing]) {
+    scroll-behavior: auto;
+  }
+}
