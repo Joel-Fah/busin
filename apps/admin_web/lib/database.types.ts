@@ -181,16 +181,42 @@ isOneToOne: false
       referencedColumns: ["id","school_id"]
     }
                   ]
-                },"profiles": {
+                },"notification_preferences": {
                   Row: {
-                    "avatar_url": string | null,"created_at": string,"department": string | null,"department_id": string | null,"email": string,"full_name": string,"id": string,"join_decline_note": string | null,"join_declined_at": string | null,"join_declined_school": string | null,"join_requested_at": string | null,"matricule": string | null,"phone": string | null,"program": string | null,"program_id": string | null,"role": Database["public"]['Enums']["user_role"],"school_id": string | null,"status": Database["public"]['Enums']["account_status"],"updated_at": string
+                    "boarding_messages_on": boolean,"bus_near_minutes": number,"bus_near_on": boolean,"evening_on": boolean,"evening_time": string,"morning_on": boolean,"morning_time": string,"riding_days": number,"school_id": string,"updated_at": string,"user_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "avatar_url"?: string | null,"created_at"?: string,"department"?: string | null,"department_id"?: string | null,"email": string,"full_name"?: string,"id": string,"join_decline_note"?: string | null,"join_declined_at"?: string | null,"join_declined_school"?: string | null,"join_requested_at"?: string | null,"matricule"?: string | null,"phone"?: string | null,"program"?: string | null,"program_id"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"school_id"?: string | null,"status"?: Database["public"]['Enums']["account_status"],"updated_at"?: string
+                    "boarding_messages_on"?: boolean,"bus_near_minutes"?: number,"bus_near_on"?: boolean,"evening_on"?: boolean,"evening_time"?: string,"morning_on"?: boolean,"morning_time"?: string,"riding_days"?: number,"school_id": string,"updated_at"?: string,"user_id": string
                   }
                   Update: {
-                    "avatar_url"?: string | null,"created_at"?: string,"department"?: string | null,"department_id"?: string | null,"email"?: string,"full_name"?: string,"id"?: string,"join_decline_note"?: string | null,"join_declined_at"?: string | null,"join_declined_school"?: string | null,"join_requested_at"?: string | null,"matricule"?: string | null,"phone"?: string | null,"program"?: string | null,"program_id"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"school_id"?: string | null,"status"?: Database["public"]['Enums']["account_status"],"updated_at"?: string
+                    "boarding_messages_on"?: boolean,"bus_near_minutes"?: number,"bus_near_on"?: boolean,"evening_on"?: boolean,"evening_time"?: string,"morning_on"?: boolean,"morning_time"?: string,"riding_days"?: number,"school_id"?: string,"updated_at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "notification_preferences_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "notification_preferences_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: true
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"profiles": {
+                  Row: {
+                    "avatar_url": string | null,"created_at": string,"department": string | null,"department_id": string | null,"email": string,"full_name": string,"id": string,"join_decline_note": string | null,"join_declined_at": string | null,"join_declined_school": string | null,"join_requested_at": string | null,"matricule": string | null,"phone": string | null,"program": string | null,"program_id": string | null,"role": Database["public"]['Enums']["user_role"],"school_id": string | null,"status": Database["public"]['Enums']["account_status"],"streak_opt_in": boolean,"streak_opt_in_at": string | null,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "avatar_url"?: string | null,"created_at"?: string,"department"?: string | null,"department_id"?: string | null,"email": string,"full_name"?: string,"id": string,"join_decline_note"?: string | null,"join_declined_at"?: string | null,"join_declined_school"?: string | null,"join_requested_at"?: string | null,"matricule"?: string | null,"phone"?: string | null,"program"?: string | null,"program_id"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"school_id"?: string | null,"status"?: Database["public"]['Enums']["account_status"],"streak_opt_in"?: boolean,"streak_opt_in_at"?: string | null,"updated_at"?: string
+                  }
+                  Update: {
+                    "avatar_url"?: string | null,"created_at"?: string,"department"?: string | null,"department_id"?: string | null,"email"?: string,"full_name"?: string,"id"?: string,"join_decline_note"?: string | null,"join_declined_at"?: string | null,"join_declined_school"?: string | null,"join_requested_at"?: string | null,"matricule"?: string | null,"phone"?: string | null,"program"?: string | null,"program_id"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"school_id"?: string | null,"status"?: Database["public"]['Enums']["account_status"],"streak_opt_in"?: boolean,"streak_opt_in_at"?: string | null,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -369,6 +395,32 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"student_areas": {
+                  Row: {
+                    "area": unknown,"label": string,"school_id": string,"source": string,"updated_at": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "area": unknown,"label": string,"school_id": string,"source": string,"updated_at"?: string,"user_id": string
+                  }
+                  Update: {
+                    "area"?: unknown,"label"?: string,"school_id"?: string,"source"?: string,"updated_at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "student_areas_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "student_areas_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: true
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"subscription_events": {
                   Row: {
                     "action": string,"actor_id": string | null,"created_at": string,"id": number,"note": string | null,"school_id": string,"student_id": string,"subscription_id": string
@@ -486,6 +538,11 @@ isOneToOne: false
             "admin_accept_school_terms":
 { Args: { "p_version": string }; Returns: undefined
                            },
+"admin_area_counts":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "lat": number,"lng": number,"students": number
+            }[]
+                           },
 "admin_boardings_by_day":
 { Args: { "p_days"?: number }; Returns: {
               "boardings": number,"day": string
@@ -537,6 +594,14 @@ isOneToOne: false
               "id": number,"kind": string,"ref_id": string,"tokens": Json
             }[]
                            },
+"claim_place_search":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "centre_lat": number,"centre_lng": number,"max_lat": number,"max_lng": number,"min_lat": number,"min_lng": number
+            }[]
+                           },
+"clear_my_area":
+{ Args: Record<PropertyKey, never>; Returns: undefined
+                           },
 "complete_notification":
 { Args: { "p_error"?: string,"p_id": number }; Returns: undefined
                            },
@@ -554,9 +619,29 @@ isOneToOne: false
               "city": string,"country": string,"id": string,"logo_path": string,"name": string,"short_name": string
             }[]
                            },
+"my_area":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "label": string,"lat": number,"lng": number,"source": string,"updated_at": string
+            }[]
+                           },
 "my_join_request":
 { Args: Record<PropertyKey, never>; Returns: {
               "decline_note": string,"declined_at": string,"declined_school_name": string,"requested_at": string,"school_id": string,"school_logo_path": string,"school_name": string
+            }[]
+                           },
+"my_notification_preferences":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "boarding_messages_on": boolean,"bus_near_minutes": number,"bus_near_on": boolean,"evening_on": boolean,"evening_time": string,"morning_on": boolean,"morning_time": string,"riding_days": number
+            }[]
+                           },
+"my_ride_days":
+{ Args: { "p_semester_id": string }; Returns: {
+              "day": string,"state": string
+            }[]
+                           },
+"my_streak":
+{ Args: { "p_semester_id": string }; Returns: {
+              "best_streak": number,"current_streak": number,"rides": number
             }[]
                            },
 "public_schools":
@@ -575,6 +660,20 @@ isOneToOne: false
                            },
 "rotate_my_qr_secret":
 { Args: Record<PropertyKey, never>; Returns: string
+                           },
+"school_leaderboard":
+{ Args: { "p_limit"?: number,"p_semester_id": string }; Returns: {
+              "avatar_url": string,"current_streak": number,"display_name": string,"is_me": boolean,"rank": number,"rides": number
+            }[]
+                           },
+"set_my_area":
+{ Args: { "p_label": string,"p_lat": number,"p_lng": number,"p_source": string }; Returns: undefined
+                           },
+"set_notification_preferences":
+{ Args: { "p_boarding_messages_on": boolean,"p_bus_near_minutes": number,"p_bus_near_on": boolean,"p_evening_on": boolean,"p_evening_time": string,"p_morning_on": boolean,"p_morning_time": string,"p_riding_days": number }; Returns: undefined
+                           },
+"set_streak_opt_in":
+{ Args: { "p_on": boolean }; Returns: undefined
                            },
 "submit_interest":
 { Args: { "p_email": string,"p_kind": string,"p_locale"?: string,"p_message"?: string,"p_name"?: string,"p_organisation"?: string,"p_trap"?: string }; Returns: string

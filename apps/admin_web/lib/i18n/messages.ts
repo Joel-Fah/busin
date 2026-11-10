@@ -324,6 +324,11 @@ export const en = {
     viewAllCount: '{count} in total',
     panel: { title: 'All stops', close: 'Close the list', search: 'Search stops',
       searchPlaceholder: 'Search by name...', noMatch: 'No stop matches your search.', nearest: 'Nearest first' },
+    areas: {
+      show: 'Where students live',
+      summary: '{zones} zones of about 500 m, {students} students. Only zones with 5 or more students are shown.',
+      none: 'No zone has 5 students yet. Students add their area in the app, if they wish.',
+    },
     location: {
       show: 'Show my location',
       finding: 'Finding your location...',
@@ -1147,6 +1152,11 @@ export const fr: Messages = {
     viewAllCount: '{count} au total',
     panel: { title: 'Tous les arrêts', close: 'Fermer la liste', search: 'Rechercher un arrêt',
       searchPlaceholder: 'Rechercher par nom...', noMatch: 'Aucun arrêt ne correspond à votre recherche.', nearest: 'Les plus proches d’abord' },
+    areas: {
+      show: 'Où habitent les étudiants',
+      summary: '{zones} zones d’environ 500 m, {students} étudiants. Seules les zones d’au moins 5 étudiants sont affichées.',
+      none: 'Aucune zone ne compte encore 5 étudiants. Les étudiants ajoutent leur zone dans l’application, s’ils le souhaitent.',
+    },
     location: {
       show: 'Afficher ma position',
       finding: 'Recherche de votre position...',

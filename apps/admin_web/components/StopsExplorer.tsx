@@ -28,10 +28,12 @@ import { format, type Messages } from "@/lib/i18n/messages";
 import type { MapProviderId } from "@/lib/map/config";
 import { MAX_STOP_NAME_LENGTH, parseCoordinate } from "@/lib/stops";
 import { describeUsage } from "@/lib/stops";
-import type { StopRow } from "@/lib/stops-data";
+import type { AreaCount, StopRow } from "@/lib/stops-data";
 
 type Props = {
   stops: StopRow[];
+  /** Zones where students live, 5 or more each (empty when there are none or they could not be read). */
+  areas: AreaCount[];
   failed: boolean;
   map: { provider: MapProviderId; styleUrl: string; accessToken: string; center: LatLng; zoom: number };
   /** Open the sheet on arrival: to add a stop, or to edit the one with this id. */
@@ -69,7 +71,9 @@ const ICON_BUTTON =
  * overlap become numbered bubbles. The visitor can show where they are, which adds a distance to each
  * stop; the position stays in the browser. Everything happens on this one page, so it costs one map load.
  */
-export function StopsExplorer({ stops, failed, map, initialSheet, t }: Props) {
+export function StopsExplorer({ stops, areas, failed, map, initialSheet, t }: Props) {
+  const [showAreas, setShowAreas] = useState(false);
+  const areaStudents = areas.reduce((sum, area) => sum + area.students, 0);
   const s = t.stops;
   const f = s.form;
 
@@ -224,6 +228,7 @@ export function StopsExplorer({ stops, failed, map, initialSheet, t }: Props) {
           center={map.center}
           zoom={map.zoom}
           markers={markers}
+          areas={showAreas && !sheet ? areas : undefined}
           focus={focus}
           focusKey={focusKey}
           clusterLabel={s.cluster}
@@ -282,6 +287,17 @@ export function StopsExplorer({ stops, failed, map, initialSheet, t }: Props) {
               </span>
             </button>
           )}
+
+          <div className="rounded-md bg-surface-2 px-4 py-3">
+            <Switch
+              name="areas"
+              label={s.areas.show}
+              hint={areas.length === 0 ? s.areas.none : format(s.areas.summary, { zones: areas.length, students: areaStudents })}
+              checked={showAreas}
+              disabled={areas.length === 0}
+              onChange={(event) => setShowAreas(event.target.checked)}
+            />
+          </div>
 
           {shown.length === 0 ? (
             <p className="py-6 text-center text-sm text-muted">{stops.length === 0 ? s.empty : s.panel.noMatch}</p>
