@@ -12,6 +12,7 @@ import 'package:busin_student/src/providers.dart';
 import 'package:busin_student/src/reminders/notification_providers.dart';
 import 'package:busin_student/src/reminders/reminder_plan.dart';
 import 'package:busin_student/src/reminders/reminder_scheduler.dart';
+import 'package:busin_student/src/streaks/streak_providers.dart';
 import 'package:busin_student/src/push/push_service.dart';
 import 'package:busin_student/src/qr/qr_providers.dart';
 import 'package:busin_student/src/qr/screen_security.dart';
@@ -31,10 +32,12 @@ Profile profile({
   String? departmentId,
   String? programId,
   String? schoolId = 's1',
+  bool streakOptIn = false,
 }) =>
     Profile(
       id: id,
       schoolId: schoolId,
+      streakOptIn: streakOptIn,
       email: '$id@school.edu',
       fullName: 'Test Person',
       matricule: complete ? 'ICT2026-0001' : null,
@@ -713,6 +716,7 @@ List<Override> overridesFor(
   FakeJoin? join,
   FakeNotificationPreferences? notificationPreferences,
   FakeReminderScheduler? reminders,
+  FakeStreaks? streaks,
   FakeSecretStore? store,
   FakeScreenSecurity? security,
   TestClock? clock,
@@ -736,6 +740,7 @@ List<Override> overridesFor(
     joinRepositoryProvider.overrideWithValue(join ?? FakeJoin(profiles)),
     notificationPreferencesRepositoryProvider.overrideWithValue(notificationPreferences ?? FakeNotificationPreferences()),
     reminderSchedulerProvider.overrideWithValue(reminders ?? FakeReminderScheduler()),
+    streaksRepositoryProvider.overrideWithValue(streaks ?? FakeStreaks(profiles)),
     academicRepositoryProvider.overrideWithValue(academic ?? FakeAcademic()),
     schoolRepositoryProvider.overrideWithValue(b),
     semestersRepositoryProvider.overrideWithValue(b),
@@ -838,4 +843,45 @@ class FakeReminderScheduler implements ReminderScheduler {
 
   @override
   Future<bool> requestPermission() async => allow;
+}
+
+/// Streaks done the way the server does them: opting in flips the profile's flag; the streak and the days are set by the test.
+class FakeStreaks implements StreaksRepository {
+  FakeStreaks(this.profiles, {this.current, this.days = const []});
+
+  final FakeProfileRepository profiles;
+  Streak? current;
+  List<RideDay> days;
+  Object? error;
+  final List<bool> optIns = [];
+
+  @override
+  Future<void> setOptIn(bool on) async {
+    optIns.add(on);
+    for (final entry in profiles.byId.entries.toList()) {
+      final p = entry.value;
+      profiles.byId[entry.key] = Profile(
+        id: p.id,
+        schoolId: p.schoolId,
+        email: p.email,
+        fullName: p.fullName,
+        role: p.role,
+        status: p.status,
+        createdAt: p.createdAt,
+        updatedAt: p.updatedAt,
+        phone: p.phone,
+        matricule: p.matricule,
+        streakOptIn: on,
+      );
+    }
+  }
+
+  @override
+  Future<List<RideDay>> rideDays(String semesterId) async => days;
+
+  @override
+  Future<Streak?> streak(String semesterId) async {
+    if (error != null) throw error!;
+    return current;
+  }
 }

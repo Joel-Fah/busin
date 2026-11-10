@@ -545,5 +545,46 @@
         "type": "String"
       }
     }
-  }
+  },
+  "streakTitle": "Streaks",
+  "streakHint": "Count the days you take the bus, and join your school's leaderboard.",
+  "streakOnTitle": "Keep a streak?",
+  "streakOnBody": "BusIn counts the days you board. Rest days and days without buses do not break it; only a bus day you miss does. You will also appear on your school's leaderboard as {name}. You can turn it off at any time.",
+  "@streakOnBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "streakOnAction": "Turn on streaks",
+  "streakDays": "{count, plural, =0{No streak yet} =1{1-day streak} other{{count}-day streak}}",
+  "@streakDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "streakBest": "Best {count}",
+  "@streakBest": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "streakRides": "{count, plural, =1{1 ride this semester} other{{count} rides this semester}}",
+  "@streakRides": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "streakSheetTitle": "Your streak",
+  "streakRode": "Rode",
+  "streakMissed": "Missed",
+  "streakRest": "Rest or no bus",
+  "streakToday": "Today"
 }

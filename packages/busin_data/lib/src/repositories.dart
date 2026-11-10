@@ -96,6 +96,28 @@ class SupabaseNotificationPreferencesRepository implements NotificationPreferenc
       });
 }
 
+class SupabaseStreaksRepository implements StreaksRepository {
+  SupabaseStreaksRepository(this._client);
+  final SupabaseClient _client;
+
+  @override
+  Future<void> setOptIn(bool on) => guarded(() async {
+        await _client.rpc<void>('set_streak_opt_in', params: {'p_on': on});
+      });
+
+  @override
+  Future<List<RideDay>> rideDays(String semesterId) => guarded(() async {
+        final rows = await _client.rpc<List<dynamic>>('my_ride_days', params: {'p_semester_id': semesterId});
+        return rows.cast<Map<String, dynamic>>().map(RideDay.fromJson).toList(growable: false);
+      });
+
+  @override
+  Future<Streak?> streak(String semesterId) => guarded(() async {
+        final rows = await _client.rpc<List<dynamic>>('my_streak', params: {'p_semester_id': semesterId});
+        return rows.isEmpty ? null : Streak.fromJson(rows.first as Map<String, dynamic>);
+      });
+}
+
 class SupabaseJoinRepository implements JoinRepository {
   SupabaseJoinRepository(this._client);
   final SupabaseClient _client;

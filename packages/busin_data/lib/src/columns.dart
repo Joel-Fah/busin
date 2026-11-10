@@ -4,7 +4,7 @@ class Columns {
   const Columns._();
 
   static const profile =
-      'id, school_id, email, full_name, avatar_url, phone, role, status, matricule, department, program, department_id, program_id, created_at, updated_at';
+      'id, school_id, email, full_name, avatar_url, phone, role, status, matricule, department, program, department_id, program_id, created_at, updated_at, streak_opt_in';
   static const faculty = 'id, name, code';
   static const department = 'id, faculty_id, name, code';
   static const program = 'id, name';

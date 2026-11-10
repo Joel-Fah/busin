@@ -11,6 +11,7 @@ import '../profile/school_badge.dart';
 import '../providers.dart';
 import '../router.dart';
 import '../settings/appearance.dart';
+import '../streaks/streak_providers.dart';
 import '../subscription/subscription_providers.dart';
 
 /// The student's profile, the last tab: who they are to the school, the details they can change, the boarding history
@@ -196,6 +197,60 @@ class ProfileScreen extends ConsumerWidget {
         ),
       ),
     );
+    final streaks = StaggeredIn(
+      index: 2,
+      child: BusinCard(
+        child: Row(
+          children: [
+            DecoratedBox(
+              decoration: BoxDecoration(color: p.surface2, borderRadius: BorderRadius.circular(BusinRadius.sm)),
+              child: Padding(padding: const EdgeInsets.all(BusinSpace.x3), child: HugeIcon(icon: HugeIcons.strokeRoundedFire, size: 20, color: p.fg)),
+            ),
+            const SizedBox(width: BusinSpace.x3),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l10n.streakTitle, style: text.titleMedium),
+                  Text(l10n.streakHint, style: text.bodySmall?.copyWith(color: p.muted)),
+                ],
+              ),
+            ),
+            Switch.adaptive(
+              value: profile.streakOptIn,
+              onChanged: (on) async {
+                // Turning on says plainly that it also puts the student on the school's leaderboard.
+                if (on) {
+                  final yes = await showBusinSheet<bool>(
+                    context,
+                    builder: (sheet) => Padding(
+                      padding: EdgeInsets.all(BusinSheetFrame.contentInset),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(l10n.streakOnTitle, style: Theme.of(sheet).textTheme.titleLarge),
+                          const SizedBox(height: BusinSpace.x2),
+                          Text(l10n.streakOnBody(leaderboardName(profile.fullName)), style: Theme.of(sheet).textTheme.bodyMedium?.copyWith(color: p.muted)),
+                          const SizedBox(height: BusinSpace.x5),
+                          BusinButton(label: l10n.streakOnAction, expand: true, onPressed: () => Navigator.of(sheet).pop(true)),
+                        ],
+                      ),
+                    ),
+                  );
+                  if (yes != true) return;
+                }
+                try {
+                  await ref.read(setStreakOptInProvider)(on);
+                } catch (_) {
+                  if (context.mounted) BusinToast.show(context, l10n.errorGeneric, tone: ToastTone.error);
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
     final appearance = StaggeredIn(
       index: 3,
       child: BusinCard(
@@ -285,7 +340,7 @@ class ProfileScreen extends ConsumerWidget {
                   padding: side,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [details, const SizedBox(height: BusinSpace.x4), history, const SizedBox(height: BusinSpace.x4), notifications, const SizedBox(height: BusinSpace.x4), appearance, const SizedBox(height: BusinSpace.x4), legal],
+                    children: [details, const SizedBox(height: BusinSpace.x4), history, const SizedBox(height: BusinSpace.x4), notifications, const SizedBox(height: BusinSpace.x4), streaks, const SizedBox(height: BusinSpace.x4), appearance, const SizedBox(height: BusinSpace.x4), legal],
                   ),
                 ),
               ),
@@ -306,6 +361,8 @@ class ProfileScreen extends ConsumerWidget {
           history,
           const SizedBox(height: BusinSpace.x4),
           notifications,
+          const SizedBox(height: BusinSpace.x4),
+          streaks,
           const SizedBox(height: BusinSpace.x4),
           appearance,
           const SizedBox(height: BusinSpace.x4),

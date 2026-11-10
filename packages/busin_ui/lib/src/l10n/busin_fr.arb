@@ -397,5 +397,18 @@
   "reminderEveningBody": "C'est bientôt l'heure du bus. Ouvrez BusIn pour voir où il est.",
   "boardedTitle": "À bord",
   "boardedEarlier": "Vous êtes monté à {time}",
-  "boardedClose": "Fermer"
+  "boardedClose": "Fermer",
+  "streakTitle": "Séries",
+  "streakHint": "Comptez les jours où vous prenez le bus, et rejoignez le classement de votre école.",
+  "streakOnTitle": "Garder une série ?",
+  "streakOnBody": "BusIn compte les jours où vous montez. Les jours de repos et les jours sans bus ne la cassent pas ; seul un jour de bus manqué la casse. Vous apparaîtrez aussi dans le classement de votre école sous le nom {name}. Vous pouvez la désactiver à tout moment.",
+  "streakOnAction": "Activer les séries",
+  "streakDays": "{count, plural, =0{Pas encore de série} =1{Série de 1 jour} other{Série de {count} jours}}",
+  "streakBest": "Record {count}",
+  "streakRides": "{count, plural, =1{1 trajet ce semestre} other{{count} trajets ce semestre}}",
+  "streakSheetTitle": "Votre série",
+  "streakRode": "Monté",
+  "streakMissed": "Manqué",
+  "streakRest": "Repos ou pas de bus",
+  "streakToday": "Aujourd'hui"
 }
