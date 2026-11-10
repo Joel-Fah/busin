@@ -14,14 +14,15 @@ test.describe("the landing page's interest form", () => {
     await serviceClient().from("interest_requests").delete().like("email", `%${stamp}%`);
   });
 
-  test("with no app link set, each platform offers Get notified, and the request is stored once", async ({ page }) => {
+  test("with no app link set, the student card offers one Get notified, and the request is stored once", async ({ page }) => {
     const email = `notify${stamp}@example.com`;
     await page.goto("/");
-    await expect(page.locator("[data-interest=notify_android]")).toHaveText("Get notified");
-    await expect(page.locator("[data-interest=notify_ios]")).toHaveText("Get notified");
+    // One button, whichever phone the visitor has.
+    await expect(page.locator("section[aria-labelledby=download] [data-interest=notify]")).toHaveCount(1);
+    await expect(page.locator("section[aria-labelledby=download] [data-interest=notify]")).toHaveText("Get notified");
 
-    await page.locator("[data-interest=notify_android]").click();
-    const dialog = page.getByRole("dialog", { name: "Tell me when it is on Android" });
+    await page.locator("section[aria-labelledby=download] [data-interest=notify]").click();
+    const dialog = page.getByRole("dialog", { name: "Tell me when the app is out" });
     await dialog.getByRole("button", { name: "Send" }).click();
     await expect(dialog.getByText("Fill this in.")).toBeVisible();
     await dialog.getByLabel("Email").fill("not-an-email");
@@ -32,10 +33,10 @@ test.describe("the landing page's interest form", () => {
     await dialog.getByRole("button", { name: "Send" }).click();
     await expect(page.getByText("Thank you. We will be in touch.")).toBeVisible();
     await expect(dialog).toBeHidden();
-    expect(await rowsFor(email)).toEqual([{ kind: "notify_android", name: null, organisation: null, locale: "en" }]);
+    expect(await rowsFor(email)).toEqual([{ kind: "notify", name: null, organisation: null, locale: "en" }]);
 
     // Asking again is answered kindly and not stored twice.
-    await page.locator("[data-interest=notify_android]").click();
+    await page.locator("section[aria-labelledby=download] [data-interest=notify]").click();
     await page.getByRole("dialog").getByLabel("Email").fill(email);
     await page.getByRole("dialog").getByRole("button", { name: "Send" }).click();
     await expect(page.getByText("You already asked, and we have it.")).toBeVisible();
@@ -47,7 +48,7 @@ test.describe("the landing page's interest form", () => {
     await page.goto("/");
     await page.locator("#schools").scrollIntoViewIfNeeded();
     await expect(page.getByText("Rides with BusIn")).toBeVisible();
-    await page.locator("[data-interest=school]").first().click();
+    await page.locator("section[aria-labelledby=schools] [data-interest=school]").click();
     const dialog = page.getByRole("dialog", { name: "Bring BusIn to your school" });
     await dialog.getByLabel("Email").fill(email);
     await dialog.getByRole("button", { name: "Send" }).click();
@@ -60,18 +61,21 @@ test.describe("the landing page's interest form", () => {
     expect(await rowsFor(email)).toEqual([{ kind: "school", name: "Ada Head", organisation: "Hill School", locale: "en" }]);
   });
 
-  test("the questions are rows that open, the first one already open", async ({ page }) => {
+  test("the questions open one at a time, the first one already open", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByText("The app costs you nothing.")).toBeVisible();
-    await expect(page.getByText("The code changes every 30 seconds")).toBeHidden();
-    await page.getByRole("heading", { name: "Can someone use a photo of my pass?" }).click();
-    await expect(page.getByText("The code changes every 30 seconds")).toBeVisible();
+    const first = page.getByText("The app costs you nothing.");
+    const other = page.getByText("The student app never asks for your location.");
+    await expect(first).toBeVisible();
+    await expect(other).toBeHidden();
+    await page.getByRole("heading", { name: "Does BusIn know where I am?" }).click();
+    await expect(other).toBeVisible();
+    await expect(first).toBeHidden();
   });
 
   test("a request with the hidden field filled in looks sent but is not stored", async ({ page }) => {
     const email = `bot${stamp}@example.com`;
     await page.goto("/");
-    await page.locator("[data-interest=notify_ios]").click();
+    await page.locator("section[aria-labelledby=download] [data-interest=notify]").click();
     const dialog = page.getByRole("dialog");
     await dialog.getByLabel("Email").fill(email);
     await dialog.locator("input[name=website]").fill("http://spam.example", { force: true });
@@ -82,11 +86,11 @@ test.describe("the landing page's interest form", () => {
 
   test("the fourth request in an hour from one address is refused", async ({ page }) => {
     const email = `busy${stamp}@example.com`;
-    for (const kind of ["notify_android", "notify_ios", "school"]) {
-      await serviceClient().from("interest_requests").insert({ kind, email, name: "A", organisation: "B" });
+    for (const organisation of ["B", "C", "D"]) {
+      await serviceClient().from("interest_requests").insert({ kind: "school", email, name: "A", organisation });
     }
     await page.goto("/");
-    await page.locator("[data-interest=notify_ios]").click();
+    await page.locator("section[aria-labelledby=download] [data-interest=notify]").click();
     await page.getByRole("dialog").getByLabel("Email").fill(email);
     await page.getByRole("dialog").getByRole("button", { name: "Send" }).click();
     await expect(page.getByText("Too many requests just now.")).toBeVisible();

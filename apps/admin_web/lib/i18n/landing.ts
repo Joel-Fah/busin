@@ -11,29 +11,29 @@ export type LandingCopy = {
   sections: Record<"day" | "people" | "private" | "download" | "schools" | "faq", { eyebrow: string; title: string; sub: string }>;
   footer: { tagline: string; staff: string; theme: string; rights: string; explore: string; forSchools: string };
   schools: { trusted: string; slot: string; invite: string; lead: string; points: string[] };
-  faq: { items: { q: string; a: string }[] };
+  faq: { items: { q: string; a: string }[]; aside: { title: string; text: string; school: string; notify: string } };
   /** A student's morning, one step at a time, each with what the phone shows. */
   day: {
     steps: { time: string; title: string; text: string }[];
     sub: { label: string; route: string; stages: [string, string, string]; push: string; pushTitle: string; semester: string; receipt: string };
-    pass: { label: string; name: string; valid: string; offline: string; refresh: string; stop: string };
+    pass: { label: string; name: string; valid: string; offline: string; stop: string };
     live: { label: string; eta: string; stops: [string, string, string]; bus: string };
     board: { label: string; done: string; hello: string; seat: string; next: string };
   };
   people: { cards: { role: string; line: string; points: string[]; photo: string }[] };
   private: { facts: { title: string; text: string }[] };
   download: {
-    android: { title: string; text: string; play: string; apk: string; notify: string; soon: string };
-    ios: { title: string; text: string; store: string; notify: string; soon: string };
-    staff: { title: string; text: string };
+    students: { title: string; text: string; soon: string; notify: string; play: string; apk: string; ios: string };
+    team: { title: string; text: string; cta: string };
   };
   form: {
-    titles: Record<"school" | "notify_android" | "notify_ios", string>;
-    descriptions: Record<"school" | "notify_android" | "notify_ios", string>;
+    titles: Record<"school" | "notify", string>;
+    descriptions: Record<"school" | "notify", string>;
     email: string;
     name: string;
     organisation: string;
     message: string;
+    placeholders: Record<"email" | "name" | "organisation" | "message", string>;
     messageHint: string;
     privacy: string;
     send: string;
@@ -63,19 +63,19 @@ const en: LandingCopy = {
     day: { eyebrow: "A day with BusIn", title: "From 6:40 to the last bell", sub: "Follow one student through a morning that used to be stressful." },
     people: { eyebrow: "Who it helps", title: "Everyone's day gets easier", sub: "Students, drivers, the people at the door, and the school office." },
     private: { eyebrow: "Yours, and private", title: "Calm by design", sub: "Your school decides who rides. Nobody tracks your phone. It works when the signal does not." },
-    download: { eyebrow: "Get BusIn", title: "Take it with you", sub: "The student app for your phone. Staff apps come from your school's admin." },
+    download: { eyebrow: "Get BusIn", title: "Take it with you", sub: "The student app for your phone, and tools for the team that runs the buses." },
     schools: { eyebrow: "Schools that chose better", title: "A growing wall of schools that picked quality", sub: "Join the movement of schools that choose innovation for their students." },
     faq: { eyebrow: "Questions", title: "Good to know", sub: "Short answers to what people ask first." },
   },
   day: {
     steps: [
       { time: "6:40", title: "Subscribe once", text: "Pick your stop and your semester, add your receipt from the app. Your school checks it, and your phone tells you when it is approved." },
-      { time: "7:05", title: "Your pass, even offline", text: "A code that changes every few seconds, so nobody can borrow a screenshot of it. No signal at the gate? It still works." },
+      { time: "7:05", title: "Your pass, even offline", text: "Your pass lives in the app, ready at the gate. No signal there? It still works." },
       { time: "7:22", title: "See it coming", text: "The driver starts the trip and the bus appears on your map. You leave when it is close, not when you guess." },
       { time: "7:31", title: "Show, scan, sit", text: "Someone at the door scans your code. A green tick, a good morning, and you are on board." },
     ],
     sub: { label: "Subscription", route: "Campus line, Market stop", stages: ["Sent", "Checking", "Approved"], pushTitle: "BusIn", push: "Your school approved your subscription.", semester: "First semester, Sep to Jan", receipt: "Receipt added" },
-    pass: { label: "My pass", name: "Amara N.", valid: "Valid until 31 Jan", offline: "No signal, still works", refresh: "Changes in 12 s", stop: "Market stop, Bus 2" },
+    pass: { label: "My pass", name: "Amara N.", valid: "Valid until 31 Jan", offline: "No signal, still works", stop: "Market stop, Bus 2" },
     live: { label: "Live", eta: "4 min away", stops: ["Depot", "Your stop", "Campus"], bus: "Bus 2" },
     board: { label: "At the door", done: "On board", hello: "Have a good day, Amara", seat: "7:31, Bus 2", next: "At campus around 7:48" },
   },
@@ -95,21 +95,32 @@ const en: LandingCopy = {
     ],
   },
   download: {
-    android: { title: "Android", text: "The student app for Android phones.", play: "Get it on Google Play", apk: "Download the APK", notify: "Get notified", soon: "Coming soon" },
-    ios: { title: "iPhone", text: "The student app for iPhone.", store: "Download on the App Store", notify: "Get notified", soon: "Coming soon" },
-    staff: { title: "Drivers and staff at the door", text: "Their app is not on the stores. Your school's admin shares it from the BusIn portal, so only your team has it." },
+    students: {
+      title: "For students",
+      text: "On Android and iPhone: subscribe, carry your pass, see the bus coming.",
+      soon: "Coming soon",
+      notify: "Get notified",
+      play: "Get it on Google Play",
+      apk: "Download the APK",
+      ios: "Download on the App Store",
+    },
+    team: {
+      title: "For the school team",
+      text: "Drivers, the staff at the door and the school office each get the tools for their part of the day, set up together with the school.",
+      cta: "Invite your school",
+    },
   },
   form: {
-    titles: { school: "Bring BusIn to your school", notify_android: "Tell me when it is on Android", notify_ios: "Tell me when it is on iPhone" },
+    titles: { school: "Bring BusIn to your school", notify: "Tell me when the app is out" },
     descriptions: {
       school: "Tell us who you are and we will get back to you to set your school up.",
-      notify_android: "Leave your address and we will write once, when the app is ready.",
-      notify_ios: "Leave your address and we will write once, when the app is ready.",
+      notify: "Leave your address and we will write once, when the app is ready.",
     },
     email: "Email",
     name: "Your name",
     organisation: "School",
     message: "Anything to add",
+    placeholders: { email: "you@example.com", name: "First and last name", organisation: "Your school's name", message: "Two buses, about 300 students..." },
     messageHint: "How many students ride, how many buses: anything helps.",
     privacy: "We use your address only to answer this request.",
     send: "Send",
@@ -136,11 +147,16 @@ const en: LandingCopy = {
       { q: "Is BusIn free for students?", a: "Yes. Your school sets it up and decides how the bus itself is paid for. The app costs you nothing." },
       { q: "My school is not on BusIn. What can I do?", a: "Invite it: leave your school's name and your address, and we will get in touch with the people who run the buses." },
       { q: "Do I need data to show my pass?", a: "No. Once you have opened the app with a signal, your pass works without one, and the scan at the door does too." },
-      { q: "Can someone use a photo of my pass?", a: "No. The code changes every 30 seconds, so a photo or a screenshot stops working within about a minute." },
       { q: "Does BusIn know where I am?", a: "No. The student app never asks for your location. Only the bus shares where it is, and only while a trip is running." },
       { q: "Who sees my subscription and my receipt?", a: "Only the admins of your school. Nobody at another school, and no other student, can see them." },
-      { q: "How do drivers and staff get their app?", a: "From your school's admin, through the BusIn portal. It is not on the stores, so only your team has it." },
+      { q: "How do drivers and staff get their app?", a: "Their school sets them up with it, along with their account. Students never need it." },
     ],
+    aside: {
+      title: "Not on BusIn yet?",
+      text: "Invite your school and we will talk to the people who run its buses. Or leave your address to hear when the app is out.",
+      school: "Invite your school",
+      notify: "Get notified",
+    },
   },
   footer: { tagline: "A companion for the daily ride.", staff: "Staff sign in", theme: "Theme", rights: "BusIn", explore: "On this page", forSchools: "For schools" },
 };
@@ -164,19 +180,19 @@ const fr: LandingCopy = {
     day: { eyebrow: "Une journée avec BusIn", title: "De 6 h 40 à la dernière sonnerie", sub: "Suivez un étudiant dans un matin qui était stressant." },
     people: { eyebrow: "Qui ça aide", title: "La journée de chacun devient plus simple", sub: "Étudiants, chauffeurs, personnel à la porte et bureau de l'école." },
     private: { eyebrow: "À vous, et privé", title: "Serein par conception", sub: "Votre école décide qui voyage. Personne ne suit votre téléphone. Ça marche même sans réseau." },
-    download: { eyebrow: "Obtenir BusIn", title: "Emportez-le avec vous", sub: "L'application étudiante pour votre téléphone. Les applications du personnel viennent de l'administration de votre école." },
+    download: { eyebrow: "Obtenir BusIn", title: "Emportez-le avec vous", sub: "L'application étudiante pour votre téléphone, et des outils pour l'équipe qui gère les bus." },
     schools: { eyebrow: "Les écoles qui ont choisi mieux", title: "Un mur d'écoles qui grandit, celles qui ont choisi la qualité", sub: "Rejoignez le mouvement des écoles qui choisissent l'innovation pour leurs étudiants." },
     faq: { eyebrow: "Questions", title: "Bon à savoir", sub: "Des réponses courtes à ce qu'on demande en premier." },
   },
   day: {
     steps: [
       { time: "6 h 40", title: "Abonnez-vous une fois", text: "Choisissez votre arrêt et votre semestre, ajoutez votre reçu depuis l'application. Votre école vérifie, et votre téléphone vous prévient quand c'est validé." },
-      { time: "7 h 05", title: "Votre pass, même hors ligne", text: "Un code qui change toutes les quelques secondes, pour que personne ne puisse emprunter une capture d'écran. Pas de réseau au portail ? Ça marche quand même." },
+      { time: "7 h 05", title: "Votre pass, même hors ligne", text: "Votre pass vit dans l'application, prêt au portail. Pas de réseau ? Ça marche quand même." },
       { time: "7 h 22", title: "Voyez-le arriver", text: "Le chauffeur démarre le trajet et le bus apparaît sur votre carte. Vous partez quand il est proche, pas au hasard." },
       { time: "7 h 31", title: "Montrer, scanner, s'asseoir", text: "Quelqu'un à la porte scanne votre code. Une coche verte, un bonjour, et vous êtes à bord." },
     ],
     sub: { label: "Abonnement", route: "Ligne campus, arrêt Marché", stages: ["Envoyé", "En vérification", "Validé"], pushTitle: "BusIn", push: "Votre école a validé votre abonnement.", semester: "Premier semestre, sept. à janv.", receipt: "Reçu ajouté" },
-    pass: { label: "Mon pass", name: "Amara N.", valid: "Valide jusqu'au 31 janv.", offline: "Pas de réseau, ça marche", refresh: "Change dans 12 s", stop: "Arrêt Marché, Bus 2" },
+    pass: { label: "Mon pass", name: "Amara N.", valid: "Valide jusqu'au 31 janv.", offline: "Pas de réseau, ça marche", stop: "Arrêt Marché, Bus 2" },
     live: { label: "En direct", eta: "À 4 min", stops: ["Dépôt", "Votre arrêt", "Campus"], bus: "Bus 2" },
     board: { label: "À la porte", done: "À bord", hello: "Bonne journée, Amara", seat: "7 h 31, Bus 2", next: "Au campus vers 7 h 48" },
   },
@@ -196,21 +212,32 @@ const fr: LandingCopy = {
     ],
   },
   download: {
-    android: { title: "Android", text: "L'application étudiante pour Android.", play: "Disponible sur Google Play", apk: "Télécharger l'APK", notify: "Me prévenir", soon: "Bientôt" },
-    ios: { title: "iPhone", text: "L'application étudiante pour iPhone.", store: "Télécharger dans l'App Store", notify: "Me prévenir", soon: "Bientôt" },
-    staff: { title: "Chauffeurs et personnel à la porte", text: "Leur application n'est pas sur les stores. L'administration de votre école la partage depuis le portail BusIn, seule votre équipe l'a." },
+    students: {
+      title: "Pour les étudiants",
+      text: "Sur Android et iPhone : abonnez-vous, gardez votre pass, voyez le bus arriver.",
+      soon: "Bientôt",
+      notify: "Me prévenir",
+      play: "Disponible sur Google Play",
+      apk: "Télécharger l'APK",
+      ios: "Télécharger dans l'App Store",
+    },
+    team: {
+      title: "Pour l'équipe de l'école",
+      text: "Chauffeurs, personnel à la porte et bureau de l'école ont chacun les outils de leur part de la journée, installés avec l'école.",
+      cta: "Inviter votre école",
+    },
   },
   form: {
-    titles: { school: "Amenez BusIn dans votre école", notify_android: "Prévenez-moi pour Android", notify_ios: "Prévenez-moi pour iPhone" },
+    titles: { school: "Amenez BusIn dans votre école", notify: "Prévenez-moi à la sortie de l'application" },
     descriptions: {
       school: "Dites-nous qui vous êtes, nous revenons vers vous pour installer votre école.",
-      notify_android: "Laissez votre adresse, nous écrirons une fois, quand l'application sera prête.",
-      notify_ios: "Laissez votre adresse, nous écrirons une fois, quand l'application sera prête.",
+      notify: "Laissez votre adresse, nous écrirons une fois, quand l'application sera prête.",
     },
     email: "E-mail",
     name: "Votre nom",
     organisation: "École",
     message: "Autre chose à ajouter",
+    placeholders: { email: "vous@exemple.com", name: "Prénom et nom", organisation: "Le nom de votre école", message: "Deux bus, environ 300 étudiants..." },
     messageHint: "Combien d'étudiants voyagent, combien de bus : tout aide.",
     privacy: "Votre adresse sert uniquement à répondre à cette demande.",
     send: "Envoyer",
@@ -237,11 +264,16 @@ const fr: LandingCopy = {
       { q: "BusIn est-il gratuit pour les étudiants ?", a: "Oui. Votre école l'installe et décide comment le bus lui-même est payé. L'application ne vous coûte rien." },
       { q: "Mon école n'utilise pas BusIn. Que faire ?", a: "Invitez-la : laissez le nom de votre école et votre adresse, nous contacterons les personnes qui gèrent les bus." },
       { q: "Faut-il des données pour montrer mon pass ?", a: "Non. Une fois l'application ouverte avec du réseau, votre pass marche sans, et le scan à la porte aussi." },
-      { q: "Quelqu'un peut-il utiliser une photo de mon pass ?", a: "Non. Le code change toutes les 30 secondes : une photo ou une capture ne marche plus au bout d'une minute environ." },
       { q: "BusIn sait-il où je suis ?", a: "Non. L'application étudiante ne demande jamais votre position. Seul le bus partage la sienne, et seulement pendant un trajet." },
       { q: "Qui voit mon abonnement et mon reçu ?", a: "Seuls les administrateurs de votre école. Personne d'une autre école, ni aucun autre étudiant, ne peut les voir." },
-      { q: "Comment les chauffeurs et le personnel obtiennent-ils leur application ?", a: "Par l'administration de votre école, depuis le portail BusIn. Elle n'est pas sur les stores, seule votre équipe l'a." },
+      { q: "Comment les chauffeurs et le personnel obtiennent-ils leur application ?", a: "Leur école le leur installe, avec leur compte. Les étudiants n'en ont jamais besoin." },
     ],
+    aside: {
+      title: "Pas encore sur BusIn ?",
+      text: "Invitez votre école, nous parlerons aux personnes qui gèrent ses bus. Ou laissez votre adresse pour savoir quand l'application sort.",
+      school: "Inviter votre école",
+      notify: "Me prévenir",
+    },
   },
   footer: { tagline: "Un compagnon pour le trajet de tous les jours.", staff: "Connexion du personnel", theme: "Thème", rights: "BusIn", explore: "Sur cette page", forSchools: "Pour les écoles" },
 };

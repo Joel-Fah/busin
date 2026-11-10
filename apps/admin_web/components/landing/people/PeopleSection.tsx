@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Contour } from "@/components/ui/Contour";
 import { Icon } from "@/components/ui/Icon";
 import type { LandingCopy } from "@/lib/i18n/landing";
+import { innerRadius } from "@/lib/ui/radius";
 
 import { PeopleTrack } from "./PeopleTrack";
 
@@ -22,6 +23,7 @@ export function PeopleSection({ copy }: { copy: LandingCopy["people"] }) {
       {copy.cards.map((card, i) => (
         <article key={card.role} className="people-card relative flex flex-col gap-5 rounded-xl bg-surface p-6 shadow-soft [--thread-color:var(--color-line)]">
           <Contour radius={36} inset={10} />
+          {/* The card is 36 round and the photo sits 24 in, so its corners are 12 (concentric with the card and its thread). */}
           <div className="relative">
             <Image
               src={ART[i].photo}
@@ -29,7 +31,8 @@ export function PeopleSection({ copy }: { copy: LandingCopy["people"] }) {
               width={720}
               height={900}
               sizes="(min-width: 1280px) 22rem, (min-width: 640px) 45vw, 90vw"
-              className="aspect-[4/5] h-auto w-full rounded-lg bg-surface-2 object-cover"
+              className="aspect-[4/5] h-auto w-full bg-surface-2 object-cover"
+              style={{ borderRadius: innerRadius(36, 24) }}
             />
             <Image
               src={ART[i].sticker}

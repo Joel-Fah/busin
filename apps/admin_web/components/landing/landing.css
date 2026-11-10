@@ -138,6 +138,18 @@ html:has([data-landing]) {
     scale 0.7s var(--ease-soft);
 }
 
+/* The clock in the status bar follows the step too. */
+.day-time {
+  display: none;
+}
+
+.day-story[data-step="0"] [data-time="0"],
+.day-story[data-step="1"] [data-time="1"],
+.day-story[data-step="2"] [data-time="2"],
+.day-story[data-step="3"] [data-time="3"] {
+  display: inline;
+}
+
 .day-screen.is-shown,
 .day-story[data-step="0"] [data-screen="0"],
 .day-story[data-step="1"] [data-screen="1"],
@@ -189,15 +201,6 @@ html:has([data-landing]) {
   }
 }
 
-@keyframes day-refresh {
-  from {
-    scale: 1 1;
-  }
-  to {
-    scale: 0 1;
-  }
-}
-
 @keyframes day-bus {
   from {
     offset-distance: 0%;
@@ -234,10 +237,6 @@ html:has([data-landing]) {
 
   :is(.is-shown, .day-story[data-step="0"] [data-screen="0"]) .day-approve {
     animation: day-approve 3.2s var(--ease-soft) both;
-  }
-
-  .day-refresh {
-    animation: day-refresh 12s linear infinite;
   }
 
   :is(.is-shown, .day-story[data-step="2"] [data-screen="2"]) .day-bus {

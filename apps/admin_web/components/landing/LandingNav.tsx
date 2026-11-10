@@ -60,12 +60,18 @@ function LocaleButton({ locale, labels }: { locale: Locale; labels: Labels["lang
 
 /**
  * The navigation sits right under the big headline as plain tabs and the main button. When it reaches the top of the screen
- * it becomes the floating threaded bar, and the wordmark and the theme and language buttons slide in. On a small screen the
- * tabs fold into a menu that needs no script.
+ * it becomes the floating threaded bar, and the wordmark and the theme and language buttons slide in.
+ *
+ * On a phone, before it floats, the tabs are a row you can swipe; once it floats, a menu button takes their place and the
+ * tabs open inside the bar, the way the portal's bar does: the panel eases open and shut, and Escape, a tap outside or
+ * picking a section closes it.
  */
 export function LandingNav({ copy, locale, labels }: Props) {
   const sentinel = useRef<HTMLDivElement>(null);
+  const bar = useRef<HTMLElement>(null);
   const [stuck, setStuck] = useState(false);
+  const [open, setOpen] = useState(false);
+  const menuOpen = open && stuck;
 
   useEffect(() => {
     const el = sentinel.current;
@@ -76,8 +82,23 @@ export function LandingNav({ copy, locale, labels }: Props) {
     return () => observer.disconnect();
   }, []);
 
+  // Escape and a tap outside close the menu.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (event: KeyboardEvent) => event.key === "Escape" && setOpen(false);
+    const onPointer = (event: PointerEvent) => {
+      if (bar.current && !bar.current.contains(event.target as Node)) setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("pointerdown", onPointer);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("pointerdown", onPointer);
+    };
+  }, [menuOpen]);
+
   const tab =
-    "rounded-sm px-4 py-2.5 text-sm font-semibold text-fg no-underline transition-colors duration-(--dur) hover:bg-fg/8 focus-visible:outline-3 focus-visible:outline-focus";
+    "shrink-0 whitespace-nowrap rounded-sm px-4 py-2.5 text-sm font-semibold text-fg no-underline transition-colors duration-(--dur) hover:bg-fg/8 focus-visible:outline-3 focus-visible:outline-focus";
   // Parts that only exist once the bar is floating: they open from nothing, and cannot be tabbed to before.
   const reveal =
     "overflow-hidden transition-[max-width,opacity] duration-(--dur-slow) ease-soft max-w-0 opacity-0 group-data-[stuck=true]:opacity-100";
@@ -87,64 +108,85 @@ export function LandingNav({ copy, locale, labels }: Props) {
       <div ref={sentinel} aria-hidden className="h-px" />
       <div className="pointer-events-none sticky top-3 z-40 flex justify-center px-3">
         <nav
+          ref={bar}
           aria-label={copy.label}
           data-stuck={stuck}
-          className="group pointer-events-auto relative flex items-center gap-1 rounded-[28px] px-2 py-2 transition-[background-color,box-shadow,backdrop-filter] duration-(--dur-slow) ease-soft [--thread-color:color-mix(in_srgb,var(--fg)_16%,transparent)] data-[stuck=true]:bg-glass data-[stuck=true]:shadow-float data-[stuck=true]:backdrop-blur-(--glass-blur)"
+          className="group pointer-events-auto relative flex max-w-full flex-col rounded-[28px] transition-[background-color,box-shadow,backdrop-filter] duration-(--dur-slow) ease-soft [--thread-color:color-mix(in_srgb,var(--fg)_16%,transparent)] data-[stuck=true]:bg-glass data-[stuck=true]:shadow-float data-[stuck=true]:backdrop-blur-(--glass-blur) max-md:data-[stuck=true]:w-full max-md:data-[stuck=true]:max-w-md"
         >
           <span aria-hidden className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-(--dur-slow) group-data-[stuck=true]:opacity-100">
             <Contour radius={28} inset={5} dash={[6, 6]} />
           </span>
 
-          <div inert={!stuck} className={`${reveal} group-data-[stuck=true]:max-w-16`}>
-            <Link href="/" aria-label="BusIn" className="block rounded-sm px-2 py-1 text-fg focus-visible:outline-3 focus-visible:outline-focus">
-              <BrandMark className="h-8 w-auto" />
-            </Link>
-          </div>
+          <div className="relative flex min-w-0 items-center gap-1 p-2">
+            <div inert={!stuck} className={`${reveal} shrink-0 group-data-[stuck=true]:max-w-16`}>
+              <Link href="/" aria-label="BusIn" className="block rounded-sm px-2 py-1 text-fg focus-visible:outline-3 focus-visible:outline-focus">
+                <BrandMark className="h-8 w-auto" />
+              </Link>
+            </div>
 
-          <div className="relative hidden items-center gap-1 md:flex">
-            {LINKS.map((key) => (
-              <a key={key} href={`#${key}`} className={tab}>
-                {copy[key]}
-              </a>
-            ))}
-          </div>
-
-          <details className="group/menu relative md:hidden">
-            <summary
-              aria-label={copy.menu}
-              className="grid size-11 cursor-pointer list-none place-items-center rounded-sm text-fg focus-visible:outline-3 focus-visible:outline-focus [&::-webkit-details-marker]:hidden"
+            {/* Wide screens: the tabs, always. Phones: a row to swipe, only until the bar floats. */}
+            <div
+              data-nav-strip
+              className="relative flex min-w-0 items-center gap-1 overflow-x-auto [scrollbar-width:none] max-md:[mask-image:linear-gradient(to_right,#000_85%,transparent)] max-md:group-data-[stuck=true]:hidden [&::-webkit-scrollbar]:hidden"
             >
-              <Icon icon={Menu03Icon} size={22} className="group-open/menu:hidden" />
-              <Icon icon={Cancel01Icon} size={22} className="hidden group-open/menu:block" />
-            </summary>
-            <div className="absolute left-0 top-[calc(100%+0.75rem)] flex w-60 flex-col gap-1 rounded-lg bg-surface p-2 shadow-float">
               {LINKS.map((key) => (
                 <a key={key} href={`#${key}`} className={tab}>
                   {copy[key]}
                 </a>
               ))}
-              <div className="mt-1 flex items-center gap-1 border-t border-dashed border-line px-1 pt-2">
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setOpen((value) => !value)}
+              aria-expanded={menuOpen}
+              aria-label={copy.menu}
+              inert={!stuck}
+              className="ml-auto hidden size-11 shrink-0 cursor-pointer place-items-center rounded-sm border-0 bg-transparent text-fg transition-colors duration-(--dur-fast) hover:bg-fg/8 focus-visible:outline-3 focus-visible:outline-focus max-md:group-data-[stuck=true]:grid"
+            >
+              <Icon icon={menuOpen ? Cancel01Icon : Menu03Icon} size={22} />
+            </button>
+
+            <div inert={!stuck} className={`${reveal} hidden shrink-0 group-data-[stuck=true]:max-w-32 md:block`}>
+              <div className="flex items-center gap-1 pl-1">
                 <ThemeButton labels={labels.theme} />
                 <LocaleButton locale={locale} labels={labels.language} />
               </div>
             </div>
-          </details>
 
-          <div inert={!stuck} className={`${reveal} hidden group-data-[stuck=true]:max-w-32 md:block`}>
-            <div className="flex items-center gap-1 pl-1">
-              <ThemeButton labels={labels.theme} />
-              <LocaleButton locale={locale} labels={labels.language} />
-            </div>
+            <a
+              href="#download"
+              aria-label={copy.cta}
+              className="relative inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-sm bg-accent px-3.5 text-sm font-semibold text-on-accent no-underline transition-[filter,transform] duration-(--dur-fast) hover:brightness-105 active:scale-[0.98] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus sm:px-5"
+            >
+              <Icon icon={SmartPhone01Icon} size={18} />
+              <span className="hidden sm:inline">{copy.cta}</span>
+            </a>
           </div>
 
-          <a
-            href="#download"
-            aria-label={copy.cta}
-            className="relative inline-flex h-11 items-center justify-center gap-2 rounded-sm bg-accent px-3.5 text-sm font-semibold text-on-accent no-underline transition-[filter,transform] duration-(--dur-fast) hover:brightness-105 active:scale-[0.98] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus sm:px-5"
+          {/* Phones, once floating: the sections open inside the bar. Inert while closed so it cannot take focus. */}
+          <div
+            inert={!menuOpen}
+            data-nav-menu
+            className={
+              "relative grid transition-[grid-template-rows,opacity,visibility] duration-(--dur) ease-soft md:hidden " +
+              (menuOpen ? "visible grid-rows-[1fr] opacity-100" : "invisible grid-rows-[0fr] opacity-0")
+            }
           >
-            <Icon icon={SmartPhone01Icon} size={18} />
-            <span className="hidden sm:inline">{copy.cta}</span>
-          </a>
+            <div className="overflow-hidden">
+              <div className="flex flex-col gap-1 px-3 pb-4 pt-1">
+                {LINKS.map((key) => (
+                  <a key={key} href={`#${key}`} onClick={() => setOpen(false)} className={`${tab} py-3 text-base`}>
+                    {copy[key]}
+                  </a>
+                ))}
+                <div className="mt-2 flex items-center gap-1 rounded-sm bg-fg/5 p-1">
+                  <ThemeButton labels={labels.theme} />
+                  <LocaleButton locale={locale} labels={labels.language} />
+                </div>
+              </div>
+            </div>
+          </div>
         </nav>
       </div>
     </>

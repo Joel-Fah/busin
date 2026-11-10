@@ -67,15 +67,20 @@ export function SchoolsSection({ copy }: { copy: LandingCopy["schools"] }) {
         </ul>
       </div>
 
-      <div aria-hidden className="landing-band relative mt-16 overflow-hidden py-2 [mask-image:linear-gradient(to_right,transparent,#000_12%,#000_88%,transparent)]">
+      <div aria-hidden className="landing-band relative mt-12 overflow-hidden py-8 [mask-image:linear-gradient(to_right,transparent,#000_12%,#000_88%,transparent)]">
         <div className="landing-marquee flex w-max">
           {[0, 1].map((copyIndex) => (
             <div key={copyIndex} className="flex gap-4 pr-4">
               {Array.from({ length: 4 }, () => band)
                 .flat()
                 .map((label, i) => (
-                  <span key={i} className={`flex items-center gap-2 whitespace-nowrap rounded-md px-4 py-2.5 text-sm font-bold ${label === copy.slot ? "bg-surface text-muted shadow-soft" : "bg-accent text-on-accent"}`}>
-                    <Icon icon={School01Icon} size={16} />
+                  <span
+                    key={i}
+                    className={`flex items-center gap-3 whitespace-nowrap rounded-sm py-3 pl-3 pr-5 text-sm font-bold ${label === copy.slot ? "bg-surface text-muted shadow-soft" : "bg-accent text-on-accent shadow-soft"}`}
+                  >
+                    <span className={`grid size-9 place-items-center rounded-xs ${label === copy.slot ? "bg-surface-2" : "bg-white/20"}`}>
+                      <Icon icon={School01Icon} size={17} />
+                    </span>
                     {label}
                   </span>
                 ))}

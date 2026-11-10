@@ -16,7 +16,7 @@ import { SceneMotion } from "./SceneMotion";
 const CHIPS: { key: keyof LandingCopy["hero"]["chips"]; icon: IconSvgElement; pos: string; answer?: boolean }[] = [
   { key: "receipt", icon: Invoice01Icon, pos: "hidden sm:flex left-[9%] bottom-[69%]" },
   { key: "timetable", icon: Calendar03Icon, pos: "flex right-[21%] bottom-[58%] sm:right-auto sm:left-[60%] sm:bottom-[82%]" },
-  { key: "waiting", icon: HourglassIcon, pos: "hidden sm:flex left-[70%] bottom-[67%]" },
+  { key: "waiting", icon: HourglassIcon, pos: "hidden lg:flex left-[70%] bottom-[67%]" },
   { key: "busin", icon: Navigation03Icon, pos: "flex left-[28%] bottom-[86%] sm:left-[38%] sm:bottom-[85%]", answer: true },
 ];
 
@@ -29,7 +29,7 @@ const CHIPS: { key: keyof LandingCopy["hero"]["chips"]; icon: IconSvgElement; po
  */
 export function BusStopScene({ chips }: { chips: LandingCopy["hero"]["chips"] }) {
   return (
-    <SceneMotion className="relative -mt-2 h-[22rem] w-full sm:-mb-14 overflow-hidden [mask-image:linear-gradient(to_bottom,#000_80%,transparent_99%)] sm:h-auto sm:aspect-[16/5.3] sm:max-h-[38rem]">
+    <SceneMotion className="relative -mt-2 h-[22rem] w-full sm:-mb-14 overflow-hidden [mask-image:linear-gradient(to_bottom,#000_80%,transparent_99%)] sm:h-auto sm:aspect-[16/5.3]">
       <div className="absolute left-1/2 top-0 h-full w-[max(100%,40rem)] -translate-x-1/2">
         <svg
           viewBox="0 110 1600 530"

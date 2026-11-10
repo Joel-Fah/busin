@@ -89,7 +89,7 @@ async function LandingContent() {
 
           <section aria-labelledby="download" className="mx-auto max-w-[88rem] px-5 pt-28 sm:px-8 sm:pt-36">
             <SectionHead id="download" {...sections.download} />
-            <DownloadSection copy={copy.download} links={downloads()} />
+            <DownloadSection copy={copy.download} day={copy.day} links={downloads()} />
           </section>
 
           <section aria-labelledby="schools" className="mx-auto max-w-[88rem] px-5 pt-28 sm:px-8 sm:pt-36">
