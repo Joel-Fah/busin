@@ -5,6 +5,8 @@ import 'package:busin_core/busin_core.dart';
 import 'package:busin_student/src/auth/auth_service.dart';
 import 'package:busin_student/src/bus/bus_providers.dart';
 import 'package:busin_student/src/bus/map_scene.dart';
+import 'package:busin_student/src/offline/offline_providers.dart';
+import 'package:busin_student/src/offline/pass_snapshot.dart';
 import 'package:busin_student/src/providers.dart';
 import 'package:busin_student/src/push/push_service.dart';
 import 'package:busin_student/src/qr/qr_providers.dart';
@@ -195,6 +197,12 @@ class FakeBackend implements SchoolRepository, SemestersRepository, StopsReposit
   /// Stops that are not in the active list but can still be fetched by id (a stop taken out of service).
   final Map<String, Stop> hiddenStops = {};
 
+  /// Set to make every read fail (no connection, a refusal).
+  Object? readError;
+
+  /// Set to make the link to a stored proof fail.
+  Object? proofError;
+
   /// Set to make the next request or upload fail.
   Object? requestError;
   Object? uploadError;
@@ -204,29 +212,40 @@ class FakeBackend implements SchoolRepository, SemestersRepository, StopsReposit
   DateTime? askedToday;
 
   @override
-  Future<School> getSchool(String schoolId) async => const School(id: 's1', name: 'Test School', timezone: 'Africa/Douala', isActive: true);
+  Future<School> getSchool(String schoolId) async {
+    if (readError != null) throw readError!;
+    return const School(id: 's1', name: 'Test School', timezone: 'Africa/Douala', isActive: true);
+  }
 
   @override
   Future<Semester?> currentSemester(DateTime today) async {
+    if (readError != null) throw readError!;
     askedToday = today;
     return current;
   }
 
   @override
-  Future<Semester?> nextSemester(DateTime today) async => next;
+  Future<Semester?> nextSemester(DateTime today) async {
+    if (readError != null) throw readError!;
+    return next;
+  }
 
   @override
   Future<List<Stop>> listActiveStops() async => stops;
 
   @override
   Future<Stop> getStop(String stopId) async {
+    if (readError != null) throw readError!;
     final hidden = hiddenStops[stopId];
     if (hidden != null) return hidden;
     return stops.firstWhere((s) => s.id == stopId, orElse: () => throw const NotFound('stop'));
   }
 
   @override
-  Future<List<Subscription>> listForStudent(String studentId, {PageRequest page = const PageRequest()}) async => mine.where((s) => s.studentId == studentId).toList();
+  Future<List<Subscription>> listForStudent(String studentId, {PageRequest page = const PageRequest()}) async {
+    if (readError != null) throw readError!;
+    return mine.where((s) => s.studentId == studentId).toList();
+  }
 
   @override
   Future<Subscription?> liveForSemester({required String studentId, required String semesterId}) async =>
@@ -269,7 +288,10 @@ class FakeBackend implements SchoolRepository, SemestersRepository, StopsReposit
   }
 
   @override
-  Future<String> signedUrl(String path, {Duration expiresIn = const Duration(minutes: 10)}) async => 'http://localhost/proof/$path';
+  Future<String> signedUrl(String path, {Duration expiresIn = const Duration(minutes: 10)}) async {
+    if (proofError != null) throw proofError!;
+    return 'http://localhost/proof/$path';
+  }
 }
 
 class FakeProofPicker implements ProofPicker {
@@ -564,6 +586,27 @@ class FakeMapSurface {
 /// Bytes 0 to 31: the secret from the QR test vector.
 Uint8List testSecret() => Uint8List.fromList(List.generate(32, (i) => i));
 
+/// The saved copy in memory.
+class FakeSnapshotStore implements SnapshotStore {
+  final Map<String, PassSnapshot> kept = {};
+  bool failWrites = false;
+
+  @override
+  Future<PassSnapshot?> read(String userId) async => kept[userId];
+
+  @override
+  Future<void> write(PassSnapshot snapshot) async {
+    if (failWrites) throw StateError('disk full');
+    kept[snapshot.userId] = snapshot;
+  }
+
+  @override
+  Future<void> delete(String userId) async => kept.remove(userId);
+
+  @override
+  Future<void> deleteAll() async => kept.clear();
+}
+
 class FakeSecretStore implements SecretStore {
   final Map<String, Uint8List> data = {};
   int deleteAllCalls = 0;
@@ -650,11 +693,20 @@ List<Override> overridesFor(
   FakeSecretStore? store,
   FakeScreenSecurity? security,
   TestClock? clock,
+  FakeSnapshotStore? snapshots,
+  Stream<bool>? connectivity,
+  Duration? gateTimeout,
+  Duration? copyWait,
 }) {
   final b = backend ?? FakeBackend();
   final h = history ?? FakeHistory();
   return [
     introEnabledProvider.overrideWithValue(false),
+    snapshotStoreProvider.overrideWithValue(snapshots ?? FakeSnapshotStore()),
+    connectivityProvider.overrideWith((ref) => connectivity ?? Stream<bool>.value(true)),
+    // No limit unless a test asks for one: a held read must not leave a timer behind.
+    gateTimeoutProvider.overrideWithValue(gateTimeout),
+    copyWaitProvider.overrideWithValue(copyWait),
     authServiceProvider.overrideWithValue(auth),
     profileRepositoryProvider.overrideWithValue(profiles),
     academicRepositoryProvider.overrideWithValue(academic ?? FakeAcademic()),
