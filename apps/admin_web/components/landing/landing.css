@@ -261,7 +261,7 @@ html:has([data-landing]) {
 }
 
 .people-track.is-pinned .people-card {
-  width: min(26rem, 34vw);
+  width: min(22rem, 30vw);
 }
 
 @media (min-width: 64rem) {
