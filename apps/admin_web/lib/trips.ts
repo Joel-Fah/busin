@@ -2,7 +2,7 @@
 
 import { choiceParam, listHref, uuidParam } from "./filters";
 import { isUuid } from "./ids";
-import { first } from "./pagination";
+import { first, parsePageSize, sizeParam } from "./pagination";
 import { dayBounds } from "./scans";
 import { isIsoDate } from "./semesters";
 import { zonedLocalToUtc } from "./zoned";
@@ -176,6 +176,8 @@ export type TripFilters = {
   direction: Direction | null;
   /** A driver id, NO_DRIVER for trips without one, or null for everyone. */
   driver: string | null;
+  /** Rows per page (one of PAGE_SIZES); left out means the default. */
+  size?: number;
 };
 
 export type TripQuery = {
@@ -184,6 +186,7 @@ export type TripQuery = {
   bus?: string | string[];
   direction?: string | string[];
   driver?: string | string[];
+  size?: string | string[];
 };
 
 /** Reads the list's filters from its query string. Anything malformed means "no filter". */
@@ -196,6 +199,7 @@ export function parseTripFilters(query: TripQuery): TripFilters {
     bus: uuidParam(query.bus),
     direction: choiceParam(query.direction, DIRECTIONS),
     driver: driver === NO_DRIVER ? NO_DRIVER : uuidParam(query.driver),
+    size: parsePageSize(query.size),
   };
 }
 
@@ -207,6 +211,7 @@ export function tripsHref(filters: TripFilters, page = 1): string {
     bus: filters.bus,
     direction: filters.direction,
     driver: filters.driver,
+    size: sizeParam(filters.size),
     page: page > 1 ? page : null,
   });
 }

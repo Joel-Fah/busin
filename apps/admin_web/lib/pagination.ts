@@ -1,6 +1,8 @@
 /** Pure helpers for paginated list pages. Kept separate so they are unit tested. */
 
 export const PAGE_SIZE = 20;
+/** The sizes a list offers. The largest is also the cap: a list never loads more than this at once. */
+export const PAGE_SIZES = [10, 20, 50, 100] as const;
 export const MAX_PAGE = 10_000;
 
 /** The first value of a query parameter that may be repeated. */
@@ -13,6 +15,17 @@ export function parsePage(value: string | string[] | undefined): number {
   const parsed = Number.parseInt(first(value) ?? "", 10);
   if (!Number.isFinite(parsed) || parsed < 1) return 1;
   return Math.min(parsed, MAX_PAGE);
+}
+
+/** The number of rows per page asked for in the address, if it is one of the offered sizes; otherwise the default. */
+export function parsePageSize(value: string | string[] | undefined): number {
+  const parsed = Number.parseInt(first(value) ?? "", 10);
+  return (PAGE_SIZES as readonly number[]).includes(parsed) ? parsed : PAGE_SIZE;
+}
+
+/** The size to put in an address: nothing for the default, so plain addresses stay plain. */
+export function sizeParam(size: number | undefined): number | null {
+  return size && size !== PAGE_SIZE ? size : null;
 }
 
 /** Inclusive row range for PostgREST `range(from, to)`. */

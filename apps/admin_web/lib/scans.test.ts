@@ -13,6 +13,7 @@ describe("parseScanFilters", () => {
       date: "2026-11-02",
       bus: ID,
       direction: "outbound",
+      size: 20,
     });
   });
 
@@ -23,8 +24,9 @@ describe("parseScanFilters", () => {
       bus: null,
       direction: null,
       date: null,
+      size: 20,
     });
-    expect(parseScanFilters({})).toEqual({ trip: null, stop: null, date: null, bus: null, direction: null });
+    expect(parseScanFilters({})).toEqual({ trip: null, stop: null, date: null, bus: null, direction: null, size: 20 });
   });
 
   it("uses the first value of a repeated parameter", () => {

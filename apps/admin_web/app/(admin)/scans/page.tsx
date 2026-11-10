@@ -17,7 +17,7 @@ import { chipText, filterText } from "@/lib/filter-text";
 import { VALUE_TOKEN } from "@/lib/filters";
 import { format, type Locale } from "@/lib/i18n/messages";
 import { getMessages } from "@/lib/i18n/server";
-import { PAGE_SIZE, lastPage, pageRange, parsePage } from "@/lib/pagination";
+import { PAGE_SIZE, PAGE_SIZES, lastPage, pageRange, parsePage } from "@/lib/pagination";
 import { dayBounds, parseScanFilters, scansHref } from "@/lib/scans";
 import { createClient } from "@/lib/supabase/server";
 import { DIRECTIONS, isDirection } from "@/lib/trips";
@@ -54,7 +54,8 @@ async function ScansList({ searchParams }: { searchParams: SearchParams }) {
   const query = await searchParams;
   const filters = parseScanFilters(query);
   const page = parsePage(query.page);
-  const { from, to } = pageRange(page);
+  const size = filters.size ?? PAGE_SIZE;
+  const { from, to } = pageRange(page, size);
 
   const supabase = await createClient();
   let request = supabase
@@ -238,7 +239,13 @@ async function ScansList({ searchParams }: { searchParams: SearchParams }) {
             range={format(t.scans.range, { from: from + 1, to: from + rows.length, total })}
             label={t.scans.paginationLabel}
             previous={page > 1 ? { href: scansHref(filters, page - 1), label: t.scans.previous } : undefined}
-            next={page < lastPage(total, PAGE_SIZE) ? { href: scansHref(filters, page + 1), label: t.scans.next } : undefined}
+            next={page < lastPage(total, size) ? { href: scansHref(filters, page + 1), label: t.scans.next } : undefined}
+            perPage={{
+              label: t.pager.perPage,
+              groupLabel: t.pager.perPageLabel,
+              current: size,
+              options: PAGE_SIZES.map((n) => ({ size: n, href: scansHref({ ...filters, size: n }) })),
+            }}
           />
         </>
       )}

@@ -50,6 +50,20 @@ test.describe("administrator managing people", () => {
     await expect(page.getByRole("row").filter({ hasText: nameOf(`ppl-staff-${tag}`) })).toHaveCount(0);
   });
 
+  test("the number of people per page can be chosen, and it stays with the search", async ({ page }) => {
+    await page.goto("/people");
+    const perPage = page.getByRole("navigation", { name: "Items per page" });
+    await expect(perPage.getByRole("link", { name: "20", exact: true })).toHaveAttribute("aria-current", "true");
+    await perPage.getByRole("link", { name: "10", exact: true }).click();
+    await expect(page).toHaveURL(/[?&]size=10/);
+    await expect(page.getByRole("navigation", { name: "Items per page" }).getByRole("link", { name: "10", exact: true })).toHaveAttribute("aria-current", "true");
+    expect(await page.locator("tbody tr").count()).toBeLessThanOrEqual(10);
+
+    await page.getByRole("searchbox").fill("a");
+    await page.getByRole("searchbox").press("Enter");
+    await expect(page).toHaveURL(/[?&]size=10/);
+  });
+
   test("searches by name, and odd characters do not break the page", async ({ page }) => {
     await page.goto("/people");
     await page.getByRole("searchbox").fill(`promote-${tag}`);
