@@ -7,12 +7,12 @@ import type { LandingCopy } from "@/lib/i18n/landing";
 
 import { PeopleTrack } from "./PeopleTrack";
 
-/** One sticker per role, from the illustrations the portal already uses, and the tint behind it. */
+/** One photo per role (Pexels, chosen by the owner, cropped to 4:5) and a sticker from the portal's illustrations on its corner. */
 const ART = [
-  { src: "/illustrations/ticket1.webp", tint: "bg-accent/15", tilt: "-rotate-6" },
-  { src: "/illustrations/bus.webp", tint: "bg-ok-bg", tilt: "rotate-3" },
-  { src: "/illustrations/verified.webp", tint: "bg-info-bg", tilt: "-rotate-3" },
-  { src: "/illustrations/papers.webp", tint: "bg-warn-bg", tilt: "rotate-6" },
+  { photo: "/landing/people/students.webp", sticker: "/illustrations/ticket1.webp", tilt: "-rotate-6" },
+  { photo: "/landing/people/driver.webp", sticker: "/illustrations/bus.webp", tilt: "rotate-3" },
+  { photo: "/landing/people/staff.webp", sticker: "/illustrations/verified.webp", tilt: "-rotate-3" },
+  { photo: "/landing/people/office.webp", sticker: "/illustrations/papers.webp", tilt: "rotate-6" },
 ] as const;
 
 /** Who it helps: the student, the driver, the staff at the door and the school office, a card each. */
@@ -20,10 +20,24 @@ export function PeopleSection({ copy }: { copy: LandingCopy["people"] }) {
   return (
     <PeopleTrack>
       {copy.cards.map((card, i) => (
-        <article key={card.role} className="people-card relative flex flex-col gap-5 rounded-xl bg-surface p-8 shadow-soft [--thread-color:var(--color-line)]">
+        <article key={card.role} className="people-card relative flex flex-col gap-5 rounded-xl bg-surface p-6 shadow-soft [--thread-color:var(--color-line)]">
           <Contour radius={36} inset={10} />
-          <div className={`relative grid h-40 place-items-center rounded-lg ${ART[i].tint}`}>
-            <Image src={ART[i].src} alt="" width={160} height={160} className={`h-32 w-auto drop-shadow-[0_10px_12px_rgb(0_20_26/0.18)] ${ART[i].tilt}`} />
+          <div className="relative">
+            <Image
+              src={ART[i].photo}
+              alt={card.photo}
+              width={720}
+              height={900}
+              sizes="(min-width: 1280px) 22rem, (min-width: 640px) 45vw, 90vw"
+              className="aspect-[4/5] h-auto w-full rounded-lg bg-surface-2 object-cover"
+            />
+            <Image
+              src={ART[i].sticker}
+              alt=""
+              width={96}
+              height={96}
+              className={`absolute -bottom-5 right-4 h-16 w-auto drop-shadow-[0_10px_12px_rgb(0_20_26/0.25)] ${ART[i].tilt}`}
+            />
           </div>
           <div className="relative flex flex-col gap-2">
             <h3 className="m-0 text-2xl font-extrabold tracking-tight">{card.role}</h3>

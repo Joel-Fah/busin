@@ -20,7 +20,7 @@ export type LandingCopy = {
     live: { label: string; eta: string; stops: [string, string, string]; bus: string };
     board: { label: string; done: string; hello: string; seat: string; next: string };
   };
-  people: { cards: { role: string; line: string; points: string[] }[] };
+  people: { cards: { role: string; line: string; points: string[]; photo: string }[] };
   private: { facts: { title: string; text: string }[] };
   download: {
     android: { title: string; text: string; play: string; apk: string; notify: string; soon: string };
@@ -81,10 +81,10 @@ const en: LandingCopy = {
   },
   people: {
     cards: [
-      { role: "Students", line: "Know when to leave, and ride with a pass that cannot get lost.", points: ["Subscribe from the phone", "A pass that works offline", "The bus on a map"] },
-      { role: "Drivers", line: "Start the trip with one tap, and the riders see the bus move.", points: ["Today's trip, ready", "One tap to start and end", "No calls asking where you are"] },
-      { role: "Staff at the door", line: "Scan in a second, even with no signal. The list catches up later.", points: ["Instant yes or no", "Works offline", "No paper lists"] },
-      { role: "School office", line: "Approve subscriptions, see who rides, and plan buses with real numbers.", points: ["Review receipts in one place", "Every boarding counted", "Stops and buses that fit"] },
+      { role: "Students", line: "Know when to leave, and ride with a pass that cannot get lost.", points: ["Subscribe from the phone", "A pass that works offline", "The bus on a map"], photo: "Two students looking at a phone together and smiling" },
+      { role: "Drivers", line: "Start the trip with one tap, and the riders see the bus move.", points: ["Today's trip, ready", "One tap to start and end", "No calls asking where you are"], photo: "A driver behind the window of a school bus" },
+      { role: "Staff at the door", line: "Scan in a second, even with no signal. The list catches up later.", points: ["Instant yes or no", "Works offline", "No paper lists"], photo: "A worker in a safety vest leaning on a bus shelter, checking his phone" },
+      { role: "School office", line: "Approve subscriptions, see who rides, and plan buses with real numbers.", points: ["Review receipts in one place", "Every boarding counted", "Stops and buses that fit"], photo: "A man at an office desk going through papers, stacks of files beside him" },
     ],
   },
   private: {
@@ -182,10 +182,10 @@ const fr: LandingCopy = {
   },
   people: {
     cards: [
-      { role: "Étudiants", line: "Savent quand partir, et voyagent avec un pass qui ne se perd pas.", points: ["S'abonner depuis le téléphone", "Un pass qui marche hors ligne", "Le bus sur une carte"] },
-      { role: "Chauffeurs", line: "Démarrent le trajet d'un geste, et les passagers voient le bus avancer.", points: ["Le trajet du jour, prêt", "Un geste pour démarrer et finir", "Plus d'appels pour savoir où vous êtes"] },
-      { role: "Personnel à la porte", line: "Scanne en une seconde, même sans réseau. La liste se met à jour ensuite.", points: ["Oui ou non, tout de suite", "Marche hors ligne", "Plus de listes papier"] },
-      { role: "Bureau de l'école", line: "Valide les abonnements, voit qui voyage, et prévoit les bus avec de vrais chiffres.", points: ["Les reçus au même endroit", "Chaque montée comptée", "Des arrêts et des bus adaptés"] },
+      { role: "Étudiants", line: "Savent quand partir, et voyagent avec un pass qui ne se perd pas.", points: ["S'abonner depuis le téléphone", "Un pass qui marche hors ligne", "Le bus sur une carte"], photo: "Deux étudiants regardent un téléphone ensemble en souriant" },
+      { role: "Chauffeurs", line: "Démarrent le trajet d'un geste, et les passagers voient le bus avancer.", points: ["Le trajet du jour, prêt", "Un geste pour démarrer et finir", "Plus d'appels pour savoir où vous êtes"], photo: "Un chauffeur derrière la vitre d'un bus scolaire" },
+      { role: "Personnel à la porte", line: "Scanne en une seconde, même sans réseau. La liste se met à jour ensuite.", points: ["Oui ou non, tout de suite", "Marche hors ligne", "Plus de listes papier"], photo: "Un agent en gilet de sécurité appuyé contre un abri de bus, son téléphone en main" },
+      { role: "Bureau de l'école", line: "Valide les abonnements, voit qui voyage, et prévoit les bus avec de vrais chiffres.", points: ["Les reçus au même endroit", "Chaque montée comptée", "Des arrêts et des bus adaptés"], photo: "Un homme à son bureau parcourt des papiers, des piles de dossiers à côté de lui" },
     ],
   },
   private: {
