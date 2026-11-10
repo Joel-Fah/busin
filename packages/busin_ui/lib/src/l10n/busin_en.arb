@@ -626,5 +626,8 @@
   "areaOpenSettings": "Open settings",
   "areaOff": "Location is turned off on your phone.",
   "areaFailed": "Your location could not be read. Try again or search a place.",
-  "areaTooMany": "Too many searches. Wait a minute and try again."
+  "areaTooMany": "Too many searches. Wait a minute and try again.",
+  "notificationsSampleSent": "We sent you an example, so you can see how it looks.",
+  "sampleBusNearTitle": "Your bus is almost here",
+  "sampleBusNearBody": "It is a few minutes from your stop. Open BusIn to follow it."
 }

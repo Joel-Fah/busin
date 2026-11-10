@@ -1212,4 +1212,15 @@ class BusinL10nFr extends BusinL10n {
   @override
   String get areaTooMany =>
       'Trop de recherches. Attendez une minute et réessayez.';
+
+  @override
+  String get notificationsSampleSent =>
+      'Nous vous avons envoyé un exemple, pour que vous voyiez à quoi il ressemble.';
+
+  @override
+  String get sampleBusNearTitle => 'Votre bus arrive';
+
+  @override
+  String get sampleBusNearBody =>
+      'Il est à quelques minutes de votre arrêt. Ouvrez BusIn pour le suivre.';
 }

@@ -6,8 +6,10 @@ import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:intl/intl.dart';
 
+import '../boarding/boarding_card.dart';
 import '../router.dart';
 import 'notification_providers.dart';
+import 'reminder_scheduler.dart';
 
 /// Which days the student rides and what BusIn reminds them of. Every change is saved at once; reminders are then
 /// placed on the phone again. Notices from the school cannot be turned off, and the page says so.
@@ -33,10 +35,18 @@ class NotificationsScreen extends ConsumerWidget {
       }
     }
 
-    Future<void> turnOn(NotificationPreferences next) async {
+    // Turning a kind on asks for the permission, then shows one example right away so the student sees what will come.
+    Future<void> turnOn(NotificationPreferences next, ReminderText sample) async {
       await save(next);
-      final allowed = await ref.read(reminderSchedulerProvider).requestPermission();
-      if (!allowed && context.mounted) BusinToast.show(context, l10n.notificationsPermission, tone: ToastTone.info);
+      final scheduler = ref.read(reminderSchedulerProvider);
+      final allowed = await scheduler.requestPermission();
+      if (!context.mounted) return;
+      if (!allowed) {
+        BusinToast.show(context, l10n.notificationsPermission, tone: ToastTone.info);
+        return;
+      }
+      await scheduler.showSample(sample);
+      if (context.mounted) BusinToast.show(context, l10n.notificationsSampleSent, tone: ToastTone.info);
     }
 
     Future<TimeOfDayValue?> pickTime(TimeOfDayValue current) async {
@@ -118,7 +128,9 @@ class NotificationsScreen extends ConsumerWidget {
                   title: l10n.notificationsMorning,
                   hint: l10n.notificationsMorningHint,
                   value: current.morningOn,
-                  onChanged: (on) => on ? turnOn(current.copyWith(morningOn: true)) : save(current.copyWith(morningOn: false)),
+                  onChanged: (on) => on
+                      ? turnOn(current.copyWith(morningOn: true), (title: l10n.reminderMorningTitle, body: l10n.reminderMorningBody))
+                      : save(current.copyWith(morningOn: false)),
                   below: current.morningOn
                       ? TextButton.icon(
                           icon: HugeIcon(icon: HugeIcons.strokeRoundedClock01, size: 18, color: p.fg),
@@ -135,7 +147,9 @@ class NotificationsScreen extends ConsumerWidget {
                   title: l10n.notificationsEvening,
                   hint: l10n.notificationsEveningHint,
                   value: current.eveningOn,
-                  onChanged: (on) => on ? turnOn(current.copyWith(eveningOn: true)) : save(current.copyWith(eveningOn: false)),
+                  onChanged: (on) => on
+                      ? turnOn(current.copyWith(eveningOn: true), (title: l10n.reminderEveningTitle, body: l10n.reminderEveningBody))
+                      : save(current.copyWith(eveningOn: false)),
                   below: current.eveningOn
                       ? TextButton.icon(
                           icon: HugeIcon(icon: HugeIcons.strokeRoundedClock01, size: 18, color: p.fg),
@@ -152,7 +166,9 @@ class NotificationsScreen extends ConsumerWidget {
                   title: l10n.notificationsBusNear,
                   hint: l10n.notificationsBusNearHint,
                   value: current.busNearOn,
-                  onChanged: (on) => save(current.copyWith(busNearOn: on)),
+                  onChanged: (on) => on
+                      ? turnOn(current.copyWith(busNearOn: true), (title: l10n.sampleBusNearTitle, body: l10n.sampleBusNearBody))
+                      : save(current.copyWith(busNearOn: false)),
                   below: current.busNearOn
                       ? Wrap(
                           spacing: BusinSpace.x2,
@@ -172,7 +188,14 @@ class NotificationsScreen extends ConsumerWidget {
                   title: l10n.notificationsBoarding,
                   hint: l10n.notificationsBoardingHint,
                   value: current.boardingMessagesOn,
-                  onChanged: (on) => save(current.copyWith(boardingMessagesOn: on)),
+                  onChanged: (on) async {
+                    await save(current.copyWith(boardingMessagesOn: on));
+                    // The card itself is the example: it shows in the app, over this page.
+                    if (on && context.mounted) {
+                      final code = Localizations.localeOf(context).languageCode;
+                      await showBoardingCard(context, title: l10n.boardedTitle, line: boardingLine(BoardingMoment(at: DateTime.now()), seed: 'sample', languageCode: code));
+                    }
+                  },
                 ),
                 const Divider(),
                 toggle(

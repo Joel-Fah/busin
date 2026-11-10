@@ -2172,6 +2172,24 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'Too many searches. Wait a minute and try again.'**
   String get areaTooMany;
+
+  /// No description provided for @notificationsSampleSent.
+  ///
+  /// In en, this message translates to:
+  /// **'We sent you an example, so you can see how it looks.'**
+  String get notificationsSampleSent;
+
+  /// No description provided for @sampleBusNearTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your bus is almost here'**
+  String get sampleBusNearTitle;
+
+  /// No description provided for @sampleBusNearBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It is a few minutes from your stop. Open BusIn to follow it.'**
+  String get sampleBusNearBody;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {

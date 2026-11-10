@@ -449,5 +449,8 @@
   "areaOpenSettings": "Ouvrir les réglages",
   "areaOff": "La localisation est désactivée sur votre téléphone.",
   "areaFailed": "Votre position n'a pas pu être lue. Réessayez ou cherchez un lieu.",
-  "areaTooMany": "Trop de recherches. Attendez une minute et réessayez."
+  "areaTooMany": "Trop de recherches. Attendez une minute et réessayez.",
+  "notificationsSampleSent": "Nous vous avons envoyé un exemple, pour que vous voyiez à quoi il ressemble.",
+  "sampleBusNearTitle": "Votre bus arrive",
+  "sampleBusNearBody": "Il est à quelques minutes de votre arrêt. Ouvrez BusIn pour le suivre."
 }
