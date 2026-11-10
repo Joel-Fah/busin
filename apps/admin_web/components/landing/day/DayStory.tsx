@@ -5,13 +5,17 @@ import { useRef } from "react";
 import type { LandingCopy } from "@/lib/i18n/landing";
 
 import { useScrollScene } from "../motion/useScrollScene";
-import { DayScreen, Phone } from "./DayScreens";
+import { Phone } from "../devices/Devices";
+import { DayScreen } from "./DayScreens";
 
 /**
  * A student's morning in four steps. On a wide screen the phone stays in place while the steps scroll past, and its
  * screen follows the step in the middle of the window (the root's data-step, read by landing.css). On a phone each step
  * carries its own small phone. Without scripts the steps and the first screen are all there; nothing depends on motion.
  */
+/** The time as a phone's clock shows it: "6 h 40" becomes "6:40". */
+const clock = (time: string) => time.replace(/\s*h\s*/, ":");
+
 export function DayStory({ copy }: { copy: LandingCopy["day"] }) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -38,8 +42,15 @@ export function DayStory({ copy }: { copy: LandingCopy["day"] }) {
     <div ref={ref} data-step="0" className="day-story mt-14 grid gap-14 lg:mt-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-20">
       <div className="hidden lg:block">
         <div className="sticky top-[14vh]">
-          <div aria-hidden className="absolute -inset-x-[10%] -inset-y-[6%] bg-[radial-gradient(closest-side,rgb(245_149_31/0.22),transparent)]" />
-          <Phone>
+          <div aria-hidden className="absolute -inset-x-[14%] -inset-y-[8%] bg-[radial-gradient(closest-side,rgb(245_149_31/0.2),transparent)] dark:bg-[radial-gradient(closest-side,rgb(0_180_201/0.16),transparent)]" />
+          <Phone
+            className="mx-auto w-[16.5rem]"
+            time={copy.steps.map((step, i) => (
+              <span key={step.time} data-time={i} className="day-time">
+                {clock(step.time)}
+              </span>
+            ))}
+          >
             {copy.steps.map((step, i) => (
               <div key={step.time} data-screen={i} className="day-screen absolute inset-0">
                 <DayScreen index={i} copy={copy} />
@@ -62,7 +73,7 @@ export function DayStory({ copy }: { copy: LandingCopy["day"] }) {
               <p className="m-0 max-w-[30rem] text-pretty text-lg leading-relaxed text-muted">{step.text}</p>
             </div>
             <div className="lg:hidden">
-              <Phone className="day-inline">
+              <Phone className="day-inline mx-auto w-[16.5rem]" time={clock(step.time)} kind={i % 2 ? "android" : "iphone"}>
                 <div className="day-screen is-shown absolute inset-0">
                   <DayScreen index={i} copy={copy} />
                 </div>

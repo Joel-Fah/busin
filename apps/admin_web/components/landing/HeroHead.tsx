@@ -15,7 +15,9 @@ const STICKERS = [
 export function HeroHead({ copy }: { copy: LandingCopy["hero"] }) {
   return (
     <header className="relative z-10 px-4 pb-8 pt-16 text-center sm:pb-10 sm:pt-20">
-      <BrandMark className="landing-rise mx-auto mb-3 h-11 w-auto text-fg sm:mb-4 sm:h-14" label="BusIn" />
+      <span data-hero-mark className="landing-rise mx-auto mb-3 block w-fit sm:mb-4">
+        <BrandMark className="block h-11 w-auto text-fg sm:h-14" label="BusIn" />
+      </span>
 
       <div className="relative mx-auto max-w-[96rem] py-16 sm:py-12">
         {STICKERS.map((sticker) => (
@@ -45,8 +47,8 @@ export function HeroHead({ copy }: { copy: LandingCopy["hero"] }) {
 /** Under the navigation: one calm paragraph. */
 export function HeroLead({ copy }: { copy: LandingCopy["hero"] }) {
   return (
-    <div className="relative z-10 mx-auto flex max-w-[44rem] flex-col items-center gap-3 px-5 pt-8 text-center sm:pt-10">
-      <p className="landing-rise m-0 text-pretty text-lg leading-relaxed text-fg/80 sm:text-xl">{copy.sub}</p>
+    <div className="relative z-10 mx-auto flex max-w-[44rem] flex-col items-center gap-3 px-5 pt-8 text-center sm:pt-10 lg:max-w-[58rem]">
+      <p className="landing-rise m-0 text-pretty text-lg leading-relaxed text-fg/80 sm:text-xl lg:text-balance">{copy.sub}</p>
       <p className="landing-rise m-0 text-sm text-muted">{copy.note}</p>
     </div>
   );

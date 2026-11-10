@@ -18,7 +18,7 @@ const SECTIONS = ["day", "people", "schools", "faq"] as const;
 export function LandingFooter({ copy, nav, invite, locale, t }: Props) {
   return (
     <footer className="mx-auto mt-28 max-w-[88rem] px-5 pb-12 sm:px-8">
-      <div className="relative grid gap-10 rounded-xl bg-surface p-8 shadow-soft [--thread-color:var(--color-line)] sm:p-12 md:grid-cols-[1.4fr_1fr_1fr]">
+      <div className="relative grid gap-10 rounded-xl bg-surface p-8 shadow-soft [--thread-color:var(--color-line)] sm:p-12 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <Contour radius={36} inset={12} />
         <div className="relative flex flex-col gap-3">
           <BrandMark className="h-10 w-auto self-start" label="BusIn" />
@@ -31,7 +31,7 @@ export function LandingFooter({ copy, nav, invite, locale, t }: Props) {
         <nav aria-label={copy.explore} className="relative flex flex-col gap-3">
           <p className="m-0 text-sm font-bold text-muted">{copy.explore}</p>
           {SECTIONS.map((key) => (
-            <a key={key} href={`#${key}`} className="w-fit font-semibold text-fg no-underline hover:text-accent">
+            <a key={key} href={`/#${key}`} className="w-fit font-semibold text-fg no-underline hover:text-accent">
               {nav[key]}
             </a>
           ))}
@@ -45,6 +45,19 @@ export function LandingFooter({ copy, nav, invite, locale, t }: Props) {
             {copy.staff}
           </Link>
         </div>
+        <nav aria-label={copy.legal.title} className="relative flex flex-col gap-3">
+          <p className="m-0 text-sm font-bold text-muted">{copy.legal.title}</p>
+          {/* The privacy policy and the terms are written for the app; their web pages come once the owner has reviewed them. */}
+          {[copy.legal.privacy, copy.legal.terms].map((label) => (
+            <span key={label} className="flex items-center gap-2 font-semibold text-muted">
+              {label}
+              <span className="rounded-xs bg-surface-2 px-2 py-0.5 text-xs font-bold">{copy.legal.soon}</span>
+            </span>
+          ))}
+          <Link href="/credits" className="w-fit font-semibold text-fg no-underline hover:text-accent">
+            {copy.legal.credits}
+          </Link>
+        </nav>
       </div>
       <p className="m-0 mt-6 px-2 text-sm text-muted">
         {copy.rights} {FOOTER_YEAR}

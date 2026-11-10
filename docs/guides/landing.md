@@ -16,11 +16,11 @@ The Get BusIn section reads three server settings on every request. Set them in 
 | `LANDING_IOS_URL` | The App Store listing |
 
 Only `https` addresses are used; anything else counts as not set. While a platform has no link, its card says Coming
-soon and offers Get notified, which opens the interest form.
+soon and offers one Get notified (the same request whichever phone the visitor has), which opens the interest form.
 
 ## Interest requests
 
-The form (Get notified, and later Invite your school) calls `public.submit_interest`, which stores a row in
+The form (Get notified, or Invite your school; the row's kind is `notify` or `school`) calls `public.submit_interest`, which stores a row in
 `public.interest_requests`. The table is closed to every client; read it in Supabase Studio (Table editor, or
 `select kind, name, organisation, email, message, locale, created_at from public.interest_requests order by created_at desc`).
 
@@ -45,3 +45,4 @@ here so they can be found again). They are cropped to 4:5 and saved as WebP at 7
 | `driver.webp` | https://www.pexels.com/photo/yellow-bus-and-driver-sitting-behind-window-19928045/ |
 | `staff.webp` | https://www.pexels.com/photo/utility-person-leaning-on-a-waiting-shed-13408573/ |
 | `office.webp` | https://www.pexels.com/photo/man-in-white-long-sleeve-shirt-sitting-on-black-chair-holding-white-papers-7654121/ |
+| `calm.webp` (the photo card that opens into Calm by design, 2000 by 1125, 16:9) | https://www.pexels.com/photo/21576182/ (also in the styleguide) |

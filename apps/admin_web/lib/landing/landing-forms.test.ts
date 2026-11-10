@@ -21,16 +21,17 @@ describe("download links", () => {
 });
 
 describe("the interest form", () => {
-  it("knows its three kinds", () => {
+  it("knows its two kinds", () => {
     expect(isInterestKind("school")).toBe(true);
-    expect(isInterestKind("notify_ios")).toBe(true);
+    expect(isInterestKind("notify")).toBe(true);
+    expect(isInterestKind("notify_ios")).toBe(false);
     expect(isInterestKind("admin")).toBe(false);
   });
 
   it("asks only for an address to be told about a release", () => {
-    expect(checkInterest({ kind: "notify_android", email: "ama@example.com" })).toEqual({});
-    expect(checkInterest({ kind: "notify_ios", email: "" })).toEqual({ email: "required" });
-    expect(checkInterest({ kind: "notify_ios", email: "ama@" })).toEqual({ email: "email" });
+    expect(checkInterest({ kind: "notify", email: "ama@example.com" })).toEqual({});
+    expect(checkInterest({ kind: "notify", email: "" })).toEqual({ email: "required" });
+    expect(checkInterest({ kind: "notify", email: "ama@" })).toEqual({ email: "email" });
   });
 
   it("asks a school for a name and the school as well", () => {

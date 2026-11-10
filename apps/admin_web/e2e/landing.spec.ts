@@ -59,15 +59,18 @@ test.describe("the landing page", () => {
     expect((await nav.boundingBox())!.y).toBeGreaterThanOrEqual(h1Box.y + h1Box.height - 4);
     await expect(nav).toHaveAttribute("data-stuck", "false");
     await expect(nav.getByRole("link", { name: "Get the app" })).toBeVisible();
-    // The wordmark and the two choices are folded away (and cannot be tabbed to) until the bar floats.
-    await expect(nav.locator("[inert]")).toHaveCount(2);
+    // The wordmark, the two choices and the phone's menu button are folded away (and cannot be tabbed to) until the bar
+    // floats; the phone's menu panel stays inert while it is closed.
+    await expect(nav.locator("[inert]")).toHaveCount(4);
 
+    await page.waitForLoadState("networkidle");
     await page.mouse.wheel(0, 1400);
     await expect(nav).toHaveAttribute("data-stuck", "true");
     const box = (await nav.boundingBox())!;
     expect(box.y).toBeGreaterThanOrEqual(0);
     expect(box.y).toBeLessThanOrEqual(16);
-    await expect(nav.locator("[inert]")).toHaveCount(0);
+    await expect(nav.locator("[inert]")).toHaveCount(1);
+    await expect(nav.locator("[data-nav-menu]")).toHaveAttribute("inert", "");
     await expect(nav.getByRole("link", { name: "BusIn", exact: true })).toBeVisible();
     await expect(nav.getByRole("button", { name: /^Theme/ })).toBeVisible();
     await expect(nav.getByRole("button", { name: /^Language/ })).toBeVisible();
@@ -128,11 +131,41 @@ test.describe("the landing page", () => {
     }
   });
 
-  test("the menu opens on a phone without any script", async ({ page }) => {
+  test("on a phone the tabs are a row to swipe, and once the bar floats they open inside it", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/");
-    await page.locator("summary[aria-label='Menu']").click();
-    await expect(page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "A day with BusIn" })).toBeVisible();
+    await page.waitForLoadState("networkidle");
+    const nav = page.getByRole("navigation", { name: "Main" });
+    const menu = nav.getByRole("button", { name: "Menu" });
+    await expect(nav.locator("[data-nav-strip]").getByRole("link", { name: "A day with BusIn" })).toBeVisible();
+    await expect(menu).toBeHidden();
+
+    await page.mouse.wheel(0, 1600);
+    await expect(nav).toHaveAttribute("data-stuck", "true");
+    await expect(nav.locator("[data-nav-strip]")).toBeHidden();
+    await menu.click();
+    await expect(menu).toHaveAttribute("aria-expanded", "true");
+    const panel = nav.locator("[data-nav-menu]");
+    await panel.getByRole("link", { name: "Questions" }).click();
+    await expect(menu).toHaveAttribute("aria-expanded", "false");
+    await expect(panel.getByRole("link", { name: "Questions" })).toBeHidden();
+
+    await menu.click();
+    await page.keyboard.press("Escape");
+    await expect(menu).toHaveAttribute("aria-expanded", "false");
+  });
+});
+
+test.describe("the credits page", () => {
+  test("is public, linked from the footer, and names what the site uses", async ({ page }) => {
+    await page.goto("/");
+    await page.getByRole("navigation", { name: "Legal and credits" }).getByRole("link", { name: "Credits" }).click();
+    await expect(page).toHaveURL(/\/credits$/);
+    await expect(page.getByRole("heading", { level: 1, name: "Credits" })).toBeVisible();
+    for (const name of ["Thiings", "Pexels", "Hugeicons", "Plus Jakarta Sans", "GSAP"]) {
+      await expect(page.getByRole("link", { name })).toHaveAttribute("rel", "noopener noreferrer");
+    }
+    await expect(page.getByRole("link", { name: "A bus stop seen from above" })).toHaveAttribute("href", /pexels\.com\/photo\/21576182/);
   });
 });
 

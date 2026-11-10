@@ -7,21 +7,6 @@ import type { LandingCopy } from "@/lib/i18n/landing";
 
 type Copy = LandingCopy["day"];
 
-/**
- * A phone, drawn in HTML: a dark frame, a screen in the page's own colours, a small top bar. Decorative (the step text
- * next to it says the same thing), so it is hidden from screen readers.
- */
-export function Phone({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return (
-    <div aria-hidden className={`relative mx-auto aspect-[9/18.5] w-[16.5rem] rounded-[36px] bg-[#0b1a1f] p-2.5 shadow-float ring-1 ring-white/12 ${className}`}>
-      <div className="relative size-full overflow-hidden rounded-[28px] bg-bg">
-        <span className="absolute left-1/2 top-2.5 z-20 h-5 w-20 -translate-x-1/2 rounded-xs bg-[#0b1a1f]" />
-        {children}
-      </div>
-    </div>
-  );
-}
-
 function Header({ label }: { label: string }) {
   return (
     <div className="flex items-center justify-between px-5 pb-3 pt-11">
@@ -101,7 +86,7 @@ function FakeCode() {
   );
 }
 
-/** 7:05: the pass, its code renewing, and a note that it works without a signal. */
+/** 7:05: the pass, and a note that it works without a signal. */
 function PassScreen({ copy }: { copy: Copy["pass"] }) {
   return (
     <>
@@ -112,10 +97,6 @@ function PassScreen({ copy }: { copy: Copy["pass"] }) {
         <div className="mt-3 rounded-md bg-white p-3 text-[#0b1a1f]">
           <FakeCode />
         </div>
-        <div className="mt-3 h-1.5 overflow-hidden rounded-xs bg-white/20">
-          <span className="day-refresh block h-full w-full origin-left rounded-xs bg-accent" />
-        </div>
-        <p className="m-0 mt-1.5 text-[11px] opacity-75">{copy.refresh}</p>
       </div>
       <p className="mx-4 mt-3 flex w-fit items-center gap-2 rounded-xs bg-ok-bg px-2.5 py-1.5 text-xs font-semibold text-ok">
         <Icon icon={WifiOff01Icon} size={14} />

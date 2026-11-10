@@ -2,7 +2,7 @@
  * The landing page's interest form: what each kind of request needs, checked in the browser for quick feedback and again
  * in the server action. The database function checks it a third time and is the one that counts.
  */
-export const INTEREST_KINDS = ["school", "notify_android", "notify_ios"] as const;
+export const INTEREST_KINDS = ["school", "notify"] as const;
 export type InterestKind = (typeof INTEREST_KINDS)[number];
 
 export type InterestInput = { kind: string; email: string; name?: string; organisation?: string; message?: string };

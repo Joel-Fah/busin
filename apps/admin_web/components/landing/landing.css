@@ -138,6 +138,18 @@ html:has([data-landing]) {
     scale 0.7s var(--ease-soft);
 }
 
+/* The clock in the status bar follows the step too. */
+.day-time {
+  display: none;
+}
+
+.day-story[data-step="0"] [data-time="0"],
+.day-story[data-step="1"] [data-time="1"],
+.day-story[data-step="2"] [data-time="2"],
+.day-story[data-step="3"] [data-time="3"] {
+  display: inline;
+}
+
 .day-screen.is-shown,
 .day-story[data-step="0"] [data-screen="0"],
 .day-story[data-step="1"] [data-screen="1"],
@@ -189,15 +201,6 @@ html:has([data-landing]) {
   }
 }
 
-@keyframes day-refresh {
-  from {
-    scale: 1 1;
-  }
-  to {
-    scale: 0 1;
-  }
-}
-
 @keyframes day-bus {
   from {
     offset-distance: 0%;
@@ -236,10 +239,6 @@ html:has([data-landing]) {
     animation: day-approve 3.2s var(--ease-soft) both;
   }
 
-  .day-refresh {
-    animation: day-refresh 12s linear infinite;
-  }
-
   :is(.is-shown, .day-story[data-step="2"] [data-screen="2"]) .day-bus {
     animation: day-bus 7s var(--ease-soft) both;
   }
@@ -249,24 +248,110 @@ html:has([data-landing]) {
   }
 }
 
-/* ---- Who it helps: when the row is pinned (wide screens with motion), the cards sit side by side at a fixed width. */
-.people-track.is-pinned {
-  overflow: hidden;
+/* ---- Who it helps and Calm by design. Without the pinned scene the last photo card is not shown (the Calm panel below
+   is the same photo). When pinned (wide screens with motion), the section is one screen tall: the cards sit side by side
+   at a fixed width, and the Calm panel lies over the whole screen, without its own photo and frame (the grown card is
+   the photo). */
+.people-final {
+  display: none;
 }
 
-.people-track.is-pinned [data-people-track] {
+.people-stage.is-pinned {
   display: flex;
+  height: 100dvh;
+  align-items: center;
+  overflow: hidden;
+  margin-top: 0;
+}
+
+.people-stage.is-pinned [data-people-track] {
+  display: flex;
+  align-items: stretch;
   width: max-content;
   padding-inline: max(1.25rem, calc((100vw - 88rem) / 2 + 2rem));
 }
 
-.people-track.is-pinned .people-card {
+.people-stage.is-pinned .people-card {
   width: min(22rem, 30vw);
 }
 
+.people-stage.is-pinned .people-final {
+  display: block;
+  width: var(--final-w, min(44rem, 52vw));
+  transform-origin: center;
+}
+
+.people-stage.is-pinned [data-calm] {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  display: flex;
+  align-items: flex-end;
+  border-radius: 0;
+  background: none;
+}
+
+.people-stage.is-pinned .calm-photo,
+.people-stage.is-pinned .calm-frame {
+  display: none;
+}
+
+.people-stage.is-pinned .calm-inner {
+  width: 100%;
+  padding-bottom: max(3.5rem, 9vh);
+}
+
+/* On a phone the pinned cards are narrower, and the three facts become short rows so they fit one screen. */
+@media (max-width: 56.24rem) {
+  .people-stage.is-pinned .people-card {
+    width: min(19rem, 78vw);
+  }
+
+  .people-stage.is-pinned .calm-inner {
+    padding-inline: 1.25rem;
+    padding-bottom: 2.5rem;
+  }
+
+  .people-stage.is-pinned .calm-inner > .grid {
+    margin-top: 1.5rem;
+    gap: 0.625rem;
+  }
+
+  .people-stage.is-pinned .calm-fact {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 0.875rem;
+    row-gap: 0.125rem;
+    padding: 0.875rem 1rem;
+  }
+
+  .people-stage.is-pinned .calm-fact > span {
+    grid-row: span 2;
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .people-stage.is-pinned .calm-fact > h3 {
+    font-size: 1rem;
+  }
+
+  .people-stage.is-pinned .calm-fact > p {
+    font-size: 0.875rem;
+    line-height: 1.4;
+  }
+
+  .people-stage.is-pinned [data-calm] h2 {
+    font-size: 2rem;
+  }
+}
+
 @media (min-width: 64rem) {
-  .people-track:not(.is-pinned) {
+  .people-stage:not(.is-pinned) [data-people-track] {
     padding-inline: max(2rem, calc((100vw - 88rem) / 2 + 2rem));
+  }
+
+  .people-stage:not(.is-pinned) [data-calm] {
+    margin-inline: max(2rem, calc((100vw - 88rem) / 2 + 2rem));
   }
 }
 
@@ -285,4 +370,33 @@ html:has([data-landing]) {
   .landing-band:hover .landing-marquee {
     animation-play-state: paused;
   }
+}
+
+/* ---- The opening (LandingIntro). While the cover is up, the hero waits: its entrance animations are paused and its logo
+   is hidden, because the drawn logo flies onto that spot. Once the intro has played, the hero logo does not rise in. */
+.landing-intro {
+  background: transparent;
+}
+
+/* The logo starts undrawn before any script runs, so it never flashes filled. */
+.landing-intro path {
+  fill-opacity: 0;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-dasharray: 4000;
+  stroke-dashoffset: 4000;
+}
+
+html[data-intro] .landing-rise,
+html[data-intro] .landing-sticker,
+html[data-intro] .landing-fade {
+  animation-play-state: paused;
+}
+
+html[data-intro] [data-hero-mark] {
+  visibility: hidden;
+}
+
+html[data-intro-played] [data-hero-mark] {
+  animation: none;
 }

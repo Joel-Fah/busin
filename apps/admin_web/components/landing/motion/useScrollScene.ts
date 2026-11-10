@@ -25,7 +25,9 @@ export function useScrollScene(scope: RefObject<HTMLElement | null>, setup: (sce
     if (!root) return;
     const { gsap, ScrollTrigger } = registerGsap();
     const mm = gsap.matchMedia(root);
-    mm.add({ reduced: "(prefers-reduced-motion: reduce)", wide: "(min-width: 900px)" }, (context) => {
+    // GSAP runs the setup only while one of these matches, so `any` (always true) makes it run on every screen; each scene
+    // then decides from `reduced` and `wide` what to do there.
+    mm.add({ any: "all", reduced: "(prefers-reduced-motion: reduce)", wide: "(min-width: 900px)" }, (context) => {
       const { reduced, wide } = context.conditions as { reduced: boolean; wide: boolean };
       return setup({ gsap, ScrollTrigger, reduced, wide, root });
     });

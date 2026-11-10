@@ -113,13 +113,14 @@ function InterestForm({ kind, copy, locale, onClose }: { kind: InterestKind; cop
         </div>
         {school ? (
           <>
-            <Input id="interest-name" name="name" label={copy.name} icon={UserIcon} autoComplete="name" maxLength={LIMITS.name} error={problem("name")} />
+            <Input id="interest-name" name="name" label={copy.name} icon={UserIcon} autoComplete="name" placeholder={copy.placeholders.name} maxLength={LIMITS.name} error={problem("name")} />
             <Input
               id="interest-organisation"
               name="organisation"
               label={copy.organisation}
               icon={School01Icon}
               autoComplete="organization"
+              placeholder={copy.placeholders.organisation}
               maxLength={LIMITS.organisation}
               error={problem("organisation")}
             />
@@ -132,6 +133,7 @@ function InterestForm({ kind, copy, locale, onClose }: { kind: InterestKind; cop
           label={copy.email}
           icon={Mail01Icon}
           autoComplete="email"
+          placeholder={copy.placeholders.email}
           maxLength={LIMITS.email}
           hint={copy.privacy}
           error={problem("email")}
@@ -143,6 +145,7 @@ function InterestForm({ kind, copy, locale, onClose }: { kind: InterestKind; cop
             label={copy.message}
             icon={Message01Icon}
             hint={copy.messageHint}
+            placeholder={copy.placeholders.message}
             maxLength={LIMITS.message}
             error={problem("message")}
             rows={3}
