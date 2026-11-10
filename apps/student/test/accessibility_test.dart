@@ -1,5 +1,7 @@
 import 'package:busin_core/busin_core.dart';
 import 'package:busin_student/src/app.dart';
+import 'package:busin_student/src/offline/pass_snapshot.dart';
+import 'package:busin_student/src/subscription/subscription_overview.dart';
 import 'package:busin_student/src/settings/appearance.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,6 +18,10 @@ Future<void> onScreen(
   FakeBackend? backend,
   FakeAuthService? auth,
   FakeHistory? history,
+  FakeProfileRepository? profiles,
+  FakeSnapshotStore? snapshots,
+  FakeSecretStore? secrets,
+  FakeQr? qr,
 }) async {
   tester.view.physicalSize = const Size(412, 915);
   tester.view.devicePixelRatio = 1;
@@ -26,7 +32,7 @@ Future<void> onScreen(
     ProviderScope(
       key: UniqueKey(),
       overrides: [
-        ...overridesFor(auth ?? FakeAuthService(signedInAs: 'u1'), FakeProfileRepository({'u1': profile()}), backend: backend, history: history),
+        ...overridesFor(auth ?? FakeAuthService(signedInAs: 'u1'), profiles ?? FakeProfileRepository({'u1': profile()}), backend: backend, history: history, snapshots: snapshots, store: secrets, qr: qr),
         appPreferencesProvider.overrideWithValue(store),
       ],
       child: const StudentApp(),
@@ -69,6 +75,29 @@ void main() {
       testWidgets('the boarding code', (tester) async {
         await onScreen(tester, mode: mode, tab: 'Code', backend: FakeBackend(current: semester(), mine: [subscription(stopId: 'stop2', status: SubscriptionStatus.approved)]));
         await tester.pump(const Duration(seconds: 1));
+        await checkGuidelines(tester);
+      });
+
+      testWidgets('the boarding code with the offline notice', (tester) async {
+        // The phone saved the pass earlier; now nothing can be reached.
+        final saved = FakeSnapshotStore();
+        await SnapshotKeeper(saved, () => DateTime.now()).saveProfile('u1', profile());
+        await SnapshotKeeper(saved, () => DateTime.now()).saveSchool('u1', const School(id: 's1', name: 'Test School', timezone: 'Africa/Douala', isActive: true));
+        await SnapshotKeeper(saved, () => DateTime.now()).saveOverview(
+          'u1',
+          SubscriptionOverview(semester: semester(), subscription: subscription(status: SubscriptionStatus.approved), stop: stop('stop1', 'Carrefour Ekounou')).toJson(),
+        );
+        await onScreen(
+          tester,
+          mode: mode,
+          backend: FakeBackend(current: semester())..readError = const Offline('x'),
+          profiles: FakeProfileRepository({'u1': profile()})..error = const Offline('x'),
+          snapshots: saved,
+          secrets: FakeSecretStore()..data['u1'] = testSecret(),
+          qr: FakeQr()..error = const Offline('x'),
+        );
+        await tester.pump(const Duration(seconds: 1));
+        expect(find.text('No connection'), findsOneWidget);
         await checkGuidelines(tester);
       });
 
