@@ -2,6 +2,10 @@ begin;
 create extension if not exists pgtap with schema extensions;
 select plan(20);
 
+-- Start from an empty table (inside this test's transaction, rolled back at the end), so requests already in the
+-- database do not change the counts.
+delete from public.interest_requests;
+
 -- closed table
 select ok((select relrowsecurity and relforcerowsecurity from pg_class where oid = 'public.interest_requests'::regclass), 'RLS is on and forced');
 select is((select count(*)::int from pg_policies where schemaname = 'public' and tablename = 'interest_requests'), 0, 'with no policies');
