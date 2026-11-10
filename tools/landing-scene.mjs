@@ -229,6 +229,38 @@ function plant(kind, colour, x, deg, contact = "flat", sole) {
   return { ankle, svg: at(ankle[0], ankle[1], deg, SHOES[kind](colour, sole)) };
 }
 
+/**
+ * A leg from the hip to the ankle as three points: the knee sits on the straight line between them, pushed forward by
+ * [bend] (0 is a straight leg), so the leg reads as a thigh and a shin, not a curve.
+ */
+function legPts(hip, ankle, bend = 0) {
+  const dx = ankle[0] - hip[0];
+  const dy = ankle[1] - hip[1];
+  const len = Math.hypot(dx, dy);
+  const k = [hip[0] + dx * 0.48 + (dy / len) * bend, hip[1] + dy * 0.48 - (dx / len) * bend];
+  return [hip, k, ankle];
+}
+
+/**
+ * A leg in trousers that stop [hem] above the ankle, the sock (or bare ankle) under them, and the shoe drawn last so the
+ * ankle goes into it. [shoe] is the result of plant(); [widths] run from the hip to the hem.
+ */
+function dressedLeg(pts, widths, { cloth, sock, shoe, hem = 12, crease = 0.42, cuffColour, folds = true }) {
+  const [hip, knee, ankle] = pts;
+  const dx = knee[0] - ankle[0];
+  const dy = knee[1] - ankle[1];
+  const d = Math.hypot(dx, dy);
+  const hemAt = [ankle[0] + (dx / d) * hem, ankle[1] + (dy / d) * hem];
+  const trouser = [hip, knee, hemAt];
+  const sockPts = [[hemAt[0] + (dx / d) * 4, hemAt[1] + (dy / d) * 4], ankle];
+  let s = fill(band(sockPts, [10, 9.4]), sock);
+  s += shoe.svg;
+  s += fill(band(trouser, widths), cloth);
+  if (cuffColour) s += fill(strip(trouser, widths, 0, 4.6, 1.05), cuffColour);
+  if (folds) s += line(fold(trouser, widths, crease), 0.9);
+  return s;
+}
+
 /** Hands. The wrist is at the origin and the fingers point to +y. */
 const HANDS = {
   rest: (c) =>
@@ -351,46 +383,45 @@ const CAP = (c, c2) =>
 
 // ---------------------------------------------------------------- the people (each stands on y = 0)
 
-/** He walks a step ahead and looks back at her, laughing, a thumb hooked on his backpack strap. Cap, tee, jeans, backpack. */
+/** He walks a step ahead and looks back at her, laughing, a thumb hooked under his backpack strap. Cap, tee, jeans, backpack. */
 function laugher() {
   const skin = V("skin-a");
   const skin2 = V("skin-a2");
-  const front = plant("sneaker", V("coral"), 33, -10, "heel");
-  const back = plant("sneaker", V("coral"), -12, 26, "toe");
-  const farLeg = [[5, -94], [17, -54], front.ankle];
-  const nearLeg = [[-3, -94], [-8, -52], back.ankle];
-  const legW = [21, 19, 16.5];
+  const front = plant("sneaker", V("coral"), 22, -6, "heel");
+  const back = plant("sneaker", V("coral"), -10, 20, "toe");
+  const farLeg = legPts([6, -94], front.ankle, 1.5);
+  const nearLeg = legPts([-3, -94], back.ankle, 7);
+  const legW = [21, 18.4, 16];
   const torso = "M-14.4 -150C-9.6 -155.6 9 -156.6 14.8 -150C17.4 -136 17 -118 15.4 -100L-14.2 -100C-16.4 -118-17.6 -136-14.4 -150Z";
-  const farArm = [[9, -146], [16, -122], [17, -98]];
-  const nearArm = [[-4, -147], [-1, -118], [-8, -128]];
-  const nearUpper = [[-4, -147], [-2, -128]];
+  const farArm = [[9, -146], [14, -122], [12, -99]];
+  const nearArm = [[-3, -146], [-5, -121], [4, -131]];
+  const nearUpper = [[-3, -146], [-4.4, -130]];
+  const strap = "M-7 -154.4C1 -152 7.6 -146 8.4 -136C9 -126 6 -116-2 -110";
   const out = [];
-  out.push(groundShadow(6, 1.5, 40));
-  // far side first
-  out.push(front.svg);
-  out.push(fill(band(farLeg, legW), V("denim2")) + fill(strip(farLeg, legW, 0, 5.5, 1.04), V("denim3")) + line(fold(farLeg, legW, 0.4), 0.9));
+  out.push(groundShadow(6, 1.5, 34));
+  // far side first: the front leg (we see it past the near one) and the far arm
+  out.push(dressedLeg(farLeg, legW, { cloth: V("denim2"), sock: V("white"), shoe: front, cuffColour: V("denim3"), crease: 0.4 }));
   out.push(fill(band(farArm, [10.6, 8.8, 8], { start: "round", end: "round" }), skin2));
-  out.push(fill(band([[9, -146], [14, -131]], [12.6, 11.2], { start: "round" }), V("cream2")));
-  out.push(hand("rest", 17.2, -99, -6, skin2));
-  // backpack
+  out.push(fill(band([[9, -146], [12.6, -131]], [12.6, 11.2], { start: "round" }), V("cream2")));
+  out.push(hand("rest", 12.2, -100, 4, skin2));
+  // backpack on his back
   out.push(fill("M-12.6 -148C-25 -149.4-31.6 -140-31.6 -126L-30.6 -104C-30.4 -96.4-23.6 -93.6-12.6 -95Z", V("teal")));
   out.push(fill("M-30.4 -121L-15 -121L-15 -101C-21.6 -99.4-29.6 -100-30.2 -106Z", V("teal2")));
   out.push(line("M-28 -132Q-22 -134-16 -132", 1.2, V("teal3")) + rect(-23.6, -128, 4.4, 2.6, 1.2, V("cream")));
-  // near leg with its rolled hem and bare ankle
-  out.push(back.svg);
-  out.push(fill(band([[-3, -94], [-8, -52], back.ankle], legW), V("denim")) + fill(strip(nearLeg, legW, 0, 5.5, 1.04), V("denim3")) + line(fold(nearLeg, legW, 0.42), 0.95));
+  // the near leg, stepping off its toe, with its rolled hem
+  out.push(dressedLeg(nearLeg, legW, { cloth: V("denim"), sock: V("white"), shoe: back, cuffColour: V("denim3") }));
   out.push(fill("M-14.6 -104L15.6 -104L17 -86L-15.6 -86Z", V("denim")));
   out.push(line("M2 -103.6L2.6 -88M-8 -96Q-4 -92.6 0.6 -94", 0.9));
-  // tee
+  // tee, and the strap over the front of his shoulder and down his chest
   out.push(fill(torso, V("cream")));
   out.push(line("M-6 -153Q1 -148.4 8.4 -153.6", 1.2, V("cream2")) + line("M-12 -112Q0 -108 13 -112", 0.9));
+  out.push(clipped(torso, `<path d="${strap}" transform="translate(-1.6 2)" fill="none" stroke="#00141b" stroke-width="3.6" opacity="0.2"/>`));
+  out.push(`<path d="${strap}" fill="none" stroke="${V("teal2")}" stroke-width="3.6" stroke-linecap="round"/>`);
   out.push(castShadow(torso, band(nearArm, [10.4, 9, 8], { start: "round", end: "round" })));
-  out.push(line("M-8.4 -151Q-13 -138-13.2 -110", 3.4, V("teal2")));
-  // near arm bent, the hand hooked on the strap
+  // near arm: upper arm hanging, forearm up, thumb hooked under the strap
   out.push(fill(band(nearArm, [10.4, 9, 8], { start: "round", end: "round" }), skin));
   out.push(fill(band(nearUpper, [13.2, 11.8], { start: "round" }), V("cream")) + line(cuff(nearUpper, [13.2, 11.8], 1.8), 0.9));
-  out.push(hand("grip", -9.4, -127, 150, skin));
-  out.push(line("M-11.6 -136Q-12.4 -130-12.6 -124", 3.4, V("teal2")));
+  out.push(hand("grip", 5, -132, -146, skin));
   // neck and head
   out.push(fill("M-2.6 -164L5.4 -164L6 -152L-3.2 -152Z", skin2));
   out.push(head(4, -177, { skin, skin2, mood: "laugh", tilt: 4, flip: -1, ...HAIR.capped(V("hair")), extra: CAP(V("orange"), V("orange2")) }));
@@ -401,29 +432,27 @@ function laugher() {
 function chatter() {
   const skin = V("skin-c");
   const skin2 = V("skin-c2");
-  const front = plant("sneaker", V("white"), 28, -8, "heel", V("teal"));
-  const back = plant("sneaker", V("white"), -14, 26, "toe", V("teal"));
-  const farLeg = [[5, -94], [-3, -52], back.ankle];
-  const nearLeg = [[-2, -94], [10, -52], front.ankle];
-  const calfW = [13, 11.2, 8.4];
+  const front = plant("sneaker", V("white"), 20, -5, "heel", V("teal"));
+  const back = plant("sneaker", V("white"), -10, 18, "toe", V("teal"));
+  const farLeg = legPts([4, -94], back.ankle, 6);
+  const nearLeg = legPts([-1, -94], front.ankle, 1.5);
+  const calfW = [13, 11, 8.6];
   const torso = "M-12.8 -150C-8.6 -155 8.6 -156 13.4 -150C16.8 -142 17.2 -132 14.6 -124C13.2 -118 13.6 -110 14.2 -102L-12.6 -102C-14.4 -118-15.4 -136-12.8 -150Z";
   const farArm = [[8, -146], [15, -124], [18, -106]];
   const nearUpper = [[-4, -146], [-1, -121]];
   const nearFore = [[-1, -121], [12, -121], [26, -130]];
   const out = [];
-  out.push(groundShadow(6, 1.5, 38));
-  out.push(back.svg);
-  out.push(fill(band(farLeg, calfW), skin2));
+  out.push(groundShadow(6, 1.5, 32));
+  out.push(fill(band(farLeg, calfW), skin2) + back.svg);
   // far arm forward, holding a takeaway coffee
   out.push(fill(band(farArm, [10, 8.6, 7.4], { start: "round" }), V("mustard2")) + line(cuff(farArm, [10, 8.6, 7.4], 3.2), 0.9));
   out.push(fill("M16.4 -104.4L27.6 -104.4L25.8 -86.6Q25.6 -85.2 24.2 -85.2L19.8 -85.2Q18.4 -85.2 18.2 -86.6Z", V("white")) + rect(15.6, -107, 12.8, 3.4, 1.4, V("teal")) + fill("M17.2 -99L26.8 -99L26.2 -92.4L17.8 -92.4Z", V("orange")));
   out.push(hand("grip", 19, -105, -70, skin2));
-  out.push(front.svg);
-  out.push(fill(band(nearLeg, calfW), skin));
+  out.push(fill(band(nearLeg, calfW), skin) + front.svg);
   // skirt, flared by the stride
-  const skirt = "M-13.4 -106L14.4 -106C17.6 -86 26 -62 31 -44C20 -39.6 3 -38.6-22.6 -42.4C-19.6 -62-15.6 -86-13.4 -106Z";
+  const skirt = "M-13.4 -106L14.4 -106C17 -86 22 -62 25 -44C15 -39.6 1 -38.6-19 -42.4C-17.6 -62-15 -86-13.4 -106Z";
   out.push(fill(skirt, V("skirt")));
-  out.push(line("M2 -100Q4 -70 6 -40.6M-6 -98Q-11 -72-14 -41.6M10 -98Q18 -72 22 -42", 1, V("skirt2")));
+  out.push(line("M2 -100Q3 -70 4 -40.6M-6 -98Q-9 -72-11 -41.6M9 -98Q15 -72 17.6 -42", 1, V("skirt2")));
   out.push(fill("M-13.6 -108L14.6 -108L14.8 -102L-13.8 -102Z", V("skirt2")));
   // top
   out.push(fill(torso, V("mustard")));
@@ -460,24 +489,25 @@ function phoner() {
   const skin2 = V("skin-b2");
   const g = 62;
   const farThigh = [[2, -10], [28, -18], [50, -19]];
-  const farShin = [[50, -19], [56, 16], [60, g - 13]];
-  const nearThigh = [[-2, -8], [22, -12], [42, -12]];
-  const nearShin = [[42, -12], [42, 20], [40, g - 13]];
+  const farShin = [[50, -19], [55, 16], [59, g - 14]];
+  const nearThigh = [[-6, -7], [18, -11], [42, -12]];
+  const nearShin = [[42, -12], [42, 20], [41, g - 14]];
   const torso = "M-14 -2C-15.6 -20-7 -40 5 -52C11.6 -57.4 23.6 -56.6 27.8 -49C30 -38 24 -18 16 -2Z";
   const out = [];
   out.push(groundShadow(30, g + 1.5, 46));
   // far leg
-  out.push(at(62, g - 11, 0, SHOES.high(V("orange"))));
-  out.push(fill(band(farShin, [17, 16, 14.6]), V("ink2")) + fill(strip(farShin, [17, 16, 14.6], 0, 5, 0.98), V("ink")) + fill(band(farThigh, [21, 20, 18], { end: "round" }), V("ink2")));
+  out.push(fill(band(farShin, [17, 15.6, 13.4]), V("ink2")) + at(61, g - 11, 0, SHOES.high(V("orange"))) + fill(band(farThigh, [21, 20, 18], { end: "round" }), V("ink2")));
   // far arm (mostly hidden behind)
   out.push(fill(band([[22, -48], [42, -24], [52, -38]], [11, 9.4, 8.2], { start: "round" }), V("teal2")));
+  // near leg: the shin into its shoe, then the thigh from under the hoodie, his seat on the bench
+  out.push(fill(band(nearShin, [18, 16, 13.6]), V("ink")) + at(42, g - 11, 0, SHOES.high(V("orange"))));
+  const thigh = band(nearThigh, [22, 21, 19], { start: "round", end: "round" });
+  out.push(fill(thigh, V("ink")) + line(fold(nearThigh, [22, 21, 19], -0.35, 0.4), 0.9));
+  out.push(clipped(thigh, `<path d="${torso}" transform="translate(2 3.4)" fill="#00141b" opacity="0.22"/>`));
+  // the hoodie over his hip
   out.push(fill(torso, V("teal")));
   out.push(fill("M-4 -24L16 -26L16 -10L-3 -8Z", V("teal2"), ' opacity="0.65"') + line("M-12 -6Q2 -3 15 -6", 1.1, V("teal2")));
   out.push(line("M14 -53L12 -42M18 -53L17.6 -43", 1, V("cream")));
-  // near leg
-  out.push(at(42, g - 11, 0, SHOES.high(V("orange"))));
-  out.push(fill(band(nearShin, [18, 16.6, 15]), V("ink")) + fill(strip(nearShin, [18, 16.6, 15], 0, 5, 0.98), V("ink2")));
-  out.push(fill(band(nearThigh, [22, 21, 19], { end: "round" }), V("ink")) + line(fold(nearThigh, [22, 21, 19], -0.35), 0.9));
   // phone, back to us, held in both hands
   out.push(at(55, -47, -58, rect(-5, -9.6, 10, 19.2, 2.2, V("phone")) + rect(-3, -7.6, 3.2, 3.2, 1, "#4a5d66") + `<circle cx="2.4" cy="-6" r="0.9" fill="#4a5d66"/>`));
   out.push(hand("grip", 53.4, -40.6, -134, skin2));
@@ -493,7 +523,20 @@ function phoner() {
   return out.join("");
 }
 
-/** The backpack he left on the bench. The origin is on the seat under its middle. */
+/** His own bag on the bench beside him: a messenger bag with a flap, its strap slumped over it. The origin is on the seat. */
+function benchBag() {
+  return (
+    `<path d="M-14 -24C-10 -44 12 -46 17 -26" fill="none" stroke="${V("denim3")}" stroke-width="3.2" stroke-linecap="round"/>` +
+    fill("M-19 -24Q-19 -27-16 -27L17 -27Q20 -27 20 -24L20 -2Q20 0 18 0L-17 0Q-19 0-19 -2Z", V("denim")) +
+    fill("M-20 -27Q-20 -29.6-17 -29.6L18 -29.6Q21 -29.6 21 -27L20 -12Q19.6 -9.6 17 -9.6L-16.6 -9.6Q-19 -9.6-19.4 -12Z", V("denim2")) +
+    line("M-17 -13L18 -13", 0.8, V("denim3")) +
+    rect(-3, -14.4, 7, 7, 1.6, V("cream")) +
+    rect(-1.2, -12.6, 3.4, 3.4, 0.8, V("denim2")) +
+    fill("M-19 -6L20 -6L20 -2Q20 0 18 0L-17 0Q-19 0-19 -2Z", V("denim3"), ' opacity="0.5"')
+  );
+}
+
+/** The worried student's backpack, set down on the pavement. The origin is on the ground under its middle. */
 function bag() {
   return (
     groundShadow(0, 1, 20, 3.4) +
@@ -502,36 +545,35 @@ function bag() {
     fill("M-11 -3C-12 -12-9 -18 0 -18C9 -18 12 -12 11 -3C10.8 -1.4 9.2 -0.8 7.6 -0.8L-7.6 -0.8C-9.2 -0.8-10.8 -1.4-11 -3Z", V("coral2")) +
     line("M-6 -29L6 -29", 2, V("cream")) +
     line("M-4 -10L4 -10", 1.2, V("cream"), ' opacity="0.8"') +
-    line("M-15 -8Q-24 -1-19 8", 3.4, V("coral2"))
+    line("M-15 -9Q-21 -2-29 -1.4", 3.4, V("coral2"))
   );
 }
 
 /**
- * Pacing near the sign, worried: a step, a hand at his chin, his phone in the other hand, looking down the road for a bus
- * that should be here by now. Glasses, an orange overshirt over a white tee, dark chinos. His bag is on the bench.
+ * Standing by the sign, worried: weight on one leg, a hand at his chin, his phone in the other hand, looking down the road
+ * for a bus that should be here by now. Glasses, an orange overshirt over a white tee, dark chinos. His bag is on the
+ * pavement against the sign's pole.
  */
 function worrier() {
   const skin = V("skin-d");
   const skin2 = V("skin-d2");
-  const front = plant("sneaker", V("teal"), 30, -8, "heel");
-  const back = plant("sneaker", V("teal"), -14, 24, "toe");
-  const farLeg = [[5, -94], [-3, -52], back.ankle];
-  const nearLeg = [[-2, -94], [12, -54], front.ankle];
-  const legW = [20, 18, 16];
+  const front = plant("sneaker", V("teal"), 14, 2, "flat");
+  const back = plant("sneaker", V("teal"), -2, -3, "flat");
+  const farLeg = legPts([-4, -94], back.ankle, 3);
+  const nearLeg = legPts([5, -94], front.ankle, 0.5);
+  const legW = [20, 17, 15.4];
   const torso = "M-14.2 -150C-9.4 -155.6 9 -156.6 14.6 -150C17.2 -136 16.8 -118 15.2 -100L-14 -100C-16.2 -118-17.4 -136-14.2 -150Z";
-  const farArm = [[9, -146], [17, -122], [19, -102]];
+  const farArm = [[9, -146], [15, -122], [16, -102]];
   const nearUpper = [[-4, -146], [-1, -120]];
   const nearFore = [[-1, -120], [12, -136], [17, -151]];
   const out = [];
-  out.push(groundShadow(6, 1.5, 38));
-  out.push(back.svg);
-  out.push(fill(band(farLeg, legW), V("ink2")) + line(fold(farLeg, legW, 0.4), 0.9) + line(cuff(farLeg, legW, 5), 1));
+  out.push(groundShadow(6, 1.5, 28));
+  out.push(dressedLeg(farLeg, legW, { cloth: V("ink2"), sock: V("mustard"), shoe: back, crease: 0.4 }));
   // far arm, phone in hand
   out.push(fill(band(farArm, [11, 9.6, 8.6], { start: "round" }), V("orange2")) + line(cuff(farArm, [11, 9.6, 8.6], 3), 0.9));
-  out.push(at(21, -94, 8, rect(-4.4, -2, 8.8, 15, 2, V("phone"))));
-  out.push(hand("grip", 19.4, -102, -10, skin2));
-  out.push(front.svg);
-  out.push(fill(band(nearLeg, legW), V("ink")) + line(fold(nearLeg, legW, 0.42), 0.95) + line(cuff(nearLeg, legW, 5), 1));
+  out.push(at(18, -94, 8, rect(-4.4, -2, 8.8, 15, 2, V("phone"))));
+  out.push(hand("grip", 16.4, -102, -6, skin2));
+  out.push(dressedLeg(nearLeg, legW, { cloth: V("ink"), sock: V("mustard"), shoe: front }));
   out.push(fill("M-14.4 -104L15.4 -104L17 -86L-15.4 -86Z", V("ink")));
   // tee and the open overshirt
   out.push(fill(torso, V("white")));
@@ -555,7 +597,7 @@ function worrier() {
 // ---------------------------------------------------------------- the town and the street
 
 const GROUND = 506; // where the people and the front of the shelter stand
-const P = 1.18; // the people are drawn about 196 tall and placed a little larger
+const P = 1; // the people are drawn about 196 tall: a shelter roof half as tall again, a lamp nearly twice
 const BASE = 470; // where the buildings stand
 let seed = 31;
 const rand = () => {
@@ -615,15 +657,18 @@ function planter(x, w) {
   );
 }
 
-/** A street lamp standing on the pavement, glowing at night. */
-function lamp(x) {
+/** A street lamp standing on the pavement, about twice a person's height, glowing at night. */
+function lamp(x, h = 360) {
+  const top = GROUND - h;
   return (
-    `<circle cx="${x + 24}" cy="${GROUND - 168}" r="96" fill="url(#s-glow)" opacity="${V("glow-o")}"/>` +
-    rect(x - 4, GROUND - 6, 14, 7, 2, V("struct")) +
-    rect(x, GROUND - 166, 6, 162, 3, V("struct")) +
-    `<path d="M${x + 3} ${GROUND - 164}Q${x + 3} ${GROUND - 180} ${x + 26} ${GROUND - 178}" fill="none" stroke="${V("struct")}" stroke-width="5" stroke-linecap="round"/>` +
-    rect(x + 16, GROUND - 182, 24, 8, 4, V("struct")) +
-    rect(x + 19, GROUND - 175, 18, 4, 2, V("lit"))
+    `<circle cx="${x + 30}" cy="${top + 14}" r="110" fill="url(#s-glow)" opacity="${V("glow-o")}"/>` +
+    groundShadow(x + 3, GROUND + 1, 14, 3) +
+    rect(x - 6, GROUND - 9, 18, 9, 2, V("struct")) +
+    rect(x - 2, GROUND - 40, 10, 34, 2, V("struct")) +
+    rect(x, top + 2, 6, h - 40, 3, V("struct")) +
+    `<path d="M${x + 3} ${top + 6}Q${x + 3} ${top - 12} ${x + 30} ${top - 10}" fill="none" stroke="${V("struct")}" stroke-width="5" stroke-linecap="round"/>` +
+    rect(x + 18, top - 15, 30, 10, 5, V("struct")) +
+    rect(x + 22, top - 6, 22, 5, 2.5, V("lit"))
   );
 }
 
@@ -729,21 +774,22 @@ function scene() {
   street += rect(0, BASE + 90, 1600, 90, 0, V("road"));
   street += line(`M0 ${BASE + 130}H1600`, 5, V("lane"), ' stroke-dasharray="50 40"');
   street += rect(0, BASE + 98, 1600, 82, 0, "url(#s-fade)");
-  street += lamp(260) + lamp(1300);
+  street += lamp(560) + lamp(1440);
   layers.push(street);
 
-  // 4. The shelter with the student on the bench and the bag.
+  // 4. The shelter with the student on the bench and his bag beside him, the sign, and a backpack set down against its pole.
   const sh = shelter(690);
   let stop = sh.before;
   stop += `<g transform="translate(${sh.L + 100} ${sh.seat}) scale(${P})">${phoner()}</g>`;
+  stop += `<g transform="translate(${sh.L + 214} ${sh.seat}) scale(${P})">${benchBag()}</g>`;
   stop += shelterFront(sh);
-  stop += `<g transform="translate(${sh.L + 226} ${sh.seat}) scale(${P})">${bag()}</g>`;
   stop += sign(1070);
+  stop += `<g transform="translate(1095 ${GROUND}) rotate(-9) scale(${P})">${bag()}</g>`;
   layers.push(stop);
 
   // 5. The pair arriving, and the one pacing by the sign.
   const put = (x, svg) => `<g transform="translate(${x} ${GROUND}) scale(${P})">${svg}</g>`;
-  layers.push(put(372, chatter()) + put(478, laugher()) + put(1172, worrier()));
+  layers.push(put(250, chatter()) + put(340, laugher()) + put(1180, worrier()));
 
   const defs =
     `<defs>` +

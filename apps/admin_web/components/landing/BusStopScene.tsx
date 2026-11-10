@@ -14,10 +14,10 @@ import { SceneMotion } from "./SceneMotion";
  * On a phone, where only the shelter and the sign fit, the answer and the timetable grumble show.
  */
 const CHIPS: { key: keyof LandingCopy["hero"]["chips"]; icon: IconSvgElement; pos: string; answer?: boolean }[] = [
-  { key: "receipt", icon: Invoice01Icon, pos: "hidden sm:flex left-[13%] bottom-[73%]" },
-  { key: "timetable", icon: Calendar03Icon, pos: "flex right-[21%] bottom-[71%] sm:right-auto sm:left-[61%] sm:bottom-[82%]" },
-  { key: "waiting", icon: HourglassIcon, pos: "hidden sm:flex left-[72%] bottom-[74%]" },
-  { key: "busin", icon: Navigation03Icon, pos: "flex left-[28%] bottom-[88%] sm:left-[38%] sm:bottom-[85%]", answer: true },
+  { key: "receipt", icon: Invoice01Icon, pos: "hidden sm:flex left-[9%] bottom-[69%]" },
+  { key: "timetable", icon: Calendar03Icon, pos: "flex right-[21%] bottom-[58%] sm:right-auto sm:left-[60%] sm:bottom-[82%]" },
+  { key: "waiting", icon: HourglassIcon, pos: "hidden sm:flex left-[70%] bottom-[67%]" },
+  { key: "busin", icon: Navigation03Icon, pos: "flex left-[28%] bottom-[86%] sm:left-[38%] sm:bottom-[85%]", answer: true },
 ];
 
 /**
