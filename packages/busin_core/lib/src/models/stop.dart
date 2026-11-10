@@ -31,6 +31,16 @@ class Stop extends ValueObject {
   final String? photoPath;
   final bool active;
 
+  /// The same shape the API returns, so [Stop.fromJson] reads it back.
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'school_id': schoolId,
+        'name': name,
+        'location': location.toGeoJson(),
+        'photo_path': photoPath,
+        'active': active,
+      };
+
   @override
   List<Object?> get props => [id, schoolId, name, location, photoPath, active];
 }

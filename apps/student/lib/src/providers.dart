@@ -7,6 +7,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'auth/access.dart';
 import 'auth/auth_service.dart';
 import 'config/app_config.dart';
+import 'offline/offline_providers.dart';
+import 'offline/pass_snapshot.dart';
 import 'push/push_registrar.dart';
 import 'settings/appearance.dart';
 import 'push/push_service.dart';
@@ -49,13 +51,33 @@ final academicRepositoryProvider = Provider<AcademicRepository>((ref) => ref.wat
 final profileRepositoryProvider = Provider<ProfileRepository>((ref) => ref.watch(repositoriesProvider).profiles);
 
 /// The signed-in user's id, or null. Everything that holds user data watches this, so it resets on sign-out.
+/// The time, a function so tests can stand still.
+final nowProvider = Provider<DateTime Function()>((ref) => DateTime.now);
+
+/// Where the saved copy of the pass facts lives, and the one that keeps it (see `offline/pass_snapshot.dart`).
+final snapshotStoreProvider = Provider<SnapshotStore>((ref) => SecureSnapshotStore());
+final snapshotKeeperProvider = Provider<SnapshotKeeper>((ref) => SnapshotKeeper(ref.watch(snapshotStoreProvider), () => ref.read(nowProvider)()));
+
 final authUserIdProvider = StreamProvider<String?>((ref) => ref.watch(authServiceProvider).userIdChanges);
 
-/// The signed-in user's own profile, read from the server (never from anything the device stored).
+/// The signed-in user's own profile, read from the server. Only when the server cannot be reached is the copy saved on the
+/// phone used instead (so the app can open offline); a server answer, even a refusal, always wins over it.
 final profileProvider = FutureProvider<Profile?>((ref) async {
   final userId = ref.watch(authUserIdProvider).value;
   if (userId == null) return null;
-  return ref.watch(profileRepositoryProvider).getProfile(userId);
+  final keeper = ref.watch(snapshotKeeperProvider);
+  return serverOrSaved<Profile?>(
+    ref,
+    source: 'profile',
+    live: () => ref.watch(profileRepositoryProvider).getProfile(userId),
+    // Only a verified student keeps a copy: anything else is cleared, so a blocked account cannot open offline.
+    save: (profile) => profile != null && profile.role == UserRole.student && profile.status == AccountStatus.verified ? keeper.saveProfile(userId, profile) : keeper.clear(userId),
+    saved: () async {
+      final snapshot = await keeper.load(userId);
+      final profile = snapshot?.profile;
+      return profile == null ? null : (value: profile, savedAt: snapshot!.savedAt);
+    },
+  );
 }, retry: noAutomaticRetry);
 
 /// The faculties, departments and degree levels a student chooses from. Read once for the session; resets with the user.
@@ -115,6 +137,7 @@ final signOutProvider = Provider<Future<void> Function()>((ref) {
     // While still signed in, so the server accepts removing this phone.
     await ref.read(pushRegistrarProvider).forget();
     await ref.read(secretStoreProvider).deleteAll();
+    await ref.read(snapshotKeeperProvider).clearAll();
     await ref.read(authServiceProvider).signOut();
   };
 });

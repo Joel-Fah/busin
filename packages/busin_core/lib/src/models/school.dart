@@ -27,6 +27,15 @@ class School extends ValueObject {
   final String timezone;
   final bool isActive;
 
+  /// The same shape the API returns, so [School.fromJson] reads it back.
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'short_name': shortName,
+        'timezone': timezone,
+        'status': isActive ? 'active' : 'inactive',
+      };
+
   @override
   List<Object?> get props => [id, name, shortName, timezone, isActive];
 }

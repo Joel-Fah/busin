@@ -3,12 +3,13 @@ import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 import '../auth/access.dart';
 import '../greeting.dart';
+import '../offline/offline_banner.dart';
 import '../providers.dart';
 import '../push/push_prompt_card.dart';
-import '../qr/qr_providers.dart';
 import '../router.dart';
 import '../subscription/how_it_works_card.dart';
 import '../subscription/subscribe_form.dart';
@@ -120,14 +121,23 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
               children: [
                 banner,
                 const SizedBox(height: BusinSpace.x5),
+                if (data.fromSavedCopy) ...[
+                  Notice(
+                    tone: StatusTone.info,
+                    icon: HugeIcons.strokeRoundedWifiDisconnected01,
+                    child: Text(l10n.offlineSavedCopy(savedWhen(context, data.savedAt!))),
+                  ),
+                  const SizedBox(height: BusinSpace.x4),
+                ],
                 if (showForm)
-                  SubscribeForm(semester: semester)
+                  SubscribeForm(semester: semester, offline: data.fromSavedCopy)
                 else
                   SubscriptionStatusCard(
                     subscription: subscription,
                     stopName: data.stop?.name ?? '',
                     onShowCode: () => context.go(Routes.qr),
-                    onRequestAgain: () => setState(() => _requestAgain = true),
+                    // Asking again needs the server.
+                    onRequestAgain: data.fromSavedCopy ? null : () => setState(() => _requestAgain = true),
                   ),
                 // The moment there is something to wait for is the moment to offer to tell them.
                 if (!showForm && subscription.status == SubscriptionStatus.pending) const PushPromptCard(),

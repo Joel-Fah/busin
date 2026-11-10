@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:busin_student/src/offline/offline_providers.dart';
 import 'package:busin_student/src/providers.dart';
 import 'package:busin_student/src/screens/splash_screen.dart';
 import 'package:busin_ui/busin_ui.dart';
@@ -12,6 +13,9 @@ import 'support.dart';
 /// The splash reads the access state, so it needs a (fake) sign-in and profile behind it.
 ProviderContainer containerFor({bool introEnabled = true, FakeAuthService? auth, FakeProfileRepository? profiles}) => ProviderContainer(overrides: [
       introEnabledProvider.overrideWithValue(introEnabled),
+      snapshotStoreProvider.overrideWithValue(FakeSnapshotStore()),
+      gateTimeoutProvider.overrideWithValue(null),
+      copyWaitProvider.overrideWithValue(null),
       authServiceProvider.overrideWithValue(auth ?? FakeAuthService()),
       profileRepositoryProvider.overrideWithValue(profiles ?? FakeProfileRepository({})),
     ]);

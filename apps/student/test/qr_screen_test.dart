@@ -23,6 +23,7 @@ Future<void> openQr(
   FakeSecretStore? store,
   FakeScreenSecurity? security,
   TestClock? clock,
+  FakeBackend? backend,
   Locale locale = const Locale('en'),
   bool goToQr = true,
 }) async {
@@ -37,6 +38,7 @@ Future<void> openQr(
       overrides: overridesFor(
         FakeAuthService(signedInAs: 'u1'),
         FakeProfileRepository({'u1': profile()}),
+        backend: backend,
         qr: qr,
         store: store,
         security: security,
@@ -141,9 +143,10 @@ void main() {
     expect(store.data.keys, ['u1']);
     expect(store.data['u1'], testSecret());
 
-    // Later with no network at all: the phone's own copy keeps the code working.
+    // Later with no network at all: the phone's own copy keeps the code working, because the saved pass says it is approved
+    // for a semester that is running.
     final offline = FakeQr()..error = const Offline('down');
-    await openQr(tester, qr: offline, store: store);
+    await openQr(tester, qr: offline, store: store, backend: FakeBackend(current: semester(), mine: [subscription(status: SubscriptionStatus.approved)]));
     expect(offline.fetches, 1, reason: 'it asked first');
     expect(shownCode(tester), codeAt(noon));
   });
