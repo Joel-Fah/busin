@@ -269,3 +269,20 @@ html:has([data-landing]) {
     padding-inline: max(2rem, calc((100vw - 88rem) / 2 + 2rem));
   }
 }
+
+/* ---- Schools that chose better: the band of "your school here" moves slowly, and stops for reduced motion. */
+@keyframes landing-marquee {
+  to {
+    translate: -50% 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .landing-marquee {
+    animation: landing-marquee 60s linear infinite;
+  }
+
+  .landing-band:hover .landing-marquee {
+    animation-play-state: paused;
+  }
+}

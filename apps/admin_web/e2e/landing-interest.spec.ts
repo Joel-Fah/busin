@@ -42,6 +42,32 @@ test.describe("the landing page's interest form", () => {
     expect(await rowsFor(email)).toHaveLength(1);
   });
 
+  test("a school is invited from the wall, with its name, the school and a message", async ({ page }) => {
+    const email = `head${stamp}@school.example`;
+    await page.goto("/");
+    await page.locator("#schools").scrollIntoViewIfNeeded();
+    await expect(page.getByText("Rides with BusIn")).toBeVisible();
+    await page.locator("[data-interest=school]").first().click();
+    const dialog = page.getByRole("dialog", { name: "Bring BusIn to your school" });
+    await dialog.getByLabel("Email").fill(email);
+    await dialog.getByRole("button", { name: "Send" }).click();
+    await expect(dialog.getByText("Fill this in.")).toHaveCount(2);
+    await dialog.getByLabel("Your name").fill("Ada Head");
+    await dialog.getByLabel("School", { exact: true }).fill("Hill School");
+    await dialog.getByLabel("Anything to add").fill("Two buses, 300 students.");
+    await dialog.getByRole("button", { name: "Send" }).click();
+    await expect(page.getByText("Thank you. We will be in touch.")).toBeVisible();
+    expect(await rowsFor(email)).toEqual([{ kind: "school", name: "Ada Head", organisation: "Hill School", locale: "en" }]);
+  });
+
+  test("the questions are rows that open, the first one already open", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByText("The app costs you nothing.")).toBeVisible();
+    await expect(page.getByText("The code changes every 30 seconds")).toBeHidden();
+    await page.getByRole("heading", { name: "Can someone use a photo of my pass?" }).click();
+    await expect(page.getByText("The code changes every 30 seconds")).toBeVisible();
+  });
+
   test("a request with the hidden field filled in looks sent but is not stored", async ({ page }) => {
     const email = `bot${stamp}@example.com`;
     await page.goto("/");
