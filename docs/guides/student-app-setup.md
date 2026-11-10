@@ -58,3 +58,15 @@ To watch a bus move in the app, run the simulator while a trip is running (the d
 npm run dev:bus                 # drives the bus of the most recently started trip along the stops
 npm run dev:bus -- DEMO-101     # or a bus by plate
 ```
+
+## Offline behaviour
+
+The student app keeps a saved copy of what the boarding pass needs (the profile, the school and where the subscription stands) in the phone's secure storage, one copy per signed-in user. The server is always asked first. Only when it cannot be reached (no connection, or no answer: 3 seconds when a saved copy exists, 15 seconds when it does not) is the copy used, and then a notice at the top says so and when the copy dates. A refusal from the server is never hidden by the copy, and signing out, or the server blocking the account, deletes it.
+
+- With an approved subscription whose semester is running at the school, an offline start goes straight to the boarding code (the secret kept on the phone makes the code).
+- After the semester's last day, or before its first, the saved pass is not shown as working; the app asks to reconnect.
+- Sending or changing a request needs a connection; the button is disabled with the reason.
+- When the network returns, or the app is opened again, the app asks the server again (package `connectivity_plus`), and a decision made meanwhile (a revoked subscription) replaces the copy and locks the pass. The door is the authority: the scan is checked by the server, so a revoked pass still shows a code offline but is refused when scanned.
+
+To try it on a device: open the app once online, then cut the route to the local backend with `adb reverse --remove-all`, force stop the app and open it again. Restore with `npm run dev:device -- --no-run` (or the two `adb reverse` commands) and the notice disappears by itself.
+

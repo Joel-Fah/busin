@@ -83,6 +83,7 @@ final currentBusProvider = FutureProvider.autoDispose<RunningBus?>((ref) async {
 /// when the screen goes away, so a phone never receives other buses' positions or keeps listening in the background.
 final busPositionProvider = StreamProvider.autoDispose.family<LivePosition, String>(
   (ref, busId) => ref.watch(livePositionsRepositoryProvider).watchBus(busId),
+  retry: noAutomaticRetry,
 );
 
 /// The student's own stop (from their live subscription), to mark on the map.

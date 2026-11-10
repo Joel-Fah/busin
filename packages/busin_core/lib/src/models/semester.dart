@@ -33,6 +33,16 @@ class Semester extends ValueObject {
   /// Last day (inclusive), as midnight UTC.
   final DateTime endDate;
 
+  /// The same shape the API returns, so [Semester.fromJson] reads it back.
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'school_id': schoolId,
+        'name': name.name,
+        'year': year,
+        'start_date': formatDate(startDate),
+        'end_date': formatDate(endDate),
+      };
+
   /// True when [day]'s calendar date, in the school's local calendar, is
   /// within the semester. Pass the school's local date, not an instant.
   bool includes(DateTime day) {

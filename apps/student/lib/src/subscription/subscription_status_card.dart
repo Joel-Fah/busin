@@ -131,7 +131,7 @@ class SubscriptionStatusCard extends ConsumerWidget {
   }
 }
 
-/// The stored proof, shown through a short-lived signed address. If it cannot be loaded the card simply goes without it.
+/// The stored proof, shown through a short-lived signed address. If it cannot be loaded a small tile says so and offers to try again.
 class _ProofPreview extends ConsumerWidget {
   const _ProofPreview({required this.path});
 
@@ -140,9 +140,59 @@ class _ProofPreview extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final url = ref.watch(proofUrlProvider(path));
-    return url.maybeWhen(
+    return url.when(
       data: (address) => ProofThumbnail(image: ref.watch(proofImageProvider)(address)),
-      orElse: () => const SizedBox.shrink(),
+      loading: () => const SizedBox.shrink(),
+      // Not loaded (no connection, usually): say so and let the student try again, instead of the proof silently vanishing.
+      error: (_, _) => _ProofUnavailable(onRetry: () => ref.invalidate(proofUrlProvider(path))),
+    );
+  }
+}
+
+class _ProofUnavailable extends StatelessWidget {
+  const _ProofUnavailable({required this.onRetry});
+
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = BusinL10n.of(context);
+    final palette = BusinPalette.of(context);
+    final text = Theme.of(context).textTheme;
+    return Semantics(
+      button: true,
+      label: '${l10n.proofUnavailable}. ${l10n.proofUnavailableHint}',
+      child: ExcludeSemantics(
+        child: InkWell(
+          borderRadius: BorderRadius.circular(BusinRadius.md),
+          onTap: onRetry,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 56),
+            child: DecoratedBox(
+              decoration: BoxDecoration(color: palette.surface2, borderRadius: BorderRadius.circular(BusinRadius.md)),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: BusinSpace.x4, vertical: BusinSpace.x3),
+                child: Row(
+                  children: [
+                    HugeIcon(icon: HugeIcons.strokeRoundedImage01, size: 22, color: palette.muted),
+                    const SizedBox(width: BusinSpace.x3),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(l10n.proofUnavailable, style: text.labelLarge),
+                          Text(l10n.proofUnavailableHint, style: text.bodySmall?.copyWith(color: palette.muted)),
+                        ],
+                      ),
+                    ),
+                    HugeIcon(icon: HugeIcons.strokeRoundedRefresh, size: 20, color: palette.muted),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

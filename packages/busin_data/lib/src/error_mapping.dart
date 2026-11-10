@@ -11,6 +11,8 @@ RepositoryException mapError(Object error) {
   if (error is RepositoryException) return error;
   if (error is PostgrestException) return _fromCode(error);
   if (error is StorageException) return _fromStorage(error);
+  // A session that could not be refreshed because there is no connection is not a refusal.
+  if (error is AuthRetryableFetchException) return const Offline('The backend could not be reached.');
   if (error is AuthException) return NotAllowed('auth: ${error.statusCode ?? error.message}');
   if (error is SocketException || error is TimeoutException || error is HttpException) {
     return const Offline('The backend could not be reached.');
