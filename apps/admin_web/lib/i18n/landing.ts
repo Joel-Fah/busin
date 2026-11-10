@@ -20,6 +20,26 @@ export type LandingCopy = {
   };
   people: { cards: { role: string; line: string; points: string[] }[] };
   private: { facts: { title: string; text: string }[] };
+  download: {
+    android: { title: string; text: string; play: string; apk: string; notify: string; soon: string };
+    ios: { title: string; text: string; store: string; notify: string; soon: string };
+    staff: { title: string; text: string };
+  };
+  form: {
+    titles: Record<"school" | "notify_android" | "notify_ios", string>;
+    descriptions: Record<"school" | "notify_android" | "notify_ios", string>;
+    email: string;
+    name: string;
+    organisation: string;
+    message: string;
+    messageHint: string;
+    privacy: string;
+    send: string;
+    sending: string;
+    cancel: string;
+    problems: Record<"required" | "email" | "long", string>;
+    outcomes: Record<"stored" | "already" | "invalid" | "busy" | "failed", string>;
+  };
 };
 
 const en: LandingCopy = {
@@ -71,6 +91,36 @@ const en: LandingCopy = {
       { title: "Nobody tracks your phone", text: "Only the bus shares where it is, and only during a trip." },
       { title: "Made for weak signal", text: "Your pass is kept safely on your phone, so the gate never waits for the network." },
     ],
+  },
+  download: {
+    android: { title: "Android", text: "The student app for Android phones.", play: "Get it on Google Play", apk: "Download the APK", notify: "Get notified", soon: "Coming soon" },
+    ios: { title: "iPhone", text: "The student app for iPhone.", store: "Download on the App Store", notify: "Get notified", soon: "Coming soon" },
+    staff: { title: "Drivers and staff at the door", text: "Their app is not on the stores. Your school's admin shares it from the BusIn portal, so only your team has it." },
+  },
+  form: {
+    titles: { school: "Bring BusIn to your school", notify_android: "Tell me when it is on Android", notify_ios: "Tell me when it is on iPhone" },
+    descriptions: {
+      school: "Tell us who you are and we will get back to you to set your school up.",
+      notify_android: "Leave your address and we will write once, when the app is ready.",
+      notify_ios: "Leave your address and we will write once, when the app is ready.",
+    },
+    email: "Email",
+    name: "Your name",
+    organisation: "School",
+    message: "Anything to add",
+    messageHint: "How many students ride, how many buses: anything helps.",
+    privacy: "We use your address only to answer this request.",
+    send: "Send",
+    sending: "Sending...",
+    cancel: "Cancel",
+    problems: { required: "Fill this in.", email: "This does not look like an email address.", long: "This is too long." },
+    outcomes: {
+      stored: "Thank you. We will be in touch.",
+      already: "You already asked, and we have it. We will be in touch.",
+      invalid: "Something in the form is not right. Check it and try again.",
+      busy: "Too many requests just now. Try again in an hour.",
+      failed: "It did not go through. Try again in a moment.",
+    },
   },
   footer: { tagline: "A companion for the daily ride.", staff: "Staff sign in", theme: "Theme", rights: "BusIn" },
 };
@@ -124,6 +174,36 @@ const fr: LandingCopy = {
       { title: "Personne ne suit votre téléphone", text: "Seul le bus partage sa position, et seulement pendant un trajet." },
       { title: "Fait pour le réseau faible", text: "Votre pass est gardé en sécurité sur votre téléphone, le portail n'attend jamais le réseau." },
     ],
+  },
+  download: {
+    android: { title: "Android", text: "L'application étudiante pour Android.", play: "Disponible sur Google Play", apk: "Télécharger l'APK", notify: "Me prévenir", soon: "Bientôt" },
+    ios: { title: "iPhone", text: "L'application étudiante pour iPhone.", store: "Télécharger dans l'App Store", notify: "Me prévenir", soon: "Bientôt" },
+    staff: { title: "Chauffeurs et personnel à la porte", text: "Leur application n'est pas sur les stores. L'administration de votre école la partage depuis le portail BusIn, seule votre équipe l'a." },
+  },
+  form: {
+    titles: { school: "Amenez BusIn dans votre école", notify_android: "Prévenez-moi pour Android", notify_ios: "Prévenez-moi pour iPhone" },
+    descriptions: {
+      school: "Dites-nous qui vous êtes, nous revenons vers vous pour installer votre école.",
+      notify_android: "Laissez votre adresse, nous écrirons une fois, quand l'application sera prête.",
+      notify_ios: "Laissez votre adresse, nous écrirons une fois, quand l'application sera prête.",
+    },
+    email: "E-mail",
+    name: "Votre nom",
+    organisation: "École",
+    message: "Autre chose à ajouter",
+    messageHint: "Combien d'étudiants voyagent, combien de bus : tout aide.",
+    privacy: "Votre adresse sert uniquement à répondre à cette demande.",
+    send: "Envoyer",
+    sending: "Envoi...",
+    cancel: "Annuler",
+    problems: { required: "À remplir.", email: "Cela ne ressemble pas à une adresse e-mail.", long: "C'est trop long." },
+    outcomes: {
+      stored: "Merci. Nous revenons vers vous.",
+      already: "Vous l'avez déjà demandé, c'est noté. Nous revenons vers vous.",
+      invalid: "Quelque chose ne va pas dans le formulaire. Vérifiez et réessayez.",
+      busy: "Trop de demandes en ce moment. Réessayez dans une heure.",
+      failed: "L'envoi n'a pas abouti. Réessayez dans un instant.",
+    },
   },
   footer: { tagline: "Un compagnon pour le trajet de tous les jours.", staff: "Connexion du personnel", theme: "Thème", rights: "BusIn" },
 };

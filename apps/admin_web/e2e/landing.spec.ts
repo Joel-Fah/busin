@@ -121,8 +121,8 @@ test.describe("the landing page", () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/");
     for (const role of ["Étudiants", "Chauffeurs", "Personnel à la porte", "Bureau de l'école", "Personne ne suit votre téléphone"]) {
-      await page.getByRole("heading", { name: role }).scrollIntoViewIfNeeded();
-      await expect(page.getByRole("heading", { name: role })).toBeVisible();
+      await page.getByRole("heading", { name: role, exact: true }).scrollIntoViewIfNeeded();
+      await expect(page.getByRole("heading", { name: role, exact: true })).toBeVisible();
     }
   });
 
