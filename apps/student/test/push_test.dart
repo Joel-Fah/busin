@@ -48,6 +48,7 @@ void main() {
     test('subscription decisions open the subscription tab', () {
       expect(routeForPush(const PushMessage(kind: 'subscription_approved')), '/subscription');
       expect(routeForPush(const PushMessage(kind: 'subscription_rejected', refId: 'x')), '/subscription');
+      expect(routeForPush(const PushMessage(kind: 'bus_near_stop', refId: 'trip')), '/bus');
     });
     test('a kind this version does not know goes nowhere', () => expect(routeForPush(const PushMessage(kind: 'something_new')), isNull));
   });
