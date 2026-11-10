@@ -248,24 +248,65 @@ html:has([data-landing]) {
   }
 }
 
-/* ---- Who it helps: when the row is pinned (wide screens with motion), the cards sit side by side at a fixed width. */
-.people-track.is-pinned {
-  overflow: hidden;
+/* ---- Who it helps and Calm by design. Without the pinned scene the last photo card is not shown (the Calm panel below
+   is the same photo). When pinned (wide screens with motion), the section is one screen tall: the cards sit side by side
+   at a fixed width, and the Calm panel lies over the whole screen, without its own photo and frame (the grown card is
+   the photo). */
+.people-final {
+  display: none;
 }
 
-.people-track.is-pinned [data-people-track] {
+.people-stage.is-pinned {
   display: flex;
+  height: 100dvh;
+  align-items: center;
+  overflow: hidden;
+  margin-top: 0;
+}
+
+.people-stage.is-pinned [data-people-track] {
+  display: flex;
+  align-items: stretch;
   width: max-content;
   padding-inline: max(1.25rem, calc((100vw - 88rem) / 2 + 2rem));
 }
 
-.people-track.is-pinned .people-card {
+.people-stage.is-pinned .people-card {
   width: min(22rem, 30vw);
 }
 
+.people-stage.is-pinned .people-final {
+  display: block;
+  width: var(--final-w, min(44rem, 52vw));
+  transform-origin: center;
+}
+
+.people-stage.is-pinned [data-calm] {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  border-radius: 0;
+  background: none;
+}
+
+.people-stage.is-pinned .calm-photo,
+.people-stage.is-pinned .calm-frame {
+  display: none;
+}
+
+.people-stage.is-pinned .calm-inner {
+  width: 100%;
+}
+
 @media (min-width: 64rem) {
-  .people-track:not(.is-pinned) {
+  .people-stage:not(.is-pinned) [data-people-track] {
     padding-inline: max(2rem, calc((100vw - 88rem) / 2 + 2rem));
+  }
+
+  .people-stage:not(.is-pinned) [data-calm] {
+    margin-inline: max(2rem, calc((100vw - 88rem) / 2 + 2rem));
   }
 }
 

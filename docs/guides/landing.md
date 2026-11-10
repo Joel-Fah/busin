@@ -45,3 +45,4 @@ here so they can be found again). They are cropped to 4:5 and saved as WebP at 7
 | `driver.webp` | https://www.pexels.com/photo/yellow-bus-and-driver-sitting-behind-window-19928045/ |
 | `staff.webp` | https://www.pexels.com/photo/utility-person-leaning-on-a-waiting-shed-13408573/ |
 | `office.webp` | https://www.pexels.com/photo/man-in-white-long-sleeve-shirt-sitting-on-black-chair-holding-white-papers-7654121/ |
+| `calm.webp` (the photo card that opens into Calm by design, 2000 by 1125, 16:9) | https://www.pexels.com/photo/21576182/ (also in the styleguide) |

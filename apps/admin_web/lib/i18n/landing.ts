@@ -9,7 +9,25 @@ export type LandingCopy = {
   nav: { label: string; menu: string; day: string; people: string; schools: string; faq: string; cta: string };
   hero: { line1: string; marked: string; sub: string; note: string; chips: Record<"busin" | "receipt" | "timetable" | "waiting", string> };
   sections: Record<"day" | "people" | "private" | "download" | "schools" | "faq", { eyebrow: string; title: string; sub: string }>;
-  footer: { tagline: string; staff: string; theme: string; rights: string; explore: string; forSchools: string };
+  footer: {
+    tagline: string;
+    staff: string;
+    theme: string;
+    rights: string;
+    explore: string;
+    forSchools: string;
+    legal: { title: string; privacy: string; terms: string; soon: string; credits: string };
+  };
+  /** The credits page: what the site uses that others made, and under which licence. */
+  credits: {
+    meta: string;
+    title: string;
+    intro: string;
+    items: { name: string; what: string; licence: string; href: string }[];
+    photos: string;
+    photoList: { what: string; href: string }[];
+    back: string;
+  };
   schools: { trusted: string; slot: string; invite: string; lead: string; points: string[] };
   faq: { items: { q: string; a: string }[]; aside: { title: string; text: string; school: string; notify: string } };
   /** A student's morning, one step at a time, each with what the phone shows. */
@@ -20,7 +38,11 @@ export type LandingCopy = {
     live: { label: string; eta: string; stops: [string, string, string]; bus: string };
     board: { label: string; done: string; hello: string; seat: string; next: string };
   };
-  people: { cards: { role: string; line: string; points: string[]; photo: string }[] };
+  people: {
+    cards: { role: string; line: string; points: string[]; photo: string }[];
+    /** The last card: a photo that opens into Calm by design. */
+    invite: { title: string; text: string; photo: string };
+  };
   private: { facts: { title: string; text: string }[] };
   download: {
     students: { title: string; text: string; soon: string; notify: string; play: string; apk: string; ios: string };
@@ -86,6 +108,11 @@ const en: LandingCopy = {
       { role: "Staff at the door", line: "Scan in a second, even with no signal. The list catches up later.", points: ["Instant yes or no", "Works offline", "No paper lists"], photo: "A worker in a safety vest leaning on a bus shelter, checking his phone" },
       { role: "School office", line: "Approve subscriptions, see who rides, and plan buses with real numbers.", points: ["Review receipts in one place", "Every boarding counted", "Stops and buses that fit"], photo: "A man at an office desk going through papers, stacks of files beside him" },
     ],
+    invite: {
+      title: "A calmer ride, for everyone",
+      text: "And behind every quiet morning, a promise about what is yours.",
+      photo: "A blue and white city bus at a stop beside a busy road, seen from above, with people waiting on the pavement",
+    },
   },
   private: {
     facts: [
@@ -158,7 +185,28 @@ const en: LandingCopy = {
       notify: "Get notified",
     },
   },
-  footer: { tagline: "A companion for the daily ride.", staff: "Staff sign in", theme: "Theme", rights: "BusIn", explore: "On this page", forSchools: "For schools" },
+  credits: {
+    meta: "Credits: what BusIn's site uses that others made",
+    title: "Credits",
+    intro: "This site is built with the work of others. Thank you to them; here is what we use and under which licence.",
+    items: [
+      { name: "Thiings", what: "The 3D stickers and objects", licence: "Thiings licence", href: "https://www.thiings.co" },
+      { name: "Pexels", what: "The photographs", licence: "Pexels licence", href: "https://www.pexels.com/license/" },
+      { name: "Hugeicons", what: "The icons", licence: "MIT", href: "https://hugeicons.com" },
+      { name: "Plus Jakarta Sans", what: "The typeface", licence: "SIL Open Font License 1.1", href: "https://fonts.google.com/specimen/Plus+Jakarta+Sans" },
+      { name: "GSAP", what: "The motion", licence: "GSAP standard licence", href: "https://gsap.com/standard-license" },
+    ],
+    photos: "Photographs from Pexels",
+    photoList: [
+      { what: "Students sharing a phone", href: "https://www.pexels.com/photo/happy-diverse-students-sharing-smartphone-together-and-smiling-6147067/" },
+      { what: "A bus driver behind the window", href: "https://www.pexels.com/photo/yellow-bus-and-driver-sitting-behind-window-19928045/" },
+      { what: "A worker at a bus shelter", href: "https://www.pexels.com/photo/utility-person-leaning-on-a-waiting-shed-13408573/" },
+      { what: "An office with stacks of papers", href: "https://www.pexels.com/photo/man-in-white-long-sleeve-shirt-sitting-on-black-chair-holding-white-papers-7654121/" },
+      { what: "A bus stop seen from above", href: "https://www.pexels.com/photo/21576182/" },
+    ],
+    back: "Back to BusIn",
+  },
+  footer: { tagline: "A companion for the daily ride.", staff: "Staff sign in", theme: "Theme", rights: "BusIn", explore: "On this page", forSchools: "For schools", legal: { title: "Legal and credits", privacy: "Privacy", terms: "Terms of use", soon: "Soon", credits: "Credits" } },
 };
 
 const fr: LandingCopy = {
@@ -203,6 +251,11 @@ const fr: LandingCopy = {
       { role: "Personnel à la porte", line: "Scanne en une seconde, même sans réseau. La liste se met à jour ensuite.", points: ["Oui ou non, tout de suite", "Marche hors ligne", "Plus de listes papier"], photo: "Un agent en gilet de sécurité appuyé contre un abri de bus, son téléphone en main" },
       { role: "Bureau de l'école", line: "Valide les abonnements, voit qui voyage, et prévoit les bus avec de vrais chiffres.", points: ["Les reçus au même endroit", "Chaque montée comptée", "Des arrêts et des bus adaptés"], photo: "Un homme à son bureau parcourt des papiers, des piles de dossiers à côté de lui" },
     ],
+    invite: {
+      title: "Un trajet plus serein, pour tous",
+      text: "Et derrière chaque matin tranquille, une promesse sur ce qui est à vous.",
+      photo: "Un bus bleu et blanc à un arrêt au bord d'une route animée, vu d'en haut, des gens attendent sur le trottoir",
+    },
   },
   private: {
     facts: [
@@ -275,7 +328,28 @@ const fr: LandingCopy = {
       notify: "Me prévenir",
     },
   },
-  footer: { tagline: "Un compagnon pour le trajet de tous les jours.", staff: "Connexion du personnel", theme: "Thème", rights: "BusIn", explore: "Sur cette page", forSchools: "Pour les écoles" },
+  credits: {
+    meta: "Crédits : ce que le site de BusIn utilise et que d'autres ont créé",
+    title: "Crédits",
+    intro: "Ce site est construit avec le travail d'autres personnes. Merci à elles ; voici ce que nous utilisons et sous quelle licence.",
+    items: [
+      { name: "Thiings", what: "Les autocollants et objets en 3D", licence: "Licence Thiings", href: "https://www.thiings.co" },
+      { name: "Pexels", what: "Les photographies", licence: "Licence Pexels", href: "https://www.pexels.com/license/" },
+      { name: "Hugeicons", what: "Les icônes", licence: "MIT", href: "https://hugeicons.com" },
+      { name: "Plus Jakarta Sans", what: "La police de caractères", licence: "SIL Open Font License 1.1", href: "https://fonts.google.com/specimen/Plus+Jakarta+Sans" },
+      { name: "GSAP", what: "Les animations", licence: "Licence standard GSAP", href: "https://gsap.com/standard-license" },
+    ],
+    photos: "Photographies de Pexels",
+    photoList: [
+      { what: "Des étudiants partagent un téléphone", href: "https://www.pexels.com/photo/happy-diverse-students-sharing-smartphone-together-and-smiling-6147067/" },
+      { what: "Un chauffeur de bus derrière la vitre", href: "https://www.pexels.com/photo/yellow-bus-and-driver-sitting-behind-window-19928045/" },
+      { what: "Un agent à un abri de bus", href: "https://www.pexels.com/photo/utility-person-leaning-on-a-waiting-shed-13408573/" },
+      { what: "Un bureau avec des piles de papiers", href: "https://www.pexels.com/photo/man-in-white-long-sleeve-shirt-sitting-on-black-chair-holding-white-papers-7654121/" },
+      { what: "Un arrêt de bus vu d'en haut", href: "https://www.pexels.com/photo/21576182/" },
+    ],
+    back: "Retour à BusIn",
+  },
+  footer: { tagline: "Un compagnon pour le trajet de tous les jours.", staff: "Connexion du personnel", theme: "Thème", rights: "BusIn", explore: "Sur cette page", forSchools: "Pour les écoles", legal: { title: "Mentions et crédits", privacy: "Confidentialité", terms: "Conditions d'utilisation", soon: "Bientôt", credits: "Crédits" } },
 };
 
 export const landingCatalogues: Record<Locale, LandingCopy> = { en, fr };

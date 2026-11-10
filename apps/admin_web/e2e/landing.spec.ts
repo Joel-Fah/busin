@@ -156,6 +156,19 @@ test.describe("the landing page", () => {
   });
 });
 
+test.describe("the credits page", () => {
+  test("is public, linked from the footer, and names what the site uses", async ({ page }) => {
+    await page.goto("/");
+    await page.getByRole("navigation", { name: "Legal and credits" }).getByRole("link", { name: "Credits" }).click();
+    await expect(page).toHaveURL(/\/credits$/);
+    await expect(page.getByRole("heading", { level: 1, name: "Credits" })).toBeVisible();
+    for (const name of ["Thiings", "Pexels", "Hugeicons", "Plus Jakarta Sans", "GSAP"]) {
+      await expect(page.getByRole("link", { name })).toHaveAttribute("rel", "noopener noreferrer");
+    }
+    await expect(page.getByRole("link", { name: "A bus stop seen from above" })).toHaveAttribute("href", /pexels\.com\/photo\/21576182/);
+  });
+});
+
 test.describe("signed in", () => {
   let admin: TestUser;
   test.beforeAll(async () => {

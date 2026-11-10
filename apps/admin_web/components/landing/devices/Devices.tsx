@@ -13,25 +13,25 @@ const BEZEL = "bg-[#080c0e]";
 /** The status bar: the time on the left, signal, wifi and battery on the right; the camera sits between them. */
 function StatusBar({ time, kind }: { time: ReactNode; kind: "iphone" | "android" }) {
   return (
-    <div className="absolute inset-x-0 top-0 z-30 flex h-9 items-center justify-between px-5 text-[11px] font-bold tabular-nums text-fg">
+    <div className="absolute inset-x-0 top-0 z-30 flex h-9 items-center justify-between px-[18px] text-[11px] font-bold tabular-nums text-fg">
       <span>{time}</span>
       {kind === "iphone" ? (
-        <span className="absolute left-1/2 top-2 h-[20px] w-[64px] -translate-x-1/2 rounded-[10px] bg-[#080c0e]" />
+        <span className="absolute left-1/2 top-2 h-[18px] w-[52px] -translate-x-1/2 rounded-[9px] bg-[#080c0e]" />
       ) : (
         <span className="absolute left-1/2 top-3 size-[11px] -translate-x-1/2 rounded-full bg-[#080c0e] ring-2 ring-[#1b2428]" />
       )}
-      <span className="flex items-center gap-1.5">
-        <svg viewBox="0 0 17 11" className="h-[9px] w-auto" fill="currentColor">
+      <span className="flex items-center gap-1">
+        <svg viewBox="0 0 17 11" className="h-[8px] w-auto" fill="currentColor">
           <rect x="0" y="7" width="3" height="4" rx="0.8" />
           <rect x="4.6" y="5" width="3" height="6" rx="0.8" />
           <rect x="9.2" y="2.6" width="3" height="8.4" rx="0.8" />
           <rect x="13.8" y="0" width="3" height="11" rx="0.8" />
         </svg>
-        <svg viewBox="0 0 16 12" className="h-[9px] w-auto" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <svg viewBox="0 0 16 12" className="h-[8px] w-auto" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
           <path d="M1.5 4.4a9.5 9.5 0 0 1 13 0M4 7.2a6 6 0 0 1 8 0" />
           <circle cx="8" cy="10" r="1.2" fill="currentColor" stroke="none" />
         </svg>
-        <span className="relative flex h-[10px] w-[21px] items-center rounded-[3px] border border-current/45 p-[1.5px]">
+        <span className="relative flex h-[9px] w-[18px] items-center rounded-[3px] border border-current/45 p-[1.5px]">
           <span className="h-full w-[74%] rounded-[1.5px] bg-current" />
           <span className="absolute -right-[3px] h-1 w-[2px] rounded-r-[1px] bg-current/45" />
         </span>

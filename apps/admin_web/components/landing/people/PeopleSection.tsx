@@ -6,7 +6,8 @@ import { Icon } from "@/components/ui/Icon";
 import type { LandingCopy } from "@/lib/i18n/landing";
 import { innerRadius } from "@/lib/ui/radius";
 
-import { PeopleTrack } from "./PeopleTrack";
+import { CalmPanel } from "../PrivateSection";
+import { PeopleStage } from "./PeopleStage";
 
 /** One photo per role (Pexels, chosen by the owner, cropped to 4:5, shown a little shorter: square on phones, 6:7 above) and a sticker from the portal's illustrations on its corner. */
 const ART = [
@@ -16,10 +17,15 @@ const ART = [
   { photo: "/landing/people/office.webp", sticker: "/illustrations/papers.webp", tilt: "rotate-6" },
 ] as const;
 
-/** Who it helps: the student, the driver, the staff at the door and the school office, a card each. */
-export function PeopleSection({ copy }: { copy: LandingCopy["people"] }) {
-  return (
-    <PeopleTrack>
+type Props = { copy: LandingCopy["people"]; calmHead: LandingCopy["sections"]["private"]; calm: LandingCopy["private"] };
+
+/**
+ * Who it helps: the student, the driver, the staff at the door and the school office, a card each; then a photo card
+ * that invites the reader on and opens into Calm by design (see PeopleStage).
+ */
+export function PeopleSection({ copy, calmHead, calm }: Props) {
+  const cards = (
+    <>
       {copy.cards.map((card, i) => (
         <article key={card.role} className="people-card relative flex flex-col gap-5 rounded-xl bg-surface p-6 shadow-soft [--thread-color:var(--color-line)]">
           <Contour radius={36} inset={10} />
@@ -58,6 +64,22 @@ export function PeopleSection({ copy }: { copy: LandingCopy["people"] }) {
           </ul>
         </article>
       ))}
-    </PeopleTrack>
+    </>
   );
+
+  const final = (
+    <article data-people-final className="people-final relative shrink-0 overflow-hidden rounded-xl bg-seed text-white shadow-float [--thread-color:rgb(255_255_255/0.45)]">
+      <Image src="/landing/calm.webp" alt={copy.invite.photo} fill sizes="100vw" className="object-cover" />
+      <span data-final-fade aria-hidden className="absolute inset-0 bg-linear-to-t from-[#00141b]/85 via-[#00141b]/25 to-transparent" />
+      <span data-final-fade aria-hidden className="absolute inset-0">
+        <Contour radius={36} inset={12} />
+      </span>
+      <div data-final-fade className="absolute inset-x-0 bottom-0 flex flex-col gap-2 p-8 sm:p-10">
+        <h3 className="m-0 text-3xl font-extrabold tracking-tight">{copy.invite.title}</h3>
+        <p className="m-0 max-w-[28rem] text-lg leading-relaxed text-white/80">{copy.invite.text}</p>
+      </div>
+    </article>
+  );
+
+  return <PeopleStage cards={cards} final={final} calm={<CalmPanel head={calmHead} copy={calm} />} />;
 }

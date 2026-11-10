@@ -158,7 +158,7 @@ export function DownloadSection({ copy, day, links }: { copy: LandingCopy["downl
             <Laptop className="w-[34rem] translate-x-[14%] sm:w-[38rem]">
               <OfficeScreen />
             </Laptop>
-            <div className="absolute left-[3%] top-36 sm:left-[5%] sm:top-40">
+            <div className="absolute left-[3%] top-28 sm:left-[5%] sm:top-32">
               <Tablet className="w-[16rem] -rotate-2 sm:w-[19rem]">
                 <TripScreen />
               </Tablet>
