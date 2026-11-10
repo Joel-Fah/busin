@@ -794,4 +794,28 @@ class BusinL10nEn extends BusinL10n {
 
   @override
   String get legalOnThisPage => 'On this page';
+
+  @override
+  String get offlineTitle => 'No connection';
+
+  @override
+  String offlineBody(String when) {
+    return 'Your saved pass still works at the door. Last updated $when.';
+  }
+
+  @override
+  String offlineSavedCopy(String when) {
+    return 'This is the copy saved on this phone ($when). Connect to the internet to send or change a request.';
+  }
+
+  @override
+  String get offlineNeedsConnection =>
+      'Connect to the internet to send your request.';
+
+  @override
+  String get proofUnavailable => 'Your payment proof';
+
+  @override
+  String get proofUnavailableHint =>
+      'It could not be loaded. Tap to try again.';
 }
