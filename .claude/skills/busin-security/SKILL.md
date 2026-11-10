@@ -49,7 +49,7 @@ The client is untrusted. Every decision about who may read or change data is mad
 ### Network and platform (MASVS-NETWORK, MASVS-PLATFORM)
 - HTTPS only. No cleartext exceptions in release builds.
 - Disable Android backup of app data. Keep screenshot blocking on the QR screen.
-- Request the minimum permissions. Location only in the ops app, only when scanning or driving, with an explanation first.
+- Request the minimum permissions. Location in the ops app only when scanning or driving, with an explanation first. In the student app only for "My area" ([ADR 0013](../../../docs/decisions/0013-coarse-home-area.md)): asked for by the student, approximate permission only, read once, snapped to about 500 m by the server, never tracked.
 
 ### Privacy and logging
 - Collect the minimum. Never log tokens, emails, QR payloads or coordinates in release builds (guard Dart logs with `kDebugMode`; server logs carry no personal data).

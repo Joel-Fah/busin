@@ -17,6 +17,7 @@ import 'screens/profile_screen.dart';
 import 'screens/setup_screen.dart';
 import 'join/choose_school_screen.dart';
 import 'join/waiting_school_screen.dart';
+import 'area/area_screen.dart';
 import 'reminders/notifications_screen.dart';
 import 'screens/qr_screen.dart';
 import 'screens/subscription_screen.dart';
@@ -42,6 +43,7 @@ abstract final class Routes {
   static const qr = '/qr';
   static const history = '/history';
   static const notifications = '/notifications';
+  static const area = '/area';
   static const legal = '/legal';
 
   /// The page of one legal document.
@@ -113,6 +115,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: Routes.start, builder: (_, _) => const LandingScreen()),
       GoRoute(path: Routes.history, builder: (_, _) => const HistoryPage()),
       GoRoute(path: Routes.notifications, builder: (_, _) => const NotificationsScreen()),
+      GoRoute(path: Routes.area, builder: (_, _) => const MyAreaScreen()),
       GoRoute(
         path: '${Routes.legal}/:doc',
         builder: (_, state) {

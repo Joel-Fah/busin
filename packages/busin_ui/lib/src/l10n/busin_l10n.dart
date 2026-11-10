@@ -1986,6 +1986,192 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'Your bus is a few minutes from your stop.'**
   String get pushForegroundBusNear;
+
+  /// No description provided for @areaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My area'**
+  String get areaTitle;
+
+  /// No description provided for @areaHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Roughly where you live, to help your school place stops. Optional.'**
+  String get areaHint;
+
+  /// No description provided for @areaLaterHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add it when you are home.'**
+  String get areaLaterHint;
+
+  /// No description provided for @areaIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell your school roughly where you live, so it can place stops and plan routes near students. It is rounded to about 500 metres, never tracked, and only you can see it. Your school only sees how many students live in each zone.'**
+  String get areaIntro;
+
+  /// No description provided for @areaAtHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you home right now?'**
+  String get areaAtHome;
+
+  /// No description provided for @areaYesHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, I am home'**
+  String get areaYesHome;
+
+  /// No description provided for @areaNoSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'No, search a place'**
+  String get areaNoSearch;
+
+  /// No description provided for @areaExplainTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'One reading, roughly'**
+  String get areaExplainTitle;
+
+  /// No description provided for @areaExplainBody.
+  ///
+  /// In en, this message translates to:
+  /// **'BusIn will ask for your approximate location and read it once. It is rounded to about 500 metres before it is saved, and the app never reads it again unless you ask.'**
+  String get areaExplainBody;
+
+  /// No description provided for @areaContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get areaContinue;
+
+  /// No description provided for @areaNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'What do you call this area?'**
+  String get areaNameLabel;
+
+  /// No description provided for @areaNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For example your neighbourhood'**
+  String get areaNameHint;
+
+  /// No description provided for @areaDefaultName.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get areaDefaultName;
+
+  /// No description provided for @areaSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save my area'**
+  String get areaSave;
+
+  /// No description provided for @areaSearchLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Search a neighbourhood or street'**
+  String get areaSearchLabel;
+
+  /// No description provided for @areaSearchEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No place found.'**
+  String get areaSearchEmpty;
+
+  /// No description provided for @areaNotSeeing.
+  ///
+  /// In en, this message translates to:
+  /// **'Not seeing your street?'**
+  String get areaNotSeeing;
+
+  /// No description provided for @areaNotSeeingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Do it from home instead: BusIn then reads your approximate location once. Your profile will remind you.'**
+  String get areaNotSeeingBody;
+
+  /// No description provided for @areaRemindMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind me at home'**
+  String get areaRemindMe;
+
+  /// No description provided for @areaSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Your area is saved.'**
+  String get areaSaved;
+
+  /// No description provided for @areaRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Your area was removed.'**
+  String get areaRemoved;
+
+  /// No description provided for @areaRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove my area'**
+  String get areaRemove;
+
+  /// No description provided for @areaChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get areaChange;
+
+  /// No description provided for @areaRounded.
+  ///
+  /// In en, this message translates to:
+  /// **'Rounded to about 500 metres. Only you can see it.'**
+  String get areaRounded;
+
+  /// No description provided for @areaTooFar.
+  ///
+  /// In en, this message translates to:
+  /// **'This place is too far from your school\'s buses.'**
+  String get areaTooFar;
+
+  /// No description provided for @areaDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'BusIn cannot read your location. You can search a place instead.'**
+  String get areaDenied;
+
+  /// No description provided for @areaDeniedForever.
+  ///
+  /// In en, this message translates to:
+  /// **'Location is blocked for BusIn. Allow it in your phone settings, or search a place.'**
+  String get areaDeniedForever;
+
+  /// No description provided for @areaOpenSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings'**
+  String get areaOpenSettings;
+
+  /// No description provided for @areaOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Location is turned off on your phone.'**
+  String get areaOff;
+
+  /// No description provided for @areaFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your location could not be read. Try again or search a place.'**
+  String get areaFailed;
+
+  /// No description provided for @areaTooMany.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many searches. Wait a minute and try again.'**
+  String get areaTooMany;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {

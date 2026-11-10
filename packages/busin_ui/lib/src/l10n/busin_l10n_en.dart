@@ -1090,4 +1090,104 @@ class BusinL10nEn extends BusinL10n {
   @override
   String get pushForegroundBusNear =>
       'Your bus is a few minutes from your stop.';
+
+  @override
+  String get areaTitle => 'My area';
+
+  @override
+  String get areaHint =>
+      'Roughly where you live, to help your school place stops. Optional.';
+
+  @override
+  String get areaLaterHint => 'Add it when you are home.';
+
+  @override
+  String get areaIntro =>
+      'Tell your school roughly where you live, so it can place stops and plan routes near students. It is rounded to about 500 metres, never tracked, and only you can see it. Your school only sees how many students live in each zone.';
+
+  @override
+  String get areaAtHome => 'Are you home right now?';
+
+  @override
+  String get areaYesHome => 'Yes, I am home';
+
+  @override
+  String get areaNoSearch => 'No, search a place';
+
+  @override
+  String get areaExplainTitle => 'One reading, roughly';
+
+  @override
+  String get areaExplainBody =>
+      'BusIn will ask for your approximate location and read it once. It is rounded to about 500 metres before it is saved, and the app never reads it again unless you ask.';
+
+  @override
+  String get areaContinue => 'Continue';
+
+  @override
+  String get areaNameLabel => 'What do you call this area?';
+
+  @override
+  String get areaNameHint => 'For example your neighbourhood';
+
+  @override
+  String get areaDefaultName => 'Home';
+
+  @override
+  String get areaSave => 'Save my area';
+
+  @override
+  String get areaSearchLabel => 'Search a neighbourhood or street';
+
+  @override
+  String get areaSearchEmpty => 'No place found.';
+
+  @override
+  String get areaNotSeeing => 'Not seeing your street?';
+
+  @override
+  String get areaNotSeeingBody =>
+      'Do it from home instead: BusIn then reads your approximate location once. Your profile will remind you.';
+
+  @override
+  String get areaRemindMe => 'Remind me at home';
+
+  @override
+  String get areaSaved => 'Your area is saved.';
+
+  @override
+  String get areaRemoved => 'Your area was removed.';
+
+  @override
+  String get areaRemove => 'Remove my area';
+
+  @override
+  String get areaChange => 'Change';
+
+  @override
+  String get areaRounded => 'Rounded to about 500 metres. Only you can see it.';
+
+  @override
+  String get areaTooFar => 'This place is too far from your school\'s buses.';
+
+  @override
+  String get areaDenied =>
+      'BusIn cannot read your location. You can search a place instead.';
+
+  @override
+  String get areaDeniedForever =>
+      'Location is blocked for BusIn. Allow it in your phone settings, or search a place.';
+
+  @override
+  String get areaOpenSettings => 'Open settings';
+
+  @override
+  String get areaOff => 'Location is turned off on your phone.';
+
+  @override
+  String get areaFailed =>
+      'Your location could not be read. Try again or search a place.';
+
+  @override
+  String get areaTooMany => 'Too many searches. Wait a minute and try again.';
 }

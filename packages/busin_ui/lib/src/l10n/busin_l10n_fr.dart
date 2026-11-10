@@ -1110,4 +1110,106 @@ class BusinL10nFr extends BusinL10n {
   @override
   String get pushForegroundBusNear =>
       'Votre bus est à quelques minutes de votre arrêt.';
+
+  @override
+  String get areaTitle => 'Ma zone';
+
+  @override
+  String get areaHint =>
+      'À peu près où vous habitez, pour aider votre école à placer les arrêts. Facultatif.';
+
+  @override
+  String get areaLaterHint => 'Ajoutez-la quand vous serez chez vous.';
+
+  @override
+  String get areaIntro =>
+      'Indiquez à votre école à peu près où vous habitez, pour qu\'elle place les arrêts et prévoie les trajets près des étudiants. C\'est arrondi à environ 500 mètres, jamais suivi, et vous seul pouvez le voir. Votre école ne voit que le nombre d\'étudiants par zone.';
+
+  @override
+  String get areaAtHome => 'Êtes-vous chez vous en ce moment ?';
+
+  @override
+  String get areaYesHome => 'Oui, je suis chez moi';
+
+  @override
+  String get areaNoSearch => 'Non, chercher un lieu';
+
+  @override
+  String get areaExplainTitle => 'Une seule lecture, approximative';
+
+  @override
+  String get areaExplainBody =>
+      'BusIn va demander votre position approximative et la lire une fois. Elle est arrondie à environ 500 mètres avant d\'être enregistrée, et l\'application ne la relit jamais sans que vous le demandiez.';
+
+  @override
+  String get areaContinue => 'Continuer';
+
+  @override
+  String get areaNameLabel => 'Comment appelez-vous ce coin ?';
+
+  @override
+  String get areaNameHint => 'Par exemple votre quartier';
+
+  @override
+  String get areaDefaultName => 'Maison';
+
+  @override
+  String get areaSave => 'Enregistrer ma zone';
+
+  @override
+  String get areaSearchLabel => 'Chercher un quartier ou une rue';
+
+  @override
+  String get areaSearchEmpty => 'Aucun lieu trouvé.';
+
+  @override
+  String get areaNotSeeing => 'Vous ne trouvez pas votre rue ?';
+
+  @override
+  String get areaNotSeeingBody =>
+      'Faites-le plutôt depuis chez vous : BusIn lira alors votre position approximative une fois. Votre profil vous le rappellera.';
+
+  @override
+  String get areaRemindMe => 'Me le rappeler à la maison';
+
+  @override
+  String get areaSaved => 'Votre zone est enregistrée.';
+
+  @override
+  String get areaRemoved => 'Votre zone a été supprimée.';
+
+  @override
+  String get areaRemove => 'Supprimer ma zone';
+
+  @override
+  String get areaChange => 'Modifier';
+
+  @override
+  String get areaRounded =>
+      'Arrondie à environ 500 mètres. Vous seul pouvez la voir.';
+
+  @override
+  String get areaTooFar => 'Ce lieu est trop loin des bus de votre école.';
+
+  @override
+  String get areaDenied =>
+      'BusIn ne peut pas lire votre position. Vous pouvez chercher un lieu à la place.';
+
+  @override
+  String get areaDeniedForever =>
+      'La position est bloquée pour BusIn. Autorisez-la dans les réglages du téléphone, ou cherchez un lieu.';
+
+  @override
+  String get areaOpenSettings => 'Ouvrir les réglages';
+
+  @override
+  String get areaOff => 'La localisation est désactivée sur votre téléphone.';
+
+  @override
+  String get areaFailed =>
+      'Votre position n\'a pas pu être lue. Réessayez ou cherchez un lieu.';
+
+  @override
+  String get areaTooMany =>
+      'Trop de recherches. Attendez une minute et réessayez.';
 }

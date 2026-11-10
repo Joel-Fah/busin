@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
+import '../area/area_providers.dart';
 import '../auth/access.dart';
 import '../legal/legal_screen.dart';
 import '../profile/profile_form.dart';
@@ -197,6 +198,39 @@ class ProfileScreen extends ConsumerWidget {
         ),
       ),
     );
+    final areaLater = ref.watch(areaLaterProvider).value ?? false;
+    final myArea = ref.watch(myAreaProvider).value;
+    final area = StaggeredIn(
+      index: 2,
+      child: BusinCard(
+        onTap: () {
+          BusinHaptics.light();
+          context.push(Routes.area);
+        },
+        child: Row(
+          children: [
+            DecoratedBox(
+              decoration: BoxDecoration(color: p.surface2, borderRadius: BorderRadius.circular(BusinRadius.sm)),
+              child: Padding(padding: const EdgeInsets.all(BusinSpace.x3), child: HugeIcon(icon: HugeIcons.strokeRoundedHome01, size: 20, color: p.fg)),
+            ),
+            const SizedBox(width: BusinSpace.x3),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l10n.areaTitle, style: text.titleMedium),
+                  Text(
+                    myArea?.label ?? (areaLater ? l10n.areaLaterHint : l10n.areaHint),
+                    style: text.bodySmall?.copyWith(color: areaLater && myArea == null ? p.accent : p.muted),
+                  ),
+                ],
+              ),
+            ),
+            HugeIcon(icon: HugeIcons.strokeRoundedArrowRight01, size: 20, color: p.muted),
+          ],
+        ),
+      ),
+    );
     final streaks = StaggeredIn(
       index: 2,
       child: BusinCard(
@@ -340,7 +374,7 @@ class ProfileScreen extends ConsumerWidget {
                   padding: side,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [details, const SizedBox(height: BusinSpace.x4), history, const SizedBox(height: BusinSpace.x4), notifications, const SizedBox(height: BusinSpace.x4), streaks, const SizedBox(height: BusinSpace.x4), appearance, const SizedBox(height: BusinSpace.x4), legal],
+                    children: [details, const SizedBox(height: BusinSpace.x4), history, const SizedBox(height: BusinSpace.x4), notifications, const SizedBox(height: BusinSpace.x4), area, const SizedBox(height: BusinSpace.x4), streaks, const SizedBox(height: BusinSpace.x4), appearance, const SizedBox(height: BusinSpace.x4), legal],
                   ),
                 ),
               ),
@@ -361,6 +395,8 @@ class ProfileScreen extends ConsumerWidget {
           history,
           const SizedBox(height: BusinSpace.x4),
           notifications,
+          const SizedBox(height: BusinSpace.x4),
+          area,
           const SizedBox(height: BusinSpace.x4),
           streaks,
           const SizedBox(height: BusinSpace.x4),
