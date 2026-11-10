@@ -7,7 +7,7 @@ import type { Locale } from "@/lib/i18n/messages";
 export type LandingCopy = {
   meta: { title: string; description: string; shareTitle: string };
   nav: { label: string; menu: string; day: string; people: string; schools: string; faq: string; cta: string };
-  hero: { line1: string; marked: string; sub: string; note: string; chips: [string, string, string, string] };
+  hero: { line1: string; marked: string; sub: string; note: string; chips: Record<"busin" | "receipt" | "timetable" | "waiting", string> };
   sections: Record<"day" | "people" | "private" | "download" | "schools" | "faq", { eyebrow: string; title: string; sub: string }>;
   footer: { tagline: string; staff: string; theme: string; rights: string };
 };
@@ -25,7 +25,7 @@ const en: LandingCopy = {
     marked: "On your side.",
     sub: "BusIn is the companion that rides along. Subscribe once, show a code, watch the bus come. No queues, no guessing, no arguments at the door.",
     note: "Free for students. Your school sets it up.",
-    chips: ["Your bus is 4 min away", "Approved for this semester", "Your pass works offline", "Next bus at 7:40"],
+    chips: { busin: "Your bus is 4 min away", receipt: "The receipt? It was in this bag...", timetable: "The 7:40 bus. Or the 8:10. Who knows.", waiting: "“Five minutes away” since 7:15" },
   },
   sections: {
     day: { eyebrow: "A day with BusIn", title: "From 6:40 to the last bell", sub: "Follow one student through a morning that used to be stressful." },
@@ -51,7 +51,7 @@ const fr: LandingCopy = {
     marked: "De votre côté.",
     sub: "BusIn est le compagnon qui voyage avec vous. Abonnez-vous une fois, montrez un code, regardez le bus arriver. Plus de files, plus d'incertitude, plus de discussions à la porte.",
     note: "Gratuit pour les étudiants. Votre école s'occupe de la mise en place.",
-    chips: ["Votre bus arrive dans 4 min", "Approuvé pour ce semestre", "Votre pass marche hors connexion", "Prochain bus à 7 h 40"],
+    chips: { busin: "Votre bus arrive dans 4 min", receipt: "Le reçu ? Il était dans ce sac...", timetable: "Le bus de 7 h 40. Ou de 8 h 10. Allez savoir.", waiting: "« Dans cinq minutes » depuis 7 h 15" },
   },
   sections: {
     day: { eyebrow: "Une journée avec BusIn", title: "De 6 h 40 à la dernière sonnerie", sub: "Suivez un étudiant dans un matin qui était stressant." },
