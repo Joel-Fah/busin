@@ -7,6 +7,9 @@ import { LandingFooter } from "@/components/landing/LandingFooter";
 import { LandingNav } from "@/components/landing/LandingNav";
 import { SectionHead } from "@/components/landing/SectionHead";
 import { Sky } from "@/components/landing/Sky";
+import { DayStory } from "@/components/landing/day/DayStory";
+import { PeopleSection } from "@/components/landing/people/PeopleSection";
+import { PrivateSection } from "@/components/landing/PrivateSection";
 import "@/components/landing/landing.css";
 import { RoughFilter } from "@/components/ui/RoughFilter";
 import { landingCatalogues } from "@/lib/i18n/landing";
@@ -53,8 +56,26 @@ async function LandingContent() {
       <BusStopScene chips={copy.hero.chips} />
 
       <main className="relative z-10">
-        {/* The scenes arrive in the next slices; each already has its place and its anchor. */}
-        {(["day", "people", "private", "download", "schools", "faq"] as const).map((key) => (
+        <section aria-labelledby="day" className="mx-auto max-w-[88rem] px-5 pt-28 sm:px-8 sm:pt-36">
+          <SectionHead id="day" {...sections.day} />
+          <DayStory copy={copy.day} />
+        </section>
+
+        <section aria-labelledby="people" className="pt-28 sm:pt-36">
+          <div className="mx-auto max-w-[88rem] px-5 sm:px-8">
+            <SectionHead id="people" {...sections.people} />
+          </div>
+          <div className="mx-auto max-w-[88rem] px-5 sm:px-8 lg:max-w-none lg:px-0">
+            <PeopleSection copy={copy.people} />
+          </div>
+        </section>
+
+        <section aria-labelledby="private" className="mx-auto max-w-[88rem] px-3 pt-28 sm:px-8 sm:pt-36">
+          <PrivateSection head={sections.private} copy={copy.private} />
+        </section>
+
+        {/* The next slices fill these; each already has its place and its anchor. */}
+        {(["download", "schools", "faq"] as const).map((key) => (
           <section key={key} aria-labelledby={key} className="mx-auto max-w-[88rem] px-5 pt-28 sm:px-8">
             <SectionHead id={key} {...sections[key]} />
           </section>
