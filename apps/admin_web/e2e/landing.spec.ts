@@ -77,6 +77,8 @@ test.describe("the landing page", () => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto("/");
     const nav = page.getByRole("navigation", { name: "Main" });
+    // The page must be running its scripts before a scroll can be noticed.
+    await page.waitForLoadState("networkidle");
     await page.mouse.wheel(0, 1400);
     await expect(nav).toHaveAttribute("data-stuck", "true");
 
@@ -130,7 +132,7 @@ test.describe("the landing page", () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/");
     await page.locator("summary[aria-label='Menu']").click();
-    await expect(page.getByRole("link", { name: "A day with BusIn" })).toBeVisible();
+    await expect(page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "A day with BusIn" })).toBeVisible();
   });
 });
 

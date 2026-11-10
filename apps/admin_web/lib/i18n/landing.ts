@@ -9,7 +9,9 @@ export type LandingCopy = {
   nav: { label: string; menu: string; day: string; people: string; schools: string; faq: string; cta: string };
   hero: { line1: string; marked: string; sub: string; note: string; chips: Record<"busin" | "receipt" | "timetable" | "waiting", string> };
   sections: Record<"day" | "people" | "private" | "download" | "schools" | "faq", { eyebrow: string; title: string; sub: string }>;
-  footer: { tagline: string; staff: string; theme: string; rights: string };
+  footer: { tagline: string; staff: string; theme: string; rights: string; explore: string; forSchools: string };
+  schools: { trusted: string; slot: string; invite: string; lead: string; points: string[] };
+  faq: { items: { q: string; a: string }[] };
   /** A student's morning, one step at a time, each with what the phone shows. */
   day: {
     steps: { time: string; title: string; text: string }[];
@@ -122,7 +124,25 @@ const en: LandingCopy = {
       failed: "It did not go through. Try again in a moment.",
     },
   },
-  footer: { tagline: "A companion for the daily ride.", staff: "Staff sign in", theme: "Theme", rights: "BusIn" },
+  schools: {
+    trusted: "Rides with BusIn",
+    slot: "Your school here",
+    invite: "Invite your school",
+    lead: "One admin sets it up in an afternoon: stops, buses, the semester. Students subscribe from their phones the same day.",
+    points: ["No hardware to buy", "Your data stays your school's", "English and French"],
+  },
+  faq: {
+    items: [
+      { q: "Is BusIn free for students?", a: "Yes. Your school sets it up and decides how the bus itself is paid for. The app costs you nothing." },
+      { q: "My school is not on BusIn. What can I do?", a: "Invite it: leave your school's name and your address, and we will get in touch with the people who run the buses." },
+      { q: "Do I need data to show my pass?", a: "No. Once you have opened the app with a signal, your pass works without one, and the scan at the door does too." },
+      { q: "Can someone use a photo of my pass?", a: "No. The code changes every 30 seconds, so a photo or a screenshot stops working within about a minute." },
+      { q: "Does BusIn know where I am?", a: "No. The student app never asks for your location. Only the bus shares where it is, and only while a trip is running." },
+      { q: "Who sees my subscription and my receipt?", a: "Only the admins of your school. Nobody at another school, and no other student, can see them." },
+      { q: "How do drivers and staff get their app?", a: "From your school's admin, through the BusIn portal. It is not on the stores, so only your team has it." },
+    ],
+  },
+  footer: { tagline: "A companion for the daily ride.", staff: "Staff sign in", theme: "Theme", rights: "BusIn", explore: "On this page", forSchools: "For schools" },
 };
 
 const fr: LandingCopy = {
@@ -205,7 +225,25 @@ const fr: LandingCopy = {
       failed: "L'envoi n'a pas abouti. Réessayez dans un instant.",
     },
   },
-  footer: { tagline: "Un compagnon pour le trajet de tous les jours.", staff: "Connexion du personnel", theme: "Thème", rights: "BusIn" },
+  schools: {
+    trusted: "Roule avec BusIn",
+    slot: "Votre école ici",
+    invite: "Inviter votre école",
+    lead: "Un administrateur l'installe en un après-midi : arrêts, bus, semestre. Les étudiants s'abonnent depuis leur téléphone le jour même.",
+    points: ["Aucun matériel à acheter", "Vos données restent à votre école", "Anglais et français"],
+  },
+  faq: {
+    items: [
+      { q: "BusIn est-il gratuit pour les étudiants ?", a: "Oui. Votre école l'installe et décide comment le bus lui-même est payé. L'application ne vous coûte rien." },
+      { q: "Mon école n'utilise pas BusIn. Que faire ?", a: "Invitez-la : laissez le nom de votre école et votre adresse, nous contacterons les personnes qui gèrent les bus." },
+      { q: "Faut-il des données pour montrer mon pass ?", a: "Non. Une fois l'application ouverte avec du réseau, votre pass marche sans, et le scan à la porte aussi." },
+      { q: "Quelqu'un peut-il utiliser une photo de mon pass ?", a: "Non. Le code change toutes les 30 secondes : une photo ou une capture ne marche plus au bout d'une minute environ." },
+      { q: "BusIn sait-il où je suis ?", a: "Non. L'application étudiante ne demande jamais votre position. Seul le bus partage la sienne, et seulement pendant un trajet." },
+      { q: "Qui voit mon abonnement et mon reçu ?", a: "Seuls les administrateurs de votre école. Personne d'une autre école, ni aucun autre étudiant, ne peut les voir." },
+      { q: "Comment les chauffeurs et le personnel obtiennent-ils leur application ?", a: "Par l'administration de votre école, depuis le portail BusIn. Elle n'est pas sur les stores, seule votre équipe l'a." },
+    ],
+  },
+  footer: { tagline: "Un compagnon pour le trajet de tous les jours.", staff: "Connexion du personnel", theme: "Thème", rights: "BusIn", explore: "Sur cette page", forSchools: "Pour les écoles" },
 };
 
 export const landingCatalogues: Record<Locale, LandingCopy> = { en, fr };

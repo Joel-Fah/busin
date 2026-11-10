@@ -8,6 +8,8 @@ import { LandingNav } from "@/components/landing/LandingNav";
 import { SectionHead } from "@/components/landing/SectionHead";
 import { Sky } from "@/components/landing/Sky";
 import { DownloadSection } from "@/components/landing/DownloadSection";
+import { FaqSection } from "@/components/landing/FaqSection";
+import { SchoolsSection } from "@/components/landing/SchoolsSection";
 import { InterestProvider } from "@/components/landing/interest/Interest";
 import { downloads } from "@/lib/landing/downloads";
 import { DayStory } from "@/components/landing/day/DayStory";
@@ -90,14 +92,17 @@ async function LandingContent() {
             <DownloadSection copy={copy.download} links={downloads()} />
           </section>
 
-          {/* The next slice fills these; each already has its place and its anchor. */}
-          {(["schools", "faq"] as const).map((key) => (
-            <section key={key} aria-labelledby={key} className="mx-auto max-w-[88rem] px-5 pt-28 sm:px-8">
-              <SectionHead id={key} {...sections[key]} />
-            </section>
-          ))}
-        </main>
-        <LandingFooter copy={copy.footer} locale={locale} t={t} />
+          <section aria-labelledby="schools" className="mx-auto max-w-[88rem] px-5 pt-28 sm:px-8 sm:pt-36">
+          <SectionHead id="schools" {...sections.schools} />
+          <SchoolsSection copy={copy.schools} />
+        </section>
+
+        <section aria-labelledby="faq" className="mx-auto max-w-[88rem] px-5 pt-28 sm:px-8 sm:pt-36">
+          <SectionHead id="faq" {...sections.faq} />
+          <FaqSection copy={copy.faq} />
+        </section>
+      </main>
+        <LandingFooter copy={copy.footer} nav={copy.nav} invite={copy.schools.invite} locale={locale} t={t} />
       </div>
     </InterestProvider>
   );
