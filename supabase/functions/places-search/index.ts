@@ -34,7 +34,8 @@ Deno.serve(async (request) => {
   const query = cleanQuery(input.q);
   if (!query) return json({ places: [] });
 
-  const token = Deno.env.get("MAPBOX_API_KEY") ?? "";
+  // Trimmed: a stray space or line ending in the secret would make every search come back empty.
+  const token = (Deno.env.get("MAPBOX_API_KEY") ?? "").trim();
   if (!token) return json({ error: "search is not configured" }, 503);
 
   // The student's own token: the database checks who they are and counts the search.
