@@ -40,6 +40,20 @@ test("an administrator sees the load of each stop and can count again", async ({
   await expect(page.getByText(/^(Counted again\.|Counted a moment ago\. Try again in a few minutes\.)$/)).toBeVisible();
 });
 
+test("the proximity view says what it is based on and never shows small groups", async ({ page, context }) => {
+  await signInBrowser(context, admin);
+  await page.goto("/insights");
+  await page.getByRole("link", { name: "Proximity" }).click();
+  await expect(page).toHaveURL(/\/insights\?view=proximity$/);
+  await expect(page.getByText(/^Based on \d+ of \d+ subscribers/)).toBeVisible();
+  const tiles = page.getByRole("list", { name: "Stops, farthest first" }).getByRole("button");
+  await expect(tiles.first()).toBeVisible();
+  // Every tile either has a typical distance or says there are not enough students yet.
+  for (const text of await tiles.allInnerTexts()) {
+    expect(text).toMatch(/Typically about [\d.]+ k?m|Not enough students yet/);
+  }
+});
+
 test("a staff member cannot open the insights", async ({ page, context }) => {
   await signInBrowser(context, staff);
   await page.goto("/insights");

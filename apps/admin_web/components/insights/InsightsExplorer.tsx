@@ -6,15 +6,18 @@ import { RefreshIcon } from "@hugeicons/core-free-icons";
 import { refreshLoads, type RefreshState } from "@/app/(admin)/insights/actions";
 import { MapView } from "@/components/map/MapView";
 import type { MapCircle, MapMarker } from "@/components/map/types";
+import { InsightsHeader } from "@/components/insights/InsightsHeader";
 import { NavDock } from "@/components/nav/NavDock";
 import { Button } from "@/components/ui/Button";
 import { Chip, type ChipTone } from "@/components/ui/Chip";
-import { HelpSheet } from "@/components/ui/HelpSheet";
 import { Tabs } from "@/components/ui/Tabs";
 import type { LatLng } from "@/lib/geo";
 import { format, type Messages } from "@/lib/i18n/messages";
 import { circleSize, formatAverage, formatShare, LOAD_PERIODS, type LoadLevel, type LoadPeriod, type StopLoad, type StopLoads } from "@/lib/insights";
 import type { MapProviderId } from "@/lib/map/config";
+
+// The dock covers about the bottom 45% of the map; fitting and gliding keep the stops above it.
+const DOCK_SHARE = 0.45;
 
 type Props = {
   loads: StopLoads;
@@ -111,6 +114,7 @@ export function InsightsExplorer({ loads, period, failed, counted, days, map, t 
           focusKey={focusKey}
           clusterLabel={t.stops.cluster}
           clustering={false}
+          coveredBottom={DOCK_SHARE}
           ariaLabel={s.mapLabel}
           unavailableLabel={s.mapUnavailable}
           className="map-full"
@@ -119,32 +123,20 @@ export function InsightsExplorer({ loads, period, failed, counted, days, map, t 
 
       <NavDock>
         <section aria-label={s.title} className="flex flex-col gap-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">{s.title}</h1>
-            <HelpSheet
-              label={t.help.open}
-              title={s.help.title}
-              intro={s.help.intro}
-              scenarios={Object.values(s.help.scenarios)}
-              scenariosLabel={t.help.scenarios}
-              closeLabel={t.help.close}
+          <InsightsHeader view="load" help={s.help} t={t}>
+            <Tabs
+              label={s.period.label}
+              items={LOAD_PERIODS.map((days) => ({ id: String(days), label: periodLabels[days], href: `/insights?days=${days}` }))}
+              active={String(period)}
             />
-            <div className="ml-auto flex flex-wrap items-center gap-2">
-              <Tabs label={s.views.label} items={[{ id: "load", label: s.views.load, href: "/insights" }]} active="load" />
-              <Tabs
-                label={s.period.label}
-                items={LOAD_PERIODS.map((days) => ({ id: String(days), label: periodLabels[days], href: `/insights?days=${days}` }))}
-                active={String(period)}
-              />
-              {byBoardings ? (
-                <form action={refreshAction}>
-                  <Button type="submit" variant="secondary" icon={RefreshIcon} disabled={refreshing} data-tip={s.refresh.hint}>
-                    {s.refresh.button}
-                  </Button>
-                </form>
-              ) : null}
-            </div>
-          </div>
+            {byBoardings ? (
+              <form action={refreshAction}>
+                <Button type="submit" variant="secondary" icon={RefreshIcon} disabled={refreshing} data-tip={s.refresh.hint}>
+                  {s.refresh.button}
+                </Button>
+              </form>
+            ) : null}
+          </InsightsHeader>
 
           {refresh.status !== "idle" ? (
             <p role={refresh.status === "done" ? "status" : "alert"} className={`rounded-sm px-3 py-2 text-sm ${refresh.status === "done" ? "bg-ok-bg font-semibold text-ok" : "bg-bad-bg text-bad"}`}>

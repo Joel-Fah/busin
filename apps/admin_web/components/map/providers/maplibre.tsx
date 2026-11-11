@@ -7,6 +7,8 @@ import { useEffect, useRef, useState } from "react";
 
 import { areaColor, placeAreas, type AreaHost } from "../area-layer";
 import { placeCircles } from "../circle-layer";
+import { fitPadding, focusOffset } from "../fit";
+import { placeLines } from "../line-layer";
 import { placeMarkers } from "../place-markers";
 import type { MapViewProps } from "../types";
 
@@ -31,11 +33,13 @@ export default function MapLibreView({
   markers,
   areas,
   circles,
+  lines,
   picker,
   focus,
   focusKey,
   clusterLabel = "{count}",
   clustering = true,
+  coveredBottom = 0,
   ariaLabel,
   unavailableLabel,
   className,
@@ -89,7 +93,7 @@ export default function MapLibreView({
       fittedFor.current = set;
       const bounds = new LngLatBounds();
       for (const item of markers) bounds.extend([item.position.lng, item.position.lat]);
-      map.fitBounds(bounds, { padding: 56, maxZoom: 15, animate: false });
+      map.fitBounds(bounds, { padding: fitPadding(map.getContainer().clientHeight, coveredBottom), maxZoom: 15, animate: false });
     }
 
     return placeMarkers(
@@ -101,19 +105,25 @@ export default function MapLibreView({
             map.off("zoom", listener);
           };
         },
-        fitTo: (bounds) => map.fitBounds(bounds, { padding: 90, maxZoom: 17, duration: 600 }),
+        fitTo: (bounds) => map.fitBounds(bounds, { padding: fitPadding(map.getContainer().clientHeight, coveredBottom, 90), maxZoom: 17, duration: 600 }),
         place: (element, position) => new Marker({ element }).setLngLat(position).addTo(map),
       },
       markers,
       { clustering: !pickable && clustering, clusterLabel },
     );
-  }, [map, markers, pickable, clustering, clusterLabel]);
+  }, [map, markers, pickable, clustering, clusterLabel, coveredBottom]);
 
   // Where students live, under the markers.
   useEffect(() => {
     if (!map || !areas || areas.length === 0) return;
     return placeAreas(map as unknown as AreaHost, areas, areaColor());
   }, [map, areas]);
+
+  // Lines, for example from where students live to their stop, drawn first so circles sit above them.
+  useEffect(() => {
+    if (!map || !lines || lines.length === 0) return;
+    return placeLines(map as unknown as AreaHost, lines);
+  }, [map, lines]);
 
   // Circles, for example the load of each stop, under the markers.
   useEffect(() => {
@@ -124,8 +134,8 @@ export default function MapLibreView({
   // Glide to the position the page is focused on, for example the stop picked from a list.
   useEffect(() => {
     if (!map || focusLat === undefined || focusLng === undefined) return;
-    map.easeTo({ center: [focusLng, focusLat], zoom: Math.max(map.getZoom(), 15), duration: 600 });
-  }, [map, focusLat, focusLng, focusKey]);
+    map.easeTo({ center: [focusLng, focusLat], zoom: Math.max(map.getZoom(), 15), duration: 600, offset: focusOffset(map.getContainer().clientHeight, coveredBottom) });
+  }, [map, focusLat, focusLng, focusKey, coveredBottom]);
 
   // Choosing a position: click the map or drag the pin.
   useEffect(() => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildStopLoads, circleSize, formatAverage, formatShare, loadLevel, parseLoadPeriod, type LoadStop, type StopLoadRow } from "./insights";
+import { buildStopLoads, circleSize, formatAverage, formatShare, loadLevel, parseInsightView, parseLoadPeriod, type LoadStop, type StopLoadRow } from "./insights";
 
 const stop = (id: string, name: string, students = 0): LoadStop => ({ id, name, active: true, position: { lat: 3.8, lng: 11.5 }, students });
 const row = (stop_id: string, load: number, refreshed_at = "2026-11-10T01:30:00Z"): StopLoadRow => ({
@@ -23,6 +23,16 @@ describe("loadLevel", () => {
     expect(loadLevel(0.5)).toBe("busy");
     expect(loadLevel(0.8)).toBe("full");
     expect(loadLevel(1.3)).toBe("full");
+  });
+});
+
+describe("parseInsightView", () => {
+  it("knows the proximity view and falls back to the load", () => {
+    expect(parseInsightView("proximity")).toBe("proximity");
+    expect(parseInsightView(["proximity"])).toBe("proximity");
+    expect(parseInsightView("load")).toBe("load");
+    expect(parseInsightView("other")).toBe("load");
+    expect(parseInsightView(undefined)).toBe("load");
   });
 });
 
