@@ -81,6 +81,24 @@ void main() {
       }
       expect(prefs.stored.eveningOn, isTrue);
       expect(reminders.placed.any((r) => r.kind == ReminderKind.evening), isTrue);
+      expect(reminders.samples.single.title, 'Heading home?', reason: 'an example of the evening reminder is shown at once');
+      BusinToast.dismiss();
+    });
+
+    testWidgets('no example without the permission, and turning one off sends none', (tester) async {
+      final (prefs, reminders) = await openPage(tester);
+      reminders.allow = false;
+      await tester.tap(find.byType(Switch).at(1));
+      for (var i = 0; i < 6; i++) {
+        await tester.pump(const Duration(milliseconds: 200));
+      }
+      expect(reminders.samples, isEmpty);
+      await tester.tap(find.byType(Switch).first);
+      for (var i = 0; i < 6; i++) {
+        await tester.pump(const Duration(milliseconds: 200));
+      }
+      expect(prefs.stored.morningOn, isFalse);
+      expect(reminders.samples, isEmpty);
       BusinToast.dismiss();
     });
 

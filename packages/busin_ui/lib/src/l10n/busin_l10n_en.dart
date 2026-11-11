@@ -1190,4 +1190,15 @@ class BusinL10nEn extends BusinL10n {
 
   @override
   String get areaTooMany => 'Too many searches. Wait a minute and try again.';
+
+  @override
+  String get notificationsSampleSent =>
+      'We sent you an example, so you can see how it looks.';
+
+  @override
+  String get sampleBusNearTitle => 'Your bus is almost here';
+
+  @override
+  String get sampleBusNearBody =>
+      'It is a few minutes from your stop. Open BusIn to follow it.';
 }

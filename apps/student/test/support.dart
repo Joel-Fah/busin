@@ -848,6 +848,11 @@ class FakeReminderScheduler implements ReminderScheduler {
 
   @override
   Future<bool> requestPermission() async => allow;
+
+  final List<ReminderText> samples = [];
+
+  @override
+  Future<void> showSample(ReminderText text) async => samples.add(text);
 }
 
 /// Streaks done the way the server does them: opting in flips the profile's flag; the streak and the days are set by the test.

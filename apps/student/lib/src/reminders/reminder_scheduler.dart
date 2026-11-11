@@ -13,7 +13,13 @@ abstract interface class ReminderScheduler {
 
   /// Asks the phone to allow notifications (Android 13 and later), and says whether they are allowed.
   Future<bool> requestPermission();
+
+  /// Shows one notification now, so the student sees what a kind they just turned on looks like. Local only.
+  Future<void> showSample(ReminderText text);
 }
+
+/// The id of the sample notification: outside the range the plan uses, and each sample replaces the last.
+const sampleNotificationId = 9000;
 
 /// Does nothing: for tests, and for platforms without local notifications.
 class NoReminderScheduler implements ReminderScheduler {
@@ -24,6 +30,9 @@ class NoReminderScheduler implements ReminderScheduler {
 
   @override
   Future<bool> requestPermission() async => false;
+
+  @override
+  Future<void> showSample(ReminderText text) async {}
 }
 
 /// Local notifications on the phone. They work offline and nothing about them is sent to the server.
@@ -78,5 +87,11 @@ class LocalReminderScheduler implements ReminderScheduler {
     await _init();
     final android = _plugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
     return await android?.requestNotificationsPermission() ?? false;
+  }
+
+  @override
+  Future<void> showSample(ReminderText text) async {
+    await _init();
+    await _plugin.show(id: sampleNotificationId, title: text.title, body: text.body, notificationDetails: const NotificationDetails(android: _channel));
   }
 }
