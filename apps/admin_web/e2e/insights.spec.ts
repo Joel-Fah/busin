@@ -63,11 +63,19 @@ test("the graph shows each stop as a button that opens its figures, by mouse or 
   await expect(graph).toBeVisible();
   const nodes = graph.getByRole("button");
   await expect(nodes.first()).toBeVisible();
-  await expect(page.getByText(/Select a stop or a small dot/)).toBeVisible();
+  await expect(page.getByText(/Select a stop, a dot or a dashed ring/)).toBeVisible();
+  // The guide says what the graph shows, and draws each shape; it folds away so nothing under it is hidden.
+  const guide = page.getByRole("complementary", { name: "Guide to the graph" });
+  await expect(guide.getByRole("tab", { name: "In short" })).toHaveAttribute("aria-selected", "true");
+  await expect(guide).toContainText(/stops and \d+ subscribers/);
+  await guide.getByRole("tab", { name: "How to read" }).click();
+  await expect(guide).toContainText("A suggested new stop.");
+  await guide.getByRole("button", { name: "Fold the guide" }).click();
+  await expect(guide).not.toContainText("A suggested new stop.");
 
   await nodes.first().click();
   await expect(nodes.first()).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByText(/Select a stop or a small dot/)).toBeHidden();
+  await expect(page.getByText(/Select a stop, a dot or a dashed ring/)).toBeHidden();
 
   // The keyboard reaches the next node and opens it too.
   await nodes.nth(1).focus();
