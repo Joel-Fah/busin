@@ -59,6 +59,22 @@ describe("buildProximity", () => {
   });
 });
 
+describe("students nearer another stop", () => {
+  it("lists, per stop, the stops its students live nearer to, and draws a line between them", () => {
+    const result = buildProximity(stops, [row("a", 6, 400, [4, 1, 1, 0])], [], [
+      { from_stop: "a", to_stop: "b", students: 6, saved_m: 1400 },
+      { from_stop: "a", to_stop: "c", students: 9, saved_m: 600 },
+      { from_stop: "zzz", to_stop: "b", students: 7, saved_m: 900 },
+    ]);
+    expect(result.stops[0].nearer).toEqual([
+      { toId: "c", toName: "Gamma", students: 9, saved: 600 },
+      { toId: "b", toName: "Beta", students: 6, saved: 1400 },
+    ]);
+    // Gamma has no position, and zzz is unknown: only one line.
+    expect(result.nearerLines).toEqual([{ id: "a>b", from: { lat: 3.85, lng: 11.5 }, to: { lat: 3.86, lng: 11.51 }, students: 6 }]);
+  });
+});
+
 describe("formatting", () => {
   it("rounds distances like a person would say them", () => {
     expect(roughDistance(12)).toEqual({ value: "50", unit: "m" });
