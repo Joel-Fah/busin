@@ -9,6 +9,9 @@ import 'package:busin_student/src/bus/map_scene.dart';
 import 'package:busin_student/src/offline/offline_providers.dart';
 import 'package:busin_student/src/offline/pass_snapshot.dart';
 import 'package:busin_student/src/providers.dart';
+import 'package:busin_student/src/reminders/notification_providers.dart';
+import 'package:busin_student/src/reminders/reminder_plan.dart';
+import 'package:busin_student/src/reminders/reminder_scheduler.dart';
 import 'package:busin_student/src/push/push_service.dart';
 import 'package:busin_student/src/qr/qr_providers.dart';
 import 'package:busin_student/src/qr/screen_security.dart';
@@ -696,6 +699,8 @@ List<Override> overridesFor(
   FakeMapSurface? map,
   FakeQr? qr,
   FakeJoin? join,
+  FakeNotificationPreferences? notificationPreferences,
+  FakeReminderScheduler? reminders,
   FakeSecretStore? store,
   FakeScreenSecurity? security,
   TestClock? clock,
@@ -717,6 +722,8 @@ List<Override> overridesFor(
     authServiceProvider.overrideWithValue(auth),
     profileRepositoryProvider.overrideWithValue(profiles),
     joinRepositoryProvider.overrideWithValue(join ?? FakeJoin(profiles)),
+    notificationPreferencesRepositoryProvider.overrideWithValue(notificationPreferences ?? FakeNotificationPreferences()),
+    reminderSchedulerProvider.overrideWithValue(reminders ?? FakeReminderScheduler()),
     academicRepositoryProvider.overrideWithValue(academic ?? FakeAcademic()),
     schoolRepositoryProvider.overrideWithValue(b),
     semestersRepositoryProvider.overrideWithValue(b),
@@ -780,4 +787,43 @@ class FakeJoin implements JoinRepository {
     final school = schools.where((s) => s.id == schoolId).firstOrNull;
     request = schoolId == null ? null : JoinRequest(schoolId: schoolId, schoolName: school?.name, requestedAt: DateTime.utc(2026, 11, 11, 8));
   }
+}
+
+class FakeNotificationPreferences implements NotificationPreferencesRepository {
+  FakeNotificationPreferences([this.stored = const NotificationPreferences()]);
+
+  NotificationPreferences stored;
+  Object? error;
+  int saves = 0;
+
+  @override
+  Future<NotificationPreferences> load() async => stored;
+
+  @override
+  Future<void> save(NotificationPreferences preferences) async {
+    if (error != null) throw error!;
+    saves++;
+    stored = preferences;
+  }
+}
+
+class FakeReminderScheduler implements ReminderScheduler {
+  List<PlannedReminder> placed = const [];
+  String? zone;
+  int replaced = 0;
+  bool allow = true;
+
+  @override
+  Future<void> replace(List<PlannedReminder> plan, {required String timeZone, required ReminderText Function(ReminderKind kind) text}) async {
+    replaced++;
+    placed = plan;
+    zone = timeZone;
+    for (final reminder in plan) {
+      final words = text(reminder.kind);
+      assert(words.title.isNotEmpty && words.body.isNotEmpty);
+    }
+  }
+
+  @override
+  Future<bool> requestPermission() async => allow;
 }

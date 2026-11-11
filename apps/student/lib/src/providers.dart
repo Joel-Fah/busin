@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'auth/access.dart';
+import 'reminders/notification_providers.dart';
 import 'auth/auth_service.dart';
 import 'config/app_config.dart';
 import 'offline/offline_providers.dart';
@@ -139,6 +140,8 @@ final signOutProvider = Provider<Future<void> Function()>((ref) {
     await ref.read(pushRegistrarProvider).forget();
     await ref.read(secretStoreProvider).deleteAll();
     await ref.read(snapshotKeeperProvider).clearAll();
+    // Reminders belong to this student: the next person on this phone must not get them.
+    await ref.read(reminderSchedulerProvider).replace(const [], timeZone: 'UTC', text: (_) => (title: '', body: ''));
     await ref.read(authServiceProvider).signOut();
   };
 });

@@ -7,6 +7,7 @@ import 'package:hugeicons/hugeicons.dart';
 import '../offline/offline_banner.dart';
 import '../offline/offline_binder.dart';
 import '../push/push_binder.dart';
+import '../reminders/notification_providers.dart';
 import '../router.dart';
 import '../subscription/live_changes.dart';
 import '../subscription/subscription_providers.dart';
@@ -24,6 +25,8 @@ class HomeShell extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Keep the phone's reminders in step with the preferences, the semester and the language while the student is in.
+    ref.watch(reminderSyncProvider);
     final l10n = BusinL10n.of(context);
     final p = BusinPalette.of(context);
     // The short label sits under the icon; the full name is what a screen reader says.

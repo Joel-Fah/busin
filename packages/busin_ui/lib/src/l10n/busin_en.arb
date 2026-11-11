@@ -499,5 +499,41 @@
         "type": "String"
       }
     }
-  }
+  },
+  "notificationsTitle": "Notifications",
+  "notificationsHint": "Choose your bus days and what BusIn reminds you of.",
+  "notificationsDays": "My bus days",
+  "notificationsDaysHint": "Reminders come only on these days.",
+  "notificationsMorning": "Morning reminder",
+  "notificationsMorningHint": "A nudge before you leave home.",
+  "notificationsEvening": "Evening reminder",
+  "notificationsEveningHint": "Almost time to head back to the bus.",
+  "notificationsBusNear": "Bus near my stop",
+  "notificationsBusNearHint": "When your bus is about this far from your stop.",
+  "notificationsBusNearMinutes": "{minutes} min",
+  "@notificationsBusNearMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationsBoarding": "A word when I board",
+  "notificationsBoardingHint": "A short message on screen when your code is scanned.",
+  "notificationsSchool": "From your school",
+  "notificationsSchoolHint": "Changes to your semester or service. Always on.",
+  "notificationsAt": "At {time}",
+  "@notificationsAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationsSaved": "Saved.",
+  "notificationsPermission": "Allow notifications in your phone's settings so reminders can show.",
+  "reminderMorningTitle": "Bus day",
+  "reminderMorningBody": "Your pass is ready. Open BusIn to see where the bus is.",
+  "reminderEveningTitle": "Heading home?",
+  "reminderEveningBody": "Time to get ready for the bus. Open BusIn to see where it is."
 }

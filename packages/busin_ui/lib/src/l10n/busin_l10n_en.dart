@@ -913,4 +913,81 @@ class BusinL10nEn extends BusinL10n {
   String joiningNotMineBody(String school) {
     return 'You signed in with an email of $school. If you study somewhere else, sign out and sign in with your own school\'s account.';
   }
+
+  @override
+  String get notificationsTitle => 'Notifications';
+
+  @override
+  String get notificationsHint =>
+      'Choose your bus days and what BusIn reminds you of.';
+
+  @override
+  String get notificationsDays => 'My bus days';
+
+  @override
+  String get notificationsDaysHint => 'Reminders come only on these days.';
+
+  @override
+  String get notificationsMorning => 'Morning reminder';
+
+  @override
+  String get notificationsMorningHint => 'A nudge before you leave home.';
+
+  @override
+  String get notificationsEvening => 'Evening reminder';
+
+  @override
+  String get notificationsEveningHint => 'Almost time to head back to the bus.';
+
+  @override
+  String get notificationsBusNear => 'Bus near my stop';
+
+  @override
+  String get notificationsBusNearHint =>
+      'When your bus is about this far from your stop.';
+
+  @override
+  String notificationsBusNearMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get notificationsBoarding => 'A word when I board';
+
+  @override
+  String get notificationsBoardingHint =>
+      'A short message on screen when your code is scanned.';
+
+  @override
+  String get notificationsSchool => 'From your school';
+
+  @override
+  String get notificationsSchoolHint =>
+      'Changes to your semester or service. Always on.';
+
+  @override
+  String notificationsAt(String time) {
+    return 'At $time';
+  }
+
+  @override
+  String get notificationsSaved => 'Saved.';
+
+  @override
+  String get notificationsPermission =>
+      'Allow notifications in your phone\'s settings so reminders can show.';
+
+  @override
+  String get reminderMorningTitle => 'Bus day';
+
+  @override
+  String get reminderMorningBody =>
+      'Your pass is ready. Open BusIn to see where the bus is.';
+
+  @override
+  String get reminderEveningTitle => 'Heading home?';
+
+  @override
+  String get reminderEveningBody =>
+      'Time to get ready for the bus. Open BusIn to see where it is.';
 }

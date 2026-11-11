@@ -931,4 +931,83 @@ class BusinL10nFr extends BusinL10n {
   String joiningNotMineBody(String school) {
     return 'Vous vous êtes connecté avec un e-mail de $school. Si vous étudiez ailleurs, déconnectez-vous et connectez-vous avec le compte de votre école.';
   }
+
+  @override
+  String get notificationsTitle => 'Notifications';
+
+  @override
+  String get notificationsHint =>
+      'Choisissez vos jours de bus et ce que BusIn vous rappelle.';
+
+  @override
+  String get notificationsDays => 'Mes jours de bus';
+
+  @override
+  String get notificationsDaysHint =>
+      'Les rappels ne viennent que ces jours-là.';
+
+  @override
+  String get notificationsMorning => 'Rappel du matin';
+
+  @override
+  String get notificationsMorningHint => 'Un petit signe avant de partir.';
+
+  @override
+  String get notificationsEvening => 'Rappel du soir';
+
+  @override
+  String get notificationsEveningHint =>
+      'Bientôt l\'heure de reprendre le bus.';
+
+  @override
+  String get notificationsBusNear => 'Bus proche de mon arrêt';
+
+  @override
+  String get notificationsBusNearHint =>
+      'Quand votre bus est à peu près à ce temps de votre arrêt.';
+
+  @override
+  String notificationsBusNearMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get notificationsBoarding => 'Un mot quand je monte';
+
+  @override
+  String get notificationsBoardingHint =>
+      'Un court message à l\'écran quand votre code est scanné.';
+
+  @override
+  String get notificationsSchool => 'De votre école';
+
+  @override
+  String get notificationsSchoolHint =>
+      'Changements de votre semestre ou du service. Toujours activé.';
+
+  @override
+  String notificationsAt(String time) {
+    return 'À $time';
+  }
+
+  @override
+  String get notificationsSaved => 'Enregistré.';
+
+  @override
+  String get notificationsPermission =>
+      'Autorisez les notifications dans les réglages de votre téléphone pour voir les rappels.';
+
+  @override
+  String get reminderMorningTitle => 'Jour de bus';
+
+  @override
+  String get reminderMorningBody =>
+      'Votre pass est prêt. Ouvrez BusIn pour voir où est le bus.';
+
+  @override
+  String get reminderEveningTitle => 'Vous rentrez ?';
+
+  @override
+  String get reminderEveningBody =>
+      'C\'est bientôt l\'heure du bus. Ouvrez BusIn pour voir où il est.';
 }
