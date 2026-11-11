@@ -397,6 +397,34 @@ class SupabaseTripsRepository implements TripsRepository {
         final data = await _client.from('trips').select(Columns.trip).inFilter('id', tripIds);
         return _rows(data).map(Trip.fromJson).toList(growable: false);
       });
+
+  @override
+  Future<List<Trip>> listBetween({required DateTime from, required DateTime to}) => guarded(() async {
+        final data = await _client
+            .from('trips')
+            .select(Columns.trip)
+            .gte('scheduled_start', from.toUtc().toIso8601String())
+            .lt('scheduled_start', to.toUtc().toIso8601String())
+            .order('scheduled_start', ascending: true)
+            .limit(100);
+        return _rows(data).map(Trip.fromJson).toList(growable: false);
+      });
+
+  @override
+  Future<void> start(String tripId) => guarded(() async {
+        await _client.rpc<void>('start_trip', params: {'p_trip_id': tripId});
+      });
+
+  @override
+  Future<void> end(String tripId) => guarded(() async {
+        await _client.rpc<void>('end_trip', params: {'p_trip_id': tripId});
+      });
+
+  @override
+  Future<List<ManifestEntry>> manifest(String tripId) => guarded(() async {
+        final rows = await _client.rpc<List<dynamic>>('trip_manifest', params: {'p_trip_id': tripId});
+        return rows.cast<Map<String, dynamic>>().map(ManifestEntry.fromJson).toList(growable: false);
+      });
 }
 
 class SupabaseDeviceTokensRepository implements DeviceTokensRepository {
@@ -526,6 +554,26 @@ class SupabaseLivePositionsRepository implements LivePositionsRepository {
 
   @override
   Future<bool> canFollowBuses() => guarded(() async => (await _client.rpc<dynamic>('can_follow_buses')) == true);
+
+  @override
+  Future<bool> publish({
+    required String tripId,
+    required GeoPoint position,
+    double? speedMps,
+    double? headingDeg,
+    double? accuracyM,
+  }) =>
+      guarded(() async {
+        final kept = await _client.rpc<dynamic>('publish_position', params: {
+          'p_trip_id': tripId,
+          'p_lat': position.latitude,
+          'p_lng': position.longitude,
+          'p_speed_mps': speedMps,
+          'p_heading_deg': headingDeg,
+          'p_accuracy_m': accuracyM,
+        });
+        return kept == true;
+      });
 
   @override
   Stream<LivePosition> watchBus(String busId) {

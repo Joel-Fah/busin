@@ -517,16 +517,36 @@ isOneToOne: false
       referencedColumns: ["id","school_id"]
     }
                   ]
-                },"trips": {
+                },"trip_positions": {
                   Row: {
-                    "archived_at": string | null,"bus_id": string,"created_at": string,"direction": Database["public"]['Enums']["trip_direction"],"driver_id": string | null,"ended_at": string | null,"id": string,"scheduled_start": string,"school_id": string,"started_at": string | null,"status": Database["public"]['Enums']["trip_status"]
+                    "id": number,"location": unknown,"recorded_at": string,"school_id": string,"speed_mps": number | null,"trip_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "archived_at"?: string | null,"bus_id": string,"created_at"?: string,"direction": Database["public"]['Enums']["trip_direction"],"driver_id"?: string | null,"ended_at"?: string | null,"id"?: string,"scheduled_start": string,"school_id": string,"started_at"?: string | null,"status"?: Database["public"]['Enums']["trip_status"]
+                    "id"?: never,"location": unknown,"recorded_at"?: string,"school_id": string,"speed_mps"?: number | null,"trip_id": string
                   }
                   Update: {
-                    "archived_at"?: string | null,"bus_id"?: string,"created_at"?: string,"direction"?: Database["public"]['Enums']["trip_direction"],"driver_id"?: string | null,"ended_at"?: string | null,"id"?: string,"scheduled_start"?: string,"school_id"?: string,"started_at"?: string | null,"status"?: Database["public"]['Enums']["trip_status"]
+                    "id"?: never,"location"?: unknown,"recorded_at"?: string,"school_id"?: string,"speed_mps"?: number | null,"trip_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "trip_positions_trip_id_school_id_fkey"
+      columns: ["trip_id","school_id"]
+isOneToOne: false
+      referencedRelation: "trips"
+      referencedColumns: ["id","school_id"]
+    }
+                  ]
+                },"trips": {
+                  Row: {
+                    "archived_at": string | null,"bus_id": string,"created_at": string,"direction": Database["public"]['Enums']["trip_direction"],"driver_id": string | null,"ended_at": string | null,"id": string,"scheduled_start": string,"school_id": string,"started_at": string | null,"started_by": string | null,"status": Database["public"]['Enums']["trip_status"]
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "archived_at"?: string | null,"bus_id": string,"created_at"?: string,"direction": Database["public"]['Enums']["trip_direction"],"driver_id"?: string | null,"ended_at"?: string | null,"id"?: string,"scheduled_start": string,"school_id": string,"started_at"?: string | null,"started_by"?: string | null,"status"?: Database["public"]['Enums']["trip_status"]
+                  }
+                  Update: {
+                    "archived_at"?: string | null,"bus_id"?: string,"created_at"?: string,"direction"?: Database["public"]['Enums']["trip_direction"],"driver_id"?: string | null,"ended_at"?: string | null,"id"?: string,"scheduled_start"?: string,"school_id"?: string,"started_at"?: string | null,"started_by"?: string | null,"status"?: Database["public"]['Enums']["trip_status"]
                   }
                   Relationships: [
                     {
@@ -546,6 +566,12 @@ isOneToOne: false
       columns: ["school_id"]
 isOneToOne: false
       referencedRelation: "schools"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "trips_started_by_fkey"
+      columns: ["started_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
       referencedColumns: ["id"]
     }
                   ]
@@ -626,6 +652,9 @@ isOneToOne: false
 "drop_device_token":
 { Args: { "p_token": string }; Returns: undefined
                            },
+"end_trip":
+{ Args: { "p_trip_id": string }; Returns: undefined
+                           },
 "get_my_qr_secret":
 { Args: Record<PropertyKey, never>; Returns: string
                            },
@@ -672,6 +701,9 @@ isOneToOne: false
               "city": string,"country": string,"id": string,"logo_path": string,"name": string,"short_name": string
             }[]
                            },
+"publish_position":
+{ Args: { "p_accuracy_m"?: number,"p_heading_deg"?: number,"p_lat": number,"p_lng": number,"p_speed_mps"?: number,"p_trip_id": string }; Returns: boolean
+                           },
 "record_qr_scan":
 { Args: { "p_accuracy"?: number,"p_client_id"?: string,"p_code": string,"p_lat"?: number,"p_lng"?: number,"p_scanned_at"?: string,"p_stop_id"?: string,"p_trip_id": string }; Returns: Json
                            },
@@ -708,8 +740,16 @@ isOneToOne: false
               "avatar_url": string,"day": string,"day_key": string,"full_name": string,"matricule": string,"stop_id": string,"student_id": string
             }[]
                            },
+"start_trip":
+{ Args: { "p_trip_id": string }; Returns: undefined
+                           },
 "submit_interest":
 { Args: { "p_email": string,"p_kind": string,"p_locale"?: string,"p_message"?: string,"p_name"?: string,"p_organisation"?: string,"p_trap"?: string }; Returns: string
+                           },
+"trip_manifest":
+{ Args: { "p_trip_id": string }; Returns: {
+              "avatar_url": string,"full_name": string,"matricule": string,"scan_id": string,"scanned_at": string,"stop_id": string,"student_id": string
+            }[]
                            },
 "unregister_device_token":
 { Args: { "p_token": string }; Returns: undefined
