@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(17);
+select plan(16);
 
 insert into public.schools (id, name, timezone) values ('10000000-0000-4000-8000-000000000001', 'School A', 'UTC'), ('10000000-0000-4000-8000-000000000002', 'School B', 'UTC');
 insert into public.school_domains (domain, school_id) values ('a.edu', '10000000-0000-4000-8000-000000000001'), ('b.edu', '10000000-0000-4000-8000-000000000002');
@@ -48,13 +48,6 @@ reset role;
 set local role authenticated;
 set local "request.jwt.claims" = '{"sub":"b1000000-0000-4000-8000-000000000001","role":"authenticated"}';
 select is((select count(*)::int from public.my_area()), 0, 'another school''s student sees no area');
-reset role;
-
--- The search quota: 20 a minute.
-set local role authenticated;
-set local "request.jwt.claims" = '{"sub":"a1000000-0000-4000-8000-000000000002","role":"authenticated"}';
-do $$ begin for i in 1..20 loop perform public.claim_place_search(); end loop; end $$;
-select throws_ok('select * from public.claim_place_search()', 'PT429', 'too_many_searches', 'the 21st search in a minute is refused');
 reset role;
 
 select * from finish();

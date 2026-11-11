@@ -17,10 +17,13 @@ once, without being tracked.
    (`student_areas`, one row per student). The exact point is never stored and never returned. The app rounds it too.
 4. **Who sees what.** The student reads, changes and deletes their own area. Nobody else reads a row: administrators
    only get `admin_area_counts()`, the grid cells of their school with at least 5 students, for planning.
-5. **Search through the server.** The app never talks to Mapbox. The `places-search` Edge Function checks the caller
-   (verified student), counts their searches (20 a minute, 200 a day), biases results to the area around the school's
-   stops, and returns only a label and a point. Mapbox receives the search text, never who typed it. Mapbox is already
-   the approved map vendor ([ADR 0008](0008-map-provider.md)).
+5. **Search on our own copy of OpenStreetMap** (revised the same day, after testing: Mapbox's geocoding knew few
+   Yaounde neighbourhoods, OpenStreetMap knows them). `tools/import-places.mjs` imports the named places around a
+   school's stops (neighbourhoods, villages, streets, landmarks) from the public Overpass service into `places`, when a
+   school starts or its stops move. `search_places` searches them in Postgres (ignoring case, accents and hyphens,
+   nearest to the school first) for verified members of that school, 60 searches a minute and 600 a day. Nothing leaves
+   our server at search time, there is no per-search cost, and no third party sees what students type. The data is
+   (c) OpenStreetMap contributors under the ODbL: the app credits it under the results.
 6. **Never tracked.** No background location, no repeated readings, no location in any other screen.
 
 ## Consequences
@@ -28,6 +31,7 @@ once, without being tracked.
 - The security skill rule becomes: location in the ops app when scanning or driving, and in the student app only for
   "My area", once, approximate, after an explanation.
 - A new dependency in the student app: `geolocator`.
-- Mapbox's terms limit storing results of its standard (temporary) geocoding. The app stores only a snapped grid cell
-  and a short label. Before going live, the owner confirms this with Mapbox or turns on permanent geocoding in the
-  function (a billing setting).
+- No Mapbox call and no Mapbox token for place search (the first version's `places-search` Edge Function was removed).
+- Each school's places must be imported once (`npm run places:import -- <school id>`), and again when its stops move.
+  Against a hosted project that is the owner's call. The places table is internal and never published, so the ODbL
+  share-alike terms for public databases do not apply; the credit does.

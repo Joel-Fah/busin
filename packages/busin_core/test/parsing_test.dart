@@ -354,7 +354,8 @@ void main() {
       final area = StudentArea.fromJson({'label': 'Bastos', 'lat': 3.86, 'lng': 11.52, 'source': 'device', 'updated_at': '2026-11-11T08:00:00+00:00'});
       expect(area.source, AreaSource.device);
       expect(area.lat, 3.86);
-      expect(PlaceResult.fromJson({'label': 'Etoudi', 'lat': 3.9, 'lng': 11.5}).detail, '');
+      expect(PlaceResult.fromJson({'label': 'Etoudi', 'kind': 'area', 'lat': 3.9, 'lng': 11.5}).kind, PlaceKind.area);
+      expect(() => PlaceResult.fromJson({'label': 'x', 'kind': 'river', 'lat': 1, 'lng': 1}), throwsFormatException);
       expect(() => AreaSource.parse('gps'), throwsFormatException);
       expect(() => PlaceResult.fromJson({'label': 'x'}), throwsFormatException);
     });

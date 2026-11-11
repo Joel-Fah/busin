@@ -74,8 +74,9 @@ abstract interface class AreaRepository {
 
   Future<void> clearArea();
 
-  /// Places matching [query] around the school. [NotAllowed] when the student searched too much in a short time.
-  Future<List<PlaceResult>> searchPlaces(String query, {required String languageCode});
+  /// Places of the school's area matching [query] (from OpenStreetMap, searched on the server). [NotAllowed] when the
+  /// student searched too much in a short time.
+  Future<List<PlaceResult>> searchPlaces(String query);
 }
 
 /// The student's notification preferences. Reads give the defaults until something is saved.

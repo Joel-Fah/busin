@@ -88,7 +88,7 @@ class _MyAreaScreenState extends ConsumerState<MyAreaScreen> {
       _searchError = null;
     });
     try {
-      final places = await ref.read(areaRepositoryProvider).searchPlaces(query, languageCode: Localizations.localeOf(context).languageCode);
+      final places = await ref.read(areaRepositoryProvider).searchPlaces(query);
       if (!mounted || _query.text.trim() != query) return;
       setState(() => _results = places);
     } on NotAllowed {
@@ -297,7 +297,7 @@ class _MyAreaScreenState extends ConsumerState<MyAreaScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(place.label, style: text.titleSmall),
-                        if (place.detail.isNotEmpty) Text(place.detail, style: text.bodySmall?.copyWith(color: p.muted)),
+                        Text(_kindLabel(l10n, place.kind), style: text.bodySmall?.copyWith(color: p.muted)),
                       ],
                     ),
                   ),
@@ -305,6 +305,8 @@ class _MyAreaScreenState extends ConsumerState<MyAreaScreen> {
               ),
             ),
           ),
+      // The places come from OpenStreetMap, whose licence asks for this credit where they are shown.
+      if (results != null && results.isNotEmpty) Text(l10n.areaOsmCredit, style: text.labelSmall?.copyWith(color: p.muted)),
       const SizedBox(height: BusinSpace.x4),
       BusinCard(
         child: Column(
@@ -321,6 +323,13 @@ class _MyAreaScreenState extends ConsumerState<MyAreaScreen> {
     ];
   }
 }
+
+String _kindLabel(BusinL10n l10n, PlaceKind kind) => switch (kind) {
+      PlaceKind.area => l10n.placeKindArea,
+      PlaceKind.village => l10n.placeKindVillage,
+      PlaceKind.street => l10n.placeKindStreet,
+      PlaceKind.landmark => l10n.placeKindLandmark,
+    };
 
 class _ExplainSheet extends StatelessWidget {
   const _ExplainSheet();

@@ -85,7 +85,7 @@ void main() {
   });
 
   testWidgets('not at home: search, pick a place, and it is saved', (tester) async {
-    final areas = FakeAreas(places: const [PlaceResult(label: 'Etoudi', detail: 'Yaounde, Cameroon', lat: 3.91, lng: 11.53)]);
+    final areas = FakeAreas(places: const [PlaceResult(label: 'Etoudi', kind: PlaceKind.area, lat: 3.91, lng: 11.53)]);
     await openArea(tester, areas: areas);
     await tester.tap(find.text('No, search a place'));
     await settle(tester);
@@ -93,6 +93,8 @@ void main() {
     await tester.enterText(find.byType(TextField), 'Etou');
     await settle(tester, 4);
     expect(areas.queries, ['Etou']);
+    expect(find.text('Neighbourhood'), findsOneWidget);
+    expect(find.text('Places from OpenStreetMap contributors'), findsOneWidget);
     await tester.tap(find.text('Etoudi'));
     await settle(tester);
     expect(areas.saved.single.source, AreaSource.search);
@@ -100,7 +102,7 @@ void main() {
   });
 
   testWidgets('a place too far from the buses is refused with a reason', (tester) async {
-    final areas = FakeAreas(places: const [PlaceResult(label: 'Paris', detail: 'France', lat: 48.85, lng: 2.35)])
+    final areas = FakeAreas(places: const [PlaceResult(label: 'Paris', kind: PlaceKind.area, lat: 48.85, lng: 2.35)])
       ..saveError = const Invalid('database 22023');
     await openArea(tester, areas: areas);
     await tester.tap(find.text('No, search a place'));
