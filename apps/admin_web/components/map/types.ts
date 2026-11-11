@@ -18,8 +18,10 @@ export type MapMarker = {
   onSelect?: () => void;
   /** Drawn larger, as the marker the page is focused on. */
   selected?: boolean;
-  /** "me" is the visitor's own position: a blue dot with a halo, not a pin. */
-  variant?: "me";
+  /** "me" is the visitor's own position: a blue dot with a halo, not a pin. "campus" is where the bus route ends. */
+  variant?: "me" | "campus";
+  /** A short text inside the marker, for example the stop's number on the route. */
+  badge?: string;
 };
 
 /** A zone of about 500 m where students live, with how many (only zones with 5 or more ever reach the portal). */
@@ -49,6 +51,16 @@ export type MapLine = {
   color: string;
 };
 
+/** A bus route along the roads (or straight between stops, before it is drawn). */
+export type MapRoute = {
+  id: string;
+  coordinates: LatLng[];
+  /** The primary route is bold and coloured; secondary ones (alternatives) thinner and grey beneath it. */
+  emphasis: "primary" | "secondary";
+  /** A CSS colour or token; by default the info blue for the primary and the muted grey for the others. */
+  color?: string;
+};
+
 export type MapPicker = {
   /** The chosen position, or null while nothing is chosen. */
   position: LatLng | null;
@@ -70,6 +82,8 @@ export type MapViewProps = {
   areas?: MapArea[];
   /** Circles drawn under the markers. */
   circles?: MapCircle[];
+  /** Bus routes, drawn under everything else. */
+  routes?: MapRoute[];
   /** Lines drawn under the circles and markers. */
   lines?: MapLine[];
   /** Turns the map into a place to choose a position. */

@@ -268,12 +268,26 @@ join auth.users u on u.id = sub.student_id and u.email like 'demo.student%@ictun
      public.stops e
 where a.user_id = sub.student_id and sub.status = 'approved' and e.name = 'Ekounou crossroads' and e.school_id = sub.school_id;
 
--- The students of Etoudi palace road and Nkolbisson bridge live together about 1.2 km north of Etoudi palace road, far
--- from every stop, so Insights suggests a new stop there.
+-- The students of Etoudi palace road and Nkolbisson bridge live together about 1.2 km east of Essos hospital, off the
+-- route and far from every stop, so Insights suggests a new stop there.
 update public.student_areas a
-set area = private.snap_area(extensions.st_y(e.location::extensions.geometry) + 0.011, extensions.st_x(e.location::extensions.geometry))
+set area = private.snap_area(extensions.st_y(e.location::extensions.geometry), extensions.st_x(e.location::extensions.geometry) + 0.011)
 from public.subscriptions sub
 join public.stops m on m.id = sub.stop_id and m.name in ('Etoudi palace road', 'Nkolbisson bridge')
 join auth.users u on u.id = sub.student_id and u.email like 'demo.student%@ictuniversity.edu.cm',
      public.stops e
-where a.user_id = sub.student_id and sub.status = 'approved' and e.name = 'Etoudi palace road' and e.school_id = sub.school_id;
+where a.user_id = sub.student_id and sub.status = 'approved' and e.name = 'Essos hospital' and e.school_id = sub.school_id;
+
+-- ---------------------------------------------------------------- the bus route (ADR 0017)
+-- The campus north of Etoudi, and one route around the city: from Ekounou in the south-east, through the south and the
+-- west, back across the centre and up to the campus. Drawn along roads when the owner presses "Draw along roads".
+update public.schools
+set campus_location = extensions.st_point(11.5150, 3.9150)::extensions.geography, campus_name = 'ICT University'
+where id = '00000000-0000-4000-8000-000000000001';
+delete from public.routes where school_id = '00000000-0000-4000-8000-000000000001';
+with route as (
+  insert into public.routes (school_id, name) values ('00000000-0000-4000-8000-000000000001', 'Main route') returning id
+)
+insert into public.route_stops (route_id, stop_id, school_id, position)
+select route.id, ('de300000-0000-4000-8000-' || lpad(x.i::text, 12, '0'))::uuid, '00000000-0000-4000-8000-000000000001', x.n - 1
+from route, unnest(array[5, 1, 6, 3, 2, 10, 4, 9, 8, 7, 11]) with ordinality as x(i, n);

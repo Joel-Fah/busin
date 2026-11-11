@@ -9,6 +9,7 @@ import {
   Edit02Icon,
   Gps01Icon,
   Location01Icon,
+  Route01Icon,
   Search01Icon,
 } from "@hugeicons/core-free-icons";
 
@@ -16,7 +17,7 @@ import { saveStop, type SaveStopState } from "@/app/(admin)/stops/actions";
 import { MapView } from "@/components/map/MapView";
 import type { MapMarker } from "@/components/map/types";
 import { NavDock } from "@/components/nav/NavDock";
-import { Button } from "@/components/ui/Button";
+import { Button, ButtonLink } from "@/components/ui/Button";
 import { Switch } from "@/components/ui/Choice";
 import { Chip } from "@/components/ui/Chip";
 import { HelpSheet } from "@/components/ui/HelpSheet";
@@ -363,6 +364,9 @@ export function StopsExplorer({ stops, areas, failed, map, initialSheet, t }: Pr
               >
                 <Icon icon={Gps01Icon} size={22} />
               </button>
+              <ButtonLink href="/stops/route" variant="secondary" icon={Route01Icon}>
+                {s.routeOpen}
+              </ButtonLink>
               <Button icon={Add01Icon} onClick={openNew}>
                 {s.add}
               </Button>
