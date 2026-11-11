@@ -73,6 +73,18 @@ test("the graph shows each stop as a button that opens its figures, by mouse or 
   await guide.getByRole("button", { name: "Fold the guide" }).click();
   await expect(guide).not.toContainText("A suggested new stop.");
 
+  // Pointing at a stop shows its report in a card of the design system, not the browser's tooltip.
+  const report = page.locator("[data-graph-report]");
+  await expect(report).toHaveCount(0);
+  const stopNode = graph.getByRole("button", { name: /^Mvan roundabout/ });
+  if ((await stopNode.count()) > 0) {
+    await stopNode.hover();
+    await expect(report).toContainText("Mvan roundabout");
+    await page.mouse.move(5, 5);
+    await expect(report).toHaveCount(0);
+  }
+  await expect(graph.locator("title")).toHaveCount(0);
+
   await nodes.first().click();
   await expect(nodes.first()).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByText(/Select a stop, a dot or a dashed ring/)).toBeHidden();

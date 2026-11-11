@@ -114,6 +114,14 @@ export function GraphExplorer({ loads, proximity, suggestions = [], failed, t }:
   const facts = useMemo(() => graphFacts(loads, proximity, suggestions), [loads, proximity, suggestions]);
 
   const [selected, setSelected] = useState<string | null>(null);
+  // The report card beside the node being pointed at (or reached with the keyboard), in the canvas's own pixels.
+  const [tip, setTip] = useState<{ id: string; x: number; top: number; bottom: number; width: number; height: number } | null>(null);
+  const showTip = (id: string, el: Element) => {
+    const area = box.current?.getBoundingClientRect();
+    if (!area) return;
+    const r = el.getBoundingClientRect();
+    setTip({ id, x: r.left + r.width / 2 - area.left, top: r.top - area.top, bottom: r.bottom - area.top, width: area.width, height: area.height });
+  };
   const [hovered, setHovered] = useState<string | null>(null);
   const [focused, setFocused] = useState<string | null>(null);
   const [view, setView] = useState({ k: 1, x: 0, y: 0 });
@@ -135,11 +143,13 @@ export function GraphExplorer({ loads, proximity, suggestions = [], failed, t }:
     const pt = new DOMPoint(clientX, clientY).matrixTransform(m.inverse());
     return { x: pt.x, y: pt.y };
   };
-  const zoomAround = (factor: number, cx = layout.width / 2, cy = layout.height / 2) =>
+  const zoomAround = (factor: number, cx = layout.width / 2, cy = layout.height / 2) => {
+    setTip(null);
     setView((v) => {
       const k = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, v.k * factor));
       return { k, x: cx - ((cx - v.x) * k) / v.k, y: cy - ((cy - v.y) * k) / v.k };
     });
+  };
   const onWheel = (event: ReactWheelEvent<SVGSVGElement>) => {
     const at = toCanvas(event.clientX, event.clientY);
     zoomAround(event.deltaY < 0 ? 1.15 : 1 / 1.15, at.x, at.y);
@@ -155,6 +165,7 @@ export function GraphExplorer({ loads, proximity, suggestions = [], failed, t }:
     if (!d) return;
     const at = toCanvas(event.clientX, event.clientY);
     setView((v) => ({ ...v, x: d.vx + (at.x - d.x), y: d.vy + (at.y - d.y) }));
+    if (!d.moved) setTip(null);
     d.moved = true;
   };
   const onPointerUp = () => {
@@ -265,10 +276,22 @@ export function GraphExplorer({ loads, proximity, suggestions = [], failed, t }:
                     choose(node.id);
                   }
                 },
-                onFocus: () => setFocused(node.id),
-                onBlur: () => setFocused((f) => (f === node.id ? null : f)),
-                onPointerEnter: () => setHovered(node.id),
-                onPointerLeave: () => setHovered((h) => (h === node.id ? null : h)),
+                onFocus: (event: React.FocusEvent<SVGGElement>) => {
+                  setFocused(node.id);
+                  showTip(node.id, event.currentTarget);
+                },
+                onBlur: () => {
+                  setFocused((f) => (f === node.id ? null : f));
+                  setTip((t) => (t?.id === node.id ? null : t));
+                },
+                onPointerEnter: (event: React.PointerEvent<SVGGElement>) => {
+                  setHovered(node.id);
+                  if (!drag.current) showTip(node.id, event.currentTarget);
+                },
+                onPointerLeave: () => {
+                  setHovered((h) => (h === node.id ? null : h));
+                  setTip((t) => (t?.id === node.id ? null : t));
+                },
                 className: "cursor-pointer outline-none",
                 style: { opacity: on ? 1 : 0.3, transition: "opacity 200ms" },
               };
@@ -292,7 +315,6 @@ export function GraphExplorer({ loads, proximity, suggestions = [], failed, t }:
               if (node.kind === "suggested") {
                 return (
                   <g key={node.id} {...common}>
-                    <title>{label(node)}</title>
                     {focusRing}
                     <circle cx={node.x} cy={node.y} r={node.r} strokeWidth={1.5} strokeDasharray="4 4" style={{ fill: "color-mix(in srgb, var(--accent) 10%, transparent)", stroke: "var(--accent)" }} />
                     {name("var(--accent)")}
@@ -302,7 +324,6 @@ export function GraphExplorer({ loads, proximity, suggestions = [], failed, t }:
               if (node.kind === "zone") {
                 return (
                   <g key={node.id} {...common}>
-                    <title>{label(node)}</title>
                     {isSelected || isFocused ? <circle cx={node.x} cy={node.y} r={node.r + 5} fill="none" strokeWidth={1.5} style={{ stroke: "var(--fg)", opacity: 0.6 }} /> : null}
                     <circle cx={node.x} cy={node.y} r={Math.max(4, node.r * 0.7)} strokeWidth={1.5} style={{ fill: "var(--accent)", stroke: "var(--bg)", opacity: 0.85 }} />
                   </g>
@@ -312,7 +333,6 @@ export function GraphExplorer({ loads, proximity, suggestions = [], failed, t }:
               const reach = proxById.get(node.id)?.reach;
               return (
                 <g key={node.id} {...common}>
-                  <title>{label(node)}</title>
                   {focusRing}
                   <circle cx={node.x} cy={node.y} r={node.r + 4} fill="none" strokeWidth={2} style={{ stroke: reach ? REACH_COLOR[reach] : "var(--line)", opacity: 0.9 }} />
                   <circle
@@ -332,6 +352,8 @@ export function GraphExplorer({ loads, proximity, suggestions = [], failed, t }:
             })}
           </g>
         </svg>
+
+        {tip && nodeById.get(tip.id) ? <NodeReport tip={tip} node={nodeById.get(tip.id)!} label={label} loads={loadById} prox={proxById} distance={distance} t={t} /> : null}
 
 
         <div className="absolute top-4 right-4 flex flex-col gap-1 rounded-md bg-surface/95 p-1 shadow-float backdrop-blur">
@@ -395,6 +417,48 @@ export function GraphExplorer({ loads, proximity, suggestions = [], failed, t }:
         </section>
       </NavDock>
     </>
+  );
+}
+
+const CARD_WIDTH = 288;
+
+/**
+ * The report of the node being pointed at, in the guide's style: above the node, or below when there is no room above,
+ * kept inside the canvas. It never takes the pointer, so moving on to the next node is smooth.
+ */
+function NodeReport({
+  tip,
+  node,
+  label,
+  loads,
+  prox,
+  distance,
+  t,
+}: {
+  tip: { x: number; top: number; bottom: number; width: number; height: number };
+  node: GraphNode;
+  label: (node: GraphNode) => string;
+  loads: Map<string, StopLoads["stops"][number]>;
+  prox: Map<string, Proximity["stops"][number]>;
+  distance: (m: number) => string;
+  t: Messages;
+}) {
+  const below = tip.top < 200;
+  const left = Math.min(Math.max(tip.x - CARD_WIDTH / 2, 8), Math.max(8, tip.width - CARD_WIDTH - 8));
+  return (
+    // Screen readers already hear each node's name and figures (its label); the card is for the eye.
+    <div
+      aria-hidden
+      data-graph-report
+      className="pointer-events-none absolute z-20 rounded-md bg-surface/95 p-3.5 shadow-float backdrop-blur"
+      style={{ width: CARD_WIDTH, left, ...(below ? { top: tip.bottom + 10 } : { bottom: tip.height - tip.top + 10 }) }}
+    >
+      {node.kind === "stop" ? (
+        <StopPanel id={node.id} name={node.name} loads={loads} prox={prox} distance={distance} t={t} />
+      ) : (
+        <p className="m-0 text-sm font-semibold text-fg">{label(node)}</p>
+      )}
+    </div>
   );
 }
 
