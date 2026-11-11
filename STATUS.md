@@ -12,7 +12,7 @@ Current phase: **Phase 3, student app** ([docs/phases/phase-3-student-app.md](do
 | 1 Backend | Secure multi-tenant Supabase backend | Done and merged into `dev` (126 database tests) |
 | 2 Shared and admin web | Shared Dart packages, admin portal | **Done and merged into `dev`.** Admin portal (with the bento overview); `busin_core` has the models and the repository interfaces, `busin_data` the Supabase implementations, `busin_ui` the design system. Flutter 3.47.9 through fvm resolves, analyzes and tests the workspace |
 | 3 Student app | Lightweight student app | **Feature complete, not yet signed off.** Every item of the scope is built and tested (sign-in, subscribe with proof, status, rotating code, history, live bus for subscribers, push, English and French, light and dark, plus the profile, setup, history, revoke and live changes). Waiting on: the owner's device test, review and merge of the stacked branches (#123 first), a hosted Supabase project (none exists yet), iOS configuration |
-| 4 Ops app | Scanner and driver mode | Not started |
+| 4 Ops app | Scanner and driver mode | **In progress.** Owner decisions: day keys for offline checks (ADR 0014), any staff phone scans and the trip's assignee shares the position, the assignee starts and ends the trip (any staff when none). Slices: day keys (#249), trip control, shared app package, ops shell, scanner with offline queue, driver mode, then the owner's test on a real run |
 | 5 Insights | Density map, pickup and route suggestions | Not started |
 | 6 Scale | More schools, payments, hardware tracker | Not started |
 
@@ -30,6 +30,12 @@ Current phase: **Phase 3, student app** ([docs/phases/phase-3-student-app.md](do
 ## Findings from the audit that apply only to the legacy app
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
+
+## Handoff: phase 4 (in progress)
+
+Done: #249 day keys (busin2 codes, staff day keys, queued scans with their time and id). Open PRs go into `dev` one by one (not stacked unless noted).
+
+Next: trip control on the server (start and end, publish the position, trip manifest), then the shared app package, the ops app shell, the scanner with its offline queue, and driver mode.
 
 ## Handoff: ideas round (2026-11-11)
 
