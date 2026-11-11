@@ -85,7 +85,7 @@ void main() {
         await SnapshotKeeper(saved, () => DateTime.now()).saveSchool('u1', const School(id: 's1', name: 'Test School', timezone: 'Africa/Douala', isActive: true));
         await SnapshotKeeper(saved, () => DateTime.now()).saveOverview(
           'u1',
-          SubscriptionOverview(semester: semester(), subscription: subscription(status: SubscriptionStatus.approved), stop: stop('stop1', 'Carrefour Ekounou')).toJson(),
+          SubscriptionOverview(semester: semester(), subscription: subscription(status: SubscriptionStatus.approved), stop: stop('stop1', 'Shell Nsimeyong')).toJson(),
         );
         await onScreen(
           tester,

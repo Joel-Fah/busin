@@ -131,7 +131,7 @@ void main() {
     history.hold!.complete();
     await tester.pumpAndSettle();
     expect(find.byType(Skeleton), findsNothing);
-    expect(inDays('Carrefour Ekounou'), findsOneWidget);
+    expect(inDays('Shell Nsimeyong'), findsOneWidget);
   });
 
   testWidgets('two numbers sit on top: boardings this week and the most used stop', (tester) async {
@@ -220,10 +220,10 @@ void main() {
     expect(find.text('Wednesday, November 4, 2026'), findsOneWidget);
     expect(find.text('Tuesday, November 3, 2026'), findsOneWidget);
 
-    expect(inDays('Mvan'), findsOneWidget);
+    expect(inDays('Carrefour Vogt'), findsOneWidget);
     expect(find.text('12:30 AM'), findsOneWidget);
     expect(find.text('Going home'), findsOneWidget, reason: 'trip2 is outbound');
-    expect(inDays('Carrefour Ekounou'), findsOneWidget);
+    expect(inDays('Shell Nsimeyong'), findsOneWidget);
     expect(find.text('7:40 AM'), findsOneWidget);
     expect(find.text('Stop not recorded'), findsOneWidget);
   });
@@ -282,7 +282,7 @@ void main() {
     history.failAlways = null;
     await tester.tap(find.text('Try again'));
     await tester.pumpAndSettle();
-    expect(inDays('Carrefour Ekounou'), findsOneWidget);
+    expect(inDays('Shell Nsimeyong'), findsOneWidget);
   });
 
   testWidgets('pulling down reloads from the first page', (tester) async {
@@ -292,7 +292,7 @@ void main() {
 
     await tester.drag(find.byType(ListView).first, const Offset(0, 1500));
     await tester.pumpAndSettle();
-    expect(inDays('Mvan'), findsOneWidget);
+    expect(inDays('Carrefour Vogt'), findsOneWidget);
     expect(history.offsets, [0, 0]);
   });
 

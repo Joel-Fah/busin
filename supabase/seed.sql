@@ -15,13 +15,33 @@ values (
   'fall', 2026, '2026-09-07', '2027-01-29'
 );
 
--- Placeholder coordinates around Yaounde for map development; replace with real stops.
+-- ICT University's bus route, in order from the first pickup to the campus (positions from OpenStreetMap; Poste
+-- Centrale and Olezoa approximate). The same stops serve every app and the demo data.
 insert into public.stops (id, school_id, name, location)
 values
   ('00000000-0000-4000-8000-000000000021', '00000000-0000-4000-8000-000000000001',
-   'Sample stop A', extensions.st_point(11.5021, 3.8480)::extensions.geography),
+   'Shell Nsimeyong', extensions.st_point(11.49596, 3.83990)::extensions.geography),
   ('00000000-0000-4000-8000-000000000022', '00000000-0000-4000-8000-000000000001',
-   'Sample stop B', extensions.st_point(11.4833, 3.8333)::extensions.geography);
+   'Carrefour Vogt', extensions.st_point(11.50139, 3.84426)::extensions.geography),
+  ('00000000-0000-4000-8000-000000000023', '00000000-0000-4000-8000-000000000001',
+   'Olezoa', extensions.st_point(11.51470, 3.84720)::extensions.geography),
+  ('00000000-0000-4000-8000-000000000024', '00000000-0000-4000-8000-000000000001',
+   'Poste Centrale', extensions.st_point(11.51640, 3.86690)::extensions.geography),
+  ('00000000-0000-4000-8000-000000000025', '00000000-0000-4000-8000-000000000001',
+   'Bata Nlongkak', extensions.st_point(11.52241, 3.88911)::extensions.geography),
+  ('00000000-0000-4000-8000-000000000026', '00000000-0000-4000-8000-000000000001',
+   'Carrefour du Palais (Etoudi)', extensions.st_point(11.52404, 3.91562)::extensions.geography);
+
+-- Where the route ends, and the route itself (ADR 0017).
+update public.schools
+set campus_location = extensions.st_point(11.51669, 3.95293)::extensions.geography, campus_name = 'ICT-U Campus'
+where id = '00000000-0000-4000-8000-000000000001';
+insert into public.routes (id, school_id, name)
+values ('00000000-0000-4000-8000-000000000041', '00000000-0000-4000-8000-000000000001', 'Main route');
+insert into public.route_stops (route_id, stop_id, school_id, position)
+select '00000000-0000-4000-8000-000000000041', ('00000000-0000-4000-8000-0000000000' || (20 + n))::uuid,
+       '00000000-0000-4000-8000-000000000001', n - 1
+from generate_series(1, 6) as n;
 
 insert into public.buses (id, school_id, plate, capacity, in_service)
 values

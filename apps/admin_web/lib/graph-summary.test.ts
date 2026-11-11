@@ -37,15 +37,15 @@ const loads = (stops: StopLoads["stops"]): StopLoads => ({ basis: "boardings", s
 describe("graphFacts", () => {
   it("says what matters: the fullest stop, the farthest students, nearer groups, suggestions and thin data", () => {
     const facts = graphFacts(
-      loads([loadStop("Mvan", 0.9, "full"), loadStop("Etoudi", 0.1, "quiet")]),
-      proximity([proxStop("Mvan", 2400, [{ toId: "e", toName: "Ekounou", students: 5, saved: 2300 }]), proxStop("Etoudi", 600), proxStop("Bastos", null)]),
+      loads([loadStop("Poste Centrale", 0.9, "full"), loadStop("Carrefour du Palais", 0.1, "quiet")]),
+      proximity([proxStop("Poste Centrale", 2400, [{ toId: "e", toName: "Bata Nlongkak", students: 5, saved: 2300 }]), proxStop("Carrefour du Palais", 600), proxStop("Olezoa", null)]),
       [{ kind: "new_stop", id: "n", place: "Market", position: { lat: 0, lng: 0 }, students: 8, metres: 1100, insertAfter: null }],
     );
     expect(facts).toEqual([
       { kind: "stops", stops: 3, subscribers: 30, withArea: 20 },
-      { kind: "fullest", stop: "Mvan", level: "full", share: 0.9 },
-      { kind: "farthest", stop: "Mvan", metres: 2400 },
-      { kind: "nearer", groups: 1, students: 5, from: "Mvan", to: "Ekounou" },
+      { kind: "fullest", stop: "Poste Centrale", level: "full", share: 0.9 },
+      { kind: "farthest", stop: "Poste Centrale", metres: 2400 },
+      { kind: "nearer", groups: 1, students: 5, from: "Poste Centrale", to: "Bata Nlongkak" },
       { kind: "suggested", count: 1, first: "Market" },
       { kind: "notEnough", stops: 1 },
     ]);

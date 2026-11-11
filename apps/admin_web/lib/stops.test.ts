@@ -33,7 +33,7 @@ describe("parseStopForm", () => {
   });
 
   it("treats a missing checkbox as inactive", () => {
-    const result = parseStopForm(form({ name: "Mendong", lat: "3.8", lng: "11.4" }));
+    const result = parseStopForm(form({ name: "Poste Centrale", lat: "3.8", lng: "11.4" }));
     expect(result).toMatchObject({ ok: true, value: { active: false } });
   });
 

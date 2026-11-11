@@ -3,6 +3,7 @@ import { randomBytes } from "node:crypto";
 import { expect, test } from "@playwright/test";
 
 import {
+  SEED,
   createSubscription,
   createUser,
   deleteUser,
@@ -23,18 +24,32 @@ let approveId: string;
 let rejectId: string;
 // Used only to look at the review page, so no other test decides it.
 let viewId: string;
+// This file's own stops: one for its requests, one with none (the school's real stops are busy with demo data).
+let stopId: string;
+let emptyStopId: string;
 
 const nameOf = (label: string) => `E2E ${label}`;
 
 test.beforeAll(async () => {
+  const stops = await serviceClient()
+    .from("stops")
+    .insert([
+      { school_id: SEED.schoolId, name: `E2E stop ${tag}`, location: "SRID=4326;POINT(11.50 3.85)" },
+      { school_id: SEED.schoolId, name: `E2E empty ${tag}`, location: "SRID=4326;POINT(11.51 3.86)" },
+    ])
+    .select("id, name")
+    .order("name");
+  if (stops.error || !stops.data) throw new Error(`could not create stops: ${stops.error?.message}`);
+  emptyStopId = stops.data.find((s) => s.name.startsWith("E2E empty"))!.id;
+  stopId = stops.data.find((s) => s.name.startsWith("E2E stop"))!.id;
   admin = await createUser(`rev-admin-${tag}`, "admin");
   staff = await createUser(`rev-staff-${tag}`, "staff");
   studentApprove = await createUser(`approve-${tag}`, "student");
   studentReject = await createUser(`reject-${tag}`, "student");
-  approveId = await createSubscription(studentApprove.id);
-  rejectId = await createSubscription(studentReject.id);
+  approveId = await createSubscription(studentApprove.id, stopId);
+  rejectId = await createSubscription(studentReject.id, stopId);
   studentView = await createUser(`view-${tag}`, "student");
-  viewId = await createSubscription(studentView.id);
+  viewId = await createSubscription(studentView.id, stopId);
 });
 
 test.afterAll(async () => {
@@ -43,6 +58,7 @@ test.afterAll(async () => {
   for (const user of [admin, staff, studentApprove, studentReject, studentView]) {
     if (user) await deleteUser(user);
   }
+  await db.from("stops").delete().in("id", [stopId, emptyStopId].filter(Boolean));
 });
 
 test.describe("administrator reviewing", () => {
@@ -51,7 +67,8 @@ test.describe("administrator reviewing", () => {
   });
 
   test("sees pending requests in the review queue and opens one", async ({ page }) => {
-    await page.goto("/subscriptions");
+    // Narrowed to this file's stop: the queue is oldest first, and the demo data has many requests.
+    await page.goto(`/subscriptions?stop=${stopId}`);
     await expect(page.getByRole("heading", { name: "Subscriptions", level: 1 })).toBeVisible();
     await expect(page.getByRole("link", { name: "To review" })).toHaveAttribute("aria-current", "page");
 
@@ -133,17 +150,17 @@ test.describe("administrator reviewing", () => {
   test("filters by stop and semester from the headings, with chips", async ({ page }) => {
     await page.goto("/subscriptions?status=all");
     await page.getByRole("button", { name: "Stop", exact: true }).click();
-    await page.getByRole("dialog", { name: "Stop" }).getByRole("link", { name: "Sample stop A" }).click();
-    await expect(page).toHaveURL(/stop=00000000-0000-4000-8000-000000000021/);
-    await expect(page.getByRole("group", { name: "Active filters" }).getByRole("link", { name: /Stop Sample stop A/ })).toBeVisible();
+    await page.getByRole("dialog", { name: "Stop" }).getByRole("link", { name: `E2E stop ${tag}` }).click();
+    await expect(page).toHaveURL(new RegExp(`stop=${stopId}`));
+    await expect(page.getByRole("group", { name: "Active filters" }).getByRole("link", { name: new RegExp(`Stop E2E stop ${tag}`) })).toBeVisible();
     await expect(page.getByRole("row").filter({ hasText: `E2E view-${tag}` })).toHaveCount(1);
 
     // Another stop has none of these students.
-    await page.goto("/subscriptions?status=all&stop=00000000-0000-4000-8000-000000000022");
+    await page.goto(`/subscriptions?status=all&stop=${emptyStopId}`);
     await expect(page.getByRole("row").filter({ hasText: `E2E view-${tag}` })).toHaveCount(0);
     await expect(page.getByText("Try removing a filter above the table.")).toBeVisible();
 
-    await page.goto("/subscriptions?status=all");
+    await page.goto(`/subscriptions?status=all&stop=${stopId}`);
     await page.getByRole("button", { name: "Semester", exact: true }).click();
     await page.getByRole("dialog", { name: "Semester" }).getByRole("link", { name: "Fall 2026" }).click();
     await expect(page).toHaveURL(/semester=00000000-0000-4000-8000-000000000011/);
@@ -151,7 +168,7 @@ test.describe("administrator reviewing", () => {
   });
 
   test("the tab numbers follow the filters", async ({ page }) => {
-    await page.goto("/subscriptions?stop=00000000-0000-4000-8000-000000000022");
+    await page.goto(`/subscriptions?stop=${emptyStopId}`);
     const tabs = page.getByRole("navigation", { name: "Filter by status" });
     await expect(tabs.getByRole("link", { name: /To review/ })).toContainText("0");
   });

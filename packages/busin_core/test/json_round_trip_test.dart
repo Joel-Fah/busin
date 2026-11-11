@@ -40,7 +40,7 @@ void main() {
   });
 
   test('a stop keeps its position', () {
-    final stop = Stop(id: 'st1', schoolId: 's1', name: 'Etoudi palace road', location: GeoPoint(3.8975, 11.5189), active: true, photoPath: 's1/stop.webp');
+    final stop = Stop(id: 'st1', schoolId: 's1', name: 'Carrefour du Palais (Etoudi)', location: GeoPoint(3.8975, 11.5189), active: true, photoPath: 's1/stop.webp');
     expect(Stop.fromJson(stop.toJson()), stop);
   });
 

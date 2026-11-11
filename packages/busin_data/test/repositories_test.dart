@@ -83,10 +83,10 @@ Map<String, dynamic> semesterRow() => {
 void main() {
   group('reading lists', () {
     test('active stops: named columns, only active, by name', () async {
-      final h = Harness((_) async => json([stopRow('Mvan'), stopRow('Mendong')]));
+      final h = Harness((_) async => json([stopRow('Carrefour Vogt'), stopRow('Poste Centrale')]));
       final stops = await h.repos.stops.listActiveStops();
 
-      expect(stops.map((s) => s.name), ['Mvan', 'Mendong']);
+      expect(stops.map((s) => s.name), ['Carrefour Vogt', 'Poste Centrale']);
       expect(stops.first.location.latitude, closeTo(3.848, 1e-9));
       final query = h.last.url.queryParameters;
       expect(h.last.url.path, '/rest/v1/stops');

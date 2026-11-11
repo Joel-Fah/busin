@@ -39,7 +39,7 @@ String ewkbHex({
 void main() {
   group('GeoPoint.fromApi with the binary form PostgREST returns', () {
     test('reads real values returned by the local backend', () {
-      // Seed stop "Sample stop A": st_point(11.5021, 3.8480).
+      // A point near Carrefour Vogt: st_point(11.5021, 3.8480).
       final seed = GeoPoint.fromApi('0101000020E6100000A9A44E401301274062105839B4C80E40');
       expect(seed.longitude, 11.5021);
       expect(seed.latitude, 3.848);

@@ -669,9 +669,9 @@ async function Styleguide() {
             <tbody>
               {(
                 [
-                  ["Amina Tchoua", "Sample stop A", "Nov 4, 2026", "Pending", "warn"],
-                  ["Joseph Mbarga", "Sample stop B", "Nov 3, 2026", "Approved", "ok"],
-                  ["Lea Fotso", "Sample stop A", "Nov 1, 2026", "Rejected", "bad"],
+                  ["Amina Tchoua", "Shell Nsimeyong", "Nov 4, 2026", "Pending", "warn"],
+                  ["Joseph Mbarga", "Carrefour Vogt", "Nov 3, 2026", "Approved", "ok"],
+                  ["Lea Fotso", "Shell Nsimeyong", "Nov 1, 2026", "Rejected", "bad"],
                 ] as const
               ).map(([name, stop, date, status, tone]) => (
                 <Tr key={name}>
@@ -763,7 +763,7 @@ async function Styleguide() {
         <h3 className="mt-8 mb-3 text-lg font-bold">Column filters</h3>
         <div className="flex max-w-3xl flex-col gap-4">
           <FilterChips
-            chips={[{ label: "Stop", value: "Mvan roundabout", href: "#" }, { label: "Direction", value: "Going home", href: "#" }]}
+            chips={[{ label: "Stop", value: "Poste Centrale", href: "#" }, { label: "Direction", value: "Going home", href: "#" }]}
             clearAllHref="#"
             clearAllLabel="Clear all"
             groupLabel="Active filters"
@@ -780,8 +780,8 @@ async function Styleguide() {
                     clearHref="#"
                     allLabel="All stops"
                     options={[
-                      { value: "a", label: "Mvan roundabout", href: "#" },
-                      { value: "b", label: "Mendong market", href: "#" },
+                      { value: "a", label: "Poste Centrale", href: "#" },
+                      { value: "b", label: "Olezoa", href: "#" },
                     ]}
                     searchLabel="Search"
                     noMatchLabel="Nothing matches"
@@ -807,7 +807,7 @@ async function Styleguide() {
               <tbody>
                 <Tr>
                   <Td>Ada Lovelace</Td>
-                  <Td>Mvan roundabout</Td>
+                  <Td>Poste Centrale</Td>
                   <Td className="text-muted">Going home</Td>
                 </Tr>
               </tbody>

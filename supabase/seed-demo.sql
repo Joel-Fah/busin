@@ -17,11 +17,11 @@ where student_id in (select id from auth.users where email like 'demo.%@ictunive
 delete from public.live_positions where bus_id::text like 'de%';
 delete from public.trips where bus_id::text like 'de%';
 delete from public.buses where id::text like 'de%';
-delete from public.stops where id::text like 'de%';
 delete from auth.users where email like 'demo.%@ictuniversity.edu.cm';
 
 -- ---------------------------------------------------------------- people
--- 1 admin, 5 drivers (staff) and 60 students. The sign-up trigger creates each profile.
+-- 1 admin, 5 drivers (staff) and 400 students, enough to read the Insights properly. The sign-up trigger creates
+-- each profile.
 create temp table demo_people on commit drop as
 select
   case when n = 0 then 'admin' when n < 0 then 'staff' else 'student' end as role,
@@ -29,12 +29,12 @@ select
   ('de10' || lpad(abs(n)::text, 4, '0') || case when n < 0 then '-1000' when n = 0 then '-2000' else '-0000' end || '-4000-8000-000000000000')::uuid as id,
   case when n = 0 then 'demo.admin@ictuniversity.edu.cm'
        when n < 0 then 'demo.driver' || abs(n) || '@ictuniversity.edu.cm'
-       else 'demo.student' || lpad(n::text, 2, '0') || '@ictuniversity.edu.cm' end as email,
+       else 'demo.student' || lpad(n::text, greatest(2, length(n::text)), '0') || '@ictuniversity.edu.cm' end as email,
   (array['Amina','Brice','Carine','Daniel','Estelle','Fabrice','Grace','Herve','Ines','Junior','Karelle','Landry','Mireille',
          'Nadine','Olivier','Prisca','Quentin','Rosine','Serge','Tatiana','Ulrich','Vanessa','Wilfried','Yvan','Zita'])[1 + (abs(n) * 3) % 25] as first_name,
   (array['Mbarga','Fotso','Nkeng','Tchamba','Onana','Ngono','Essomba','Kamga','Atangana','Mvondo','Tagne','Nguemo','Abena','Owona',
          'Ekani','Djoumessi','Ndongo'])[1 + (abs(n) * 7) % 17] as last_name
-from generate_series(-5, 60) as n;
+from generate_series(-5, 400) as n;
 
 insert into auth.users (
   instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
@@ -96,31 +96,41 @@ set role = d.role::public.user_role,
 from demo_people d
 where p.id = d.id;
 
--- ---------------------------------------------------------------- stops (approximate places around Yaounde)
+-- ---------------------------------------------------------------- stops: ICT University's route (as in seed.sql)
+-- The same six stops every app uses, kept in step with seed.sql (put back if they were renamed or moved).
 insert into public.stops (id, school_id, name, location, active)
-select ('de300000-0000-4000-8000-' || lpad(i::text, 12, '0'))::uuid, '00000000-0000-4000-8000-000000000001', name,
-       extensions.st_point(lng, lat)::extensions.geography, active
+select ('00000000-0000-4000-8000-0000000000' || (20 + i))::uuid, '00000000-0000-4000-8000-000000000001', name,
+       extensions.st_point(lng, lat)::extensions.geography, true
 from (values
-  (1, 'Mvan roundabout',        11.5290, 3.8150, true),
-  (2, 'Mendong market',         11.4770, 3.8200, true),
-  (3, 'Biyem-Assi terminal',    11.4890, 3.8280, true),
-  (4, 'Melen junction',         11.5050, 3.8680, true),
-  (5, 'Ekounou crossroads',     11.5380, 3.8350, true),
-  (6, 'Nsimeyong carrefour',    11.5030, 3.8140, true),
-  (7, 'Bastos embassy road',    11.5120, 3.8960, true),
-  (8, 'Essos hospital',         11.5360, 3.8710, true),
-  (9, 'Mvog-Ada church',        11.5210, 3.8420, true),
-  (10, 'Nkolbisson bridge',     11.4640, 3.8650, true),
-  (11, 'Etoudi palace road',    11.5200, 3.9030, true),
-  (12, 'Old Odza junction',     11.5570, 3.8190, false)
-) as s(i, name, lng, lat, active);
+  (1, 'Shell Nsimeyong',              11.49596, 3.83990),
+  (2, 'Carrefour Vogt',               11.50139, 3.84426),
+  (3, 'Olezoa',                       11.51470, 3.84720),
+  (4, 'Poste Centrale',               11.51640, 3.86690),
+  (5, 'Bata Nlongkak',                11.52241, 3.88911),
+  (6, 'Carrefour du Palais (Etoudi)', 11.52404, 3.91562)
+) as s(i, name, lng, lat)
+on conflict (id) do update set name = excluded.name, location = excluded.location, active = true;
+
+-- Earlier demo stops go. Anything still pointing at one (a test account's subscription or scans) moves to the nearest of
+-- the six, so nothing is lost.
+create temp table demo_old_stops on commit drop as
+select o.id as old_id,
+       (select r.id from public.stops r
+        where r.school_id = o.school_id and r.id::text like '00000000-0000-4000-8000-00000000002%'
+        order by extensions.st_distance(r.location, o.location) limit 1) as new_id
+from public.stops o
+where o.id::text like 'de%';
+update public.subscriptions s set stop_id = d.new_id from demo_old_stops d where s.stop_id = d.old_id;
+update public.scans s set stop_id = d.new_id from demo_old_stops d where s.stop_id = d.old_id;
+delete from public.route_stops where stop_id in (select old_id from demo_old_stops);
+delete from public.stops where id in (select old_id from demo_old_stops);
 
 -- ---------------------------------------------------------------- buses
 insert into public.buses (id, school_id, plate, capacity, in_service)
 select ('de200000-0000-4000-8000-' || lpad(i::text, 12, '0'))::uuid, '00000000-0000-4000-8000-000000000001', plate, capacity, in_service
 from (values
-  (1, 'DEMO-101', 60, true), (2, 'DEMO-102', 60, true), (3, 'DEMO-103', 50, true),
-  (4, 'DEMO-104', 50, true), (5, 'DEMO-105', 30, true), (6, 'DEMO-106', 50, false)
+  (1, 'DEMO-101', 70, true), (2, 'DEMO-102', 60, true), (3, 'DEMO-103', 50, true),
+  (4, 'DEMO-104', 40, true), (5, 'DEMO-105', 30, true), (6, 'DEMO-106', 50, false)
 ) as b(i, plate, capacity, in_service);
 
 -- ---------------------------------------------------------------- semesters: one finished, the current one, the next
@@ -139,32 +149,43 @@ where not exists (
 on conflict do nothing;
 
 -- ---------------------------------------------------------------- subscriptions
+-- Where each demo student boards, weighted the way a real route fills: Poste Centrale the busiest, Carrefour du Palais
+-- the quietest. Stable for a student (from their number), so reruns tell the same story.
+create temp table demo_stop on commit drop as
+select d.n, ('00000000-0000-4000-8000-0000000000' || (20 + case
+    when (d.n * 37) % 100 < 18 then 1   -- Shell Nsimeyong 18%
+    when (d.n * 37) % 100 < 29 then 2   -- Carrefour Vogt 11%
+    when (d.n * 37) % 100 < 46 then 3   -- Olezoa 17%
+    when (d.n * 37) % 100 < 80 then 4   -- Poste Centrale 34%
+    when (d.n * 37) % 100 < 93 then 5   -- Bata Nlongkak 13%
+    else 6 end))::uuid as stop_id          -- Carrefour du Palais 7%
+from demo_people d where d.role = 'student';
+
 create temp table demo_semester on commit drop as
 select id from public.semesters
 where school_id = '00000000-0000-4000-8000-000000000001' and current_date between start_date and end_date
 order by start_date desc limit 1;
 
--- Students 1 to 40 approved, 41 to 50 waiting, 51 to 54 rejected, the rest have not subscribed. Most pick the
--- first few stops, so the counts differ from stop to stop.
+-- Students 1 to 300 approved, 301 to 340 waiting, 341 to 352 rejected, the rest have not subscribed.
 insert into public.subscriptions (school_id, student_id, semester_id, stop_id, status, review_note, reviewed_by, reviewed_at, created_at)
 select
   '00000000-0000-4000-8000-000000000001', d.id, (select id from demo_semester),
-  ('de300000-0000-4000-8000-' || lpad((1 + floor(power(random(), 1.8) * 11))::int::text, 12, '0'))::uuid,
-  case when d.n <= 40 then 'approved' when d.n <= 50 then 'pending' else 'rejected' end::public.subscription_status,
-  case when d.n > 50 then 'The proof of payment was not readable. Please send it again.' end,
-  case when d.n <> 0 and (d.n <= 40 or d.n > 50) then (select id from demo_people where role = 'admin') end,
-  case when d.n <= 40 or d.n > 50 then now() - (random() * interval '20 days') end,
+  (select ds.stop_id from demo_stop ds where ds.n = d.n),
+  case when d.n <= 300 then 'approved' when d.n <= 340 then 'pending' else 'rejected' end::public.subscription_status,
+  case when d.n > 340 then 'The proof of payment was not readable. Please send it again.' end,
+  case when d.n <> 0 and (d.n <= 300 or d.n > 340) then (select id from demo_people where role = 'admin') end,
+  case when d.n <= 300 or d.n > 340 then now() - (random() * interval '20 days') end,
   now() - interval '25 days' + (random() * interval '20 days')
 from demo_people d
-where d.role = 'student' and d.n between 1 and 54;
+where d.role = 'student' and d.n between 1 and 352;
 
--- Thirty of them also rode last semester.
+-- Two hundred of them also rode last semester.
 insert into public.subscriptions (school_id, student_id, semester_id, stop_id, status, reviewed_by, reviewed_at, created_at)
 select '00000000-0000-4000-8000-000000000001', d.id, 'de100000-0000-4000-8000-000000000001',
-       ('de300000-0000-4000-8000-' || lpad((1 + floor(power(random(), 1.8) * 11))::int::text, 12, '0'))::uuid,
+       (select ds.stop_id from demo_stop ds where ds.n = d.n),
        'expired', (select id from demo_people where role = 'admin'), '2026-02-10', '2026-02-05'
 from demo_people d
-where d.role = 'student' and d.n between 1 and 30;
+where d.role = 'student' and d.n between 1 and 200;
 
 -- ---------------------------------------------------------------- trips: two weeks back, a few days ahead
 -- Four buses run on weekdays: one trip to school in the morning and one home in the afternoon. Bus 5 is a spare
@@ -205,16 +226,19 @@ from (
 ) s(id, bus_id, driver_id, direction, bus_index, day, scheduled_start, status);
 
 -- ---------------------------------------------------------------- boardings
--- Each approved student rides one bus (by number), and boards about two in three of its trips.
--- A running trip has the boardings that have happened so far.
+-- Each approved student rides one bus, the bigger buses carrying more of them, and boards about two in three of its
+-- trips. Mornings (to campus) they board at their stop; afternoons (home) at the campus, so no stop is noted. A running
+-- trip has the boardings that have happened so far.
 insert into public.scans (school_id, trip_id, student_id, subscription_id, stop_id, scanned_by, scanned_at, location, accuracy_m)
 select
-  '00000000-0000-4000-8000-000000000001', t.id, d.id, sub.id, sub.stop_id, t.driver_id,
+  '00000000-0000-4000-8000-000000000001', t.id, d.id, sub.id, case when t.direction = 'inbound' then sub.stop_id end, t.driver_id,
   tr.started_at + (random() * least(interval '40 minutes', coalesce(now() - tr.started_at, interval '40 minutes'))),
-  st.location, round((5 + random() * 20)::numeric, 1)
+  case when t.direction = 'inbound' then st.location else (select campus_location from public.schools where id = '00000000-0000-4000-8000-000000000001') end,
+  round((5 + random() * 20)::numeric, 1)
 from public.trips tr
 join demo_trips t on t.id = tr.id
-join demo_people d on d.role = 'student' and d.n between 1 and 40 and 1 + d.n % 4 = t.bus_index
+join demo_people d on d.role = 'student' and d.n between 1 and 300
+  and (case when d.n % 20 < 7 then 1 when d.n % 20 < 13 then 2 when d.n % 20 < 17 then 3 else 4 end) = t.bus_index
 join public.subscriptions sub on sub.student_id = d.id and sub.semester_id = (select id from demo_semester) and sub.status = 'approved'
 join public.stops st on st.id = sub.stop_id
 where tr.status in ('completed', 'active') and t.driver_id is not null and random() < 0.66;
@@ -234,60 +258,62 @@ select '00000000-0000-4000-8000-000000000001', md5('demo-live-trip')::uuid, d.id
 from demo_people d
 join public.subscriptions sub on sub.student_id = d.id and sub.semester_id = (select id from demo_semester) and sub.status = 'approved'
 join public.stops st on st.id = sub.stop_id
-where d.role = 'student' and d.n between 33 and 40;
+where d.role = 'student' and d.n between 281 and 300;
 
 -- ---------------------------------------------------------------- where students live (My area, ADR 0013)
--- Most approved students gave a coarse area near their stop, so Insights shows proximity and desire lines. Per stop,
--- the first four share a cell 0.5 to 1.5 km away; on every other stop the fifth joins them (a desire line), elsewhere
--- they live about 2.5 km off. Anyone past the fifth lives further out.
+-- Four in five approved students gave a coarse area. Most live within about a kilometre of their stop; three groups
+-- tell a story for Insights:
+--   * Carrefour du Palais students mostly live by Bata Nlongkak (they would be "nearer to another stop");
+--   * a group of Olezoa and Poste Centrale students lives in Essos, about 1.3 km east of the route, far from every stop;
+--   * a group of Shell Nsimeyong and Olezoa students lives in Ekounou, south-east, also far from every stop.
+-- The last two are where stop suggestions appear.
 insert into public.student_areas (user_id, school_id, area, label, source)
 select x.student_id, '00000000-0000-4000-8000-000000000001',
-  private.snap_area(
-    extensions.st_y(x.location::extensions.geometry) + x.dir * case when x.rn <= 4 or (x.rn = 5 and x.k % 2 = 0) then 0.0045 * (1 + x.k % 3) else 0.022 + 0.004 * x.rn end,
-    extensions.st_x(x.location::extensions.geometry) + 0.003 * (x.k % 2)),
-  'Demo area', 'search'
+  private.snap_area(x.lat, x.lng), x.label, 'search'
 from (
-  select sub.student_id, st.location,
-    row_number() over (partition by sub.stop_id order by u.email) as rn,
-    dense_rank() over (order by st.name) as k,
-    case when dense_rank() over (order by st.name) % 2 = 0 then 1 else -1 end as dir
+  select sub.student_id, d.n, st.name as stop,
+    case
+      when st.name = 'Carrefour du Palais (Etoudi)' and d.n % 4 <> 0 then 3.8925 + (d.n % 3) * 0.002
+      when st.name in ('Olezoa', 'Poste Centrale') and d.n % 6 = 0 then 3.8690 + (d.n % 2) * 0.0015
+      when st.name in ('Shell Nsimeyong', 'Olezoa') and d.n % 7 = 0 then 3.8350 + (d.n % 2) * 0.0015
+      else extensions.st_y(st.location::extensions.geometry) + (((d.n * 13) % 9) - 4) * 0.0020
+    end as lat,
+    case
+      when st.name = 'Carrefour du Palais (Etoudi)' and d.n % 4 <> 0 then 11.5235 + (d.n % 2) * 0.002
+      when st.name in ('Olezoa', 'Poste Centrale') and d.n % 6 = 0 then 11.5360 + (d.n % 3) * 0.0015
+      when st.name in ('Shell Nsimeyong', 'Olezoa') and d.n % 7 = 0 then 11.5380 + (d.n % 3) * 0.0015
+      else extensions.st_x(st.location::extensions.geometry) + (((d.n * 7) % 9) - 4) * 0.0020
+    end as lng,
+    case
+      when st.name = 'Carrefour du Palais (Etoudi)' and d.n % 4 <> 0 then 'Nlongkak'
+      when st.name in ('Olezoa', 'Poste Centrale') and d.n % 6 = 0 then 'Essos'
+      when st.name in ('Shell Nsimeyong', 'Olezoa') and d.n % 7 = 0 then 'Ekounou'
+      else 'Near ' || st.name
+    end as label
   from public.subscriptions sub
-  join auth.users u on u.id = sub.student_id and u.email like 'demo.student%@ictuniversity.edu.cm'
+  join demo_people d on d.id = sub.student_id and d.role = 'student'
   join public.semesters m on m.id = sub.semester_id and current_date between m.start_date and m.end_date
   join public.stops st on st.id = sub.stop_id
-  where sub.status = 'approved'
+  where sub.status = 'approved' and d.n % 5 <> 0
 ) x
 on conflict (user_id) do update set area = excluded.area, label = excluded.label, source = excluded.source, updated_at = now();
 
--- The students of Mvan roundabout live by Ekounou crossroads, so Insights shows "5 live nearer to Ekounou crossroads".
-update public.student_areas a
-set area = private.snap_area(extensions.st_y(e.location::extensions.geometry) + 0.002, extensions.st_x(e.location::extensions.geometry))
-from public.subscriptions sub
-join public.stops m on m.id = sub.stop_id and m.name = 'Mvan roundabout'
-join auth.users u on u.id = sub.student_id and u.email like 'demo.student%@ictuniversity.edu.cm',
-     public.stops e
-where a.user_id = sub.student_id and sub.status = 'approved' and e.name = 'Ekounou crossroads' and e.school_id = sub.school_id;
-
--- The students of Etoudi palace road and Nkolbisson bridge live together about 1.2 km east of Essos hospital, off the
--- route and far from every stop, so Insights suggests a new stop there.
-update public.student_areas a
-set area = private.snap_area(extensions.st_y(e.location::extensions.geometry), extensions.st_x(e.location::extensions.geometry) + 0.011)
-from public.subscriptions sub
-join public.stops m on m.id = sub.stop_id and m.name in ('Etoudi palace road', 'Nkolbisson bridge')
-join auth.users u on u.id = sub.student_id and u.email like 'demo.student%@ictuniversity.edu.cm',
-     public.stops e
-where a.user_id = sub.student_id and sub.status = 'approved' and e.name = 'Essos hospital' and e.school_id = sub.school_id;
+-- Counted at once, so Stop load shows the demo boardings without waiting for the night.
+select private.refresh_stop_loads(null, '00000000-0000-4000-8000-000000000001');
 
 -- ---------------------------------------------------------------- the bus route (ADR 0017)
--- The campus north of Etoudi, and one route around the city: from Ekounou in the south-east, through the south and the
--- west, back across the centre and up to the campus. Drawn along roads when the owner presses "Draw along roads".
+-- ICT University's route, as in seed.sql: the six stops in order, then the campus. Drawn along roads when an admin
+-- presses "Draw along roads" (Stops, Bus route).
 update public.schools
-set campus_location = extensions.st_point(11.5150, 3.9150)::extensions.geography, campus_name = 'ICT University'
+set campus_location = extensions.st_point(11.51669, 3.95293)::extensions.geography, campus_name = 'ICT-U Campus'
 where id = '00000000-0000-4000-8000-000000000001';
-delete from public.routes where school_id = '00000000-0000-4000-8000-000000000001';
-with route as (
-  insert into public.routes (school_id, name) values ('00000000-0000-4000-8000-000000000001', 'Main route') returning id
-)
+-- The route row is kept, so a road already drawn for these same stops stays current across reruns.
+delete from public.routes where school_id = '00000000-0000-4000-8000-000000000001' and id <> '00000000-0000-4000-8000-000000000041';
+insert into public.routes (id, school_id, name)
+values ('00000000-0000-4000-8000-000000000041', '00000000-0000-4000-8000-000000000001', 'Main route')
+on conflict (id) do nothing;
+delete from public.route_stops where route_id = '00000000-0000-4000-8000-000000000041';
 insert into public.route_stops (route_id, stop_id, school_id, position)
-select route.id, ('de300000-0000-4000-8000-' || lpad(x.i::text, 12, '0'))::uuid, '00000000-0000-4000-8000-000000000001', x.n - 1
-from route, unnest(array[5, 1, 6, 3, 2, 10, 4, 9, 8, 7, 11]) with ordinality as x(i, n);
+select '00000000-0000-4000-8000-000000000041', ('00000000-0000-4000-8000-0000000000' || (20 + n))::uuid,
+       '00000000-0000-4000-8000-000000000001', n - 1
+from generate_series(1, 6) as n;

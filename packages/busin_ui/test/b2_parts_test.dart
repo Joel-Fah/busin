@@ -92,8 +92,8 @@ void main() {
       expect(taps, 1);
       expect(haptics, contains('HapticFeedbackType.lightImpact'));
 
-      await tester.pumpWidget(host(FieldTile(label: 'Your stop', icon: HugeIcons.strokeRoundedFlag02, placeholder: 'Choose where you board', value: 'Mvan', onTap: () {})));
-      expect(find.text('Mvan'), findsOneWidget);
+      await tester.pumpWidget(host(FieldTile(label: 'Your stop', icon: HugeIcons.strokeRoundedFlag02, placeholder: 'Choose where you board', value: 'Carrefour Vogt', onTap: () {})));
+      expect(find.text('Carrefour Vogt'), findsOneWidget);
       expect(find.text('Choose where you board'), findsNothing);
     });
 
@@ -104,8 +104,8 @@ void main() {
     });
 
     testWidgets('reads its label, value and error together', (tester) async {
-      await tester.pumpWidget(host(FieldTile(label: 'Your stop', icon: HugeIcons.strokeRoundedFlag02, placeholder: 'Choose', value: 'Mvan', errorText: 'Required', onTap: () {})));
-      expect(find.bySemanticsLabel('Your stop. Mvan. Required'), findsOneWidget);
+      await tester.pumpWidget(host(FieldTile(label: 'Your stop', icon: HugeIcons.strokeRoundedFlag02, placeholder: 'Choose', value: 'Carrefour Vogt', errorText: 'Required', onTap: () {})));
+      expect(find.bySemanticsLabel('Your stop. Carrefour Vogt. Required'), findsOneWidget);
     });
 
     testWidgets('shows a preview inside the tile', (tester) async {

@@ -78,10 +78,10 @@ test("the graph shows each stop as a button that opens its figures, by mouse or 
   // Pointing at a stop shows its report in a card of the design system, not the browser's tooltip.
   const report = page.locator("[data-graph-report]");
   await expect(report).toHaveCount(0);
-  const stopNode = graph.getByRole("button", { name: /^Mvan roundabout/ });
+  const stopNode = graph.getByRole("button", { name: /^Poste Centrale/ });
   if ((await stopNode.count()) > 0) {
     await stopNode.hover();
-    await expect(report).toContainText("Mvan roundabout");
+    await expect(report).toContainText("Poste Centrale");
     await page.mouse.move(5, 5);
     await expect(report).toHaveCount(0);
   }

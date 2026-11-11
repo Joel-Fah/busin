@@ -6,7 +6,7 @@ import { Icon } from "./Icon";
 export type FilterChip = {
   /** The column, for example "Stop". */
   label: string;
-  /** What it is set to, for example "Mvan roundabout". */
+  /** What it is set to, for example "Poste Centrale". */
   value: string;
   /** The list's address with just this filter removed. */
   href: string;

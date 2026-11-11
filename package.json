@@ -13,7 +13,7 @@
     "check:emoji": "node tools/check-no-emoji.mjs",
     "check:links": "node tools/check-md-links.mjs",
     "check": "npm run check:emoji && npm run check:links",
-    "backend:start": "node tools/ensure-supabase-env.mjs && supabase start -x studio,imgproxy,vector,logflare,edge-runtime,postgres-meta,mailpit,supavisor",
+    "backend:start": "node tools/ensure-supabase-env.mjs && supabase start -x studio,imgproxy,vector,logflare,postgres-meta,mailpit,supavisor",
     "backend:stop": "supabase stop",
     "backend:reset": "supabase db reset",
     "test:functions": "node --test supabase/functions/_shared/push.test.ts supabase/functions/_shared/route.test.ts",
