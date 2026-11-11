@@ -11,6 +11,14 @@ export function loadLevel(share: number): LoadLevel {
   return "quiet";
 }
 
+/** The views of the Insights page. */
+export type InsightView = "load" | "proximity";
+
+/** The view from the address; the stop load for anything else. */
+export function parseInsightView(value: string | string[] | undefined): InsightView {
+  return (Array.isArray(value) ? value[0] : value) === "proximity" ? "proximity" : "load";
+}
+
 /** The periods the page offers, in days. */
 export const LOAD_PERIODS = [28, 56, 112] as const;
 export type LoadPeriod = (typeof LOAD_PERIODS)[number];

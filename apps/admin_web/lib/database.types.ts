@@ -629,6 +629,11 @@ isOneToOne: false
 "admin_decline_member":
 { Args: { "p_reason"?: string,"p_user_id": string }; Returns: undefined
                            },
+"admin_desire_lines":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "distance_m": number,"lat": number,"lng": number,"stop_id": string,"students": number
+            }[]
+                           },
 "admin_invite_staff":
 { Args: { "p_email": string,"p_role": Database["public"]['Enums']["user_role"] }; Returns: string
                            },
@@ -659,6 +664,11 @@ isOneToOne: false
 "admin_stop_loads":
 { Args: { "p_days"?: number }; Returns: {
               "boardings": number,"departures": number,"last_day": string,"load": number,"peak": number,"peak_load": number,"per_departure": number,"refreshed_at": string,"stop_id": string
+            }[]
+                           },
+"admin_stop_proximity":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "median_m": number,"over_2k": number,"stop_id": string,"subscribers": number,"to_1k": number,"to_2k": number,"under_500": number,"with_area": number
             }[]
                            },
 "admin_stop_usage":

@@ -13,7 +13,7 @@ Current phase: **Phase 3, student app** ([docs/phases/phase-3-student-app.md](do
 | 2 Shared and admin web | Shared Dart packages, admin portal | **Done and merged into `dev`.** Admin portal (with the bento overview); `busin_core` has the models and the repository interfaces, `busin_data` the Supabase implementations, `busin_ui` the design system. Flutter 3.47.9 through fvm resolves, analyzes and tests the workspace |
 | 3 Student app | Lightweight student app | **Feature complete, not yet signed off.** Every item of the scope is built and tested (sign-in, subscribe with proof, status, rotating code, history, live bus for subscribers, push, English and French, light and dark, plus the profile, setup, history, revoke and live changes). Waiting on: the owner's device test, review and merge of the stacked branches (#123 first), a hosted Supabase project (none exists yet), iOS configuration |
 | 4 Ops app | Scanner and driver mode | **Built, waiting for the owner's test on a real run.** Owner decisions: day keys for offline checks (ADR 0014), any staff phone scans and the trip's assignee shares the position, the assignee starts and ends the trip (any staff when none). Slices: day keys (#249), trip control, shared app package, ops shell, scanner with offline queue, driver mode, then the owner's test on a real run |
-| 5 Insights | Density map, pickup and route suggestions | **Started** (owner go-ahead while the phase 4 run test is pending). Slice 1, the stop load map (#261), is built; next: proximity per stop, students nearer another stop, stop suggestions |
+| 5 Insights | Density map, pickup and route suggestions | **Started** (owner go-ahead while the phase 4 run test is pending). Slice 1, the stop load map (#261), and slice 2, proximity per stop (#265), are built; next: students nearer another stop, then stop suggestions |
 | 6 Scale | More schools, payments, hardware tracker | Not started |
 
 ## Blockers (owner)
@@ -33,11 +33,11 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 
 ## Handoff: phase 5 (in progress)
 
-Done: #261 the stop load map (Insights tab, nightly pg_cron count), stacked on #259; #263 add staff by email (ADR 0015), stacked on #261.
+Done: #261 the stop load map (Insights tab, nightly pg_cron count), stacked on #259; #263 add staff by email (ADR 0015), stacked on #261; #265 proximity per stop with desire lines, stacked on #263.
 
-Next: slice 2, proximity per stop (median distance and bands from the students' areas, desire lines, 5-student threshold).
+Next: slice 3, students nearer another stop ("12 students at A live nearer to B"), then slice 4, stop suggestions.
 
-Owner: when a hosted project exists, its migration enables pg_cron (a Supabase extension). Merge #261, then #263, after the phase 4 stack.
+Owner: when a hosted project exists, its migration enables pg_cron (a Supabase extension). Merge #261, #263, #265 in that order, after the phase 4 stack. For the demo areas locally: `npm run seed:demo` (it also renews the demo password and trips).
 
 ## Handoff: phase 4 (in progress)
 

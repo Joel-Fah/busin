@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { InsightsExplorer } from "@/components/insights/InsightsExplorer";
+import { ProximityExplorer } from "@/components/insights/ProximityExplorer";
 import { requireAdmin } from "@/lib/auth";
 import { centroid } from "@/lib/geo";
 import { getMessages } from "@/lib/i18n/server";
-import { parseLoadPeriod } from "@/lib/insights";
-import { loadStopLoads } from "@/lib/insights-data";
+import { parseInsightView, parseLoadPeriod } from "@/lib/insights";
+import { loadProximity, loadStopLoads } from "@/lib/insights-data";
 import { mapConfig } from "@/lib/map/config";
 
 export const metadata: Metadata = { title: "Insights" };
@@ -14,7 +15,7 @@ export const metadata: Metadata = { title: "Insights" };
 // Depends on who is signed in, so it cannot be an instant navigation.
 export const instant = false;
 
-type SearchParams = Promise<{ days?: string | string[] }>;
+type SearchParams = Promise<{ days?: string | string[]; view?: string | string[] }>;
 
 export default function InsightsPage({ searchParams }: { searchParams: SearchParams }) {
   return (
@@ -28,7 +29,17 @@ async function Insights({ searchParams }: { searchParams: SearchParams }) {
   const admin = await requireAdmin();
   const { locale, t } = await getMessages();
   const config = mapConfig();
-  const period = parseLoadPeriod((await searchParams).days);
+  const query = await searchParams;
+  const mapProps = { provider: config.provider, styleUrl: config.styleUrl, accessToken: config.accessToken, zoom: config.fallbackZoom };
+
+  // Each view loads only its own data.
+  if (parseInsightView(query.view) === "proximity") {
+    const { proximity, failed } = await loadProximity();
+    const center = centroid(proximity.stops.flatMap((stop) => (stop.position ? [stop.position] : []))) ?? config.fallbackCenter;
+    return <ProximityExplorer proximity={proximity} failed={failed} map={{ ...mapProps, center }} t={t} />;
+  }
+
+  const period = parseLoadPeriod(query.days);
   const { loads, failed } = await loadStopLoads(period);
 
   // Dates are written here, in the school's time zone, so the server and the browser show the same text.
@@ -49,7 +60,7 @@ async function Insights({ searchParams }: { searchParams: SearchParams }) {
       failed={failed}
       counted={counted}
       days={days}
-      map={{ provider: config.provider, styleUrl: config.styleUrl, accessToken: config.accessToken, center, zoom: config.fallbackZoom }}
+      map={{ ...mapProps, center }}
       t={t}
     />
   );

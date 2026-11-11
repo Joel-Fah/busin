@@ -235,3 +235,26 @@ from demo_people d
 join public.subscriptions sub on sub.student_id = d.id and sub.semester_id = (select id from demo_semester) and sub.status = 'approved'
 join public.stops st on st.id = sub.stop_id
 where d.role = 'student' and d.n between 33 and 40;
+
+-- ---------------------------------------------------------------- where students live (My area, ADR 0013)
+-- Most approved students gave a coarse area near their stop, so Insights shows proximity and desire lines. Per stop,
+-- the first four share a cell 0.5 to 1.5 km away; on every other stop the fifth joins them (a desire line), elsewhere
+-- they live about 2.5 km off. Anyone past the fifth lives further out.
+insert into public.student_areas (user_id, school_id, area, label, source)
+select x.student_id, '00000000-0000-4000-8000-000000000001',
+  private.snap_area(
+    extensions.st_y(x.location::extensions.geometry) + x.dir * case when x.rn <= 4 or (x.rn = 5 and x.k % 2 = 0) then 0.0045 * (1 + x.k % 3) else 0.022 + 0.004 * x.rn end,
+    extensions.st_x(x.location::extensions.geometry) + 0.003 * (x.k % 2)),
+  'Demo area', 'search'
+from (
+  select sub.student_id, st.location,
+    row_number() over (partition by sub.stop_id order by u.email) as rn,
+    dense_rank() over (order by st.name) as k,
+    case when dense_rank() over (order by st.name) % 2 = 0 then 1 else -1 end as dir
+  from public.subscriptions sub
+  join auth.users u on u.id = sub.student_id and u.email like 'demo.student%@ictuniversity.edu.cm'
+  join public.semesters m on m.id = sub.semester_id and current_date between m.start_date and m.end_date
+  join public.stops st on st.id = sub.stop_id
+  where sub.status = 'approved'
+) x
+on conflict (user_id) do update set area = excluded.area, label = excluded.label, source = excluded.source, updated_at = now();

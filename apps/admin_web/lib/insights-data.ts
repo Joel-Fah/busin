@@ -1,4 +1,6 @@
+import { parsePoint } from "@/lib/geo";
 import { buildStopLoads, type LoadPeriod, type StopLoads } from "@/lib/insights";
+import { buildProximity, type Proximity } from "@/lib/proximity";
 import { loadStops } from "@/lib/stops-data";
 import { createClient } from "@/lib/supabase/server";
 
@@ -20,5 +22,26 @@ export async function loadStopLoads(days: LoadPeriod): Promise<{ loads: StopLoad
   return {
     loads: buildStopLoads(stops, rows.data ?? [], seats),
     failed: failed || rows.error !== null,
+  };
+}
+
+// A school has tens of stops, not thousands.
+const MAX_STOPS = 500;
+
+/**
+ * How far each stop's subscribers live from it, and the desire lines, from the students' coarse areas. The database
+ * returns figures and lines only for 5 or more students, and only to the school's admins.
+ */
+export async function loadProximity(): Promise<{ proximity: Proximity; failed: boolean }> {
+  const supabase = await createClient();
+  const [stops, rows, lines] = await Promise.all([
+    supabase.from("stops").select("id, name, location").eq("active", true).order("name").limit(MAX_STOPS),
+    supabase.rpc("admin_stop_proximity"),
+    supabase.rpc("admin_desire_lines"),
+  ]);
+  const known = (stops.data ?? []).map((stop) => ({ id: stop.id, name: stop.name, position: parsePoint(stop.location) }));
+  return {
+    proximity: buildProximity(known, rows.data ?? [], lines.data ?? []),
+    failed: stops.error !== null || rows.error !== null || lines.error !== null,
   };
 }

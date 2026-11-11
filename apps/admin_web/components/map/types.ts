@@ -38,6 +38,17 @@ export type MapCircle = {
   color: string;
 };
 
+/** A straight line under the markers, for example from where students live to their stop. */
+export type MapLine = {
+  id: string;
+  from: LatLng;
+  to: LatLng;
+  /** 0 (thinnest) to 1 (thickest). */
+  size: number;
+  /** A CSS colour or a theme token ("var(--accent)"), read from the page when drawn. */
+  color: string;
+};
+
 export type MapPicker = {
   /** The chosen position, or null while nothing is chosen. */
   position: LatLng | null;
@@ -59,6 +70,8 @@ export type MapViewProps = {
   areas?: MapArea[];
   /** Circles drawn under the markers. */
   circles?: MapCircle[];
+  /** Lines drawn under the circles and markers. */
+  lines?: MapLine[];
   /** Turns the map into a place to choose a position. */
   picker?: MapPicker;
   /** When this changes, the map glides to it. For example the stop picked from a list. */
@@ -67,6 +80,8 @@ export type MapViewProps = {
   focusKey?: number;
   /** Text for a bubble standing for several stops that would overlap, with {count} for the number. */
   clusterLabel?: string;
+  /** Share of the map's height (0 to 0.8) covered at the bottom, for example by a dock: fitting and gliding keep clear of it. */
+  coveredBottom?: number;
   /** Merge markers that would overlap into numbered bubbles when zoomed out. On by default. */
   clustering?: boolean;
   /** Describes the map for assistive technology. */

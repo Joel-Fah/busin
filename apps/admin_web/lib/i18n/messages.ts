@@ -294,7 +294,7 @@ export const en = {
   },
   insights: {
     title: 'Insights',
-    views: { label: 'What to show', load: 'Stop load' },
+    views: { label: 'What to show', load: 'Stop load', proximity: 'Proximity' },
     period: { label: 'Period', p28: '4 weeks', p56: '8 weeks', p112: '16 weeks' },
     mapLabel: 'Map of how full the bus gets at each stop',
     mapUnavailable: 'The map could not be drawn in this browser. The stops are listed below it.',
@@ -318,6 +318,37 @@ export const en = {
       inactive: 'Inactive',
     },
     listLabel: 'Stops, fullest first',
+    proximity: {
+      mapLabel: 'Map of how far students live from their stop',
+      basis: 'Based on {withArea} of {subscribers} subscribers, those who shared roughly where they live.',
+      straight: 'Distances are straight lines from areas of about 500 m, so a walk is longer.',
+      lines: 'Orange lines run from places where 5 or more students of a stop live, to that stop; thicker for more.',
+      legend: 'How far the typical student lives',
+      bands: { near: 'Under 500 m', walk: '500 m to 1 km', far: '1 to 2 km', remote: 'Over 2 km' },
+      reach: { near: 'Near', walk: 'Walkable', far: 'Far', remote: 'Very far' },
+      median: 'Typically {distance}',
+      overOneKm: '{share} over 1 km',
+      aboutM: 'about {value} m',
+      aboutKm: 'about {value} km',
+      notEnough: 'Not enough students yet ({count} with an area, {min} needed)',
+      noneYet: 'Not enough students yet: a stop needs {min} subscribers who shared their area before it shows a figure.',
+      based: '{withArea} of {subscribers} subscribers',
+      listLabel: 'Stops, farthest first',
+      help: {
+        title: 'How proximity works',
+        intro: 'Students can share roughly where they live in the app, rounded to about 500 m. For each stop this shows how far its subscribers typically live, and where groups of them come from. Nothing is shown for fewer than 5 students, so no one can be picked out.',
+        scenarios: {
+          far: {
+            title: 'A stop students live far from',
+            body: 'Mvan roundabout is Very far: typically about 2.4 km, and the thick line comes from Nsam. A stop near Nsam would save them the walk; the next views suggest where.',
+          },
+          coverage: {
+            title: 'Too few areas to say',
+            body: 'Most stops say Not enough students yet. Ask students to set My area in the app (Profile); the figures appear once 5 of a stop have.',
+          },
+        },
+      },
+    },
     refresh: {
       button: 'Count now',
       hint: 'Counts this school again now, for scans that arrived since the night.',
@@ -1205,7 +1236,7 @@ export const fr: Messages = {
   },
   insights: {
     title: 'Analyses',
-    views: { label: 'Que montrer', load: 'Charge des arrêts' },
+    views: { label: 'Que montrer', load: 'Charge des arrêts', proximity: 'Proximité' },
     period: { label: 'Période', p28: '4 semaines', p56: '8 semaines', p112: '16 semaines' },
     mapLabel: 'Carte du remplissage du bus à chaque arrêt',
     mapUnavailable: "La carte n'a pas pu s'afficher dans ce navigateur. Les arrêts sont listés en dessous.",
@@ -1229,6 +1260,37 @@ export const fr: Messages = {
       inactive: 'Inactif',
     },
     listLabel: 'Arrêts, du plus chargé au moins chargé',
+    proximity: {
+      mapLabel: "Carte de la distance entre les étudiants et leur arrêt",
+      basis: "Sur la base de {withArea} abonnés sur {subscribers}, ceux qui ont indiqué à peu près où ils habitent.",
+      straight: "Les distances sont à vol d'oiseau depuis des zones d'environ 500 m : à pied, c'est plus long.",
+      lines: "Les lignes orange partent des lieux où habitent 5 étudiants ou plus d'un arrêt, vers cet arrêt ; plus épaisses quand ils sont plus nombreux.",
+      legend: "Distance de l'étudiant type",
+      bands: { near: 'Moins de 500 m', walk: '500 m à 1 km', far: '1 à 2 km', remote: 'Plus de 2 km' },
+      reach: { near: 'Proche', walk: 'À pied', far: 'Loin', remote: 'Très loin' },
+      median: 'En général {distance}',
+      overOneKm: '{share} à plus de 1 km',
+      aboutM: 'environ {value} m',
+      aboutKm: 'environ {value} km',
+      notEnough: "Pas encore assez d'étudiants ({count} avec une zone, {min} nécessaires)",
+      noneYet: "Pas encore assez d'étudiants : un arrêt a besoin de {min} abonnés ayant indiqué leur zone avant d'afficher un chiffre.",
+      based: '{withArea} abonnés sur {subscribers}',
+      listLabel: 'Arrêts, du plus éloigné au plus proche',
+      help: {
+        title: 'Comment fonctionne la proximité',
+        intro: "Les étudiants peuvent indiquer dans l'app à peu près où ils habitent, arrondi à environ 500 m. Pour chaque arrêt, on voit à quelle distance habitent en général ses abonnés, et d'où viennent des groupes d'entre eux. Rien n'est affiché pour moins de 5 étudiants, pour que personne ne puisse être identifié.",
+        scenarios: {
+          far: {
+            title: 'Un arrêt loin des étudiants',
+            body: "Le rond-point de Mvan est Très loin : en général environ 2,4 km, et la ligne épaisse vient de Nsam. Un arrêt près de Nsam leur éviterait la marche ; les vues suivantes suggèrent où.",
+          },
+          coverage: {
+            title: 'Trop peu de zones pour conclure',
+            body: "La plupart des arrêts affichent Pas encore assez d'étudiants. Demandez aux étudiants de renseigner Ma zone dans l'app (Profil) ; les chiffres apparaissent dès que 5 d'un arrêt l'ont fait.",
+          },
+        },
+      },
+    },
     refresh: {
       button: 'Compter maintenant',
       hint: "Recompte l'école maintenant, pour les scans arrivés depuis la nuit.",
