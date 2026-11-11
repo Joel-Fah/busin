@@ -117,7 +117,7 @@ const en: LandingCopy = {
   private: {
     facts: [
       { title: "Your school decides who rides", text: "Subscriptions are approved by your school, and only it sees them." },
-      { title: "Nobody tracks your phone", text: "Only the bus shares where it is, and only during a trip." },
+      { title: "Nobody tracks your phone", text: "Only the bus shares where it is, and only during a trip. If you ask to see yourself on the map, your position stays on your phone." },
       { title: "Made for weak signal", text: "Your pass is kept safely on your phone, so the gate never waits for the network." },
     ],
   },
@@ -174,7 +174,8 @@ const en: LandingCopy = {
       { q: "Is BusIn free for students?", a: "Yes. Your school sets it up and decides how the bus itself is paid for. The app costs you nothing." },
       { q: "My school is not on BusIn. What can I do?", a: "Invite it: leave your school's name and your address, and we will get in touch with the people who run the buses." },
       { q: "Do I need data to show my pass?", a: "No. Once you have opened the app with a signal, your pass works without one, and the scan at the door does too." },
-      { q: "Does BusIn know where I am?", a: "No. The student app never asks for your location. Only the bus shares where it is, and only while a trip is running." },
+      { q: "Does BusIn know where I am?", a: "No. The app reads your position only when you ask: to show you on the map next to your stop and the bus (it stays on your phone), or once, rounded to about 500 metres, if you choose to tell your school roughly where you live so it can place stops. Only the bus shares where it is, and only while a trip is running." },
+      { q: "Do I need a school email?", a: "Not always. With your school email you are in straight away. If your school also accepts other addresses, you can join with a personal Google account and the school checks that you are one of its students." },
       { q: "Who sees my subscription and my receipt?", a: "Only the admins of your school. Nobody at another school, and no other student, can see them." },
       { q: "How do drivers and staff get their app?", a: "Their school sets them up with it, along with their account. Students never need it." },
     ],
@@ -260,7 +261,7 @@ const fr: LandingCopy = {
   private: {
     facts: [
       { title: "Votre école décide qui voyage", text: "Les abonnements sont validés par votre école, et elle seule les voit." },
-      { title: "Personne ne suit votre téléphone", text: "Seul le bus partage sa position, et seulement pendant un trajet." },
+      { title: "Personne ne suit votre téléphone", text: "Seul le bus partage sa position, et seulement pendant un trajet. Si vous demandez à vous voir sur la carte, votre position reste sur votre téléphone." },
       { title: "Fait pour le réseau faible", text: "Votre pass est gardé en sécurité sur votre téléphone, le portail n'attend jamais le réseau." },
     ],
   },
@@ -317,7 +318,8 @@ const fr: LandingCopy = {
       { q: "BusIn est-il gratuit pour les étudiants ?", a: "Oui. Votre école l'installe et décide comment le bus lui-même est payé. L'application ne vous coûte rien." },
       { q: "Mon école n'utilise pas BusIn. Que faire ?", a: "Invitez-la : laissez le nom de votre école et votre adresse, nous contacterons les personnes qui gèrent les bus." },
       { q: "Faut-il des données pour montrer mon pass ?", a: "Non. Une fois l'application ouverte avec du réseau, votre pass marche sans, et le scan à la porte aussi." },
-      { q: "BusIn sait-il où je suis ?", a: "Non. L'application étudiante ne demande jamais votre position. Seul le bus partage la sienne, et seulement pendant un trajet." },
+      { q: "BusIn sait-il où je suis ?", a: "Non. L'application lit votre position seulement quand vous le demandez : pour vous montrer sur la carte près de votre arrêt et du bus (elle reste sur votre téléphone), ou une fois, arrondie à environ 500 mètres, si vous choisissez d'indiquer à votre école à peu près où vous habitez pour l'aider à placer les arrêts. Seul le bus partage sa position, et seulement pendant un trajet." },
+      { q: "Faut-il un e-mail scolaire ?", a: "Pas toujours. Avec votre e-mail scolaire, vous entrez tout de suite. Si votre école accepte aussi d'autres adresses, vous pouvez la rejoindre avec un compte Google personnel, et l'école vérifie que vous êtes bien l'un de ses étudiants." },
       { q: "Qui voit mon abonnement et mon reçu ?", a: "Seuls les administrateurs de votre école. Personne d'une autre école, ni aucun autre étudiant, ne peut les voir." },
       { q: "Comment les chauffeurs et le personnel obtiennent-ils leur application ?", a: "Leur école le leur installe, avec leur compte. Les étudiants n'en ont jamais besoin." },
     ],

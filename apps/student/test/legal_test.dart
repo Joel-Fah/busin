@@ -121,7 +121,7 @@ void main() {
       expect(find.textContaining('Updated'), findsOneWidget);
       expect(find.text('What we keep'), findsOneWidget);
       // Every part is open from the start, and any of them can be closed.
-      expect(find.textContaining('Your name, school email'), findsOneWidget);
+      expect(find.textContaining('Your name, email and profile picture'), findsOneWidget);
       expect(find.textContaining('To let your school review'), findsOneWidget);
       expect(find.byType(Image), findsWidgets, reason: 'the banner photo');
 

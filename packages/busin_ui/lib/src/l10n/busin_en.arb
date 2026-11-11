@@ -634,7 +634,7 @@
   "areaTitle": "My area",
   "areaHint": "Roughly where you live, to help your school place stops. Optional.",
   "areaLaterHint": "Add it when you are home.",
-  "areaIntro": "Tell your school roughly where you live, so it can place stops and plan routes near students. It is rounded to about 500 metres, never tracked, and only you can see it. Your school only sees how many students live in each zone.",
+  "areaIntro": "Tell your school roughly where you live, so it can place stops and plan routes near students. It is rounded to about 500 metres, never tracked, and only you can see it. Your school only sees how many students live in each zone, and how far groups of at least five live from their stops.",
   "areaAtHome": "Are you home right now?",
   "areaYesHome": "Yes, I am home",
   "areaNoSearch": "No, search a place",

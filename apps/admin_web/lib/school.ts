@@ -1,7 +1,7 @@
 /** Pure helpers for the school profile page. Kept separate so they are unit tested. */
 
 /** The version of the terms for schools in lib/legal/school-terms.ts. A new version asks the school to accept again. */
-export const SCHOOL_TERMS_VERSION = "2026-11";
+export const SCHOOL_TERMS_VERSION = "2026-11-11";
 
 export const SCHOOL_LIMITS = { name: 120, shortName: 20, website: 200, email: 254, phone: 30, address: 200, city: 80, country: 80, about: 280 } as const;
 
