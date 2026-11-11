@@ -1086,4 +1086,8 @@ class BusinL10nEn extends BusinL10n {
   String leaderboardRank(int rank) {
     return 'Rank $rank';
   }
+
+  @override
+  String get pushForegroundBusNear =>
+      'Your bus is a few minutes from your stop.';
 }

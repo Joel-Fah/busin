@@ -594,5 +594,6 @@
   "leaderboardEmpty": "No one is on the board yet.",
   "leaderboardYou": "You",
   "leaderboardRank": "Rank {rank}",
-  "@leaderboardRank": {"placeholders": {"rank": {"type": "int"}}}
+  "@leaderboardRank": {"placeholders": {"rank": {"type": "int"}}},
+  "pushForegroundBusNear": "Your bus is a few minutes from your stop."
 }

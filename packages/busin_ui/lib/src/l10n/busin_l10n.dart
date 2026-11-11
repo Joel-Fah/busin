@@ -1980,6 +1980,12 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'Rank {rank}'**
   String leaderboardRank(int rank);
+
+  /// No description provided for @pushForegroundBusNear.
+  ///
+  /// In en, this message translates to:
+  /// **'Your bus is a few minutes from your stop.'**
+  String get pushForegroundBusNear;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {

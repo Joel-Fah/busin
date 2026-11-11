@@ -3,7 +3,7 @@
 // Design: docs/decisions/0010-push-notifications.md.
 
 export type Locale = "en" | "fr";
-export type Kind = "subscription_approved" | "subscription_rejected" | "school_notice";
+export type Kind = "subscription_approved" | "subscription_rejected" | "school_notice" | "bus_near_stop";
 
 /** One claimed notification, as claim_notifications returns it. */
 export type Claimed = {
@@ -29,10 +29,15 @@ const TEXT: Record<Kind, Record<Locale, { title: string; body: string }>> = {
     en: { title: "News from your school", body: "Your school changed something about your bus service. Open BusIn to see what." },
     fr: { title: "Du nouveau de votre école", body: "Votre école a modifié quelque chose sur votre service de bus. Ouvrez BusIn pour voir quoi." },
   },
+  // The bus is a few minutes from the student's stop (they chose how many). No stop, bus or time in the text.
+  bus_near_stop: {
+    en: { title: "Your bus is almost here", body: "It is a few minutes from your stop. Open BusIn to follow it." },
+    fr: { title: "Votre bus arrive", body: "Il est à quelques minutes de votre arrêt. Ouvrez BusIn pour le suivre." },
+  },
 };
 
 export function isKind(value: string): value is Kind {
-  return value === "subscription_approved" || value === "subscription_rejected" || value === "school_notice";
+  return value === "subscription_approved" || value === "subscription_rejected" || value === "school_notice" || value === "bus_near_stop";
 }
 
 export function asLocale(value: string): Locale {

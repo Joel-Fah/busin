@@ -33,13 +33,12 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 
 ## Handoff: ideas round (2026-11-11)
 
-The owner's nine ideas, built in slices before the ops app. Every PR is stacked on the one before it; merge in this order, retargeting each to `dev` once the one below is in: #215, #217, #219, #221, #223, #225, #227, #229, #231, #233, #235. Every migration is local only.
+The owner's nine ideas, built in slices before the ops app. Every PR is stacked on the one before it; merge in this order, retargeting each to `dev` once the one below is in: #215, #217, #219, #221, #223, #225, #227, #229, #231, #233, #235, #237. Every migration is local only.
 
 Done (PR, slice):
-- #217 bus names; #219 page size in every list; #221 school profile, terms and public listing (logo, contacts, allowed domains as tags); #223 joining a school without a school email (ADR 0012, To verify tab); #225 nav badges; #227 timezone 0.11 upgrade; #229 notification preferences and local reminders; #231 the on-board card and its line dictionary; #233 opt-in streaks with a calendar; #235 the school leaderboard (a tab in the streak sheet).
+- #217 bus names; #219 page size in every list; #221 school profile, terms and public listing (logo, contacts, allowed domains as tags); #223 joining a school without a school email (ADR 0012, To verify tab); #225 nav badges; #227 timezone 0.11 upgrade; #229 notification preferences and local reminders; #231 the on-board card and its line dictionary; #233 opt-in streaks with a calendar; #235 the school leaderboard (a tab in the streak sheet); #237 bus near my stop (a push when an inbound bus is a few minutes away, once per trip).
 
 Next:
-- Slice 10, bus near my stop (a trigger on live positions, outbox kind `bus_near_stop`, at most once per trip and student).
 - Slice 11, my area (ADR 0013, privacy policy and security rule update, coarse location, `places-search` Edge Function on Mapbox). Needs your Mapbox server token; I will ask before setting the secret.
 
 Blockers: none. The 016 test fails locally until #215 is merged.

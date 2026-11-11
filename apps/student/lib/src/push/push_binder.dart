@@ -60,8 +60,12 @@ class _PushBinderState extends ConsumerState<PushBinder> {
 
   void _arrived(PushMessage message) {
     if (!mounted) return;
-    ref.invalidate(subscriptionOverviewProvider);
     final l10n = BusinL10n.of(context);
+    if (message.kind == 'bus_near_stop') {
+      _show(l10n.pushForegroundBusNear, message);
+      return;
+    }
+    ref.invalidate(subscriptionOverviewProvider);
     final text = switch (message.kind) {
       'subscription_approved' => l10n.pushForegroundApproved,
       'subscription_rejected' => l10n.pushForegroundRejected,
@@ -75,9 +79,15 @@ class _PushBinderState extends ConsumerState<PushBinder> {
     final announced = ref.read(announcedChangesProvider.notifier);
     if (id != null && status == 'approved' && ref.read(announcedChangesProvider).contains(changeKey(id, 'reinstated'))) return;
     if (id != null && !announced.claim(changeKey(id, status))) return;
+    _show(text, message);
+  }
+
+  void _show(String text, PushMessage message) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(text), action: SnackBarAction(label: l10n.pushForegroundView, onPressed: () => _open(message))));
+      ..showSnackBar(
+        SnackBar(content: Text(text), action: SnackBarAction(label: BusinL10n.of(context).pushForegroundView, onPressed: () => _open(message))),
+      );
   }
 
   @override
