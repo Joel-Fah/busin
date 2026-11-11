@@ -137,7 +137,7 @@ const _termsFr = LegalDocument(
 const _privacyEn = LegalDocument(
   highlights: [
     'We keep only what is needed to run your bus subscription.',
-    'We never sell your data, and we do not track your phone\'s location.',
+    'We never sell your data, and we never track your phone\'s location.',
     'Your school can see your details and your boardings. Other students cannot.',
     'You can correct your details in the profile, and ask your school to delete your account.',
   ],
@@ -148,15 +148,17 @@ const _privacyEn = LegalDocument(
       'Your subscription requests, the proof of payment you upload, and each decision with its reason.',
       'Your boardings: when and on which trip you boarded.',
       'A device token, if you allow notifications, so that we can send them.',
+      'Your area, only if you add one in My area: a spot rounded to about 500 metres and its name, never your exact address.',
     ]),
     LegalSection('Why we keep it', bullets: [
       'To let your school review your request and decide.',
       'To check your right to board when your code is scanned.',
       'To show you your own history and tell you when something changes.',
       'To give your school the figures it needs to run the buses.',
+      'If you add your area: to help your school place stops and plan routes. Your school only sees how many students live in each zone, and only zones with at least five students.',
     ]),
     LegalSection('What we do not collect', bullets: [
-      'Your phone\'s location. The map shows the position of buses, not yours.',
+      'Your phone\'s location while you use the app. The map shows the position of buses, not yours. The only reading is the one you ask for in My area: once, approximate, rounded to about 500 metres.',
       'Your contacts, photos or files, apart from the proof of payment you choose to upload.',
       'Advertising profiles. There is no advertising in BusIn.',
     ]),
@@ -178,6 +180,7 @@ const _privacyEn = LegalDocument(
     LegalSection('Your choices', bullets: [
       'Correct your details in the profile at any time.',
       'Turn notifications off in your phone settings.',
+      'Change or remove your area in My area at any time. When you search for a place, the text you type goes to our map provider without your name.',
       'Ask your school for a copy of your data, or to delete your account and data.',
     ]),
     LegalSection('Changes to this policy', paragraphs: [
@@ -189,7 +192,7 @@ const _privacyEn = LegalDocument(
 const _privacyFr = LegalDocument(
   highlights: [
     'Nous ne gardons que ce qui est nécessaire pour gérer votre abonnement de bus.',
-    'Nous ne vendons jamais vos données et nous ne suivons pas la position de votre téléphone.',
+    'Nous ne vendons jamais vos données et nous ne suivons jamais la position de votre téléphone.',
     'Votre école voit vos informations et vos embarquements. Les autres étudiants, non.',
     'Vous pouvez corriger vos informations dans le profil et demander à votre école de supprimer votre compte.',
   ],
@@ -200,15 +203,17 @@ const _privacyFr = LegalDocument(
       'Vos demandes d\'abonnement, la preuve de paiement que vous envoyez, et chaque décision avec son motif.',
       'Vos embarquements : quand et sur quel trajet vous êtes monté.',
       'Un jeton d\'appareil, si vous autorisez les notifications, pour pouvoir les envoyer.',
+      'Votre zone, seulement si vous en ajoutez une dans Ma zone : un point arrondi à environ 500 mètres et son nom, jamais votre adresse exacte.',
     ]),
     LegalSection('Pourquoi nous le gardons', bullets: [
       'Pour que votre école examine votre demande et décide.',
       'Pour vérifier votre droit de monter à bord quand votre code est scanné.',
       'Pour vous montrer votre propre historique et vous prévenir quand quelque chose change.',
       'Pour donner à votre école les chiffres dont elle a besoin pour faire rouler les bus.',
+      'Si vous ajoutez votre zone : pour aider votre école à placer les arrêts et à prévoir les trajets. Votre école ne voit que le nombre d\'étudiants par zone, et seulement les zones d\'au moins cinq étudiants.',
     ]),
     LegalSection('Ce que nous ne collectons pas', bullets: [
-      'La position de votre téléphone. La carte montre la position des bus, pas la vôtre.',
+      'La position de votre téléphone pendant que vous utilisez l\'application. La carte montre la position des bus, pas la vôtre. La seule lecture est celle que vous demandez dans Ma zone : une fois, approximative, arrondie à environ 500 mètres.',
       'Vos contacts, photos ou fichiers, en dehors de la preuve de paiement que vous choisissez d\'envoyer.',
       'Des profils publicitaires. Il n\'y a aucune publicité dans BusIn.',
     ]),
@@ -230,6 +235,7 @@ const _privacyFr = LegalDocument(
     LegalSection('Vos choix', bullets: [
       'Corrigez vos informations dans le profil à tout moment.',
       'Désactivez les notifications dans les réglages de votre téléphone.',
+      'Modifiez ou supprimez votre zone dans Ma zone à tout moment. Quand vous cherchez un lieu, le texte saisi part chez notre fournisseur de cartes sans votre nom.',
       'Demandez à votre école une copie de vos données, ou la suppression de votre compte et de vos données.',
     ]),
     LegalSection('Modifications de cette politique', paragraphs: [

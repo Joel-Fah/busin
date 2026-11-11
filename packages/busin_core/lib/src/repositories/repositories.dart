@@ -13,6 +13,7 @@ import '../models/school.dart';
 import '../models/semester.dart';
 import '../models/stop.dart';
 import '../models/streak.dart';
+import '../models/student_area.dart';
 import '../models/subscription.dart';
 import '../models/subscription_event.dart';
 import '../models/trip.dart';
@@ -61,6 +62,20 @@ abstract interface class StreaksRepository {
 
   /// The school's board for a semester, best streaks first, with the caller's own row always included.
   Future<List<LeaderboardEntry>> leaderboard(String semesterId, {int limit = 50});
+}
+
+/// The student's own area (ADR 0013). Nobody else reads it; the school only sees counts per zone.
+abstract interface class AreaRepository {
+  /// Null when the student has not given one.
+  Future<StudentArea?> myArea();
+
+  /// Stores the area; the server snaps the point to about 500 m. [Invalid] when it is too far from the school's buses.
+  Future<void> setArea({required double lat, required double lng, required String label, required AreaSource source});
+
+  Future<void> clearArea();
+
+  /// Places matching [query] around the school. [NotAllowed] when the student searched too much in a short time.
+  Future<List<PlaceResult>> searchPlaces(String query, {required String languageCode});
 }
 
 /// The student's notification preferences. Reads give the defaults until something is saved.

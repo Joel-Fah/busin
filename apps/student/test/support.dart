@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:busin_core/busin_core.dart';
+import 'package:busin_student/src/area/area_providers.dart';
 import 'package:busin_student/src/auth/auth_service.dart';
 import 'package:busin_student/src/bus/bus_providers.dart';
 import 'package:busin_student/src/config/app_config.dart';
@@ -717,6 +718,8 @@ List<Override> overridesFor(
   FakeNotificationPreferences? notificationPreferences,
   FakeReminderScheduler? reminders,
   FakeStreaks? streaks,
+  FakeAreas? areas,
+  FakeLocator? locator,
   FakeSecretStore? store,
   FakeScreenSecurity? security,
   TestClock? clock,
@@ -741,6 +744,8 @@ List<Override> overridesFor(
     notificationPreferencesRepositoryProvider.overrideWithValue(notificationPreferences ?? FakeNotificationPreferences()),
     reminderSchedulerProvider.overrideWithValue(reminders ?? FakeReminderScheduler()),
     streaksRepositoryProvider.overrideWithValue(streaks ?? FakeStreaks(profiles)),
+    areaRepositoryProvider.overrideWithValue(areas ?? FakeAreas()),
+    areaLocatorProvider.overrideWithValue(locator ?? FakeLocator(const LocationFailed())),
     academicRepositoryProvider.overrideWithValue(academic ?? FakeAcademic()),
     schoolRepositoryProvider.overrideWithValue(b),
     semestersRepositoryProvider.overrideWithValue(b),
@@ -889,4 +894,52 @@ class FakeStreaks implements StreaksRepository {
 
   @override
   Future<List<LeaderboardEntry>> leaderboard(String semesterId, {int limit = 50}) async => board;
+}
+
+class FakeAreas implements AreaRepository {
+  FakeAreas({this.area, this.places = const []});
+
+  StudentArea? area;
+  List<PlaceResult> places;
+  Object? saveError;
+  Object? searchError;
+  final List<({double lat, double lng, String label, AreaSource source})> saved = [];
+  final List<String> queries = [];
+
+  @override
+  Future<StudentArea?> myArea() async => area;
+
+  @override
+  Future<void> setArea({required double lat, required double lng, required String label, required AreaSource source}) async {
+    if (saveError != null) throw saveError!;
+    saved.add((lat: lat, lng: lng, label: label, source: source));
+    area = StudentArea(label: label, lat: lat, lng: lng, source: source, updatedAt: DateTime.utc(2026, 11, 11));
+  }
+
+  @override
+  Future<void> clearArea() async => area = null;
+
+  @override
+  Future<List<PlaceResult>> searchPlaces(String query, {required String languageCode}) async {
+    queries.add(query);
+    if (searchError != null) throw searchError!;
+    return places;
+  }
+}
+
+class FakeLocator implements AreaLocator {
+  FakeLocator(this.result);
+
+  LocatorResult result;
+  int reads = 0;
+  int settingsOpened = 0;
+
+  @override
+  Future<LocatorResult> readOnce() async {
+    reads++;
+    return result;
+  }
+
+  @override
+  Future<void> openSettings() async => settingsOpened++;
 }

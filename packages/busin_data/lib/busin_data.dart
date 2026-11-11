@@ -21,6 +21,7 @@ class SupabaseRepositories {
         schools = SupabaseSchoolRepository(client),
         joining = SupabaseJoinRepository(client),
         streaks = SupabaseStreaksRepository(client),
+        areas = SupabaseAreaRepository(client),
         notificationPreferences = SupabaseNotificationPreferencesRepository(client),
         stops = SupabaseStopsRepository(client),
         semesters = SupabaseSemestersRepository(client),
@@ -38,6 +39,7 @@ class SupabaseRepositories {
   final SchoolRepository schools;
   final JoinRepository joining;
   final StreaksRepository streaks;
+  final AreaRepository areas;
   final NotificationPreferencesRepository notificationPreferences;
   final StopsRepository stops;
   final SemestersRepository semesters;

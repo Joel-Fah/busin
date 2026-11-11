@@ -1,8 +1,13 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <!-- Android 13 and later ask the person before a notification may be shown. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- So reminders the student set up are scheduled again after the phone restarts. -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- My area (ADR 0013): one approximate reading, only when the student asks. Never precise, never in the background. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" tools:node="remove" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" tools:node="remove" />
     <application
         android:label="BusIn"
         android:name="${applicationName}"
@@ -48,6 +53,8 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- The location plugin ships a tracking service the app never uses. -->
+        <service android:name="com.baseflow.geolocator.GeolocatorLocationService" tools:node="remove" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

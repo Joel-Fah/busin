@@ -124,6 +124,38 @@ class SupabaseStreaksRepository implements StreaksRepository {
       });
 }
 
+class SupabaseAreaRepository implements AreaRepository {
+  SupabaseAreaRepository(this._client);
+  final SupabaseClient _client;
+
+  @override
+  Future<StudentArea?> myArea() => guarded(() async {
+        final rows = await _client.rpc<List<dynamic>>('my_area');
+        return rows.isEmpty ? null : StudentArea.fromJson(rows.first as Map<String, dynamic>);
+      });
+
+  @override
+  Future<void> setArea({required double lat, required double lng, required String label, required AreaSource source}) =>
+      guarded(() async {
+        final point = roundForArea(lat, lng);
+        await _client.rpc<void>('set_my_area', params: {'p_lat': point.lat, 'p_lng': point.lng, 'p_label': label, 'p_source': source.name});
+      });
+
+  @override
+  Future<void> clearArea() => guarded(() async {
+        await _client.rpc<void>('clear_my_area');
+      });
+
+  @override
+  Future<List<PlaceResult>> searchPlaces(String query, {required String languageCode}) => guarded(() async {
+        final response = await _client.functions.invoke('places-search', body: {'q': query, 'language': languageCode});
+        final data = response.data;
+        final places = data is Map<String, dynamic> ? data['places'] : null;
+        if (places is! List) throw const FormatException('places');
+        return places.cast<Map<String, dynamic>>().map(PlaceResult.fromJson).toList(growable: false);
+      });
+}
+
 class SupabaseJoinRepository implements JoinRepository {
   SupabaseJoinRepository(this._client);
   final SupabaseClient _client;

@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 	<dict>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>BusIn reads your approximate location once, when you add your area, so your school can place stops near students. It is rounded to about 500 metres and never tracked.</string>
+	<key>NSLocationDefaultAccuracyReduced</key>
+	<true/>
 		<key>CADisableMinimumFrameDurationOnPhone</key>
 		<true/>
 		<key>NSCameraUsageDescription</key>

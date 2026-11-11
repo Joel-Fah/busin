@@ -348,4 +348,15 @@ void main() {
       expect(() => LeaderboardEntry.fromJson({'rank': 1}), throwsFormatException);
     });
   });
+
+  group('student area', () {
+    test('reads the stored area and a search result', () {
+      final area = StudentArea.fromJson({'label': 'Bastos', 'lat': 3.86, 'lng': 11.52, 'source': 'device', 'updated_at': '2026-11-11T08:00:00+00:00'});
+      expect(area.source, AreaSource.device);
+      expect(area.lat, 3.86);
+      expect(PlaceResult.fromJson({'label': 'Etoudi', 'lat': 3.9, 'lng': 11.5}).detail, '');
+      expect(() => AreaSource.parse('gps'), throwsFormatException);
+      expect(() => PlaceResult.fromJson({'label': 'x'}), throwsFormatException);
+    });
+  });
 }

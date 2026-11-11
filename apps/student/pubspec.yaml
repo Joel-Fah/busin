@@ -33,6 +33,9 @@ dependencies:
   timezone: ^0.11.0
   connectivity_plus: ^7.3.2
   flutter_local_notifications: ^22.3.3
+  geolocator_android: ^5.2.1
+  geolocator_apple: ^2.4.3
+  geolocator_platform_interface: ^4.4.1
 
 dev_dependencies:
   flutter_test:
