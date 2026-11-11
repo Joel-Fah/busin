@@ -8,6 +8,7 @@ Goal: staff scanner and driver mode that work on poor connectivity.
 - Trip start and end; foreground location stream into `live_positions` (driver mode).
 - Trip manifest and capacity count.
 - Location permission requested only here, with an explanation screen.
+- Record the stop of each scan (the stop the trip is at, or the nearest stop to the scan position), so phase 5 can measure how loaded each stop is per departure.
 
 ## Exit criteria
 - Unit tests green (verification, queue, sync).
