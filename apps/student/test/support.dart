@@ -847,7 +847,7 @@ class FakeReminderScheduler implements ReminderScheduler {
 
 /// Streaks done the way the server does them: opting in flips the profile's flag; the streak and the days are set by the test.
 class FakeStreaks implements StreaksRepository {
-  FakeStreaks(this.profiles, {this.current, this.days = const []});
+  FakeStreaks(this.profiles, {this.current, this.days = const [], this.board = const []});
 
   final FakeProfileRepository profiles;
   Streak? current;
@@ -884,4 +884,9 @@ class FakeStreaks implements StreaksRepository {
     if (error != null) throw error!;
     return current;
   }
+
+  List<LeaderboardEntry> board;
+
+  @override
+  Future<List<LeaderboardEntry>> leaderboard(String semesterId, {int limit = 50}) async => board;
 }

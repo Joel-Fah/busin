@@ -58,6 +58,9 @@ abstract interface class StreaksRepository {
 
   /// Null when the student has not opted in.
   Future<Streak?> streak(String semesterId);
+
+  /// The school's board for a semester, best streaks first, with the caller's own row always included.
+  Future<List<LeaderboardEntry>> leaderboard(String semesterId, {int limit = 50});
 }
 
 /// The student's notification preferences. Reads give the defaults until something is saved.

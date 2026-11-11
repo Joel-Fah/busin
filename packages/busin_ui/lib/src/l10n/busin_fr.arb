@@ -410,5 +410,12 @@
   "streakRode": "Monté",
   "streakMissed": "Manqué",
   "streakRest": "Repos ou pas de bus",
-  "streakToday": "Aujourd'hui"
+  "streakToday": "Aujourd'hui",
+  "streakViewLabel": "Vue de la série",
+  "streakTabCalendar": "Calendrier",
+  "streakTabBoard": "Classement",
+  "leaderboardNote": "Les étudiants de votre école qui tiennent une série, par série en cours.",
+  "leaderboardEmpty": "Personne n’est encore au classement.",
+  "leaderboardYou": "Vous",
+  "leaderboardRank": "Rang {rank}"
 }

@@ -45,11 +45,19 @@ final rideDaysProvider = FutureProvider.autoDispose<List<RideDay>>((ref) async {
   return ref.watch(streaksRepositoryProvider).rideDays(semesterId);
 }, retry: noAutomaticRetry);
 
+/// The school's leaderboard for the running semester (students who keep a streak), loaded when the tab is opened.
+final leaderboardProvider = FutureProvider.autoDispose<List<LeaderboardEntry>>((ref) async {
+  final semesterId = await ref.watch(_streakSemesterProvider.future);
+  if (semesterId == null) return const [];
+  return ref.watch(streaksRepositoryProvider).leaderboard(semesterId);
+}, retry: noAutomaticRetry);
+
 /// Turns streaks on or off, then reloads the profile so the app follows.
 final setStreakOptInProvider = Provider<Future<void> Function(bool on)>((ref) {
   return (on) async {
     await ref.read(streaksRepositoryProvider).setOptIn(on);
     ref.invalidate(profileProvider);
+    ref.invalidate(leaderboardProvider);
   };
 });
 

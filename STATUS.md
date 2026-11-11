@@ -1,6 +1,6 @@
 # Status
 
-Updated: 2026-11-07
+Updated: 2026-11-11
 
 Current phase: **Phase 3, student app** ([docs/phases/phase-3-student-app.md](docs/phases/phase-3-student-app.md)): feature complete, waiting for the owner's device sign-off and the PR review and merges (see the last handoff)
 
@@ -30,6 +30,21 @@ Current phase: **Phase 3, student app** ([docs/phases/phase-3-student-app.md](do
 ## Findings from the audit that apply only to the legacy app
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
+
+## Handoff: ideas round (2026-11-11)
+
+The owner's nine ideas, built in slices before the ops app. Every PR is stacked on the one before it; merge in this order, retargeting each to `dev` once the one below is in: #215, #217, #219, #221, #223, #225, #227, #229, #231, #233, #235. Every migration is local only.
+
+Done (PR, slice):
+- #217 bus names; #219 page size in every list; #221 school profile, terms and public listing (logo, contacts, allowed domains as tags); #223 joining a school without a school email (ADR 0012, To verify tab); #225 nav badges; #227 timezone 0.11 upgrade; #229 notification preferences and local reminders; #231 the on-board card and its line dictionary; #233 opt-in streaks with a calendar; #235 the school leaderboard (a tab in the streak sheet).
+
+Next:
+- Slice 10, bus near my stop (a trigger on live positions, outbox kind `bus_near_stop`, at most once per trip and student).
+- Slice 11, my area (ADR 0013, privacy policy and security rule update, coarse location, `places-search` Edge Function on Mapbox). Needs your Mapbox server token; I will ask before setting the secret.
+
+Blockers: none. The 016 test fails locally until #215 is merged.
+
+Owner must do: review and merge the stack above; review `docs/legal/school-terms.md`; on the tablet, check the streak chip, the calendar and the Leaderboard tab, the reminders (Profile, Notifications), the on-board card and the school join screens; Firebase project and a scheduler for `send-push` (ADR 0010) so pushes leave the outbox.
 
 ## Last handoff
 

@@ -1938,6 +1938,48 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'Today'**
   String get streakToday;
+
+  /// No description provided for @streakViewLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Streak view'**
+  String get streakViewLabel;
+
+  /// No description provided for @streakTabCalendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar'**
+  String get streakTabCalendar;
+
+  /// No description provided for @streakTabBoard.
+  ///
+  /// In en, this message translates to:
+  /// **'Leaderboard'**
+  String get streakTabBoard;
+
+  /// No description provided for @leaderboardNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Students of your school who keep a streak, by current streak.'**
+  String get leaderboardNote;
+
+  /// No description provided for @leaderboardEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No one is on the board yet.'**
+  String get leaderboardEmpty;
+
+  /// No description provided for @leaderboardYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get leaderboardYou;
+
+  /// No description provided for @leaderboardRank.
+  ///
+  /// In en, this message translates to:
+  /// **'Rank {rank}'**
+  String leaderboardRank(int rank);
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {
