@@ -279,6 +279,52 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"route_stops": {
+                  Row: {
+                    "position": number,"route_id": string,"school_id": string,"stop_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "position": number,"route_id": string,"school_id": string,"stop_id": string
+                  }
+                  Update: {
+                    "position"?: number,"route_id"?: string,"school_id"?: string,"stop_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "route_stops_route_id_school_id_fkey"
+      columns: ["route_id","school_id"]
+isOneToOne: false
+      referencedRelation: "routes"
+      referencedColumns: ["id","school_id"]
+    },{
+      foreignKeyName: "route_stops_stop_id_school_id_fkey"
+      columns: ["stop_id","school_id"]
+isOneToOne: false
+      referencedRelation: "stops"
+      referencedColumns: ["id","school_id"]
+    }
+                  ]
+                },"routes": {
+                  Row: {
+                    "computed_at": string | null,"created_at": string,"distance_m": number | null,"drawn_hash": string | null,"duration_s": number | null,"geometry": unknown,"id": string,"legs": Json | null,"name": string,"school_id": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "computed_at"?: string | null,"created_at"?: string,"distance_m"?: number | null,"drawn_hash"?: string | null,"duration_s"?: number | null,"geometry"?: unknown,"id"?: string,"legs"?: Json | null,"name"?: string,"school_id": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "computed_at"?: string | null,"created_at"?: string,"distance_m"?: number | null,"drawn_hash"?: string | null,"duration_s"?: number | null,"geometry"?: unknown,"id"?: string,"legs"?: Json | null,"name"?: string,"school_id"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "routes_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"scans": {
                   Row: {
                     "accuracy_m": number | null,"client_id": string | null,"id": string,"location": unknown,"scanned_at": string,"scanned_by": string,"school_id": string,"stop_id": string | null,"student_id": string,"subscription_id": string,"trip_id": string
@@ -351,14 +397,14 @@ isOneToOne: false
                   ]
                 },"schools": {
                   Row: {
-                    "about": string | null,"accepts_open_signup": boolean,"address": string | null,"city": string | null,"contact_email": string | null,"country": string | null,"created_at": string,"id": string,"logo_path": string | null,"name": string,"open_signup_domains": (string)[],"phone": string | null,"public_listing": boolean,"short_name": string | null,"status": string,"terms_accepted_at": string | null,"terms_accepted_by": string | null,"terms_version": string | null,"timezone": string,"website": string | null
+                    "about": string | null,"accepts_open_signup": boolean,"address": string | null,"campus_location": unknown,"campus_name": string | null,"city": string | null,"contact_email": string | null,"country": string | null,"created_at": string,"id": string,"logo_path": string | null,"name": string,"open_signup_domains": (string)[],"phone": string | null,"public_listing": boolean,"short_name": string | null,"status": string,"terms_accepted_at": string | null,"terms_accepted_by": string | null,"terms_version": string | null,"timezone": string,"website": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "about"?: string | null,"accepts_open_signup"?: boolean,"address"?: string | null,"city"?: string | null,"contact_email"?: string | null,"country"?: string | null,"created_at"?: string,"id"?: string,"logo_path"?: string | null,"name": string,"open_signup_domains"?: (string)[],"phone"?: string | null,"public_listing"?: boolean,"short_name"?: string | null,"status"?: string,"terms_accepted_at"?: string | null,"terms_accepted_by"?: string | null,"terms_version"?: string | null,"timezone"?: string,"website"?: string | null
+                    "about"?: string | null,"accepts_open_signup"?: boolean,"address"?: string | null,"campus_location"?: unknown,"campus_name"?: string | null,"city"?: string | null,"contact_email"?: string | null,"country"?: string | null,"created_at"?: string,"id"?: string,"logo_path"?: string | null,"name": string,"open_signup_domains"?: (string)[],"phone"?: string | null,"public_listing"?: boolean,"short_name"?: string | null,"status"?: string,"terms_accepted_at"?: string | null,"terms_accepted_by"?: string | null,"terms_version"?: string | null,"timezone"?: string,"website"?: string | null
                   }
                   Update: {
-                    "about"?: string | null,"accepts_open_signup"?: boolean,"address"?: string | null,"city"?: string | null,"contact_email"?: string | null,"country"?: string | null,"created_at"?: string,"id"?: string,"logo_path"?: string | null,"name"?: string,"open_signup_domains"?: (string)[],"phone"?: string | null,"public_listing"?: boolean,"short_name"?: string | null,"status"?: string,"terms_accepted_at"?: string | null,"terms_accepted_by"?: string | null,"terms_version"?: string | null,"timezone"?: string,"website"?: string | null
+                    "about"?: string | null,"accepts_open_signup"?: boolean,"address"?: string | null,"campus_location"?: unknown,"campus_name"?: string | null,"city"?: string | null,"contact_email"?: string | null,"country"?: string | null,"created_at"?: string,"id"?: string,"logo_path"?: string | null,"name"?: string,"open_signup_domains"?: (string)[],"phone"?: string | null,"public_listing"?: boolean,"short_name"?: string | null,"status"?: string,"terms_accepted_at"?: string | null,"terms_accepted_by"?: string | null,"terms_version"?: string | null,"timezone"?: string,"website"?: string | null
                   }
                   Relationships: [
                     
@@ -659,6 +705,12 @@ isOneToOne: false
 "admin_revoke_subscription":
 { Args: { "p_note": string,"p_subscription_id": string }; Returns: undefined
                            },
+"admin_save_route":
+{ Args: { "p_stop_ids": (string)[] }; Returns: string
+                           },
+"admin_set_campus":
+{ Args: { "p_lat": number,"p_lng": number,"p_name": string }; Returns: undefined
+                           },
 "admin_set_school_logo":
 { Args: { "p_path": string }; Returns: undefined
                            },
@@ -781,15 +833,28 @@ isOneToOne: false
 "rotate_my_qr_secret":
 { Args: Record<PropertyKey, never>; Returns: string
                            },
+"route_waypoints":
+{ Args: { "p_extra_after"?: number,"p_extra_lat"?: number,"p_extra_lng"?: number,"p_extra_name"?: string,"p_stop_ids"?: (string)[] }; Returns: {
+              "id": string,"kind": string,"lat": number,"lng": number,"name": string,"route_hash": string,"seq": number
+            }[]
+                           },
 "school_leaderboard":
 { Args: { "p_limit"?: number,"p_semester_id": string }; Returns: {
               "avatar_url": string,"current_streak": number,"display_name": string,"is_me": boolean,"rank": number,"rides": number
+            }[]
+                           },
+"school_route":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "campus_lat": number,"campus_lng": number,"campus_name": string,"computed_at": string,"current": boolean,"distance_m": number,"duration_s": number,"geometry": Json,"legs": Json,"name": string,"route_id": string,"stops": Json
             }[]
                            },
 "search_places":
 { Args: { "p_limit"?: number,"p_query": string }; Returns: {
               "kind": string,"label": string,"lat": number,"lng": number
             }[]
+                           },
+"service_store_route":
+{ Args: { "p_distance_m": number,"p_duration_s": number,"p_geojson": string,"p_hash": string,"p_legs": Json,"p_school": string }; Returns: boolean
                            },
 "set_my_area":
 { Args: { "p_label": string,"p_lat": number,"p_lng": number,"p_source": string }; Returns: undefined
