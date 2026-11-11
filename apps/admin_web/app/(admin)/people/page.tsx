@@ -19,7 +19,7 @@ import { StickyToolbar } from "@/components/ui/StickyToolbar";
 import { requireAdmin } from "@/lib/auth";
 import { format, type Locale } from "@/lib/i18n/messages";
 import { getMessages } from "@/lib/i18n/server";
-import { PAGE_SIZE, lastPage, pageRange, parsePage } from "@/lib/pagination";
+import { PAGE_SIZE, PAGE_SIZES, lastPage, pageRange, parsePage, parsePageSize, sizeParam } from "@/lib/pagination";
 import {
   accountTone,
   parseRoleFilter,
@@ -38,7 +38,7 @@ export const metadata: Metadata = { title: "People" };
 // Depends on who is signed in, so it cannot be an instant navigation.
 export const instant = false;
 
-type SearchParams = Promise<{ role?: string | string[]; q?: string | string[]; page?: string | string[] }>;
+type SearchParams = Promise<{ role?: string | string[]; q?: string | string[]; page?: string | string[]; size?: string | string[] }>;
 
 export default function PeoplePage({ searchParams }: { searchParams: SearchParams }) {
   return (
@@ -48,10 +48,12 @@ export default function PeoplePage({ searchParams }: { searchParams: SearchParam
   );
 }
 
-function href(role: RoleFilter, q: string, page = 1): string {
+function href(role: RoleFilter, q: string, page = 1, size = PAGE_SIZE): string {
   const params = new URLSearchParams();
   if (role !== "all") params.set("role", role);
   if (q) params.set("q", q);
+  const perPage = sizeParam(size);
+  if (perPage) params.set("size", String(perPage));
   if (page > 1) params.set("page", String(page));
   const query = params.toString();
   return query ? `/people?${query}` : "/people";
@@ -68,7 +70,8 @@ async function PeopleList({ searchParams }: { searchParams: SearchParams }) {
   const role = parseRoleFilter(query.role);
   const q = parseSearch(query.q);
   const page = parsePage(query.page);
-  const { from, to } = pageRange(page);
+  const size = parsePageSize(query.size);
+  const { from, to } = pageRange(page, size);
 
   const supabase = await createClient();
   let request = supabase
@@ -99,7 +102,7 @@ async function PeopleList({ searchParams }: { searchParams: SearchParams }) {
   const tabs: TabItem[] = ROLE_FILTERS.map((filter) => ({
     id: filter,
     label: t.people.filters[filter],
-    href: href(filter, q),
+    href: href(filter, q, 1, size),
     count: counts[filter],
     tone: filter === "all" ? "neutral" : filter === "admin" ? "info" : filter === "staff" ? "warn" : "neutral",
   }));
@@ -122,6 +125,7 @@ async function PeopleList({ searchParams }: { searchParams: SearchParams }) {
       <StickyToolbar>
         <form method="get" action="/people" role="search" className="flex w-full max-w-2xl flex-wrap items-end gap-3">
           {role !== "all" ? <input type="hidden" name="role" value={role} /> : null}
+          {sizeParam(size) ? <input type="hidden" name="size" value={size} /> : null}
           <Input
             id="q"
             name="q"
@@ -138,7 +142,7 @@ async function PeopleList({ searchParams }: { searchParams: SearchParams }) {
             {t.people.search.button}
           </Button>
           {q ? (
-            <ButtonLink variant="ghost" href={href(role, "")}>
+            <ButtonLink variant="ghost" href={href(role, "", 1, size)}>
               {t.people.search.clear}
             </ButtonLink>
           ) : null}
@@ -194,8 +198,14 @@ async function PeopleList({ searchParams }: { searchParams: SearchParams }) {
           <Pager
             range={format(t.people.range, { from: from + 1, to: from + rows.length, total })}
             label={t.people.paginationLabel}
-            previous={page > 1 ? { href: href(role, q, page - 1), label: t.people.previous } : undefined}
-            next={page < lastPage(total, PAGE_SIZE) ? { href: href(role, q, page + 1), label: t.people.next } : undefined}
+            previous={page > 1 ? { href: href(role, q, page - 1, size), label: t.people.previous } : undefined}
+            next={page < lastPage(total, size) ? { href: href(role, q, page + 1, size), label: t.people.next } : undefined}
+            perPage={{
+              label: t.pager.perPage,
+              groupLabel: t.pager.perPageLabel,
+              current: size,
+              options: PAGE_SIZES.map((n) => ({ size: n, href: href(role, q, 1, n) })),
+            }}
           />
         </>
       )}

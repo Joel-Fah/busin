@@ -681,12 +681,19 @@ async function Styleguide() {
         </p>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Pagination</h3>
-        <Pager range="Showing 21 to 40 of 87" label="Pages" previous={{ href: "#components", label: "Previous" }} next={{ href: "#components", label: "Next" }} />
+        <Pager
+          range="Showing 21 to 40 of 87"
+          label="Pages"
+          previous={{ href: "#components", label: "Previous" }}
+          next={{ href: "#components", label: "Next" }}
+          perPage={{ label: "Per page", groupLabel: "Items per page", current: 20, options: [10, 20, 50, 100].map((size) => ({ size, href: "#components" })) }}
+        />
         <p className="mt-3 max-w-2xl text-sm text-muted">
           Under every list that has more than one page: the range on the left, Previous and Next on the right. Each is a
           link to a real address, so the page can be bookmarked, and a button only appears when there is somewhere to go.
-          A page past the last one is an empty list, never an error. Lists show 20 at a time and are paginated by the
-          server, so a long list never loads more than one page.
+          A page past the last one is an empty list, never an error. Lists show 20 at a time by default; Per page offers
+          10, 20, 50 or 100, kept in the address with the filters, and changing it goes back to the first page. Lists are
+          paginated by the server, so a long list never loads more than one page (100 rows at most).
         </p>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Toasts</h3>

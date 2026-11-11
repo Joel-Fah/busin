@@ -3,7 +3,7 @@
 import type { ChipTone } from "@/components/ui/Chip";
 
 import { listHref, uuidParam } from "./filters";
-import { first } from "./pagination";
+import { first, parsePageSize, sizeParam } from "./pagination";
 
 // Shared helpers live in their own modules; they are re-exported so existing imports keep working.
 export { MAX_PAGE, PAGE_SIZE, pageRange, parsePage } from "./pagination";
@@ -159,6 +159,8 @@ export type SubscriptionFilters = {
   semester: string | null;
   /** A stop id, or null for all stops. */
   stop: string | null;
+  /** Rows per page (one of PAGE_SIZES); left out means the default. */
+  size?: number;
 };
 
 /** Reads the list's filters from its query string. Anything malformed means "no filter". */
@@ -166,8 +168,9 @@ export function parseSubscriptionFilters(query: {
   status?: string | string[];
   semester?: string | string[];
   stop?: string | string[];
+  size?: string | string[];
 }): SubscriptionFilters {
-  return { status: parseStatusFilter(query.status), semester: uuidParam(query.semester), stop: uuidParam(query.stop) };
+  return { status: parseStatusFilter(query.status), semester: uuidParam(query.semester), stop: uuidParam(query.stop), size: parsePageSize(query.size) };
 }
 
 /** The address of the list for these filters. The review queue is the plain address, so it carries no status. */
@@ -176,6 +179,7 @@ export function subscriptionsHref(filters: SubscriptionFilters, page = 1): strin
     status: filters.status === "pending" ? null : filters.status,
     semester: filters.semester,
     stop: filters.stop,
+    size: sizeParam(filters.size),
     page: page > 1 ? page : null,
   });
 }

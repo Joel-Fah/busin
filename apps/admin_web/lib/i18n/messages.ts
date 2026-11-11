@@ -44,6 +44,7 @@ export const en = {
     current: 'You are on',
   },
   help: { open: 'Help', close: 'Close', scenarios: 'Examples' },
+  pager: { perPage: 'Per page', perPageLabel: 'Items per page' },
   columnFilter: {
     search: 'Search',
     noMatch: 'Nothing matches',
@@ -764,6 +765,7 @@ export const fr: Messages = {
     current: 'Vous êtes sur',
   },
   help: { open: 'Aide', close: 'Fermer', scenarios: 'Exemples' },
+  pager: { perPage: 'Par page', perPageLabel: 'Éléments par page' },
   columnFilter: {
     search: 'Rechercher',
     noMatch: 'Aucun résultat',

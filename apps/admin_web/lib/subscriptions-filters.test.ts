@@ -6,9 +6,9 @@ const ID = "a1000000-0000-4000-8000-000000000001";
 
 describe("subscription filters", () => {
   it("defaults to the review queue and reads valid filters", () => {
-    expect(parseSubscriptionFilters({})).toEqual({ status: "pending", semester: null, stop: null });
-    expect(parseSubscriptionFilters({ status: "approved", semester: ID, stop: ID })).toEqual({ status: "approved", semester: ID, stop: ID });
-    expect(parseSubscriptionFilters({ semester: "x", stop: "'; drop" })).toEqual({ status: "pending", semester: null, stop: null });
+    expect(parseSubscriptionFilters({})).toEqual({ status: "pending", semester: null, stop: null, size: 20 });
+    expect(parseSubscriptionFilters({ status: "approved", semester: ID, stop: ID })).toEqual({ status: "approved", semester: ID, stop: ID, size: 20 });
+    expect(parseSubscriptionFilters({ semester: "x", stop: "'; drop" })).toEqual({ status: "pending", semester: null, stop: null, size: 20 });
   });
 
   it("builds addresses, with the review queue as the plain one", () => {

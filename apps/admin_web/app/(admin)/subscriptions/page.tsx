@@ -18,7 +18,7 @@ import { requireAdmin } from "@/lib/auth";
 import { chipText, filterText } from "@/lib/filter-text";
 import { format, type Locale } from "@/lib/i18n/messages";
 import { getMessages } from "@/lib/i18n/server";
-import { lastPage } from "@/lib/pagination";
+import { PAGE_SIZES, lastPage } from "@/lib/pagination";
 import { createClient } from "@/lib/supabase/server";
 import {
   FILTERS,
@@ -64,7 +64,8 @@ async function SubscriptionsList({ searchParams }: { searchParams: SearchParams 
   const filters = parseSubscriptionFilters(query);
   const status = filters.status;
   const page = parsePage(query.page);
-  const { from, to } = pageRange(page);
+  const size = filters.size ?? PAGE_SIZE;
+  const { from, to } = pageRange(page, size);
 
   const supabase = await createClient();
 
@@ -226,7 +227,13 @@ async function SubscriptionsList({ searchParams }: { searchParams: SearchParams 
             range={format(t.subscriptions.range, { from: from + 1, to: from + rows.length, total })}
             label={t.subscriptions.paginationLabel}
             previous={page > 1 ? { href: subscriptionsHref(filters, page - 1), label: t.subscriptions.previous } : undefined}
-            next={page < lastPage(total, PAGE_SIZE) ? { href: subscriptionsHref(filters, page + 1), label: t.subscriptions.next } : undefined}
+            next={page < lastPage(total, size) ? { href: subscriptionsHref(filters, page + 1), label: t.subscriptions.next } : undefined}
+            perPage={{
+              label: t.pager.perPage,
+              groupLabel: t.pager.perPageLabel,
+              current: size,
+              options: PAGE_SIZES.map((n) => ({ size: n, href: subscriptionsHref({ ...filters, size: n }) })),
+            }}
           />
         </>
       )}

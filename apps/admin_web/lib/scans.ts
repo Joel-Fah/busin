@@ -1,7 +1,7 @@
 /** Pure helpers for the scans (boardings) page. Kept separate so they are unit tested. */
 
 import { choiceParam, listHref, uuidParam } from "./filters";
-import { first } from "./pagination";
+import { first, parsePageSize, sizeParam } from "./pagination";
 import { isIsoDate } from "./semesters";
 import { startOfDayInTimeZone } from "./time";
 
@@ -16,6 +16,8 @@ export type ScanFilters = {
   bus: string | null;
   /** Going to school or going home, or null for both. */
   direction: "inbound" | "outbound" | null;
+  /** Rows per page (one of PAGE_SIZES); left out means the default. */
+  size?: number;
 };
 
 /** Reads the filters from the query string. Anything malformed means "no filter". */
@@ -25,6 +27,7 @@ export function parseScanFilters(query: {
   date?: string | string[];
   bus?: string | string[];
   direction?: string | string[];
+  size?: string | string[];
 }): ScanFilters {
   const date = first(query.date);
   return {
@@ -33,6 +36,7 @@ export function parseScanFilters(query: {
     date: isIsoDate(date) ? date : null,
     bus: uuidParam(query.bus),
     direction: choiceParam(query.direction, ["inbound", "outbound"] as const),
+    size: parsePageSize(query.size),
   };
 }
 
@@ -53,6 +57,7 @@ export function scansHref(filters: ScanFilters, page = 1): string {
     date: filters.date,
     bus: filters.bus,
     direction: filters.direction,
+    size: sizeParam(filters.size),
     page: page > 1 ? page : null,
   });
 }

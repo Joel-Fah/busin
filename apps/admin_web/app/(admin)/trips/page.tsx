@@ -22,7 +22,7 @@ import { chipText, filterText } from "@/lib/filter-text";
 import { VALUE_TOKEN } from "@/lib/filters";
 import { format, type Locale } from "@/lib/i18n/messages";
 import { getMessages } from "@/lib/i18n/server";
-import { PAGE_SIZE, lastPage, pageRange, parsePage } from "@/lib/pagination";
+import { PAGE_SIZE, PAGE_SIZES, lastPage, pageRange, parsePage } from "@/lib/pagination";
 import {
   DIRECTIONS,
   NO_DRIVER,
@@ -67,7 +67,8 @@ async function TripsList({ searchParams }: { searchParams: SearchParams }) {
   const filters = parseTripFilters(query);
   const status = filters.status;
   const page = parsePage(query.page);
-  const { from, to } = pageRange(page);
+  const size = filters.size ?? PAGE_SIZE;
+  const { from, to } = pageRange(page, size);
 
   const supabase = await createClient();
   const narrow = <Q,>(q: Q) => applyTripFilters(q, filters, admin.schoolTimezone);
@@ -250,7 +251,13 @@ async function TripsList({ searchParams }: { searchParams: SearchParams }) {
             range={format(t.trips.range, { from: from + 1, to: from + rows.length, total })}
             label={t.trips.paginationLabel}
             previous={page > 1 ? { href: tripsHref(filters, page - 1), label: t.trips.previous } : undefined}
-            next={page < lastPage(total, PAGE_SIZE) ? { href: tripsHref(filters, page + 1), label: t.trips.next } : undefined}
+            next={page < lastPage(total, size) ? { href: tripsHref(filters, page + 1), label: t.trips.next } : undefined}
+            perPage={{
+              label: t.pager.perPage,
+              groupLabel: t.pager.perPageLabel,
+              current: size,
+              options: PAGE_SIZES.map((n) => ({ size: n, href: tripsHref({ ...filters, size: n }) })),
+            }}
           />
         </>
       )}

@@ -135,6 +135,7 @@ describe("trip filters", () => {
       bus: BUS,
       direction: "outbound",
       driver: DRIVER,
+      size: 20,
     });
     expect(parseTripFilters({ date: "2026-02-30", bus: "x", direction: "up", driver: "y" })).toEqual({
       status: "all",
@@ -142,6 +143,7 @@ describe("trip filters", () => {
       bus: null,
       direction: null,
       driver: null,
+      size: 20,
     });
     expect(parseTripFilters({ driver: NO_DRIVER }).driver).toBe(NO_DRIVER);
   });
