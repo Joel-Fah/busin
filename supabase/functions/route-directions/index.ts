@@ -4,7 +4,10 @@
 // in ../_shared/route.ts, which has the tests.
 //
 // Body: {} to draw the saved route; or { preview: { stopIds: string[], extras?: [{ lat, lng, name, after }] } } (at most
-// 10 extras, each after the stop at that position, -1 before the first).
+// 10 extras, each after the stop at that position, -1 before the first). With optimize: true the preview is not kept in
+// that order: one Matrix request gives the driving times between all its points and the stops are put in the quickest
+// order to the campus (../_shared/route-order.ts); the first stop may change to one near today's first stop. The answer
+// then carries `order` (the points in their new order) and `optimized`.
 // Secrets (never in git): MAPBOX_DIRECTIONS_TOKEN, a server token allowed to use Directions. Locally in
 // supabase/functions/.env; on a hosted project with `supabase secrets set`. SUPABASE_URL, SUPABASE_ANON_KEY and
 // SUPABASE_SERVICE_ROLE_KEY are provided by the platform.
@@ -12,9 +15,10 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 import { drawRoad, RoutingError, type Waypoint } from "../_shared/route.ts";
+import { MAX_MATRIX_POINTS, matrixUrl, suggestedOrder } from "../_shared/route-order.ts";
 
 type Extra = { lat: number; lng: number; name?: string; after: number };
-type Preview = { stopIds: string[]; extras?: Extra[] };
+type Preview = { stopIds: string[]; extras?: Extra[]; optimize?: boolean };
 
 /** The `sub` of a JWT the platform has already verified, or null. */
 function subjectOf(jwt: string): string | null {
@@ -57,6 +61,8 @@ Deno.serve(async (request) => {
   if (preview && (!Array.isArray(preview.stopIds) || preview.stopIds.length > 200 || (preview.extras !== undefined && (!Array.isArray(preview.extras) || preview.extras.length > 10)))) {
     return json({ error: "bad_request" }, 400);
   }
+  const optimize = preview?.optimize === true;
+  // The extras are sent where they detour least; with optimize that order is only the fallback.
   const extras = preview?.extras ?? [];
 
   const { data, error } = await user.rpc("route_waypoints", {
@@ -73,7 +79,28 @@ Deno.serve(async (request) => {
     return json({ error: "failed" }, 500);
   }
   const rows = (data ?? []) as (Waypoint & { route_hash: string | null })[];
-  const points: Waypoint[] = rows.map(({ seq, kind, id, name, lat, lng }) => ({ seq, kind, id, name, lat, lng }));
+  let points: Waypoint[] = rows.map(({ seq, kind, id, name, lat, lng }) => ({ seq, kind, id, name, lat, lng }));
+
+  let optimized = false;
+  if (optimize && points.length >= 3 && points.length <= MAX_MATRIX_POINTS) {
+    const end = points.length - 1;
+    const first = points.findIndex((p) => p.kind === "stop" && p.id === preview?.stopIds[0]);
+    try {
+      const response = await fetch(matrixUrl(points, token));
+      if (response.status === 401 || response.status === 403) return json({ error: "bad_token" }, 502);
+      if (response.status === 429) return json({ error: "busy" }, 502);
+      const matrix = (await response.json()) as { code?: string; durations?: (number | null)[][] };
+      if (response.ok && matrix.code === "Ok" && Array.isArray(matrix.durations) && first >= 0 && points[end].kind === "campus") {
+        const order = suggestedOrder(points, matrix.durations, first, end);
+        if (order) {
+          points = order.map((i, seq) => ({ ...points[i], seq }));
+          optimized = true;
+        }
+      }
+    } catch {
+      // Without the times the preview keeps the given order; `optimized: false` says so.
+    }
+  }
 
   let road;
   try {
@@ -101,5 +128,6 @@ Deno.serve(async (request) => {
       return json({ ...road, stored: stored === true });
     }
   }
-  return json({ ...road, stored: false });
+  const order = points.map(({ kind, id, name, lat, lng }) => ({ kind, id, name, lat, lng }));
+  return json({ ...road, stored: false, ...(optimize ? { optimized, order } : {}) });
 });

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { requireAdmin } from "@/lib/auth";
 import type { LatLng } from "@/lib/geo";
+import type { OrderPoint } from "@/lib/route";
 import { isUuid } from "@/lib/ids";
 import { createClient } from "@/lib/supabase/server";
 
@@ -20,12 +21,23 @@ export async function refreshLoads(): Promise<RefreshState> {
 }
 
 export type RoutePreview =
-  | { status: "ok"; line: LatLng[]; legs: { from: string; to: string; distanceM: number; durationS: number }[]; distanceM: number; durationS: number }
+  | {
+      status: "ok";
+      line: LatLng[];
+      legs: { from: string; to: string; distanceM: number; durationS: number }[];
+      distanceM: number;
+      durationS: number;
+      /** The points in the order driven, campus last. */
+      order: OrderPoint[];
+      /** The stops were put in the quickest order along the roads; false when the times could not be had. */
+      optimized: boolean;
+    }
   | { status: "error"; error: string };
 
 /**
- * The school's route with suggested stops put in, drawn along roads by the route-directions function (a preview: nothing
- * is stored). The function checks the admin and counts the call; without a token it says so and the page estimates.
+ * The school's route with suggested stops, every stop in the quickest order to the campus along the roads (the first
+ * stop may move to one near today's), drawn by the route-directions function (a preview: nothing is stored). The
+ * function checks the admin and counts the call; without a token it says so and the page estimates.
  */
 export async function previewRoute(stopIds: string[], extras: { lat: number; lng: number; name: string; after: number }[]): Promise<RoutePreview> {
   await requireAdmin();
@@ -33,13 +45,20 @@ export async function previewRoute(stopIds: string[], extras: { lat: number; lng
   if (!Array.isArray(extras) || extras.length === 0 || extras.length > 10) return { status: "error", error: "bad_request" };
   const supabase = await createClient();
   try {
-    const { data, error } = await supabase.functions.invoke("route-directions", { body: { preview: { stopIds, extras } } });
+    const { data, error } = await supabase.functions.invoke("route-directions", { body: { preview: { stopIds, extras, optimize: true } } });
     if (error) {
       const context = (error as { context?: Response }).context;
       const body = context && typeof context.json === "function" ? ((await context.json().catch(() => null)) as { error?: string } | null) : null;
       return { status: "error", error: body?.error ?? "unavailable" };
     }
-    const road = data as { geometry?: { coordinates?: [number, number][] }; legs?: { from: string; to: string; distance_m: number; duration_s: number }[]; distance_m?: number; duration_s?: number } | null;
+    const road = data as {
+      geometry?: { coordinates?: [number, number][] };
+      legs?: { from: string; to: string; distance_m: number; duration_s: number }[];
+      distance_m?: number;
+      duration_s?: number;
+      order?: { kind?: string; name?: string; lat?: number; lng?: number }[];
+      optimized?: boolean;
+    } | null;
     const coords = road?.geometry?.coordinates ?? [];
     if (coords.length < 2) return { status: "error", error: "routing_failed" };
     return {
@@ -48,6 +67,12 @@ export async function previewRoute(stopIds: string[], extras: { lat: number; lng
       legs: (road?.legs ?? []).map((l) => ({ from: l.from, to: l.to, distanceM: l.distance_m, durationS: l.duration_s })),
       distanceM: road?.distance_m ?? 0,
       durationS: road?.duration_s ?? 0,
+      order: (road?.order ?? []).flatMap((p) =>
+        (p.kind === "stop" || p.kind === "extra" || p.kind === "campus") && typeof p.name === "string" && typeof p.lat === "number" && typeof p.lng === "number"
+          ? [{ kind: p.kind, name: p.name, position: { lat: p.lat, lng: p.lng } }]
+          : [],
+      ),
+      optimized: road?.optimized === true,
     };
   } catch {
     return { status: "error", error: "unavailable" };

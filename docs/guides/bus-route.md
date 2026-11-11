@@ -14,7 +14,7 @@ How a school's route works and how to set up road drawing ([ADR 0017](../decisio
 ## Set up road drawing (owner)
 
 1. In the Mapbox account, create a token for this use only (Account, Tokens, Create a token). The default public scopes
-   are enough for Directions. Do not add a URL restriction: it is used from the server, not from a browser.
+   are enough for Directions and the Matrix API (used for suggested routes). Do not add a URL restriction: it is used from the server, not from a browser.
 2. Locally: copy `supabase/functions/.env.example` to `supabase/functions/.env` and put the token in
    `MAPBOX_DIRECTIONS_TOKEN`. `npm run backend:start` now starts the Edge Functions runtime too (it used to be left
    out, so the route stayed straight). If drawing still says it is not set up, run `npx supabase functions serve` in
@@ -24,3 +24,15 @@ How a school's route works and how to set up road drawing ([ADR 0017](../decisio
 3. Hosted project (later): `supabase secrets set MAPBOX_DIRECTIONS_TOKEN=...`.
 
 The token never reaches a browser or an app. Each school can draw at most 30 routes an hour and 300 a day.
+
+## Suggested routes
+
+On Insights, Suggestions, selecting a new stop (or "Route with every suggestion") draws a suggested route in orange over
+today's route in blue. The function asks the Mapbox Matrix API once for the driving times between all the stops and the
+campus, then puts every stop in the quickest order to the campus (`supabase/functions/_shared/route-order.ts`). The
+first stop may change, but only to one within 1.5 km of today's first stop and only when that saves at least 3% of the
+drive. Each suggested route counts as one call toward the limits above, and nothing is stored. Up to 24 stops plus the
+campus fit in one Matrix request; beyond that the new stops are slotted into today's order instead.
+
+After changing the function's code locally, restart its container (`docker restart supabase_edge_runtime_busin`) or
+the backend, since the runtime does not reload by itself.

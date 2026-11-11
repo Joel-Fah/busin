@@ -115,9 +115,11 @@ test("the suggestions say what they cannot know, and each one is a sentence to s
     if ((await first.innerText()).startsWith("New stop") && (await page.getByText("Set the bus route").count()) === 0) {
       const compare = page.getByRole("region", { name: "Suggested route" });
       await expect(compare).toContainText(/\+\d+ students within 500 m of a stop/);
-      await expect(compare).toContainText(/Blue: the suggested route/);
+      await expect(compare).toContainText("Today's route");
+      // Every stop of the route, the suggested one among them, in the order the suggested route takes.
+      await expect(compare.getByRole("list", { name: "Stops in the suggested order" }).getByRole("listitem")).not.toHaveCount(0);
       await compare.getByText(/Directions, stop by stop/).click();
-      await expect(compare.getByRole("list")).toContainText("Leave from");
+      await expect(compare.getByRole("list", { name: "Suggested route" })).toContainText("Leave from");
       await compare.getByRole("button", { name: "Back to today's route" }).click();
       await expect(compare).toHaveCount(0);
     }

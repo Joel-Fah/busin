@@ -55,9 +55,12 @@ export type MapLine = {
 export type MapRoute = {
   id: string;
   coordinates: LatLng[];
-  /** The primary route is bold and coloured; secondary ones (alternatives) thinner and grey beneath it. */
-  emphasis: "primary" | "secondary";
-  /** A CSS colour or token; by default the info blue for the primary and the muted grey for the others. */
+  /**
+   * The primary route is bold and coloured; secondary ones (alternatives) thinner and grey beneath it; a suggested one
+   * thinner still, in its own colour, on top of everything.
+   */
+  emphasis: "primary" | "secondary" | "suggested";
+  /** A CSS colour or token; by default the info blue for the primary, the accent orange for a suggested route and the muted grey for the others. */
   color?: string;
 };
 
