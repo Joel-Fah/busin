@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'access.dart';
+import 'keys/roster.dart';
 
 /// Set once at start-up (see main.dart). Tests override the providers below it instead.
 final appConfigProvider = Provider<AppConfig>((ref) => throw UnimplementedError('appConfigProvider is overridden at start-up'));
@@ -58,7 +59,14 @@ final schoolProvider = FutureProvider<School>((ref) async {
   return ref.watch(schoolRepositoryProvider).getSchool(access.profile.schoolId!);
 }, retry: noAutomaticRetry);
 
-/// Signs out. Later slices also forget the day keys and the scan queue's owner here.
+/// Signs out and forgets today's day keys. The scan queue is kept: scans are never dropped (the screens refuse to sign
+/// out while some wait to be sent).
 final signOutProvider = Provider<Future<void> Function()>((ref) {
-  return () => ref.read(authServiceProvider).signOut();
+  return () async {
+    await ref.read(rosterStoreProvider).clear();
+    await ref.read(authServiceProvider).signOut();
+  };
 });
+
+/// Where today's day keys are kept on the phone (secure storage).
+final rosterStoreProvider = Provider<RosterStore>((ref) => SecureRosterStore());
