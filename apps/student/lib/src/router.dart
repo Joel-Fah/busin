@@ -1,10 +1,10 @@
+import 'package:busin_app/busin_app.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'auth/access.dart';
-import 'legal/legal_documents.dart';
 import 'legal/legal_screen.dart';
 import 'providers.dart';
 import 'screens/blocked_screen.dart';

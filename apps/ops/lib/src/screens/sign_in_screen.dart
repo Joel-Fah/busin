@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../providers.dart';
+import 'legal_screen.dart';
 
 /// Staff sign in with their school Google account. Who may use the app is decided after sign-in, from the profile.
 class SignInScreen extends ConsumerStatefulWidget {
@@ -74,6 +75,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                 const SizedBox(height: BusinSpace.x4),
                 Notice(tone: StatusTone.warn, child: Text(failure)),
               ],
+              const SizedBox(height: BusinSpace.x8),
+              const LegalLinks(),
             ],
           ),
         ),

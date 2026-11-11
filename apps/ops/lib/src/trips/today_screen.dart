@@ -53,6 +53,11 @@ class TodayScreen extends ConsumerWidget {
         title: Text(l10n.opsTodayTitle),
         actions: [
           IconButton(
+            tooltip: l10n.legalPrivacy,
+            icon: HugeIcon(icon: HugeIcons.strokeRoundedSquareLock02, color: p.fg),
+            onPressed: () => context.push(Routes.legal(LegalDoc.privacy)),
+          ),
+          IconButton(
             tooltip: l10n.actionSignOut,
             icon: HugeIcon(icon: HugeIcons.strokeRoundedLogout01, color: p.fg),
             onPressed: () async {
