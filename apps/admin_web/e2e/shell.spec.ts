@@ -2,7 +2,7 @@ import { randomBytes } from "node:crypto";
 
 import { expect, test } from "@playwright/test";
 
-import { createUser, deleteUser, signInBrowser, type TestUser } from "./support";
+import { SEED, createSubscription, createUser, deleteUser, serviceClient, signInBrowser, type TestUser } from "./support";
 
 const tag = randomBytes(3).toString("hex");
 let admin: TestUser;
@@ -30,6 +30,25 @@ test.describe("floating navigation on a wide screen", () => {
     for (const name of TABS) await expect(nav.getByRole("link", { name, exact: true })).toBeVisible();
     await expect(nav.getByRole("link", { name: "Trips", exact: true })).toHaveAttribute("aria-current", "page");
     await expect(nav.getByRole("link", { name: "Subscriptions", exact: true })).not.toHaveAttribute("aria-current", "page");
+  });
+
+  test("a badge counts what is waiting, and the tab says it to assistive technology", async ({ page }) => {
+    // At least one request waits for review.
+    const student = await createUser(`shell-badge-${tag}`, "student");
+    await createSubscription(student.id);
+    try {
+      const { count } = await serviceClient().from("subscriptions").select("id", { count: "exact", head: true }).eq("status", "pending").eq("school_id", SEED.schoolId);
+      const waiting = count ?? 0;
+      await page.goto("/");
+      const tab = page.getByRole("navigation", { name: "Main navigation" }).getByRole("link", { name: "Subscriptions", exact: true });
+      await expect(tab.locator("[data-nav-badge]")).toHaveText(waiting > 9 ? "9+" : String(waiting));
+      await expect(tab).toHaveAccessibleName("Subscriptions");
+      await expect(tab).toHaveAccessibleDescription(`${waiting} waiting`);
+      // Nothing waits on Trips, so it has no badge.
+      await expect(page.getByRole("link", { name: /^Trips/ }).locator("[data-nav-badge]")).toHaveCount(0);
+    } finally {
+      await deleteUser(student);
+    }
   });
 
   test("the profile tab has a label like the others", async ({ page }) => {

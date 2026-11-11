@@ -437,6 +437,7 @@ async function Styleguide() {
             "On wide screens every tab shows. On tablets in portrait and on phones the bar shows the current page and a Menu button that opens the tabs upward, grouped.",
             "The bar slides in from below when the dashboard loads, once, after the logo intro. It does not replay between pages.",
             "A page can fill the space above the tabs (the dock). The bar grows upward and the tabs stay in place.",
+            "A small accent count sits on a tab's icon when something waits there: subscription requests to review, students to verify. Above nine it reads 9+. On small screens the Menu button shows the total. The exact number is the tab's description for assistive technology, so its name stays the page's name.",
           ].map((line) => (
             <li key={line} className="rounded-md bg-surface-2 p-4">
               {line}
