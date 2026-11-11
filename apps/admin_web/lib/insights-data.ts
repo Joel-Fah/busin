@@ -2,6 +2,7 @@ import { parsePoint } from "@/lib/geo";
 import { buildStopLoads, type LoadPeriod, type StopLoads } from "@/lib/insights";
 import { buildProximity, type Proximity } from "@/lib/proximity";
 import { loadStops } from "@/lib/stops-data";
+import { buildSuggestions, type Suggestion, type SuggestionStop } from "@/lib/suggestions";
 import { createClient } from "@/lib/supabase/server";
 
 // A school runs a handful of buses; the cap only guards against surprises.
@@ -45,4 +46,18 @@ export async function loadProximity(): Promise<{ proximity: Proximity; failed: b
     proximity: buildProximity(known, rows.data ?? [], lines.data ?? [], nearer.data ?? []),
     failed: stops.error !== null || rows.error !== null || lines.error !== null || nearer.error !== null,
   };
+}
+
+/**
+ * The stop suggestions (new stops near named places, stops very close together, unused stops) with the active stops to
+ * name and place them. Nothing is changed by reading them.
+ */
+export async function loadSuggestions(): Promise<{ suggestions: Suggestion[]; stops: SuggestionStop[]; failed: boolean }> {
+  const supabase = await createClient();
+  const [stops, rows] = await Promise.all([
+    supabase.from("stops").select("id, name, location").eq("active", true).order("name").limit(MAX_STOPS),
+    supabase.rpc("admin_stop_suggestions"),
+  ]);
+  const known = (stops.data ?? []).map((stop) => ({ id: stop.id, name: stop.name, position: parsePoint(stop.location) }));
+  return { suggestions: buildSuggestions(rows.data ?? [], known), stops: known, failed: stops.error !== null || rows.error !== null };
 }

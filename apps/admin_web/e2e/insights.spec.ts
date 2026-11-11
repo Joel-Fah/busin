@@ -78,6 +78,22 @@ test("the graph shows each stop as a button that opens its figures, by mouse or 
   await page.getByRole("button", { name: "Back to the whole graph" }).click();
 });
 
+test("the suggestions say what they cannot know, and each one is a sentence to select", async ({ page, context }) => {
+  await signInBrowser(context, admin);
+  await page.goto("/insights");
+  await page.getByRole("link", { name: "Suggestions" }).click();
+  await expect(page).toHaveURL(/\/insights\?view=suggestions$/);
+  await expect(page.getByText(/Suggestions count students, not roads/)).toBeVisible();
+  const list = page.getByRole("list", { name: "Suggestions" });
+  if ((await list.count()) > 0) {
+    const first = list.getByRole("button").first();
+    await first.click();
+    await expect(first).toHaveAttribute("aria-pressed", "true");
+  } else {
+    await expect(page.getByText(/Nothing to suggest for now/)).toBeVisible();
+  }
+});
+
 test("a staff member cannot open the insights", async ({ page, context }) => {
   await signInBrowser(context, staff);
   await page.goto("/insights");

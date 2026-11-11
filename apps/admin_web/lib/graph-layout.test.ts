@@ -85,6 +85,16 @@ describe("names", () => {
   });
 });
 
+describe("suggested stops", () => {
+  it("are nodes of their own, kept apart from the real stops", () => {
+    const layout = layoutGraph([stop("a", 3.85, 11.5, 10)], [], [], 1000, 640, [{ id: "new:0", name: "Market", position: { lat: 3.8502, lng: 11.5 }, students: 8 }]);
+    const suggested = layout.nodes.find((n) => n.kind === "suggested")!;
+    const a = layout.nodes.find((n) => n.id === "a")!;
+    expect(suggested).toMatchObject({ name: "Market", students: 8 });
+    expect(Math.hypot(suggested.x - a.x, suggested.y - a.y)).toBeGreaterThan(a.r + suggested.r);
+  });
+});
+
 describe("edgeEnds", () => {
   it("starts and ends on the rims", () => {
     const e = edgeEnds({ x: 0, y: 0, r: 10 }, { x: 100, y: 0, r: 20 }, 0);

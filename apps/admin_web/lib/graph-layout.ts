@@ -8,10 +8,13 @@ import type { LatLng } from "@/lib/geo";
 export type GraphStopInput = { id: string; name: string; position: LatLng; riders: number };
 export type GraphZoneInput = { id: string; stopId: string; position: LatLng; students: number; distance: number };
 export type GraphFlowInput = { id: string; from: string; to: string; students: number };
+/** A suggested new stop (never a student): drawn as a dashed ring where it would be. */
+export type GraphSuggestedInput = { id: string; name: string; position: LatLng; students: number };
 
 export type GraphNode =
   | { kind: "stop"; id: string; name: string; x: number; y: number; r: number }
-  | { kind: "zone"; id: string; stopId: string; x: number; y: number; r: number; students: number; distance: number };
+  | { kind: "zone"; id: string; stopId: string; x: number; y: number; r: number; students: number; distance: number }
+  | { kind: "suggested"; id: string; name: string; x: number; y: number; r: number; students: number };
 
 export type GraphEdge = { id: string; kind: "zone" | "flow"; from: string; to: string; width: number };
 
@@ -82,6 +85,8 @@ export function separate<T extends { x: number; y: number; r: number }>(nodes: T
   return nodes;
 }
 
+const round = (n: number) => Math.round(n * 100) / 100;
+
 /** About half the width of a stop's name at 13 px, plus a little air. */
 export function labelHalfWidth(name: string): number {
   return name.length * 3.6 + 8;
@@ -98,19 +103,26 @@ export function layoutGraph(
   flows: readonly GraphFlowInput[],
   width = 1000,
   height = 640,
+  suggested: readonly GraphSuggestedInput[] = [],
 ): GraphLayout {
-  const project = projector(stops.map((s) => s.position), width, height);
+  const project = projector([...stops.map((s) => s.position), ...suggested.map((s) => s.position)], width, height);
   const most = Math.max(0, ...stops.map((s) => s.riders));
   // Pushed apart by their name's width too, so a label never runs into the next stop; then drawn at their own size.
   const spaced = separate(
-    stops.map((s) => {
-      const r = stopRadius(s.riders, most);
-      return { kind: "stop" as const, id: s.id, name: s.name, ...project(s.position), r: Math.max(r, labelHalfWidth(s.name)), own: r };
-    }),
+    [
+      ...stops.map((s) => {
+        const r = stopRadius(s.riders, most);
+        return { kind: "stop" as const, id: s.id, name: s.name, students: 0, ...project(s.position), r: Math.max(r, labelHalfWidth(s.name)), own: r };
+      }),
+      ...suggested.map((s) => ({ kind: "suggested" as const, id: s.id, name: s.name, students: s.students, ...project(s.position), r: Math.max(18, labelHalfWidth(s.name)), own: 18 })),
+    ],
     width,
     height,
   );
-  const placed = spaced.map(({ own, ...n }) => ({ ...n, r: own }));
+  const placedAll: GraphNode[] = spaced.map(({ own, students, ...n }) =>
+    n.kind === "stop" ? { kind: "stop", id: n.id, name: n.name, x: n.x, y: n.y, r: own } : { kind: "suggested", id: n.id, name: n.name, x: n.x, y: n.y, r: own, students },
+  );
+  const placed = placedAll.filter((n): n is Extract<GraphNode, { kind: "stop" }> => n.kind === "stop");
   const byId = new Map(placed.map((n) => [n.id, n]));
 
   // Each zone sits around its stop, in the direction it really lies, at a distance that grows with how far it is.
@@ -157,7 +169,10 @@ export function layoutGraph(
     edges.push({ id: `flow:${f.id}`, kind: "flow", from: f.from, to: f.to, width: 2 + 5 * Math.sqrt(f.students / mostFlow) });
   }
 
-  return { width, height, nodes: [...placed, ...zoneNodes], edges };
+  // Rounded to hundredths: the server and the browser can differ in the last digits of the same sum, and the page must
+  // render the same text on both.
+  const nodes = [...placedAll, ...zoneNodes].map((n) => ({ ...n, x: round(n.x), y: round(n.y), r: round(n.r) }));
+  return { width, height, nodes, edges: edges.map((e) => ({ ...e, width: round(e.width) })) };
 }
 
 /** Where an edge starts and ends: on the rims of its two nodes, not their centres (arrows then stop at the circle). */
@@ -166,9 +181,9 @@ export function edgeEnds(a: { x: number; y: number; r: number }, b: { x: number;
   const dy = b.y - a.y;
   const d = Math.hypot(dx, dy) || 1;
   return {
-    x1: a.x + (dx / d) * (a.r + inset),
-    y1: a.y + (dy / d) * (a.r + inset),
-    x2: b.x - (dx / d) * (b.r + inset),
-    y2: b.y - (dy / d) * (b.r + inset),
+    x1: round(a.x + (dx / d) * (a.r + inset)),
+    y1: round(a.y + (dy / d) * (a.r + inset)),
+    x2: round(b.x - (dx / d) * (b.r + inset)),
+    y2: round(b.y - (dy / d) * (b.r + inset)),
   };
 }

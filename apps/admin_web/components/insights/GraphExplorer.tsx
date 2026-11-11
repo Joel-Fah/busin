@@ -11,8 +11,9 @@ import { edgeEnds, layoutGraph, type GraphNode } from "@/lib/graph-layout";
 import { format, type Messages } from "@/lib/i18n/messages";
 import { formatShare, type LoadLevel, type StopLoads } from "@/lib/insights";
 import { roughDistance, type Proximity, type Reach } from "@/lib/proximity";
+import type { Suggestion } from "@/lib/suggestions";
 
-type Props = { loads: StopLoads; proximity: Proximity; failed: boolean; t: Messages };
+type Props = { loads: StopLoads; proximity: Proximity; suggestions?: Suggestion[]; failed: boolean; t: Messages };
 
 const LEVEL_FILL: Record<LoadLevel, string> = { quiet: "var(--info)", fair: "var(--ok)", busy: "var(--warn)", full: "var(--bad)" };
 const LEVEL_TONE: Record<LoadLevel, ChipTone> = { quiet: "info", fair: "ok", busy: "warn", full: "bad" };
@@ -29,7 +30,7 @@ const MAX_ZOOM = 4;
  * to. Drag to move, wheel or buttons to zoom; every node is a button (Tab moves node by node) that shows its figures in
  * the dock. No student is ever a node.
  */
-export function GraphExplorer({ loads, proximity, failed, t }: Props) {
+export function GraphExplorer({ loads, proximity, suggestions = [], failed, t }: Props) {
   const s = t.insights;
   const g = s.graph;
   const p = s.proximity;
@@ -60,8 +61,9 @@ export function GraphExplorer({ loads, proximity, failed, t }: Props) {
         proximity.nearerLines.map((line) => ({ id: line.id, from: line.fromId, to: line.toId, students: line.students })),
         size.width,
         size.height,
+        suggestions.flatMap((item) => (item.kind === "new_stop" ? [{ id: item.id, name: item.place, position: item.position, students: item.students }] : [])),
       ),
-    [proximity, size],
+    [proximity, size, suggestions],
   );
   const nodeById = useMemo(() => new Map(layout.nodes.map((n) => [n.id, n])), [layout.nodes]);
 
@@ -122,6 +124,7 @@ export function GraphExplorer({ loads, proximity, failed, t }: Props) {
   const choose = (id: string) => setSelected((current) => (current === id ? null : id));
 
   const label = (node: GraphNode): string => {
+    if (node.kind === "suggested") return format(s.suggestions.graphNode, { place: node.name, count: node.students });
     if (node.kind === "zone") {
       const stop = nodeById.get(node.stopId);
       return format(g.zone, { count: node.students, distance: distance(node.distance), stop: stop?.kind === "stop" ? stop.name : "" });
@@ -208,6 +211,28 @@ export function GraphExplorer({ loads, proximity, failed, t }: Props) {
                 className: "cursor-pointer outline-none",
                 style: { opacity: faded ? 0.35 : 1, transition: "opacity 200ms" },
               };
+              if (node.kind === "suggested") {
+                return (
+                  <g key={node.id} {...common}>
+                    <title>{label(node)}</title>
+                    {isSelected || isFocused ? <circle cx={node.x} cy={node.y} r={node.r + 7} fill="none" strokeWidth={3} style={{ stroke: "var(--focus)" }} /> : null}
+                    <circle cx={node.x} cy={node.y} r={node.r} strokeWidth={3} strokeDasharray="6 5" style={{ fill: "color-mix(in srgb, var(--accent) 18%, transparent)", stroke: "var(--accent)" }} />
+                    <text
+                      x={node.x}
+                      y={node.y + node.r + 17}
+                      textAnchor="middle"
+                      fontSize={13}
+                      fontWeight={700}
+                      paintOrder="stroke"
+                      strokeWidth={4}
+                      strokeLinejoin="round"
+                      style={{ fill: "var(--accent)", stroke: "var(--bg)" }}
+                    >
+                      {node.name}
+                    </text>
+                  </g>
+                );
+              }
               if (node.kind === "zone") {
                 return (
                   <g key={node.id} {...common}>
@@ -290,7 +315,7 @@ export function GraphExplorer({ loads, proximity, failed, t }: Props) {
           <div aria-live="polite" className="min-h-[5.5rem] rounded-md bg-surface-2 p-4">
             {!chosen ? (
               <p className="m-0 text-sm text-muted">{layout.nodes.length === 0 ? s.empty : g.hint}</p>
-            ) : chosen.kind === "zone" ? (
+            ) : chosen.kind === "zone" || chosen.kind === "suggested" ? (
               <p className="m-0 text-sm font-semibold text-fg">{label(chosen)}</p>
             ) : (
               <StopPanel id={chosen.id} name={chosen.name} loads={loadById} prox={proxById} distance={distance} t={t} />

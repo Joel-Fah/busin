@@ -3,12 +3,13 @@ import { Suspense } from "react";
 
 import { GraphExplorer } from "@/components/insights/GraphExplorer";
 import { InsightsExplorer } from "@/components/insights/InsightsExplorer";
+import { SuggestionsExplorer } from "@/components/insights/SuggestionsExplorer";
 import { ProximityExplorer } from "@/components/insights/ProximityExplorer";
 import { requireAdmin } from "@/lib/auth";
 import { centroid } from "@/lib/geo";
 import { getMessages } from "@/lib/i18n/server";
 import { DEFAULT_LOAD_PERIOD, parseInsightView, parseLoadPeriod } from "@/lib/insights";
-import { loadProximity, loadStopLoads } from "@/lib/insights-data";
+import { loadProximity, loadStopLoads, loadSuggestions } from "@/lib/insights-data";
 import { mapConfig } from "@/lib/map/config";
 
 export const metadata: Metadata = { title: "Insights" };
@@ -36,8 +37,17 @@ async function Insights({ searchParams }: { searchParams: SearchParams }) {
   // Each view loads only its own data.
   const view = parseInsightView(query.view);
   if (view === "graph") {
-    const [{ loads, failed: loadFailed }, { proximity, failed: proximityFailed }] = await Promise.all([loadStopLoads(DEFAULT_LOAD_PERIOD), loadProximity()]);
-    return <GraphExplorer loads={loads} proximity={proximity} failed={loadFailed || proximityFailed} t={t} />;
+    const [{ loads, failed: loadFailed }, { proximity, failed: proximityFailed }, { suggestions }] = await Promise.all([
+      loadStopLoads(DEFAULT_LOAD_PERIOD),
+      loadProximity(),
+      loadSuggestions(),
+    ]);
+    return <GraphExplorer loads={loads} proximity={proximity} suggestions={suggestions} failed={loadFailed || proximityFailed} t={t} />;
+  }
+  if (view === "suggestions") {
+    const { suggestions, stops, failed } = await loadSuggestions();
+    const center = centroid(stops.flatMap((stop) => (stop.position ? [stop.position] : []))) ?? config.fallbackCenter;
+    return <SuggestionsExplorer suggestions={suggestions} stops={stops} failed={failed} map={{ ...mapProps, center }} t={t} />;
   }
   if (view === "proximity") {
     const { proximity, failed } = await loadProximity();
