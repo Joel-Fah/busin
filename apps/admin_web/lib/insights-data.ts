@@ -34,14 +34,15 @@ const MAX_STOPS = 500;
  */
 export async function loadProximity(): Promise<{ proximity: Proximity; failed: boolean }> {
   const supabase = await createClient();
-  const [stops, rows, lines] = await Promise.all([
+  const [stops, rows, lines, nearer] = await Promise.all([
     supabase.from("stops").select("id, name, location").eq("active", true).order("name").limit(MAX_STOPS),
     supabase.rpc("admin_stop_proximity"),
     supabase.rpc("admin_desire_lines"),
+    supabase.rpc("admin_nearer_stops"),
   ]);
   const known = (stops.data ?? []).map((stop) => ({ id: stop.id, name: stop.name, position: parsePoint(stop.location) }));
   return {
-    proximity: buildProximity(known, rows.data ?? [], lines.data ?? []),
-    failed: stops.error !== null || rows.error !== null || lines.error !== null,
+    proximity: buildProximity(known, rows.data ?? [], lines.data ?? [], nearer.data ?? []),
+    failed: stops.error !== null || rows.error !== null || lines.error !== null || nearer.error !== null,
   };
 }

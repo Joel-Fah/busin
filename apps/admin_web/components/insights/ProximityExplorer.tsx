@@ -86,8 +86,12 @@ export function ProximityExplorer({ proximity, failed, map, t }: Props) {
   );
 
   const lines = useMemo<MapLine[]>(
-    () => proximity.lines.map((line) => ({ id: line.id, from: line.from, to: line.to, size: lineSize(line.students), color: "var(--accent)" })),
-    [proximity.lines],
+    () => [
+      ...proximity.lines.map((line) => ({ id: line.id, from: line.from, to: line.to, size: lineSize(line.students), color: "var(--accent)" })),
+      // From a stop to the stop some of its students live nearer to.
+      ...proximity.nearerLines.map((line) => ({ id: line.id, from: line.from, to: line.to, size: lineSize(line.students), color: "var(--info)" })),
+    ],
+    [proximity.lines, proximity.nearerLines],
   );
 
   const enough = proximity.stops.some((stop) => stop.median !== null);
@@ -133,6 +137,7 @@ export function ProximityExplorer({ proximity, failed, map, t }: Props) {
                 <p className="m-0">
                   {format(p.basis, { withArea: proximity.withArea, subscribers: proximity.subscribers })} {p.straight}
                   {proximity.lines.length > 0 ? ` ${p.lines}` : ""}
+                  {proximity.nearerLines.length > 0 ? ` ${p.nearerLines}` : ""}
                 </p>
                 {enough ? (
                   <ul aria-label={p.legend} className="m-0 flex list-none flex-wrap items-center gap-2 p-0">
@@ -171,6 +176,11 @@ export function ProximityExplorer({ proximity, failed, map, t }: Props) {
                         </span>
                         <span className="text-xs text-muted">{describe(stop)}</span>
                         {stop.bands ? <Bands bands={stop.bands} total={stop.withArea} labels={p.bands} /> : null}
+                        {stop.nearer.map((n) => (
+                          <span key={n.toId} className="text-xs font-semibold text-info">
+                            {format(p.nearer, { count: n.students, stop: n.toName, distance: distance(n.saved) })}
+                          </span>
+                        ))}
                         <span className="text-xs text-muted">{format(p.based, { withArea: stop.withArea, subscribers: stop.subscribers })}</span>
                       </button>
                     </li>

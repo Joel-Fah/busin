@@ -637,6 +637,11 @@ isOneToOne: false
 "admin_invite_staff":
 { Args: { "p_email": string,"p_role": Database["public"]['Enums']["user_role"] }; Returns: string
                            },
+"admin_nearer_stops":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "from_stop": string,"saved_m": number,"students": number,"to_stop": string
+            }[]
+                           },
 "admin_overdue_trips":
 { Args: Record<PropertyKey, never>; Returns: {
               "last_position_at": string,"reason": string,"started_at": string,"trip_id": string

@@ -258,3 +258,12 @@ from (
   where sub.status = 'approved'
 ) x
 on conflict (user_id) do update set area = excluded.area, label = excluded.label, source = excluded.source, updated_at = now();
+
+-- The students of Mvan roundabout live by Ekounou crossroads, so Insights shows "5 live nearer to Ekounou crossroads".
+update public.student_areas a
+set area = private.snap_area(extensions.st_y(e.location::extensions.geometry) + 0.002, extensions.st_x(e.location::extensions.geometry))
+from public.subscriptions sub
+join public.stops m on m.id = sub.stop_id and m.name = 'Mvan roundabout'
+join auth.users u on u.id = sub.student_id and u.email like 'demo.student%@ictuniversity.edu.cm',
+     public.stops e
+where a.user_id = sub.student_id and sub.status = 'approved' and e.name = 'Ekounou crossroads' and e.school_id = sub.school_id;

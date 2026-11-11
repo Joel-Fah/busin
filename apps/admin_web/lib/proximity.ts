@@ -28,6 +28,15 @@ export type ProximityRow = {
 /** One row of `admin_desire_lines`: a cell of about 500 m where 5 or more subscribers of one stop live. */
 export type DesireLineRow = { lat: number; lng: number; stop_id: string; students: number; distance_m: number };
 
+/** One row of `admin_nearer_stops`: 5 or more subscribers of one stop live at least 300 m nearer to another. */
+export type NearerRow = { from_stop: string; to_stop: string; students: number; saved_m: number };
+
+/** "6 students here live nearer to Mvan, about 1.4 km closer". */
+export type NearerStop = { toId: string; toName: string; students: number; saved: number };
+
+/** A line from a stop to the stop some of its students live nearer to. */
+export type NearerLine = { id: string; from: LatLng; to: LatLng; students: number };
+
 export type ProximityStop = {
   id: string;
   name: string;
@@ -41,6 +50,8 @@ export type ProximityStop = {
   bands: [number, number, number, number] | null;
   /** Share (0 to 1) living more than 1 km away. Null under 5. */
   overOneKm: number | null;
+  /** Stops some of its students live nearer to, most students first. */
+  nearer: NearerStop[];
 };
 
 export type DesireLine = { id: string; from: LatLng; to: LatLng; students: number; distance: number };
@@ -48,6 +59,8 @@ export type DesireLine = { id: string; from: LatLng; to: LatLng; students: numbe
 export type Proximity = {
   stops: ProximityStop[];
   lines: DesireLine[];
+  /** From a stop to the stop 5 or more of its students live nearer to. */
+  nearerLines: NearerLine[];
   /** All subscribers, and those who gave an area: "based on 41 of 120". */
   subscribers: number;
   withArea: number;
@@ -56,8 +69,22 @@ export type Proximity = {
 export type ProximityStopInput = { id: string; name: string; position: LatLng | null };
 
 /** Joins the stops with their figures: stops with figures first, farthest median first; the others by name. */
-export function buildProximity(stops: readonly ProximityStopInput[], rows: readonly ProximityRow[], lineRows: readonly DesireLineRow[]): Proximity {
+export function buildProximity(
+  stops: readonly ProximityStopInput[],
+  rows: readonly ProximityRow[],
+  lineRows: readonly DesireLineRow[],
+  nearerRows: readonly NearerRow[] = [],
+): Proximity {
   const known = new Map(stops.map((stop) => [stop.id, stop]));
+  const nearerFrom = new Map<string, NearerStop[]>();
+  for (const row of nearerRows) {
+    const to = known.get(row.to_stop);
+    if (!to || !known.has(row.from_stop)) continue;
+    const list = nearerFrom.get(row.from_stop) ?? [];
+    list.push({ toId: to.id, toName: to.name, students: row.students, saved: row.saved_m });
+    nearerFrom.set(row.from_stop, list);
+  }
+  for (const list of nearerFrom.values()) list.sort((a, b) => b.students - a.students);
   const list: ProximityStop[] = rows.flatMap((row) => {
     const stop = known.get(row.stop_id);
     if (!stop) return [];
@@ -74,6 +101,7 @@ export function buildProximity(stops: readonly ProximityStopInput[], rows: reado
         reach: enough && row.median_m !== null ? reachOf(row.median_m) : null,
         bands,
         overOneKm: bands ? (bands[2] + bands[3]) / row.with_area : null,
+        nearer: nearerFrom.get(stop.id) ?? [],
       },
     ];
   });
@@ -85,9 +113,16 @@ export function buildProximity(stops: readonly ProximityStopInput[], rows: reado
     return [{ id: `${row.stop_id}:${row.lat}:${row.lng}`, from: { lat: row.lat, lng: row.lng }, to, students: row.students, distance: row.distance_m }];
   });
 
+  const nearerLines: NearerLine[] = nearerRows.flatMap((row) => {
+    const from = known.get(row.from_stop)?.position;
+    const to = known.get(row.to_stop)?.position;
+    return from && to ? [{ id: `${row.from_stop}>${row.to_stop}`, from, to, students: row.students }] : [];
+  });
+
   return {
     stops: list,
     lines,
+    nearerLines,
     subscribers: list.reduce((sum, stop) => sum + stop.subscribers, 0),
     withArea: list.reduce((sum, stop) => sum + stop.withArea, 0),
   };
