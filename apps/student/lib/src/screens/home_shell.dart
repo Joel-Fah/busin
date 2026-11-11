@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
+import '../boarding/boarding_binder.dart';
 import '../offline/offline_banner.dart';
 import '../offline/offline_binder.dart';
 import '../push/push_binder.dart';
@@ -59,9 +60,11 @@ class HomeShell extends ConsumerWidget {
           pinLastToRailEnd: true,
           body: OfflineBinder(
             child: SubscriptionLiveBinder(
-              child: PushBinder(
-                // The notice sits above whichever tab is showing; it takes no room while everything is fresh.
-                child: SafeArea(bottom: false, child: Column(children: [const OfflineBanner(), Expanded(child: shell)])),
+              child: BoardingBinder(
+                child: PushBinder(
+                  // The notice sits above whichever tab is showing; it takes no room while everything is fresh.
+                  child: SafeArea(bottom: false, child: Column(children: [const OfflineBanner(), Expanded(child: shell)])),
+                ),
               ),
             ),
           ),

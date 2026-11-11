@@ -1842,6 +1842,24 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'Time to get ready for the bus. Open BusIn to see where it is.'**
   String get reminderEveningBody;
+
+  /// No description provided for @boardedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'On board'**
+  String get boardedTitle;
+
+  /// No description provided for @boardedEarlier.
+  ///
+  /// In en, this message translates to:
+  /// **'You boarded at {time}'**
+  String boardedEarlier(String time);
+
+  /// No description provided for @boardedClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get boardedClose;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {

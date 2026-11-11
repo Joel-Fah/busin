@@ -10,6 +10,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'src/l10n/busin_l10n.dart';
 
+export 'src/messages/boarding_lines.dart';
 export 'src/l10n/busin_l10n.dart';
 export 'src/l10n/labels.dart';
 export 'src/brand/brand_intro.dart';

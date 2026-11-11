@@ -389,6 +389,30 @@ class SupabaseScansRepository implements ScansRepository {
       });
 
   @override
+  Stream<Scan?> watchLatestForStudent(String studentId) {
+    // One row only: the newest boarding of this student, kept current by Realtime (RLS applies there too).
+    return _client
+        .from('scans')
+        .stream(primaryKey: ['id'])
+        .eq('student_id', studentId)
+        .order('scanned_at')
+        .limit(1)
+        .map((rows) => rows.isEmpty ? null : Scan.fromJson(rows.first))
+        .handleError((Object error) => throw mapError(error));
+  }
+
+  @override
+  Future<int> countForStudentSince(String studentId, DateTime since) => guarded(() async {
+        final result = await _client
+            .from('scans')
+            .select('id')
+            .eq('student_id', studentId)
+            .gte('scanned_at', since.toUtc().toIso8601String())
+            .count(CountOption.exact);
+        return result.count;
+      });
+
+  @override
   Future<List<Scan>> listForStudent(
     String studentId, {
     PageRequest page = const PageRequest(),

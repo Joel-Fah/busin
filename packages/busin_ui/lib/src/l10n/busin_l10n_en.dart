@@ -990,4 +990,15 @@ class BusinL10nEn extends BusinL10n {
   @override
   String get reminderEveningBody =>
       'Time to get ready for the bus. Open BusIn to see where it is.';
+
+  @override
+  String get boardedTitle => 'On board';
+
+  @override
+  String boardedEarlier(String time) {
+    return 'You boarded at $time';
+  }
+
+  @override
+  String get boardedClose => 'Close';
 }
