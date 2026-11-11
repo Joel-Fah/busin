@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../providers.dart';
+import '../profile/ops_settings.dart';
 import '../router.dart';
 import '../drive/driver_mode.dart';
 import '../drive/position_publisher.dart';
@@ -45,7 +46,8 @@ class _TripScreenState extends ConsumerState<TripScreen> {
       // Whoever shares this trip's position is offered to start sharing right away.
       final me = staffOf(ref.read(accessProvider));
       final running = await ref.read(tripProvider(trip.id).future);
-      if (mounted && me != null && running.sharesPosition(me.userId, isAdmin: false)) await _share(true);
+      // Offered right away, unless the staff member turned that off in their profile.
+      if (mounted && me != null && running.sharesPosition(me.userId, isAdmin: false) && ref.read(opsSettingsProvider).offerShare) await _share(true);
     } on NotAllowed {
       if (mounted) BusinToast.show(context, l10n.opsAssignedElsewhere, tone: ToastTone.warning);
     } on Conflict {

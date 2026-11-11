@@ -111,7 +111,10 @@ void main() {
       child: const OpsApp(),
     ));
     await settle(tester);
-    await tester.tap(find.byTooltip('Sign out'));
+    await tester.tap(find.byTooltip('Profile and settings'));
+    await settle(tester);
+    await tester.scrollUntilVisible(find.text('Sign out'), 300, scrollable: find.byType(Scrollable).first);
+    await tester.tap(find.text('Sign out'));
     await settle(tester);
     expect(find.textContaining('1 scan is still waiting to send'), findsOneWidget);
     expect(auth.signOuts, 0);

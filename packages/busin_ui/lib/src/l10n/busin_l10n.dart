@@ -2671,6 +2671,78 @@ abstract class BusinL10n {
   /// **'{count, plural, =1{1 scan is still waiting to send. Connect to the internet first, then sign out.} other{{count} scans are still waiting to send. Connect to the internet first, then sign out.}}'**
   String opsSignOutPending(int count);
 
+  /// No description provided for @opsProfileOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile and settings'**
+  String get opsProfileOpen;
+
+  /// No description provided for @opsSettingsScanning.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanning'**
+  String get opsSettingsScanning;
+
+  /// No description provided for @opsSettingsVibrate.
+  ///
+  /// In en, this message translates to:
+  /// **'Vibrate on each scan'**
+  String get opsSettingsVibrate;
+
+  /// No description provided for @opsSettingsSound.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound on each scan'**
+  String get opsSettingsSound;
+
+  /// No description provided for @opsSettingsSoundHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A click when a student is let on, an alert when refused.'**
+  String get opsSettingsSoundHint;
+
+  /// No description provided for @opsSettingsDriving.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver mode'**
+  String get opsSettingsDriving;
+
+  /// No description provided for @opsSettingsOfferShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Offer to share the bus position when I start a trip'**
+  String get opsSettingsOfferShare;
+
+  /// No description provided for @opsSettingsOfferShareHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You can always turn sharing on from the trip.'**
+  String get opsSettingsOfferShareHint;
+
+  /// No description provided for @opsSettingsPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'On this phone'**
+  String get opsSettingsPhone;
+
+  /// No description provided for @opsSettingsSendNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Send now'**
+  String get opsSettingsSendNow;
+
+  /// No description provided for @opsSettingsAllSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything is sent.'**
+  String get opsSettingsAllSent;
+
+  /// No description provided for @opsSettingsNotSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Not sent yet: no connection. It will go when the connection is back.'**
+  String get opsSettingsNotSent;
+
   /// No description provided for @opsAtStop.
   ///
   /// In en, this message translates to:

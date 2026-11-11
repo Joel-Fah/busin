@@ -1529,6 +1529,46 @@ class BusinL10nFr extends BusinL10n {
   }
 
   @override
+  String get opsProfileOpen => 'Profil et réglages';
+
+  @override
+  String get opsSettingsScanning => 'Scan';
+
+  @override
+  String get opsSettingsVibrate => 'Vibrer à chaque scan';
+
+  @override
+  String get opsSettingsSound => 'Son à chaque scan';
+
+  @override
+  String get opsSettingsSoundHint =>
+      'Un clic quand un étudiant est accepté, une alerte en cas de refus.';
+
+  @override
+  String get opsSettingsDriving => 'Mode chauffeur';
+
+  @override
+  String get opsSettingsOfferShare =>
+      'Proposer de partager la position du bus quand je démarre un trajet';
+
+  @override
+  String get opsSettingsOfferShareHint =>
+      'Vous pouvez toujours activer le partage depuis le trajet.';
+
+  @override
+  String get opsSettingsPhone => 'Sur ce téléphone';
+
+  @override
+  String get opsSettingsSendNow => 'Envoyer maintenant';
+
+  @override
+  String get opsSettingsAllSent => 'Tout est envoyé.';
+
+  @override
+  String get opsSettingsNotSent =>
+      'Pas encore envoyé : pas de connexion. Ce sera fait au retour du réseau.';
+
+  @override
   String opsAtStop(String stop) {
     return 'À $stop';
   }

@@ -52,23 +52,11 @@ class TodayScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.opsTodayTitle),
         actions: [
+          // The profile holds the settings, the legal texts and signing out.
           IconButton(
-            tooltip: l10n.legalPrivacy,
-            icon: HugeIcon(icon: HugeIcons.strokeRoundedSquareLock02, color: p.fg),
-            onPressed: () => context.push(Routes.legal(LegalDoc.privacy)),
-          ),
-          IconButton(
-            tooltip: l10n.actionSignOut,
-            icon: HugeIcon(icon: HugeIcons.strokeRoundedLogout01, color: p.fg),
-            onPressed: () async {
-              // Scans still on the phone must reach the server first: they are never dropped.
-              final pending = ref.read(pendingCountProvider).value ?? 0;
-              if (pending > 0) {
-                BusinToast.show(context, l10n.opsSignOutPending(pending), tone: ToastTone.warning);
-                return;
-              }
-              await ref.read(signOutProvider)();
-            },
+            tooltip: l10n.opsProfileOpen,
+            icon: HugeIcon(icon: HugeIcons.strokeRoundedUserCircle, color: p.fg),
+            onPressed: () => context.push(Routes.profile),
           ),
         ],
       ),

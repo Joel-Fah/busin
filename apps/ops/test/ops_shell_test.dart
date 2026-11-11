@@ -1,3 +1,4 @@
+import 'package:busin_ops/src/profile/ops_settings.dart';
 import 'package:busin_app/busin_app.dart';
 import 'package:busin_core/busin_core.dart';
 import 'package:busin_ops/src/access.dart';
@@ -73,6 +74,40 @@ void main() {
       expect(find.text('In short'), findsOneWidget);
       await tester.scrollUntilVisible(find.text('If you are staff or a driver'), 300, scrollable: find.byType(Scrollable).last);
       expect(find.text('If you are staff or a driver'), findsOneWidget);
+    });
+
+    testWidgets('the profile shows who is signed in and keeps the scanning and driving choices', (tester) async {
+      await open(tester, auth: FakeAuth(signedInAs: 'u1'), profiles: {'u1': staff()}, trips: FakeTrips([]));
+      await tester.tap(find.byTooltip('Profile and settings'));
+      await settle(tester);
+      expect(find.text('Your profile'), findsOneWidget);
+      expect(find.text('Staff'), findsOneWidget);
+
+      final container = ProviderScope.containerOf(tester.element(find.text('Your profile')));
+      expect(container.read(opsSettingsProvider).vibrate, isTrue);
+      await tester.scrollUntilVisible(find.text('Vibrate on each scan'), 200, scrollable: find.byType(Scrollable).first);
+      await tester.tap(find.text('Vibrate on each scan'));
+      await settle(tester);
+      expect(container.read(opsSettingsProvider).vibrate, isFalse);
+
+      await tester.scrollUntilVisible(find.text('Offer to share the bus position when I start a trip'), 200, scrollable: find.byType(Scrollable).first);
+      await tester.tap(find.text('Offer to share the bus position when I start a trip'));
+      await settle(tester);
+      expect(container.read(opsSettingsProvider).offerShare, isFalse);
+    });
+
+    testWidgets('with the offer turned off, starting a trip does not open the sharing sheet', (tester) async {
+      final trips = FakeTrips([trip('t1', driver: 'u1')]);
+      await open(tester, auth: FakeAuth(signedInAs: 'u1'), profiles: {'u1': staff()}, trips: trips);
+      ProviderScope.containerOf(tester.element(find.text('Bus B1'))).read(opsSettingsProvider.notifier).setOfferShare(false);
+      await tester.tap(find.text('Bus B1'));
+      await settle(tester);
+      await tester.tap(find.text('Start trip'));
+      await settle(tester);
+      expect(trips.started, ['t1']);
+      expect(find.text('Sharing the bus position'), findsNothing);
+      BusinToast.dismiss();
+      await settle(tester);
     });
 
     testWidgets('a student is told this app is for staff', (tester) async {

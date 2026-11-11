@@ -7,6 +7,7 @@ import 'access.dart';
 import 'providers.dart';
 import 'scan/scanner_screen.dart';
 import 'screens/access_screens.dart';
+import 'profile/profile_screen.dart';
 import 'screens/legal_screen.dart';
 import 'screens/sign_in_screen.dart';
 import 'trips/today_screen.dart';
@@ -23,6 +24,7 @@ class Routes {
   static String trip(String id) => '/trip/$id';
   static String scan(String id) => '/trip/$id/scan';
   static String legal(LegalDoc doc) => '/legal/${doc.name}';
+  static const profile = '/profile';
 }
 
 /// Where the access state sends someone who is at [location], or null to stay. Pure, so it is tested on its own.
@@ -57,6 +59,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: Routes.blocked, builder: (_, _) => const BlockedScreen()),
       GoRoute(path: Routes.problem, builder: (_, _) => const ProblemScreen()),
       GoRoute(path: Routes.today, builder: (_, _) => const TodayScreen()),
+      GoRoute(path: Routes.profile, builder: (_, _) => const OpsProfileScreen()),
       GoRoute(path: '/trip/:id', builder: (_, state) => TripScreen(tripId: state.pathParameters['id']!)),
       GoRoute(path: '/trip/:id/scan', builder: (_, state) => ScannerScreen(tripId: state.pathParameters['id']!)),
       GoRoute(
