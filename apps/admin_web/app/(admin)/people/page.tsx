@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { Search01Icon } from "@hugeicons/core-free-icons";
+import { Search01Icon, UserAdd01Icon } from "@hugeicons/core-free-icons";
 
 import { FlashToast } from "@/components/FlashToast";
 import { JoinRequestActions } from "@/components/people/JoinRequestActions";
@@ -129,6 +129,11 @@ async function PeopleList({ searchParams }: { searchParams: SearchParams }) {
       <PageHeader
         title={t.people.title}
         subtitle={t.people.subtitle}
+        action={
+          <ButtonLink href="/people/invite" icon={UserAdd01Icon}>
+            {t.people.invite.open}
+          </ButtonLink>
+        }
         help={{
           label: t.help.open,
           title: t.people.help.title,

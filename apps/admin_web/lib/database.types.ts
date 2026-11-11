@@ -389,6 +389,32 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"staff_invites": {
+                  Row: {
+                    "created_at": string,"email": string,"expires_at": string,"invited_by": string | null,"role": Database["public"]['Enums']["user_role"],"school_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"email": string,"expires_at"?: string,"invited_by"?: string | null,"role": Database["public"]['Enums']["user_role"],"school_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"email"?: string,"expires_at"?: string,"invited_by"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"school_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "staff_invites_invited_by_fkey"
+      columns: ["invited_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "staff_invites_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"stops": {
                   Row: {
                     "active": boolean,"created_at": string,"created_by": string | null,"id": string,"location": unknown,"name": string,"photo_path": string | null,"school_id": string,"updated_at": string
@@ -594,11 +620,17 @@ isOneToOne: false
               "boardings": number,"day": string
             }[]
                            },
+"admin_cancel_invite":
+{ Args: { "p_email": string }; Returns: undefined
+                           },
 "admin_cancel_trip":
 { Args: { "p_reason"?: string,"p_trip_id": string }; Returns: undefined
                            },
 "admin_decline_member":
 { Args: { "p_reason"?: string,"p_user_id": string }; Returns: undefined
+                           },
+"admin_invite_staff":
+{ Args: { "p_email": string,"p_role": Database["public"]['Enums']["user_role"] }; Returns: string
                            },
 "admin_refresh_stop_loads":
 { Args: Record<PropertyKey, never>; Returns: string

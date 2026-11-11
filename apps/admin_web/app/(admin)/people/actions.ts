@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 
 import { requireAdmin } from "@/lib/auth";
 import { isUuid } from "@/lib/ids";
+import { inviteErrorKey, isInviteRole, normalizeInviteEmail } from "@/lib/invites";
 import { MAX_DECLINE_REASON, isRole, peopleErrorKey } from "@/lib/people";
 import { createClient } from "@/lib/supabase/server";
 
@@ -81,4 +82,37 @@ export async function declineMember(formData: FormData): Promise<void> {
 
   revalidatePath("/people");
   redirect(formData.get("from") === "detail" ? "/people?role=verify&done=declined" : back(formData, id, "done=declined"));
+}
+
+/**
+ * Adds a staff member or an administrator by email (ADR 0015). The database function checks the caller, applies the role
+ * at once to an account of the school (or one without a school), or keeps the invite for the first sign-in.
+ */
+export async function inviteStaff(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const email = normalizeInviteEmail(formData.get("email"));
+  if (!email) redirect("/people/invite?error=invalid_email");
+  const role = formData.get("role");
+  if (!isInviteRole(role)) redirect("/people/invite?error=invalid_role");
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("admin_invite_staff", { p_email: email, p_role: role });
+  if (error) redirect(`/people/invite?error=${inviteErrorKey(error.code, error.message)}`);
+
+  revalidatePath("/people");
+  redirect(`/people/invite?done=${data === "applied" ? "applied" : "invited"}`);
+}
+
+/** Withdraws an open invite of the school. */
+export async function cancelInvite(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const email = normalizeInviteEmail(formData.get("email"));
+  if (!email) redirect("/people/invite");
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("admin_cancel_invite", { p_email: email });
+  if (error) redirect("/people/invite?error=generic");
+
+  revalidatePath("/people/invite");
+  redirect("/people/invite?done=cancelled");
 }

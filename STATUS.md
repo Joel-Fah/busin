@@ -33,11 +33,11 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 
 ## Handoff: phase 5 (in progress)
 
-Done: #261 the stop load map (Insights tab, nightly pg_cron count), stacked on #259.
+Done: #261 the stop load map (Insights tab, nightly pg_cron count), stacked on #259; #263 add staff by email (ADR 0015), stacked on #261.
 
 Next: slice 2, proximity per stop (median distance and bands from the students' areas, desire lines, 5-student threshold).
 
-Owner: when a hosted project exists, its migration enables pg_cron (a Supabase extension). Merge #261 after the phase 4 stack.
+Owner: when a hosted project exists, its migration enables pg_cron (a Supabase extension). Merge #261, then #263, after the phase 4 stack.
 
 ## Handoff: phase 4 (in progress)
 

@@ -82,7 +82,7 @@ select throws_ok($$select * from private.stop_trip_loads$$, '42501', null, 'the 
 select isnt(public.admin_refresh_stop_loads(), null, 'an admin can refresh their school');
 select throws_ok($$select public.admin_refresh_stop_loads()$$, 'PT429', null, 'but not twice in five minutes');
 reset role;
-select is((select count(*)::int from public.audit_log where action = 'insights.refreshed'), 1, 'the refresh is audited');
+select is((select count(*)::int from public.audit_log where action = 'insights.refreshed' and school_id = '10000000-0000-4000-8000-000000000001'), 1, 'the refresh is audited');
 
 set local role authenticated;
 set local "request.jwt.claims" = '{"sub":"a2000000-0000-4000-8000-000000000001","role":"authenticated"}';
