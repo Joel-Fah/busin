@@ -36,6 +36,25 @@ void main() {
     });
   });
 
+  group('School', () {
+    test('reads its profile and builds the public logo address', () {
+      final school = School.fromJson({
+        'id': 's1',
+        'name': 'Hill University',
+        'short_name': 'HU',
+        'timezone': 'Africa/Douala',
+        'status': 'active',
+        'logo_path': 's1/logo-1.webp',
+        'city': 'Yaounde',
+        'about': 'A school on a hill.',
+      });
+      expect(school.logoUrl('http://127.0.0.1:54321/'), 'http://127.0.0.1:54321/storage/v1/object/public/school-logos/s1/logo-1.webp');
+      expect(school.city, 'Yaounde');
+      expect(School.fromJson(school.toJson()), school);
+      expect(School.fromJson({'id': 's2', 'name': 'B', 'timezone': 'UTC', 'status': 'active'}).logoUrl('http://x'), isNull);
+    });
+  });
+
   group('GeoPoint', () {
     test('reads GeoJSON with longitude first', () {
       final p = GeoPoint.fromApi({

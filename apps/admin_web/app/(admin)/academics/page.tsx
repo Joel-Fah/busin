@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ListSkeleton } from "@/components/ui/ListSkeleton";
 import { FlashToast } from "@/components/FlashToast";
 import { Notice } from "@/components/ui/Notice";
+import { BackLink } from "@/components/ui/BackLink";
 import { PageHeader } from "@/components/ui/PageHeader";
 
 import { isUnitDoneKey, isUnitErrorKey } from "@/lib/academics";
@@ -44,6 +45,7 @@ async function Academics({ searchParams }: { searchParams: SearchParams }) {
 
   return (
     <>
+      <BackLink href="/school">{t.school.backToSchool}</BackLink>
       <PageHeader
         title={a.title}
         subtitle={a.subtitle}

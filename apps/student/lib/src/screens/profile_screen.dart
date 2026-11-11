@@ -7,6 +7,7 @@ import 'package:hugeicons/hugeicons.dart';
 import '../auth/access.dart';
 import '../legal/legal_screen.dart';
 import '../profile/profile_form.dart';
+import '../profile/school_badge.dart';
 import '../providers.dart';
 import '../router.dart';
 import '../settings/appearance.dart';
@@ -107,7 +108,7 @@ class ProfileScreen extends ConsumerWidget {
             runSpacing: BusinSpace.x2,
             children: [
               StatusChip(label: l10n.accountStatus(profile.status), tone: accountTone(profile.status)),
-              if (school != null) StatusChip(label: school.name, tone: StatusTone.neutral, icon: HugeIcons.strokeRoundedBuilding03),
+              if (school != null) SchoolBadge(school: school, supabaseUrl: ref.watch(appConfigProvider).supabaseUrl),
             ],
           ),
         ],

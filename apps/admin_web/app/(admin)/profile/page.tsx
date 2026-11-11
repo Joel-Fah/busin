@@ -48,7 +48,7 @@ async function Profile() {
               ["/stops", FlagTriangleRightIcon, t.profile.setup.stops],
               ["/buses", Bus01Icon, t.profile.setup.buses],
               ["/semesters", Calendar02Icon, t.profile.setup.semesters],
-              ["/academics", Building03Icon, t.profile.setup.academics],
+              ["/school", Building03Icon, t.profile.setup.school],
             ] as const
           ).map(([href, icon, text]) => (
             <li key={href}>

@@ -305,14 +305,14 @@ isOneToOne: false
                   ]
                 },"schools": {
                   Row: {
-                    "created_at": string,"id": string,"name": string,"short_name": string | null,"status": string,"timezone": string
+                    "about": string | null,"accepts_open_signup": boolean,"address": string | null,"city": string | null,"contact_email": string | null,"country": string | null,"created_at": string,"id": string,"logo_path": string | null,"name": string,"open_signup_domains": (string)[],"phone": string | null,"public_listing": boolean,"short_name": string | null,"status": string,"terms_accepted_at": string | null,"terms_accepted_by": string | null,"terms_version": string | null,"timezone": string,"website": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"id"?: string,"name": string,"short_name"?: string | null,"status"?: string,"timezone"?: string
+                    "about"?: string | null,"accepts_open_signup"?: boolean,"address"?: string | null,"city"?: string | null,"contact_email"?: string | null,"country"?: string | null,"created_at"?: string,"id"?: string,"logo_path"?: string | null,"name": string,"open_signup_domains"?: (string)[],"phone"?: string | null,"public_listing"?: boolean,"short_name"?: string | null,"status"?: string,"terms_accepted_at"?: string | null,"terms_accepted_by"?: string | null,"terms_version"?: string | null,"timezone"?: string,"website"?: string | null
                   }
                   Update: {
-                    "created_at"?: string,"id"?: string,"name"?: string,"short_name"?: string | null,"status"?: string,"timezone"?: string
+                    "about"?: string | null,"accepts_open_signup"?: boolean,"address"?: string | null,"city"?: string | null,"contact_email"?: string | null,"country"?: string | null,"created_at"?: string,"id"?: string,"logo_path"?: string | null,"name"?: string,"open_signup_domains"?: (string)[],"phone"?: string | null,"public_listing"?: boolean,"short_name"?: string | null,"status"?: string,"terms_accepted_at"?: string | null,"terms_accepted_by"?: string | null,"terms_version"?: string | null,"timezone"?: string,"website"?: string | null
                   }
                   Relationships: [
                     
@@ -483,7 +483,10 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "admin_boardings_by_day":
+            "admin_accept_school_terms":
+{ Args: { "p_version": string }; Returns: undefined
+                           },
+"admin_boardings_by_day":
 { Args: { "p_days"?: number }; Returns: {
               "boardings": number,"day": string
             }[]
@@ -500,6 +503,9 @@ isOneToOne: false
 "admin_revoke_subscription":
 { Args: { "p_note": string,"p_subscription_id": string }; Returns: undefined
                            },
+"admin_set_school_logo":
+{ Args: { "p_path": string }; Returns: undefined
+                           },
 "admin_set_trip_archived":
 { Args: { "p_archived": boolean,"p_trip_id": string }; Returns: undefined
                            },
@@ -513,6 +519,9 @@ isOneToOne: false
 { Args: Record<PropertyKey, never>; Returns: {
               "pending": number,"stop_id": string,"students": number
             }[]
+                           },
+"admin_update_school_profile":
+{ Args: { "p_about": string,"p_accepts_open_signup": boolean,"p_address": string,"p_city": string,"p_contact_email": string,"p_country": string,"p_name": string,"p_open_signup_domains"?: (string)[],"p_phone": string,"p_public_listing": boolean,"p_short_name": string,"p_website": string }; Returns: undefined
                            },
 "can_follow_buses":
 { Args: Record<PropertyKey, never>; Returns: boolean
@@ -533,6 +542,11 @@ isOneToOne: false
                            },
 "get_my_qr_secret":
 { Args: Record<PropertyKey, never>; Returns: string
+                           },
+"public_schools":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "city": string,"country": string,"id": string,"logo_path": string,"name": string,"short_name": string
+            }[]
                            },
 "record_qr_scan":
 { Args: { "p_accuracy"?: number,"p_code": string,"p_lat"?: number,"p_lng"?: number,"p_stop_id"?: string,"p_trip_id": string }; Returns: Json
