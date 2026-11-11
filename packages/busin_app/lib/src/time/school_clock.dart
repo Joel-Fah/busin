@@ -31,6 +31,18 @@ class SchoolClock {
     return tz.TZDateTime.from(instant, location);
   }
 
+  /// The instant the school's day [date] begins (midnight in [zone]), in UTC. Used to ask for one school day of trips.
+  DateTime dayStart(String zone, DateTime date) {
+    _toZone(zone, DateTime.now());
+    tz.Location location;
+    try {
+      location = tz.getLocation(zone);
+    } catch (_) {
+      location = tz.UTC;
+    }
+    return tz.TZDateTime(location, date.year, date.month, date.day).toUtc();
+  }
+
   /// The wall-clock time an instant was at the school, as a plain date and time with no zone. Used to
   /// show when a boarding happened and to group boardings by the day it was at the school.
   DateTime wallClock(String zone, DateTime instant) {

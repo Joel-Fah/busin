@@ -1216,4 +1216,89 @@ class BusinL10nEn extends BusinL10n {
 
   @override
   String get placeKindLandmark => 'Landmark';
+
+  @override
+  String get opsAppName => 'BusIn Ops';
+
+  @override
+  String get opsSignInTitle => 'Run the trips. Check every boarding.';
+
+  @override
+  String get opsSignInSubtitle =>
+      'Staff sign-in. Use your school Google account to start trips, scan boarding codes and share the bus position.';
+
+  @override
+  String get opsNotStaffTitle => 'This app is for staff';
+
+  @override
+  String get opsNotStaffBody =>
+      'Students use the BusIn app to show their boarding code. If you should have staff access, ask your school\'s administrator.';
+
+  @override
+  String get opsProblemTitle => 'BusIn Ops could not load your account';
+
+  @override
+  String get opsTodayTitle => 'Today\'s trips';
+
+  @override
+  String get opsTodayEmpty => 'No trips are scheduled today.';
+
+  @override
+  String get opsTodayMine => 'Assigned to you';
+
+  @override
+  String get opsTodayOthers => 'Other trips';
+
+  @override
+  String opsDeparts(String time) {
+    return 'Departs $time';
+  }
+
+  @override
+  String get opsTripTitle => 'Trip';
+
+  @override
+  String get opsStart => 'Start trip';
+
+  @override
+  String get opsEnd => 'End trip';
+
+  @override
+  String get opsEndTitle => 'End this trip?';
+
+  @override
+  String get opsEndBody =>
+      'No one can board it after this, and the bus position stops being shared.';
+
+  @override
+  String get opsStarted => 'Trip started.';
+
+  @override
+  String get opsEnded => 'Trip ended.';
+
+  @override
+  String get opsAssignedElsewhere =>
+      'Assigned to another staff member. Only they or an administrator can start it.';
+
+  @override
+  String get opsBusBusy =>
+      'This bus is already on another trip. End that one first.';
+
+  @override
+  String get opsNotToday => 'This trip is not scheduled for today.';
+
+  @override
+  String get opsNotScheduled => 'This trip has already started or is over.';
+
+  @override
+  String opsBoarded(int count, int capacity) {
+    return '$count of $capacity on board';
+  }
+
+  @override
+  String get opsScannerSoon => 'Start the trip to scan boarding codes.';
+
+  @override
+  String get opsProblemBody =>
+      'Check the connection and try again. The first sign-in on a phone needs a connection.';
 }

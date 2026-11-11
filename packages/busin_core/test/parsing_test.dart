@@ -360,4 +360,42 @@ void main() {
       expect(() => PlaceResult.fromJson({'label': 'x'}), throwsFormatException);
     });
   });
+
+  group('who runs a trip', () {
+    Trip trip({String? driver, String? startedBy, TripStatus status = TripStatus.scheduled}) => Trip(
+          id: 't',
+          schoolId: 's',
+          busId: 'b',
+          direction: TripDirection.inbound,
+          status: status,
+          scheduledStart: DateTime.utc(2026, 11, 12, 7),
+          driverId: driver,
+          startedBy: startedBy,
+        );
+
+    test('the assignee starts and ends, anyone on staff when nobody is assigned, admins always', () {
+      expect(trip(driver: 'd').canRun('d', isAdmin: false), isTrue);
+      expect(trip(driver: 'd').canRun('x', isAdmin: false), isFalse);
+      expect(trip().canRun('x', isAdmin: false), isTrue);
+      expect(trip(driver: 'd').canRun('x', isAdmin: true), isTrue);
+      expect(trip(driver: 'd', startedBy: 'x', status: TripStatus.active).canRun('x', isAdmin: false), isTrue,
+          reason: 'whoever started it may end it');
+    });
+
+    test('the position comes from the assignee, else whoever started the trip', () {
+      expect(trip(driver: 'd').sharesPosition('d', isAdmin: false), isTrue);
+      expect(trip(driver: 'd', startedBy: 'x').sharesPosition('x', isAdmin: false), isFalse);
+      expect(trip(startedBy: 'x').sharesPosition('x', isAdmin: false), isTrue);
+      expect(trip(startedBy: 'x').sharesPosition('y', isAdmin: false), isFalse);
+    });
+
+    test('reads who started it', () {
+      final parsed = Trip.fromJson({
+        'id': 't', 'school_id': 's', 'bus_id': 'b', 'driver_id': null, 'direction': 'inbound', 'status': 'active',
+        'scheduled_start': '2026-11-12T07:00:00+00:00', 'started_at': '2026-11-12T07:02:00+00:00', 'ended_at': null,
+        'started_by': 'u1',
+      });
+      expect(parsed.startedBy, 'u1');
+    });
+  });
 }

@@ -1238,4 +1238,91 @@ class BusinL10nFr extends BusinL10n {
 
   @override
   String get placeKindLandmark => 'Lieu connu';
+
+  @override
+  String get opsAppName => 'BusIn Ops';
+
+  @override
+  String get opsSignInTitle =>
+      'Faites rouler les trajets. Vérifiez chaque embarquement.';
+
+  @override
+  String get opsSignInSubtitle =>
+      'Connexion du personnel. Utilisez votre compte Google de l\'école pour démarrer les trajets, scanner les codes d\'embarquement et partager la position du bus.';
+
+  @override
+  String get opsNotStaffTitle => 'Cette application est réservée au personnel';
+
+  @override
+  String get opsNotStaffBody =>
+      'Les étudiants utilisent l\'application BusIn pour montrer leur code d\'embarquement. Si vous devriez avoir un accès personnel, demandez à l\'administrateur de votre école.';
+
+  @override
+  String get opsProblemTitle => 'BusIn Ops n\'a pas pu charger votre compte';
+
+  @override
+  String get opsTodayTitle => 'Trajets du jour';
+
+  @override
+  String get opsTodayEmpty => 'Aucun trajet n\'est prévu aujourd\'hui.';
+
+  @override
+  String get opsTodayMine => 'Qui vous sont confiés';
+
+  @override
+  String get opsTodayOthers => 'Autres trajets';
+
+  @override
+  String opsDeparts(String time) {
+    return 'Départ à $time';
+  }
+
+  @override
+  String get opsTripTitle => 'Trajet';
+
+  @override
+  String get opsStart => 'Démarrer le trajet';
+
+  @override
+  String get opsEnd => 'Terminer le trajet';
+
+  @override
+  String get opsEndTitle => 'Terminer ce trajet ?';
+
+  @override
+  String get opsEndBody =>
+      'Plus personne ne pourra y monter, et la position du bus ne sera plus partagée.';
+
+  @override
+  String get opsStarted => 'Trajet démarré.';
+
+  @override
+  String get opsEnded => 'Trajet terminé.';
+
+  @override
+  String get opsAssignedElsewhere =>
+      'Confié à un autre membre du personnel. Seuls cette personne ou un administrateur peuvent le démarrer.';
+
+  @override
+  String get opsBusBusy =>
+      'Ce bus est déjà sur un autre trajet. Terminez d\'abord celui-là.';
+
+  @override
+  String get opsNotToday => 'Ce trajet n\'est pas prévu aujourd\'hui.';
+
+  @override
+  String get opsNotScheduled => 'Ce trajet a déjà commencé ou est terminé.';
+
+  @override
+  String opsBoarded(int count, int capacity) {
+    return '$count sur $capacity à bord';
+  }
+
+  @override
+  String get opsScannerSoon =>
+      'Démarrez le trajet pour scanner les codes d\'embarquement.';
+
+  @override
+  String get opsProblemBody =>
+      'Vérifiez la connexion et réessayez. La première connexion sur un téléphone a besoin d\'une connexion.';
 }

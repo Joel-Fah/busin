@@ -32,6 +32,12 @@ const apps = {
     // draws its splash icon in. The app's opening animation draws the same mark at the same 144 dp, so the hand-off is seamless.
     ["../splash/wordmark.png", { background: "transparent", colour: WHITE, width: 576, canvas: 1152 }],
   ],
+  // The ops app: the same mark on the brand orange, so staff tell the two apps apart at a glance.
+  ops: [
+    ["icon.png", { background: "#F5951F", colour: SEED, width: 700 }],
+    ["icon_foreground.png", { background: "transparent", colour: SEED, width: 560 }],
+    ["icon_monochrome.png", { background: "transparent", colour: "#000000", width: 560 }],
+  ],
 };
 
 const browser = await chromium.launch();

@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../auth/access.dart';
 import '../providers.dart';
-import '../school_clock.dart';
 import 'proof_picker.dart';
 import 'subscription_overview.dart';
 

@@ -2220,6 +2220,156 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'Landmark'**
   String get placeKindLandmark;
+
+  /// No description provided for @opsAppName.
+  ///
+  /// In en, this message translates to:
+  /// **'BusIn Ops'**
+  String get opsAppName;
+
+  /// No description provided for @opsSignInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Run the trips. Check every boarding.'**
+  String get opsSignInTitle;
+
+  /// No description provided for @opsSignInSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Staff sign-in. Use your school Google account to start trips, scan boarding codes and share the bus position.'**
+  String get opsSignInSubtitle;
+
+  /// No description provided for @opsNotStaffTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This app is for staff'**
+  String get opsNotStaffTitle;
+
+  /// No description provided for @opsNotStaffBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Students use the BusIn app to show their boarding code. If you should have staff access, ask your school\'s administrator.'**
+  String get opsNotStaffBody;
+
+  /// No description provided for @opsProblemTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'BusIn Ops could not load your account'**
+  String get opsProblemTitle;
+
+  /// No description provided for @opsTodayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s trips'**
+  String get opsTodayTitle;
+
+  /// No description provided for @opsTodayEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No trips are scheduled today.'**
+  String get opsTodayEmpty;
+
+  /// No description provided for @opsTodayMine.
+  ///
+  /// In en, this message translates to:
+  /// **'Assigned to you'**
+  String get opsTodayMine;
+
+  /// No description provided for @opsTodayOthers.
+  ///
+  /// In en, this message translates to:
+  /// **'Other trips'**
+  String get opsTodayOthers;
+
+  /// No description provided for @opsDeparts.
+  ///
+  /// In en, this message translates to:
+  /// **'Departs {time}'**
+  String opsDeparts(String time);
+
+  /// No description provided for @opsTripTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip'**
+  String get opsTripTitle;
+
+  /// No description provided for @opsStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start trip'**
+  String get opsStart;
+
+  /// No description provided for @opsEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'End trip'**
+  String get opsEnd;
+
+  /// No description provided for @opsEndTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'End this trip?'**
+  String get opsEndTitle;
+
+  /// No description provided for @opsEndBody.
+  ///
+  /// In en, this message translates to:
+  /// **'No one can board it after this, and the bus position stops being shared.'**
+  String get opsEndBody;
+
+  /// No description provided for @opsStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip started.'**
+  String get opsStarted;
+
+  /// No description provided for @opsEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip ended.'**
+  String get opsEnded;
+
+  /// No description provided for @opsAssignedElsewhere.
+  ///
+  /// In en, this message translates to:
+  /// **'Assigned to another staff member. Only they or an administrator can start it.'**
+  String get opsAssignedElsewhere;
+
+  /// No description provided for @opsBusBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'This bus is already on another trip. End that one first.'**
+  String get opsBusBusy;
+
+  /// No description provided for @opsNotToday.
+  ///
+  /// In en, this message translates to:
+  /// **'This trip is not scheduled for today.'**
+  String get opsNotToday;
+
+  /// No description provided for @opsNotScheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'This trip has already started or is over.'**
+  String get opsNotScheduled;
+
+  /// No description provided for @opsBoarded.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of {capacity} on board'**
+  String opsBoarded(int count, int capacity);
+
+  /// No description provided for @opsScannerSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Start the trip to scan boarding codes.'**
+  String get opsScannerSoon;
+
+  /// No description provided for @opsProblemBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the connection and try again. The first sign-in on a phone needs a connection.'**
+  String get opsProblemBody;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {

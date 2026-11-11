@@ -1,0 +1,44 @@
+name: busin_ops
+description: BusIn ops app for staff (Android). Starts and ends trips, scans boarding codes (offline too) and shares the bus position.
+publish_to: none
+version: 0.1.0+1
+resolution: workspace
+
+environment:
+  sdk: ^3.13.0
+  flutter: ">=3.47.0"
+
+dependencies:
+  busin_app: any
+  busin_core: any
+  busin_data: any
+  busin_ui: any
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  flutter_riverpod: ^3.4.3
+  go_router: ^18.1.2
+  hugeicons: ^1.1.1
+  intl: any
+  shared_preferences: ^2.5.6
+  supabase_flutter: ^2.9.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_launcher_icons: ^0.14.4
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+# Stand-in icons rendered from the BusIn wordmark on the brand orange (node tools/render-app-icons.mjs). Replace the PNGs
+# in assets/icon with the owner's own artwork and run: fvm dart run flutter_launcher_icons
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: assets/icon/icon.png
+  adaptive_icon_background: "#F5951F"
+  adaptive_icon_foreground: assets/icon/icon_foreground.png
+  adaptive_icon_monochrome: assets/icon/icon_monochrome.png
