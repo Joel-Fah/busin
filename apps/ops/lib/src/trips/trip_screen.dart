@@ -8,6 +8,8 @@ import 'package:hugeicons/hugeicons.dart';
 
 import '../providers.dart';
 import '../router.dart';
+import '../drive/driver_mode.dart';
+import '../drive/position_publisher.dart';
 import '../queue/scan_queue.dart';
 import '../scan/scan_providers.dart';
 import 'trip_providers.dart';
@@ -40,6 +42,10 @@ class _TripScreenState extends ConsumerState<TripScreen> {
       BusinHaptics.medium();
       BusinToast.show(context, l10n.opsStarted, tone: ToastTone.success);
       _reload();
+      // Whoever shares this trip's position is offered to start sharing right away.
+      final me = staffOf(ref.read(accessProvider));
+      final running = await ref.read(tripProvider(trip.id).future);
+      if (mounted && me != null && running.sharesPosition(me.userId, isAdmin: false)) await _share(true);
     } on NotAllowed {
       if (mounted) BusinToast.show(context, l10n.opsAssignedElsewhere, tone: ToastTone.warning);
     } on Conflict {
@@ -64,11 +70,26 @@ class _TripScreenState extends ConsumerState<TripScreen> {
     }
   }
 
+  /// Turns sharing on (after explaining it) or off.
+  Future<void> _share(bool on) async {
+    final l10n = BusinL10n.of(context);
+    final mode = ref.read(driverModeProvider(widget.tripId).notifier);
+    if (!on) {
+      mode.stop();
+      return;
+    }
+    final go = await showBusinSheet<bool>(context, builder: (context) => const _ShareWhy());
+    if (go != true || !mounted) return;
+    final started = await mode.start(title: l10n.opsShareNotificationTitle, text: l10n.opsShareNotificationText);
+    if (!started && mounted) BusinToast.show(context, l10n.opsShareDenied, tone: ToastTone.warning);
+  }
+
   Future<void> _end(Trip trip) async {
     final l10n = BusinL10n.of(context);
     final sure = await showBusinSheet<bool>(context, builder: (context) => const _EndSheet());
     if (sure != true || !mounted) return;
     setState(() => _busy = true);
+    ref.read(driverModeProvider(trip.id).notifier).stop();
     try {
       await ref.read(tripsRepositoryProvider).end(trip.id);
       if (!mounted) return;
@@ -177,6 +198,15 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                       ),
                       const SizedBox(height: BusinSpace.x3),
                     ],
+                    if (trip.status == TripStatus.active && me != null) ...[
+                      _ShareCard(
+                        tripId: trip.id,
+                        mine: trip.sharesPosition(me.userId, isAdmin: false),
+                        zone: zone,
+                        onChanged: _share,
+                      ),
+                      const SizedBox(height: BusinSpace.x3),
+                    ],
                     if (refusedLater.isNotEmpty) ...[
                       Notice(
                         tone: StatusTone.bad,
@@ -209,6 +239,76 @@ class _TripScreenState extends ConsumerState<TripScreen> {
             },
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Sharing the bus position: a switch for whoever shares this trip, a line for everyone else.
+class _ShareCard extends ConsumerWidget {
+  const _ShareCard({required this.tripId, required this.mine, required this.zone, required this.onChanged});
+
+  final String tripId;
+  final bool mine;
+  final String zone;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = BusinL10n.of(context);
+    final p = BusinPalette.of(context);
+    final text = Theme.of(context).textTheme;
+    final drive = ref.watch(driverModeProvider(tripId));
+    final last = drive.lastSentAt;
+    final status = switch (drive.status) {
+      ShareStatus.stopped => l10n.opsShareOff,
+      ShareStatus.waiting => l10n.opsShareWaiting,
+      ShareStatus.sharing when last == null => l10n.opsShareStarting,
+      ShareStatus.sharing => l10n.opsShareLast(
+          MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(const SchoolClock().wallClock(zone, last!))),
+        ),
+    };
+    return BusinCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              HugeIcon(icon: HugeIcons.strokeRoundedGps01, size: 22, color: drive.status == ShareStatus.stopped ? p.muted : p.ok),
+              const SizedBox(width: BusinSpace.x3),
+              Expanded(child: Text(l10n.opsShareTitle, style: text.titleMedium)),
+              if (mine) Switch.adaptive(value: drive.status != ShareStatus.stopped, onChanged: onChanged),
+            ],
+          ),
+          const SizedBox(height: BusinSpace.x2),
+          Text(mine ? status : l10n.opsShareNotYours, style: text.bodySmall?.copyWith(color: p.muted)),
+          if (mine && drive.status == ShareStatus.stopped) Text(l10n.opsShareBody, style: text.bodySmall?.copyWith(color: p.muted)),
+        ],
+      ),
+    );
+  }
+}
+
+class _ShareWhy extends StatelessWidget {
+  const _ShareWhy();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = BusinL10n.of(context);
+    final p = BusinPalette.of(context);
+    final text = Theme.of(context).textTheme;
+    return Padding(
+      padding: EdgeInsets.all(BusinSheetFrame.contentInset),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l10n.opsShareWhyTitle, style: text.titleLarge),
+          const SizedBox(height: BusinSpace.x2),
+          Text(l10n.opsShareWhyBody, style: text.bodyMedium?.copyWith(color: p.muted)),
+          const SizedBox(height: BusinSpace.x4),
+          BusinButton(label: l10n.opsLocationContinue, expand: true, onPressed: () => Navigator.of(context).pop(true)),
+        ],
       ),
     );
   }

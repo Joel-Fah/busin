@@ -2514,6 +2514,78 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'At {stop}'**
   String opsAtStop(String stop);
+
+  /// No description provided for @opsShareTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share the bus position'**
+  String get opsShareTitle;
+
+  /// No description provided for @opsShareBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Students following this bus see where it is, and those waiting get a push when it is a few minutes away.'**
+  String get opsShareBody;
+
+  /// No description provided for @opsShareLast.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharing. Last sent {time}'**
+  String opsShareLast(String time);
+
+  /// No description provided for @opsShareStarting.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharing. Waiting for the first position...'**
+  String get opsShareStarting;
+
+  /// No description provided for @opsShareWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection. Sharing resumes by itself.'**
+  String get opsShareWaiting;
+
+  /// No description provided for @opsShareOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Not sharing'**
+  String get opsShareOff;
+
+  /// No description provided for @opsShareDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow location to share the bus position.'**
+  String get opsShareDenied;
+
+  /// No description provided for @opsShareWhyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharing the bus position'**
+  String get opsShareWhyTitle;
+
+  /// No description provided for @opsShareWhyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'While the trip runs, this phone sends its position every 10 seconds, also with the screen off. A notification shows while it does. It stops when the trip ends or when you turn it off.'**
+  String get opsShareWhyBody;
+
+  /// No description provided for @opsShareNotificationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'BusIn Ops is sharing the bus position'**
+  String get opsShareNotificationTitle;
+
+  /// No description provided for @opsShareNotificationText.
+  ///
+  /// In en, this message translates to:
+  /// **'Students can follow this bus until the trip ends.'**
+  String get opsShareNotificationText;
+
+  /// No description provided for @opsShareNotYours.
+  ///
+  /// In en, this message translates to:
+  /// **'The staff member assigned to this trip shares its position.'**
+  String get opsShareNotYours;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:busin_app/busin_app.dart';
 import 'package:busin_core/busin_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator_android/geolocator_android.dart';
 import 'package:geolocator_platform_interface/geolocator_platform_interface.dart';
 
 import '../access.dart';
@@ -99,8 +100,15 @@ final syncLoopProvider = Provider<void>((ref) {
   });
 });
 
-/// One position reading.
-typedef Fix = ({GeoPoint point, double accuracy});
+/// One position reading. Speed (m/s) and heading (degrees) when the phone knows them.
+typedef Fix = ({GeoPoint point, double accuracy, double? speed, double? heading});
+
+Fix _fix(Position p) => (
+      point: GeoPoint(p.latitude, p.longitude),
+      accuracy: p.accuracy,
+      speed: p.speed >= 0 ? p.speed : null,
+      heading: p.heading >= 0 ? p.heading : null,
+    );
 
 /// The phone's position while the scanner is open, for the stop of each scan. Asked for only there, after an
 /// explanation (busin-security: location in the ops app only while scanning or driving).
@@ -108,6 +116,10 @@ abstract interface class LocationFeed {
   Future<bool> hasPermission();
   Future<bool> requestPermission();
   Stream<Fix> watch();
+
+  /// Positions while driving, also with the screen off: a foreground service with a visible notification
+  /// ([title], [text]) keeps them coming. Stops when the subscription is cancelled.
+  Stream<Fix> watchDriving({required String title, required String text});
 }
 
 class DeviceLocationFeed implements LocationFeed {
@@ -127,9 +139,26 @@ class DeviceLocationFeed implements LocationFeed {
   }
 
   @override
-  Stream<Fix> watch() => _geo
-      .getPositionStream(locationSettings: const LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 10))
-      .map((p) => (point: GeoPoint(p.latitude, p.longitude), accuracy: p.accuracy));
+  Stream<Fix> watch() =>
+      _geo.getPositionStream(locationSettings: const LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 10)).map(_fix);
+
+  @override
+  Stream<Fix> watchDriving({required String title, required String text}) => _geo
+      .getPositionStream(
+        locationSettings: AndroidSettings(
+          accuracy: LocationAccuracy.high,
+          distanceFilter: 0,
+          intervalDuration: const Duration(seconds: 5),
+          foregroundNotificationConfig: ForegroundNotificationConfig(
+            notificationTitle: title,
+            notificationText: text,
+            notificationChannelName: title,
+            enableWakeLock: true,
+            setOngoing: true,
+          ),
+        ),
+      )
+      .map(_fix);
 }
 
 final locationFeedProvider = Provider<LocationFeed>((ref) => DeviceLocationFeed());

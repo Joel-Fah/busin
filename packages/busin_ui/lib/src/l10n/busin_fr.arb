@@ -506,5 +506,17 @@
   "opsLocationWhyBody": "BusIn Ops enregistre l'arrêt où chaque étudiant monte, à partir de la position de ce téléphone pendant que le scanner est ouvert. Elle sert à ce trajet et à la planification des arrêts, jamais à vous suivre.",
   "opsLocationContinue": "Continuer",
   "opsSignOutPending": "{count, plural, =1{1 scan attend encore d'être envoyé. Connectez-vous d'abord à internet, puis déconnectez-vous.} other{{count} scans attendent encore d'être envoyés. Connectez-vous d'abord à internet, puis déconnectez-vous.}}",
-  "opsAtStop": "À {stop}"
+  "opsAtStop": "À {stop}",
+  "opsShareTitle": "Partager la position du bus",
+  "opsShareBody": "Les étudiants qui suivent ce bus voient où il est, et ceux qui attendent reçoivent une notification quand il est à quelques minutes.",
+  "opsShareLast": "Partage en cours. Dernier envoi à {time}",
+  "opsShareStarting": "Partage en cours. En attente de la première position...",
+  "opsShareWaiting": "Pas de connexion. Le partage reprend tout seul.",
+  "opsShareOff": "Pas de partage",
+  "opsShareDenied": "Autorisez la localisation pour partager la position du bus.",
+  "opsShareWhyTitle": "Partager la position du bus",
+  "opsShareWhyBody": "Pendant le trajet, ce téléphone envoie sa position toutes les 10 secondes, même écran éteint. Une notification s'affiche pendant ce temps. Le partage s'arrête à la fin du trajet ou quand vous le désactivez.",
+  "opsShareNotificationTitle": "BusIn Ops partage la position du bus",
+  "opsShareNotificationText": "Les étudiants peuvent suivre ce bus jusqu'à la fin du trajet.",
+  "opsShareNotYours": "La personne affectée à ce trajet partage sa position."
 }

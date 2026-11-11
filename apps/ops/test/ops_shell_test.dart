@@ -87,6 +87,10 @@ void main() {
       await tester.tap(find.text('Start trip'));
       await settle(tester);
       expect(trips.started, ['t1']);
+      // Sharing the position is offered next; not this time.
+      expect(find.text('Sharing the bus position'), findsOneWidget);
+      await tester.tapAt(const Offset(20, 20));
+      await settle(tester);
       expect(find.text('0 of 50 on board'), findsOneWidget);
       BusinToast.dismiss();
       await settle(tester);

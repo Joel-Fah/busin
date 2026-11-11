@@ -1428,4 +1428,50 @@ class BusinL10nFr extends BusinL10n {
   String opsAtStop(String stop) {
     return 'À $stop';
   }
+
+  @override
+  String get opsShareTitle => 'Partager la position du bus';
+
+  @override
+  String get opsShareBody =>
+      'Les étudiants qui suivent ce bus voient où il est, et ceux qui attendent reçoivent une notification quand il est à quelques minutes.';
+
+  @override
+  String opsShareLast(String time) {
+    return 'Partage en cours. Dernier envoi à $time';
+  }
+
+  @override
+  String get opsShareStarting =>
+      'Partage en cours. En attente de la première position...';
+
+  @override
+  String get opsShareWaiting =>
+      'Pas de connexion. Le partage reprend tout seul.';
+
+  @override
+  String get opsShareOff => 'Pas de partage';
+
+  @override
+  String get opsShareDenied =>
+      'Autorisez la localisation pour partager la position du bus.';
+
+  @override
+  String get opsShareWhyTitle => 'Partager la position du bus';
+
+  @override
+  String get opsShareWhyBody =>
+      'Pendant le trajet, ce téléphone envoie sa position toutes les 10 secondes, même écran éteint. Une notification s\'affiche pendant ce temps. Le partage s\'arrête à la fin du trajet ou quand vous le désactivez.';
+
+  @override
+  String get opsShareNotificationTitle =>
+      'BusIn Ops partage la position du bus';
+
+  @override
+  String get opsShareNotificationText =>
+      'Les étudiants peuvent suivre ce bus jusqu\'à la fin du trajet.';
+
+  @override
+  String get opsShareNotYours =>
+      'La personne affectée à ce trajet partage sa position.';
 }

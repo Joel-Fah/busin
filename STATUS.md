@@ -12,7 +12,7 @@ Current phase: **Phase 3, student app** ([docs/phases/phase-3-student-app.md](do
 | 1 Backend | Secure multi-tenant Supabase backend | Done and merged into `dev` (126 database tests) |
 | 2 Shared and admin web | Shared Dart packages, admin portal | **Done and merged into `dev`.** Admin portal (with the bento overview); `busin_core` has the models and the repository interfaces, `busin_data` the Supabase implementations, `busin_ui` the design system. Flutter 3.47.9 through fvm resolves, analyzes and tests the workspace |
 | 3 Student app | Lightweight student app | **Feature complete, not yet signed off.** Every item of the scope is built and tested (sign-in, subscribe with proof, status, rotating code, history, live bus for subscribers, push, English and French, light and dark, plus the profile, setup, history, revoke and live changes). Waiting on: the owner's device test, review and merge of the stacked branches (#123 first), a hosted Supabase project (none exists yet), iOS configuration |
-| 4 Ops app | Scanner and driver mode | **In progress.** Owner decisions: day keys for offline checks (ADR 0014), any staff phone scans and the trip's assignee shares the position, the assignee starts and ends the trip (any staff when none). Slices: day keys (#249), trip control, shared app package, ops shell, scanner with offline queue, driver mode, then the owner's test on a real run |
+| 4 Ops app | Scanner and driver mode | **Built, waiting for the owner's test on a real run.** Owner decisions: day keys for offline checks (ADR 0014), any staff phone scans and the trip's assignee shares the position, the assignee starts and ends the trip (any staff when none). Slices: day keys (#249), trip control, shared app package, ops shell, scanner with offline queue, driver mode, then the owner's test on a real run |
 | 5 Insights | Density map, pickup and route suggestions | Not started |
 | 6 Scale | More schools, payments, hardware tracker | Not started |
 
@@ -33,9 +33,9 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 
 ## Handoff: phase 4 (in progress)
 
-Done: #249 day keys (busin2 codes, staff day keys, queued scans with their time and id); #251 trip control (start, end, position, manifest), stacked on #249; #253 the busin_app package (shared app plumbing), stacked on #251; #255 the ops app shell (staff sign-in, today's trips, start and end), stacked on #253; #257 the offline scanner with its scan queue, stacked on #255.
+Done: #249 day keys (busin2 codes, staff day keys, queued scans with their time and id); #251 trip control (start, end, position, manifest), stacked on #249; #253 the busin_app package (shared app plumbing), stacked on #251; #255 the ops app shell (staff sign-in, today's trips, start and end), stacked on #253; #257 the offline scanner with its scan queue, stacked on #255; #259 driver mode (sharing the bus position), stacked on #257.
 
-Next: driver mode (sharing the bus position), then the owner's test on a real run.
+Next: the owner's test on a real bus run, with a stretch without connection (the phase 4 exit criterion). Merge order: #249, #251, #253, #255, #257, #259 (retarget each to `dev` once the one below is in).
 
 Owner, for the ops app on a device: create an Android OAuth client for `com.joelfah.busin.ops` in the Google Cloud project with the debug SHA-1 `1B:71:FB:70:57:C0:34:74:7E:6A:24:85:F4:AE:A3:17:AB:13:81:1A` (this is a cloud change, yours to make), then `npm run dev:device -- ops`.
 
