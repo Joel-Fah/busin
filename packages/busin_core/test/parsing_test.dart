@@ -186,7 +186,7 @@ void main() {
       final stop = Stop.fromJson({
         'id': 'p1',
         'school_id': 's1',
-        'name': 'Mendong',
+        'name': 'Poste Centrale',
         'location': {'type': 'Point', 'coordinates': [11.4833, 3.8333]},
         'photo_path': null,
         'active': true,

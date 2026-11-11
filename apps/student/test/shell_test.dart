@@ -148,9 +148,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(BusinSheetFrame), findsOneWidget);
     // The sheet's own list is tappable even at the bottom, where the bar would have been.
-    await tester.tap(find.text('Mvan'));
+    await tester.tap(find.text('Carrefour Vogt'));
     await tester.pumpAndSettle();
     expect(find.byType(BusinSheetFrame), findsNothing);
-    expect(find.text('Mvan'), findsOneWidget);
+    expect(find.text('Carrefour Vogt'), findsOneWidget);
   });
 }

@@ -79,8 +79,8 @@ void main() {
     expect(find.text('Subscribe for Fall 2026'), findsOneWidget);
     expect(sendEnabled(tester), isFalse);
 
-    await chooseStop(tester, 'Mvan');
-    expect(find.text('Mvan'), findsOneWidget);
+    await chooseStop(tester, 'Carrefour Vogt');
+    expect(find.text('Carrefour Vogt'), findsOneWidget);
     expect(sendEnabled(tester), isFalse, reason: 'a stop alone is not enough');
 
     await choosePhoto(tester);
@@ -101,7 +101,7 @@ void main() {
 
     expect(find.text('Request sent'), findsOneWidget);
     expect(find.text('Pending'), findsWidgets);
-    expect(find.text('Mvan'), findsOneWidget);
+    expect(find.text('Carrefour Vogt'), findsOneWidget);
     expect(find.text('Send request'), findsNothing);
   });
 
@@ -109,12 +109,12 @@ void main() {
     await open(tester, FakeBackend(current: semester()));
     await tester.tap(find.text('Your stop'));
     await tester.pumpAndSettle();
-    expect(find.text('Biyem-Assi'), findsOneWidget);
+    expect(find.text('Olezoa'), findsOneWidget);
 
-    await tester.enterText(find.byType(TextField), 'ekou');
+    await tester.enterText(find.byType(TextField), 'nsim');
     await tester.pumpAndSettle();
-    expect(find.text('Carrefour Ekounou'), findsOneWidget);
-    expect(find.text('Biyem-Assi'), findsNothing);
+    expect(find.text('Shell Nsimeyong'), findsOneWidget);
+    expect(find.text('Olezoa'), findsNothing);
 
     await tester.enterText(find.byType(TextField), 'zzz');
     await tester.pumpAndSettle();
@@ -149,7 +149,7 @@ void main() {
     for (final (error, message) in cases) {
       final backend = FakeBackend(current: semester())..requestError = error;
       await open(tester, backend, picker: FakeProofPicker(samplePhoto()));
-      await chooseStop(tester, 'Mvan');
+      await chooseStop(tester, 'Carrefour Vogt');
       await choosePhoto(tester);
       await tester.tap(find.text('Send request'));
       await tester.pumpAndSettle();
@@ -163,7 +163,7 @@ void main() {
   testWidgets('a failed upload sends no request', (tester) async {
     final backend = FakeBackend(current: semester())..uploadError = const Offline('x');
     await open(tester, backend, picker: FakeProofPicker(samplePhoto()));
-    await chooseStop(tester, 'Mvan');
+    await chooseStop(tester, 'Carrefour Vogt');
     await choosePhoto(tester);
     await tester.tap(find.text('Send request'));
     await tester.pumpAndSettle();
@@ -175,7 +175,7 @@ void main() {
   testWidgets('a pending request shows where it stands, with its stop and no form', (tester) async {
     await open(tester, FakeBackend(current: semester(), mine: [subscription(stopId: 'stop3', proofPath: 's1/u1/a.jpg')]));
     expect(find.text('Request sent'), findsOneWidget);
-    expect(find.text('Biyem-Assi'), findsOneWidget);
+    expect(find.text('Olezoa'), findsOneWidget);
     expect(find.textContaining('checking your payment proof'), findsOneWidget);
     expect(find.text('Send request'), findsNothing);
   });
@@ -183,7 +183,7 @@ void main() {
   testWidgets('an approved subscription says where to board and leads to the boarding code', (tester) async {
     await open(tester, FakeBackend(current: semester(), mine: [subscription(status: SubscriptionStatus.approved)]));
     expect(find.text('You are subscribed'), findsOneWidget);
-    expect(find.text('You can board at Carrefour Ekounou.'), findsOneWidget);
+    expect(find.text('You can board at Shell Nsimeyong.'), findsOneWidget);
 
     await tester.tap(find.text('Show boarding code'));
     await tester.pumpAndSettle();

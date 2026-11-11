@@ -210,7 +210,7 @@ class FakeScans implements ScansRepository {
 
 class FakeStops implements StopsRepository {
   @override
-  Future<List<Stop>> listActiveStops() async => [Stop(id: 'stop1', schoolId: schoolId, name: 'Mendong market', location: GeoPoint(3.82, 11.477), active: true)];
+  Future<List<Stop>> listActiveStops() async => [Stop(id: 'stop1', schoolId: schoolId, name: 'Poste Centrale', location: GeoPoint(3.82, 11.477), active: true)];
 
   @override
   dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();

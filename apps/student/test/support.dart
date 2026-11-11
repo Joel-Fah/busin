@@ -193,7 +193,7 @@ Subscription subscription({
 /// The school, semester, stop and subscription repositories in one fake that remembers what was asked.
 class FakeBackend implements SchoolRepository, SemestersRepository, StopsRepository, SubscriptionsRepository, ProofsRepository {
   FakeBackend({this.current, this.next, List<Stop>? stops, List<Subscription>? mine})
-      : stops = stops ?? [stop('stop1', 'Carrefour Ekounou'), stop('stop2', 'Mvan'), stop('stop3', 'Biyem-Assi')],
+      : stops = stops ?? [stop('stop1', 'Shell Nsimeyong'), stop('stop2', 'Carrefour Vogt'), stop('stop3', 'Olezoa')],
         mine = mine ?? [];
 
   Semester? current;

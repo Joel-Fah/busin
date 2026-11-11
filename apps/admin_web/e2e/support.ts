@@ -133,14 +133,14 @@ export async function signInBrowser(context: BrowserContext, user: TestUser): Pr
 }
 
 /** Creates a subscription request for a student, as the app would (status starts as pending). */
-export async function createSubscription(studentId: string): Promise<string> {
+export async function createSubscription(studentId: string, stopId: string = SEED.stopId): Promise<string> {
   const { data, error } = await serviceClient()
     .from("subscriptions")
     .insert({
       school_id: SEED.schoolId,
       student_id: studentId,
       semester_id: SEED.semesterId,
-      stop_id: SEED.stopId,
+      stop_id: stopId,
     })
     .select("id")
     .single();

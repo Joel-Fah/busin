@@ -16,6 +16,16 @@ import { drawRoad, RoutingError, type Waypoint } from "../_shared/route.ts";
 type Extra = { lat: number; lng: number; name?: string; after: number };
 type Preview = { stopIds: string[]; extras?: Extra[] };
 
+/** The `sub` of a JWT the platform has already verified, or null. */
+function subjectOf(jwt: string): string | null {
+  try {
+    const payload = JSON.parse(atob(jwt.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))) as { sub?: unknown };
+    return typeof payload.sub === "string" ? payload.sub : null;
+  } catch {
+    return null;
+  }
+}
+
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
 }
@@ -74,8 +84,9 @@ Deno.serve(async (request) => {
   }
 
   if (!preview) {
-    const { data: who } = await user.auth.getUser();
-    const { data: profile } = who.user ? await user.from("profiles").select("school_id").eq("id", who.user.id).single() : { data: null };
+    // Who is calling: the platform has already verified the token (verify_jwt), so its subject names the admin.
+    const userId = subjectOf(authorization.slice(7).trim());
+    const { data: profile } = userId ? await user.from("profiles").select("school_id").eq("id", userId).single() : { data: null };
     const school = profile?.school_id as string | undefined;
     const hash = rows[0]?.route_hash ?? null;
     if (school && hash) {

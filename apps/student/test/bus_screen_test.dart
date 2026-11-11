@@ -145,7 +145,7 @@ void main() {
     );
     await openBus(tester, rig);
     expect(mapText(tester), contains('mine=stop2'));
-    expect(find.text('Your stop: Mvan'), findsOneWidget);
+    expect(find.text('Your stop: Carrefour Vogt'), findsOneWidget);
   });
 
   testWidgets('with several buses the one the student last boarded is shown first, and only that one is listened to', (tester) async {

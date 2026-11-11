@@ -16,8 +16,11 @@ How a school's route works and how to set up road drawing ([ADR 0017](../decisio
 1. In the Mapbox account, create a token for this use only (Account, Tokens, Create a token). The default public scopes
    are enough for Directions. Do not add a URL restriction: it is used from the server, not from a browser.
 2. Locally: copy `supabase/functions/.env.example` to `supabase/functions/.env` and put the token in
-   `MAPBOX_DIRECTIONS_TOKEN`. Restart the backend (`npm run backend:start`) or serve the function with
-   `npx supabase functions serve route-directions`.
+   `MAPBOX_DIRECTIONS_TOKEN`. `npm run backend:start` now starts the Edge Functions runtime too (it used to be left
+   out, so the route stayed straight). If drawing still says it is not set up, run `npx supabase functions serve` in
+   a terminal and keep it open: it reads `supabase/functions/.env` directly.
+4. On the Stops page, open Bus route and press "Draw along roads". The road is stored; it stays until the stops, their
+   order or the campus change.
 3. Hosted project (later): `supabase secrets set MAPBOX_DIRECTIONS_TOKEN=...`.
 
 The token never reaches a browser or an app. Each school can draw at most 30 routes an hour and 300 a day.

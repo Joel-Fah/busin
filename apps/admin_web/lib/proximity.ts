@@ -31,7 +31,7 @@ export type DesireLineRow = { lat: number; lng: number; stop_id: string; student
 /** One row of `admin_nearer_stops`: 5 or more subscribers of one stop live at least 300 m nearer to another. */
 export type NearerRow = { from_stop: string; to_stop: string; students: number; saved_m: number };
 
-/** "6 students here live nearer to Mvan, about 1.4 km closer". */
+/** "6 students here live nearer to Poste Centrale, about 1.4 km closer". */
 export type NearerStop = { toId: string; toName: string; students: number; saved: number };
 
 /** A line from a stop to the stop some of its students live nearer to. */

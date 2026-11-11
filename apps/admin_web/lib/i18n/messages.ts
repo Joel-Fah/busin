@@ -433,7 +433,7 @@ export const en = {
         scenarios: {
           far: {
             title: 'A stop students live far from',
-            body: 'Mvan roundabout is Very far: typically about 2.4 km, and the thick line comes from Nsam. A stop near Nsam would save them the walk; the next views suggest where.',
+            body: 'Carrefour du Palais is Very far: typically about 2.3 km, and the thick line comes from Nlongkak. Those students are nearer to Bata Nlongkak; the next views suggest what to do.',
           },
           coverage: {
             title: 'Too few areas to say',
@@ -457,7 +457,7 @@ export const en = {
       scenarios: {
         crowded: {
           title: 'A stop fills the bus',
-          body: 'Carrefour is Full, 34 per departure on a 40-seat bus. Plan a second bus on that run, or move part of its students to a nearby stop.',
+          body: 'Poste Centrale is Full, 34 per departure on a 40-seat bus. Plan a second bus on that run, or move part of its students to a nearby stop.',
         },
         quiet: {
           title: 'A stop nobody uses',
@@ -1540,7 +1540,7 @@ export const fr: Messages = {
         scenarios: {
           far: {
             title: 'Un arrêt loin des étudiants',
-            body: "Le rond-point de Mvan est Très loin : en général environ 2,4 km, et la ligne épaisse vient de Nsam. Un arrêt près de Nsam leur éviterait la marche ; les vues suivantes suggèrent où.",
+            body: "Carrefour du Palais est Très loin : en général environ 2,3 km, et la ligne épaisse vient de Nlongkak. Ces étudiants sont plus près de Bata Nlongkak ; les vues suivantes suggèrent quoi faire.",
           },
           coverage: {
             title: 'Trop peu de zones pour conclure',
@@ -1564,7 +1564,7 @@ export const fr: Messages = {
       scenarios: {
         crowded: {
           title: 'Un arrêt remplit le bus',
-          body: "Carrefour est Plein, 34 par départ pour un bus de 40 places. Prévoyez un second bus sur ce trajet, ou orientez une partie des étudiants vers un arrêt voisin.",
+          body: "Poste Centrale est Plein, 34 par départ pour un bus de 40 places. Prévoyez un second bus sur ce trajet, ou orientez une partie des étudiants vers un arrêt voisin.",
         },
         quiet: {
           title: 'Un arrêt que personne n\'utilise',

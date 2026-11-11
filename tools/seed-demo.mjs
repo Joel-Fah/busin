@@ -31,7 +31,7 @@ try {
     '-c',
     `select
        (select count(*) from public.profiles where email like 'demo.%'),
-       (select count(*) from public.stops where id::text like 'de%'),
+       (select count(*) from public.stops where school_id = '00000000-0000-4000-8000-000000000001'),
        (select count(*) from public.buses where id::text like 'de%'),
        (select count(*) from public.trips where bus_id::text like 'de%'),
        (select count(*) from public.subscriptions s join public.profiles p on p.id = s.student_id where p.email like 'demo.%'),

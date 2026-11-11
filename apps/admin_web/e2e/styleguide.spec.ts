@@ -164,7 +164,7 @@ test.describe("administrator reading the styleguide", () => {
     // The column filter example opens a panel of choices from its heading, and the chips can be removed.
     const filters = page.locator("#components");
     await filters.getByRole("button", { name: /^Stop/ }).first().click();
-    await expect(page.getByRole("dialog", { name: "Stop" }).getByRole("link", { name: "Mendong market" })).toBeVisible();
+    await expect(page.getByRole("dialog", { name: "Stop" }).getByRole("link", { name: "Olezoa" })).toBeVisible();
     await page.keyboard.press("Escape");
     await expect(filters.getByRole("group", { name: "Active filters" }).getByRole("link", { name: /Remove filter: Stop/ })).toBeVisible();
   });
