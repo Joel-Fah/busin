@@ -1,3 +1,4 @@
+import 'package:busin_app/busin_app.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -5,7 +6,6 @@ import '../bus/bus_providers.dart';
 import '../providers.dart';
 import '../qr/qr_providers.dart';
 import '../subscription/subscription_providers.dart';
-import 'offline_providers.dart';
 
 /// Reads again everything the app keeps a saved copy of, so the answers (and any decision the school made while the phone was
 /// offline, such as taking the subscription back) replace the copy.

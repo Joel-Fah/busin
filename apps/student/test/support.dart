@@ -1,13 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:busin_app/busin_app.dart';
 import 'package:busin_core/busin_core.dart';
 import 'package:busin_student/src/area/area_providers.dart';
-import 'package:busin_student/src/auth/auth_service.dart';
 import 'package:busin_student/src/bus/bus_providers.dart';
-import 'package:busin_student/src/config/app_config.dart';
 import 'package:busin_student/src/bus/map_scene.dart';
-import 'package:busin_student/src/offline/offline_providers.dart';
 import 'package:busin_student/src/offline/pass_snapshot.dart';
 import 'package:busin_student/src/providers.dart';
 import 'package:busin_student/src/reminders/notification_providers.dart';

@@ -1,9 +1,9 @@
+import 'package:busin_app/busin_app.dart';
 import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-import 'offline_providers.dart';
 
 /// "6 Nov 2026, 14:05": when the saved copy was made, in the phone's own clock and language.
 String savedWhen(BuildContext context, DateTime savedAt) {

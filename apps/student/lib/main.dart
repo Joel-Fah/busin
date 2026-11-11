@@ -1,15 +1,12 @@
+import 'package:busin_app/busin_app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'src/app.dart';
-import 'src/auth/secure_session_storage.dart';
-import 'src/auth/supabase_auth_service.dart';
-import 'src/config/app_config.dart';
 import 'src/push/push_service.dart';
 import 'src/providers.dart';
-import 'src/settings/appearance.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

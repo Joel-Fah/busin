@@ -98,6 +98,7 @@ One `live_positions` row per bus, updated every 10 to 15 seconds by the source (
 apps/student, apps/ops  ->  packages/busin_data  ->  packages/busin_core
         |                                                 ^
         +--------------- packages/busin_ui ---------------+ (UI only, no data access)
+        +--------------- packages/busin_app (config, sign-in, session, appearance, offline helpers)
 ```
 
 State is managed with Riverpod, navigation with go_router, and local data with shared_preferences, flutter_secure_storage and (ops app) drift, as recorded in [ADR 0007](docs/decisions/0007-state-management-navigation-storage.md).

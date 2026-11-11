@@ -1,9 +1,9 @@
+import 'package:busin_app/busin_app.dart';
 import 'package:busin_core/busin_core.dart';
 import 'package:flutter/painting.dart' show ImageProvider, NetworkImage;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../auth/access.dart';
-import '../offline/offline_providers.dart';
 import '../providers.dart';
 import '../school_clock.dart';
 import 'proof_picker.dart';

@@ -12,6 +12,7 @@ dependencies:
   busin_core: any
   busin_data: any
   busin_ui: any
+  busin_app: any
   flutter:
     sdk: flutter
   flutter_localizations:

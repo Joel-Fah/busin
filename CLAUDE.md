@@ -13,6 +13,7 @@ BusIn manages campus bus subscriptions, boarding scans and bus tracking for scho
 | `packages/busin_core/` | Domain models, enums, repository interfaces. Pure Dart | Dart |
 | `packages/busin_data/` | Supabase implementations of the repositories | Dart |
 | `packages/busin_ui/` | Design system, shared widgets, l10n | Flutter |
+| `packages/busin_app/` | App plumbing shared by the Flutter apps: config, Google sign-in and secure session, appearance, offline helpers | Flutter |
 | `supabase/` | Migrations, RLS policies, functions, Edge Functions, tests | Postgres, Deno |
 | `docs/` | Phases, decisions (ADRs), guides, audit | Markdown |
 

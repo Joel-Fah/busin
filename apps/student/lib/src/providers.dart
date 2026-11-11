@@ -1,3 +1,4 @@
+import 'package:busin_app/busin_app.dart';
 import 'package:busin_core/busin_core.dart';
 import 'package:busin_data/busin_data.dart';
 import 'package:flutter/foundation.dart';
@@ -6,12 +7,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'auth/access.dart';
 import 'reminders/notification_providers.dart';
-import 'auth/auth_service.dart';
-import 'config/app_config.dart';
-import 'offline/offline_providers.dart';
 import 'offline/pass_snapshot.dart';
 import 'push/push_registrar.dart';
-import 'settings/appearance.dart';
 import 'push/push_service.dart';
 import 'qr/secret_store.dart';
 

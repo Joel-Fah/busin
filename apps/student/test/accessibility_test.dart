@@ -1,8 +1,8 @@
+import 'package:busin_app/busin_app.dart';
 import 'package:busin_core/busin_core.dart';
 import 'package:busin_student/src/app.dart';
 import 'package:busin_student/src/offline/pass_snapshot.dart';
 import 'package:busin_student/src/subscription/subscription_overview.dart';
-import 'package:busin_student/src/settings/appearance.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
