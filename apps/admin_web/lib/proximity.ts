@@ -35,7 +35,7 @@ export type NearerRow = { from_stop: string; to_stop: string; students: number; 
 export type NearerStop = { toId: string; toName: string; students: number; saved: number };
 
 /** A line from a stop to the stop some of its students live nearer to. */
-export type NearerLine = { id: string; from: LatLng; to: LatLng; students: number };
+export type NearerLine = { id: string; fromId: string; toId: string; from: LatLng; to: LatLng; students: number };
 
 export type ProximityStop = {
   id: string;
@@ -54,7 +54,7 @@ export type ProximityStop = {
   nearer: NearerStop[];
 };
 
-export type DesireLine = { id: string; from: LatLng; to: LatLng; students: number; distance: number };
+export type DesireLine = { id: string; stopId: string; from: LatLng; to: LatLng; students: number; distance: number };
 
 export type Proximity = {
   stops: ProximityStop[];
@@ -110,13 +110,13 @@ export function buildProximity(
   const lines: DesireLine[] = lineRows.flatMap((row) => {
     const to = known.get(row.stop_id)?.position;
     if (!to || !Number.isFinite(row.lat) || !Number.isFinite(row.lng)) return [];
-    return [{ id: `${row.stop_id}:${row.lat}:${row.lng}`, from: { lat: row.lat, lng: row.lng }, to, students: row.students, distance: row.distance_m }];
+    return [{ id: `${row.stop_id}:${row.lat}:${row.lng}`, stopId: row.stop_id, from: { lat: row.lat, lng: row.lng }, to, students: row.students, distance: row.distance_m }];
   });
 
   const nearerLines: NearerLine[] = nearerRows.flatMap((row) => {
     const from = known.get(row.from_stop)?.position;
     const to = known.get(row.to_stop)?.position;
-    return from && to ? [{ id: `${row.from_stop}>${row.to_stop}`, from, to, students: row.students }] : [];
+    return from && to ? [{ id: `${row.from_stop}>${row.to_stop}`, fromId: row.from_stop, toId: row.to_stop, from, to, students: row.students }] : [];
   });
 
   return {

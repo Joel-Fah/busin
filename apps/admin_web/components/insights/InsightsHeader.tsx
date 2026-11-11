@@ -36,6 +36,7 @@ export function InsightsHeader({ view, help, t, children }: Props) {
           items={[
             { id: "load", label: s.views.load, href: "/insights" },
             { id: "proximity", label: s.views.proximity, href: "/insights?view=proximity" },
+            { id: "graph", label: s.views.graph, href: "/insights?view=graph" },
           ]}
           active={view}
         />
