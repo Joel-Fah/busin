@@ -106,13 +106,15 @@ export async function inviteStaff(formData: FormData): Promise<void> {
 /** Withdraws an open invite of the school. */
 export async function cancelInvite(formData: FormData): Promise<void> {
   await requireAdmin();
+  // From the Invited tab of People, back there; otherwise back to the invite page.
+  const fromPeople = formData.get("from") === "people";
   const email = normalizeInviteEmail(formData.get("email"));
-  if (!email) redirect("/people/invite");
+  if (!email) redirect(fromPeople ? "/people?role=invited" : "/people/invite");
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("admin_cancel_invite", { p_email: email });
-  if (error) redirect("/people/invite?error=generic");
+  if (error) redirect(fromPeople ? "/people?role=invited&error=generic" : "/people/invite?error=generic");
 
-  revalidatePath("/people/invite");
-  redirect("/people/invite?done=cancelled");
+  revalidatePath("/people");
+  redirect(fromPeople ? "/people?role=invited&done=withdrawn" : "/people/invite?done=cancelled");
 }

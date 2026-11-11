@@ -851,7 +851,7 @@ export const en = {
       clear: 'Clear search',
     },
     filtersLabel: 'Filter by role',
-    filters: { all: 'Everyone', verify: 'To verify', student: 'Students', staff: 'Staff', admin: 'Administrators' },
+    filters: { all: 'Everyone', verify: 'To verify', invited: 'Invited', student: 'Students', staff: 'Staff', admin: 'Administrators' },
     columns: { person: 'Person', role: 'Role', status: 'Account', joined: 'Joined', asked: 'Asked on', actions: 'Decision' },
     verify: {
       intro: 'Students without your school email who asked to join. Check that each one is really your student before letting them in.',
@@ -877,6 +877,8 @@ export const en = {
       roleHint: 'Staff scan boardings and run trips in the ops app. Administrators also use this portal.',
       submit: 'Add',
       openTitle: 'Waiting for a first sign-in',
+      tabIntro: 'People you added by email who have not signed in yet. They join with this role the first time they sign in with that email.',
+      waiting: 'Waiting for a first sign-in',
       none: 'No one is waiting. People you add with a new email appear here until they sign in.',
       expires: 'Expires',
       daysLeft: 'in {count} days',
@@ -927,6 +929,7 @@ export const en = {
       restored: 'Account restored.',
       verified: 'Student verified. They can now use BusIn.',
       declined: 'Request declined.',
+      withdrawn: 'Invite withdrawn.',
     },
     errors: {
       self: 'You cannot change your own role or status.',
@@ -1807,7 +1810,7 @@ export const fr: Messages = {
       clear: 'Effacer la recherche',
     },
     filtersLabel: 'Filtrer par rôle',
-    filters: { all: 'Tout le monde', verify: 'À vérifier', student: 'Étudiants', staff: 'Personnel', admin: 'Administrateurs' },
+    filters: { all: 'Tout le monde', verify: 'À vérifier', invited: 'Invités', student: 'Étudiants', staff: 'Personnel', admin: 'Administrateurs' },
     columns: { person: 'Personne', role: 'Rôle', status: 'Compte', joined: 'Inscription', asked: 'Demandé le', actions: 'Décision' },
     verify: {
       intro: "Les étudiants sans e-mail de votre école qui ont demandé à rejoindre. Vérifiez que chacun est bien votre étudiant avant de l'accepter.",
@@ -1833,6 +1836,8 @@ export const fr: Messages = {
       roleHint: "Le personnel scanne les embarquements et conduit les trajets dans l'app ops. Les administrateurs utilisent aussi ce portail.",
       submit: 'Ajouter',
       openTitle: 'En attente de première connexion',
+      tabIntro: "Les personnes ajoutées par e-mail qui ne se sont pas encore connectées. Elles rejoignent l'école avec ce rôle à leur première connexion avec cet e-mail.",
+      waiting: 'En attente de première connexion',
       none: "Personne n'attend. Les personnes ajoutées avec un nouvel e-mail apparaissent ici jusqu'à leur connexion.",
       expires: 'Expire',
       daysLeft: 'dans {count} jours',
@@ -1883,6 +1888,7 @@ export const fr: Messages = {
       restored: 'Compte rétabli.',
       verified: 'Étudiant vérifié. Il peut maintenant utiliser BusIn.',
       declined: 'Demande refusée.',
+      withdrawn: 'Invitation retirée.',
     },
     errors: {
       self: 'Vous ne pouvez pas changer votre propre rôle ou statut.',

@@ -4,9 +4,12 @@ import { first } from "./pagination";
 
 export const ROLES = ["student", "staff", "admin"] as const;
 export type Role = (typeof ROLES)[number];
-/** A tab of the people list: everyone, a role, or "verify" (students without a school email who asked to join). */
-export type RoleFilter = Role | "all" | "verify";
-export const ROLE_FILTERS: readonly RoleFilter[] = ["all", "verify", "student", "staff", "admin"];
+/**
+ * A tab of the people list: everyone, a role, "verify" (students without a school email who asked to join), or "invited"
+ * (people added by email who have not signed in yet, ADR 0015).
+ */
+export type RoleFilter = Role | "all" | "verify" | "invited";
+export const ROLE_FILTERS: readonly RoleFilter[] = ["all", "verify", "invited", "student", "staff", "admin"];
 
 export type AccountStatus = "pending" | "verified" | "suspended";
 
@@ -76,9 +79,16 @@ export function accountTone(status: AccountStatus): "ok" | "bad" | "warn" {
 }
 
 /** Number of people for each tab. "all" is the sum of the roles, and a missing count counts as zero. */
-export function roleTabCounts(byRole: Partial<Record<Role, number | null>>, toVerify: number | null = 0): Record<RoleFilter, number> {
+export function roleTabCounts(byRole: Partial<Record<Role, number | null>>, toVerify: number | null = 0, invited: number | null = 0): Record<RoleFilter, number> {
   const get = (role: Role) => byRole[role] ?? 0;
-  return { all: ROLES.reduce((sum, role) => sum + get(role), 0), verify: toVerify ?? 0, student: get("student"), staff: get("staff"), admin: get("admin") };
+  return {
+    all: ROLES.reduce((sum, role) => sum + get(role), 0),
+    verify: toVerify ?? 0,
+    invited: invited ?? 0,
+    student: get("student"),
+    staff: get("staff"),
+    admin: get("admin"),
+  };
 }
 
 export type PeopleErrorKey = "self" | "invalid" | "not_found" | "generic";
@@ -104,10 +114,10 @@ export function isPeopleErrorKey(value: string | undefined): value is PeopleErro
   return value === "self" || value === "invalid" || value === "not_found" || value === "generic";
 }
 
-export type PeopleDone = "role" | "suspended" | "restored" | "verified" | "declined";
+export type PeopleDone = "role" | "suspended" | "restored" | "verified" | "declined" | "withdrawn";
 
 export function isPeopleDone(value: string | undefined): value is PeopleDone {
-  return value === "role" || value === "suspended" || value === "restored" || value === "verified" || value === "declined";
+  return value === "role" || value === "suspended" || value === "restored" || value === "verified" || value === "declined" || value === "withdrawn";
 }
 
 /** The longest reason an admin can give when declining a request to join (the database keeps the same limit). */
