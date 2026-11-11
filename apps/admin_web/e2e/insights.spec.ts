@@ -111,6 +111,16 @@ test("the suggestions say what they cannot know, and each one is a sentence to s
     const first = list.getByRole("button").first();
     await first.click();
     await expect(first).toHaveAttribute("aria-pressed", "true");
+    // A new stop on a school with a route shows the suggested route against today's, with what it gains.
+    if ((await first.innerText()).startsWith("New stop") && (await page.getByText("Set the bus route").count()) === 0) {
+      const compare = page.getByRole("region", { name: "Suggested route" });
+      await expect(compare).toContainText(/\+\d+ students within 500 m of a stop/);
+      await expect(compare).toContainText(/Blue: the suggested route/);
+      await compare.getByText(/Directions, stop by stop/).click();
+      await expect(compare.getByRole("list")).toContainText("Leave from");
+      await compare.getByRole("button", { name: "Back to today's route" }).click();
+      await expect(compare).toHaveCount(0);
+    }
   } else {
     await expect(page.getByText(/Nothing to suggest for now/)).toBeVisible();
   }

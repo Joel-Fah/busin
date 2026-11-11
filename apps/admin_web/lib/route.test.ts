@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { directions, formatKm, formatMinutes, move, parseSchoolRoute, routeLine, routeOverlay, type SchoolRouteRow } from "./route";
+import { compareRoutes, directions, formatKm, formatMinutes, insertExtras, move, parseSchoolRoute, routeLine, routeOverlay, type SchoolRouteRow } from "./route";
 
 const row = (over: Partial<SchoolRouteRow> = {}): SchoolRouteRow => ({
   route_id: "r1",
@@ -95,5 +95,39 @@ describe("routeOverlay", () => {
     expect(routeOverlay(parseSchoolRoute(row()))).toMatchObject({ current: false, stopIds: ["a", "b"], campus: { name: "Main campus" } });
     expect(routeOverlay(parseSchoolRoute(row()))?.line).toHaveLength(3);
     expect(routeOverlay(parseSchoolRoute(row({ stops: [], campus_lat: null, campus_lng: null })))).toBeNull();
+  });
+});
+
+describe("insertExtras", () => {
+  const stops = parseSchoolRoute(row()).stops;
+  it("puts each suggested stop after its stop, before the first when -1, nearest first when several", () => {
+    const list = insertExtras(stops, [
+      { name: "Far", position: { lat: 3.818, lng: 11.5 }, after: 0 },
+      { name: "Start", position: { lat: 3.79, lng: 11.5 }, after: -1 },
+      { name: "Near", position: { lat: 3.805, lng: 11.5 }, after: 0 },
+      { name: "End", position: { lat: 3.84, lng: 11.5 }, after: 1 },
+    ]);
+    expect(list.map((s) => s.name)).toEqual(["Start", "First", "Near", "Far", "Second", "End"]);
+    expect(list.filter((s) => s.suggested)).toHaveLength(4);
+  });
+});
+
+describe("compareRoutes", () => {
+  const overlay = routeOverlay(parseSchoolRoute(row()))!;
+  const detour = { name: "Market", position: { lat: 3.81, lng: 11.52 }, after: 0 };
+
+  it("estimates both routes the same way when the road is not drawn, and draws straight through the new stop", () => {
+    const c = compareRoutes(overlay, [detour], null);
+    expect(c.byRoad).toBe(false);
+    expect(c.deltaD).toBeGreaterThan(0);
+    expect(c.line).toHaveLength(4);
+    expect(c.steps.map((s) => s.to)).toEqual(["Market", "Second", "Main campus"]);
+  });
+
+  it("compares road with road once both exist", () => {
+    const drawn = { ...overlay, current: true, distanceM: 7000, durationS: 900 };
+    const c = compareRoutes(drawn, [detour], { line: [{ lat: 3.8, lng: 11.5 }, { lat: 3.86, lng: 11.5 }], legs: [], distanceM: 8200, durationS: 1100 });
+    expect(c).toMatchObject({ byRoad: true, deltaD: 1200, deltaT: 200 });
+    expect(c.line).toHaveLength(2);
   });
 });

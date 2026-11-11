@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(8);
+select plan(10);
 
 insert into public.schools (id, name) values ('10000000-0000-4000-8000-000000000001', 'School A'), ('10000000-0000-4000-8000-000000000002', 'School B');
 insert into public.school_domains (domain, school_id) values ('a.edu', '10000000-0000-4000-8000-000000000001'), ('b.edu', '10000000-0000-4000-8000-000000000002');
@@ -54,6 +54,17 @@ select results_eq(
   $$values ('Market', 6)$$,
   'one new stop: the named landmark next to the six students, not the one beside a stop');
 select ok((select metres between 1800 and 2600 from public.admin_stop_suggestions() where kind = 'new_stop'), 'with how far they live from a stop today');
+select is((select insert_after from public.admin_stop_suggestions() where kind = 'new_stop'), null, 'no route: no place in it');
+reset role;
+-- A route S3 > S1 ending at a campus far north: the new stop (north of S1) fits between S1 and the campus.
+update public.schools set campus_location = extensions.st_point(11.5, 3.95)::extensions.geography, campus_name = 'Campus' where id = '10000000-0000-4000-8000-000000000001';
+insert into public.routes (id, school_id) values ('aa000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001');
+insert into public.route_stops (route_id, stop_id, school_id, position) values
+  ('aa000000-0000-4000-8000-000000000001', 'd1000000-0000-4000-8000-000000000003', '10000000-0000-4000-8000-000000000001', 0),
+  ('aa000000-0000-4000-8000-000000000001', 'd1000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', 1);
+set local role authenticated;
+set local "request.jwt.claims" = '{"sub":"a3000000-0000-4000-8000-000000000001","role":"authenticated"}';
+select is((select insert_after from public.admin_stop_suggestions() where kind = 'new_stop'), 1, 'with a route: after the stop it detours least from');
 select results_eq(
   $$select stop_id::text, other_stop_id::text, students from public.admin_stop_suggestions() where kind = 'close_pair'$$,
   $$values ('d1000000-0000-4000-8000-000000000001', 'd1000000-0000-4000-8000-000000000002', 6)$$,

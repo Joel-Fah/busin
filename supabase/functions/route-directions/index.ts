@@ -3,7 +3,8 @@
 // the waypoints. The road is stored on the route, or, for a preview (a suggested route), only returned. The logic lives
 // in ../_shared/route.ts, which has the tests.
 //
-// Body: {} to draw the saved route; or { preview: { stopIds: string[], extra?: { lat, lng, name, after } } }.
+// Body: {} to draw the saved route; or { preview: { stopIds: string[], extras?: [{ lat, lng, name, after }] } } (at most
+// 10 extras, each after the stop at that position, -1 before the first).
 // Secrets (never in git): MAPBOX_DIRECTIONS_TOKEN, a server token allowed to use Directions. Locally in
 // supabase/functions/.env; on a hosted project with `supabase secrets set`. SUPABASE_URL, SUPABASE_ANON_KEY and
 // SUPABASE_SERVICE_ROLE_KEY are provided by the platform.
@@ -12,7 +13,8 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 
 import { drawRoad, RoutingError, type Waypoint } from "../_shared/route.ts";
 
-type Preview = { stopIds: string[]; extra?: { lat: number; lng: number; name?: string; after: number } };
+type Extra = { lat: number; lng: number; name?: string; after: number };
+type Preview = { stopIds: string[]; extras?: Extra[] };
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
@@ -42,14 +44,17 @@ Deno.serve(async (request) => {
   } catch {
     return json({ error: "bad_request" }, 400);
   }
-  if (preview && (!Array.isArray(preview.stopIds) || preview.stopIds.length > 200)) return json({ error: "bad_request" }, 400);
+  if (preview && (!Array.isArray(preview.stopIds) || preview.stopIds.length > 200 || (preview.extras !== undefined && (!Array.isArray(preview.extras) || preview.extras.length > 10)))) {
+    return json({ error: "bad_request" }, 400);
+  }
+  const extras = preview?.extras ?? [];
 
   const { data, error } = await user.rpc("route_waypoints", {
     p_stop_ids: preview?.stopIds ?? null,
-    p_extra_lat: preview?.extra?.lat ?? null,
-    p_extra_lng: preview?.extra?.lng ?? null,
-    p_extra_name: preview?.extra?.name ?? null,
-    p_extra_after: preview?.extra?.after ?? null,
+    p_extra_lats: extras.length ? extras.map((e) => e.lat) : null,
+    p_extra_lngs: extras.length ? extras.map((e) => e.lng) : null,
+    p_extra_names: extras.length ? extras.map((e) => e.name ?? "") : null,
+    p_extra_afters: extras.length ? extras.map((e) => e.after) : null,
   });
   if (error) {
     if (error.code === "PT429") return json({ error: "too_many" }, 429);

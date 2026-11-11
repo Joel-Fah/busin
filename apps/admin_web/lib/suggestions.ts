@@ -10,12 +10,14 @@ export type SuggestionRow = {
   lng: number | null;
   students: number | null;
   metres: number | null;
+  /** New stops: after which stop of the route it fits (-1 before the first), or null without a route. */
+  insert_after?: number | null;
 };
 
 export type SuggestionStop = { id: string; name: string; position: LatLng | null };
 
 export type Suggestion =
-  | { kind: "new_stop"; id: string; place: string; position: LatLng; students: number; metres: number }
+  | { kind: "new_stop"; id: string; place: string; position: LatLng; students: number; metres: number; insertAfter: number | null }
   | { kind: "close_pair"; id: string; a: SuggestionStop; b: SuggestionStop; students: number; metres: number }
   | { kind: "unused"; id: string; stop: SuggestionStop; students: number; weeks: number };
 
@@ -25,7 +27,15 @@ export function buildSuggestions(rows: readonly SuggestionRow[], stops: readonly
   const list: Suggestion[] = [];
   rows.forEach((row, index) => {
     if (row.kind === "new_stop" && row.place_name && row.lat !== null && row.lng !== null && Number.isFinite(row.lat) && Number.isFinite(row.lng)) {
-      list.push({ kind: "new_stop", id: `new:${index}`, place: row.place_name, position: { lat: row.lat, lng: row.lng }, students: row.students ?? 0, metres: row.metres ?? 0 });
+      list.push({
+        kind: "new_stop",
+        id: `new:${index}`,
+        place: row.place_name,
+        position: { lat: row.lat, lng: row.lng },
+        students: row.students ?? 0,
+        metres: row.metres ?? 0,
+        insertAfter: typeof row.insert_after === "number" ? row.insert_after : null,
+      });
     } else if (row.kind === "close_pair") {
       const a = row.stop_id ? byId.get(row.stop_id) : undefined;
       const b = row.other_stop_id ? byId.get(row.other_stop_id) : undefined;
