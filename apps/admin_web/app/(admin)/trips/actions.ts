@@ -153,3 +153,22 @@ export async function setTripArchived(formData: FormData): Promise<void> {
   revalidatePath("/trips");
   redirect(`/trips/${id}?done=${archive ? "archived" : "restored"}`);
 }
+
+/**
+ * Ends a running trip, for example one a driver forgot to end. The database function (`end_trip`) lets an admin end any
+ * running trip of the school, refuses one that is not running, and writes the audit entry.
+ */
+export async function endTrip(formData: FormData): Promise<void> {
+  await requireAdmin();
+
+  const id = formData.get("id");
+  if (!isUuid(id)) redirect("/trips");
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("end_trip", { p_trip_id: id });
+  if (error) redirect(`/trips/${id}?error=${tripActionErrorKey(error.code, "end")}`);
+
+  revalidatePath("/trips");
+  revalidatePath("/", "layout");
+  redirect(`/trips/${id}?done=ended`);
+}

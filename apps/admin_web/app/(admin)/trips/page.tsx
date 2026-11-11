@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { Add01Icon } from "@hugeicons/core-free-icons";
+import { Add01Icon, Alert02Icon } from "@hugeicons/core-free-icons";
 
 import { ButtonLink } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
@@ -31,6 +31,7 @@ import {
   applyTripFilters,
   isDirection,
   isTripStatus,
+  overdueById,
   parseTripFilters,
   tripStatusTone,
   tripTabCounts,
@@ -107,10 +108,14 @@ async function TripsList({ searchParams }: { searchParams: SearchParams }) {
   // Names for this page only, so the list never loads every bus and person.
   const busIds = [...new Set(rows.map((row) => row.bus_id))];
   const driverIds = [...new Set(rows.flatMap((row) => (row.driver_id ? [row.driver_id] : [])))];
-  const [busRows, driverRows] = await Promise.all([
+  const hasRunning = rows.some((row) => row.status === "active");
+  const [busRows, driverRows, overdueRows] = await Promise.all([
     busIds.length ? supabase.from("buses").select("id, plate, name").in("id", busIds) : { data: [] },
     driverIds.length ? supabase.from("profiles").select("id, full_name, email").in("id", driverIds) : { data: [] },
+    // Which running trips should probably have ended, only when this page shows a running one.
+    hasRunning ? supabase.rpc("admin_overdue_trips") : { data: [] },
   ]);
+  const overdue = overdueById(overdueRows.data ?? [], new Date());
   const plates = new Map((busRows.data ?? []).map((bus) => [bus.id, busLabel(bus)]));
   const drivers = new Map((driverRows.data ?? []).map((row) => [row.id, row.full_name || row.email]));
 
@@ -240,7 +245,12 @@ async function TripsList({ searchParams }: { searchParams: SearchParams }) {
                     <Td>{plates.get(row.bus_id) ?? "-"}</Td>
                     <Td>{isDirection(row.direction) ? t.trips.direction[row.direction] : "-"}</Td>
                     <Td className="text-muted">{(row.driver_id && drivers.get(row.driver_id)) || t.trips.noDriver}</Td>
-                    <Td>{isTripStatus(row.status) ? <Chip tone={tripStatusTone(row.status)}>{t.trips.status[row.status]}</Chip> : null}</Td>
+                    <Td>
+                      <span className="flex flex-wrap items-center gap-1.5">
+                        {isTripStatus(row.status) ? <Chip tone={tripStatusTone(row.status)}>{t.trips.status[row.status]}</Chip> : null}
+                        {overdue.has(row.id) ? <Chip tone="warn" icon={Alert02Icon}>{t.trips.overdue.chip}</Chip> : null}
+                      </span>
+                    </Td>
                   </Tr>
                 ))}
               </tbody>

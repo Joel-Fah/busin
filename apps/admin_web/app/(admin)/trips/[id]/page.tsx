@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { Archive01Icon, ArchiveRestoreIcon, ArrowRight01Icon, Cancel01Icon, Note01Icon } from "@hugeicons/core-free-icons";
+import { Archive01Icon, ArchiveRestoreIcon, ArrowRight01Icon, Cancel01Icon, Note01Icon, StopCircleIcon } from "@hugeicons/core-free-icons";
 
 import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -15,14 +15,15 @@ import { Textarea } from "@/components/ui/Textarea";
 
 import { TripForm } from "@/components/TripForm";
 import { requireAdmin } from "@/lib/auth";
+import { format, type Locale, type Messages } from "@/lib/i18n/messages";
 import { getMessages } from "@/lib/i18n/server";
 import { isUuid } from "@/lib/ids";
-import { MAX_REASON_LENGTH, isDirection, isTripDone, isTripFormErrorKey, isTripStatus, tripStatusTone } from "@/lib/trips";
+import { MAX_REASON_LENGTH, formatMinutes, isDirection, isTripDone, isTripFormErrorKey, isTripStatus, overdueById, tripStatusTone, type Overdue } from "@/lib/trips";
 import { loadTripOptions } from "@/lib/trips-data";
 import { createClient } from "@/lib/supabase/server";
 import { utcToZonedLocal } from "@/lib/zoned";
 
-import { cancelTrip, setTripArchived, updateTrip } from "../actions";
+import { cancelTrip, endTrip, setTripArchived, updateTrip } from "../actions";
 
 export const metadata: Metadata = { title: "Trip" };
 
@@ -38,6 +39,16 @@ export default function TripPage({ params, searchParams }: { params: Params; sea
       <TripDetail params={params} searchParams={searchParams} />
     </Suspense>
   );
+}
+
+/** Why the trip is overdue, as a phrase for the notice. */
+function overdueWhy(overdue: Overdue, t: Messages, locale: Locale, timeZone: string): string {
+  const o = t.trips.overdue;
+  if (overdue.reason === "earlier_day") {
+    const day = new Intl.DateTimeFormat(locale, { weekday: "long", day: "numeric", month: "long", timeZone }).format(new Date(overdue.startedAt));
+    return format(o.earlier_day, { day });
+  }
+  return format(overdue.reason === "silent" ? o.silent : o.long, { duration: formatMinutes(overdue.minutes) });
 }
 
 function single(value: string | string[] | undefined): string | undefined {
@@ -58,7 +69,12 @@ async function TripDetail({ params, searchParams }: { params: Params; searchPara
     .maybeSingle();
   if (!trip || !isDirection(trip.direction) || !isTripStatus(trip.status)) notFound();
 
-  const { buses, drivers, failed } = await loadTripOptions(trip.bus_id);
+  const running = trip.status === "active";
+  const [{ buses, drivers, failed }, overdueRows] = await Promise.all([
+    loadTripOptions(trip.bus_id),
+    running ? supabase.rpc("admin_overdue_trips") : Promise.resolve({ data: [] }),
+  ]);
+  const overdue = overdueById(overdueRows.data ?? [], new Date()).get(trip.id);
 
   const query = await searchParams;
   const doneParam = single(query.done);
@@ -77,8 +93,11 @@ async function TripDetail({ params, searchParams }: { params: Params; searchPara
         <p className="mt-2 flex flex-wrap items-center gap-2">
           <Chip tone={tripStatusTone(trip.status)}>{t.trips.status[trip.status]}</Chip>
           {archived ? <Chip tone="neutral">{t.trips.archivedChip}</Chip> : null}
+          {overdue ? <Chip tone="warn">{t.trips.overdue.chip}</Chip> : null}
         </p>
       </header>
+
+      {overdue ? <Notice tone="warn">{format(t.trips.overdue.notice, { why: overdueWhy(overdue, t, locale, admin.schoolTimezone) })}</Notice> : null}
 
       {done ? <FlashToast message={t.trips.done[done]} /> : null}
       {errorKey ? <Notice tone="bad">{t.trips.errors[errorKey]}</Notice> : null}
@@ -124,6 +143,24 @@ async function TripDetail({ params, searchParams }: { params: Params; searchPara
               <div>
                 <Button type="submit" variant="danger" icon={Cancel01Icon}>
                   {m.cancelConfirm}
+                </Button>
+              </div>
+            </form>
+          </details>
+        </Card>
+      ) : running ? (
+        <Card className="flex max-w-2xl flex-col gap-4">
+          <h2 className="text-xl font-bold">{m.endHeading}</h2>
+          <details open={overdue !== undefined}>
+            <summary className="inline-flex cursor-pointer list-none items-center gap-2 rounded-sm px-4 py-2.5 text-sm font-semibold text-bad transition-colors duration-(--dur-fast) hover:bg-bad-bg focus-visible:outline-3 focus-visible:outline-focus [&::-webkit-details-marker]:hidden">
+              {m.endOpen}
+            </summary>
+            <form action={endTrip} className="mt-4 flex flex-col gap-4">
+              <input type="hidden" name="id" value={trip.id} />
+              <p className="text-sm text-muted">{m.endHint}</p>
+              <div>
+                <Button type="submit" variant="danger" icon={StopCircleIcon}>
+                  {m.endConfirm}
                 </Button>
               </div>
             </form>

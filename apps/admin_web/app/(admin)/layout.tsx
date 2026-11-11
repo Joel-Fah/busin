@@ -29,11 +29,13 @@ const KEYS: NavKey[] = ["overview", "subscriptions", "people", "trips", "scans",
  */
 async function waitingCounts(): Promise<Partial<Record<NavKey, number>>> {
   const supabase = await createClient();
-  const [subscriptions, people] = await Promise.all([
+  const [subscriptions, people, overdue] = await Promise.all([
     supabase.from("subscriptions").select("id", { count: "exact", head: true }).eq("status", "pending"),
     supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "student").eq("status", "pending").not("join_requested_at", "is", null),
+    // Running trips that should probably have ended (at most 100 rows, ids and reasons only).
+    supabase.rpc("admin_overdue_trips"),
   ]);
-  return { subscriptions: subscriptions.count ?? 0, people: people.count ?? 0 };
+  return { subscriptions: subscriptions.count ?? 0, people: people.count ?? 0, trips: overdue.data?.length ?? 0 };
 }
 
 async function AdminShell({ children }: { children: React.ReactNode }) {
