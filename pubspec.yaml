@@ -14,3 +14,4 @@ workspace:
   - packages/busin_ui
   - packages/busin_app
   - apps/student
+  - apps/ops

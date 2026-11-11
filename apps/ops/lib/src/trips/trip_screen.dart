@@ -1,0 +1,205 @@
+import 'package:busin_app/busin_app.dart';
+import 'package:busin_core/busin_core.dart';
+import 'package:busin_ui/busin_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:hugeicons/hugeicons.dart';
+
+import '../providers.dart';
+import '../router.dart';
+import 'trip_providers.dart';
+
+/// One trip: where it stands, how full the bus is, and Start or End for whoever may run it.
+class TripScreen extends ConsumerStatefulWidget {
+  const TripScreen({super.key, required this.tripId});
+
+  final String tripId;
+
+  @override
+  ConsumerState<TripScreen> createState() => _TripScreenState();
+}
+
+class _TripScreenState extends ConsumerState<TripScreen> {
+  bool _busy = false;
+
+  void _reload() {
+    ref.invalidate(tripProvider(widget.tripId));
+    ref.invalidate(manifestProvider(widget.tripId));
+    ref.invalidate(todayTripsProvider);
+  }
+
+  Future<void> _start(Trip trip) async {
+    final l10n = BusinL10n.of(context);
+    setState(() => _busy = true);
+    try {
+      await ref.read(tripsRepositoryProvider).start(trip.id);
+      if (!mounted) return;
+      BusinHaptics.medium();
+      BusinToast.show(context, l10n.opsStarted, tone: ToastTone.success);
+      _reload();
+    } on NotAllowed {
+      if (mounted) BusinToast.show(context, l10n.opsAssignedElsewhere, tone: ToastTone.warning);
+    } on Conflict {
+      if (!mounted) return;
+      final school = ref.read(schoolProvider).value;
+      final clock = ref.read(schoolClockProvider);
+      final zone = school?.timezone ?? 'UTC';
+      final now = ref.read(nowProvider)();
+      final isToday = clock.today(zone, now: trip.scheduledStart) == clock.today(zone, now: now);
+      final today = ref.read(todayTripsProvider).value ?? const <Trip>[];
+      final text = switch (startRefusal(trip: trip, today: today, isToday: isToday)) {
+        StartRefusal.notToday => l10n.opsNotToday,
+        StartRefusal.busBusy => l10n.opsBusBusy,
+        StartRefusal.notScheduled => l10n.opsNotScheduled,
+      };
+      BusinToast.show(context, text, tone: ToastTone.warning);
+      _reload();
+    } catch (_) {
+      if (mounted) BusinToast.show(context, l10n.errorGeneric, tone: ToastTone.error);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _end(Trip trip) async {
+    final l10n = BusinL10n.of(context);
+    final sure = await showBusinSheet<bool>(context, builder: (context) => const _EndSheet());
+    if (sure != true || !mounted) return;
+    setState(() => _busy = true);
+    try {
+      await ref.read(tripsRepositoryProvider).end(trip.id);
+      if (!mounted) return;
+      BusinToast.show(context, l10n.opsEnded, tone: ToastTone.success);
+      _reload();
+      context.canPop() ? context.pop() : context.go(Routes.today);
+    } on NotAllowed {
+      if (mounted) BusinToast.show(context, l10n.opsAssignedElsewhere, tone: ToastTone.warning);
+    } catch (_) {
+      if (mounted) BusinToast.show(context, l10n.errorGeneric, tone: ToastTone.error);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = BusinL10n.of(context);
+    final p = BusinPalette.of(context);
+    final text = Theme.of(context).textTheme;
+    final me = staffOf(ref.watch(accessProvider));
+    final trip = ref.watch(tripProvider(widget.tripId));
+    final bus = ref.watch(tripBusProvider(widget.tripId)).value;
+    final zone = ref.watch(schoolProvider).value?.timezone ?? 'UTC';
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(bus?.label ?? l10n.opsTripTitle),
+        leading: BackButton(onPressed: () => context.canPop() ? context.pop() : context.go(Routes.today)),
+      ),
+      body: SafeArea(
+        child: ContentColumn(
+          child: trip.when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (_, _) => EmptyState(
+              illustration: BusinIllustration.waiting,
+              title: l10n.errorGeneric,
+              action: BusinButton(label: l10n.actionRetry, onPressed: _reload),
+            ),
+            data: (trip) {
+              final canRun = me != null && trip.canRun(me.userId, isAdmin: me.isAdmin);
+              final boarded = ref.watch(manifestProvider(trip.id)).value?.length;
+              final time = const SchoolClock().wallClock(zone, trip.scheduledStart);
+              return RefreshIndicator(
+                onRefresh: () async => _reload(),
+                child: ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.all(BusinSpace.x5),
+                  children: [
+                    BusinCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(child: Text(l10n.direction(trip.direction), style: text.titleLarge)),
+                              StatusChip(label: l10n.tripStatus(trip.status), tone: tripTone(trip.status)),
+                            ],
+                          ),
+                          const SizedBox(height: BusinSpace.x2),
+                          Text(
+                            l10n.opsDeparts(MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(time))),
+                            style: text.bodyMedium?.copyWith(color: p.muted),
+                          ),
+                          if (boarded != null && bus != null && trip.status != TripStatus.scheduled) ...[
+                            const SizedBox(height: BusinSpace.x3),
+                            Row(
+                              children: [
+                                HugeIcon(icon: HugeIcons.strokeRoundedUserGroup, size: 20, color: p.fg),
+                                const SizedBox(width: BusinSpace.x2),
+                                Text(l10n.opsBoarded(boarded, bus.capacity), style: text.titleMedium),
+                              ],
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: BusinSpace.x4),
+                    if (trip.status == TripStatus.scheduled) ...[
+                      Text(l10n.opsScannerSoon, style: text.bodyMedium?.copyWith(color: p.muted)),
+                      const SizedBox(height: BusinSpace.x4),
+                      if (canRun)
+                        BusinButton(
+                          label: l10n.opsStart,
+                          icon: HugeIcons.strokeRoundedPlayCircle,
+                          expand: true,
+                          loading: _busy,
+                          onPressed: _busy ? null : () => _start(trip),
+                        )
+                      else
+                        Notice(child: Text(l10n.opsAssignedElsewhere)),
+                    ],
+                    if (trip.status == TripStatus.active && canRun)
+                      BusinButton(
+                        label: l10n.opsEnd,
+                        icon: HugeIcons.strokeRoundedStopCircle,
+                        variant: BusinButtonVariant.danger,
+                        expand: true,
+                        loading: _busy,
+                        onPressed: _busy ? null : () => _end(trip),
+                      ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _EndSheet extends StatelessWidget {
+  const _EndSheet();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = BusinL10n.of(context);
+    final p = BusinPalette.of(context);
+    final text = Theme.of(context).textTheme;
+    return Padding(
+      padding: EdgeInsets.all(BusinSheetFrame.contentInset),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l10n.opsEndTitle, style: text.titleLarge),
+          const SizedBox(height: BusinSpace.x2),
+          Text(l10n.opsEndBody, style: text.bodyMedium?.copyWith(color: p.muted)),
+          const SizedBox(height: BusinSpace.x4),
+          BusinButton(label: l10n.opsEnd, variant: BusinButtonVariant.danger, expand: true, onPressed: () => Navigator.of(context).pop(true)),
+        ],
+      ),
+    );
+  }
+}

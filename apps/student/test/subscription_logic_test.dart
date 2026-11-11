@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
+import 'package:busin_app/busin_app.dart';
 import 'package:busin_core/busin_core.dart';
-import 'package:busin_student/src/school_clock.dart';
 import 'package:busin_student/src/subscription/proof_picker.dart';
 import 'package:busin_student/src/subscription/subscription_providers.dart';
 import 'package:flutter_test/flutter_test.dart';

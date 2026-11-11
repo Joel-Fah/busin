@@ -16,7 +16,6 @@ import 'package:busin_student/src/push/push_service.dart';
 import 'package:busin_student/src/qr/qr_providers.dart';
 import 'package:busin_student/src/qr/screen_security.dart';
 import 'package:busin_student/src/qr/secret_store.dart';
-import 'package:busin_student/src/school_clock.dart';
 import 'package:busin_student/src/subscription/proof_picker.dart';
 import 'package:busin_student/src/subscription/subscription_providers.dart';
 import 'package:flutter/foundation.dart';
