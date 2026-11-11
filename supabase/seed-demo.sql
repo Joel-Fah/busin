@@ -267,3 +267,13 @@ join public.stops m on m.id = sub.stop_id and m.name = 'Mvan roundabout'
 join auth.users u on u.id = sub.student_id and u.email like 'demo.student%@ictuniversity.edu.cm',
      public.stops e
 where a.user_id = sub.student_id and sub.status = 'approved' and e.name = 'Ekounou crossroads' and e.school_id = sub.school_id;
+
+-- The students of Etoudi palace road and Nkolbisson bridge live together about 1.2 km north of Etoudi palace road, far
+-- from every stop, so Insights suggests a new stop there.
+update public.student_areas a
+set area = private.snap_area(extensions.st_y(e.location::extensions.geometry) + 0.011, extensions.st_x(e.location::extensions.geometry))
+from public.subscriptions sub
+join public.stops m on m.id = sub.stop_id and m.name in ('Etoudi palace road', 'Nkolbisson bridge')
+join auth.users u on u.id = sub.student_id and u.email like 'demo.student%@ictuniversity.edu.cm',
+     public.stops e
+where a.user_id = sub.student_id and sub.status = 'approved' and e.name = 'Etoudi palace road' and e.school_id = sub.school_id;

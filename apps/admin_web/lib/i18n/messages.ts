@@ -295,7 +295,7 @@ export const en = {
   },
   insights: {
     title: 'Insights',
-    views: { label: 'What to show', load: 'Stop load', proximity: 'Proximity', graph: 'Graph' },
+    views: { label: 'What to show', load: 'Stop load', proximity: 'Proximity', graph: 'Graph', suggestions: 'Suggestions' },
     period: { label: 'Period', p28: '4 weeks', p56: '8 weeks', p112: '16 weeks' },
     mapLabel: 'Map of how full the bus gets at each stop',
     mapUnavailable: 'The map could not be drawn in this browser. The stops are listed below it.',
@@ -319,6 +319,31 @@ export const en = {
       inactive: 'Inactive',
     },
     listLabel: 'Stops, fullest first',
+    suggestions: {
+      mapLabel: 'Map of the stop suggestions',
+      limits: 'Suggestions count students, not roads: they do not know whether a bus can reach a spot, the width of a street or the order of a route. You decide; nothing changes by itself.',
+      empty: 'Nothing to suggest for now. Suggestions appear once enough students have shared their area, or when two stops are very close or one goes unused.',
+      listLabel: 'Suggestions',
+      kinds: { new_stop: 'New stop', close_pair: 'Close together', unused: 'Unused' },
+      newStop: 'A stop near {place} would bring {count} students within 500 m. Today they live {distance} from a stop.',
+      closePair: '{a} and {b} are {distance} apart, with {count} subscribers between them. One stop may be enough.',
+      unused: '{stop} has had no boarding for {weeks} weeks ({count} subscribers).',
+      graphNode: 'Suggested stop near {place}: {count} students within 500 m',
+      help: {
+        title: 'How suggestions work',
+        intro: 'Each suggestion is a short sentence with the number behind it. A new stop is picked among named places from OpenStreetMap, where it would bring the most students within 500 m who today live further from any stop; then the next best among the rest. Never for fewer than 5 students.',
+        scenarios: {
+          newStop: {
+            title: 'A new stop near a market',
+            body: 'Eight students live about 1.1 km from any stop, all within 500 m of the market. Check with a driver that the bus can stop there, then add it on the Stops page.',
+          },
+          unused: {
+            title: 'A stop nobody uses',
+            body: 'No boarding for 6 weeks while the other stops had some. Ask the drivers, then make it inactive on the Stops page.',
+          },
+        },
+      },
+    },
     graph: {
       label: 'Graph of the stops, where groups of their students live, and where they could go instead',
       zoomIn: 'Zoom in',
@@ -329,7 +354,7 @@ export const en = {
       legendFill: 'Fill: how full the bus gets at the stop (blue quiet to red full).',
       legendRing: 'Ring: how far its students typically live (green near to red far).',
       legendZone: 'Orange dots: places where 5 or more of its students live, further out the further they are.',
-      legendFlow: 'Blue arrows: 5 or more of its students live nearer to the other stop.',
+      legendFlow: 'Blue arrows: 5 or more of its students live nearer to the other stop. Dashed rings: suggested new stops.',
       zone: '{count} students live here, {distance} from {stop}',
       riders: '{count} subscribers',
       help: {
@@ -1284,7 +1309,7 @@ export const fr: Messages = {
   },
   insights: {
     title: 'Analyses',
-    views: { label: 'Que montrer', load: 'Charge des arrêts', proximity: 'Proximité', graph: 'Graphe' },
+    views: { label: 'Que montrer', load: 'Charge des arrêts', proximity: 'Proximité', graph: 'Graphe', suggestions: 'Suggestions' },
     period: { label: 'Période', p28: '4 semaines', p56: '8 semaines', p112: '16 semaines' },
     mapLabel: 'Carte du remplissage du bus à chaque arrêt',
     mapUnavailable: "La carte n'a pas pu s'afficher dans ce navigateur. Les arrêts sont listés en dessous.",
@@ -1308,6 +1333,31 @@ export const fr: Messages = {
       inactive: 'Inactif',
     },
     listLabel: 'Arrêts, du plus chargé au moins chargé',
+    suggestions: {
+      mapLabel: 'Carte des suggestions d\'arrêts',
+      limits: "Les suggestions comptent des étudiants, pas des routes : elles ne savent pas si un bus peut atteindre un lieu, la largeur d'une rue ou l'ordre d'un trajet. Vous décidez ; rien ne change de soi-même.",
+      empty: "Rien à suggérer pour l'instant. Les suggestions apparaissent quand assez d'étudiants ont indiqué leur zone, ou quand deux arrêts sont très proches ou qu'un arrêt n'est plus utilisé.",
+      listLabel: 'Suggestions',
+      kinds: { new_stop: 'Nouvel arrêt', close_pair: 'Très proches', unused: 'Inutilisé' },
+      newStop: "Un arrêt près de {place} mettrait {count} étudiants à moins de 500 m. Aujourd'hui, ils habitent {distance} d'un arrêt.",
+      closePair: '{a} et {b} sont à {distance} l\'un de l\'autre, avec {count} abonnés à eux deux. Un seul arrêt pourrait suffire.',
+      unused: "{stop} n'a eu aucun embarquement depuis {weeks} semaines ({count} abonnés).",
+      graphNode: 'Arrêt suggéré près de {place} : {count} étudiants à moins de 500 m',
+      help: {
+        title: 'Comment fonctionnent les suggestions',
+        intro: "Chaque suggestion est une phrase courte avec le chiffre derrière. Un nouvel arrêt est choisi parmi les lieux nommés d'OpenStreetMap, là où il mettrait le plus d'étudiants à moins de 500 m parmi ceux qui habitent aujourd'hui plus loin de tout arrêt ; puis le suivant parmi les autres. Jamais pour moins de 5 étudiants.",
+        scenarios: {
+          newStop: {
+            title: "Un nouvel arrêt près d'un marché",
+            body: "Huit étudiants habitent à environ 1,1 km de tout arrêt, tous à moins de 500 m du marché. Vérifiez avec un chauffeur que le bus peut s'y arrêter, puis ajoutez-le dans la page Arrêts.",
+          },
+          unused: {
+            title: "Un arrêt que personne n'utilise",
+            body: "Aucun embarquement depuis 6 semaines alors que les autres arrêts en ont eu. Demandez aux chauffeurs, puis rendez-le inactif dans la page Arrêts.",
+          },
+        },
+      },
+    },
     graph: {
       label: "Graphe des arrêts, des lieux où habitent des groupes de leurs étudiants, et des arrêts où ils pourraient aller",
       zoomIn: 'Zoomer',
@@ -1318,7 +1368,7 @@ export const fr: Messages = {
       legendFill: "Remplissage : à quel point le bus se remplit à l'arrêt (bleu calme à rouge plein).",
       legendRing: 'Anneau : à quelle distance habitent en général ses étudiants (vert proche à rouge loin).',
       legendZone: "Points orange : lieux où habitent 5 de ses étudiants ou plus, d'autant plus loin qu'ils sont loin.",
-      legendFlow: "Flèches bleues : 5 de ses étudiants ou plus habitent plus près de l'autre arrêt.",
+      legendFlow: "Flèches bleues : 5 de ses étudiants ou plus habitent plus près de l'autre arrêt. Anneaux pointillés : nouveaux arrêts suggérés.",
       zone: '{count} étudiants habitent ici, {distance} de {stop}',
       riders: '{count} abonnés',
       help: {

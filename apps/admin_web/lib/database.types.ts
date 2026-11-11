@@ -681,6 +681,11 @@ isOneToOne: false
               "median_m": number,"over_2k": number,"stop_id": string,"subscribers": number,"to_1k": number,"to_2k": number,"under_500": number,"with_area": number
             }[]
                            },
+"admin_stop_suggestions":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "kind": string,"lat": number,"lng": number,"metres": number,"other_stop_id": string,"place_name": string,"stop_id": string,"students": number
+            }[]
+                           },
 "admin_stop_usage":
 { Args: Record<PropertyKey, never>; Returns: {
               "pending": number,"stop_id": string,"students": number
