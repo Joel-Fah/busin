@@ -234,6 +234,28 @@ a {
   box-shadow: 0 0 0 9px color-mix(in srgb, var(--accent) 38%, transparent), 0 2px 8px rgb(0 0 0 / 40%);
 }
 
+/* A stop with its number on the route: a larger dot with the number inside. */
+.map-marker-badge {
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  font: 800 0.7rem/1 var(--font-sans, sans-serif);
+  color: var(--on-accent, #fff);
+}
+
+/* Where the route ends: the campus, a rounded square in the ink colour. */
+.map-marker-campus {
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 0.5rem;
+  background: var(--fg);
+  color: var(--bg);
+  font: 800 0.7rem/1 var(--font-sans, sans-serif);
+}
+
 /* The visitor's own position: a blue dot with a wave that keeps pinging out from it. */
 .map-marker-me {
   width: 1.1rem;

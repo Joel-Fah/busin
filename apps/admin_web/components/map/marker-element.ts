@@ -7,7 +7,17 @@ import type { MapMarker } from "./types";
  */
 export function createMarkerElement(item: MapMarker): HTMLElement {
   const element = document.createElement(item.href ? "a" : item.onSelect ? "button" : "div");
-  element.className = ["map-marker", item.muted ? "map-marker-muted" : "", item.selected ? "map-marker-selected" : "", item.variant === "me" ? "map-marker-me" : ""].filter(Boolean).join(" ");
+  element.className = [
+    "map-marker",
+    item.muted ? "map-marker-muted" : "",
+    item.selected ? "map-marker-selected" : "",
+    item.variant === "me" ? "map-marker-me" : "",
+    item.variant === "campus" ? "map-marker-campus" : "",
+    item.badge ? "map-marker-badge" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+  if (item.badge) element.textContent = item.badge;
   element.setAttribute("aria-label", item.label);
   element.dataset.tip = item.label;
   if (item.href && element instanceof HTMLAnchorElement) element.href = item.href;

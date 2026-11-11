@@ -13,6 +13,7 @@ import { areaColor, placeAreas, type AreaHost } from "../area-layer";
 import { placeCircles } from "../circle-layer";
 import { fitPadding, focusOffset } from "../fit";
 import { placeLines } from "../line-layer";
+import { placeRoutes } from "../route-layer";
 import { placeMarkers } from "../place-markers";
 import type { MapViewProps } from "../types";
 
@@ -70,7 +71,7 @@ function acquire(token: string, style: string, view: { center: [number, number];
  * proprietary software under Mapbox's terms (see docs/decisions/0008-map-provider.md).
  */
 export default function MapboxView(props: MapViewProps) {
-  const { center, zoom, styleUrl, accessToken, markers, areas, circles, lines, picker, ariaLabel, unavailableLabel, className, clusterLabel = "{count}", clustering = true, coveredBottom = 0 } = props;
+  const { center, zoom, styleUrl, accessToken, markers, areas, circles, lines, routes, picker, ariaLabel, unavailableLabel, className, clusterLabel = "{count}", clustering = true, coveredBottom = 0 } = props;
   // This module only ever runs in the browser (the selector loads it without server rendering).
   const [supported] = useState(webglAvailable);
   // Spent its budget in this browser: draw the free map instead. A map already in this tab is reused, so it never counts.
@@ -147,6 +148,12 @@ export default function MapboxView(props: MapViewProps) {
     if (!map || !areas || areas.length === 0) return;
     return placeAreas(map as unknown as AreaHost, areas, areaColor());
   }, [map, areas]);
+
+  // Bus routes, under everything else.
+  useEffect(() => {
+    if (!map || !routes || routes.length === 0) return;
+    return placeRoutes(map as unknown as AreaHost, routes);
+  }, [map, routes]);
 
   // Lines, for example from where students live to their stop, drawn first so circles sit above them.
   useEffect(() => {

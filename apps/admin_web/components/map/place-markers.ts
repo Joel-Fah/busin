@@ -33,7 +33,7 @@ export function placeMarkers(host: MarkerHost, markers: readonly MapMarker[], { 
 
   const signature = (group: { id: string; members: string[] }, members: MapMarker[]) =>
     members.length === 1
-      ? `${group.id}|${members[0].selected ? "s" : ""}${members[0].muted ? "m" : ""}${members[0].variant ?? ""}`
+      ? `${group.id}|${members[0].selected ? "s" : ""}${members[0].muted ? "m" : ""}${members[0].variant ?? ""}|${members[0].badge ?? ""}`
       : `${group.id}|${members.length}`;
 
   const render = () => {
