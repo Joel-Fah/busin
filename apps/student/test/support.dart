@@ -925,7 +925,7 @@ class FakeAreas implements AreaRepository {
   Future<void> clearArea() async => area = null;
 
   @override
-  Future<List<PlaceResult>> searchPlaces(String query, {required String languageCode}) async {
+  Future<List<PlaceResult>> searchPlaces(String query) async {
     queries.add(query);
     if (searchError != null) throw searchError!;
     return places;

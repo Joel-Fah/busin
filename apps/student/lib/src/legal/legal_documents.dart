@@ -180,7 +180,7 @@ const _privacyEn = LegalDocument(
     LegalSection('Your choices', bullets: [
       'Correct your details in the profile at any time.',
       'Turn notifications off in your phone settings.',
-      'Change or remove your area in My area at any time. When you search for a place, the text you type goes to our map provider without your name.',
+      'Change or remove your area in My area at any time. Place search runs on BusIn\'s own servers, on a copy of OpenStreetMap: what you type is not sent to anyone else.',
       'Ask your school for a copy of your data, or to delete your account and data.',
     ]),
     LegalSection('Changes to this policy', paragraphs: [
@@ -235,7 +235,7 @@ const _privacyFr = LegalDocument(
     LegalSection('Vos choix', bullets: [
       'Corrigez vos informations dans le profil à tout moment.',
       'Désactivez les notifications dans les réglages de votre téléphone.',
-      'Modifiez ou supprimez votre zone dans Ma zone à tout moment. Quand vous cherchez un lieu, le texte saisi part chez notre fournisseur de cartes sans votre nom.',
+      'Modifiez ou supprimez votre zone dans Ma zone à tout moment. La recherche de lieux se fait sur les serveurs de BusIn, sur une copie d\'OpenStreetMap : ce que vous tapez n\'est envoyé à personne d\'autre.',
       'Demandez à votre école une copie de vos données, ou la suppression de votre compte et de vos données.',
     ]),
     LegalSection('Modifications de cette politique', paragraphs: [

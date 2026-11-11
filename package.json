@@ -16,7 +16,7 @@
     "backend:start": "node tools/ensure-supabase-env.mjs && supabase start -x studio,imgproxy,vector,logflare,edge-runtime,postgres-meta,mailpit,supavisor",
     "backend:stop": "supabase stop",
     "backend:reset": "supabase db reset",
-    "test:functions": "node --test supabase/functions/_shared/push.test.ts supabase/functions/_shared/places.test.ts",
+    "test:functions": "node --test supabase/functions/_shared/push.test.ts",
     "backend:test": "supabase test db",
     "web:setup": "node tools/write-web-env.mjs",
     "web": "npm run dev -w apps/admin_web",
@@ -25,6 +25,8 @@
     "seed:demo": "node tools/seed-demo.mjs",
     "dev:bus": "node tools/simulate-bus.mjs",
     "dev:push": "node tools/send-test-push.mjs",
+    "places:import": "node tools/import-places.mjs",
+    "test:tools": "node --test tools/places-osm.test.mjs",
     "supabase": "supabase"
   },
   "devDependencies": {

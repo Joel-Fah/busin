@@ -1201,4 +1201,19 @@ class BusinL10nEn extends BusinL10n {
   @override
   String get sampleBusNearBody =>
       'It is a few minutes from your stop. Open BusIn to follow it.';
+
+  @override
+  String get areaOsmCredit => 'Places from OpenStreetMap contributors';
+
+  @override
+  String get placeKindArea => 'Neighbourhood';
+
+  @override
+  String get placeKindVillage => 'Village or locality';
+
+  @override
+  String get placeKindStreet => 'Street';
+
+  @override
+  String get placeKindLandmark => 'Landmark';
 }

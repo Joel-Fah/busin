@@ -35,24 +35,40 @@ class StudentArea extends ValueObject {
   List<Object?> get props => [label, lat, lng, source, updatedAt];
 }
 
-/// One result of a place search: a short name, where it is, and a point.
+/// What a searched place is (from OpenStreetMap, ADR 0013).
+enum PlaceKind {
+  area,
+  village,
+  street,
+  landmark;
+
+  static PlaceKind parse(Object? value) => switch (value) {
+        'area' => area,
+        'village' => village,
+        'street' => street,
+        'landmark' => landmark,
+        _ => throw FormatException('Unknown place kind: $value'),
+      };
+}
+
+/// One result of a place search: its name, what it is, and a point.
 class PlaceResult extends ValueObject {
-  const PlaceResult({required this.label, required this.detail, required this.lat, required this.lng});
+  const PlaceResult({required this.label, required this.kind, required this.lat, required this.lng});
 
   factory PlaceResult.fromJson(Map<String, dynamic> json) => PlaceResult(
         label: reqString(json, 'label'),
-        detail: optString(json, 'detail') ?? '',
+        kind: PlaceKind.parse(json['kind']),
         lat: _reqDouble(json, 'lat'),
         lng: _reqDouble(json, 'lng'),
       );
 
   final String label;
-  final String detail;
+  final PlaceKind kind;
   final double lat;
   final double lng;
 
   @override
-  List<Object?> get props => [label, detail, lat, lng];
+  List<Object?> get props => [label, kind, lat, lng];
 }
 
 double _reqDouble(Map<String, dynamic> json, String key) =>

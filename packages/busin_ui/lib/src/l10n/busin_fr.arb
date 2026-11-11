@@ -452,5 +452,10 @@
   "areaTooMany": "Trop de recherches. Attendez une minute et réessayez.",
   "notificationsSampleSent": "Nous vous avons envoyé un exemple, pour que vous voyiez à quoi il ressemble.",
   "sampleBusNearTitle": "Votre bus arrive",
-  "sampleBusNearBody": "Il est à quelques minutes de votre arrêt. Ouvrez BusIn pour le suivre."
+  "sampleBusNearBody": "Il est à quelques minutes de votre arrêt. Ouvrez BusIn pour le suivre.",
+  "areaOsmCredit": "Lieux issus des contributeurs OpenStreetMap",
+  "placeKindArea": "Quartier",
+  "placeKindVillage": "Village ou lieu-dit",
+  "placeKindStreet": "Rue",
+  "placeKindLandmark": "Lieu connu"
 }

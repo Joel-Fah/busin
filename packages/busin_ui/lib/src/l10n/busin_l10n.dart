@@ -2190,6 +2190,36 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'It is a few minutes from your stop. Open BusIn to follow it.'**
   String get sampleBusNearBody;
+
+  /// No description provided for @areaOsmCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'Places from OpenStreetMap contributors'**
+  String get areaOsmCredit;
+
+  /// No description provided for @placeKindArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Neighbourhood'**
+  String get placeKindArea;
+
+  /// No description provided for @placeKindVillage.
+  ///
+  /// In en, this message translates to:
+  /// **'Village or locality'**
+  String get placeKindVillage;
+
+  /// No description provided for @placeKindStreet.
+  ///
+  /// In en, this message translates to:
+  /// **'Street'**
+  String get placeKindStreet;
+
+  /// No description provided for @placeKindLandmark.
+  ///
+  /// In en, this message translates to:
+  /// **'Landmark'**
+  String get placeKindLandmark;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {

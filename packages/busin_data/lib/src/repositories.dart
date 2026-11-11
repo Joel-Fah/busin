@@ -147,12 +147,9 @@ class SupabaseAreaRepository implements AreaRepository {
       });
 
   @override
-  Future<List<PlaceResult>> searchPlaces(String query, {required String languageCode}) => guarded(() async {
-        final response = await _client.functions.invoke('places-search', body: {'q': query, 'language': languageCode});
-        final data = response.data;
-        final places = data is Map<String, dynamic> ? data['places'] : null;
-        if (places is! List) throw const FormatException('places');
-        return places.cast<Map<String, dynamic>>().map(PlaceResult.fromJson).toList(growable: false);
+  Future<List<PlaceResult>> searchPlaces(String query) => guarded(() async {
+        final rows = await _client.rpc<List<dynamic>>('search_places', params: {'p_query': query, 'p_limit': 8});
+        return rows.cast<Map<String, dynamic>>().map(PlaceResult.fromJson).toList(growable: false);
       });
 }
 
