@@ -33,9 +33,9 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 
 ## Handoff: phase 4 (in progress)
 
-Done: #249 day keys (busin2 codes, staff day keys, queued scans with their time and id); #251 trip control (start, end, position, manifest), stacked on #249; #253 the busin_app package (shared app plumbing), stacked on #251; #255 the ops app shell (staff sign-in, today's trips, start and end), stacked on #253.
+Done: #249 day keys (busin2 codes, staff day keys, queued scans with their time and id); #251 trip control (start, end, position, manifest), stacked on #249; #253 the busin_app package (shared app plumbing), stacked on #251; #255 the ops app shell (staff sign-in, today's trips, start and end), stacked on #253; #257 the offline scanner with its scan queue, stacked on #255.
 
-Next: the scanner with its offline queue, then driver mode.
+Next: driver mode (sharing the bus position), then the owner's test on a real run.
 
 Owner, for the ops app on a device: create an Android OAuth client for `com.joelfah.busin.ops` in the Google Cloud project with the debug SHA-1 `1B:71:FB:70:57:C0:34:74:7E:6A:24:85:F4:AE:A3:17:AB:13:81:1A` (this is a cloud change, yours to make), then `npm run dev:device -- ops`.
 
