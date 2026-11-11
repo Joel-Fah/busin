@@ -19,6 +19,23 @@ void main() {
     });
   });
 
+  group('Bus', () {
+    Map<String, dynamic> row({Object? name}) => {
+          'id': 'b1',
+          'school_id': 's1',
+          'plate': 'LT 100 AA',
+          'name': name,
+          'capacity': 60,
+          'in_service': true,
+        };
+
+    test('is called by its name when it has one, otherwise by its plate', () {
+      expect(Bus.fromJson(row(name: 'Blue Line')).label, 'Blue Line');
+      expect(Bus.fromJson(row()).label, 'LT 100 AA');
+      expect(Bus.fromJson(row(name: '  ')).label, 'LT 100 AA');
+    });
+  });
+
   group('GeoPoint', () {
     test('reads GeoJSON with longitude first', () {
       final p = GeoPoint.fromApi({

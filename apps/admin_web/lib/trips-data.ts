@@ -1,6 +1,7 @@
+import { busLabel } from "@/lib/buses";
 import { createClient } from "@/lib/supabase/server";
 
-export type BusOption = { id: string; plate: string; inService: boolean };
+export type BusOption = { id: string; plate: string; name: string | null; label: string; inService: boolean };
 export type DriverOption = { id: string; name: string };
 
 // A school has a handful of buses and drivers. The caps keep the form light if that ever changes.
@@ -17,7 +18,7 @@ export async function loadTripOptions(currentBusId?: string): Promise<{
 }> {
   const supabase = await createClient();
   const [buses, drivers] = await Promise.all([
-    supabase.from("buses").select("id, plate, in_service").order("plate", { ascending: true }).limit(MAX_OPTIONS),
+    supabase.from("buses").select("id, plate, name, in_service").order("plate", { ascending: true }).limit(MAX_OPTIONS),
     supabase
       .from("profiles")
       .select("id, full_name, email")
@@ -31,21 +32,21 @@ export async function loadTripOptions(currentBusId?: string): Promise<{
   return {
     buses: buses.data
       .filter((bus) => bus.in_service || bus.id === currentBusId)
-      .map((bus) => ({ id: bus.id, plate: bus.plate, inService: bus.in_service })),
+      .map((bus) => ({ id: bus.id, plate: bus.plate, name: bus.name, label: busLabel(bus), inService: bus.in_service })),
     drivers: drivers.data.map((row) => ({ id: row.id, name: row.full_name || row.email })),
     failed: false,
   };
 }
 
 /** Every bus and every staff member, for the column filters: a past trip may have a bus now out of service. */
-export async function loadTripFilterOptions(): Promise<{ buses: { id: string; plate: string }[]; drivers: DriverOption[] }> {
+export async function loadTripFilterOptions(): Promise<{ buses: { id: string; label: string }[]; drivers: DriverOption[] }> {
   const supabase = await createClient();
   const [buses, drivers] = await Promise.all([
-    supabase.from("buses").select("id, plate").order("plate", { ascending: true }).limit(MAX_OPTIONS),
+    supabase.from("buses").select("id, plate, name").order("plate", { ascending: true }).limit(MAX_OPTIONS),
     supabase.from("profiles").select("id, full_name, email").eq("role", "staff").order("full_name", { ascending: true }).limit(MAX_OPTIONS),
   ]);
   return {
-    buses: buses.data ?? [],
+    buses: (buses.data ?? []).map((bus) => ({ id: bus.id, label: busLabel(bus) })),
     drivers: (drivers.data ?? []).map((row) => ({ id: row.id, name: row.full_name || row.email })),
   };
 }
