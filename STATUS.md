@@ -33,11 +33,11 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 
 ## Handoff: phase 5 (in progress)
 
-Done: #261 the stop load map (Insights tab, nightly pg_cron count), stacked on #259; #263 add staff by email (ADR 0015), stacked on #261; #265 proximity per stop with desire lines, stacked on #263; #267 overdue trips (badge, End trip, hourly safety net), stacked on #265; #269 notification icon (no more square), stacked on #267.
+Done: #261 the stop load map (Insights tab, nightly pg_cron count), stacked on #259; #263 add staff by email (ADR 0015), stacked on #261; #265 proximity per stop with desire lines, stacked on #263; #267 overdue trips (badge, End trip, hourly safety net), stacked on #265; #269 notification icon (no more square), stacked on #267; #271 live bus updates on My bus, stacked on #269.
 
-Next: slice 3, students nearer another stop ("12 students at A live nearer to B"), then slice 4, stop suggestions.
+Next (approved plan): Show me on My bus (precise location while on the tab, ADR 0016), students nearer another stop, the Insights graph view, then stop suggestions.
 
-Owner: when a hosted project exists, its migration enables pg_cron (a Supabase extension). Merge #261, #263, #265, #267, #269 in that order, after the phase 4 stack. For the demo areas locally: `npm run seed:demo` (it also renews the demo password and trips).
+Owner: when a hosted project exists, its migration enables pg_cron (a Supabase extension). Merge #261, #263, #265, #267, #269, #271 in that order, after the phase 4 stack. For the demo areas locally: `npm run seed:demo` (it also renews the demo password and trips).
 
 ## Handoff: phase 4 (in progress)
 
