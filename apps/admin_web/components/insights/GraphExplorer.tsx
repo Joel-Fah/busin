@@ -13,9 +13,10 @@ import { graphFacts, type GraphFact } from "@/lib/graph-summary";
 import { format, type Messages } from "@/lib/i18n/messages";
 import { formatShare, type LoadLevel, type StopLoads } from "@/lib/insights";
 import { roughDistance, type Proximity, type Reach } from "@/lib/proximity";
+import type { RouteOverlay } from "@/lib/route";
 import type { Suggestion } from "@/lib/suggestions";
 
-type Props = { loads: StopLoads; proximity: Proximity; suggestions?: Suggestion[]; failed: boolean; t: Messages };
+type Props = { loads: StopLoads; proximity: Proximity; suggestions?: Suggestion[]; route?: RouteOverlay | null; failed: boolean; t: Messages };
 
 const LEVEL_TONE: Record<LoadLevel, ChipTone> = { quiet: "info", fair: "ok", busy: "warn", full: "bad" };
 const REACH_TONE: Record<Reach, ChipTone> = { near: "ok", walk: "info", far: "warn", remote: "bad" };
@@ -52,7 +53,7 @@ function curve(e: { x1: number; y1: number; x2: number; y2: number }, bend = 0.1
  * students live nearer to; dashed rings for suggested new stops. "How to read" draws each shape, and "In short" says in
  * a few sentences what the graph shows. Drag, zoom, and every node is a button (Tab, Enter). No student is ever a node.
  */
-export function GraphExplorer({ loads, proximity, suggestions = [], failed, t }: Props) {
+export function GraphExplorer({ loads, proximity, suggestions = [], route = null, failed, t }: Props) {
   const s = t.insights;
   const g = s.graph;
   const p = s.proximity;
@@ -107,8 +108,9 @@ export function GraphExplorer({ loads, proximity, suggestions = [], failed, t }:
         size.width,
         size.height,
         suggestions.flatMap((item) => (item.kind === "new_stop" ? [{ id: item.id, name: item.place, position: item.position, students: item.students }] : [])),
+        route?.campus ?? null,
       ),
-    [proximity, size, suggestions],
+    [proximity, size, suggestions, route],
   );
   const nodeById = useMemo(() => new Map(layout.nodes.map((n) => [n.id, n])), [layout.nodes]);
   const facts = useMemo(() => graphFacts(loads, proximity, suggestions), [loads, proximity, suggestions]);
@@ -174,7 +176,18 @@ export function GraphExplorer({ loads, proximity, suggestions = [], failed, t }:
   };
   const choose = (id: string) => setSelected((current) => (current === id ? null : id));
 
+  // The bus route through the graph: its stops in order, then the campus.
+  const backbone = useMemo(() => {
+    if (!route) return "";
+    const points = [...route.stopIds, "campus"].flatMap((id) => {
+      const n = nodeById.get(id);
+      return n ? [`${n.x} ${n.y}`] : [];
+    });
+    return points.length >= 2 ? `M${points.join(" L")}` : "";
+  }, [route, nodeById]);
+
   const label = (node: GraphNode): string => {
+    if (node.kind === "campus") return format(g.campusNode, { name: node.name });
     if (node.kind === "suggested") return format(s.suggestions.graphNode, { place: node.name, count: node.students });
     if (node.kind === "zone") {
       const stop = nodeById.get(node.stopId);
@@ -230,6 +243,9 @@ export function GraphExplorer({ loads, proximity, suggestions = [], failed, t }:
           </defs>
           <rect x={-5000} y={-5000} width={10000} height={10000} fill="url(#graph-dots)" opacity={0.7} />
           <g transform={`translate(${view.x} ${view.y}) scale(${view.k})`}>
+            {backbone ? (
+              <path d={backbone} fill="none" strokeWidth={7} strokeLinecap="round" strokeLinejoin="round" style={{ stroke: "var(--info)", opacity: lit ? 0.08 : 0.16 }} />
+            ) : null}
             {layout.edges.map((edge) => {
               const a = nodeById.get(edge.from);
               const b = nodeById.get(edge.to);
@@ -312,6 +328,18 @@ export function GraphExplorer({ loads, proximity, suggestions = [], failed, t }:
                 </text>
               );
 
+              if (node.kind === "campus") {
+                return (
+                  <g key={node.id} {...common}>
+                    {focusRing}
+                    <rect x={node.x - node.r} y={node.y - node.r} width={node.r * 2} height={node.r * 2} rx={6} style={{ fill: "var(--fg)" }} />
+                    <text x={node.x} y={node.y + 4} textAnchor="middle" fontSize={11} fontWeight={800} style={{ fill: "var(--bg)" }}>
+                      {t.route.campusBadge}
+                    </text>
+                    {name("var(--fg)")}
+                  </g>
+                );
+              }
               if (node.kind === "suggested") {
                 return (
                   <g key={node.id} {...common}>
@@ -408,7 +436,7 @@ export function GraphExplorer({ loads, proximity, suggestions = [], failed, t }:
           <div aria-live="polite" className="rounded-md bg-surface-2 p-4">
             {!chosen ? (
               <p className="m-0 text-sm text-muted">{g.hint}</p>
-            ) : chosen.kind === "zone" || chosen.kind === "suggested" ? (
+            ) : chosen.kind === "zone" || chosen.kind === "suggested" || chosen.kind === "campus" ? (
               <p className="m-0 text-sm font-semibold text-fg">{label(chosen)}</p>
             ) : (
               <StopPanel id={chosen.id} name={chosen.name} loads={loadById} prox={proxById} distance={distance} t={t} />

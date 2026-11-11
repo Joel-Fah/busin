@@ -129,6 +129,15 @@ export function GraphGuide({ t, open, onToggle, summary }: { t: Messages; open: 
               <Row
                 glyph={
                   <svg width="56" height="20" viewBox="0 0 56 20" aria-hidden>
+                    <path d="M4 14 L 22 8 L 38 12 L 50 6" fill="none" strokeWidth={6} strokeLinecap="round" strokeLinejoin="round" style={{ stroke: "var(--info)", opacity: 0.25 }} />
+                    <rect x="44" y="1" width="10" height="10" rx="2.5" style={{ fill: "var(--fg)" }} />
+                  </svg>
+                }
+                text={g.keyRoute}
+              />
+              <Row
+                glyph={
+                  <svg width="56" height="20" viewBox="0 0 56 20" aria-hidden>
                     <path d="M8 14 Q 28 2 46 10" fill="none" strokeWidth={1.5} style={{ stroke: "var(--accent)", opacity: 0.5 }} />
                     <circle cx="8" cy="14" r="4" strokeWidth={1.5} style={{ fill: "var(--accent)", stroke: "var(--surface)" }} />
                   </svg>

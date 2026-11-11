@@ -705,6 +705,11 @@ isOneToOne: false
 "admin_revoke_subscription":
 { Args: { "p_note": string,"p_subscription_id": string }; Returns: undefined
                            },
+"admin_route_corridor":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "has_route": boolean,"median_m": number,"over_2k": number,"subscribers": number,"to_1k": number,"to_2k": number,"under_500": number,"with_area": number
+            }[]
+                           },
 "admin_save_route":
 { Args: { "p_stop_ids": (string)[] }; Returns: string
                            },

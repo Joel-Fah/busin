@@ -11,12 +11,18 @@ import type { LatLng } from "@/lib/geo";
 import { format, type Messages } from "@/lib/i18n/messages";
 import { formatShare } from "@/lib/insights";
 import type { MapProviderId } from "@/lib/map/config";
-import { lineSize, MIN_STUDENTS, roughDistance, type Proximity, type ProximityStop, type Reach } from "@/lib/proximity";
+import type { RouteOverlay } from "@/lib/route";
+import { routeOnMap } from "@/components/insights/route-overlay";
+import { lineSize, MIN_STUDENTS, roughDistance, type Corridor, type Proximity, type ProximityStop, type Reach } from "@/lib/proximity";
 
 // The dock covers about the bottom 45% of the map; fitting and gliding keep the stops above it.
 const DOCK_SHARE = 0.45;
 
 type Props = {
+  /** How far students live from the route itself, or null without a route. */
+  corridor?: Corridor | null;
+  /** The school's bus route, drawn under everything (null without one). */
+  route?: RouteOverlay | null;
   proximity: Proximity;
   failed: boolean;
   map: { provider: MapProviderId; styleUrl: string; accessToken: string; center: LatLng; zoom: number };
@@ -35,7 +41,7 @@ const BAR: Record<Reach, string> = { near: "bg-ok", walk: "bg-info", far: "bg-wa
  * and lines run from each zone where 5 or more of its students live to the stop, thicker for more. The dock lists the
  * stops, farthest first, with the bands. Figures need 5 students with an area behind them; no student is ever placed.
  */
-export function ProximityExplorer({ proximity, failed, map, t }: Props) {
+export function ProximityExplorer({ route, corridor, proximity, failed, map, t }: Props) {
   const s = t.insights;
   const p = s.proximity;
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -96,6 +102,7 @@ export function ProximityExplorer({ proximity, failed, map, t }: Props) {
 
   const enough = proximity.stops.some((stop) => stop.median !== null);
 
+  const onRoute = useMemo(() => routeOnMap(route, t.route.campusBadge), [route, t.route.campusBadge]);
   return (
     <>
       <div className="fixed inset-0 z-0">
@@ -105,7 +112,8 @@ export function ProximityExplorer({ proximity, failed, map, t }: Props) {
           accessToken={map.accessToken}
           center={map.center}
           zoom={map.zoom}
-          markers={markers}
+          markers={onRoute.campus.length > 0 ? [...markers, ...onRoute.campus] : markers}
+          routes={onRoute.routes}
           circles={circles}
           lines={lines}
           focus={focus}
@@ -138,6 +146,13 @@ export function ProximityExplorer({ proximity, failed, map, t }: Props) {
                   {format(p.basis, { withArea: proximity.withArea, subscribers: proximity.subscribers })} {p.straight}
                   {proximity.lines.length > 0 ? ` ${p.lines}` : ""}
                   {proximity.nearerLines.length > 0 ? ` ${p.nearerLines}` : ""}
+                </p>
+                <p className="m-0 font-semibold text-fg">
+                  {!corridor
+                    ? p.noRoute
+                    : corridor.bands && corridor.median !== null
+                      ? format(p.corridor, { near: corridor.bands[0], withArea: corridor.withArea, distance: distance(corridor.median) })
+                      : p.corridorThin}
                 </p>
                 {enough ? (
                   <ul aria-label={p.legend} className="m-0 flex list-none flex-wrap items-center gap-2 p-0">

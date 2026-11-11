@@ -56,6 +56,21 @@ export type ProximityStop = {
 
 export type DesireLine = { id: string; stopId: string; from: LatLng; to: LatLng; students: number; distance: number };
 
+/** How far students live from the route itself (`admin_route_corridor`); bands null under 5 students with an area. */
+export type Corridor = { hasRoute: boolean; subscribers: number; withArea: number; median: number | null; bands: [number, number, number, number] | null };
+
+export function parseCorridor(row: { subscribers: number; with_area: number; median_m: number | null; under_500: number | null; to_1k: number | null; to_2k: number | null; over_2k: number | null; has_route: boolean } | null | undefined): Corridor | null {
+  if (!row || !row.has_route) return null;
+  const enough = row.with_area >= MIN_STUDENTS && row.median_m !== null;
+  return {
+    hasRoute: true,
+    subscribers: row.subscribers,
+    withArea: row.with_area,
+    median: enough ? row.median_m : null,
+    bands: enough ? [row.under_500 ?? 0, row.to_1k ?? 0, row.to_2k ?? 0, row.over_2k ?? 0] : null,
+  };
+}
+
 export type Proximity = {
   stops: ProximityStop[];
   lines: DesireLine[];
