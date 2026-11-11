@@ -8,6 +8,7 @@ import '../models/live_position.dart';
 import '../models/notification_preferences.dart';
 import '../models/profile.dart';
 import '../models/rider_key.dart';
+import '../models/manifest_entry.dart';
 import '../models/scan.dart';
 import '../models/scan_outcome.dart';
 import '../models/school.dart';
@@ -189,6 +190,19 @@ abstract interface class TripsRepository {
   /// The trips with these ids, in no particular order. At most [PageRequest.maxLimit] ids at a time;
   /// ids a caller may not read are left out.
   Future<List<Trip>> listByIds(List<String> tripIds);
+
+  /// The school's trips scheduled within [from] and [to] (a school day), soonest first, at most 100.
+  Future<List<Trip>> listBetween({required DateTime from, required DateTime to});
+
+  /// Starts a scheduled trip of today (ops app). [NotAllowed] when it is assigned to someone else; [Conflict] when
+  /// it is not scheduled, not today, or its bus is already on another trip.
+  Future<void> start(String tripId);
+
+  /// Ends a running trip (ops app).
+  Future<void> end(String tripId);
+
+  /// Who has boarded the trip, newest first (staff).
+  Future<List<ManifestEntry>> manifest(String tripId);
 }
 
 abstract interface class DeviceTokensRepository {
@@ -209,8 +223,7 @@ abstract interface class BusesRepository {
 abstract interface class ScansRepository {
   /// Submits a scanned code. A refusal that staff should see (bad code, no
   /// subscription) is a [ScanRefused] result; a problem with the caller or the
-  /// trip is a `RepositoryException`.
-  /// Records a boarding. A scan made offline and sent later carries [scannedAt] (when it was made, checked against
+  /// trip is a `RepositoryException`. A scan made offline and sent later carries [scannedAt] (when it was made, checked against
   /// the code) and [clientId] (the phone's own id for it, so sending it twice records it once).
   Future<ScanOutcome> recordScan({
     required String tripId,
@@ -253,4 +266,14 @@ abstract interface class LivePositionsRepository {
   /// Whether this person may follow buses live: an approved subscription covering today, or staff. The database
   /// decides (and enforces it on the positions themselves); this is how an app learns the answer.
   Future<bool> canFollowBuses();
+
+  /// Sends the bus position from the phone on board (ops driver mode). Returns false when the server dropped it (too
+  /// soon after the last one, or too imprecise). [NotAllowed] for anyone but the person sharing this trip's bus.
+  Future<bool> publish({
+    required String tripId,
+    required GeoPoint position,
+    double? speedMps,
+    double? headingDeg,
+    double? accuracyM,
+  });
 }

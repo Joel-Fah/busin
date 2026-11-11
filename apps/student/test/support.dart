@@ -430,6 +430,18 @@ class FakeHistory implements ScansRepository, TripsRepository {
 
   @override
   Future<Trip> getTrip(String tripId) => throw UnimplementedError();
+
+  @override
+  Future<List<Trip>> listBetween({required DateTime from, required DateTime to}) => throw UnimplementedError();
+
+  @override
+  Future<void> start(String tripId) => throw UnimplementedError();
+
+  @override
+  Future<void> end(String tripId) => throw UnimplementedError();
+
+  @override
+  Future<List<ManifestEntry>> manifest(String tripId) => throw UnimplementedError();
 }
 
 // ---------------------------------------------------------------- push fakes
@@ -583,6 +595,10 @@ class FakeLive implements LivePositionsRepository {
     );
     return mine.stream;
   }
+
+  @override
+  Future<bool> publish({required String tripId, required GeoPoint position, double? speedMps, double? headingDeg, double? accuracyM}) =>
+      throw UnimplementedError();
 }
 
 /// Stands in for the native map: shows the scene as text and remembers every scene and recenter request.

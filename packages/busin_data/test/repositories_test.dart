@@ -353,6 +353,41 @@ void main() {
     });
   });
 
+  group('trip control', () {
+    test('starts and ends a trip through the server functions', () async {
+      final h = Harness((_) async => json(const <String, dynamic>{}));
+      await h.repos.trips.start(_id);
+      expect(h.last.url.path, '/rest/v1/rpc/start_trip');
+      expect((jsonDecode(h.last.body) as Map<String, dynamic>)['p_trip_id'], _id);
+      await h.repos.trips.end(_id);
+      expect(h.last.url.path, '/rest/v1/rpc/end_trip');
+    });
+
+    test('a bus already on a trip is a Conflict', () async {
+      final h = Harness((_) async => json({'code': '55000', 'message': 'bus_busy'}, status: 400));
+      await expectLater(h.repos.trips.start(_id), throwsA(isA<Conflict>()));
+    });
+
+    test('reads the manifest', () async {
+      final h = Harness((_) async => json([
+            {'scan_id': _id, 'student_id': _other, 'full_name': 'Ada', 'avatar_url': null, 'matricule': 'M1', 'stop_id': null, 'scanned_at': '2026-11-12T07:15:00+00:00'},
+          ]));
+      final rows = await h.repos.trips.manifest(_id);
+      expect(rows.single.fullName, 'Ada');
+      expect(h.last.url.path, '/rest/v1/rpc/trip_manifest');
+    });
+
+    test('publishes a position and says whether the server kept it', () async {
+      final h = Harness((_) async => json(false));
+      final kept = await h.repos.livePositions.publish(tripId: _id, position: GeoPoint(3.85, 11.5), speedMps: 6, headingDeg: 90, accuracyM: 8);
+      expect(kept, isFalse);
+      final body = jsonDecode(h.last.body) as Map<String, dynamic>;
+      expect(h.last.url.path, '/rest/v1/rpc/publish_position');
+      expect(body['p_lat'], 3.85);
+      expect(body['p_speed_mps'], 6);
+    });
+  });
+
   group('boarding scans', () {
     test('sends the code with the position and reads an accepted result', () async {
       final h = Harness((_) async => json({

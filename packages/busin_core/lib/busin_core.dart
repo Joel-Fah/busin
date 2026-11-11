@@ -28,6 +28,7 @@ export 'src/models/trip.dart';
 export 'src/profile_validation.dart';
 export 'src/qr_code.dart';
 export 'src/models/rider_key.dart';
+export 'src/models/manifest_entry.dart';
 export 'src/repositories/page.dart';
 export 'src/repositories/repositories.dart';
 export 'src/repositories/repository_exception.dart';
