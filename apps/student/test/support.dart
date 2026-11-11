@@ -411,7 +411,15 @@ class FakeHistory implements ScansRepository, TripsRepository {
   }
 
   @override
-  Future<ScanOutcome> recordScan({required String tripId, required String code, String? stopId, GeoPoint? location, double? accuracyMeters}) =>
+  Future<ScanOutcome> recordScan({
+    required String tripId,
+    required String code,
+    String? stopId,
+    GeoPoint? location,
+    double? accuracyMeters,
+    DateTime? scannedAt,
+    String? clientId,
+  }) =>
       throw UnimplementedError();
 
   @override
@@ -686,6 +694,9 @@ class FakeQr implements QrRepository {
 
   @override
   Future<Uint8List> rotateSecret() async => secret;
+
+  @override
+  Future<List<RiderKey>> staffDayKeys() => throw UnimplementedError();
 }
 
 /// A clock the test moves by hand.

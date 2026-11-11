@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  const a = 'busin1.00000000-0000-0000-0000-000000000001.58000000.AbCdEfGhIjKlMnOpQrStUvWxYz012345';
-  const b = 'busin1.00000000-0000-0000-0000-000000000001.58000001.ZyXwVuTsRqPoNmLkJiHgFeDcBa543210';
+  const a = 'busin2.00000000-0000-0000-0000-000000000001.58000000.AbCdEfGhIjKlMnOpQrStUvWxYz012345';
+  const b = 'busin2.00000000-0000-0000-0000-000000000001.58000001.ZyXwVuTsRqPoNmLkJiHgFeDcBa543210';
 
   test('two codes of the same length make grids of the same size', () {
     expect(QrGrid.of(a).count, QrGrid.of(b).count);

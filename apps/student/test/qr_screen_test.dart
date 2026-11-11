@@ -15,7 +15,14 @@ import 'support.dart';
 // 12:00:07 UTC: 23 seconds left in this 30-second window.
 final noon = DateTime.utc(2026, 11, 5, 12, 0, 7);
 
-String codeAt(DateTime at, {String studentId = 'u1'}) => QrCodeGenerator.generate(secret: testSecret(), studentId: studentId, now: at);
+// The test school is in Africa/Douala (UTC+1 all year).
+DateTime doualaDate(DateTime instant) {
+  final local = instant.toUtc().add(const Duration(hours: 1));
+  return DateTime(local.year, local.month, local.day);
+}
+
+String codeAt(DateTime at, {String studentId = 'u1'}) =>
+    QrCodeGenerator.generate(secret: testSecret(), studentId: studentId, now: at, schoolDate: doualaDate);
 
 Future<void> openQr(
   WidgetTester tester, {
@@ -60,7 +67,7 @@ void main() {
   testWidgets('shows the code the database will accept for this student and moment', (tester) async {
     await openQr(tester);
     expect(shownCode(tester), codeAt(noon));
-    expect(shownCode(tester), startsWith('busin1.u1.'));
+    expect(shownCode(tester), startsWith('busin2.u1.'));
     expect(find.text('Test Person'), findsOneWidget);
   });
 

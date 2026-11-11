@@ -119,7 +119,7 @@ class ScrambleQrPainter extends CustomPainter {
 class BoardingCodeImage extends StatefulWidget {
   const BoardingCodeImage({super.key, required this.data, required this.size});
 
-  /// The code text, `busin1.<student>.<window>.<mac>`.
+  /// The code text, `busin2.<student>.<window>.<mac>`.
   final String data;
   final double size;
 

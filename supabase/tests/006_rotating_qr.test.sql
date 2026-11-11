@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(23);
+select plan(31);
 
 insert into public.schools (id, name) values ('10000000-0000-4000-8000-000000000001', 'School A');
 insert into public.school_domains (domain, school_id) values ('a.edu', '10000000-0000-4000-8000-000000000001');
@@ -38,6 +38,14 @@ select is(
     decode('000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f', 'hex'),
     'a1000000-0000-4000-8000-000000000001', 57000000),
   'c73e53d52fa5fb670e54', 'the code mac matches the independent test vector');
+select is(
+  encode(private.qr_day_key(decode('000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f', 'hex'), '2024-03-09'), 'hex'),
+  'dbe88e73a71c3914cdff93d45b3f2f989831796a69b9b00f5ccfaf0b2dfb29a5', 'the day key matches the independent test vector');
+select is(
+  private.qr_mac(private.qr_day_key(decode('000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f', 'hex'), '2024-03-09'),
+    'a1000000-0000-4000-8000-000000000001', 57000000),
+  'cef45af39487cc9ba62e', 'the busin2 mac matches the independent test vector');
+select is(private.qr_window_date(57000000, 'Africa/Douala'), '2024-03-09'::date, 'the window belongs to the school-local day');
 select is(
   private.qr_window('2030-01-01 00:00:29+00'::timestamptz) + 1,
   private.qr_window('2030-01-01 00:00:30+00'::timestamptz),
@@ -80,28 +88,28 @@ create temp table codes (name text primary key, code text);
 grant all on codes to public;
 
 insert into codes
-select 'now', 'busin1.a1000000-0000-4000-8000-000000000001.' || private.qr_window(now()) || '.' ||
-  private.qr_mac(q.secret, q.student_id, private.qr_window(now()))
+select 'now', 'busin2.a1000000-0000-4000-8000-000000000001.' || private.qr_window(now()) || '.' ||
+  private.qr_mac(private.qr_day_key(q.secret, private.qr_window_date(private.qr_window(now()), 'Africa/Douala')), q.student_id, private.qr_window(now()))
 from private.qr_secrets q where q.student_id = 'a1000000-0000-4000-8000-000000000001';
 
 insert into codes
-select 'prev', 'busin1.a1000000-0000-4000-8000-000000000002.' || (private.qr_window(now()) - 1) || '.' ||
-  private.qr_mac(q.secret, q.student_id, private.qr_window(now()) - 1)
+select 'prev', 'busin2.a1000000-0000-4000-8000-000000000002.' || (private.qr_window(now()) - 1) || '.' ||
+  private.qr_mac(private.qr_day_key(q.secret, private.qr_window_date(private.qr_window(now()) - 1, 'Africa/Douala')), q.student_id, private.qr_window(now()) - 1)
 from private.qr_secrets q where q.student_id = 'a1000000-0000-4000-8000-000000000002';
 
 insert into codes
-select 'old', 'busin1.a1000000-0000-4000-8000-000000000002.' || (private.qr_window(now()) - 2) || '.' ||
-  private.qr_mac(q.secret, q.student_id, private.qr_window(now()) - 2)
+select 'old', 'busin2.a1000000-0000-4000-8000-000000000002.' || (private.qr_window(now()) - 2) || '.' ||
+  private.qr_mac(private.qr_day_key(q.secret, private.qr_window_date(private.qr_window(now()) - 2, 'Africa/Douala')), q.student_id, private.qr_window(now()) - 2)
 from private.qr_secrets q where q.student_id = 'a1000000-0000-4000-8000-000000000002';
 
 insert into codes
-select 'future', 'busin1.a1000000-0000-4000-8000-000000000002.' || (private.qr_window(now()) + 2) || '.' ||
-  private.qr_mac(q.secret, q.student_id, private.qr_window(now()) + 2)
+select 'future', 'busin2.a1000000-0000-4000-8000-000000000002.' || (private.qr_window(now()) + 2) || '.' ||
+  private.qr_mac(private.qr_day_key(q.secret, private.qr_window_date(private.qr_window(now()) + 2, 'Africa/Douala')), q.student_id, private.qr_window(now()) + 2)
 from private.qr_secrets q where q.student_id = 'a1000000-0000-4000-8000-000000000002';
 
 insert into codes
-select 'suspended', 'busin1.a1000000-0000-4000-8000-000000000004.' || private.qr_window(now()) || '.' ||
-  private.qr_mac(q.secret, q.student_id, private.qr_window(now()))
+select 'suspended', 'busin2.a1000000-0000-4000-8000-000000000004.' || private.qr_window(now()) || '.' ||
+  private.qr_mac(private.qr_day_key(q.secret, private.qr_window_date(private.qr_window(now()), 'Africa/Douala')), q.student_id, private.qr_window(now()))
 from private.qr_secrets q where q.student_id = 'a1000000-0000-4000-8000-000000000004';
 update public.profiles set status = 'suspended' where id = 'a1000000-0000-4000-8000-000000000004';
 
@@ -138,12 +146,40 @@ select is(
   'account_not_verified', 'a valid code for a suspended student is refused');
 select is((select count(*)::int from public.scans), 2, 'only the two valid boardings were recorded');
 
+-- The old format is gone.
+reset role;
+insert into codes
+select 'v1', 'busin1.a1000000-0000-4000-8000-000000000001.' || private.qr_window(now()) || '.' ||
+  private.qr_mac(q.secret, q.student_id, private.qr_window(now()))
+from private.qr_secrets q where q.student_id = 'a1000000-0000-4000-8000-000000000001';
+insert into codes
+select 'daykey', encode(private.qr_day_key(secret, (now() at time zone 'Africa/Douala')::date), 'base64')
+from private.qr_secrets where student_id = 'a1000000-0000-4000-8000-000000000001';
+set local role authenticated;
+set local "request.jwt.claims" = '{"sub":"a2000000-0000-4000-8000-000000000001","role":"authenticated"}';
+select is(
+  (public.record_qr_scan('f1000000-0000-4000-8000-000000000001', (select code from codes where name = 'v1'))) ->> 'reason',
+  'invalid_code', 'a busin1 code is no longer accepted');
+
+-- Day keys for staff phones.
+select is((select count(*)::int from public.staff_day_keys()), 2,
+  'staff get the day keys of today''s riders with a code (the suspended one and the one without a subscription are left out)');
+select is((select day_key from public.staff_day_keys() where student_id = 'a1000000-0000-4000-8000-000000000001'),
+  (select code from codes where name = 'daykey'),
+  'the key is the student''s key for today');
+reset role;
+select is((select count(*)::int from public.audit_log where action = 'day_keys.downloaded' and school_id = '10000000-0000-4000-8000-000000000001'), 2,
+  'each download is audited');
+set local role authenticated;
+set local "request.jwt.claims" = '{"sub":"a1000000-0000-4000-8000-000000000001","role":"authenticated"}';
+select throws_ok('select * from public.staff_day_keys()', '42501', 'Staff access required', 'students cannot download day keys');
+
 -- ---------------------------------------------------------------- caller checks and rotation
 reset role;
 set local role authenticated;
 set local "request.jwt.claims" = '{"sub":"a1000000-0000-4000-8000-000000000001","role":"authenticated"}';
 select throws_ok(
-  $$select public.record_qr_scan('f1000000-0000-4000-8000-000000000001', 'busin1.x.1.y')$$,
+  $$select public.record_qr_scan('f1000000-0000-4000-8000-000000000001', 'busin2.x.1.y')$$,
   '42501', 'Staff access required', 'a student cannot submit scans');
 
 reset role;

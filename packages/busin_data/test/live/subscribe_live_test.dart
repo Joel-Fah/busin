@@ -152,12 +152,12 @@ void main() {
     expect(await repos.qr.fetchSecret(), secret, reason: 'fetching again returns the same secret');
 
     final window = QrCodeGenerator.windowFor(DateTime.now().toUtc());
-    final appMac = QrCodeGenerator.mac(secret: secret, studentId: studentId, window: window);
-    final dbMac = await _query("select private.qr_mac((select secret from private.qr_secrets where student_id = '$studentId'), '$studentId', $window)");
+    final appMac = QrCodeGenerator.mac(dayKey: QrCodeGenerator.dayKey(secret: secret, date: DateTime(2030, 1, 1)), studentId: studentId, window: window);
+    final dbMac = await _query("select private.qr_mac(private.qr_day_key((select secret from private.qr_secrets where student_id = '$studentId'), '2030-01-01'), '$studentId', $window)");
     expect(appMac, dbMac, reason: 'the Dart generator and the database function agree on this student secret');
 
-    final code = QrCodeGenerator.generate(secret: secret, studentId: studentId, now: DateTime.now().toUtc());
-    expect(code, startsWith('busin1.$studentId.'));
+    final code = QrCodeGenerator.generate(secret: secret, studentId: studentId, now: DateTime.now().toUtc(), schoolDate: (_) => DateTime(2030, 1, 1));
+    expect(code, startsWith('busin2.$studentId.'));
     expect(code, endsWith(appMac));
   });
 
@@ -167,9 +167,10 @@ void main() {
     expect(after, isNot(before));
 
     final window = QrCodeGenerator.windowFor(DateTime.now().toUtc());
-    final dbMac = await _query("select private.qr_mac((select secret from private.qr_secrets where student_id = '$studentId'), '$studentId', $window)");
-    expect(QrCodeGenerator.mac(secret: after, studentId: studentId, window: window), dbMac);
-    expect(QrCodeGenerator.mac(secret: before, studentId: studentId, window: window), isNot(dbMac));
+    final dbMac = await _query("select private.qr_mac(private.qr_day_key((select secret from private.qr_secrets where student_id = '$studentId'), '2030-01-01'), '$studentId', $window)");
+    final day = DateTime(2030, 1, 1);
+    expect(QrCodeGenerator.mac(dayKey: QrCodeGenerator.dayKey(secret: after, date: day), studentId: studentId, window: window), dbMac);
+    expect(QrCodeGenerator.mac(dayKey: QrCodeGenerator.dayKey(secret: before, date: day), studentId: studentId, window: window), isNot(dbMac));
   });
 
   test('a second live request for the semester is a Conflict', () async {

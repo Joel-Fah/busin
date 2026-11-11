@@ -343,6 +343,12 @@ class SupabaseQrRepository implements QrRepository {
         final secret = await _client.rpc<String>('rotate_my_qr_secret');
         return QrCodeGenerator.decodeSecret(secret);
       });
+
+  @override
+  Future<List<RiderKey>> staffDayKeys() => guarded(() async {
+        final rows = await _client.rpc<List<dynamic>>('staff_day_keys');
+        return rows.cast<Map<String, dynamic>>().map(RiderKey.fromJson).toList(growable: false);
+      });
 }
 
 class SupabaseTripsRepository implements TripsRepository {
@@ -432,6 +438,8 @@ class SupabaseScansRepository implements ScansRepository {
     String? stopId,
     GeoPoint? location,
     double? accuracyMeters,
+    DateTime? scannedAt,
+    String? clientId,
   }) =>
       guarded(() async {
         final result = await _client.rpc<Map<String, dynamic>>('record_qr_scan', params: {
@@ -441,6 +449,8 @@ class SupabaseScansRepository implements ScansRepository {
           'p_lat': location?.latitude,
           'p_lng': location?.longitude,
           'p_accuracy': accuracyMeters,
+          'p_scanned_at': scannedAt?.toUtc().toIso8601String(),
+          'p_client_id': clientId,
         });
         return ScanOutcome.fromJson(result);
       });
