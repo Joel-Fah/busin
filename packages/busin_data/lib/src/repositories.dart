@@ -71,6 +71,28 @@ class SupabaseSchoolRepository implements SchoolRepository {
       });
 }
 
+class SupabaseJoinRepository implements JoinRepository {
+  SupabaseJoinRepository(this._client);
+  final SupabaseClient _client;
+
+  @override
+  Future<List<OpenSchool>> listOpenSchools() => guarded(() async {
+        final rows = await _client.rpc<List<dynamic>>('list_open_schools');
+        return rows.cast<Map<String, dynamic>>().map(OpenSchool.fromJson).toList();
+      });
+
+  @override
+  Future<JoinRequest?> myRequest() => guarded(() async {
+        final rows = await _client.rpc<List<dynamic>>('my_join_request');
+        return rows.isEmpty ? null : JoinRequest.fromJson(rows.first as Map<String, dynamic>);
+      });
+
+  @override
+  Future<void> requestSchool(String? schoolId) => guarded(() async {
+        await _client.rpc<void>('request_school', params: {'p_school_id': schoolId});
+      });
+}
+
 class SupabaseStopsRepository implements StopsRepository {
   SupabaseStopsRepository(this._client);
   final SupabaseClient _client;

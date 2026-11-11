@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import '../geo_point.dart';
 import '../models/bus.dart';
+import '../models/joining.dart';
 import '../models/live_position.dart';
 import '../models/profile.dart';
 import '../models/scan.dart';
@@ -44,6 +45,18 @@ abstract interface class AcademicRepository {
 
 abstract interface class SchoolRepository {
   Future<School> getSchool(String schoolId);
+}
+
+/// Joining a school without a school email (ADR 0012). Only a pending account uses it.
+abstract interface class JoinRepository {
+  /// The schools that accept the signed-in account's email, by name.
+  Future<List<OpenSchool>> listOpenSchools();
+
+  /// The account's own request, or null when the account is not waiting for a school.
+  Future<JoinRequest?> myRequest();
+
+  /// Asks to join [schoolId], or withdraws the request when it is null.
+  Future<void> requestSchool(String? schoolId);
 }
 
 abstract interface class StopsRepository {

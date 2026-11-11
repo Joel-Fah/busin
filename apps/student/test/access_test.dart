@@ -50,13 +50,19 @@ void main() {
   });
 
   test('a blocked account is blocked before setup is asked of it', () {
-    expect(check(loaded: profile(status: AccountStatus.pending, complete: false)), isA<Blocked>());
+    expect(check(loaded: profile(status: AccountStatus.suspended, complete: false)), isA<Blocked>());
     expect(check(loaded: profile(role: UserRole.admin, complete: false)), isA<Blocked>());
   });
 
-  test('a pending or suspended student is blocked with the reason', () {
-    expect((check(loaded: profile(status: AccountStatus.pending)) as Blocked).reason, BlockReason.pending);
+  test('a suspended student is blocked with the reason', () {
     expect((check(loaded: profile(status: AccountStatus.suspended)) as Blocked).reason, BlockReason.suspended);
+  });
+
+  test('a pending student without a school chooses one, and one who asked a school waits for it (ADR 0012)', () {
+    expect(check(loaded: profile(status: AccountStatus.pending, schoolId: null, complete: false)), isA<NeedsSchool>());
+    expect(check(loaded: profile(status: AccountStatus.pending, complete: false)), isA<AwaitingSchool>());
+    // Staff and administrators are turned away first, whatever their status.
+    expect(check(loaded: profile(role: UserRole.staff, status: AccountStatus.pending)), isA<Blocked>());
   });
 
   test('staff and administrators are turned away whatever their status', () {

@@ -418,5 +418,86 @@
     }
   },
   "proofUnavailable": "Your payment proof",
-  "proofUnavailableHint": "It could not be loaded. Tap to try again."
+  "proofUnavailableHint": "It could not be loaded. Tap to try again.",
+  "joinTitle": "Choose your school",
+  "joinBody": "Your Google account is not a school email, so ask your school to let you in. An administrator there will check it is you.",
+  "joinSearch": "Search for your school",
+  "joinSearchHint": "Name or city",
+  "joinEmptyTitle": "No school accepts your email yet",
+  "joinEmptyBody": "Sign in with your school email, or ask your school to accept students with other email addresses.",
+  "joinNoMatch": "No school matches your search.",
+  "joinConfirmTitle": "Ask to join {school}?",
+  "@joinConfirmTitle": {
+    "placeholders": {
+      "school": {
+        "type": "String"
+      }
+    }
+  },
+  "joinConfirmBody": "An administrator of {school} will check that you are their student. You can change your request while you wait.",
+  "@joinConfirmBody": {
+    "placeholders": {
+      "school": {
+        "type": "String"
+      }
+    }
+  },
+  "joinConfirmAction": "Ask to join",
+  "joinSent": "Request sent.",
+  "joinTooSoon": "Wait a few seconds before changing your request.",
+  "joinDeclinedTitle": "{school} declined your request",
+  "@joinDeclinedTitle": {
+    "placeholders": {
+      "school": {
+        "type": "String"
+      }
+    }
+  },
+  "joinDeclinedNoReason": "They did not give a reason. You can ask another school, or contact them.",
+  "joinDeclinedReason": "Their reason: {reason}",
+  "@joinDeclinedReason": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "waitingTitle": "Waiting for {school}",
+  "@waitingTitle": {
+    "placeholders": {
+      "school": {
+        "type": "String"
+      }
+    }
+  },
+  "waitingBody": "You asked to join on {date}. An administrator of your school will check your request; you can use BusIn as soon as they accept it.",
+  "@waitingBody": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "waitingCheck": "Check again",
+  "waitingStill": "Still waiting. We will check again when you come back to the app.",
+  "waitingChange": "Choose another school",
+  "joiningTitle": "You are joining {school}",
+  "@joiningTitle": {
+    "placeholders": {
+      "school": {
+        "type": "String"
+      }
+    }
+  },
+  "joiningBody": "Your school email puts you in this school.",
+  "joiningNotMine": "Not my school?",
+  "joiningNotMineTitle": "Not your school?",
+  "joiningNotMineBody": "You signed in with an email of {school}. If you study somewhere else, sign out and sign in with your own school's account.",
+  "@joiningNotMineBody": {
+    "placeholders": {
+      "school": {
+        "type": "String"
+      }
+    }
+  }
 }

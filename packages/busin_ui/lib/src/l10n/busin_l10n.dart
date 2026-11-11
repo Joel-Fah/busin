@@ -1560,6 +1560,156 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'It could not be loaded. Tap to try again.'**
   String get proofUnavailableHint;
+
+  /// No description provided for @joinTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your school'**
+  String get joinTitle;
+
+  /// No description provided for @joinBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Google account is not a school email, so ask your school to let you in. An administrator there will check it is you.'**
+  String get joinBody;
+
+  /// No description provided for @joinSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for your school'**
+  String get joinSearch;
+
+  /// No description provided for @joinSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Name or city'**
+  String get joinSearchHint;
+
+  /// No description provided for @joinEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No school accepts your email yet'**
+  String get joinEmptyTitle;
+
+  /// No description provided for @joinEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with your school email, or ask your school to accept students with other email addresses.'**
+  String get joinEmptyBody;
+
+  /// No description provided for @joinNoMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No school matches your search.'**
+  String get joinNoMatch;
+
+  /// No description provided for @joinConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask to join {school}?'**
+  String joinConfirmTitle(String school);
+
+  /// No description provided for @joinConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'An administrator of {school} will check that you are their student. You can change your request while you wait.'**
+  String joinConfirmBody(String school);
+
+  /// No description provided for @joinConfirmAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask to join'**
+  String get joinConfirmAction;
+
+  /// No description provided for @joinSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Request sent.'**
+  String get joinSent;
+
+  /// No description provided for @joinTooSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Wait a few seconds before changing your request.'**
+  String get joinTooSoon;
+
+  /// No description provided for @joinDeclinedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{school} declined your request'**
+  String joinDeclinedTitle(String school);
+
+  /// No description provided for @joinDeclinedNoReason.
+  ///
+  /// In en, this message translates to:
+  /// **'They did not give a reason. You can ask another school, or contact them.'**
+  String get joinDeclinedNoReason;
+
+  /// No description provided for @joinDeclinedReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Their reason: {reason}'**
+  String joinDeclinedReason(String reason);
+
+  /// No description provided for @waitingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for {school}'**
+  String waitingTitle(String school);
+
+  /// No description provided for @waitingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You asked to join on {date}. An administrator of your school will check your request; you can use BusIn as soon as they accept it.'**
+  String waitingBody(String date);
+
+  /// No description provided for @waitingCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Check again'**
+  String get waitingCheck;
+
+  /// No description provided for @waitingStill.
+  ///
+  /// In en, this message translates to:
+  /// **'Still waiting. We will check again when you come back to the app.'**
+  String get waitingStill;
+
+  /// No description provided for @waitingChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose another school'**
+  String get waitingChange;
+
+  /// No description provided for @joiningTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You are joining {school}'**
+  String joiningTitle(String school);
+
+  /// No description provided for @joiningBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school email puts you in this school.'**
+  String get joiningBody;
+
+  /// No description provided for @joiningNotMine.
+  ///
+  /// In en, this message translates to:
+  /// **'Not my school?'**
+  String get joiningNotMine;
+
+  /// No description provided for @joiningNotMineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Not your school?'**
+  String get joiningNotMineTitle;
+
+  /// No description provided for @joiningNotMineBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You signed in with an email of {school}. If you study somewhere else, sign out and sign in with your own school\'s account.'**
+  String joiningNotMineBody(String school);
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {

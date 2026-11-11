@@ -72,7 +72,7 @@ void main() {
         for (final entryCase in cases.entries) {
           await run(tester, entry.value, auth: FakeAuthService(signedInAs: 'u1'), profiles: FakeProfileRepository({'u1': entryCase.value}), textScale: scale);
           expect(tester.takeException(), isNull, reason: entryCase.key);
-          expect(find.text('Sign out'), findsOneWidget, reason: entryCase.key);
+          expect(find.text('Sign out', skipOffstage: false), findsOneWidget, reason: entryCase.key);
           expect(find.byType(Illustration), findsOneWidget, reason: entryCase.key);
         }
       });

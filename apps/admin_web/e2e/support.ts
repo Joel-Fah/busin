@@ -76,10 +76,13 @@ function sql(statement: string): void {
 export async function createUser(
   label: string,
   role: "student" | "staff" | "admin",
-  status: "verified" | "suspended" = "verified",
+  status: "verified" | "suspended" | "pending" = "verified",
+  /** Another email domain, for a student without a school email (ADR 0012): the account starts pending with no school. */
+  domain: string = SEED.domain,
 ): Promise<TestUser> {
+  if (!/^[a-z0-9.-]+$/.test(domain)) throw new Error("a test domain has letters, digits, dots and hyphens only");
   const id = randomUUID();
-  const email = `e2e-${label}-${randomBytes(4).toString("hex")}@${SEED.domain}`;
+  const email = `e2e-${label}-${randomBytes(4).toString("hex")}@${domain}`;
   const password = randomBytes(16).toString("hex");
 
   sql(`
@@ -96,7 +99,7 @@ export async function createUser(
     insert into auth.identities (id, user_id, provider_id, provider, identity_data, last_sign_in_at, created_at, updated_at)
     values (gen_random_uuid(), '${id}', '${id}', 'google',
       '{"sub":"${id}","email":"${email}"}', now(), now(), now());
-    update public.profiles set role = '${role}', status = '${status}' where id = '${id}';
+    ${domain === SEED.domain ? `update public.profiles set role = '${role}', status = '${status}' where id = '${id}';` : ""}
   `);
 
   return { id, email, password };

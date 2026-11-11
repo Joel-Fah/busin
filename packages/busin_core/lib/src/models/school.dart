@@ -1,4 +1,5 @@
 import '../json.dart';
+import 'joining.dart';
 import '../value_object.dart';
 
 /// A school (tenant). Every other record belongs to exactly one school.
@@ -53,12 +54,7 @@ class School extends ValueObject {
   final String? about;
 
   /// The public address of the logo, given the backend's base URL.
-  String? logoUrl(String supabaseUrl) {
-    final path = logoPath;
-    if (path == null || path.isEmpty) return null;
-    final base = supabaseUrl.endsWith('/') ? supabaseUrl.substring(0, supabaseUrl.length - 1) : supabaseUrl;
-    return '$base/storage/v1/object/public/school-logos/${path.split('/').map(Uri.encodeComponent).join('/')}';
-  }
+  String? logoUrl(String supabaseUrl) => schoolLogoUrl(logoPath, supabaseUrl);
 
   /// The same shape the API returns, so [School.fromJson] reads it back.
   Map<String, dynamic> toJson() => {

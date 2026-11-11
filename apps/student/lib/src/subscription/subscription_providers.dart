@@ -29,7 +29,8 @@ final schoolProvider = FutureProvider.autoDispose<School>((ref) async {
   return serverOrSaved<School>(
     ref,
     source: 'school',
-    live: () => ref.watch(schoolRepositoryProvider).getSchool(access.profile.schoolId),
+    // An allowed student is verified, and a verified account always has a school (ADR 0012).
+    live: () => ref.watch(schoolRepositoryProvider).getSchool(access.profile.schoolId!),
     save: (school) => keeper.saveSchool(userId, school),
     saved: () async {
       final snapshot = await keeper.load(userId);
@@ -120,14 +121,16 @@ class SubscriptionService {
     required Stop stop,
     required PickedProof proof,
   }) async {
+    // Only an allowed student subscribes, and a verified account always has a school (ADR 0012).
+    final schoolId = profile.schoolId!;
     final path = await _ref.read(proofsRepositoryProvider).upload(
-          schoolId: profile.schoolId,
+          schoolId: schoolId,
           studentId: profile.id,
           bytes: proof.bytes,
           contentType: proof.contentType,
         );
     await _ref.read(subscriptionsRepositoryProvider).request(
-          NewSubscription(schoolId: profile.schoolId, studentId: profile.id, semesterId: semester.id, stopId: stop.id, proofPath: path),
+          NewSubscription(schoolId: schoolId, studentId: profile.id, semesterId: semester.id, stopId: stop.id, proofPath: path),
         );
     _ref.invalidate(subscriptionOverviewProvider);
   }

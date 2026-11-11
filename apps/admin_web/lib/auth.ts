@@ -44,7 +44,8 @@ export async function requireAdmin(): Promise<AdminContext> {
   const current = await getCurrentUser();
   if (!current) redirect("/login");
 
-  if (decideAccess(current.profile) !== "admin" || !current.profile) {
+  // An administrator always has a school (the database allows no school only for a student waiting to join one).
+  if (decideAccess(current.profile) !== "admin" || !current.profile?.school_id) {
     redirect("/no-access");
   }
 
@@ -54,7 +55,7 @@ export async function requireAdmin(): Promise<AdminContext> {
     userId: profile.id,
     email: profile.email,
     fullName: profile.full_name,
-    schoolId: profile.school_id,
+    schoolId: profile.school_id as string,
     schoolName: school?.name ?? "",
     schoolTimezone: school?.timezone ?? "UTC",
     avatarUrl: profile.avatar_url,

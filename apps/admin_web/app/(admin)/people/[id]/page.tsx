@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { Cancel01Icon, Tick02Icon, UserMultiple02Icon } from "@hugeicons/core-free-icons";
 
+import { JoinRequestActions } from "@/components/people/JoinRequestActions";
 import { Avatar } from "@/components/ui/Avatar";
 import { BackLink } from "@/components/ui/BackLink";
 import { Button } from "@/components/ui/Button";
@@ -19,7 +20,7 @@ import { isUuid } from "@/lib/ids";
 import { ROLES, accountTone, isPeopleDone, isPeopleErrorKey, roleTone } from "@/lib/people";
 import { createClient } from "@/lib/supabase/server";
 
-import { changeRole, changeStatus } from "../actions";
+import { changeRole, changeStatus, declineMember, verifyMember } from "../actions";
 
 export const metadata: Metadata = { title: "Person" };
 
@@ -50,7 +51,7 @@ async function PersonDetail({ params, searchParams }: { params: Params; searchPa
   const supabase = await createClient();
   const { data: person } = await supabase
     .from("profiles")
-    .select("id, full_name, email, avatar_url, phone, role, status, matricule, department, program, created_at")
+    .select("id, full_name, email, avatar_url, phone, role, status, matricule, department, program, created_at, join_requested_at")
     .eq("id", id)
     .maybeSingle();
   if (!person) notFound();
@@ -131,7 +132,12 @@ async function PersonDetail({ params, searchParams }: { params: Params; searchPa
 
             <Card className="flex flex-col gap-4">
               <h2 className="text-xl font-bold">{d.accountHeading}</h2>
-              {person.status === "suspended" ? (
+              {person.status === "pending" && person.join_requested_at ? (
+                <div className="flex flex-col gap-4">
+                  <p className="text-sm text-muted">{t.people.verify.detailHint}</p>
+                  <JoinRequestActions id={person.id} from="detail" copy={t.people.verify} verify={verifyMember} decline={declineMember} />
+                </div>
+              ) : person.status === "suspended" ? (
                 <form action={changeStatus} className="flex flex-col gap-4">
                   <input type="hidden" name="id" value={person.id} />
                   <input type="hidden" name="status" value="verified" />

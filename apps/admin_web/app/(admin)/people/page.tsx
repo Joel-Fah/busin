@@ -3,6 +3,8 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { Search01Icon } from "@hugeicons/core-free-icons";
 
+import { FlashToast } from "@/components/FlashToast";
+import { JoinRequestActions } from "@/components/people/JoinRequestActions";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
@@ -19,9 +21,11 @@ import { StickyToolbar } from "@/components/ui/StickyToolbar";
 import { requireAdmin } from "@/lib/auth";
 import { format, type Locale } from "@/lib/i18n/messages";
 import { getMessages } from "@/lib/i18n/server";
-import { PAGE_SIZE, PAGE_SIZES, lastPage, pageRange, parsePage, parsePageSize, sizeParam } from "@/lib/pagination";
+import { PAGE_SIZE, PAGE_SIZES, first, lastPage, pageRange, parsePage, parsePageSize, sizeParam } from "@/lib/pagination";
 import {
   accountTone,
+  isPeopleDone,
+  isPeopleErrorKey,
   parseRoleFilter,
   parseSearch,
   ROLE_FILTERS,
@@ -33,12 +37,14 @@ import {
 } from "@/lib/people";
 import { createClient } from "@/lib/supabase/server";
 
+import { declineMember, verifyMember } from "./actions";
+
 export const metadata: Metadata = { title: "People" };
 
 // Depends on who is signed in, so it cannot be an instant navigation.
 export const instant = false;
 
-type SearchParams = Promise<{ role?: string | string[]; q?: string | string[]; page?: string | string[]; size?: string | string[] }>;
+type SearchParams = Promise<{ role?: string | string[]; q?: string | string[]; page?: string | string[]; size?: string | string[]; done?: string | string[]; error?: string | string[] }>;
 
 export default function PeoplePage({ searchParams }: { searchParams: SearchParams }) {
   return (
@@ -71,27 +77,38 @@ async function PeopleList({ searchParams }: { searchParams: SearchParams }) {
   const q = parseSearch(query.q);
   const page = parsePage(query.page);
   const size = parsePageSize(query.size);
+  const doneParam = first(query.done);
+  const done = isPeopleDone(doneParam) ? doneParam : null;
+  const errorParam = first(query.error);
+  const errorKey = isPeopleErrorKey(errorParam) ? errorParam : null;
   const { from, to } = pageRange(page, size);
 
   const supabase = await createClient();
+  const verifying = role === "verify";
   let request = supabase
     .from("profiles")
-    .select("id, full_name, email, role, status, matricule, created_at", { count: "exact" })
-    .order("created_at", { ascending: false })
+    .select("id, full_name, email, role, status, matricule, created_at, join_requested_at", { count: "exact" })
+    // The queue is oldest request first, so no one waits forever; the other lists are newest first.
+    .order(verifying ? "join_requested_at" : "created_at", { ascending: verifying })
     .range(from, to);
-  if (role !== "all") request = request.eq("role", role);
+  if (verifying) request = request.eq("role", "student").eq("status", "pending").not("join_requested_at", "is", null);
+  else if (role !== "all") request = request.eq("role", role);
   if (q) request = request.or(searchFilter(q));
 
+  let toVerify = supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "student").eq("status", "pending").not("join_requested_at", "is", null);
+  if (q) toVerify = toVerify.or(searchFilter(q));
+
   // Counts only, no rows: one per role for the numbers on the tabs, following the search.
-  const [listed, ...counted] = await Promise.all([
+  const [listed, verifyCount, ...counted] = await Promise.all([
     request,
+    toVerify,
     ...ROLES.map((r) => {
       let counting = supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", r);
       if (q) counting = counting.or(searchFilter(q));
       return counting;
     }),
   ]);
-  const counts = roleTabCounts(Object.fromEntries(ROLES.map((r, index) => [r, counted[index].count])));
+  const counts = roleTabCounts(Object.fromEntries(ROLES.map((r, index) => [r, counted[index].count])), verifyCount.count);
 
   // A page past the last one is not a failure: the database answers "range not satisfiable" and there is nothing there.
   const { data, count } = listed;
@@ -104,7 +121,7 @@ async function PeopleList({ searchParams }: { searchParams: SearchParams }) {
     label: t.people.filters[filter],
     href: href(filter, q, 1, size),
     count: counts[filter],
-    tone: filter === "all" ? "neutral" : filter === "admin" ? "info" : filter === "staff" ? "warn" : "neutral",
+    tone: filter === "verify" ? (counts.verify > 0 ? "warn" : "neutral") : filter === "admin" ? "info" : filter === "staff" ? "warn" : "neutral",
   }));
 
   return (
@@ -151,19 +168,32 @@ async function PeopleList({ searchParams }: { searchParams: SearchParams }) {
         <Tabs label={t.people.filtersLabel} items={tabs} active={role} />
       </StickyToolbar>
 
+      {done ? <FlashToast message={t.people.done[done]} /> : null}
+      {errorKey ? <Notice tone="bad">{t.people.errors[errorKey]}</Notice> : null}
+      {verifying ? <p className="max-w-2xl text-sm text-muted">{t.people.verify.intro}</p> : null}
+
       {error ? (
         <Notice tone="bad">{t.people.loadError}</Notice>
       ) : rows.length === 0 ? (
-        <EmptyState illustration="/illustrations/staff.webp" title={t.people.empty} />
+        <EmptyState illustration={verifying ? "/illustrations/verified.webp" : "/illustrations/staff.webp"} title={verifying && !q ? t.people.verify.empty : t.people.empty} />
       ) : (
         <>
           <TableCard>
             <DataTable minWidth="40rem">
               <Head>
                 <Th>{t.people.columns.person}</Th>
-                <Th>{t.people.columns.role}</Th>
-                <Th>{t.people.columns.status}</Th>
-                <Th>{t.people.columns.joined}</Th>
+                {verifying ? (
+                  <>
+                    <Th>{t.people.columns.asked}</Th>
+                    <Th>{t.people.columns.actions}</Th>
+                  </>
+                ) : (
+                  <>
+                    <Th>{t.people.columns.role}</Th>
+                    <Th>{t.people.columns.status}</Th>
+                    <Th>{t.people.columns.joined}</Th>
+                  </>
+                )}
               </Head>
               <tbody>
                 {rows.map((row) => (
@@ -182,13 +212,24 @@ async function PeopleList({ searchParams }: { searchParams: SearchParams }) {
                         </div>
                       </div>
                     </Td>
-                    <Td>
-                      <Chip tone={roleTone(row.role)}>{t.role[row.role]}</Chip>
-                    </Td>
-                    <Td>
-                      <Chip tone={accountTone(row.status)}>{t.accountStatus[row.status]}</Chip>
-                    </Td>
-                    <Td className="text-muted">{formatDate(row.created_at, locale, admin.schoolTimezone)}</Td>
+                    {verifying ? (
+                      <>
+                        <Td className="text-muted">{formatDate(row.join_requested_at ?? row.created_at, locale, admin.schoolTimezone)}</Td>
+                        <Td>
+                          <JoinRequestActions id={row.id} copy={t.people.verify} verify={verifyMember} decline={declineMember} />
+                        </Td>
+                      </>
+                    ) : (
+                      <>
+                        <Td>
+                          <Chip tone={roleTone(row.role)}>{t.role[row.role]}</Chip>
+                        </Td>
+                        <Td>
+                          <Chip tone={accountTone(row.status)}>{t.accountStatus[row.status]}</Chip>
+                        </Td>
+                        <Td className="text-muted">{formatDate(row.created_at, locale, admin.schoolTimezone)}</Td>
+                      </>
+                    )}
                   </Tr>
                 ))}
               </tbody>

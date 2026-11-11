@@ -15,6 +15,8 @@ import 'screens/landing_screen.dart';
 import 'screens/problem_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/setup_screen.dart';
+import 'join/choose_school_screen.dart';
+import 'join/waiting_school_screen.dart';
 import 'screens/qr_screen.dart';
 import 'screens/subscription_screen.dart';
 import 'styleguide/qr_preview.dart';
@@ -28,6 +30,8 @@ abstract final class Routes {
   static const blocked = '/blocked';
   static const problem = '/problem';
   static const setup = '/setup';
+  static const join = '/join';
+  static const waiting = '/waiting';
 
   /// Where an allowed student arrives: it looks up whether they have an approved subscription and moves on to the
   /// boarding code or the subscription tab.
@@ -48,7 +52,7 @@ abstract final class Routes {
   /// Debug builds only: the first-run screens, previewed without signing out (`--route /styleguide/sign-in`).
   static const previewPrefix = '/styleguide/';
 
-  static const _gate = {signIn, loading, blocked, problem, setup};
+  static const _gate = {signIn, loading, blocked, problem, setup, join, waiting};
 }
 
 /// Where a person at [location] should be, given what the app may show. Null means stay.
@@ -65,6 +69,8 @@ String? redirectFor(AccessState access, String location, {bool debug = kDebugMod
     AccessLoading() => Routes.loading,
     AccessLoadFailed() => Routes.problem,
     Blocked() => Routes.blocked,
+    NeedsSchool() => Routes.join,
+    AwaitingSchool() => Routes.waiting,
     NeedsSetup() => Routes.setup,
     Allowed() => null,
   };
@@ -100,6 +106,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: Routes.blocked, builder: (_, _) => const BlockedScreen()),
       GoRoute(path: Routes.problem, builder: (_, _) => const ProblemScreen()),
       GoRoute(path: Routes.setup, builder: (_, _) => const SetupScreen()),
+      GoRoute(path: Routes.join, builder: (_, _) => const ChooseSchoolScreen()),
+      GoRoute(path: Routes.waiting, builder: (_, _) => const WaitingSchoolScreen()),
       GoRoute(path: Routes.start, builder: (_, _) => const LandingScreen()),
       GoRoute(path: Routes.history, builder: (_, _) => const HistoryPage()),
       GoRoute(

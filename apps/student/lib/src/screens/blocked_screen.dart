@@ -16,7 +16,6 @@ class BlockedScreen extends ConsumerWidget {
     final reason = access is Blocked ? access.reason : BlockReason.notStudent;
     final (title, body, art) = switch (reason) {
       BlockReason.notStudent => (l10n.blockedStaffTitle, l10n.blockedStaffBody, BusinIllustration.staff),
-      BlockReason.pending => (l10n.blockedPendingTitle, l10n.blockedPendingBody, BusinIllustration.waiting),
       BlockReason.suspended => (l10n.blockedSuspendedTitle, l10n.blockedSuspendedBody, BusinIllustration.blocked),
     };
 

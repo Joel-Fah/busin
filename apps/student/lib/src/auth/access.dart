@@ -1,7 +1,7 @@
 import 'package:busin_core/busin_core.dart';
 
 /// Why a signed-in account cannot use the student app.
-enum BlockReason { notStudent, pending, suspended }
+enum BlockReason { notStudent, suspended }
 
 /// What the app is allowed to show right now. Computed from the session and the profile, both of
 /// which the server controls: nothing here comes from a field the user can edit.
@@ -25,6 +25,21 @@ class Blocked extends AccessState {
   const Blocked(this.reason);
 
   final BlockReason reason;
+}
+
+/// A student without a school email who has not asked to join a school yet, or whose request was declined (ADR 0012).
+/// They choose a school.
+class NeedsSchool extends AccessState {
+  const NeedsSchool(this.profile);
+
+  final Profile profile;
+}
+
+/// A student who asked to join a school (or whose account the school put on hold) and waits for it to verify them.
+class AwaitingSchool extends AccessState {
+  const AwaitingSchool(this.profile);
+
+  final Profile profile;
 }
 
 /// A verified student who has not yet told the school who they are (student number, phone). They finish that first.
@@ -57,7 +72,7 @@ AccessState accessFor({
   if (profileLoading || profile == null) return const AccessLoading();
   if (profile.role != UserRole.student) return const Blocked(BlockReason.notStudent);
   return switch (profile.status) {
-    AccountStatus.pending => const Blocked(BlockReason.pending),
+    AccountStatus.pending => profile.schoolId == null ? NeedsSchool(profile) : AwaitingSchool(profile),
     AccountStatus.suspended => const Blocked(BlockReason.suspended),
     AccountStatus.verified => profile.isSetupComplete ? Allowed(profile) : NeedsSetup(profile),
   };

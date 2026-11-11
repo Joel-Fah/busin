@@ -86,7 +86,7 @@ void main() {
 
   group('the debug route', () {
     test('is reachable without an account in a debug build and never otherwise', () {
-      for (final access in [const SignedOut(), const AccessLoading(), const AccessLoadFailed(), const Blocked(BlockReason.pending)]) {
+      for (final access in [const SignedOut(), const AccessLoading(), const AccessLoadFailed(), const Blocked(BlockReason.suspended)]) {
         expect(redirectFor(access, Routes.styleguide, debug: true), isNull, reason: '$access');
       }
       expect(redirectFor(const SignedOut(), Routes.styleguide, debug: false), Routes.signIn, reason: 'release builds do not serve it');
