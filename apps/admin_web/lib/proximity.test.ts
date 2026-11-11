@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildProximity, lineSize, reachOf, roughDistance, type ProximityRow } from "./proximity";
+import { buildProximity, lineSize, parseCorridor, reachOf, roughDistance, type ProximityRow } from "./proximity";
 
 const stops = [
   { id: "a", name: "Alpha", position: { lat: 3.85, lng: 11.5 } },
@@ -87,5 +87,15 @@ describe("formatting", () => {
     expect(lineSize(5)).toBe(0);
     expect(lineSize(15)).toBe(0.5);
     expect(lineSize(40)).toBe(1);
+  });
+});
+
+describe("parseCorridor", () => {
+  it("is nothing without a route, and figures only from 5 students with an area", () => {
+    const base = { subscribers: 30, with_area: 20, median_m: 400, under_500: 12, to_1k: 5, to_2k: 2, over_2k: 1, has_route: true };
+    expect(parseCorridor({ ...base, has_route: false })).toBeNull();
+    expect(parseCorridor(base)).toEqual({ hasRoute: true, subscribers: 30, withArea: 20, median: 400, bands: [12, 5, 2, 1] });
+    expect(parseCorridor({ ...base, with_area: 4 })).toMatchObject({ median: null, bands: null });
+    expect(parseCorridor(null)).toBeNull();
   });
 });

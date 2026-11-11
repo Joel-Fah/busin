@@ -10,10 +10,14 @@ import { Chip, type ChipTone } from "@/components/ui/Chip";
 import type { LatLng } from "@/lib/geo";
 import { format, type Messages } from "@/lib/i18n/messages";
 import type { MapProviderId } from "@/lib/map/config";
+import type { RouteOverlay } from "@/lib/route";
+import { routeOnMap } from "@/components/insights/route-overlay";
 import { roughDistance } from "@/lib/proximity";
 import { suggestionPosition, type Suggestion, type SuggestionStop } from "@/lib/suggestions";
 
 type Props = {
+  /** The school's bus route, drawn under everything (null without one). */
+  route?: RouteOverlay | null;
   suggestions: Suggestion[];
   stops: SuggestionStop[];
   failed: boolean;
@@ -32,7 +36,7 @@ const TONE: Record<Suggestion["kind"], ChipTone> = { new_stop: "accent", close_p
  * close stops, a grey ring on an unused one. Selecting a sentence glides the map there. The page says plainly what a
  * suggestion does not know; nothing changes by itself.
  */
-export function SuggestionsExplorer({ suggestions, stops, failed, map, t }: Props) {
+export function SuggestionsExplorer({ route, suggestions, stops, failed, map, t }: Props) {
   const s = t.insights;
   const g = s.suggestions;
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -91,6 +95,7 @@ export function SuggestionsExplorer({ suggestions, stops, failed, map, t }: Prop
     [suggestions],
   );
 
+  const onRoute = useMemo(() => routeOnMap(route, t.route.campusBadge), [route, t.route.campusBadge]);
   return (
     <>
       <div className="fixed inset-0 z-0">
@@ -100,7 +105,8 @@ export function SuggestionsExplorer({ suggestions, stops, failed, map, t }: Prop
           accessToken={map.accessToken}
           center={map.center}
           zoom={map.zoom}
-          markers={markers}
+          markers={onRoute.campus.length > 0 ? [...markers, ...onRoute.campus] : markers}
+          routes={onRoute.routes}
           circles={circles}
           lines={lines}
           focus={focus}

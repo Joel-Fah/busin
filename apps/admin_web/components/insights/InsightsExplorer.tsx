@@ -15,11 +15,15 @@ import type { LatLng } from "@/lib/geo";
 import { format, type Messages } from "@/lib/i18n/messages";
 import { circleSize, formatAverage, formatShare, LOAD_PERIODS, type LoadLevel, type LoadPeriod, type StopLoad, type StopLoads } from "@/lib/insights";
 import type { MapProviderId } from "@/lib/map/config";
+import type { RouteOverlay } from "@/lib/route";
+import { routeOnMap } from "@/components/insights/route-overlay";
 
 // The dock covers about the bottom 45% of the map; fitting and gliding keep the stops above it.
 const DOCK_SHARE = 0.45;
 
 type Props = {
+  /** The school's bus route, drawn under everything (null without one). */
+  route?: RouteOverlay | null;
   loads: StopLoads;
   period: LoadPeriod;
   failed: boolean;
@@ -42,7 +46,7 @@ const COLOR: Record<LoadLevel, string> = { quiet: "var(--info)", fair: "var(--ok
  * there; the bar's dock holds the period, what the numbers are based on, a legend and the stops as tiles, fullest
  * first. A tile glides the map to its stop. Later insights (proximity, suggestions) join as more views.
  */
-export function InsightsExplorer({ loads, period, failed, counted, days, map, t }: Props) {
+export function InsightsExplorer({ route, loads, period, failed, counted, days, map, t }: Props) {
   const s = t.insights;
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [focus, setFocus] = useState<LatLng | null>(null);
@@ -99,6 +103,7 @@ export function InsightsExplorer({ loads, period, failed, counted, days, map, t 
 
   const periodLabels: Record<LoadPeriod, string> = { 28: s.period.p28, 56: s.period.p56, 112: s.period.p112 };
 
+  const onRoute = useMemo(() => routeOnMap(route, t.route.campusBadge), [route, t.route.campusBadge]);
   return (
     <>
       <div className="fixed inset-0 z-0">
@@ -108,7 +113,8 @@ export function InsightsExplorer({ loads, period, failed, counted, days, map, t 
           accessToken={map.accessToken}
           center={map.center}
           zoom={map.zoom}
-          markers={markers}
+          markers={onRoute.campus.length > 0 ? [...markers, ...onRoute.campus] : markers}
+          routes={onRoute.routes}
           circles={circles}
           focus={focus}
           focusKey={focusKey}

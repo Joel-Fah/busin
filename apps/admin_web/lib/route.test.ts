@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { directions, formatKm, formatMinutes, move, parseSchoolRoute, routeLine, type SchoolRouteRow } from "./route";
+import { directions, formatKm, formatMinutes, move, parseSchoolRoute, routeLine, routeOverlay, type SchoolRouteRow } from "./route";
 
 const row = (over: Partial<SchoolRouteRow> = {}): SchoolRouteRow => ({
   route_id: "r1",
@@ -87,5 +87,13 @@ describe("helpers", () => {
     expect(formatMinutes(20)).toBe("1 min");
     expect(formatMinutes(250)).toBe("4 min");
     expect(formatMinutes(3900)).toBe("1 h 05 min");
+  });
+});
+
+describe("routeOverlay", () => {
+  it("gives the Insights views the line, the stop order and the campus; nothing for a route too short to draw", () => {
+    expect(routeOverlay(parseSchoolRoute(row()))).toMatchObject({ current: false, stopIds: ["a", "b"], campus: { name: "Main campus" } });
+    expect(routeOverlay(parseSchoolRoute(row()))?.line).toHaveLength(3);
+    expect(routeOverlay(parseSchoolRoute(row({ stops: [], campus_lat: null, campus_lng: null })))).toBeNull();
   });
 });

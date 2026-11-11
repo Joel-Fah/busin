@@ -1,6 +1,7 @@
 import { parsePoint } from "@/lib/geo";
 import { buildStopLoads, type LoadPeriod, type StopLoads } from "@/lib/insights";
-import { buildProximity, type Proximity } from "@/lib/proximity";
+import { buildProximity, parseCorridor, type Corridor, type Proximity } from "@/lib/proximity";
+import { parseSchoolRoute, routeOverlay, type RouteOverlay } from "@/lib/route";
 import { loadStops } from "@/lib/stops-data";
 import { buildSuggestions, type Suggestion, type SuggestionStop } from "@/lib/suggestions";
 import { createClient } from "@/lib/supabase/server";
@@ -33,17 +34,19 @@ const MAX_STOPS = 500;
  * How far each stop's subscribers live from it, and the desire lines, from the students' coarse areas. The database
  * returns figures and lines only for 5 or more students, and only to the school's admins.
  */
-export async function loadProximity(): Promise<{ proximity: Proximity; failed: boolean }> {
+export async function loadProximity(): Promise<{ proximity: Proximity; corridor: Corridor | null; failed: boolean }> {
   const supabase = await createClient();
-  const [stops, rows, lines, nearer] = await Promise.all([
+  const [stops, rows, lines, nearer, corridor] = await Promise.all([
     supabase.from("stops").select("id, name, location").eq("active", true).order("name").limit(MAX_STOPS),
     supabase.rpc("admin_stop_proximity"),
     supabase.rpc("admin_desire_lines"),
     supabase.rpc("admin_nearer_stops"),
+    supabase.rpc("admin_route_corridor"),
   ]);
   const known = (stops.data ?? []).map((stop) => ({ id: stop.id, name: stop.name, position: parsePoint(stop.location) }));
   return {
     proximity: buildProximity(known, rows.data ?? [], lines.data ?? [], nearer.data ?? []),
+    corridor: parseCorridor(corridor.data?.[0]),
     failed: stops.error !== null || rows.error !== null || lines.error !== null || nearer.error !== null,
   };
 }
@@ -60,4 +63,11 @@ export async function loadSuggestions(): Promise<{ suggestions: Suggestion[]; st
   ]);
   const known = (stops.data ?? []).map((stop) => ({ id: stop.id, name: stop.name, position: parsePoint(stop.location) }));
   return { suggestions: buildSuggestions(rows.data ?? [], known), stops: known, failed: stops.error !== null || rows.error !== null };
+}
+
+/** The school's bus route as the Insights views draw it (road if drawn, else straight), or null without one. */
+export async function loadRouteOverlay(): Promise<RouteOverlay | null> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("school_route");
+  return routeOverlay(parseSchoolRoute(data?.[0]));
 }

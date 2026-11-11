@@ -9,7 +9,7 @@ import { requireAdmin } from "@/lib/auth";
 import { centroid } from "@/lib/geo";
 import { getMessages } from "@/lib/i18n/server";
 import { DEFAULT_LOAD_PERIOD, parseInsightView, parseLoadPeriod } from "@/lib/insights";
-import { loadProximity, loadStopLoads, loadSuggestions } from "@/lib/insights-data";
+import { loadProximity, loadRouteOverlay, loadStopLoads, loadSuggestions } from "@/lib/insights-data";
 import { mapConfig } from "@/lib/map/config";
 
 export const metadata: Metadata = { title: "Insights" };
@@ -36,27 +36,30 @@ async function Insights({ searchParams }: { searchParams: SearchParams }) {
 
   // Each view loads only its own data.
   const view = parseInsightView(query.view);
+  // Every view draws the school's bus route (ADR 0017).
+  const routePromise = loadRouteOverlay();
   if (view === "graph") {
-    const [{ loads, failed: loadFailed }, { proximity, failed: proximityFailed }, { suggestions }] = await Promise.all([
+    const [{ loads, failed: loadFailed }, { proximity, failed: proximityFailed }, { suggestions }, route] = await Promise.all([
       loadStopLoads(DEFAULT_LOAD_PERIOD),
       loadProximity(),
       loadSuggestions(),
+      routePromise,
     ]);
-    return <GraphExplorer loads={loads} proximity={proximity} suggestions={suggestions} failed={loadFailed || proximityFailed} t={t} />;
+    return <GraphExplorer loads={loads} proximity={proximity} suggestions={suggestions} route={route} failed={loadFailed || proximityFailed} t={t} />;
   }
   if (view === "suggestions") {
-    const { suggestions, stops, failed } = await loadSuggestions();
+    const [{ suggestions, stops, failed }, route] = await Promise.all([loadSuggestions(), routePromise]);
     const center = centroid(stops.flatMap((stop) => (stop.position ? [stop.position] : []))) ?? config.fallbackCenter;
-    return <SuggestionsExplorer suggestions={suggestions} stops={stops} failed={failed} map={{ ...mapProps, center }} t={t} />;
+    return <SuggestionsExplorer suggestions={suggestions} stops={stops} route={route} failed={failed} map={{ ...mapProps, center }} t={t} />;
   }
   if (view === "proximity") {
-    const { proximity, failed } = await loadProximity();
+    const [{ proximity, corridor, failed }, route] = await Promise.all([loadProximity(), routePromise]);
     const center = centroid(proximity.stops.flatMap((stop) => (stop.position ? [stop.position] : []))) ?? config.fallbackCenter;
-    return <ProximityExplorer proximity={proximity} failed={failed} map={{ ...mapProps, center }} t={t} />;
+    return <ProximityExplorer proximity={proximity} corridor={corridor} route={route} failed={failed} map={{ ...mapProps, center }} t={t} />;
   }
 
   const period = parseLoadPeriod(query.days);
-  const { loads, failed } = await loadStopLoads(period);
+  const [{ loads, failed }, route] = await Promise.all([loadStopLoads(period), routePromise]);
 
   // Dates are written here, in the school's time zone, so the server and the browser show the same text.
   const counted = loads.refreshedAt
@@ -76,6 +79,7 @@ async function Insights({ searchParams }: { searchParams: SearchParams }) {
       failed={failed}
       counted={counted}
       days={days}
+      route={route}
       map={{ ...mapProps, center }}
       t={t}
     />

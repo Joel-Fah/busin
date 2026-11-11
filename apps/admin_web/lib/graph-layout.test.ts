@@ -95,6 +95,16 @@ describe("suggested stops", () => {
   });
 });
 
+describe("the campus", () => {
+  it("is a node of its own where the route ends", () => {
+    const layout = layoutGraph([stop("a", 3.85, 11.5)], [], [], 1000, 640, [], { name: "ICT University", position: { lat: 3.9, lng: 11.5 } });
+    const campus = layout.nodes.find((n) => n.kind === "campus")!;
+    const a = layout.nodes.find((n) => n.id === "a")!;
+    expect(campus).toMatchObject({ id: "campus", name: "ICT University" });
+    expect(campus.y).toBeLessThan(a.y);
+  });
+});
+
 describe("edgeEnds", () => {
   it("starts and ends on the rims", () => {
     const e = edgeEnds({ x: 0, y: 0, r: 10 }, { x: 100, y: 0, r: 20 }, 0);

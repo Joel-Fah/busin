@@ -103,6 +103,15 @@ export function routeLine(route: Pick<BusRoute, "stops" | "campus" | "road">): L
   return [...route.stops.map((s) => s.position), ...(route.campus ? [route.campus.position] : [])];
 }
 
+/** What the Insights views need of the route: the line to draw, the stops in order and the campus. */
+export type RouteOverlay = { line: LatLng[]; current: boolean; stopIds: string[]; campus: { name: string; position: LatLng } | null };
+
+export function routeOverlay(route: BusRoute): RouteOverlay | null {
+  const line = routeLine(route);
+  if (line.length < 2) return null;
+  return { line, current: route.current, stopIds: route.stops.map((s) => s.id), campus: route.campus };
+}
+
 /** Moves the item at [from] to [to], keeping the others in order. */
 export function move<T>(list: readonly T[], from: number, to: number): T[] {
   if (from < 0 || from >= list.length || to < 0 || to >= list.length || from === to) return [...list];

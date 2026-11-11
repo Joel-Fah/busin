@@ -46,6 +46,8 @@ test("the proximity view says what it is based on and never shows small groups",
   await page.getByRole("link", { name: "Proximity" }).click();
   await expect(page).toHaveURL(/\/insights\?view=proximity$/);
   await expect(page.getByText(/^Based on \d+ of \d+ subscribers/)).toBeVisible();
+  // How close students live to the bus route itself (or how to get that figure).
+  await expect(page.getByText(/Along the bus route: \d+ of \d+ live within 500 m|Set the bus route|Not enough students have shared/)).toBeVisible();
   const tiles = page.getByRole("list", { name: "Stops, farthest first" }).getByRole("button");
   await expect(tiles.first()).toBeVisible();
   // Every tile either has a typical distance or says there are not enough students yet.

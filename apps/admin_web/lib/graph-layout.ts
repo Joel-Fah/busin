@@ -14,7 +14,8 @@ export type GraphSuggestedInput = { id: string; name: string; position: LatLng; 
 export type GraphNode =
   | { kind: "stop"; id: string; name: string; x: number; y: number; r: number }
   | { kind: "zone"; id: string; stopId: string; x: number; y: number; r: number; students: number; distance: number }
-  | { kind: "suggested"; id: string; name: string; x: number; y: number; r: number; students: number };
+  | { kind: "suggested"; id: string; name: string; x: number; y: number; r: number; students: number }
+  | { kind: "campus"; id: string; name: string; x: number; y: number; r: number };
 
 export type GraphEdge = { id: string; kind: "zone" | "flow"; from: string; to: string; width: number };
 
@@ -104,8 +105,9 @@ export function layoutGraph(
   width = 1000,
   height = 640,
   suggested: readonly GraphSuggestedInput[] = [],
+  campus: { name: string; position: LatLng } | null = null,
 ): GraphLayout {
-  const project = projector([...stops.map((s) => s.position), ...suggested.map((s) => s.position)], width, height);
+  const project = projector([...stops.map((s) => s.position), ...suggested.map((s) => s.position), ...(campus ? [campus.position] : [])], width, height);
   const most = Math.max(0, ...stops.map((s) => s.riders));
   // Pushed apart by their name's width too, so a label never runs into the next stop; then drawn at their own size.
   const spaced = separate(
@@ -115,12 +117,15 @@ export function layoutGraph(
         return { kind: "stop" as const, id: s.id, name: s.name, students: 0, ...project(s.position), r: Math.max(r, labelHalfWidth(s.name)), own: r };
       }),
       ...suggested.map((s) => ({ kind: "suggested" as const, id: s.id, name: s.name, students: s.students, ...project(s.position), r: Math.max(18, labelHalfWidth(s.name)), own: 18 })),
+      ...(campus ? [{ kind: "campus" as const, id: "campus", name: campus.name, students: 0, ...project(campus.position), r: Math.max(16, labelHalfWidth(campus.name)), own: 16 }] : []),
     ],
     width,
     height,
   );
-  const placedAll: GraphNode[] = spaced.map(({ own, students, ...n }) =>
-    n.kind === "stop" ? { kind: "stop", id: n.id, name: n.name, x: n.x, y: n.y, r: own } : { kind: "suggested", id: n.id, name: n.name, x: n.x, y: n.y, r: own, students },
+  const placedAll: GraphNode[] = spaced.map(({ own, students, ...n }): GraphNode =>
+    n.kind === "suggested"
+      ? { kind: "suggested", id: n.id, name: n.name, x: n.x, y: n.y, r: own, students }
+      : { kind: n.kind, id: n.id, name: n.name, x: n.x, y: n.y, r: own },
   );
   const placed = placedAll.filter((n): n is Extract<GraphNode, { kind: "stop" }> => n.kind === "stop");
   const byId = new Map(placed.map((n) => [n.id, n]));
