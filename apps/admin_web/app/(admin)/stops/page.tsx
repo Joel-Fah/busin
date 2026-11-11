@@ -7,7 +7,7 @@ import { centroid } from "@/lib/geo";
 import { getMessages } from "@/lib/i18n/server";
 import { isUuid } from "@/lib/ids";
 import { mapConfig } from "@/lib/map/config";
-import { loadStops } from "@/lib/stops-data";
+import { loadAreaCounts, loadStops } from "@/lib/stops-data";
 
 export const metadata: Metadata = { title: "Stops" };
 
@@ -28,7 +28,7 @@ async function Stops({ searchParams }: { searchParams: SearchParams }) {
   await requireAdmin();
   const { t } = await getMessages();
   const config = mapConfig();
-  const { stops, failed } = await loadStops();
+  const [{ stops, failed }, areas] = await Promise.all([loadStops(), loadAreaCounts()]);
 
   const { add, edit } = await searchParams;
   const editId = Array.isArray(edit) ? edit[0] : edit;
@@ -39,6 +39,7 @@ async function Stops({ searchParams }: { searchParams: SearchParams }) {
   return (
     <StopsExplorer
       stops={stops}
+      areas={areas}
       failed={failed}
       map={{ provider: config.provider, styleUrl: config.styleUrl, accessToken: config.accessToken, center, zoom: config.fallbackZoom }}
       initialSheet={initialSheet}

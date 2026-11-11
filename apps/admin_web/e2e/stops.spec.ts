@@ -442,6 +442,14 @@ test.describe("administrator managing stops", () => {
     await expect.poll(colour, { timeout: 5000 }).toBe(resting);
   });
 
+  test("where students live stays off until a zone has five students", async ({ page }) => {
+    await page.goto("/stops");
+    await bar(page).getByRole("button", { name: /^View all/ }).click();
+    const areas = page.getByRole("switch", { name: "Where students live" });
+    await expect(areas).toBeDisabled();
+    await expect(page.getByText("No zone has 5 students yet.", { exact: false })).toBeVisible();
+  });
+
   test("the help sheet explains the page with examples", async ({ page }) => {
     await page.goto("/stops");
     await page.getByRole("button", { name: "Help" }).click();

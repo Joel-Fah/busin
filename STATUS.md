@@ -33,15 +33,17 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 
 ## Handoff: ideas round (2026-11-11)
 
-The owner's nine ideas, built in slices before the ops app. Every PR is stacked on the one before it; merge in this order, retargeting each to `dev` once the one below is in: #215, #217, #219, #221, #223, #225, #227, #229, #231, #233, #235, #237, #239, #241. Every migration is local only.
+The owner's nine ideas, built in slices before the ops app. Every PR is stacked on the one before it; merge in this order, retargeting each to `dev` once the one below is in: #215, #217, #219, #221, #223, #225, #227, #229, #231, #233, #235, #237, #239, #241, #243. Every migration is local only.
 
 Done (PR, slice):
-- #217 bus names; #219 page size in every list; #221 school profile, terms and public listing (logo, contacts, allowed domains as tags); #223 joining a school without a school email (ADR 0012, To verify tab); #225 nav badges; #227 timezone 0.11 upgrade; #229 notification preferences and local reminders; #231 the on-board card and its line dictionary; #233 opt-in streaks with a calendar; #235 the school leaderboard (a tab in the streak sheet); #237 bus near my stop (a push when an inbound bus is a few minutes away, once per trip); #239 My area (ADR 0013, coarse home area, place search through the server); #241 an example notification when a kind is turned on.
+- #217 bus names; #219 page size in every list; #221 school profile, terms and public listing (logo, contacts, allowed domains as tags); #223 joining a school without a school email (ADR 0012, To verify tab); #225 nav badges; #227 timezone 0.11 upgrade; #229 notification preferences and local reminders; #231 the on-board card and its line dictionary; #233 opt-in streaks with a calendar; #235 the school leaderboard (a tab in the streak sheet); #237 bus near my stop (a push when an inbound bus is a few minutes away, once per trip); #239 My area (ADR 0013, coarse home area, place search through the server); #241 an example notification when a kind is turned on; #243 where students live on the stops map.
 
 Next:
-- The portal: show the area counts on the stops map (phase 5 planning).
+- The ideas round is complete. Next is phase 4, the ops app, once the stack is merged.
 
 Blockers: none. The 016 test fails locally until #215 is merged.
+
+Finding (My area): place search works end to end locally, but Mapbox knows few Yaounde neighbourhoods (found Nkolbisson, Mendong placed about 15 km off; not Bastos, Biyem-Assi, Essos, Ngoa-Ekelle). The at-home reading and "Not seeing your street?" still cover it. A geocoder built on OpenStreetMap data (whose names the free map already shows) would likely do better; that is a new vendor, so it is your call. Also: the `MAPBOX_API_KEY` line in `supabase/.env` ends with stray spaces (the function now trims it).
 
 Owner must do: review and merge the stack above; check with Mapbox whether storing a snapped cell and label needs permanent geocoding, and give a server token without a URL restriction for the hosted project; review `docs/legal/school-terms.md`; on the tablet, check the streak chip, the calendar and the Leaderboard tab, the reminders (Profile, Notifications), the on-board card and the school join screens; Firebase project and a scheduler for `send-push` (ADR 0010) so pushes leave the outbox.
 

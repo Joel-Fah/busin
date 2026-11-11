@@ -22,6 +22,12 @@ export type MapMarker = {
   variant?: "me";
 };
 
+/** A zone of about 500 m where students live, with how many (only zones with 5 or more ever reach the portal). */
+export type MapArea = {
+  position: LatLng;
+  students: number;
+};
+
 export type MapPicker = {
   /** The chosen position, or null while nothing is chosen. */
   position: LatLng | null;
@@ -39,6 +45,8 @@ export type MapViewProps = {
   accessToken?: string;
   /** Points to show. With no picker the map fits them all. */
   markers?: MapMarker[];
+  /** Zones where students live, drawn as soft discs under the markers. */
+  areas?: MapArea[];
   /** Turns the map into a place to choose a position. */
   picker?: MapPicker;
   /** When this changes, the map glides to it. For example the stop picked from a list. */

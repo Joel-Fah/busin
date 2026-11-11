@@ -5,6 +5,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { LngLatBounds, Map as MapLibreMap, Marker, NavigationControl, setWorkerUrl } from "maplibre-gl";
 import { useEffect, useRef, useState } from "react";
 
+import { areaColor, placeAreas, type AreaHost } from "../area-layer";
 import { placeMarkers } from "../place-markers";
 import type { MapViewProps } from "../types";
 
@@ -27,6 +28,7 @@ export default function MapLibreView({
   zoom,
   styleUrl,
   markers,
+  areas,
   picker,
   focus,
   focusKey,
@@ -104,6 +106,12 @@ export default function MapLibreView({
       { clustering: !pickable && clustering, clusterLabel },
     );
   }, [map, markers, pickable, clustering, clusterLabel]);
+
+  // Where students live, under the markers.
+  useEffect(() => {
+    if (!map || !areas || areas.length === 0) return;
+    return placeAreas(map as unknown as AreaHost, areas, areaColor());
+  }, [map, areas]);
 
   // Glide to the position the page is focused on, for example the stop picked from a list.
   useEffect(() => {

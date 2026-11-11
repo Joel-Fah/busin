@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from "react";
 import { mapBudgetAvailable, takeMapLoad } from "@/lib/map/budget";
 import { DEFAULT_STYLE_URL } from "@/lib/map/config";
 
+import { areaColor, placeAreas, type AreaHost } from "../area-layer";
 import { placeMarkers } from "../place-markers";
 import type { MapViewProps } from "../types";
 
@@ -66,7 +67,7 @@ function acquire(token: string, style: string, view: { center: [number, number];
  * proprietary software under Mapbox's terms (see docs/decisions/0008-map-provider.md).
  */
 export default function MapboxView(props: MapViewProps) {
-  const { center, zoom, styleUrl, accessToken, markers, picker, ariaLabel, unavailableLabel, className, clusterLabel = "{count}", clustering = true } = props;
+  const { center, zoom, styleUrl, accessToken, markers, areas, picker, ariaLabel, unavailableLabel, className, clusterLabel = "{count}", clustering = true } = props;
   // This module only ever runs in the browser (the selector loads it without server rendering).
   const [supported] = useState(webglAvailable);
   // Spent its budget in this browser: draw the free map instead. A map already in this tab is reused, so it never counts.
@@ -137,6 +138,12 @@ export default function MapboxView(props: MapViewProps) {
       { clustering: !pickable && clustering, clusterLabel },
     );
   }, [map, markers, pickable, clustering, clusterLabel]);
+
+  // Where students live, under the markers.
+  useEffect(() => {
+    if (!map || !areas || areas.length === 0) return;
+    return placeAreas(map as unknown as AreaHost, areas, areaColor());
+  }, [map, areas]);
 
   // Glide to the position the page is focused on, for example the stop picked from a list.
   useEffect(() => {

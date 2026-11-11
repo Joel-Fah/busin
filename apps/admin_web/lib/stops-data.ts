@@ -32,3 +32,19 @@ export async function loadStops(): Promise<{ stops: StopRow[]; failed: boolean }
     failed: false,
   };
 }
+
+/** A zone of about 500 m with how many of the school's students live there (ADR 0013). */
+export type AreaCount = { position: LatLng; students: number };
+
+/**
+ * Where the school's students live, as zones of about 500 m. The server returns only zones with at least 5 students
+ * and only for administrators, so no single student can be placed. Empty when nothing can be read.
+ */
+export async function loadAreaCounts(): Promise<AreaCount[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("admin_area_counts");
+  if (error || !data) return [];
+  return data
+    .filter((row) => Number.isFinite(row.lat) && Number.isFinite(row.lng))
+    .map((row) => ({ position: { lat: row.lat, lng: row.lng }, students: row.students }));
+}
