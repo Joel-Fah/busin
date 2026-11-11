@@ -1,6 +1,6 @@
 # 0006: Rotating QR with a per-student secret
 
-Status: accepted, 2026-10-30.
+Status: accepted, 2026-10-30. The code format (busin1) is superseded by [ADR 0014](0014-day-keys.md) (busin2, day keys for offline checks); the rest stands.
 
 ## Context
 The original QR was the student's permanent id, so a photo of it worked forever (audit finding C4). Students often have no data connection at a stop, so the code must be producible offline.

@@ -363,7 +363,7 @@ void main() {
           }));
       final outcome = await h.repos.scans.recordScan(
         tripId: _id,
-        code: 'busin1.x.1.y',
+        code: 'busin2.x.1.y',
         stopId: _other,
         location: GeoPoint(3.848, 11.502),
         accuracyMeters: 8,
@@ -377,14 +377,37 @@ void main() {
       expect(body['p_lat'], 3.848);
       expect(body['p_lng'], 11.502);
       expect(body['p_accuracy'], 8);
+      expect(body['p_scanned_at'], isNull, reason: 'a live scan is timed by the server');
+    });
+
+    test('a queued scan sends when it was made and the phone\'s id for it', () async {
+      final h = Harness((_) async => json({'valid': true, 'duplicate': true, 'scan_id': null, 'student': {'full_name': 'Ada'}}));
+      await h.repos.scans.recordScan(tripId: _id, code: 'busin2.x.1.y', scannedAt: DateTime.utc(2026, 11, 12, 7, 15), clientId: _other);
+      final body = jsonDecode(h.last.body) as Map<String, dynamic>;
+      expect(body['p_scanned_at'], '2026-11-12T07:15:00.000Z');
+      expect(body['p_client_id'], _other);
     });
 
     test('a refusal staff should see is a result, not an error', () async {
       final h = Harness((_) async => json({'valid': false, 'reason': 'no_active_subscription'}));
-      final outcome = await h.repos.scans.recordScan(tripId: _id, code: 'busin1.x.1.y');
+      final outcome = await h.repos.scans.recordScan(tripId: _id, code: 'busin2.x.1.y');
       expect(outcome, const ScanRefused(ScanFailure.noActiveSubscription));
       final body = jsonDecode(h.last.body) as Map<String, dynamic>;
       expect(body['p_lat'], isNull);
+    });
+  });
+
+  group('day keys for staff', () {
+    test('are read with the rider details and decoded', () async {
+      final key = Uint8List.fromList(List<int>.generate(32, (i) => 31 - i));
+      final h = Harness((_) async => json([
+            {'student_id': _id, 'day_key': base64.encode(key), 'full_name': 'Ada', 'avatar_url': null, 'matricule': 'M1', 'stop_id': _other, 'day': '2026-11-12'},
+          ]));
+      final riders = await h.repos.qr.staffDayKeys();
+      expect(h.last.url.path, '/rest/v1/rpc/staff_day_keys');
+      expect(riders.single.dayKey, key);
+      expect(riders.single.day, DateTime.utc(2026, 11, 12));
+      expect(riders.single.stopId, _other);
     });
   });
 

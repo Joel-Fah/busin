@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
+import '../subscription/subscription_providers.dart';
 import '../auth/access.dart';
 import '../providers.dart';
 import '../qr/boarding_ticket.dart';
@@ -138,7 +139,16 @@ class _Code extends ConsumerWidget {
     final profile = access.profile;
     final expanded = BusinLayout.of(context).isExpanded;
 
-    final code = QrCodeGenerator.generate(secret: secret, studentId: profile.id, now: ref.read(nowProvider)());
+    // The code's day is the school's day (its time zone), as the staff phone and the server work it out. The school is
+    // kept on the phone, so this works offline too.
+    final zone = ref.watch(schoolProvider).value?.timezone ?? 'UTC';
+    final clock = ref.watch(schoolClockProvider);
+    final code = QrCodeGenerator.generate(
+      secret: secret,
+      studentId: profile.id,
+      now: ref.read(nowProvider)(),
+      schoolDate: (instant) => clock.today(zone, now: instant),
+    );
 
     final ticket = LayoutBuilder(
       builder: (context, constraints) {

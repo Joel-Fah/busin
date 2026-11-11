@@ -207,6 +207,26 @@ isOneToOne: true
       referencedColumns: ["id"]
     }
                   ]
+                },"places": {
+                  Row: {
+                    "id": number,"kind": string,"location": unknown,"name": string,"osm_id": string,"school_id": string,"search_key": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "id"?: never,"kind": string,"location": unknown,"name": string,"osm_id": string,"school_id": string,"search_key": string
+                  }
+                  Update: {
+                    "id"?: never,"kind"?: string,"location"?: unknown,"name"?: string,"osm_id"?: string,"school_id"?: string,"search_key"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "places_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"profiles": {
                   Row: {
                     "avatar_url": string | null,"created_at": string,"department": string | null,"department_id": string | null,"email": string,"full_name": string,"id": string,"join_decline_note": string | null,"join_declined_at": string | null,"join_declined_school": string | null,"join_requested_at": string | null,"matricule": string | null,"phone": string | null,"program": string | null,"program_id": string | null,"role": Database["public"]['Enums']["user_role"],"school_id": string | null,"status": Database["public"]['Enums']["account_status"],"streak_opt_in": boolean,"streak_opt_in_at": string | null,"updated_at": string
@@ -261,14 +281,14 @@ isOneToOne: false
                   ]
                 },"scans": {
                   Row: {
-                    "accuracy_m": number | null,"id": string,"location": unknown,"scanned_at": string,"scanned_by": string,"school_id": string,"stop_id": string | null,"student_id": string,"subscription_id": string,"trip_id": string
+                    "accuracy_m": number | null,"client_id": string | null,"id": string,"location": unknown,"scanned_at": string,"scanned_by": string,"school_id": string,"stop_id": string | null,"student_id": string,"subscription_id": string,"trip_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "accuracy_m"?: number | null,"id"?: string,"location"?: unknown,"scanned_at"?: string,"scanned_by": string,"school_id": string,"stop_id"?: string | null,"student_id": string,"subscription_id": string,"trip_id": string
+                    "accuracy_m"?: number | null,"client_id"?: string | null,"id"?: string,"location"?: unknown,"scanned_at"?: string,"scanned_by": string,"school_id": string,"stop_id"?: string | null,"student_id": string,"subscription_id": string,"trip_id": string
                   }
                   Update: {
-                    "accuracy_m"?: number | null,"id"?: string,"location"?: unknown,"scanned_at"?: string,"scanned_by"?: string,"school_id"?: string,"stop_id"?: string | null,"student_id"?: string,"subscription_id"?: string,"trip_id"?: string
+                    "accuracy_m"?: number | null,"client_id"?: string | null,"id"?: string,"location"?: unknown,"scanned_at"?: string,"scanned_by"?: string,"school_id"?: string,"stop_id"?: string | null,"student_id"?: string,"subscription_id"?: string,"trip_id"?: string
                   }
                   Relationships: [
                     {
@@ -594,11 +614,6 @@ isOneToOne: false
               "id": number,"kind": string,"ref_id": string,"tokens": Json
             }[]
                            },
-"claim_place_search":
-{ Args: Record<PropertyKey, never>; Returns: {
-              "centre_lat": number,"centre_lng": number,"max_lat": number,"max_lng": number,"min_lat": number,"min_lng": number
-            }[]
-                           },
 "clear_my_area":
 { Args: Record<PropertyKey, never>; Returns: undefined
                            },
@@ -613,6 +628,9 @@ isOneToOne: false
                            },
 "get_my_qr_secret":
 { Args: Record<PropertyKey, never>; Returns: string
+                           },
+"import_places":
+{ Args: { "p_places": Json,"p_school_id": string }; Returns: number
                            },
 "list_open_schools":
 { Args: Record<PropertyKey, never>; Returns: {
@@ -644,13 +662,18 @@ isOneToOne: false
               "best_streak": number,"current_streak": number,"rides": number
             }[]
                            },
+"place_import_box":
+{ Args: { "p_school_id": string }; Returns: {
+              "east": number,"north": number,"south": number,"west": number
+            }[]
+                           },
 "public_schools":
 { Args: Record<PropertyKey, never>; Returns: {
               "city": string,"country": string,"id": string,"logo_path": string,"name": string,"short_name": string
             }[]
                            },
 "record_qr_scan":
-{ Args: { "p_accuracy"?: number,"p_code": string,"p_lat"?: number,"p_lng"?: number,"p_stop_id"?: string,"p_trip_id": string }; Returns: Json
+{ Args: { "p_accuracy"?: number,"p_client_id"?: string,"p_code": string,"p_lat"?: number,"p_lng"?: number,"p_scanned_at"?: string,"p_stop_id"?: string,"p_trip_id": string }; Returns: Json
                            },
 "register_device_token":
 { Args: { "p_locale"?: string,"p_platform": string,"p_token": string }; Returns: undefined
@@ -666,6 +689,11 @@ isOneToOne: false
               "avatar_url": string,"current_streak": number,"display_name": string,"is_me": boolean,"rank": number,"rides": number
             }[]
                            },
+"search_places":
+{ Args: { "p_limit"?: number,"p_query": string }; Returns: {
+              "kind": string,"label": string,"lat": number,"lng": number
+            }[]
+                           },
 "set_my_area":
 { Args: { "p_label": string,"p_lat": number,"p_lng": number,"p_source": string }; Returns: undefined
                            },
@@ -674,6 +702,11 @@ isOneToOne: false
                            },
 "set_streak_opt_in":
 { Args: { "p_on": boolean }; Returns: undefined
+                           },
+"staff_day_keys":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "avatar_url": string,"day": string,"day_key": string,"full_name": string,"matricule": string,"stop_id": string,"student_id": string
+            }[]
                            },
 "submit_interest":
 { Args: { "p_email": string,"p_kind": string,"p_locale"?: string,"p_message"?: string,"p_name"?: string,"p_organisation"?: string,"p_trap"?: string }; Returns: string

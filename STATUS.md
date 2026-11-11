@@ -2,7 +2,7 @@
 
 Updated: 2026-11-11
 
-Current phase: **Phase 3 done** (signed off by the owner on a device, 2026-11-11). Next: **Phase 4, ops app** ([docs/phases/phase-4-ops-app.md](docs/phases/phase-4-ops-app.md)), not started
+Current phase: **Phase 3, student app** ([docs/phases/phase-3-student-app.md](docs/phases/phase-3-student-app.md)): feature complete, waiting for the owner's device sign-off and the PR review and merges (see the last handoff)
 
 ## Phases
 
@@ -11,8 +11,8 @@ Current phase: **Phase 3 done** (signed off by the owner on a device, 2026-11-11
 | 0 Foundation | Monorepo layout, docs, skills, workflow, GitHub setup | Done and merged into `dev` |
 | 1 Backend | Secure multi-tenant Supabase backend | Done and merged into `dev` (126 database tests) |
 | 2 Shared and admin web | Shared Dart packages, admin portal | **Done and merged into `dev`.** Admin portal (with the bento overview); `busin_core` has the models and the repository interfaces, `busin_data` the Supabase implementations, `busin_ui` the design system. Flutter 3.47.9 through fvm resolves, analyzes and tests the workspace |
-| 3 Student app | Lightweight student app | **Done, signed off by the owner on a device (2026-11-11) and merged into `dev`.** Sign-in, subscribe with proof, live approval, rotating code, history, live bus, push, EN and FR, light and dark, plus the ideas round (school join, notifications and reminders, on-board card, streaks and leaderboard, bus near my stop, My area with OpenStreetMap place search). Still open: a hosted Supabase project, iOS configuration, Firebase for push |
-| 4 Ops app | Scanner and driver mode | Not started |
+| 3 Student app | Lightweight student app | **Feature complete, not yet signed off.** Every item of the scope is built and tested (sign-in, subscribe with proof, status, rotating code, history, live bus for subscribers, push, English and French, light and dark, plus the profile, setup, history, revoke and live changes). Waiting on: the owner's device test, review and merge of the stacked branches (#123 first), a hosted Supabase project (none exists yet), iOS configuration |
+| 4 Ops app | Scanner and driver mode | **In progress.** Owner decisions: day keys for offline checks (ADR 0014), any staff phone scans and the trip's assignee shares the position, the assignee starts and ends the trip (any staff when none). Slices: day keys (#249), trip control, shared app package, ops shell, scanner with offline queue, driver mode, then the owner's test on a real run |
 | 5 Insights | Density map, pickup and route suggestions | Not started |
 | 6 Scale | More schools, payments, hardware tracker | Not started |
 
@@ -31,22 +31,27 @@ Current phase: **Phase 3 done** (signed off by the owner on a device, 2026-11-11
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: phase 4 (in progress)
+
+Done: #249 day keys (busin2 codes, staff day keys, queued scans with their time and id). Open PRs go into `dev` one by one (not stacked unless noted).
+
+Next: trip control on the server (start and end, publish the position, trip manifest), then the shared app package, the ops app shell, the scanner with its offline queue, and driver mode.
+
 ## Handoff: ideas round (2026-11-11)
 
-The owner's nine ideas, built in slices before the ops app. All merged into `dev` on 2026-11-11 after the owner's device test (#215, then #217 to #245 in order; one build log conflict with #215 resolved by keeping both rows). Every migration is local only. On `dev`: every database test passes, student app 350, busin_ui 115, busin_core 59, busin_data 39.
+The owner's nine ideas, built in slices before the ops app. Every PR is stacked on the one before it; merge in this order, retargeting each to `dev` once the one below is in: #215, #217, #219, #221, #223, #225, #227, #229, #231, #233, #235, #237, #239, #241, #243, #245. Every migration is local only.
 
 Done (PR, slice):
 - #217 bus names; #219 page size in every list; #221 school profile, terms and public listing (logo, contacts, allowed domains as tags); #223 joining a school without a school email (ADR 0012, To verify tab); #225 nav badges; #227 timezone 0.11 upgrade; #229 notification preferences and local reminders; #231 the on-board card and its line dictionary; #233 opt-in streaks with a calendar; #235 the school leaderboard (a tab in the streak sheet); #237 bus near my stop (a push when an inbound bus is a few minutes away, once per trip); #239 My area (ADR 0013, coarse home area, place search through the server); #241 an example notification when a kind is turned on; #243 where students live on the stops map; #245 place search from our own copy of OpenStreetMap (replaces Mapbox for My area).
 
 Next:
-- Phase 4, the ops app. It must also record the stop of each scan (see the phase 4 plan), which phase 5's stop load map needs.
-- Phase 5 insights were discussed with the owner (stop load, proximity per stop, misplaced students, stop suggestions) and are written into docs/phases/phase-5-insights.md; nothing is built yet.
+- The ideas round is complete. Next is phase 4, the ops app, once the stack is merged.
 
-Blockers: none.
+Blockers: none. The 016 test fails locally until #215 is merged.
 
 Place search (My area) now uses our own copy of OpenStreetMap (#245): each school needs `npm run places:import -- <school id>` once its stops exist (done locally for the demo school; see docs/guides/places.md).
 
-Owner must do: review `docs/legal/school-terms.md`; Firebase project and a scheduler for `send-push` (ADR 0010) so pushes leave the outbox; a hosted Supabase project when ready (then the places import per school); say when to open the milestone PR from `dev` to `main` (I prepare its `Closes #N` list).
+Owner must do: review and merge the stack above; review `docs/legal/school-terms.md`; on the tablet, check the streak chip, the calendar and the Leaderboard tab, the reminders (Profile, Notifications), the on-board card and the school join screens; Firebase project and a scheduler for `send-push` (ADR 0010) so pushes leave the outbox.
 
 ## Last handoff
 

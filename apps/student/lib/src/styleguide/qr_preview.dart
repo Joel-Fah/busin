@@ -19,7 +19,7 @@ class QrPreviewScreen extends StatelessWidget {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 380),
               child: BoardingTicket(
-                code: 'busin1.00000000-0000-0000-0000-000000000000.58000000.AbCdEfGhIjKlMnOpQrStUvWxYz012345',
+                code: 'busin2.00000000-0000-0000-0000-000000000000.58000000.AbCdEfGhIjKlMnOpQrStUvWxYz012345',
                 name: 'Nnamu Radiance Kinga',
                 matricule: 'ICT2026-0001',
                 size: 280,

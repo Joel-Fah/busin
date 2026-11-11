@@ -7,6 +7,7 @@ import '../models/joining.dart';
 import '../models/live_position.dart';
 import '../models/notification_preferences.dart';
 import '../models/profile.dart';
+import '../models/rider_key.dart';
 import '../models/scan.dart';
 import '../models/scan_outcome.dart';
 import '../models/school.dart';
@@ -166,6 +167,9 @@ abstract interface class QrRepository {
 
   /// Replaces the secret, which makes codes made from the old one stop working.
   Future<Uint8List> rotateSecret();
+
+  /// Staff only: today's riders with their day keys, to check codes offline (ADR 0014). Each call is audited.
+  Future<List<RiderKey>> staffDayKeys();
 }
 
 abstract interface class TripsRepository {
@@ -206,12 +210,16 @@ abstract interface class ScansRepository {
   /// Submits a scanned code. A refusal that staff should see (bad code, no
   /// subscription) is a [ScanRefused] result; a problem with the caller or the
   /// trip is a `RepositoryException`.
+  /// Records a boarding. A scan made offline and sent later carries [scannedAt] (when it was made, checked against
+  /// the code) and [clientId] (the phone's own id for it, so sending it twice records it once).
   Future<ScanOutcome> recordScan({
     required String tripId,
     required String code,
     String? stopId,
     GeoPoint? location,
     double? accuracyMeters,
+    DateTime? scannedAt,
+    String? clientId,
   });
 
   /// A student's own boardings, newest first. The server returns only the caller's own.
