@@ -69,8 +69,9 @@ export function SuggestionsExplorer({ route, suggestions, stops, failed, map, t 
     [g, distance],
   );
 
-  // A suggested route: the school's route with one suggested stop (or every one) put in where it detours least, drawn
-  // over today's route; along the roads when the road service answers, estimated from straight lines otherwise.
+  // A suggested route: every stop of the school's route plus one suggested stop (or every one), in the quickest order to
+  // the campus along the roads, drawn in orange over today's route, which stays as it is. Until the road service answers
+  // (or without it) the new stops are slotted in where they detour least, estimated from straight lines.
   const [compare, setCompare] = useState<{ key: string; extras: Extra[]; students: number; road: RoutePreview | null } | null>(null);
   const [drawing, startDrawing] = useTransition();
   const showRoute = useCallback(
@@ -147,14 +148,7 @@ export function SuggestionsExplorer({ route, suggestions, stops, failed, map, t 
           center={map.center}
           zoom={map.zoom}
           markers={onRoute.campus.length > 0 ? [...markers, ...onRoute.campus] : markers}
-          routes={
-            comparison && route
-              ? [
-                  { id: "today", coordinates: route.line, emphasis: "secondary" },
-                  { id: "suggested", coordinates: comparison.line, emphasis: "primary" },
-                ]
-              : onRoute.routes
-          }
+          routes={comparison ? [...onRoute.routes, { id: "suggested", coordinates: comparison.line, emphasis: "suggested" }] : onRoute.routes}
           circles={circles}
           lines={lines}
           focus={focus}
@@ -248,9 +242,36 @@ export function SuggestionsExplorer({ route, suggestions, stops, failed, map, t 
                 {g.compareClose}
               </button>
             </div>
-            <p className="m-0 text-xs text-muted">
-              {g.compareLegend} {drawing ? g.drawing : comparison.byRoad ? g.byRoad : g.estimated}
-            </p>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
+              <span className="inline-flex items-center gap-1.5">
+                <span aria-hidden className="h-1.5 w-5 rounded-xs bg-[var(--info)]" />
+                {g.legendToday}
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span aria-hidden className="h-1.5 w-5 rounded-xs bg-[var(--accent)]" />
+                {g.legendSuggested}
+              </span>
+              <span>{drawing ? g.drawing : `${comparison.optimized ? g.quickest : g.slotted} ${comparison.byRoad || comparison.optimized ? "" : g.estimated}`.trim()}</span>
+            </div>
+            {!drawing && comparison.start ? (
+              <p className="m-0 text-sm font-semibold">
+                {format(g.startMoved, { to: comparison.start.to, from: comparison.start.from, distance: formatKm(comparison.start.distanceM) })}
+              </p>
+            ) : null}
+            <ol aria-label={g.orderLabel} className="m-0 flex list-none flex-wrap items-center gap-1.5 p-0 text-xs">
+              {comparison.order.map((stop, i) => (
+                <li
+                  key={`${stop.name}-${i}`}
+                  className={
+                    "inline-flex items-center gap-1 rounded-xs px-2 py-1 " +
+                    (stop.suggested ? "bg-[color-mix(in_srgb,var(--accent)_22%,var(--surface))] font-semibold text-fg" : "bg-surface text-muted")
+                  }
+                >
+                  <span className="tabular-nums">{i + 1}.</span> {stop.name}
+                  {stop.suggested ? <span className="sr-only"> ({g.newMark})</span> : null}
+                </li>
+              ))}
+            </ol>
             <details>
               <summary className="cursor-pointer text-sm font-semibold">
                 {format(g.directions, { distance: formatKm(comparison.total.d), time: formatMinutes(comparison.total.t) })}

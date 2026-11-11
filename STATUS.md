@@ -37,7 +37,7 @@ Done: #261 the stop load map (Insights tab, nightly pg_cron count), stacked on #
 
 The bus route is built (#297 to #303). Owner: a Mapbox token for Directions in `supabase/functions/.env` (docs/guides/bus-route.md), then Stops, Bus route, Draw along roads; review ADR 0017. Later: route optimization (OR-Tools) and the weekly summary. Owner later: Play Store location declaration (ADR 0016); review the refreshed legal drafts (a lawyer if needed); schools re-accept the terms (version 2026-11-11).
 
-The route editor test no longer throws away the drawn road (#309).
+The route editor test no longer throws away the drawn road (#309). Suggested routes are reordered for the quickest drive along the roads and drawn in orange over today's route; the first stop may move up to 1.5 km (#311).
 
 Owner: when a hosted project exists, its migration enables pg_cron (a Supabase extension). Merge #261, #263, #265, #267, #269, #271, #273, #275, #277, #279, #281, #283, #285, #287, #289, #291 in that order, after the phase 4 stack. For the demo areas locally: `npm run seed:demo` (it also renews the demo password and trips).
 

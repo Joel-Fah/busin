@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { compareRoutes, directions, formatKm, formatMinutes, insertExtras, move, parseSchoolRoute, routeLine, routeOverlay, type SchoolRouteRow } from "./route";
+import { compareRoutes, directions, startChange, formatKm, formatMinutes, insertExtras, move, parseSchoolRoute, routeLine, routeOverlay, type SchoolRouteRow } from "./route";
 
 const row = (over: Partial<SchoolRouteRow> = {}): SchoolRouteRow => ({
   route_id: "r1",
@@ -129,5 +129,39 @@ describe("compareRoutes", () => {
     const c = compareRoutes(drawn, [detour], { line: [{ lat: 3.8, lng: 11.5 }, { lat: 3.86, lng: 11.5 }], legs: [], distanceM: 8200, durationS: 1100 });
     expect(c).toMatchObject({ byRoad: true, deltaD: 1200, deltaT: 200 });
     expect(c.line).toHaveLength(2);
+  });
+
+  it("without a road order, lists today's stops with the new one slotted in and keeps today's start", () => {
+    const c = compareRoutes(overlay, [detour], null);
+    expect(c.order).toEqual([
+      { name: "First", suggested: false },
+      { name: "Market", suggested: true },
+      { name: "Second", suggested: false },
+    ]);
+    expect(c.optimized).toBe(false);
+    expect(c.start).toBeNull();
+  });
+
+  it("follows the order the road service chose, and says when the first stop moves", () => {
+    const order = [
+      { kind: "extra" as const, name: "Market", position: { lat: 3.81, lng: 11.52 } },
+      { kind: "stop" as const, name: "First", position: { lat: 3.8, lng: 11.5 } },
+      { kind: "stop" as const, name: "Second", position: { lat: 3.82, lng: 11.5 } },
+      { kind: "campus" as const, name: "Main campus", position: { lat: 3.86, lng: 11.5 } },
+    ];
+    const c = compareRoutes(overlay, [detour], { line: [{ lat: 3.81, lng: 11.52 }, { lat: 3.86, lng: 11.5 }], legs: [], distanceM: 8000, durationS: 1000, order, optimized: true });
+    expect(c.order.map((p) => p.name)).toEqual(["Market", "First", "Second"]);
+    expect(c.optimized).toBe(true);
+    expect(c.start).toMatchObject({ from: "First", to: "Market" });
+    expect(c.start!.distanceM).toBeGreaterThan(2000);
+  });
+});
+
+describe("startChange", () => {
+  const stops = [{ id: "a", name: "First", position: { lat: 3.8, lng: 11.5 }, active: true }];
+  it("is null when the route still starts at today's first stop or has no order", () => {
+    expect(startChange(stops, [{ kind: "stop", name: "First", position: { lat: 3.8, lng: 11.5 } }])).toBeNull();
+    expect(startChange(stops, undefined)).toBeNull();
+    expect(startChange([], [{ kind: "stop", name: "First", position: { lat: 3.8, lng: 11.5 } }])).toBeNull();
   });
 });

@@ -178,7 +178,20 @@ export function formatMinutes(seconds: number): string {
   return `${Math.floor(minutes / 60)} h ${String(minutes % 60).padStart(2, "0")} min`;
 }
 
-export type RoadPreview = { line: LatLng[]; legs: RouteLeg[]; distanceM: number; durationS: number };
+/** A point of a suggested route, in the order driven: a stop of today's route, a suggested stop, or the campus. */
+export type OrderPoint = { kind: "stop" | "extra" | "campus"; name: string; position: LatLng };
+
+export type RoadPreview = { line: LatLng[]; legs: RouteLeg[]; distanceM: number; durationS: number; order?: OrderPoint[]; optimized?: boolean };
+
+/** Where a suggested route sets off, when that is not today's first stop: the new first stop and how far it is. */
+export function startChange(stops: readonly RouteStop[], order: readonly OrderPoint[] | undefined): { from: string; to: string; distanceM: number } | null {
+  const today = stops[0];
+  const first = order?.[0];
+  if (!today || !first || first.kind === "campus") return null;
+  const distanceM = distanceMeters(today.position, first.position);
+  if (first.name === today.name && distanceM < 1) return null;
+  return { from: today.name, to: first.name, distanceM: Math.round(distanceM) };
+}
 
 /**
  * Today's route against the same route with suggested stops: the line to draw, its stop-by-stop directions, and the
@@ -193,8 +206,17 @@ export function compareRoutes(route: RouteOverlay, extras: readonly Extra[], roa
   const byRoad = road !== null && route.current && route.distanceM !== null && route.durationS !== null;
   const now = byRoad ? { d: route.distanceM as number, t: route.durationS as number } : sum(estimatedNow);
   const next = byRoad && road ? { d: road.distanceM, t: road.durationS } : sum(estimatedNew);
+  const order: { name: string; suggested: boolean }[] =
+    road?.order && road.order.length > 0
+      ? road.order.filter((p) => p.kind !== "campus").map((p) => ({ name: p.name, suggested: p.kind === "extra" }))
+      : withExtras.map((s) => ({ name: s.name, suggested: s.suggested === true }));
   return {
     line: road ? road.line : [...withExtras.map((s) => s.position), ...(route.campus ? [route.campus.position] : [])],
+    /** The stops in the order driven, the suggested ones marked. */
+    order,
+    /** Put in the quickest order along the roads, rather than slotted into today's order. */
+    optimized: road?.optimized === true,
+    start: startChange(route.stops, road?.order),
     steps: road && road.legs.length > 0 ? road.legs : estimatedNew,
     byRoad,
     deltaD: next.d - now.d,
