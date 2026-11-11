@@ -3,7 +3,7 @@
 <plist version="1.0">
 	<dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>BusIn reads your approximate location once, when you add your area, so your school can place stops near students. It is rounded to about 500 metres and never tracked.</string>
+	<string>BusIn reads your location when you ask: once when you add your area (rounded to about 500 metres), and on My bus when you tap Show me, to show you next to your stop and the bus. It stays on your phone and is never tracked.</string>
 	<key>NSLocationDefaultAccuracyReduced</key>
 	<true/>
 		<key>CADisableMinimumFrameDurationOnPhone</key>

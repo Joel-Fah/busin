@@ -11,6 +11,8 @@ import '../bus/bus_providers.dart';
 import '../bus/eta.dart';
 import '../bus/bus_updates.dart';
 import '../bus/map_scene.dart';
+import '../bus/my_location.dart';
+import '../bus/show_me.dart';
 import '../bus/update_strip.dart';
 import '../qr/qr_providers.dart';
 import '../router.dart';
@@ -182,7 +184,11 @@ class _Tracking extends ConsumerWidget {
     final stops = ref.watch(stopsProvider).value ?? const <Stop>[];
     final myStop = ref.watch(myStopProvider).value;
     final expanded = BusinLayout.of(context).isExpanded;
-    final live = active ? ref.watch(busUpdatesProvider(current.busId)) : null;
+    final updates = active ? ref.watch(busUpdatesProvider(current.busId)) : const <BusUpdate>[];
+    final live = updates.firstOrNull;
+    // The student's own position: only while this tab shows and they chose Show me (ADR 0016).
+    final showMe = ref.watch(showMeProvider);
+    final me = active && showMe != null ? ref.watch(myPositionProvider).value : null;
     // The newest of the bus's own update and "the previous trip ended".
     final end = ended;
     final update = end != null && (live == null || end.at.isAfter(live.at)) ? end : live;
@@ -192,6 +198,7 @@ class _Tracking extends ConsumerWidget {
       myStopId: myStop?.id,
       bus: position.value?.location,
       busHeading: position.value?.headingDeg,
+      me: me,
       // On a phone the details card floats over the lower part of the map.
       coveredBottom: expanded ? 0 : 150,
     );
@@ -218,18 +225,27 @@ class _Tracking extends ConsumerWidget {
                   ],
                 ),
               ),
-            BusUpdateStrip(
-              update: update,
-              busLabel: update?.kind == BusUpdateKind.tripEnded ? (update?.stopName ?? '') : current.label,
-              direction: l10n.direction(current.trip.direction),
-              now: now,
-            ),
-            if (scene.bus != null)
-              Padding(
-                padding: const EdgeInsets.only(top: BusinSpace.x2),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
+            // On a wide screen the updates sit in the panel beside the map instead.
+            if (!expanded)
+              BusUpdateStrip(
+                update: update,
+                busLabel: update?.kind == BusUpdateKind.tripEnded ? (update?.stopName ?? '') : current.label,
+                direction: l10n.direction(current.trip.direction),
+                now: now,
+              ),
+            Padding(
+              padding: const EdgeInsets.only(top: BusinSpace.x2),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  BusinButton(
+                    label: showMe == null ? l10n.busMeShow : l10n.busMeHide,
+                    variant: BusinButtonVariant.secondary,
+                    icon: HugeIcons.strokeRoundedGps01,
+                    onPressed: () => showMe == null ? turnOnShowMe(context, ref) : ref.read(showMeProvider.notifier).turnOff(),
+                  ),
+                  if (scene.bus != null) ...[
+                    const SizedBox(width: BusinSpace.x2),
                     // Only when the bus is out of frame; it fades in and out so the map is not jumpy.
                     ValueListenableBuilder<bool>(
                       valueListenable: busInView,
@@ -242,8 +258,9 @@ class _Tracking extends ConsumerWidget {
                       child: BusinButton(label: l10n.busRecenter, variant: BusinButtonVariant.secondary, icon: HugeIcons.strokeRoundedLocation01, onPressed: () => recenter.value++),
                     ),
                   ],
-                ),
+                ],
               ),
+            ),
           ],
         ),
       ),
@@ -256,7 +273,7 @@ class _Tracking extends ConsumerWidget {
         child: Stack(children: [Positioned.fill(child: ref.watch(mapSurfaceBuilderProvider)(context, scene, recenter, busInView)), ...overlays]),
       ),
     );
-    final card = _InfoCard(bus: current, position: position.value, myStop: myStop);
+    final card = _InfoCard(bus: current, position: position.value, myStop: myStop, me: me);
 
     if (expanded) {
       // A wide screen: the map takes the room, the buses and the details sit in a panel beside it.
@@ -278,6 +295,13 @@ class _Tracking extends ConsumerWidget {
                     const SizedBox(height: BusinSpace.x4),
                   ],
                   card,
+                  const SizedBox(height: BusinSpace.x4),
+                  BusUpdateFeed(
+                    updates: [?end, ...updates]..sort((a, b) => b.at.compareTo(a.at)),
+                    busLabel: current.label,
+                    direction: l10n.direction(current.trip.direction),
+                    now: now,
+                  ),
                 ],
               ),
             ),
@@ -357,16 +381,20 @@ class _BusPills extends ConsumerWidget {
 /// The bus's details: a 3D bus, its name (or plate) and direction, the estimated arrival at the student's stop when it can be
 /// worked out, how fresh the position is, and the student's stop.
 class _InfoCard extends ConsumerWidget {
-  const _InfoCard({required this.bus, required this.position, required this.myStop});
+  const _InfoCard({required this.bus, required this.position, required this.myStop, this.me});
 
   final RunningBus bus;
   final LivePosition? position;
   final Stop? myStop;
 
+  /// Where the student is, while they use Show me.
+  final GeoPoint? me;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = BusinL10n.of(context);
     final palette = BusinPalette.of(context);
+    final walk = me == null || myStop == null ? null : walkTo(me!, myStop!.location);
     final text = Theme.of(context).textTheme;
 
     String? updated;
@@ -422,6 +450,17 @@ class _InfoCard extends ConsumerWidget {
               ],
             ],
           ),
+          // With Show me on: how far the student is from their stop, on foot.
+          if (walk != null) ...[
+            const SizedBox(height: BusinSpace.x2),
+            Row(
+              children: [
+                HugeIcon(icon: HugeIcons.strokeRoundedWalking, size: 18, color: palette.info),
+                const SizedBox(width: BusinSpace.x2),
+                Expanded(child: Text(walkText(l10n, walk), style: text.bodySmall?.copyWith(fontWeight: FontWeight.w600))),
+              ],
+            ),
+          ],
           // Without an estimate the student's stop still gets its line.
           if (myStop != null && eta == null) ...[
             const SizedBox(height: BusinSpace.x2),

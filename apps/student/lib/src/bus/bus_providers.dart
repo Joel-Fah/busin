@@ -125,17 +125,20 @@ int? speedKmh(double? metresPerSecond) {
 /// How often "no signal" is checked between positions.
 const updateTick = Duration(seconds: 15);
 
-/// The latest short update about one followed bus (bus_updates.dart), or null before the first. Lives only while My bus
-/// is showing that bus: nothing is kept or pushed. When the bus falls silent the running trips are read again, so the
+/// The latest short updates about one followed bus (bus_updates.dart), newest first, at most [keptUpdates]. A phone shows
+/// only the newest; a wide screen lists them beside the map. Lives only while My bus is showing that bus: nothing is
+/// stored or pushed. When the bus falls silent the running trips are read again, so the
 /// screen learns soon if the trip has ended.
-class BusUpdates extends Notifier<BusUpdate?> {
+const keptUpdates = 5;
+
+class BusUpdates extends Notifier<List<BusUpdate>> {
   BusUpdates(this.busId);
 
   final String busId;
   BusUpdateDetector? _detector;
 
   @override
-  BusUpdate? build() {
+  List<BusUpdate> build() {
     DateTime now() => ref.read(nowProvider)();
     ref.listen(busPositionProvider(busId), (_, next) {
       final position = next.value;
@@ -144,17 +147,19 @@ class BusUpdates extends Notifier<BusUpdate?> {
       final detector = _detector ??=
           BusUpdateDetector(stops: ref.read(stopsProvider).value ?? const [], myStop: ref.read(myStopProvider).value);
       final update = detector.onPosition(position, now());
-      if (update != null) state = update;
+      if (update != null) _add(update);
     }, fireImmediately: true);
     final timer = Timer.periodic(updateTick, (_) {
       final update = _detector?.onTick(now());
       if (update == null) return;
-      state = update;
+      _add(update);
       ref.invalidate(runningBusesProvider);
     });
     ref.onDispose(timer.cancel);
-    return null;
+    return const [];
   }
+
+  void _add(BusUpdate update) => state = [update, ...state.take(keptUpdates - 1)];
 }
 
-final busUpdatesProvider = NotifierProvider.autoDispose.family<BusUpdates, BusUpdate?, String>(BusUpdates.new);
+final busUpdatesProvider = NotifierProvider.autoDispose.family<BusUpdates, List<BusUpdate>, String>(BusUpdates.new);

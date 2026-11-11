@@ -101,3 +101,73 @@ class _BusUpdateStripState extends State<BusUpdateStrip> {
     );
   }
 }
+
+/// On a wide screen, beside the map: the newest update stands out and the few before it follow, each with its time.
+/// Only what happened while the tab was open; nothing is stored.
+class BusUpdateFeed extends StatelessWidget {
+  const BusUpdateFeed({super.key, required this.updates, required this.busLabel, required this.direction, required this.now});
+
+  /// Newest first.
+  final List<BusUpdate> updates;
+  final String busLabel;
+  final String direction;
+  final DateTime now;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = BusinL10n.of(context);
+    final p = BusinPalette.of(context);
+    final text = Theme.of(context).textTheme;
+    final shown = updates.take(5).toList();
+    String words(BusUpdate u) => busUpdateText(
+          l10n,
+          u,
+          busLabel: u.kind == BusUpdateKind.tripEnded ? (u.stopName ?? '') : busLabel,
+          direction: direction,
+          now: now,
+        );
+    String time(BusUpdate u) => MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(u.at.toLocal()));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(l10n.busUpdatesTitle, style: text.titleMedium),
+        const SizedBox(height: BusinSpace.x2),
+        if (shown.isEmpty)
+          Text(l10n.busUpdatesEmpty, style: text.bodySmall?.copyWith(color: p.muted))
+        else ...[
+          AnimatedSwitcher(
+            duration: BusinMotion.of(context, BusinMotion.fast),
+            child: Semantics(
+              key: ValueKey((shown.first.kind, shown.first.seq, shown.first.at)),
+              liveRegion: true,
+              child: Notice(
+                tone: busUpdateLook(shown.first.kind).$1,
+                icon: busUpdateLook(shown.first.kind).$2,
+                child: Row(
+                  children: [
+                    Expanded(child: Text(words(shown.first))),
+                    const SizedBox(width: BusinSpace.x2),
+                    Text(time(shown.first), style: text.bodySmall),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          for (final u in shown.skip(1))
+            Padding(
+              padding: const EdgeInsets.fromLTRB(BusinSpace.x4, BusinSpace.x3, BusinSpace.x4, 0),
+              child: Row(
+                children: [
+                  HugeIcon(icon: busUpdateLook(u.kind).$2, size: 18, color: p.muted),
+                  const SizedBox(width: BusinSpace.x3),
+                  Expanded(child: Text(words(u), style: text.bodySmall?.copyWith(color: p.muted))),
+                  Text(time(u), style: text.bodySmall?.copyWith(color: p.muted)),
+                ],
+              ),
+            ),
+        ],
+      ],
+    );
+  }
+}

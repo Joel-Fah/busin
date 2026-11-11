@@ -1351,6 +1351,96 @@ abstract class BusinL10n {
   /// **'Hide this update'**
   String get busUpdateDismiss;
 
+  /// No description provided for @busUpdatesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Live updates'**
+  String get busUpdatesTitle;
+
+  /// No description provided for @busUpdatesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'What the bus does appears here while you follow it.'**
+  String get busUpdatesEmpty;
+
+  /// No description provided for @busMeShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show me'**
+  String get busMeShow;
+
+  /// No description provided for @busMeHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide me'**
+  String get busMeHide;
+
+  /// No description provided for @busMeWhyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See yourself on the map'**
+  String get busMeWhyTitle;
+
+  /// No description provided for @busMeWhyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'BusIn will use your phone\'s precise location while this tab is open, to show you next to your stop and the bus. It stays on your phone: it is never sent or kept.'**
+  String get busMeWhyBody;
+
+  /// No description provided for @busMeContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get busMeContinue;
+
+  /// No description provided for @busMeNotNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get busMeNotNow;
+
+  /// No description provided for @busMeDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Location is not allowed for BusIn, so you are not shown.'**
+  String get busMeDenied;
+
+  /// No description provided for @busMeDeniedForever.
+  ///
+  /// In en, this message translates to:
+  /// **'Location is turned off for BusIn. You can allow it in your phone\'s settings.'**
+  String get busMeDeniedForever;
+
+  /// No description provided for @busMeOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Location is switched off on your phone.'**
+  String get busMeOff;
+
+  /// No description provided for @busMeSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings'**
+  String get busMeSettings;
+
+  /// No description provided for @busMeApproximate.
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone shares only an approximate position. Allow precise location for BusIn to see exactly where you are.'**
+  String get busMeApproximate;
+
+  /// No description provided for @busMeWalkM.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} m from your stop, about {minutes} min on foot'**
+  String busMeWalkM(String distance, String minutes);
+
+  /// No description provided for @busMeWalkKm.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} km from your stop, about {minutes} min on foot'**
+  String busMeWalkKm(String distance, String minutes);
+
   /// No description provided for @pushPromptTitle.
   ///
   /// In en, this message translates to:

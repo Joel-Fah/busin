@@ -38,6 +38,7 @@ class _MapLibreSurfaceState extends State<MapLibreSurface> {
   List<Circle> _stopCircles = const [];
   Symbol? _busSymbol;
   Symbol? _myStopSymbol;
+  Circle? _meCircle;
   MapScene? _drawn;
   String? _style;
 
@@ -64,6 +65,7 @@ class _MapLibreSurfaceState extends State<MapLibreSurface> {
     _stopCircles = const [];
     _busSymbol = null;
     _myStopSymbol = null;
+    _meCircle = null;
     _drawn = null;
   }
 
@@ -107,6 +109,22 @@ class _MapLibreSurfaceState extends State<MapLibreSurface> {
       }
     }
 
+    // The student, while they use Show me: a blue dot with a white ring. Seeing themselves the first time frames them too.
+    final me = scene.me;
+    if (me == null) {
+      if (_meCircle != null) {
+        await controller.removeCircle(_meCircle!);
+        _meCircle = null;
+      }
+    } else if (_meCircle == null) {
+      _meCircle = await controller.addCircle(
+        CircleOptions(geometry: _latLng(me), circleRadius: 8, circleColor: '#2F6FED', circleStrokeWidth: 3, circleStrokeColor: '#FFFFFF'),
+      );
+      if (previous?.me == null) await _fit();
+    } else {
+      await controller.updateCircle(_meCircle!, CircleOptions(geometry: _latLng(me)));
+    }
+
     final bus = scene.bus;
     if (bus == null) {
       if (_busSymbol != null) {
@@ -146,10 +164,10 @@ class _MapLibreSurfaceState extends State<MapLibreSurface> {
   Future<void> _fit() async {
     final controller = _controller;
     final scene = widget.scene;
-    if (controller == null || !_styleReady || scene.bus == null) return;
-    _fitted = true;
+    if (controller == null || !_styleReady || (scene.bus == null && scene.me == null)) return;
+    if (scene.bus != null) _fitted = true;
 
-    final points = <GeoPoint>[scene.bus!];
+    final points = <GeoPoint>[?scene.bus, ?scene.me];
     final mine = scene.stops.where((s) => s.id == scene.myStopId).firstOrNull;
     if (mine != null) points.add(mine.location);
 

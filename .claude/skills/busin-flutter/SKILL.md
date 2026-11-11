@@ -53,7 +53,7 @@ final stopsProvider = AsyncNotifierProvider<StopsNotifier, List<Stop>>(StopsNoti
 
 ## Platform
 - Android first. Complete the iOS Google client id and URL scheme before claiming iOS support.
-- Location: ops app only, requested at the moment of use. Foreground service for driver mode.
+- Location: requested at the moment of use, after an explanation. Ops app: scanning and driver mode (foreground service). Student app: My area (approximate, once; ADR 0013) and Show me on My bus (precise, only while the tab shows, never sent; ADR 0016).
 - Block screenshots on the QR screen.
 
 ## Testing
