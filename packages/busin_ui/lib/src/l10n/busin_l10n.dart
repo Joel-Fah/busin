@@ -1285,6 +1285,72 @@ abstract class BusinL10n {
   /// **'Map of the bus and the stops'**
   String get busMapLabel;
 
+  /// No description provided for @busUpdateFollowing.
+  ///
+  /// In en, this message translates to:
+  /// **'Following {bus} · {direction}'**
+  String busUpdateFollowing(String bus, String direction);
+
+  /// No description provided for @busUpdateAtStop.
+  ///
+  /// In en, this message translates to:
+  /// **'At {stop}'**
+  String busUpdateAtStop(String stop);
+
+  /// No description provided for @busUpdateLeftStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Left {stop}'**
+  String busUpdateLeftStop(String stop);
+
+  /// No description provided for @busUpdateStopped.
+  ///
+  /// In en, this message translates to:
+  /// **'Not moving for {minutes} min'**
+  String busUpdateStopped(String minutes);
+
+  /// No description provided for @busUpdateMoving.
+  ///
+  /// In en, this message translates to:
+  /// **'Moving again'**
+  String get busUpdateMoving;
+
+  /// No description provided for @busUpdateNearMyStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Almost at your stop, about {minutes} min away'**
+  String busUpdateNearMyStop(String minutes);
+
+  /// No description provided for @busUpdatePassedMyStop.
+  ///
+  /// In en, this message translates to:
+  /// **'The bus has passed your stop'**
+  String get busUpdatePassedMyStop;
+
+  /// No description provided for @busUpdateSignalLost.
+  ///
+  /// In en, this message translates to:
+  /// **'No news from the bus for {minutes} min'**
+  String busUpdateSignalLost(String minutes);
+
+  /// No description provided for @busUpdateSignalBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back in touch with the bus'**
+  String get busUpdateSignalBack;
+
+  /// No description provided for @busUpdateEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'The trip of {bus} has ended'**
+  String busUpdateEnded(String bus);
+
+  /// No description provided for @busUpdateDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide this update'**
+  String get busUpdateDismiss;
+
   /// No description provided for @pushPromptTitle.
   ///
   /// In en, this message translates to:

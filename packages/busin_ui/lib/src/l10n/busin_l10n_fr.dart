@@ -679,6 +679,53 @@ class BusinL10nFr extends BusinL10n {
   String get busMapLabel => 'Carte du bus et des arrêts';
 
   @override
+  String busUpdateFollowing(String bus, String direction) {
+    return 'Suivi de $bus · $direction';
+  }
+
+  @override
+  String busUpdateAtStop(String stop) {
+    return 'À $stop';
+  }
+
+  @override
+  String busUpdateLeftStop(String stop) {
+    return 'A quitté $stop';
+  }
+
+  @override
+  String busUpdateStopped(String minutes) {
+    return 'À l’arrêt depuis $minutes min';
+  }
+
+  @override
+  String get busUpdateMoving => 'Repart';
+
+  @override
+  String busUpdateNearMyStop(String minutes) {
+    return 'Presque à votre arrêt, à environ $minutes min';
+  }
+
+  @override
+  String get busUpdatePassedMyStop => 'Le bus a passé votre arrêt';
+
+  @override
+  String busUpdateSignalLost(String minutes) {
+    return 'Pas de nouvelles du bus depuis $minutes min';
+  }
+
+  @override
+  String get busUpdateSignalBack => 'Le bus donne de nouveau sa position';
+
+  @override
+  String busUpdateEnded(String bus) {
+    return 'Le trajet de $bus est terminé';
+  }
+
+  @override
+  String get busUpdateDismiss => 'Masquer cette info';
+
+  @override
   String get pushPromptTitle => 'Soyez prévenu';
 
   @override
