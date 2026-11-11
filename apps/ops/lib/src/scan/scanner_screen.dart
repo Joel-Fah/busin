@@ -274,11 +274,10 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(BusinSpace.x4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: ClipRRect(
+          // A tablet in landscape: the camera on the left, the result and the counts beside it (about 3 to 2). A phone or
+          // portrait: the camera above, the rest below.
+          child: LayoutBuilder(builder: (context, size) {
+            final camera = ClipRRect(
                   borderRadius: BorderRadius.circular(BusinRadius.lg),
                   child: ColoredBox(
                     color: Colors.black,
@@ -305,9 +304,8 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
                       ],
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(height: BusinSpace.x3),
+                );
+            final details = <Widget>[
               AnimatedSwitcher(
                 duration: BusinMotion.of(context, BusinMotion.normal),
                 child: _ResultCard(key: ValueKey(_result), result: _result),
@@ -349,8 +347,25 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
                   ),
                 ],
               ),
-            ],
-          ),
+            ];
+            if (size.maxWidth >= 840 && size.maxWidth > size.maxHeight) {
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(flex: 3, child: camera),
+                  const SizedBox(width: BusinSpace.x4),
+                  Expanded(
+                    flex: 2,
+                    child: ListView(key: const ValueKey('scanner-side'), children: details),
+                  ),
+                ],
+              );
+            }
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [Expanded(child: camera), const SizedBox(height: BusinSpace.x3), ...details],
+            );
+          }),
         ),
       ),
     );

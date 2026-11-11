@@ -25,8 +25,9 @@ Future<void> openScanner(
   FakeQr? qr,
   bool online = false,
   FakeRosterStore? rosters,
+  Size size = const Size(800, 1600),
 }) async {
-  tester.view.physicalSize = const Size(800, 1600);
+  tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   final trips = FakeTrips([trip('t1', driver: 'u1', status: TripStatus.active, startedBy: 'u1')]);
@@ -116,5 +117,18 @@ void main() {
     expect(auth.signOuts, 0);
     BusinToast.dismiss();
     await settle(tester);
+  });
+
+  testWidgets('a tablet in landscape puts the camera on one side and the result and counts on the other', (tester) async {
+    final queue = MemoryScanQueue();
+    await openScanner(tester, queue: queue, online: true, size: const Size(1600, 1000));
+    final side = find.byKey(const ValueKey('scanner-side'));
+    expect(side, findsOneWidget);
+    expect(find.descendant(of: side, matching: find.textContaining('Today\'s list: 1 riders')), findsOneWidget);
+    expect(tester.getTopLeft(side).dx, greaterThan(800), reason: 'beside the camera, on the right');
+
+    feed(codeOf(ada, 1));
+    await settle(tester);
+    expect(find.descendant(of: side, matching: find.text('On board')), findsOneWidget);
   });
 }
