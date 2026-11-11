@@ -289,4 +289,37 @@ void main() {
     await openBus(tester, Rig(), locale: const Locale('fr'));
     expect(find.text('Aucun bus n’est en service pour le moment'), findsOneWidget);
   });
+
+  testWidgets('short updates replace each other, can be hidden, and the end of the trip is said', (tester) async {
+    final rig = Rig(active: [activeTrip('t1', 'bus1')]);
+    await openBus(tester, rig);
+
+    // Far from every stop: the first position says the bus is followed.
+    rig.live.emit(position('bus1', 3.90, 11.5, at: noon, speed: 9));
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expect(find.text('Following DEMO-101 · Going to school'), findsOneWidget);
+
+    // At the stops: the update is replaced, not added.
+    rig.clock.now = noon.add(const Duration(seconds: 40));
+    rig.live.emit(position('bus1', 3.85, 11.5, at: rig.clock.now, speed: 1));
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Following'), findsNothing);
+    expect(find.textContaining(RegExp(r'^At ')), findsOneWidget);
+
+    // Hidden until the next update.
+    await tester.tap(find.byTooltip('Hide this update'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining(RegExp(r'^At ')), findsNothing);
+
+    // The trip ends: noticed at the next check of the running trips (once a minute).
+    rig.history.active.clear();
+    for (var i = 0; i < 13; i++) {
+      await tester.pump(const Duration(seconds: 5));
+    }
+    await tester.pumpAndSettle();
+    expect(find.text('No bus is running right now'), findsOneWidget);
+    expect(find.text('The trip of DEMO-101 has ended'), findsOneWidget);
+  });
 }

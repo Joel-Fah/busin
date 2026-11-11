@@ -9,7 +9,9 @@ import 'package:hugeicons/hugeicons.dart';
 
 import '../bus/bus_providers.dart';
 import '../bus/eta.dart';
+import '../bus/bus_updates.dart';
 import '../bus/map_scene.dart';
+import '../bus/update_strip.dart';
 import '../qr/qr_providers.dart';
 import '../router.dart';
 import '../subscription/subscription_providers.dart';
@@ -28,13 +30,23 @@ class _BusScreenState extends ConsumerState<BusScreen> {
   final _busInView = ValueNotifier<bool>(false);
   Timer? _timer;
   bool? _active;
+  int _ticks = 0;
+
+  /// The bus on screen, to notice when its trip ends.
+  RunningBus? _shown;
+
+  /// "The trip has ended", when the followed trip stopped running while the tab was open.
+  BusUpdate? _ended;
 
   @override
   void initState() {
     super.initState();
     // "Updated 12 s ago" needs to keep counting between positions.
     _timer = Timer.periodic(const Duration(seconds: 5), (_) {
-      if (mounted) setState(() {});
+      if (!mounted) return;
+      setState(() {});
+      // Once a minute while a bus is followed: read the running trips again, to learn when this one ends.
+      if (++_ticks % 12 == 0 && (_active ?? true) && _shown != null) ref.invalidate(runningBusesProvider);
     });
   }
 
@@ -97,6 +109,19 @@ class _BusScreenState extends ConsumerState<BusScreen> {
     }
     if (!canFollow.hasValue) return const Center(child: CircularProgressIndicator());
     final running = ref.watch(runningBusesProvider);
+    _shown = ref.watch(currentBusProvider).value ?? _shown;
+    // The followed trip is no longer running: say so (on the next bus, or above "no bus is running").
+    ref.listen(runningBusesProvider, (previous, next) {
+      final shown = _shown;
+      final buses = next.value;
+      if (shown == null || buses == null || buses.any((b) => b.trip.id == shown.trip.id)) return;
+      final now = ref.read(nowProvider)();
+      setState(() {
+        _ended = BusUpdate(BusUpdateKind.tripEnded, at: now, seq: -now.millisecondsSinceEpoch, stopName: shown.label);
+        _shown = null;
+      });
+    });
+    final ended = _ended;
 
     return running.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -117,20 +142,25 @@ class _BusScreenState extends ConsumerState<BusScreen> {
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
               children: [
+                if (ended != null)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(BusinSpace.x4, BusinSpace.x4, BusinSpace.x4, 0),
+                    child: Notice(tone: StatusTone.neutral, child: Text(l10n.busUpdateEnded(ended.stopName ?? ''))),
+                  ),
                 const SizedBox(height: 80),
                 EmptyState(icon: HugeIcons.strokeRoundedBus01, title: l10n.busNoneTitle, body: l10n.busNoneBody),
               ],
             ),
           );
         }
-        return _Tracking(buses: buses, recenter: _recenter, busInView: _busInView, active: _active ?? true);
+        return _Tracking(buses: buses, recenter: _recenter, busInView: _busInView, active: _active ?? true, ended: ended);
       },
     );
   }
 }
 
 class _Tracking extends ConsumerWidget {
-  const _Tracking({required this.buses, required this.recenter, required this.busInView, required this.active});
+  const _Tracking({required this.buses, required this.recenter, required this.busInView, required this.active, this.ended});
 
   final List<RunningBus> buses;
   final ValueNotifier<int> recenter;
@@ -138,6 +168,9 @@ class _Tracking extends ConsumerWidget {
 
   /// False while another tab is showing: the live subscription is dropped then and taken up again on return.
   final bool active;
+
+  /// The previously followed trip ended (its bus label in stopName).
+  final BusUpdate? ended;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -149,6 +182,10 @@ class _Tracking extends ConsumerWidget {
     final stops = ref.watch(stopsProvider).value ?? const <Stop>[];
     final myStop = ref.watch(myStopProvider).value;
     final expanded = BusinLayout.of(context).isExpanded;
+    final live = active ? ref.watch(busUpdatesProvider(current.busId)) : null;
+    // The newest of the bus's own update and "the previous trip ended".
+    final end = ended;
+    final update = end != null && (live == null || end.at.isAfter(live.at)) ? end : live;
 
     final scene = MapScene(
       stops: stops,
@@ -159,40 +196,57 @@ class _Tracking extends ConsumerWidget {
       coveredBottom: expanded ? 0 : 150,
     );
 
-    // What floats over the map: a status line while waiting or failing, and the way back to the bus.
+    // What floats over the map, top down: a status line while waiting or failing, the latest update, and the way back
+    // to the bus. One column, so they never overlap; below the bus pills when there are several buses on a phone.
+    final now = ref.read(nowProvider)();
     final overlays = <Widget>[
-      if (position.isLoading)
-        Positioned(top: BusinSpace.x3, left: BusinSpace.x3, right: BusinSpace.x3, child: Notice(child: Text(l10n.busWaiting))),
-      if (position.hasError)
-        Positioned(
-          top: BusinSpace.x3,
-          left: BusinSpace.x3,
-          right: BusinSpace.x3,
-          child: Notice(
-            tone: StatusTone.bad,
-            child: Row(
-              children: [
-                Expanded(child: Text(l10n.busLiveFailed)),
-                TextButton(onPressed: () => ref.invalidate(busPositionProvider(current.busId)), child: Text(l10n.actionRetry)),
-              ],
+      Positioned(
+        top: buses.length > 1 && !expanded ? 56 : BusinSpace.x3,
+        left: BusinSpace.x3,
+        right: BusinSpace.x3,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (position.isLoading) Notice(child: Text(l10n.busWaiting)),
+            if (position.hasError)
+              Notice(
+                tone: StatusTone.bad,
+                child: Row(
+                  children: [
+                    Expanded(child: Text(l10n.busLiveFailed)),
+                    TextButton(onPressed: () => ref.invalidate(busPositionProvider(current.busId)), child: Text(l10n.actionRetry)),
+                  ],
+                ),
+              ),
+            BusUpdateStrip(
+              update: update,
+              busLabel: update?.kind == BusUpdateKind.tripEnded ? (update?.stopName ?? '') : current.label,
+              direction: l10n.direction(current.trip.direction),
+              now: now,
             ),
-          ),
+            if (scene.bus != null)
+              Padding(
+                padding: const EdgeInsets.only(top: BusinSpace.x2),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    // Only when the bus is out of frame; it fades in and out so the map is not jumpy.
+                    ValueListenableBuilder<bool>(
+                      valueListenable: busInView,
+                      builder: (context, inView, button) => AnimatedSwitcher(
+                        duration: BusinMotion.of(context, BusinMotion.fast),
+                        transitionBuilder: (child, animation) =>
+                            FadeTransition(opacity: animation, child: ScaleTransition(scale: Tween(begin: 0.9, end: 1.0).animate(animation), child: child)),
+                        child: inView ? const SizedBox.shrink() : button,
+                      ),
+                      child: BusinButton(label: l10n.busRecenter, variant: BusinButtonVariant.secondary, icon: HugeIcons.strokeRoundedLocation01, onPressed: () => recenter.value++),
+                    ),
+                  ],
+                ),
+              ),
+          ],
         ),
-      if (scene.bus != null)
-        Positioned(
-          right: BusinSpace.x3,
-          top: position.isLoading || position.hasError ? 76 : BusinSpace.x3,
-          // Only when the bus is out of frame; it fades in and out so the map is not jumpy.
-          child: ValueListenableBuilder<bool>(
-            valueListenable: busInView,
-            builder: (context, inView, button) => AnimatedSwitcher(
-              duration: BusinMotion.of(context, BusinMotion.fast),
-              transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: ScaleTransition(scale: Tween(begin: 0.9, end: 1.0).animate(animation), child: child)),
-              child: inView ? const SizedBox.shrink() : button,
-            ),
-            child: BusinButton(label: l10n.busRecenter, variant: BusinButtonVariant.secondary, icon: HugeIcons.strokeRoundedLocation01, onPressed: () => recenter.value++),
-          ),
-        ),
+      ),
     ];
 
     final map = DecoratedBox(

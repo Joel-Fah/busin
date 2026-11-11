@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:busin_core/busin_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../auth/access.dart';
 import '../providers.dart';
 import '../subscription/subscription_providers.dart';
+import 'bus_updates.dart';
 
 final busesRepositoryProvider = Provider<BusesRepository>((ref) => ref.watch(repositoriesProvider).buses);
 final livePositionsRepositoryProvider = Provider<LivePositionsRepository>((ref) => ref.watch(repositoriesProvider).livePositions);
@@ -116,3 +119,42 @@ int? speedKmh(double? metresPerSecond) {
   final kmh = (metresPerSecond * 3.6).round();
   return kmh <= 0 ? null : kmh;
 }
+
+// ---------------------------------------------------------------- live updates
+
+/// How often "no signal" is checked between positions.
+const updateTick = Duration(seconds: 15);
+
+/// The latest short update about one followed bus (bus_updates.dart), or null before the first. Lives only while My bus
+/// is showing that bus: nothing is kept or pushed. When the bus falls silent the running trips are read again, so the
+/// screen learns soon if the trip has ended.
+class BusUpdates extends Notifier<BusUpdate?> {
+  BusUpdates(this.busId);
+
+  final String busId;
+  BusUpdateDetector? _detector;
+
+  @override
+  BusUpdate? build() {
+    DateTime now() => ref.read(nowProvider)();
+    ref.listen(busPositionProvider(busId), (_, next) {
+      final position = next.value;
+      if (position == null) return;
+      // Made with the first position, when the stops are known: rebuilding it later would say "following" again.
+      final detector = _detector ??=
+          BusUpdateDetector(stops: ref.read(stopsProvider).value ?? const [], myStop: ref.read(myStopProvider).value);
+      final update = detector.onPosition(position, now());
+      if (update != null) state = update;
+    }, fireImmediately: true);
+    final timer = Timer.periodic(updateTick, (_) {
+      final update = _detector?.onTick(now());
+      if (update == null) return;
+      state = update;
+      ref.invalidate(runningBusesProvider);
+    });
+    ref.onDispose(timer.cancel);
+    return null;
+  }
+}
+
+final busUpdatesProvider = NotifierProvider.autoDispose.family<BusUpdates, BusUpdate?, String>(BusUpdates.new);
