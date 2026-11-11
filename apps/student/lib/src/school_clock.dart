@@ -1,4 +1,6 @@
-import 'package:timezone/data/latest_10y.dart' as tz_data;
+// The full data set: since timezone 0.11 the smaller ones leave out link names such as Africa/Douala (an alias of
+// Africa/Lagos), which is every school's default zone. It costs about 375 KB more than latest_10y.
+import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
 /// The calendar day it is at the school, which is what a semester's dates mean. The phone's own zone
