@@ -126,6 +126,24 @@ test("the suggestions say what they cannot know, and each one is a sentence to s
   }
 });
 
+test("the panel over the map folds away, keeping the title and actions, and stays folded on return", async ({ page, context }) => {
+  await signInBrowser(context, admin);
+  await page.goto("/insights?view=proximity");
+  const tiles = page.getByRole("list", { name: "Stops, farthest first" });
+  await expect(tiles).toBeVisible();
+
+  await page.getByRole("button", { name: "Hide the panel" }).click();
+  await expect(tiles).toBeHidden();
+  await expect(page.getByRole("heading", { name: "Insights", level: 1 })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Proximity" })).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByRole("button", { name: "Show the panel" })).toBeVisible();
+  await expect(tiles).toBeHidden();
+  await page.getByRole("button", { name: "Show the panel" }).click();
+  await expect(tiles).toBeVisible();
+});
+
 test("a staff member cannot open the insights", async ({ page, context }) => {
   await signInBrowser(context, staff);
   await page.goto("/insights");

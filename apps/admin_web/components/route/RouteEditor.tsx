@@ -218,15 +218,19 @@ export function RouteEditor({ route, stops, failed, map, t }: Props) {
         ) : null}
       </aside>
 
-      <NavDock>
-        <section aria-label={r.title} className="flex flex-wrap items-center gap-3">
-          <Link href="/stops" className={`${ICON_BUTTON} size-10`} aria-label={r.back} data-tip={r.back}>
-            <Icon icon={ArrowLeft01Icon} size={20} />
-          </Link>
-          <h1 className="m-0 text-2xl font-extrabold tracking-tight sm:text-3xl">{r.title}</h1>
-          <p className="m-0 text-sm text-muted">{route.campus ? format(r.summary, { count: ordered.length, campus: route.campus.name }) : r.noCampus}</p>
-        </section>
-      </NavDock>
+      <NavDock
+        label={r.title}
+        labels={t.nav}
+        header={
+          <div className="flex flex-wrap items-center gap-3">
+            <Link href="/stops" className={`${ICON_BUTTON} size-10`} aria-label={r.back} data-tip={r.back}>
+              <Icon icon={ArrowLeft01Icon} size={20} />
+            </Link>
+            <h1 className="m-0 text-2xl font-extrabold tracking-tight sm:text-3xl">{r.title}</h1>
+            <p className="m-0 text-sm text-muted">{route.campus ? format(r.summary, { count: ordered.length, campus: route.campus.name }) : r.noCampus}</p>
+          </div>
+        }
+      />
     </>
   );
 }
