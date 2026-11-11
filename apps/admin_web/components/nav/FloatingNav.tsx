@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import {
+  Analytics01Icon,
   Cancel01Icon,
   GeometricShapes01Icon,
   Menu03Icon,
@@ -24,7 +25,7 @@ import { INTRO_DONE_EVENT } from "@/lib/intro";
 
 import { NAV_DOCK_ID } from "./NavDock";
 
-export type NavKey = "overview" | "subscriptions" | "people" | "trips" | "scans";
+export type NavKey = "overview" | "subscriptions" | "people" | "trips" | "scans" | "insights";
 
 const ICONS: Record<NavKey, IconSvgElement> = {
   overview: GeometricShapes01Icon,
@@ -32,6 +33,7 @@ const ICONS: Record<NavKey, IconSvgElement> = {
   people: UserMultiple02Icon,
   trips: Navigation03Icon,
   scans: ReceiptTextIcon,
+  insights: Analytics01Icon,
 };
 
 const HREFS: Record<NavKey, string> = {
@@ -40,6 +42,7 @@ const HREFS: Record<NavKey, string> = {
   people: "/people",
   trips: "/trips",
   scans: "/scans",
+  insights: "/insights",
 };
 
 type Props = {
