@@ -125,41 +125,82 @@ int? speedKmh(double? metresPerSecond) {
 /// How often "no signal" is checked between positions.
 const updateTick = Duration(seconds: 15);
 
-/// The latest short updates about one followed bus (bus_updates.dart), newest first, at most [keptUpdates]. A phone shows
-/// only the newest; a wide screen lists them beside the map. Lives only while My bus is showing that bus: nothing is
-/// stored or pushed. When the bus falls silent the running trips are read again, so the
-/// screen learns soon if the trip has ended.
-const keptUpdates = 5;
-
-class BusUpdates extends Notifier<List<BusUpdate>> {
-  BusUpdates(this.busId);
-
-  final String busId;
-  BusUpdateDetector? _detector;
+/// The short updates of each running trip (bus_updates.dart), newest first, at most [keptUpdates] per trip, with the
+/// detector that keeps track of what the bus did. Kept for the app's life (not the tab's), so switching tabs and coming
+/// back finds them again; a trip's entry goes when it ends, and everything goes on sign-out. Never stored or pushed.
+class BusUpdateLog extends Notifier<Map<String, List<BusUpdate>>> {
+  final _detectors = <String, BusUpdateDetector>{};
 
   @override
-  List<BusUpdate> build() {
+  Map<String, List<BusUpdate>> build() {
+    // Another person signed in (or nobody): nothing of the previous one's follows them.
+    ref.watch(authUserIdProvider.select((user) => user.value));
+    _detectors.clear();
+    return const {};
+  }
+
+  /// The detector of [tripId], made with [make] the first time.
+  BusUpdateDetector detectorFor(String tripId, BusUpdateDetector Function() make) => _detectors.putIfAbsent(tripId, make);
+
+  void add(String tripId, BusUpdate update) => state = {...state, tripId: [update, ...(state[tripId] ?? const []).take(keptUpdates - 1)]};
+
+  /// The trip ended: its updates and detector go.
+  void forget(String tripId) {
+    _detectors.remove(tripId);
+    if (state.containsKey(tripId)) state = {...state}..remove(tripId);
+  }
+}
+
+const keptUpdates = 5;
+
+final busUpdateLogProvider = NotifierProvider<BusUpdateLog, Map<String, List<BusUpdate>>>(BusUpdateLog.new);
+
+/// Feeds [busUpdateLogProvider] from one followed bus while My bus shows it: each position, and a check for "no news"
+/// every [updateTick]. Dropped when the tab is hidden (the live position stops with it); the log stays. When the bus
+/// falls silent the running trips are read again, so the screen learns soon if the trip has ended.
+class BusUpdateFeeder extends Notifier<int> {
+  BusUpdateFeeder(this.key);
+
+  final ({String busId, String tripId}) key;
+
+  @override
+  int build() {
     DateTime now() => ref.read(nowProvider)();
-    ref.listen(busPositionProvider(busId), (_, next) {
+    final log = ref.read(busUpdateLogProvider.notifier);
+    // Made with the first position, when the stops are known; kept in the log so a return to the tab carries on.
+    BusUpdateDetector detector() => log.detectorFor(
+          key.tripId,
+          () => BusUpdateDetector(stops: ref.read(stopsProvider).value ?? const [], myStop: ref.read(myStopProvider).value),
+        );
+    ref.listen(busPositionProvider(key.busId), (_, next) {
       final position = next.value;
       if (position == null) return;
-      // Made with the first position, when the stops are known: rebuilding it later would say "following" again.
-      final detector = _detector ??=
-          BusUpdateDetector(stops: ref.read(stopsProvider).value ?? const [], myStop: ref.read(myStopProvider).value);
-      final update = detector.onPosition(position, now());
-      if (update != null) _add(update);
+      final update = detector().onPosition(position, now());
+      if (update != null) log.add(key.tripId, update);
     }, fireImmediately: true);
     final timer = Timer.periodic(updateTick, (_) {
-      final update = _detector?.onTick(now());
+      final update = detector().onTick(now());
       if (update == null) return;
-      _add(update);
+      log.add(key.tripId, update);
       ref.invalidate(runningBusesProvider);
     });
     ref.onDispose(timer.cancel);
-    return const [];
+    return 0;
   }
-
-  void _add(BusUpdate update) => state = [update, ...state.take(keptUpdates - 1)];
 }
 
-final busUpdatesProvider = NotifierProvider.autoDispose.family<BusUpdates, List<BusUpdate>, String>(BusUpdates.new);
+final busUpdateFeederProvider =
+    NotifierProvider.autoDispose.family<BusUpdateFeeder, int, ({String busId, String tripId})>(BusUpdateFeeder.new);
+
+/// The updates of one trip, newest first.
+final busUpdatesProvider = Provider.family<List<BusUpdate>, String>((ref, tripId) => ref.watch(busUpdateLogProvider)[tripId] ?? const []);
+
+/// Asks the map to move to the student (Show me): each new number is one request.
+class FocusMe extends Notifier<int> {
+  @override
+  int build() => 0;
+
+  void request() => state++;
+}
+
+final focusMeProvider = NotifierProvider<FocusMe, int>(FocusMe.new);

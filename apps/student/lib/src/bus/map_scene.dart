@@ -9,7 +9,7 @@ import 'maplibre_surface.dart';
 /// Everything the map needs to draw, as plain data. The screen builds it; a map surface draws it.
 /// Keeping the two apart means the screen is tested with a fake surface (a native map cannot run in a unit test).
 class MapScene {
-  const MapScene({required this.stops, this.myStopId, this.bus, this.busHeading, this.me, this.coveredBottom = 0});
+  const MapScene({required this.stops, this.myStopId, this.bus, this.busHeading, this.me, this.focusMe = 0, this.coveredBottom = 0});
 
   final List<Stop> stops;
   final String? myStopId;
@@ -20,6 +20,9 @@ class MapScene {
 
   /// Where the student is, while they use Show me (ADR 0016); null otherwise.
   final GeoPoint? me;
+
+  /// Grows each time the student asks to see themselves: the map then moves to [me].
+  final int focusMe;
 
   /// How much of the map's bottom edge something floats over (the details card), so the camera frames the bus and the
   /// stop above it. Logical pixels (the map plugin reads its camera padding in them).
@@ -32,12 +35,13 @@ class MapScene {
       other.bus == bus &&
       other.busHeading == busHeading &&
       other.me == me &&
+      other.focusMe == focusMe &&
       other.coveredBottom == coveredBottom &&
       other.stops.length == stops.length &&
       Iterable<int>.generate(stops.length).every((i) => other.stops[i] == stops[i]);
 
   @override
-  int get hashCode => Object.hash(myStopId, bus, busHeading, me, coveredBottom, stops.length);
+  int get hashCode => Object.hash(myStopId, bus, busHeading, me, focusMe, coveredBottom, stops.length);
 }
 
 /// Draws a [MapScene]. The real one is MapLibre; tests replace it.

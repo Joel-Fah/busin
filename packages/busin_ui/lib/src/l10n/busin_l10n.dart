@@ -1375,6 +1375,12 @@ abstract class BusinL10n {
   /// **'Hide me'**
   String get busMeHide;
 
+  /// No description provided for @busMeFind.
+  ///
+  /// In en, this message translates to:
+  /// **'Find me'**
+  String get busMeFind;
+
   /// No description provided for @busMeWhyTitle.
   ///
   /// In en, this message translates to:

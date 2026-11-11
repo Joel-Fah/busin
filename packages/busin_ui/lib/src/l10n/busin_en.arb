@@ -347,6 +347,7 @@
   "busUpdatesEmpty": "What the bus does appears here while you follow it.",
   "busMeShow": "Show me",
   "busMeHide": "Hide me",
+  "busMeFind": "Find me",
   "busMeWhyTitle": "See yourself on the map",
   "busMeWhyBody": "BusIn will use your phone's precise location while this tab is open, to show you next to your stop and the bus. It stays on your phone: it is never sent or kept.",
   "busMeContinue": "Continue",

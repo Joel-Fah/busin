@@ -413,4 +413,36 @@ void main() {
     expect(tester.getTopLeft(atStop).dy, lessThan(tester.getTopLeft(follow).dy), reason: 'newest first');
     expect(find.byTooltip('Hide this update'), findsNothing, reason: 'no strip over the map');
   });
+
+  testWidgets('the updates of a running trip are still there after visiting another tab', (tester) async {
+    final rig = Rig(active: [activeTrip('t1', 'bus1')]);
+    await openBus(tester, rig);
+    rig.live.emit(position('bus1', 3.90, 11.5, at: noon, speed: 9));
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expect(find.text('Following DEMO-101 · Going to school'), findsOneWidget);
+
+    await tester.tap(find.text('Profile'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('My bus'));
+    await tester.pumpAndSettle();
+    expect(find.text('Following DEMO-101 · Going to school'), findsOneWidget, reason: 'kept while the trip runs');
+  });
+
+  testWidgets('Find me moves the map to the student while Show me is on', (tester) async {
+    final rig = Rig(active: [activeTrip('t1', 'bus1')]);
+    await openBus(tester, rig);
+    expect(find.text('Find me'), findsNothing, reason: 'only once the student is on the map');
+
+    await tester.tap(find.text('Show me'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Continue'));
+    await tester.pumpAndSettle();
+    rig.me.emit(GeoPoint(3.85, 11.5));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Find me'));
+    await tester.pumpAndSettle();
+    expect(mapText(tester), contains('focus=1'));
+  });
 }

@@ -56,6 +56,11 @@ class _MapLibreSurfaceState extends State<MapLibreSurface> {
       widget.recenter.addListener(_fit);
     }
     if (oldWidget.scene != widget.scene) _draw();
+    // "Find me": move to the student, above whatever floats over the bottom of the map.
+    final me = widget.scene.me;
+    if (widget.scene.focusMe != oldWidget.scene.focusMe && me != null) {
+      _controller?.animateCamera(CameraUpdate.newLatLngZoom(_latLng(me), 16));
+    }
   }
 
   /// A new base map (the phone switched between light and dark) drops everything drawn on the old one; the style's
