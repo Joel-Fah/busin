@@ -423,26 +423,28 @@ export function GraphExplorer({ loads, proximity, suggestions = [], route = null
         }
       />
 
-      <NavDock>
-        <section ref={dock} aria-label={s.title} className="flex flex-col gap-3">
+      <NavDock
+        label={s.title}
+        labels={t.nav} sectionRef={dock}
+        header={
           <InsightsHeader view="graph" help={g.help} t={t} />
+        }
+      >
+        {failed ? (
+          <p role="alert" className="rounded-sm bg-bad-bg px-3 py-2 text-sm text-bad">
+            {s.loadError}
+          </p>
+        ) : null}
 
-          {failed ? (
-            <p role="alert" className="rounded-sm bg-bad-bg px-3 py-2 text-sm text-bad">
-              {s.loadError}
-            </p>
-          ) : null}
-
-          <div aria-live="polite" className="rounded-md bg-surface-2 p-4">
-            {!chosen ? (
-              <p className="m-0 text-sm text-muted">{g.hint}</p>
-            ) : chosen.kind === "zone" || chosen.kind === "suggested" || chosen.kind === "campus" ? (
-              <p className="m-0 text-sm font-semibold text-fg">{label(chosen)}</p>
-            ) : (
-              <StopPanel id={chosen.id} name={chosen.name} loads={loadById} prox={proxById} distance={distance} t={t} />
-            )}
-          </div>
-        </section>
+        <div aria-live="polite" className="rounded-md bg-surface-2 p-4">
+          {!chosen ? (
+            <p className="m-0 text-sm text-muted">{g.hint}</p>
+          ) : chosen.kind === "zone" || chosen.kind === "suggested" || chosen.kind === "campus" ? (
+            <p className="m-0 text-sm font-semibold text-fg">{label(chosen)}</p>
+          ) : (
+            <StopPanel id={chosen.id} name={chosen.name} loads={loadById} prox={proxById} distance={distance} t={t} />
+          )}
+        </div>
       </NavDock>
     </>
   );

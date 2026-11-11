@@ -127,84 +127,86 @@ export function ProximityExplorer({ route, corridor, proximity, failed, map, t }
         />
       </div>
 
-      <NavDock>
-        <section aria-label={s.title} className="flex flex-col gap-3">
+      <NavDock
+        label={s.title}
+        labels={t.nav}
+        header={
           <InsightsHeader view="proximity" help={p.help} t={t} />
+        }
+      >
+        {failed ? (
+          <p role="alert" className="rounded-sm bg-bad-bg px-3 py-2 text-sm text-bad">
+            {s.loadError}
+          </p>
+        ) : null}
 
-          {failed ? (
-            <p role="alert" className="rounded-sm bg-bad-bg px-3 py-2 text-sm text-bad">
-              {s.loadError}
-            </p>
-          ) : null}
-
-          {proximity.stops.length === 0 ? (
-            <p className="py-4 text-center text-sm text-muted">{s.empty}</p>
-          ) : (
-            <>
-              <div className="flex flex-col gap-1 text-sm text-muted">
-                <p className="m-0">
-                  {format(p.basis, { withArea: proximity.withArea, subscribers: proximity.subscribers })} {p.straight}
-                  {proximity.lines.length > 0 ? ` ${p.lines}` : ""}
-                  {proximity.nearerLines.length > 0 ? ` ${p.nearerLines}` : ""}
-                </p>
-                <p className="m-0 font-semibold text-fg">
-                  {!corridor
-                    ? p.noRoute
-                    : corridor.bands && corridor.median !== null
-                      ? format(p.corridor, { near: corridor.bands[0], withArea: corridor.withArea, distance: distance(corridor.median) })
-                      : p.corridorThin}
-                </p>
-                {enough ? (
-                  <ul aria-label={p.legend} className="m-0 flex list-none flex-wrap items-center gap-2 p-0">
-                    {REACHES.map((reach) => (
-                      <li key={reach}>
-                        <Chip tone={TONE[reach]}>{p.bands[reach]}</Chip>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="m-0 font-semibold text-fg">{format(p.noneYet, { min: MIN_STUDENTS })}</p>
-                )}
-              </div>
-
-              <ul
-                aria-label={p.listLabel}
-                className="-mx-4 m-0 flex list-none snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-hidden px-4 pt-1 pb-3 [scroll-padding-inline:1rem]"
-              >
-                {proximity.stops.map((stop) => {
-                  const selected = stop.id === selectedId;
-                  return (
-                    <li key={stop.id} className="w-64 shrink-0 snap-start">
-                      <button
-                        type="button"
-                        aria-pressed={selected}
-                        onClick={() => pick(stop)}
-                        className={
-                          "flex h-full min-h-[6rem] w-full cursor-pointer flex-col justify-between gap-2 rounded-md border-0 p-3.5 text-left font-sans " +
-                          "transition-[background-color,box-shadow] duration-(--dur) ease-soft focus-visible:outline-3 focus-visible:outline-focus " +
-                          (selected ? "bg-[color-mix(in_srgb,var(--accent)_20%,var(--surface))] shadow-[inset_0_0_0_2px_var(--accent)]" : "bg-surface-2 hover:bg-line")
-                        }
-                      >
-                        <span className="flex w-full items-center justify-between gap-2">
-                          <span className="truncate text-sm font-bold text-fg">{stop.name}</span>
-                          {stop.reach ? <Chip tone={TONE[stop.reach]}>{p.reach[stop.reach]}</Chip> : null}
-                        </span>
-                        <span className="text-xs text-muted">{describe(stop)}</span>
-                        {stop.bands ? <Bands bands={stop.bands} total={stop.withArea} labels={p.bands} /> : null}
-                        {stop.nearer.map((n) => (
-                          <span key={n.toId} className="text-xs font-semibold text-info">
-                            {format(p.nearer, { count: n.students, stop: n.toName, distance: distance(n.saved) })}
-                          </span>
-                        ))}
-                        <span className="text-xs text-muted">{format(p.based, { withArea: stop.withArea, subscribers: stop.subscribers })}</span>
-                      </button>
+        {proximity.stops.length === 0 ? (
+          <p className="py-4 text-center text-sm text-muted">{s.empty}</p>
+        ) : (
+          <>
+            <div className="flex flex-col gap-1 text-sm text-muted">
+              <p className="m-0">
+                {format(p.basis, { withArea: proximity.withArea, subscribers: proximity.subscribers })} {p.straight}
+                {proximity.lines.length > 0 ? ` ${p.lines}` : ""}
+                {proximity.nearerLines.length > 0 ? ` ${p.nearerLines}` : ""}
+              </p>
+              <p className="m-0 font-semibold text-fg">
+                {!corridor
+                  ? p.noRoute
+                  : corridor.bands && corridor.median !== null
+                    ? format(p.corridor, { near: corridor.bands[0], withArea: corridor.withArea, distance: distance(corridor.median) })
+                    : p.corridorThin}
+              </p>
+              {enough ? (
+                <ul aria-label={p.legend} className="m-0 flex list-none flex-wrap items-center gap-2 p-0">
+                  {REACHES.map((reach) => (
+                    <li key={reach}>
+                      <Chip tone={TONE[reach]}>{p.bands[reach]}</Chip>
                     </li>
-                  );
-                })}
-              </ul>
-            </>
-          )}
-        </section>
+                  ))}
+                </ul>
+              ) : (
+                <p className="m-0 font-semibold text-fg">{format(p.noneYet, { min: MIN_STUDENTS })}</p>
+              )}
+            </div>
+
+            <ul
+              aria-label={p.listLabel}
+              className="-mx-4 m-0 flex list-none snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-hidden px-4 pt-1 pb-3 [scroll-padding-inline:1rem]"
+            >
+              {proximity.stops.map((stop) => {
+                const selected = stop.id === selectedId;
+                return (
+                  <li key={stop.id} className="w-64 shrink-0 snap-start">
+                    <button
+                      type="button"
+                      aria-pressed={selected}
+                      onClick={() => pick(stop)}
+                      className={
+                        "flex h-full min-h-[6rem] w-full cursor-pointer flex-col justify-between gap-2 rounded-md border-0 p-3.5 text-left font-sans " +
+                        "transition-[background-color,box-shadow] duration-(--dur) ease-soft focus-visible:outline-3 focus-visible:outline-focus " +
+                        (selected ? "bg-[color-mix(in_srgb,var(--accent)_20%,var(--surface))] shadow-[inset_0_0_0_2px_var(--accent)]" : "bg-surface-2 hover:bg-line")
+                      }
+                    >
+                      <span className="flex w-full items-center justify-between gap-2">
+                        <span className="truncate text-sm font-bold text-fg">{stop.name}</span>
+                        {stop.reach ? <Chip tone={TONE[stop.reach]}>{p.reach[stop.reach]}</Chip> : null}
+                      </span>
+                      <span className="text-xs text-muted">{describe(stop)}</span>
+                      {stop.bands ? <Bands bands={stop.bands} total={stop.withArea} labels={p.bands} /> : null}
+                      {stop.nearer.map((n) => (
+                        <span key={n.toId} className="text-xs font-semibold text-info">
+                          {format(p.nearer, { count: n.students, stop: n.toName, distance: distance(n.saved) })}
+                        </span>
+                      ))}
+                      <span className="text-xs text-muted">{format(p.based, { withArea: stop.withArea, subscribers: stop.subscribers })}</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        )}
       </NavDock>
     </>
   );

@@ -339,8 +339,10 @@ export function StopsExplorer({ stops, areas, failed, map, initialSheet, t }: Pr
         </aside>
       ) : null}
 
-      <NavDock>
-        <section aria-label={s.title} className="flex flex-col gap-3">
+      <NavDock
+        label={s.title}
+        labels={t.nav}
+        header={
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">{s.title}</h1>
             <HelpSheet
@@ -372,97 +374,98 @@ export function StopsExplorer({ stops, areas, failed, map, initialSheet, t }: Pr
               </Button>
             </div>
           </div>
+        }
+      >
 
-          {notice ? (
-            <p role={notice.bad ? "alert" : "status"} className={`rounded-sm px-3 py-2 text-sm ${notice.bad ? "bg-bad-bg text-bad" : "bg-ok-bg font-semibold text-ok"}`}>
-              {notice.text}
-            </p>
-          ) : null}
+        {notice ? (
+          <p role={notice.bad ? "alert" : "status"} className={`rounded-sm px-3 py-2 text-sm ${notice.bad ? "bg-bad-bg text-bad" : "bg-ok-bg font-semibold text-ok"}`}>
+            {notice.text}
+          </p>
+        ) : null}
 
-          {failed ? (
-            <p role="alert" className="rounded-sm bg-bad-bg px-3 py-2 text-sm text-bad">
-              {s.loadError}
-            </p>
-          ) : stops.length === 0 ? (
-            <p className="py-4 text-center text-sm text-muted">{s.empty}</p>
-          ) : (
-            <div
-              inert={!tilesOpen}
-              className={
-                "grid transition-[grid-template-rows,opacity,visibility] duration-500 ease-soft motion-reduce:transition-none " +
-                (tilesOpen ? "visible grid-rows-[1fr] opacity-100" : "invisible grid-rows-[0fr] opacity-0")
-              }
-            >
-              <div className="overflow-hidden">
-                <ul
-                  aria-label={s.dockTitle}
-                  className="-mx-4 m-0 flex list-none snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-hidden px-4 pt-1 pb-3 [scroll-padding-inline:1rem]"
-                >
-                  {ordered.map((stop) => {
-                    const selected = stop.id === selectedId;
-                    const distance = distanceOf(stop);
-                    return (
-                      <li key={stop.id} className="w-52 shrink-0 snap-start">
-                        {/* Two rows: the name and its edit icon, then the status and the distance. */}
-                        <div
-                          className={
-                            "grid h-full min-h-[5.5rem] grid-cols-[minmax(0,1fr)_auto] rounded-md transition-[background-color,box-shadow] duration-(--dur) ease-soft " +
-                            (selected ? "bg-[color-mix(in_srgb,var(--accent)_20%,var(--surface))] shadow-[inset_0_0_0_2px_var(--accent)]" : "bg-surface-2 hover:bg-line")
-                          }
+        {failed ? (
+          <p role="alert" className="rounded-sm bg-bad-bg px-3 py-2 text-sm text-bad">
+            {s.loadError}
+          </p>
+        ) : stops.length === 0 ? (
+          <p className="py-4 text-center text-sm text-muted">{s.empty}</p>
+        ) : (
+          <div
+            inert={!tilesOpen}
+            className={
+              "grid transition-[grid-template-rows,opacity,visibility] duration-500 ease-soft motion-reduce:transition-none " +
+              (tilesOpen ? "visible grid-rows-[1fr] opacity-100" : "invisible grid-rows-[0fr] opacity-0")
+            }
+          >
+            <div className="overflow-hidden">
+              <ul
+                aria-label={s.dockTitle}
+                className="-mx-4 m-0 flex list-none snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-hidden px-4 pt-1 pb-3 [scroll-padding-inline:1rem]"
+              >
+                {ordered.map((stop) => {
+                  const selected = stop.id === selectedId;
+                  const distance = distanceOf(stop);
+                  return (
+                    <li key={stop.id} className="w-52 shrink-0 snap-start">
+                      {/* Two rows: the name and its edit icon, then the status and the distance. */}
+                      <div
+                        className={
+                          "grid h-full min-h-[5.5rem] grid-cols-[minmax(0,1fr)_auto] rounded-md transition-[background-color,box-shadow] duration-(--dur) ease-soft " +
+                          (selected ? "bg-[color-mix(in_srgb,var(--accent)_20%,var(--surface))] shadow-[inset_0_0_0_2px_var(--accent)]" : "bg-surface-2 hover:bg-line")
+                        }
+                      >
+                        <button
+                          type="button"
+                          aria-pressed={selected}
+                          data-tip={stop.name}
+                          onClick={() => pick(stop)}
+                          className="col-start-1 row-span-2 row-start-1 flex min-w-0 cursor-pointer flex-col justify-between gap-3 rounded-md border-0 bg-transparent p-3.5 text-left font-sans focus-visible:outline-3 focus-visible:outline-focus"
                         >
-                          <button
-                            type="button"
-                            aria-pressed={selected}
-                            data-tip={stop.name}
-                            onClick={() => pick(stop)}
-                            className="col-start-1 row-span-2 row-start-1 flex min-w-0 cursor-pointer flex-col justify-between gap-3 rounded-md border-0 bg-transparent p-3.5 text-left font-sans focus-visible:outline-3 focus-visible:outline-focus"
-                          >
-                            <span className="flex min-w-0 flex-col gap-0.5">
-                              <span className="truncate pr-1 text-sm font-bold text-fg">{stop.name}</span>
-                              <span className="truncate text-xs text-muted">{describeUsage(stop.students, stop.pending, s.usage)}</span>
-                            </span>
-                            <span className="flex items-center gap-2">
-                              <Chip tone={stop.active ? "ok" : "neutral"}>{stop.active ? s.status.active : s.status.inactive}</Chip>
-                              {distance ? (
-                                <span className="text-xs font-semibold text-muted" data-tip={s.location.approx}>
-                                  {distance}
-                                  <span className="sr-only"> {s.location.away}</span>
-                                </span>
-                              ) : null}
-                            </span>
-                          </button>
-                          <button
-                            type="button"
-                            aria-label={format(s.editStop, { name: stop.name })}
-                            data-tip={format(s.editStop, { name: stop.name })}
-                            onClick={() => openEdit(stop)}
-                            className={`${ICON_BUTTON} col-start-2 row-start-1 m-1.5 size-9 hover:bg-surface`}
-                          >
-                            <Icon icon={Edit02Icon} size={18} />
-                          </button>
-                        </div>
-                      </li>
-                    );
-                  })}
+                          <span className="flex min-w-0 flex-col gap-0.5">
+                            <span className="truncate pr-1 text-sm font-bold text-fg">{stop.name}</span>
+                            <span className="truncate text-xs text-muted">{describeUsage(stop.students, stop.pending, s.usage)}</span>
+                          </span>
+                          <span className="flex items-center gap-2">
+                            <Chip tone={stop.active ? "ok" : "neutral"}>{stop.active ? s.status.active : s.status.inactive}</Chip>
+                            {distance ? (
+                              <span className="text-xs font-semibold text-muted" data-tip={s.location.approx}>
+                                {distance}
+                                <span className="sr-only"> {s.location.away}</span>
+                              </span>
+                            ) : null}
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          aria-label={format(s.editStop, { name: stop.name })}
+                          data-tip={format(s.editStop, { name: stop.name })}
+                          onClick={() => openEdit(stop)}
+                          className={`${ICON_BUTTON} col-start-2 row-start-1 m-1.5 size-9 hover:bg-surface`}
+                        >
+                          <Icon icon={Edit02Icon} size={18} />
+                        </button>
+                      </div>
+                    </li>
+                  );
+                })}
 
-                  <li className="w-52 shrink-0 snap-start">
-                    <button
-                      type="button"
-                      onClick={() => setSplit(true)}
-                      className="grid h-full min-h-[5.5rem] w-full cursor-pointer grid-cols-[minmax(0,1fr)_auto] items-start gap-x-2 gap-y-2 rounded-md border-2 border-dashed border-line bg-transparent p-3.5 text-left font-sans transition-colors duration-(--dur) ease-soft hover:bg-surface-2 focus-visible:outline-3 focus-visible:outline-focus"
-                    >
-                      <span className="truncate text-sm font-bold text-fg">{s.viewAll}</span>
-                      <span className="inline-flex size-6 items-center justify-center text-muted">
-                        <Icon icon={ArrowRight01Icon} size={20} />
-                      </span>
-                      <span className="col-span-2 self-end text-xs text-muted">{format(s.viewAllCount, { count: stops.length })}</span>
-                    </button>
-                  </li>
-                </ul>
-              </div>
+                <li className="w-52 shrink-0 snap-start">
+                  <button
+                    type="button"
+                    onClick={() => setSplit(true)}
+                    className="grid h-full min-h-[5.5rem] w-full cursor-pointer grid-cols-[minmax(0,1fr)_auto] items-start gap-x-2 gap-y-2 rounded-md border-2 border-dashed border-line bg-transparent p-3.5 text-left font-sans transition-colors duration-(--dur) ease-soft hover:bg-surface-2 focus-visible:outline-3 focus-visible:outline-focus"
+                  >
+                    <span className="truncate text-sm font-bold text-fg">{s.viewAll}</span>
+                    <span className="inline-flex size-6 items-center justify-center text-muted">
+                      <Icon icon={ArrowRight01Icon} size={20} />
+                    </span>
+                    <span className="col-span-2 self-end text-xs text-muted">{format(s.viewAllCount, { count: stops.length })}</span>
+                  </button>
+                </li>
+              </ul>
             </div>
-          )}
-        </section>
+          </div>
+        )}
       </NavDock>
 
       <SideSheet

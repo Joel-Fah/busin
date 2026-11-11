@@ -127,96 +127,98 @@ export function InsightsExplorer({ route, loads, period, failed, counted, days, 
         />
       </div>
 
-      <NavDock>
-        <section aria-label={s.title} className="flex flex-col gap-3">
+      <NavDock
+        label={s.title}
+        labels={t.nav}
+        header={
           <InsightsHeader view="load" help={s.help} t={t}>
-            <Tabs
-              label={s.period.label}
-              items={LOAD_PERIODS.map((days) => ({ id: String(days), label: periodLabels[days], href: `/insights?days=${days}` }))}
-              active={String(period)}
-            />
-            {byBoardings ? (
-              <form action={refreshAction}>
-                <Button type="submit" variant="secondary" icon={RefreshIcon} disabled={refreshing} data-tip={s.refresh.hint}>
-                  {s.refresh.button}
-                </Button>
-              </form>
-            ) : null}
-          </InsightsHeader>
-
-          {refresh.status !== "idle" ? (
-            <p role={refresh.status === "done" ? "status" : "alert"} className={`rounded-sm px-3 py-2 text-sm ${refresh.status === "done" ? "bg-ok-bg font-semibold text-ok" : "bg-bad-bg text-bad"}`}>
-              {refresh.status === "done" ? s.refresh.done : refresh.status === "too_soon" ? s.refresh.too_soon : s.refresh.failed}
-            </p>
+          <Tabs
+            label={s.period.label}
+            items={LOAD_PERIODS.map((days) => ({ id: String(days), label: periodLabels[days], href: `/insights?days=${days}` }))}
+            active={String(period)}
+          />
+          {byBoardings ? (
+            <form action={refreshAction}>
+              <Button type="submit" variant="secondary" icon={RefreshIcon} disabled={refreshing} data-tip={s.refresh.hint}>
+                {s.refresh.button}
+              </Button>
+            </form>
           ) : null}
+        </InsightsHeader>
+        }
+      >
+        {refresh.status !== "idle" ? (
+          <p role={refresh.status === "done" ? "status" : "alert"} className={`rounded-sm px-3 py-2 text-sm ${refresh.status === "done" ? "bg-ok-bg font-semibold text-ok" : "bg-bad-bg text-bad"}`}>
+            {refresh.status === "done" ? s.refresh.done : refresh.status === "too_soon" ? s.refresh.too_soon : s.refresh.failed}
+          </p>
+        ) : null}
 
-          {failed ? (
-            <p role="alert" className="rounded-sm bg-bad-bg px-3 py-2 text-sm text-bad">
-              {s.loadError}
-            </p>
-          ) : null}
+        {failed ? (
+          <p role="alert" className="rounded-sm bg-bad-bg px-3 py-2 text-sm text-bad">
+            {s.loadError}
+          </p>
+        ) : null}
 
-          {loads.stops.length === 0 ? (
-            <p className="py-4 text-center text-sm text-muted">{s.empty}</p>
-          ) : (
-            <>
-              <div className="flex flex-col gap-1 text-sm text-muted">
-                <p className="m-0">
-                  {byBoardings
-                    ? `${format(s.basis.boardings, { boardings: totalBoardings })}${counted ? ` ${format(s.basis.counted, { when: counted })}` : ""}`
-                    : loads.seats > 0
-                      ? format(s.basis.subscribers, { seats: loads.seats })
-                      : s.basis.noSeats}
-                </p>
-                <ul aria-label={s.legend} className="m-0 flex list-none flex-wrap items-center gap-2 p-0">
-                  {LEVELS.map((level) => (
-                    <li key={level}>
-                      <Chip tone={TONE[level]}>{s.levels[level]}</Chip>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <ul
-                aria-label={s.listLabel}
-                className="-mx-4 m-0 flex list-none snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-hidden px-4 pt-1 pb-3 [scroll-padding-inline:1rem]"
-              >
-                {loads.stops.map((stop) => {
-                  const selected = stop.id === selectedId;
-                  return (
-                    <li key={stop.id} className="w-60 shrink-0 snap-start">
-                      <button
-                        type="button"
-                        aria-pressed={selected}
-                        onClick={() => pick(stop)}
-                        className={
-                          "flex h-full min-h-[6rem] w-full cursor-pointer flex-col justify-between gap-2 rounded-md border-0 p-3.5 text-left font-sans " +
-                          "transition-[background-color,box-shadow] duration-(--dur) ease-soft focus-visible:outline-3 focus-visible:outline-focus " +
-                          (selected ? "bg-[color-mix(in_srgb,var(--accent)_20%,var(--surface))] shadow-[inset_0_0_0_2px_var(--accent)]" : "bg-surface-2 hover:bg-line")
-                        }
-                      >
-                        <span className="flex w-full items-center justify-between gap-2">
-                          <span className="truncate text-sm font-bold text-fg">{stop.name}</span>
-                          {stop.level ? <Chip tone={TONE[stop.level]}>{s.level[stop.level]}</Chip> : null}
-                        </span>
-                        <span className="text-xs text-muted">{describe(stop)}</span>
-                        {byBoardings && stop.departures > 0 ? (
-                          <span className="text-xs text-muted">
-                            {format(s.stop.peak, { count: stop.peak, share: formatShare(stop.peakLoad) })}
-                            {" · "}
-                            {format(s.stop.departures, { count: stop.departures })}
-                            {stop.lastDay && days[stop.lastDay] ? ` · ${format(s.stop.lastDay, { day: days[stop.lastDay] })}` : ""}
-                          </span>
-                        ) : null}
-                        {stop.active ? null : <span className="text-xs font-semibold text-muted">{s.stop.inactive}</span>}
-                      </button>
-                    </li>
-                  );
-                })}
+        {loads.stops.length === 0 ? (
+          <p className="py-4 text-center text-sm text-muted">{s.empty}</p>
+        ) : (
+          <>
+            <div className="flex flex-col gap-1 text-sm text-muted">
+              <p className="m-0">
+                {byBoardings
+                  ? `${format(s.basis.boardings, { boardings: totalBoardings })}${counted ? ` ${format(s.basis.counted, { when: counted })}` : ""}`
+                  : loads.seats > 0
+                    ? format(s.basis.subscribers, { seats: loads.seats })
+                    : s.basis.noSeats}
+              </p>
+              <ul aria-label={s.legend} className="m-0 flex list-none flex-wrap items-center gap-2 p-0">
+                {LEVELS.map((level) => (
+                  <li key={level}>
+                    <Chip tone={TONE[level]}>{s.levels[level]}</Chip>
+                  </li>
+                ))}
               </ul>
-            </>
-          )}
-        </section>
+            </div>
+
+            <ul
+              aria-label={s.listLabel}
+              className="-mx-4 m-0 flex list-none snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-hidden px-4 pt-1 pb-3 [scroll-padding-inline:1rem]"
+            >
+              {loads.stops.map((stop) => {
+                const selected = stop.id === selectedId;
+                return (
+                  <li key={stop.id} className="w-60 shrink-0 snap-start">
+                    <button
+                      type="button"
+                      aria-pressed={selected}
+                      onClick={() => pick(stop)}
+                      className={
+                        "flex h-full min-h-[6rem] w-full cursor-pointer flex-col justify-between gap-2 rounded-md border-0 p-3.5 text-left font-sans " +
+                        "transition-[background-color,box-shadow] duration-(--dur) ease-soft focus-visible:outline-3 focus-visible:outline-focus " +
+                        (selected ? "bg-[color-mix(in_srgb,var(--accent)_20%,var(--surface))] shadow-[inset_0_0_0_2px_var(--accent)]" : "bg-surface-2 hover:bg-line")
+                      }
+                    >
+                      <span className="flex w-full items-center justify-between gap-2">
+                        <span className="truncate text-sm font-bold text-fg">{stop.name}</span>
+                        {stop.level ? <Chip tone={TONE[stop.level]}>{s.level[stop.level]}</Chip> : null}
+                      </span>
+                      <span className="text-xs text-muted">{describe(stop)}</span>
+                      {byBoardings && stop.departures > 0 ? (
+                        <span className="text-xs text-muted">
+                          {format(s.stop.peak, { count: stop.peak, share: formatShare(stop.peakLoad) })}
+                          {" · "}
+                          {format(s.stop.departures, { count: stop.departures })}
+                          {stop.lastDay && days[stop.lastDay] ? ` · ${format(s.stop.lastDay, { day: days[stop.lastDay] })}` : ""}
+                        </span>
+                      ) : null}
+                      {stop.active ? null : <span className="text-xs font-semibold text-muted">{s.stop.inactive}</span>}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        )}
       </NavDock>
     </>
   );
