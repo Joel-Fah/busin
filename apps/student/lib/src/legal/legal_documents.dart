@@ -158,7 +158,7 @@ const _privacyEn = LegalDocument(
       'If you add your area: to help your school place stops and plan routes. Your school only sees how many students live in each zone, and only zones with at least five students.',
     ]),
     LegalSection('What we do not collect', bullets: [
-      'Your phone\'s location while you use the app. The map shows the position of buses, not yours. The only reading is the one you ask for in My area: once, approximate, rounded to about 500 metres.',
+      'Your phone\'s location in the background. The app reads it only when you ask: once in My area (approximate, rounded to about 500 metres and kept), and on My bus while you use Show me (to place you next to your stop and the bus; it stays on your phone and is never sent or kept).',
       'Your contacts, photos or files, apart from the proof of payment you choose to upload.',
       'Advertising profiles. There is no advertising in BusIn.',
     ]),
@@ -213,7 +213,7 @@ const _privacyFr = LegalDocument(
       'Si vous ajoutez votre zone : pour aider votre école à placer les arrêts et à prévoir les trajets. Votre école ne voit que le nombre d\'étudiants par zone, et seulement les zones d\'au moins cinq étudiants.',
     ]),
     LegalSection('Ce que nous ne collectons pas', bullets: [
-      'La position de votre téléphone pendant que vous utilisez l\'application. La carte montre la position des bus, pas la vôtre. La seule lecture est celle que vous demandez dans Ma zone : une fois, approximative, arrondie à environ 500 mètres.',
+      'La position de votre téléphone en arrière-plan. L\'application la lit seulement quand vous le demandez : une fois dans Ma zone (approximative, arrondie à environ 500 mètres et conservée), et dans Mon bus pendant que vous utilisez Me montrer (pour vous placer près de votre arrêt et du bus ; elle reste sur votre téléphone, n\'est jamais envoyée ni conservée).',
       'Vos contacts, photos ou fichiers, en dehors de la preuve de paiement que vous choisissez d\'envoyer.',
       'Des profils publicitaires. Il n\'y a aucune publicité dans BusIn.',
     ]),

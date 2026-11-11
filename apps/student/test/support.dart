@@ -6,6 +6,7 @@ import 'package:busin_core/busin_core.dart';
 import 'package:busin_student/src/area/area_providers.dart';
 import 'package:busin_student/src/bus/bus_providers.dart';
 import 'package:busin_student/src/bus/map_scene.dart';
+import 'package:busin_student/src/bus/my_location.dart';
 import 'package:busin_student/src/offline/pass_snapshot.dart';
 import 'package:busin_student/src/providers.dart';
 import 'package:busin_student/src/reminders/notification_providers.dart';
@@ -618,7 +619,10 @@ class FakeMapSurface {
         final bus = scene.bus;
         return Center(
           key: const ValueKey('fake-map'),
-          child: Text('map stops=${scene.stops.length} mine=${scene.myStopId ?? '-'} bus=${bus == null ? '-' : '${bus.latitude},${bus.longitude}'}'),
+          child: Text(
+            'map stops=${scene.stops.length} mine=${scene.myStopId ?? '-'} bus=${bus == null ? '-' : '${bus.latitude},${bus.longitude}'}'
+            '${scene.me == null ? '' : ' me=${scene.me!.latitude},${scene.me!.longitude}'}',
+          ),
         );
       };
 }
@@ -747,6 +751,7 @@ List<Override> overridesFor(
   FakeSecretStore? store,
   FakeScreenSecurity? security,
   TestClock? clock,
+  FakeMyLocation? myLocation,
   FakeSnapshotStore? snapshots,
   Stream<bool>? connectivity,
   Duration? gateTimeout,
@@ -790,6 +795,7 @@ List<Override> overridesFor(
     secretStoreProvider.overrideWithValue(store ?? FakeSecretStore()),
     screenSecurityProvider.overrideWithValue(security ?? FakeScreenSecurity()),
     if (clock != null) nowProvider.overrideWithValue(clock.call),
+    myLocationFeedProvider.overrideWithValue(myLocation ?? FakeMyLocation()),
   ];
 }
 
@@ -967,6 +973,34 @@ class FakeLocator implements AreaLocator {
   Future<LocatorResult> readOnce() async {
     reads++;
     return result;
+  }
+
+  @override
+  Future<void> openSettings() async => settingsOpened++;
+}
+
+/// Stands in for the phone's own position (Show me on My bus): answers with [access] and plays [emit]ted positions.
+class FakeMyLocation implements MyLocationFeed {
+  FakeMyLocation({this.access = MeAccess.granted});
+
+  MeAccess access;
+  int requests = 0;
+  int listeners = 0;
+  int settingsOpened = 0;
+  final _positions = StreamController<GeoPoint>.broadcast();
+
+  void emit(GeoPoint p) => _positions.add(p);
+
+  @override
+  Future<MeAccess> request() async {
+    requests++;
+    return access;
+  }
+
+  @override
+  Stream<GeoPoint> watch() {
+    listeners++;
+    return _positions.stream;
   }
 
   @override

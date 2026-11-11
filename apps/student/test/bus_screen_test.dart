@@ -1,6 +1,8 @@
 import 'package:busin_core/busin_core.dart';
 import 'package:busin_student/src/app.dart';
 import 'package:busin_student/src/bus/bus_providers.dart';
+import 'package:busin_student/src/bus/my_location.dart';
+import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,12 +21,13 @@ class Rig {
   final live = FakeLive();
   final map = FakeMapSurface();
   final clock = TestClock(noon);
+  final me = FakeMyLocation();
 }
 
-Future<void> openBus(WidgetTester tester, Rig rig, {Locale locale = const Locale('en'), bool goToBus = true}) async {
+Future<void> openBus(WidgetTester tester, Rig rig, {Locale locale = const Locale('en'), bool goToBus = true, Size size = const Size(800, 1800)}) async {
   tester.platformDispatcher.localesTestValue = [locale];
   addTearDown(tester.platformDispatcher.clearLocalesTestValue);
-  tester.view.physicalSize = const Size(800, 1800);
+  tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
@@ -38,6 +41,7 @@ Future<void> openBus(WidgetTester tester, Rig rig, {Locale locale = const Locale
         live: rig.live,
         map: rig.map,
         clock: rig.clock,
+        myLocation: rig.me,
       ),
       child: const StudentApp(),
     ),
@@ -321,5 +325,92 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('No bus is running right now'), findsOneWidget);
     expect(find.text('The trip of DEMO-101 has ended'), findsOneWidget);
+  });
+
+  testWidgets('Show me explains first, then puts the student on the map with the walk to their stop, until hidden', (tester) async {
+    final rig = Rig(
+      active: [activeTrip('t1', 'bus1')],
+      backend: FakeBackend(mine: [subscription(stopId: 'stop2', status: SubscriptionStatus.approved)]),
+    );
+    await openBus(tester, rig);
+    rig.live.emit(position('bus1', 3.86, 11.5, at: noon, speed: 10));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Show me'));
+    await tester.pumpAndSettle();
+    expect(find.text('See yourself on the map'), findsOneWidget);
+    expect(rig.me.requests, 0, reason: 'nothing is asked before the explanation');
+
+    await tester.tap(find.text('Continue'));
+    await tester.pumpAndSettle();
+    expect(rig.me.requests, 1);
+    expect(rig.me.listeners, 1);
+
+    rig.me.emit(GeoPoint(3.8505, 11.5));
+    await tester.pumpAndSettle();
+    expect(mapText(tester), contains('me=3.8505,11.5'));
+    expect(find.textContaining('min on foot'), findsOneWidget);
+
+    await tester.tap(find.text('Hide me'));
+    await tester.pumpAndSettle();
+    expect(mapText(tester), isNot(contains('me=')));
+    expect(find.textContaining('min on foot'), findsNothing);
+    expect(find.text('Show me'), findsOneWidget);
+  });
+
+  testWidgets('Show me says so when location is refused, and offers the settings when refused for good', (tester) async {
+    final rig = Rig(active: [activeTrip('t1', 'bus1')]);
+    rig.me.access = MeAccess.denied;
+    await openBus(tester, rig);
+
+    await tester.tap(find.text('Show me'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Continue'));
+    await tester.pump();
+    expect(find.text('Location is not allowed for BusIn, so you are not shown.'), findsOneWidget);
+    expect(find.text('Show me'), findsOneWidget);
+    BusinToast.dismiss();
+    await tester.pumpAndSettle();
+
+    rig.me.access = MeAccess.deniedForever;
+    await tester.tap(find.text('Show me'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Continue'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Open settings'));
+    await tester.pumpAndSettle();
+    expect(rig.me.settingsOpened, 1);
+    expect(rig.me.listeners, 0, reason: 'never listened without permission');
+  });
+
+  test('the walk to the stop is rounded and never under a minute', () {
+    final w = walkTo(GeoPoint(3.85, 11.5), GeoPoint(3.8536, 11.5));
+    expect(w.metres, closeTo(520, 15));
+    expect(w.minutes, 7);
+    expect(roughWalk(w.metres), (value: '500', km: false));
+    expect(roughWalk(1260), (value: '1.3', km: true));
+    expect(walkTo(GeoPoint(3.85, 11.5), GeoPoint(3.85, 11.5)).minutes, 1);
+  });
+
+  testWidgets('a wide screen lists the latest updates beside the map, newest first, instead of over it', (tester) async {
+    final rig = Rig(active: [activeTrip('t1', 'bus1')]);
+    await openBus(tester, rig, size: const Size(1600, 1000));
+    expect(find.text('Live updates'), findsOneWidget);
+    expect(find.text('What the bus does appears here while you follow it.'), findsOneWidget);
+
+    rig.live.emit(position('bus1', 3.90, 11.5, at: noon, speed: 9));
+    await tester.pump();
+    await tester.pumpAndSettle();
+    rig.clock.now = noon.add(const Duration(seconds: 40));
+    rig.live.emit(position('bus1', 3.85, 11.5, at: rig.clock.now, speed: 1));
+    await tester.pump();
+    await tester.pumpAndSettle();
+
+    final follow = find.text('Following DEMO-101 · Going to school');
+    final atStop = find.textContaining(RegExp(r'^At '));
+    expect(follow, findsOneWidget, reason: 'the earlier update stays listed');
+    expect(atStop, findsOneWidget);
+    expect(tester.getTopLeft(atStop).dy, lessThan(tester.getTopLeft(follow).dy), reason: 'newest first');
+    expect(find.byTooltip('Hide this update'), findsNothing, reason: 'no strip over the map');
   });
 }

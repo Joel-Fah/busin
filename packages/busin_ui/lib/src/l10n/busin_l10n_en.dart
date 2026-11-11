@@ -710,6 +710,60 @@ class BusinL10nEn extends BusinL10n {
   String get busUpdateDismiss => 'Hide this update';
 
   @override
+  String get busUpdatesTitle => 'Live updates';
+
+  @override
+  String get busUpdatesEmpty =>
+      'What the bus does appears here while you follow it.';
+
+  @override
+  String get busMeShow => 'Show me';
+
+  @override
+  String get busMeHide => 'Hide me';
+
+  @override
+  String get busMeWhyTitle => 'See yourself on the map';
+
+  @override
+  String get busMeWhyBody =>
+      'BusIn will use your phone\'s precise location while this tab is open, to show you next to your stop and the bus. It stays on your phone: it is never sent or kept.';
+
+  @override
+  String get busMeContinue => 'Continue';
+
+  @override
+  String get busMeNotNow => 'Not now';
+
+  @override
+  String get busMeDenied =>
+      'Location is not allowed for BusIn, so you are not shown.';
+
+  @override
+  String get busMeDeniedForever =>
+      'Location is turned off for BusIn. You can allow it in your phone\'s settings.';
+
+  @override
+  String get busMeOff => 'Location is switched off on your phone.';
+
+  @override
+  String get busMeSettings => 'Open settings';
+
+  @override
+  String get busMeApproximate =>
+      'Your phone shares only an approximate position. Allow precise location for BusIn to see exactly where you are.';
+
+  @override
+  String busMeWalkM(String distance, String minutes) {
+    return '$distance m from your stop, about $minutes min on foot';
+  }
+
+  @override
+  String busMeWalkKm(String distance, String minutes) {
+    return '$distance km from your stop, about $minutes min on foot';
+  }
+
+  @override
   String get pushPromptTitle => 'Get notified';
 
   @override

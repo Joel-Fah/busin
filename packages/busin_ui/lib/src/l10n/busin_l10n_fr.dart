@@ -726,6 +726,60 @@ class BusinL10nFr extends BusinL10n {
   String get busUpdateDismiss => 'Masquer cette info';
 
   @override
+  String get busUpdatesTitle => 'En direct';
+
+  @override
+  String get busUpdatesEmpty =>
+      'Ce que fait le bus s’affiche ici pendant que vous le suivez.';
+
+  @override
+  String get busMeShow => 'Me montrer';
+
+  @override
+  String get busMeHide => 'Me masquer';
+
+  @override
+  String get busMeWhyTitle => 'Vous voir sur la carte';
+
+  @override
+  String get busMeWhyBody =>
+      'BusIn utilisera la position précise de votre téléphone tant que cet onglet est ouvert, pour vous montrer près de votre arrêt et du bus. Elle reste sur votre téléphone : elle n’est jamais envoyée ni conservée.';
+
+  @override
+  String get busMeContinue => 'Continuer';
+
+  @override
+  String get busMeNotNow => 'Pas maintenant';
+
+  @override
+  String get busMeDenied =>
+      'La localisation n’est pas autorisée pour BusIn, vous n’êtes donc pas affiché.';
+
+  @override
+  String get busMeDeniedForever =>
+      'La localisation est désactivée pour BusIn. Vous pouvez l’autoriser dans les réglages du téléphone.';
+
+  @override
+  String get busMeOff => 'La localisation est désactivée sur votre téléphone.';
+
+  @override
+  String get busMeSettings => 'Ouvrir les réglages';
+
+  @override
+  String get busMeApproximate =>
+      'Votre téléphone ne partage qu’une position approximative. Autorisez la position précise pour BusIn pour voir exactement où vous êtes.';
+
+  @override
+  String busMeWalkM(String distance, String minutes) {
+    return 'À $distance m de votre arrêt, environ $minutes min à pied';
+  }
+
+  @override
+  String busMeWalkKm(String distance, String minutes) {
+    return 'À $distance km de votre arrêt, environ $minutes min à pied';
+  }
+
+  @override
   String get pushPromptTitle => 'Soyez prévenu';
 
   @override
