@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' show Color;
 
 import 'package:busin_app/busin_app.dart';
 import 'package:busin_core/busin_core.dart';
@@ -155,6 +156,9 @@ class DeviceLocationFeed implements LocationFeed {
             notificationChannelName: title,
             enableWakeLock: true,
             setOngoing: true,
+            // A white silhouette: the launcher icon would show as a square in the status bar.
+            notificationIcon: AndroidResource(name: 'ic_stat_busin', defType: 'drawable'),
+            color: Color(0xFFF5951F),
           ),
         ),
       )

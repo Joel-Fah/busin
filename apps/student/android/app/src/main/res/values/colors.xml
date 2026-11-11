@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ic_launcher_background">#002A33</color>
+    <!-- Tints the notification icon in the shade (BusIn orange). -->
+    <color name="notification_accent">#F5951F</color>
 </resources>

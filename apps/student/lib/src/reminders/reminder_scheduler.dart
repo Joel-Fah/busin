@@ -53,7 +53,7 @@ class LocalReminderScheduler implements ReminderScheduler {
   Future<void> _init() async {
     if (_ready) return;
     tz_data.initializeTimeZones();
-    await _plugin.initialize(settings: const InitializationSettings(android: AndroidInitializationSettings('@mipmap/ic_launcher')));
+    await _plugin.initialize(settings: const InitializationSettings(android: AndroidInitializationSettings('@drawable/ic_stat_busin')));
     _ready = true;
   }
 
