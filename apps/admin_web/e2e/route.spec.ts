@@ -2,6 +2,8 @@ import { randomBytes } from "node:crypto";
 
 import { expect, test } from "@playwright/test";
 
+import type { Tables } from "@/lib/database.types";
+
 import { SEED, createUser, deleteUser, serviceClient, signInBrowser, type TestUser } from "./support";
 
 const tag = randomBytes(3).toString("hex");
@@ -9,7 +11,8 @@ const tag = randomBytes(3).toString("hex");
 let admin: TestUser;
 let staff: TestUser;
 // What the school had, put back after the tests.
-let original: { campus: unknown; campusName: string | null; route: { id: string; stops: { stop_id: string; position: number }[] } | null };
+// The whole route row is kept, road and all, so a road drawn along the streets is not lost by running this file.
+let original: { campus: unknown; campusName: string | null; route: { row: Tables<"routes">; stops: { stop_id: string; position: number }[] } | null };
 let stopIds: string[] = [];
 
 test.beforeAll(async () => {
@@ -17,9 +20,9 @@ test.beforeAll(async () => {
   staff = await createUser(`route-staff-${tag}`, "staff");
   const db = serviceClient();
   const school = await db.from("schools").select("campus_location, campus_name").eq("id", SEED.schoolId).single();
-  const route = await db.from("routes").select("id").eq("school_id", SEED.schoolId).order("created_at").limit(1).maybeSingle();
+  const route = await db.from("routes").select("*").eq("school_id", SEED.schoolId).order("created_at").limit(1).maybeSingle();
   const stops = route.data ? await db.from("route_stops").select("stop_id, position").eq("route_id", route.data.id) : { data: [] };
-  original = { campus: school.data?.campus_location ?? null, campusName: school.data?.campus_name ?? null, route: route.data ? { id: route.data.id, stops: stops.data ?? [] } : null };
+  original = { campus: school.data?.campus_location ?? null, campusName: school.data?.campus_name ?? null, route: route.data ? { row: route.data, stops: stops.data ?? [] } : null };
   const active = await db.from("stops").select("id").eq("school_id", SEED.schoolId).eq("active", true).order("name").limit(3);
   stopIds = (active.data ?? []).map((s) => s.id);
 });
@@ -29,9 +32,10 @@ test.afterAll(async () => {
   await db.from("schools").update({ campus_location: original.campus as string | null, campus_name: original.campusName }).eq("id", SEED.schoolId);
   await db.from("routes").delete().eq("school_id", SEED.schoolId);
   if (original.route) {
-    await db.from("routes").insert({ id: original.route.id, school_id: SEED.schoolId });
+    const id = original.route.row.id;
+    await db.from("routes").insert(original.route.row);
     if (original.route.stops.length > 0) {
-      await db.from("route_stops").insert(original.route.stops.map((s) => ({ ...s, route_id: original.route!.id, school_id: SEED.schoolId })));
+      await db.from("route_stops").insert(original.route.stops.map((s) => ({ ...s, route_id: id, school_id: SEED.schoolId })));
     }
   }
   for (const user of [admin, staff]) if (user) await deleteUser(user);
