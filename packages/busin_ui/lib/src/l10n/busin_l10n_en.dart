@@ -723,6 +723,9 @@ class BusinL10nEn extends BusinL10n {
   String get busMeHide => 'Hide me';
 
   @override
+  String get busMeFind => 'Find me';
+
+  @override
   String get busMeWhyTitle => 'See yourself on the map';
 
   @override

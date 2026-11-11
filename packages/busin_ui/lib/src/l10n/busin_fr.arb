@@ -269,6 +269,7 @@
   "busUpdatesEmpty": "Ce que fait le bus s’affiche ici pendant que vous le suivez.",
   "busMeShow": "Me montrer",
   "busMeHide": "Me masquer",
+  "busMeFind": "Me trouver",
   "busMeWhyTitle": "Vous voir sur la carte",
   "busMeWhyBody": "BusIn utilisera la position précise de votre téléphone tant que cet onglet est ouvert, pour vous montrer près de votre arrêt et du bus. Elle reste sur votre téléphone : elle n’est jamais envoyée ni conservée.",
   "busMeContinue": "Continuer",

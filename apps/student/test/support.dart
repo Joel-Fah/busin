@@ -621,7 +621,8 @@ class FakeMapSurface {
           key: const ValueKey('fake-map'),
           child: Text(
             'map stops=${scene.stops.length} mine=${scene.myStopId ?? '-'} bus=${bus == null ? '-' : '${bus.latitude},${bus.longitude}'}'
-            '${scene.me == null ? '' : ' me=${scene.me!.latitude},${scene.me!.longitude}'}',
+            '${scene.me == null ? '' : ' me=${scene.me!.latitude},${scene.me!.longitude}'}'
+            '${scene.focusMe == 0 ? '' : ' focus=${scene.focusMe}'}',
           ),
         );
       };
