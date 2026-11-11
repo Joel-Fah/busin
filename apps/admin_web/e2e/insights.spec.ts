@@ -54,6 +54,30 @@ test("the proximity view says what it is based on and never shows small groups",
   }
 });
 
+test("the graph shows each stop as a button that opens its figures, by mouse or keyboard", async ({ page, context }) => {
+  await signInBrowser(context, admin);
+  await page.goto("/insights");
+  await page.getByRole("link", { name: "Graph" }).click();
+  await expect(page).toHaveURL(/\/insights\?view=graph$/);
+  const graph = page.getByRole("group", { name: /Graph of the stops/ });
+  await expect(graph).toBeVisible();
+  const nodes = graph.getByRole("button");
+  await expect(nodes.first()).toBeVisible();
+  await expect(page.getByText(/Select a stop or a small dot/)).toBeVisible();
+
+  await nodes.first().click();
+  await expect(nodes.first()).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByText(/Select a stop or a small dot/)).toBeHidden();
+
+  // The keyboard reaches the next node and opens it too.
+  await nodes.nth(1).focus();
+  await page.keyboard.press("Enter");
+  await expect(nodes.nth(1)).toHaveAttribute("aria-pressed", "true");
+
+  await page.getByRole("button", { name: "Zoom in" }).click();
+  await page.getByRole("button", { name: "Back to the whole graph" }).click();
+});
+
 test("a staff member cannot open the insights", async ({ page, context }) => {
   await signInBrowser(context, staff);
   await page.goto("/insights");

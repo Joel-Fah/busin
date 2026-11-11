@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
+import { GraphExplorer } from "@/components/insights/GraphExplorer";
 import { InsightsExplorer } from "@/components/insights/InsightsExplorer";
 import { ProximityExplorer } from "@/components/insights/ProximityExplorer";
 import { requireAdmin } from "@/lib/auth";
 import { centroid } from "@/lib/geo";
 import { getMessages } from "@/lib/i18n/server";
-import { parseInsightView, parseLoadPeriod } from "@/lib/insights";
+import { DEFAULT_LOAD_PERIOD, parseInsightView, parseLoadPeriod } from "@/lib/insights";
 import { loadProximity, loadStopLoads } from "@/lib/insights-data";
 import { mapConfig } from "@/lib/map/config";
 
@@ -33,7 +34,12 @@ async function Insights({ searchParams }: { searchParams: SearchParams }) {
   const mapProps = { provider: config.provider, styleUrl: config.styleUrl, accessToken: config.accessToken, zoom: config.fallbackZoom };
 
   // Each view loads only its own data.
-  if (parseInsightView(query.view) === "proximity") {
+  const view = parseInsightView(query.view);
+  if (view === "graph") {
+    const [{ loads, failed: loadFailed }, { proximity, failed: proximityFailed }] = await Promise.all([loadStopLoads(DEFAULT_LOAD_PERIOD), loadProximity()]);
+    return <GraphExplorer loads={loads} proximity={proximity} failed={loadFailed || proximityFailed} t={t} />;
+  }
+  if (view === "proximity") {
     const { proximity, failed } = await loadProximity();
     const center = centroid(proximity.stops.flatMap((stop) => (stop.position ? [stop.position] : []))) ?? config.fallbackCenter;
     return <ProximityExplorer proximity={proximity} failed={failed} map={{ ...mapProps, center }} t={t} />;

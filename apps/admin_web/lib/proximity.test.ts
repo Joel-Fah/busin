@@ -44,7 +44,7 @@ describe("buildProximity", () => {
     expect(result.stops[2]).toMatchObject({ median: null, bands: null, overOneKm: null });
     expect(result.subscribers).toBe(8 + 10 + 5);
     expect(result.withArea).toBe(17);
-    expect(result.lines).toEqual([{ id: "b:3.87:11.5", from: { lat: 3.87, lng: 11.5 }, to: { lat: 3.86, lng: 11.51 }, students: 6, distance: 1500 }]);
+    expect(result.lines).toEqual([{ id: "b:3.87:11.5", stopId: "b", from: { lat: 3.87, lng: 11.5 }, to: { lat: 3.86, lng: 11.51 }, students: 6, distance: 1500 }]);
   });
 
   it("never shows a figure the database sent for too few students", () => {
@@ -71,7 +71,7 @@ describe("students nearer another stop", () => {
       { toId: "b", toName: "Beta", students: 6, saved: 1400 },
     ]);
     // Gamma has no position, and zzz is unknown: only one line.
-    expect(result.nearerLines).toEqual([{ id: "a>b", from: { lat: 3.85, lng: 11.5 }, to: { lat: 3.86, lng: 11.51 }, students: 6 }]);
+    expect(result.nearerLines).toEqual([{ id: "a>b", fromId: "a", toId: "b", from: { lat: 3.85, lng: 11.5 }, to: { lat: 3.86, lng: 11.51 }, students: 6 }]);
   });
 });
 

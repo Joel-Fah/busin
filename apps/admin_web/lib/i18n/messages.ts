@@ -295,7 +295,7 @@ export const en = {
   },
   insights: {
     title: 'Insights',
-    views: { label: 'What to show', load: 'Stop load', proximity: 'Proximity' },
+    views: { label: 'What to show', load: 'Stop load', proximity: 'Proximity', graph: 'Graph' },
     period: { label: 'Period', p28: '4 weeks', p56: '8 weeks', p112: '16 weeks' },
     mapLabel: 'Map of how full the bus gets at each stop',
     mapUnavailable: 'The map could not be drawn in this browser. The stops are listed below it.',
@@ -319,6 +319,34 @@ export const en = {
       inactive: 'Inactive',
     },
     listLabel: 'Stops, fullest first',
+    graph: {
+      label: 'Graph of the stops, where groups of their students live, and where they could go instead',
+      zoomIn: 'Zoom in',
+      zoomOut: 'Zoom out',
+      reset: 'Back to the whole graph',
+      hint: 'Select a stop or a small dot to see its figures. Drag to move, scroll to zoom; Tab moves from node to node.',
+      legendLabel: 'How to read the graph',
+      legendFill: 'Fill: how full the bus gets at the stop (blue quiet to red full).',
+      legendRing: 'Ring: how far its students typically live (green near to red far).',
+      legendZone: 'Orange dots: places where 5 or more of its students live, further out the further they are.',
+      legendFlow: 'Blue arrows: 5 or more of its students live nearer to the other stop.',
+      zone: '{count} students live here, {distance} from {stop}',
+      riders: '{count} subscribers',
+      help: {
+        title: 'How the graph works',
+        intro: 'The same figures as the map, drawn to be read rather than to be accurate: stops keep roughly their place but are pushed apart so every name reads, and groups of students sit around their stop in the direction they live. Nothing shown is about fewer than 5 students.',
+        scenarios: {
+          crowded: {
+            title: 'A big red stop with a red ring',
+            body: 'The bus fills there and its students live far from it: the place to look first for a second stop or a second bus.',
+          },
+          flow: {
+            title: 'An arrow between two stops',
+            body: 'Five or more students of the first stop live nearer to the second. Tell them; it may be all it takes.',
+          },
+        },
+      },
+    },
     proximity: {
       mapLabel: 'Map of how far students live from their stop',
       basis: 'Based on {withArea} of {subscribers} subscribers, those who shared roughly where they live.',
@@ -1256,7 +1284,7 @@ export const fr: Messages = {
   },
   insights: {
     title: 'Analyses',
-    views: { label: 'Que montrer', load: 'Charge des arrêts', proximity: 'Proximité' },
+    views: { label: 'Que montrer', load: 'Charge des arrêts', proximity: 'Proximité', graph: 'Graphe' },
     period: { label: 'Période', p28: '4 semaines', p56: '8 semaines', p112: '16 semaines' },
     mapLabel: 'Carte du remplissage du bus à chaque arrêt',
     mapUnavailable: "La carte n'a pas pu s'afficher dans ce navigateur. Les arrêts sont listés en dessous.",
@@ -1280,6 +1308,34 @@ export const fr: Messages = {
       inactive: 'Inactif',
     },
     listLabel: 'Arrêts, du plus chargé au moins chargé',
+    graph: {
+      label: "Graphe des arrêts, des lieux où habitent des groupes de leurs étudiants, et des arrêts où ils pourraient aller",
+      zoomIn: 'Zoomer',
+      zoomOut: 'Dézoomer',
+      reset: 'Revenir au graphe entier',
+      hint: "Sélectionnez un arrêt ou un petit point pour voir ses chiffres. Faites glisser pour déplacer, la molette pour zoomer ; Tab passe d'un nœud à l'autre.",
+      legendLabel: 'Comment lire le graphe',
+      legendFill: "Remplissage : à quel point le bus se remplit à l'arrêt (bleu calme à rouge plein).",
+      legendRing: 'Anneau : à quelle distance habitent en général ses étudiants (vert proche à rouge loin).',
+      legendZone: "Points orange : lieux où habitent 5 de ses étudiants ou plus, d'autant plus loin qu'ils sont loin.",
+      legendFlow: "Flèches bleues : 5 de ses étudiants ou plus habitent plus près de l'autre arrêt.",
+      zone: '{count} étudiants habitent ici, {distance} de {stop}',
+      riders: '{count} abonnés',
+      help: {
+        title: 'Comment fonctionne le graphe',
+        intro: "Les mêmes chiffres que la carte, dessinés pour être lus plutôt que pour être exacts : les arrêts gardent à peu près leur place mais sont écartés pour que chaque nom se lise, et les groupes d'étudiants entourent leur arrêt dans la direction où ils habitent. Rien n'est affiché pour moins de 5 étudiants.",
+        scenarios: {
+          crowded: {
+            title: 'Un gros arrêt rouge avec un anneau rouge',
+            body: "Le bus s'y remplit et ses étudiants habitent loin : c'est là qu'il faut d'abord envisager un second arrêt ou un second bus.",
+          },
+          flow: {
+            title: 'Une flèche entre deux arrêts',
+            body: "Cinq étudiants ou plus du premier arrêt habitent plus près du second. Prévenez-les ; cela peut suffire.",
+          },
+        },
+      },
+    },
     proximity: {
       mapLabel: "Carte de la distance entre les étudiants et leur arrêt",
       basis: "Sur la base de {withArea} abonnés sur {subscribers}, ceux qui ont indiqué à peu près où ils habitent.",

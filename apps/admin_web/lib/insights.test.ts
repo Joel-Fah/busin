@@ -31,6 +31,7 @@ describe("parseInsightView", () => {
     expect(parseInsightView("proximity")).toBe("proximity");
     expect(parseInsightView(["proximity"])).toBe("proximity");
     expect(parseInsightView("load")).toBe("load");
+    expect(parseInsightView("graph")).toBe("graph");
     expect(parseInsightView("other")).toBe("load");
     expect(parseInsightView(undefined)).toBe("load");
   });
