@@ -39,6 +39,7 @@ export default function MapLibreView({
   picker,
   focus,
   focusKey,
+  focusZoom,
   clusterLabel = "{count}",
   clustering = true,
   coveredBottom = 0,
@@ -142,8 +143,8 @@ export default function MapLibreView({
   // Glide to the position the page is focused on, for example the stop picked from a list.
   useEffect(() => {
     if (!map || focusLat === undefined || focusLng === undefined) return;
-    map.easeTo({ center: [focusLng, focusLat], zoom: Math.max(map.getZoom(), 15), duration: 600, offset: focusOffset(map.getContainer().clientHeight, coveredBottom) });
-  }, [map, focusLat, focusLng, focusKey, coveredBottom]);
+    map.easeTo({ center: [focusLng, focusLat], zoom: focusZoom ?? Math.max(map.getZoom(), 15), duration: 600, offset: focusOffset(map.getContainer().clientHeight, coveredBottom) });
+  }, [map, focusLat, focusLng, focusKey, coveredBottom, focusZoom]);
 
   // Choosing a position: click the map or drag the pin.
   useEffect(() => {

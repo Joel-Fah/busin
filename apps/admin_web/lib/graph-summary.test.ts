@@ -39,7 +39,7 @@ describe("graphFacts", () => {
     const facts = graphFacts(
       loads([loadStop("Mvan", 0.9, "full"), loadStop("Etoudi", 0.1, "quiet")]),
       proximity([proxStop("Mvan", 2400, [{ toId: "e", toName: "Ekounou", students: 5, saved: 2300 }]), proxStop("Etoudi", 600), proxStop("Bastos", null)]),
-      [{ kind: "new_stop", id: "n", place: "Market", position: { lat: 0, lng: 0 }, students: 8, metres: 1100 }],
+      [{ kind: "new_stop", id: "n", place: "Market", position: { lat: 0, lng: 0 }, students: 8, metres: 1100, insertAfter: null }],
     );
     expect(facts).toEqual([
       { kind: "stops", stops: 3, subscribers: 30, withArea: 20 },

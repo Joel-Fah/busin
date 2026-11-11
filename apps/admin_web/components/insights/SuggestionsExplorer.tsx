@@ -1,6 +1,10 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useTransition } from "react";
+import { Route01Icon } from "@hugeicons/core-free-icons";
+
+import { previewRoute, type RoutePreview } from "@/app/(admin)/insights/actions";
+import { Button } from "@/components/ui/Button";
 
 import { InsightsHeader } from "@/components/insights/InsightsHeader";
 import { MapView } from "@/components/map/MapView";
@@ -10,7 +14,7 @@ import { Chip, type ChipTone } from "@/components/ui/Chip";
 import type { LatLng } from "@/lib/geo";
 import { format, type Messages } from "@/lib/i18n/messages";
 import type { MapProviderId } from "@/lib/map/config";
-import type { RouteOverlay } from "@/lib/route";
+import { compareRoutes, formatKm, formatMinutes, type Extra, type RouteOverlay } from "@/lib/route";
 import { routeOnMap } from "@/components/insights/route-overlay";
 import { roughDistance } from "@/lib/proximity";
 import { suggestionPosition, type Suggestion, type SuggestionStop } from "@/lib/suggestions";
@@ -65,14 +69,51 @@ export function SuggestionsExplorer({ route, suggestions, stops, failed, map, t 
     [g, distance],
   );
 
-  const pick = useCallback((item: Suggestion) => {
-    setSelectedId(item.id);
-    const at = suggestionPosition(item);
-    if (at) {
-      setFocus(at);
-      setFocusKey((key) => key + 1);
-    }
-  }, []);
+  // A suggested route: the school's route with one suggested stop (or every one) put in where it detours least, drawn
+  // over today's route; along the roads when the road service answers, estimated from straight lines otherwise.
+  const [compare, setCompare] = useState<{ key: string; extras: Extra[]; students: number; road: RoutePreview | null } | null>(null);
+  const [drawing, startDrawing] = useTransition();
+  const showRoute = useCallback(
+    (key: string, extras: Extra[], students: number) => {
+      if (!route || extras.length === 0) return;
+      setCompare({ key, extras, students, road: null });
+      startDrawing(async () => {
+        const road = await previewRoute(
+          route.stopIds,
+          extras.map((e) => ({ lat: e.position.lat, lng: e.position.lng, name: e.name, after: e.after })),
+        );
+        setCompare((c) => (c && c.key === key ? { ...c, road } : c));
+      });
+    },
+    [route],
+  );
+  const placeable = useMemo(
+    () => suggestions.flatMap((s) => (s.kind === "new_stop" && s.insertAfter !== null ? [s] : [])),
+    [suggestions],
+  );
+
+  const pick = useCallback(
+    (item: Suggestion) => {
+      setSelectedId(item.id);
+      const at = suggestionPosition(item);
+      if (at) {
+        setFocus(at);
+        setFocusKey((key) => key + 1);
+      }
+      if (item.kind === "new_stop" && item.insertAfter !== null) {
+        showRoute(item.id, [{ name: item.place, position: item.position, after: item.insertAfter }], item.students);
+      } else {
+        setCompare(null);
+      }
+    },
+    [showRoute],
+  );
+
+  // The figures of the comparison: road against road when both exist, otherwise estimate against estimate.
+  const comparison = useMemo(
+    () => (compare && route ? compareRoutes(route, compare.extras, compare.road?.status === "ok" ? compare.road : null) : null),
+    [compare, route],
+  );
 
   const markers = useMemo<MapMarker[]>(
     () => stops.flatMap((stop) => (stop.position ? [{ id: stop.id, position: stop.position, label: stop.name }] : [])),
@@ -106,11 +147,19 @@ export function SuggestionsExplorer({ route, suggestions, stops, failed, map, t 
           center={map.center}
           zoom={map.zoom}
           markers={onRoute.campus.length > 0 ? [...markers, ...onRoute.campus] : markers}
-          routes={onRoute.routes}
+          routes={
+            comparison && route
+              ? [
+                  { id: "today", coordinates: route.line, emphasis: "secondary" },
+                  { id: "suggested", coordinates: comparison.line, emphasis: "primary" },
+                ]
+              : onRoute.routes
+          }
           circles={circles}
           lines={lines}
           focus={focus}
           focusKey={focusKey}
+          focusZoom={compare ? 12.5 : undefined}
           clusterLabel={t.stops.cluster}
           clustering={false}
           coveredBottom={DOCK_SHARE}
@@ -130,7 +179,26 @@ export function SuggestionsExplorer({ route, suggestions, stops, failed, map, t 
             </p>
           ) : null}
 
-          <p className="m-0 text-sm text-muted">{g.limits}</p>
+          <div className="flex flex-wrap items-start justify-between gap-2">
+            <p className="m-0 max-w-3xl text-sm text-muted">{route ? g.limits : `${g.limits} ${g.noRoute}`}</p>
+            {route && placeable.length > 1 ? (
+              <Button
+                type="button"
+                variant="secondary"
+                icon={Route01Icon}
+                onClick={() => {
+                  setSelectedId(null);
+                  showRoute(
+                    "all",
+                    placeable.map((s) => ({ name: s.place, position: s.position, after: s.insertAfter! })),
+                    placeable.reduce((sum, s) => sum + s.students, 0),
+                  );
+                }}
+              >
+                {g.compareAll}
+              </Button>
+            ) : null}
+          </div>
 
           {suggestions.length === 0 ? (
             <p className="py-2 text-sm font-semibold text-fg">{g.empty}</p>
@@ -161,6 +229,40 @@ export function SuggestionsExplorer({ route, suggestions, stops, failed, map, t 
               })}
             </ul>
           )}
+
+          {comparison ? (
+            <section aria-label={g.compareTitle} aria-busy={drawing} className="flex flex-col gap-3 rounded-md bg-surface-2 p-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="m-0 text-base font-bold">{compare?.key === "all" ? g.compareAllTitle : g.compareTitle}</h2>
+                <Chip tone="ok">{format(g.gain, { count: compare?.students ?? 0 })}</Chip>
+                <Chip tone={comparison.deltaD > 0 ? "warn" : "ok"}>
+                  {Math.abs(comparison.deltaD) < 50 ? g.sameLength : format(comparison.deltaD > 0 ? g.longer : g.shorter, { distance: formatKm(Math.abs(comparison.deltaD)) })}
+                </Chip>
+                {Math.abs(comparison.deltaT) >= 30 ? (
+                  <Chip tone={comparison.deltaT > 0 ? "warn" : "ok"}>{format(comparison.deltaT > 0 ? g.slower : g.faster, { time: formatMinutes(Math.abs(comparison.deltaT)) })}</Chip>
+                ) : null}
+                <button type="button" onClick={() => setCompare(null)} className="ml-auto cursor-pointer rounded-sm border-0 bg-transparent px-2 py-1 font-sans text-sm font-semibold text-muted hover:text-fg focus-visible:outline-3 focus-visible:outline-focus">
+                  {g.compareClose}
+                </button>
+              </div>
+              <p className="m-0 text-xs text-muted">
+                {g.compareLegend} {drawing ? g.drawing : comparison.byRoad ? g.byRoad : g.estimated}
+              </p>
+              <details>
+                <summary className="cursor-pointer text-sm font-semibold">
+                  {format(g.directions, { distance: formatKm(comparison.total.d), time: formatMinutes(comparison.total.t) })}
+                </summary>
+                <ol aria-label={g.compareTitle} className="m-0 mt-2 flex max-h-48 list-none flex-col gap-1.5 overflow-y-auto p-0 pr-2">
+                  {comparison.steps.map((step, i) => (
+                    <li key={`${step.from}-${i}`} className="text-sm">
+                      {i === 0 ? <span className="block">{format(t.route.leave, { from: step.from })}</span> : null}
+                      <span className="text-muted">{format(t.route.leg, { distance: formatKm(step.distanceM), time: formatMinutes(step.durationS), to: step.to })}</span>
+                    </li>
+                  ))}
+                </ol>
+              </details>
+            </section>
+          ) : null}
         </section>
       </NavDock>
     </>

@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(24);
+select plan(25);
 
 insert into public.schools (id, name) values ('10000000-0000-4000-8000-000000000001', 'School A'), ('10000000-0000-4000-8000-000000000002', 'School B');
 insert into public.school_domains (domain, school_id) values ('a.edu', '10000000-0000-4000-8000-000000000001'), ('b.edu', '10000000-0000-4000-8000-000000000002');
@@ -31,10 +31,13 @@ select is(public.admin_save_route(array['d1000000-0000-4000-8000-000000000001', 
   (select id from public.routes where school_id = '10000000-0000-4000-8000-000000000001'), 'and changed on the same route');
 select results_eq($$select kind, name from public.route_waypoints() order by seq$$,
   $$values ('stop', 'First'), ('stop', 'Second'), ('campus', 'Main campus')$$, 'waypoints: the stops in order, then the campus');
-select results_eq($$select kind, name from public.route_waypoints(array['d1000000-0000-4000-8000-000000000001', 'd1000000-0000-4000-8000-000000000002']::uuid[], 3.81, 11.51, 'Market', 0) order by seq$$,
+select results_eq($$select kind, name from public.route_waypoints(array['d1000000-0000-4000-8000-000000000001', 'd1000000-0000-4000-8000-000000000002']::uuid[], array[3.81], array[11.51], array['Market'], array[0]) order by seq$$,
   $$values ('stop', 'First'), ('extra', 'Market'), ('stop', 'Second'), ('campus', 'Main campus')$$, 'a preview inserts a suggested stop where asked');
-select results_eq($$select kind from public.route_waypoints(array['d1000000-0000-4000-8000-000000000002']::uuid[], 3.79, 11.5, 'Start', -1) order by seq$$,
+select results_eq($$select kind from public.route_waypoints(array['d1000000-0000-4000-8000-000000000002']::uuid[], array[3.79], array[11.5], array['Start'], array[-1]) order by seq$$,
   $$values ('extra'), ('stop'), ('campus')$$, 'even before the first stop');
+select results_eq($$select name from public.route_waypoints(array['d1000000-0000-4000-8000-000000000001', 'd1000000-0000-4000-8000-000000000002']::uuid[],
+    array[3.815, 3.805], array[11.5, 11.5], array['Far', 'Near'], array[0, 0]) where kind = 'extra' order by seq$$,
+  $$values ('Near'), ('Far')$$, 'several suggested stops after the same stop go nearest first');
 select is((select current from public.school_route()), false, 'not drawn yet');
 reset role;
 

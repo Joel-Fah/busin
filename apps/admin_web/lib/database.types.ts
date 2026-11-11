@@ -740,7 +740,7 @@ isOneToOne: false
                            },
 "admin_stop_suggestions":
 { Args: Record<PropertyKey, never>; Returns: {
-              "kind": string,"lat": number,"lng": number,"metres": number,"other_stop_id": string,"place_name": string,"stop_id": string,"students": number
+              "insert_after": number,"kind": string,"lat": number,"lng": number,"metres": number,"other_stop_id": string,"place_name": string,"stop_id": string,"students": number
             }[]
                            },
 "admin_stop_usage":
@@ -839,7 +839,7 @@ isOneToOne: false
 { Args: Record<PropertyKey, never>; Returns: string
                            },
 "route_waypoints":
-{ Args: { "p_extra_after"?: number,"p_extra_lat"?: number,"p_extra_lng"?: number,"p_extra_name"?: string,"p_stop_ids"?: (string)[] }; Returns: {
+{ Args: { "p_extra_afters"?: (number)[],"p_extra_lats"?: (number)[],"p_extra_lngs"?: (number)[],"p_extra_names"?: (string)[],"p_stop_ids"?: (string)[] }; Returns: {
               "id": string,"kind": string,"lat": number,"lng": number,"name": string,"route_hash": string,"seq": number
             }[]
                            },

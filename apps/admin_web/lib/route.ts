@@ -104,12 +104,56 @@ export function routeLine(route: Pick<BusRoute, "stops" | "campus" | "road">): L
 }
 
 /** What the Insights views need of the route: the line to draw, the stops in order and the campus. */
-export type RouteOverlay = { line: LatLng[]; current: boolean; stopIds: string[]; campus: { name: string; position: LatLng } | null };
+export type RouteOverlay = {
+  line: LatLng[];
+  current: boolean;
+  stopIds: string[];
+  stops: RouteStop[];
+  campus: { name: string; position: LatLng } | null;
+  legs: RouteLeg[];
+  distanceM: number | null;
+  durationS: number | null;
+};
 
 export function routeOverlay(route: BusRoute): RouteOverlay | null {
   const line = routeLine(route);
   if (line.length < 2) return null;
-  return { line, current: route.current, stopIds: route.stops.map((s) => s.id), campus: route.campus };
+  return {
+    line,
+    current: route.current,
+    stopIds: route.stops.map((s) => s.id),
+    stops: route.stops,
+    campus: route.campus,
+    legs: route.legs,
+    distanceM: route.distanceM,
+    durationS: route.durationS,
+  };
+}
+
+/** A suggested stop to insert: after the stop at [after] (-1 before the first). */
+export type Extra = { name: string; position: LatLng; after: number };
+
+/**
+ * The route's stops with suggested ones put in: each after the stop at its position, several after the same stop
+ * nearest first (as the database orders a preview).
+ */
+export function insertExtras(stops: readonly RouteStop[], extras: readonly Extra[]): (RouteStop & { suggested?: boolean })[] {
+  const out: (RouteStop & { suggested?: boolean })[] = [];
+  const at = (after: number) =>
+    extras
+      .map((e, i) => ({ ...e, i }))
+      .filter((e) => Math.max(e.after, -1) === after)
+      .sort((a, b) => {
+        const ref = stops[Math.max(after, 0)]?.position;
+        return ref ? distanceMeters(ref, a.position) - distanceMeters(ref, b.position) : a.i - b.i;
+      })
+      .map((e) => ({ id: `suggested:${e.i}`, name: e.name, position: e.position, active: true, suggested: true }));
+  out.push(...at(-1));
+  stops.forEach((s, i) => {
+    out.push(s, ...at(i));
+  });
+  // Positions past the last stop (between it and the campus) were taken by the last index above.
+  return out;
 }
 
 /** Moves the item at [from] to [to], keeping the others in order. */
@@ -132,4 +176,29 @@ export function formatMinutes(seconds: number): string {
   const minutes = Math.max(1, Math.round(seconds / 60));
   if (minutes < 60) return `${minutes} min`;
   return `${Math.floor(minutes / 60)} h ${String(minutes % 60).padStart(2, "0")} min`;
+}
+
+export type RoadPreview = { line: LatLng[]; legs: RouteLeg[]; distanceM: number; durationS: number };
+
+/**
+ * Today's route against the same route with suggested stops: the line to draw, its stop-by-stop directions, and the
+ * difference in length and time. Road against road when both are drawn; otherwise estimate against estimate, so the
+ * difference is fair either way.
+ */
+export function compareRoutes(route: RouteOverlay, extras: readonly Extra[], road: RoadPreview | null) {
+  const withExtras = insertExtras(route.stops, extras);
+  const estimatedNew = directions({ stops: withExtras, campus: route.campus, legs: [], current: false });
+  const estimatedNow = directions({ stops: route.stops, campus: route.campus, legs: [], current: false });
+  const sum = (list: readonly { distanceM: number; durationS: number }[]) => list.reduce((a, l) => ({ d: a.d + l.distanceM, t: a.t + l.durationS }), { d: 0, t: 0 });
+  const byRoad = road !== null && route.current && route.distanceM !== null && route.durationS !== null;
+  const now = byRoad ? { d: route.distanceM as number, t: route.durationS as number } : sum(estimatedNow);
+  const next = byRoad && road ? { d: road.distanceM, t: road.durationS } : sum(estimatedNew);
+  return {
+    line: road ? road.line : [...withExtras.map((s) => s.position), ...(route.campus ? [route.campus.position] : [])],
+    steps: road && road.legs.length > 0 ? road.legs : estimatedNew,
+    byRoad,
+    deltaD: next.d - now.d,
+    deltaT: next.t - now.t,
+    total: next,
+  };
 }

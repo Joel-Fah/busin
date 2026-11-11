@@ -92,6 +92,8 @@ export type MapViewProps = {
   focus?: LatLng | null;
   /** Change this to glide to `focus` again even when it has not moved, for example after the map was panned away. */
   focusKey?: number;
+  /** The zoom to glide to (by default at least 15, street level); lower to keep a whole route in view. */
+  focusZoom?: number;
   /** Text for a bubble standing for several stops that would overlap, with {count} for the number. */
   clusterLabel?: string;
   /** Share of the map's height (0 to 0.8) covered at the bottom, for example by a dock: fitting and gliding keep clear of it. */
