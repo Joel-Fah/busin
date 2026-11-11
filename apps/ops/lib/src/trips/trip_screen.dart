@@ -8,6 +8,8 @@ import 'package:hugeicons/hugeicons.dart';
 
 import '../providers.dart';
 import '../router.dart';
+import '../queue/scan_queue.dart';
+import '../scan/scan_providers.dart';
 import 'trip_providers.dart';
 
 /// One trip: where it stands, how full the bus is, and Start or End for whoever may run it.
@@ -108,7 +110,14 @@ class _TripScreenState extends ConsumerState<TripScreen> {
             ),
             data: (trip) {
               final canRun = me != null && trip.canRun(me.userId, isAdmin: me.isAdmin);
-              final boarded = ref.watch(manifestProvider(trip.id)).value?.length;
+              final manifest = ref.watch(manifestProvider(trip.id)).value;
+              final mine = ref.watch(tripScansProvider(trip.id)).value ?? const <QueuedScan>[];
+              // On board: what the server has, plus what this phone let on and has not sent yet.
+              final boarded = manifest == null
+                  ? null
+                  : {for (final m in manifest) m.studentId, for (final s in mine) if (s.state != QueuedState.refused) s.studentId}.length;
+              final refusedLater = [for (final s in mine) if (s.state == QueuedState.refused) s];
+              final roster = ref.watch(rosterProvider).value;
               final time = const SchoolClock().wallClock(zone, trip.scheduledStart);
               return RefreshIndicator(
                 onRefresh: () async => _reload(),
@@ -159,6 +168,32 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                       else
                         Notice(child: Text(l10n.opsAssignedElsewhere)),
                     ],
+                    if (trip.status == TripStatus.active) ...[
+                      BusinButton(
+                        label: l10n.opsScan,
+                        icon: HugeIcons.strokeRoundedQrCode,
+                        expand: true,
+                        onPressed: () => context.push(Routes.scan(trip.id)),
+                      ),
+                      const SizedBox(height: BusinSpace.x3),
+                    ],
+                    if (refusedLater.isNotEmpty) ...[
+                      Notice(
+                        tone: StatusTone.bad,
+                        title: l10n.opsRefusedLaterTitle,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(l10n.opsRefusedLaterBody),
+                            const SizedBox(height: BusinSpace.x2),
+                            for (final s in refusedLater)
+                              Text('${roster?.rider(s.studentId)?.fullName ?? s.studentId.substring(0, 8)} · ${_reasonText(l10n, s.reason)}',
+                                  style: text.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: BusinSpace.x3),
+                    ],
                     if (trip.status == TripStatus.active && canRun)
                       BusinButton(
                         label: l10n.opsEnd,
@@ -178,6 +213,15 @@ class _TripScreenState extends ConsumerState<TripScreen> {
     );
   }
 }
+
+String _reasonText(BusinL10n l10n, String? reason) => switch (reason) {
+      'account_not_verified' => l10n.opsResultNotVerified,
+      'no_active_subscription' => l10n.opsResultNoSubscription,
+      'student_not_found' => l10n.opsResultUnknown,
+      'expired_code' => l10n.opsResultExpired,
+      'invalid_code' => l10n.opsResultInvalid,
+      _ => l10n.errorGeneric,
+    };
 
 class _EndSheet extends StatelessWidget {
   const _EndSheet();

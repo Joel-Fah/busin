@@ -1325,4 +1325,107 @@ class BusinL10nFr extends BusinL10n {
   @override
   String get opsProblemBody =>
       'Vérifiez la connexion et réessayez. La première connexion sur un téléphone a besoin d\'une connexion.';
+
+  @override
+  String get opsScan => 'Scanner les codes d\'embarquement';
+
+  @override
+  String get opsScanHint =>
+      'Visez le code d\'embarquement de l\'étudiant avec l\'appareil photo.';
+
+  @override
+  String get opsResultBoarded => 'À bord';
+
+  @override
+  String get opsResultAlready => 'Déjà à bord';
+
+  @override
+  String get opsResultInvalid => 'Code d\'embarquement non valide';
+
+  @override
+  String get opsResultExpired =>
+      'Ce code a expiré. Demandez à l\'étudiant de rouvrir son code.';
+
+  @override
+  String get opsResultNotOnList =>
+      'Absent de la liste du jour. Aucun abonnement valide aujourd\'hui.';
+
+  @override
+  String get opsResultNoKeys =>
+      'La liste du jour manque. Connectez-vous à internet pour la télécharger.';
+
+  @override
+  String get opsResultChecking => 'Vérification auprès du serveur...';
+
+  @override
+  String get opsResultNotVerified => 'Ce compte n\'est pas actif.';
+
+  @override
+  String get opsResultNoSubscription => 'Aucun abonnement valide aujourd\'hui.';
+
+  @override
+  String get opsResultUnknown => 'Pas un étudiant de cette école.';
+
+  @override
+  String opsKeysStatus(int count, String time) {
+    return 'Liste du jour : $count passagers, mise à jour à $time';
+  }
+
+  @override
+  String get opsKeysMissing =>
+      'Pas encore de liste pour aujourd\'hui. Connectez-vous pour la télécharger.';
+
+  @override
+  String get opsKeysRefresh => 'Mettre la liste à jour';
+
+  @override
+  String opsPending(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count scans en attente d\'envoi',
+      one: '1 scan en attente d\'envoi',
+      zero: 'Tous les scans sont envoyés',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get opsRefusedLaterTitle =>
+      'Refusés par le serveur après l\'embarquement';
+
+  @override
+  String get opsRefusedLaterBody =>
+      'Le téléphone a laissé monter ces étudiants, mais le serveur n\'a pas accepté l\'embarquement (par exemple un abonnement révoqué depuis ce matin).';
+
+  @override
+  String get opsCameraDenied =>
+      'Autorisez l\'appareil photo pour scanner les codes d\'embarquement.';
+
+  @override
+  String get opsLocationWhyTitle => 'Où chaque embarquement a lieu';
+
+  @override
+  String get opsLocationWhyBody =>
+      'BusIn Ops enregistre l\'arrêt où chaque étudiant monte, à partir de la position de ce téléphone pendant que le scanner est ouvert. Elle sert à ce trajet et à la planification des arrêts, jamais à vous suivre.';
+
+  @override
+  String get opsLocationContinue => 'Continuer';
+
+  @override
+  String opsSignOutPending(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count scans attendent encore d\'être envoyés. Connectez-vous d\'abord à internet, puis déconnectez-vous.',
+      one: '1 scan attend encore d\'être envoyé. Connectez-vous d\'abord à internet, puis déconnectez-vous.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String opsAtStop(String stop) {
+    return 'À $stop';
+  }
 }

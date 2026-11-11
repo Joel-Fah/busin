@@ -1301,4 +1301,103 @@ class BusinL10nEn extends BusinL10n {
   @override
   String get opsProblemBody =>
       'Check the connection and try again. The first sign-in on a phone needs a connection.';
+
+  @override
+  String get opsScan => 'Scan boarding codes';
+
+  @override
+  String get opsScanHint => 'Point the camera at the student\'s boarding code.';
+
+  @override
+  String get opsResultBoarded => 'On board';
+
+  @override
+  String get opsResultAlready => 'Already on board';
+
+  @override
+  String get opsResultInvalid => 'Not a valid boarding code';
+
+  @override
+  String get opsResultExpired =>
+      'This code has expired. Ask the student to reopen their code.';
+
+  @override
+  String get opsResultNotOnList =>
+      'Not on today\'s list. No valid subscription for today.';
+
+  @override
+  String get opsResultNoKeys =>
+      'Today\'s list is missing. Connect to the internet to download it.';
+
+  @override
+  String get opsResultChecking => 'Checking with the server...';
+
+  @override
+  String get opsResultNotVerified => 'This account is not active.';
+
+  @override
+  String get opsResultNoSubscription => 'No valid subscription for today.';
+
+  @override
+  String get opsResultUnknown => 'Not a student of this school.';
+
+  @override
+  String opsKeysStatus(int count, String time) {
+    return 'Today\'s list: $count riders, updated $time';
+  }
+
+  @override
+  String get opsKeysMissing => 'No list for today yet. Connect to download it.';
+
+  @override
+  String get opsKeysRefresh => 'Update the list';
+
+  @override
+  String opsPending(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count scans waiting to send',
+      one: '1 scan waiting to send',
+      zero: 'All scans sent',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get opsRefusedLaterTitle => 'Refused by the server after boarding';
+
+  @override
+  String get opsRefusedLaterBody =>
+      'The phone let these students on, but the server did not accept the boarding (for example a subscription revoked since this morning).';
+
+  @override
+  String get opsCameraDenied => 'Allow the camera to scan boarding codes.';
+
+  @override
+  String get opsLocationWhyTitle => 'Where each boarding happens';
+
+  @override
+  String get opsLocationWhyBody =>
+      'BusIn Ops records the stop where each student boards, from this phone\'s location while the scanner is open. It is used for this trip and for planning stops, never to follow you.';
+
+  @override
+  String get opsLocationContinue => 'Continue';
+
+  @override
+  String opsSignOutPending(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count scans are still waiting to send. Connect to the internet first, then sign out.',
+      one: '1 scan is still waiting to send. Connect to the internet first, then sign out.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String opsAtStop(String stop) {
+    return 'At $stop';
+  }
 }

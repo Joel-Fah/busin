@@ -8,6 +8,7 @@ import 'package:hugeicons/hugeicons.dart';
 
 import '../providers.dart';
 import '../router.dart';
+import '../scan/scan_providers.dart';
 import 'trip_providers.dart';
 
 /// Today's trips at the school: the ones assigned to me first. Tapping one opens it to start, scan or end it.
@@ -20,6 +21,9 @@ class TodayScreen extends ConsumerWidget {
     final p = BusinPalette.of(context);
     final text = Theme.of(context).textTheme;
     final me = staffOf(ref.watch(accessProvider));
+    // While signed in, scans waiting on the phone are sent whenever possible.
+    ref.watch(syncLoopProvider);
+    ref.watch(pendingCountProvider);
     final trips = ref.watch(todayTripsProvider);
     final buses = ref.watch(todayBusesProvider).value ?? const <String, Bus>{};
     final zone = ref.watch(schoolProvider).value?.timezone ?? 'UTC';
@@ -51,7 +55,15 @@ class TodayScreen extends ConsumerWidget {
           IconButton(
             tooltip: l10n.actionSignOut,
             icon: HugeIcon(icon: HugeIcons.strokeRoundedLogout01, color: p.fg),
-            onPressed: () => ref.read(signOutProvider)(),
+            onPressed: () async {
+              // Scans still on the phone must reach the server first: they are never dropped.
+              final pending = ref.read(pendingCountProvider).value ?? 0;
+              if (pending > 0) {
+                BusinToast.show(context, l10n.opsSignOutPending(pending), tone: ToastTone.warning);
+                return;
+              }
+              await ref.read(signOutProvider)();
+            },
           ),
         ],
       ),

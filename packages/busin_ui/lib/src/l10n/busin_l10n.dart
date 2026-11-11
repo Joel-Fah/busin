@@ -2370,6 +2370,150 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'Check the connection and try again. The first sign-in on a phone needs a connection.'**
   String get opsProblemBody;
+
+  /// No description provided for @opsScan.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan boarding codes'**
+  String get opsScan;
+
+  /// No description provided for @opsScanHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at the student\'s boarding code.'**
+  String get opsScanHint;
+
+  /// No description provided for @opsResultBoarded.
+  ///
+  /// In en, this message translates to:
+  /// **'On board'**
+  String get opsResultBoarded;
+
+  /// No description provided for @opsResultAlready.
+  ///
+  /// In en, this message translates to:
+  /// **'Already on board'**
+  String get opsResultAlready;
+
+  /// No description provided for @opsResultInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a valid boarding code'**
+  String get opsResultInvalid;
+
+  /// No description provided for @opsResultExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'This code has expired. Ask the student to reopen their code.'**
+  String get opsResultExpired;
+
+  /// No description provided for @opsResultNotOnList.
+  ///
+  /// In en, this message translates to:
+  /// **'Not on today\'s list. No valid subscription for today.'**
+  String get opsResultNotOnList;
+
+  /// No description provided for @opsResultNoKeys.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s list is missing. Connect to the internet to download it.'**
+  String get opsResultNoKeys;
+
+  /// No description provided for @opsResultChecking.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking with the server...'**
+  String get opsResultChecking;
+
+  /// No description provided for @opsResultNotVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'This account is not active.'**
+  String get opsResultNotVerified;
+
+  /// No description provided for @opsResultNoSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'No valid subscription for today.'**
+  String get opsResultNoSubscription;
+
+  /// No description provided for @opsResultUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a student of this school.'**
+  String get opsResultUnknown;
+
+  /// No description provided for @opsKeysStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s list: {count} riders, updated {time}'**
+  String opsKeysStatus(int count, String time);
+
+  /// No description provided for @opsKeysMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'No list for today yet. Connect to download it.'**
+  String get opsKeysMissing;
+
+  /// No description provided for @opsKeysRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Update the list'**
+  String get opsKeysRefresh;
+
+  /// No description provided for @opsPending.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{All scans sent} =1{1 scan waiting to send} other{{count} scans waiting to send}}'**
+  String opsPending(int count);
+
+  /// No description provided for @opsRefusedLaterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Refused by the server after boarding'**
+  String get opsRefusedLaterTitle;
+
+  /// No description provided for @opsRefusedLaterBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The phone let these students on, but the server did not accept the boarding (for example a subscription revoked since this morning).'**
+  String get opsRefusedLaterBody;
+
+  /// No description provided for @opsCameraDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow the camera to scan boarding codes.'**
+  String get opsCameraDenied;
+
+  /// No description provided for @opsLocationWhyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Where each boarding happens'**
+  String get opsLocationWhyTitle;
+
+  /// No description provided for @opsLocationWhyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'BusIn Ops records the stop where each student boards, from this phone\'s location while the scanner is open. It is used for this trip and for planning stops, never to follow you.'**
+  String get opsLocationWhyBody;
+
+  /// No description provided for @opsLocationContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get opsLocationContinue;
+
+  /// No description provided for @opsSignOutPending.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 scan is still waiting to send. Connect to the internet first, then sign out.} other{{count} scans are still waiting to send. Connect to the internet first, then sign out.}}'**
+  String opsSignOutPending(int count);
+
+  /// No description provided for @opsAtStop.
+  ///
+  /// In en, this message translates to:
+  /// **'At {stop}'**
+  String opsAtStop(String stop);
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {

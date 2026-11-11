@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'access.dart';
 import 'providers.dart';
+import 'scan/scanner_screen.dart';
 import 'screens/access_screens.dart';
 import 'screens/sign_in_screen.dart';
 import 'trips/today_screen.dart';
@@ -18,6 +19,7 @@ class Routes {
   static const problem = '/problem';
   static const today = '/today';
   static String trip(String id) => '/trip/$id';
+  static String scan(String id) => '/trip/$id/scan';
 }
 
 /// Where the access state sends someone who is at [location], or null to stay. Pure, so it is tested on its own.
@@ -51,6 +53,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: Routes.problem, builder: (_, _) => const ProblemScreen()),
       GoRoute(path: Routes.today, builder: (_, _) => const TodayScreen()),
       GoRoute(path: '/trip/:id', builder: (_, state) => TripScreen(tripId: state.pathParameters['id']!)),
+      GoRoute(path: '/trip/:id/scan', builder: (_, state) => ScannerScreen(tripId: state.pathParameters['id']!)),
     ],
   );
   ref.onDispose(router.dispose);
