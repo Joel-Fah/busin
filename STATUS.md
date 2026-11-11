@@ -2,7 +2,7 @@
 
 Updated: 2026-11-11
 
-Current phase: **Phase 3, student app** ([docs/phases/phase-3-student-app.md](docs/phases/phase-3-student-app.md)): feature complete, waiting for the owner's device sign-off and the PR review and merges (see the last handoff)
+Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/phases/phase-5-insights.md)): feature complete, waiting for the owner's check. Phases 3 and 4 are signed off; everything up to #311 is merged into `dev` (2026-11-11).
 
 ## Phases
 
@@ -11,9 +11,9 @@ Current phase: **Phase 3, student app** ([docs/phases/phase-3-student-app.md](do
 | 0 Foundation | Monorepo layout, docs, skills, workflow, GitHub setup | Done and merged into `dev` |
 | 1 Backend | Secure multi-tenant Supabase backend | Done and merged into `dev` (126 database tests) |
 | 2 Shared and admin web | Shared Dart packages, admin portal | **Done and merged into `dev`.** Admin portal (with the bento overview); `busin_core` has the models and the repository interfaces, `busin_data` the Supabase implementations, `busin_ui` the design system. Flutter 3.47.9 through fvm resolves, analyzes and tests the workspace |
-| 3 Student app | Lightweight student app | **Feature complete, not yet signed off.** Every item of the scope is built and tested (sign-in, subscribe with proof, status, rotating code, history, live bus for subscribers, push, English and French, light and dark, plus the profile, setup, history, revoke and live changes). Waiting on: the owner's device test, review and merge of the stacked branches (#123 first), a hosted Supabase project (none exists yet), iOS configuration |
-| 4 Ops app | Scanner and driver mode | **Signed off by the owner (2026-11-11) after device testing.** Owner decisions: day keys for offline checks (ADR 0014), any staff phone scans and the trip's assignee shares the position, the assignee starts and ends the trip (any staff when none). Slices: day keys (#249), trip control, shared app package, ops shell, scanner with offline queue, driver mode, then the owner's test on a real run |
-| 5 Insights | Density map, pickup and route suggestions | **In progress.** **Feature complete, waiting for the owner's check.** Stop load (#261), proximity (#265), students nearer another stop (#287), the graph view (#289), stop suggestions (#291). Route optimization (OR-Tools) and the weekly summary stay for later, as agreed |
+| 3 Student app | Lightweight student app | **Done, signed off by the owner on a device (2026-11-11) and merged into `dev`.** Sign-in, subscribe with proof, live approval, rotating code, history, live bus, push, EN and FR, light and dark, plus the ideas round (school join, notifications and reminders, on-board card, streaks and leaderboard, bus near my stop, My area with OpenStreetMap place search). Still open: a hosted Supabase project, iOS configuration, Firebase for push |
+| 4 Ops app | Scanner and driver mode | **Signed off by the owner (2026-11-11) after device testing, and merged into `dev`.** Owner decisions: day keys for offline checks (ADR 0014), any staff phone scans and the trip's assignee shares the position, the assignee starts and ends the trip (any staff when none). Slices: day keys (#249), trip control, shared app package, ops shell, scanner with offline queue, driver mode, then the owner's test on a real run |
+| 5 Insights | Density map, pickup and route suggestions | **Feature complete and merged into `dev`, waiting for the owner's check.** Stop load (#261), proximity (#265), students nearer another stop (#287), the graph view (#289), stop suggestions (#291). Route optimization (OR-Tools) and the weekly summary stay for later, as agreed |
 | 6 Scale | More schools, payments, hardware tracker | Not started |
 
 ## Blockers (owner)
@@ -39,7 +39,7 @@ The bus route is built (#297 to #303). Owner: a Mapbox token for Directions in `
 
 The route editor test no longer throws away the drawn road (#309). Suggested routes are reordered for the quickest drive along the roads and drawn in orange over today's route; the first stop may move up to 1.5 km (#311).
 
-Owner: when a hosted project exists, its migration enables pg_cron (a Supabase extension). Merge #261, #263, #265, #267, #269, #271, #273, #275, #277, #279, #281, #283, #285, #287, #289, #291 in that order, after the phase 4 stack. For the demo areas locally: `npm run seed:demo` (it also renews the demo password and trips).
+Owner: when a hosted project exists, its migration enables pg_cron (a Supabase extension). Merged into `dev` on 2026-11-11 (owner approved): #247 and the whole phase 4 and 5 stack, #249 to #311. They were merged locally in order with merge commits and `dev` was pushed once (only #249 needed a fix, in STATUS and build_log); each stacked PR was then marked merged by fast-forwarding its base branch, so no CI ran. For the demo areas locally: `npm run seed:demo` (it also renews the demo password and trips).
 
 ## Handoff: phase 4 (in progress)
 
