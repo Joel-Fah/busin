@@ -4,6 +4,7 @@ import 'package:busin_app/busin_app.dart';
 import 'package:busin_core/busin_core.dart';
 import 'dart:typed_data';
 
+import 'package:busin_ops/src/drive/driver_mode.dart';
 import 'package:busin_ops/src/keys/roster.dart';
 import 'package:busin_ops/src/providers.dart';
 import 'package:busin_ops/src/queue/scan_queue.dart';
@@ -215,6 +216,21 @@ class FakeStops implements StopsRepository {
   dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
 }
 
+class FakeLive implements LivePositionsRepository {
+  final List<GeoPoint> sent = [];
+  Object? error;
+
+  @override
+  Future<bool> publish({required String tripId, required GeoPoint position, double? speedMps, double? headingDeg, double? accuracyM}) async {
+    if (error != null) throw error!;
+    sent.add(position);
+    return true;
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
+}
+
 class FakePositions implements LocationFeed {
   @override
   Future<bool> hasPermission() async => true;
@@ -223,7 +239,17 @@ class FakePositions implements LocationFeed {
   Future<bool> requestPermission() async => true;
 
   @override
-  Stream<Fix> watch() => Stream.value((point: GeoPoint(3.8201, 11.4771), accuracy: 8.0));
+  Stream<Fix> watch() => Stream.value((point: GeoPoint(3.8201, 11.4771), accuracy: 8.0, speed: null, heading: null));
+
+  /// What driving mode reads; tests add readings to it.
+  final driving = StreamController<Fix>.broadcast();
+  String? notification;
+
+  @override
+  Stream<Fix> watchDriving({required String title, required String text}) {
+    notification = '$title / $text';
+    return driving.stream;
+  }
 }
 
 /// The stand-in camera: tests call [feed] with what it "reads".
@@ -242,15 +268,18 @@ List<Override> overridesFor({
   FakeRosterStore? rosters,
   ScanQueue? queue,
   FakeScans? scans,
+  FakePositions? positions,
+  FakeLive? live,
   bool online = true,
 }) =>
     [
+      livePositionsRepositoryProvider.overrideWithValue(live ?? FakeLive()),
       qrRepositoryProvider.overrideWithValue(qr ?? FakeQr(const [])),
       rosterStoreProvider.overrideWithValue(rosters ?? FakeRosterStore()),
       scanQueueProvider.overrideWithValue(queue ?? MemoryScanQueue()),
       scansRepositoryProvider.overrideWithValue(scans ?? FakeScans()),
       stopsRepositoryProvider.overrideWithValue(FakeStops()),
-      locationFeedProvider.overrideWithValue(FakePositions()),
+      locationFeedProvider.overrideWithValue(positions ?? FakePositions()),
       scannerViewProvider.overrideWithValue(fakeCamera),
       connectivityProvider.overrideWith((ref) => Stream.value(online)),
       authServiceProvider.overrideWithValue(auth),
