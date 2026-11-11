@@ -1204,7 +1204,7 @@ class BusinL10nEn extends BusinL10n {
 
   @override
   String get areaIntro =>
-      'Tell your school roughly where you live, so it can place stops and plan routes near students. It is rounded to about 500 metres, never tracked, and only you can see it. Your school only sees how many students live in each zone.';
+      'Tell your school roughly where you live, so it can place stops and plan routes near students. It is rounded to about 500 metres, never tracked, and only you can see it. Your school only sees how many students live in each zone, and how far groups of at least five live from their stops.';
 
   @override
   String get areaAtHome => 'Are you home right now?';

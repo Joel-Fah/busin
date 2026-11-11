@@ -73,7 +73,7 @@ test.describe("the landing page's interest form", () => {
   test("the questions open one at a time, the first one already open", async ({ page }) => {
     await page.goto("/");
     const first = page.getByText("The app costs you nothing.");
-    const other = page.getByText("The student app never asks for your location.");
+    const other = page.getByText(/The app reads your position only when you ask/);
     await expect(first).toBeVisible();
     await expect(other).toBeHidden();
     await page.getByRole("heading", { name: "Does BusIn know where I am?" }).click();

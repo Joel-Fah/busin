@@ -1224,7 +1224,7 @@ class BusinL10nFr extends BusinL10n {
 
   @override
   String get areaIntro =>
-      'Indiquez à votre école à peu près où vous habitez, pour qu\'elle place les arrêts et prévoie les trajets près des étudiants. C\'est arrondi à environ 500 mètres, jamais suivi, et vous seul pouvez le voir. Votre école ne voit que le nombre d\'étudiants par zone.';
+      'Indiquez à votre école à peu près où vous habitez, pour qu\'elle place les arrêts et prévoie les trajets près des étudiants. C\'est arrondi à environ 500 mètres, jamais suivi, et vous seul pouvez le voir. Votre école ne voit que le nombre d\'étudiants par zone, et la distance aux arrêts de groupes d\'au moins cinq.';
 
   @override
   String get areaAtHome => 'Êtes-vous chez vous en ce moment ?';
