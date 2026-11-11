@@ -20,7 +20,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   );
 }
 
-const KEYS: NavKey[] = ["overview", "subscriptions", "people", "trips", "scans"];
+const KEYS: NavKey[] = ["overview", "subscriptions", "people", "trips", "scans", "insights"];
 
 /**
  * What waits for the admin, for the badges on the nav: subscription requests to review and students who asked to join
@@ -52,7 +52,7 @@ async function AdminShell({ children }: { children: React.ReactNode }) {
         labels={t.nav}
         groups={[
           { label: t.nav.groupDaily, keys: ["subscriptions", "trips", "scans"] },
-          { label: t.nav.groupGeneral, keys: ["overview", "people"] },
+          { label: t.nav.groupGeneral, keys: ["overview", "people", "insights"] },
         ]}
         profile={{ name: admin.fullName || admin.email, avatarUrl: admin.avatarUrl, href: "/profile", also: ["/stops", "/buses", "/semesters", "/academics", "/school"] }}
         text={t.nav}

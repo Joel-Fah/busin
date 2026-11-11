@@ -28,6 +28,16 @@ export type MapArea = {
   students: number;
 };
 
+/** A translucent circle under the markers, for example the load of a stop. */
+export type MapCircle = {
+  id: string;
+  position: LatLng;
+  /** 0 (smallest) to 1 (largest). */
+  size: number;
+  /** A CSS colour: a value ("#b3261e") or a theme token ("var(--bad)"), read from the page when drawn. */
+  color: string;
+};
+
 export type MapPicker = {
   /** The chosen position, or null while nothing is chosen. */
   position: LatLng | null;
@@ -47,6 +57,8 @@ export type MapViewProps = {
   markers?: MapMarker[];
   /** Zones where students live, drawn as soft discs under the markers. */
   areas?: MapArea[];
+  /** Circles drawn under the markers. */
+  circles?: MapCircle[];
   /** Turns the map into a place to choose a position. */
   picker?: MapPicker;
   /** When this changes, the map glides to it. For example the stop picked from a list. */

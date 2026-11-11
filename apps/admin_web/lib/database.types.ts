@@ -600,6 +600,9 @@ isOneToOne: false
 "admin_decline_member":
 { Args: { "p_reason"?: string,"p_user_id": string }; Returns: undefined
                            },
+"admin_refresh_stop_loads":
+{ Args: Record<PropertyKey, never>; Returns: string
+                           },
 "admin_reinstate_subscription":
 { Args: { "p_note"?: string,"p_subscription_id": string }; Returns: undefined
                            },
@@ -620,6 +623,11 @@ isOneToOne: false
                            },
 "admin_set_user_status":
 { Args: { "p_status": Database["public"]['Enums']["account_status"],"p_user_id": string }; Returns: undefined
+                           },
+"admin_stop_loads":
+{ Args: { "p_days"?: number }; Returns: {
+              "boardings": number,"departures": number,"last_day": string,"load": number,"peak": number,"peak_load": number,"per_departure": number,"refreshed_at": string,"stop_id": string
+            }[]
                            },
 "admin_stop_usage":
 { Args: Record<PropertyKey, never>; Returns: {

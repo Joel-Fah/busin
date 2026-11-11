@@ -6,6 +6,7 @@ import { LngLatBounds, Map as MapLibreMap, Marker, NavigationControl, setWorkerU
 import { useEffect, useRef, useState } from "react";
 
 import { areaColor, placeAreas, type AreaHost } from "../area-layer";
+import { placeCircles } from "../circle-layer";
 import { placeMarkers } from "../place-markers";
 import type { MapViewProps } from "../types";
 
@@ -29,6 +30,7 @@ export default function MapLibreView({
   styleUrl,
   markers,
   areas,
+  circles,
   picker,
   focus,
   focusKey,
@@ -112,6 +114,12 @@ export default function MapLibreView({
     if (!map || !areas || areas.length === 0) return;
     return placeAreas(map as unknown as AreaHost, areas, areaColor());
   }, [map, areas]);
+
+  // Circles, for example the load of each stop, under the markers.
+  useEffect(() => {
+    if (!map || !circles || circles.length === 0) return;
+    return placeCircles(map as unknown as AreaHost, circles);
+  }, [map, circles]);
 
   // Glide to the position the page is focused on, for example the stop picked from a list.
   useEffect(() => {
