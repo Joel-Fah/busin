@@ -14,6 +14,7 @@ import '../qr/boarding_ticket.dart';
 import '../qr/qr_providers.dart';
 import '../qr/screen_security.dart';
 import '../router.dart';
+import '../streaks/streak_widgets.dart';
 
 /// The second tab: the boarding code. A new code is derived on the phone every 30 seconds from the secret,
 /// so it works without a connection once the secret is stored. While this tab is on screen the window is
@@ -166,7 +167,10 @@ class _Code extends ConsumerWidget {
         Text(l10n.qrTitle, style: text.headlineMedium),
         const SizedBox(height: BusinSpace.x1),
         Text(l10n.qrHint, style: text.bodyLarge?.copyWith(color: palette.muted)),
-        const SizedBox(height: BusinSpace.x5),
+        const SizedBox(height: BusinSpace.x3),
+        // A student who keeps a streak sees it here; it opens the calendar. Nothing for anyone else.
+        const StreakChip(),
+        const SizedBox(height: BusinSpace.x4),
       ],
     );
 

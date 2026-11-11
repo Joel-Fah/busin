@@ -12,6 +12,7 @@ import '../models/scan_outcome.dart';
 import '../models/school.dart';
 import '../models/semester.dart';
 import '../models/stop.dart';
+import '../models/streak.dart';
 import '../models/subscription.dart';
 import '../models/subscription_event.dart';
 import '../models/trip.dart';
@@ -46,6 +47,17 @@ abstract interface class AcademicRepository {
 
 abstract interface class SchoolRepository {
   Future<School> getSchool(String schoolId);
+}
+
+/// Streaks (opt-in). Turning them on also puts the student on their school's leaderboard.
+abstract interface class StreaksRepository {
+  Future<void> setOptIn(bool on);
+
+  /// The student's days of a semester, from the day they opted in; empty when they have not.
+  Future<List<RideDay>> rideDays(String semesterId);
+
+  /// Null when the student has not opted in.
+  Future<Streak?> streak(String semesterId);
 }
 
 /// The student's notification preferences. Reads give the defaults until something is saved.

@@ -1860,6 +1860,84 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'Close'**
   String get boardedClose;
+
+  /// No description provided for @streakTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Streaks'**
+  String get streakTitle;
+
+  /// No description provided for @streakHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Count the days you take the bus, and join your school\'s leaderboard.'**
+  String get streakHint;
+
+  /// No description provided for @streakOnTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep a streak?'**
+  String get streakOnTitle;
+
+  /// No description provided for @streakOnBody.
+  ///
+  /// In en, this message translates to:
+  /// **'BusIn counts the days you board. Rest days and days without buses do not break it; only a bus day you miss does. You will also appear on your school\'s leaderboard as {name}. You can turn it off at any time.'**
+  String streakOnBody(String name);
+
+  /// No description provided for @streakOnAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on streaks'**
+  String get streakOnAction;
+
+  /// No description provided for @streakDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No streak yet} =1{1-day streak} other{{count}-day streak}}'**
+  String streakDays(int count);
+
+  /// No description provided for @streakBest.
+  ///
+  /// In en, this message translates to:
+  /// **'Best {count}'**
+  String streakBest(int count);
+
+  /// No description provided for @streakRides.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 ride this semester} other{{count} rides this semester}}'**
+  String streakRides(int count);
+
+  /// No description provided for @streakSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your streak'**
+  String get streakSheetTitle;
+
+  /// No description provided for @streakRode.
+  ///
+  /// In en, this message translates to:
+  /// **'Rode'**
+  String get streakRode;
+
+  /// No description provided for @streakMissed.
+  ///
+  /// In en, this message translates to:
+  /// **'Missed'**
+  String get streakMissed;
+
+  /// No description provided for @streakRest.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest or no bus'**
+  String get streakRest;
+
+  /// No description provided for @streakToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get streakToday;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {

@@ -1001,4 +1001,65 @@ class BusinL10nEn extends BusinL10n {
 
   @override
   String get boardedClose => 'Close';
+
+  @override
+  String get streakTitle => 'Streaks';
+
+  @override
+  String get streakHint =>
+      'Count the days you take the bus, and join your school\'s leaderboard.';
+
+  @override
+  String get streakOnTitle => 'Keep a streak?';
+
+  @override
+  String streakOnBody(String name) {
+    return 'BusIn counts the days you board. Rest days and days without buses do not break it; only a bus day you miss does. You will also appear on your school\'s leaderboard as $name. You can turn it off at any time.';
+  }
+
+  @override
+  String get streakOnAction => 'Turn on streaks';
+
+  @override
+  String streakDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count-day streak',
+      one: '1-day streak',
+      zero: 'No streak yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String streakBest(int count) {
+    return 'Best $count';
+  }
+
+  @override
+  String streakRides(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count rides this semester',
+      one: '1 ride this semester',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get streakSheetTitle => 'Your streak';
+
+  @override
+  String get streakRode => 'Rode';
+
+  @override
+  String get streakMissed => 'Missed';
+
+  @override
+  String get streakRest => 'Rest or no bus';
+
+  @override
+  String get streakToday => 'Today';
 }

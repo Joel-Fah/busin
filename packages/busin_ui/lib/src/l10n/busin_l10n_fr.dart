@@ -1021,4 +1021,65 @@ class BusinL10nFr extends BusinL10n {
 
   @override
   String get boardedClose => 'Fermer';
+
+  @override
+  String get streakTitle => 'Séries';
+
+  @override
+  String get streakHint =>
+      'Comptez les jours où vous prenez le bus, et rejoignez le classement de votre école.';
+
+  @override
+  String get streakOnTitle => 'Garder une série ?';
+
+  @override
+  String streakOnBody(String name) {
+    return 'BusIn compte les jours où vous montez. Les jours de repos et les jours sans bus ne la cassent pas ; seul un jour de bus manqué la casse. Vous apparaîtrez aussi dans le classement de votre école sous le nom $name. Vous pouvez la désactiver à tout moment.';
+  }
+
+  @override
+  String get streakOnAction => 'Activer les séries';
+
+  @override
+  String streakDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Série de $count jours',
+      one: 'Série de 1 jour',
+      zero: 'Pas encore de série',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String streakBest(int count) {
+    return 'Record $count';
+  }
+
+  @override
+  String streakRides(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count trajets ce semestre',
+      one: '1 trajet ce semestre',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get streakSheetTitle => 'Votre série';
+
+  @override
+  String get streakRode => 'Monté';
+
+  @override
+  String get streakMissed => 'Manqué';
+
+  @override
+  String get streakRest => 'Repos ou pas de bus';
+
+  @override
+  String get streakToday => 'Aujourd\'hui';
 }

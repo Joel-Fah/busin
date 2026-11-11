@@ -20,6 +20,7 @@ export 'src/models/scan_outcome.dart';
 export 'src/models/school.dart';
 export 'src/models/semester.dart';
 export 'src/models/stop.dart';
+export 'src/models/streak.dart';
 export 'src/models/subscription.dart';
 export 'src/models/subscription_event.dart';
 export 'src/models/trip.dart';

@@ -21,6 +21,7 @@ class Profile extends ValueObject {
     this.program,
     this.departmentId,
     this.programId,
+    this.streakOptIn = false,
   });
 
   factory Profile.fromJson(Map<String, dynamic> json) => Profile(
@@ -37,6 +38,7 @@ class Profile extends ValueObject {
         program: optString(json, 'program'),
         departmentId: optString(json, 'department_id'),
         programId: optString(json, 'program_id'),
+        streakOptIn: json['streak_opt_in'] == true,
         createdAt: reqTimestamp(json, 'created_at'),
         updatedAt: reqTimestamp(json, 'updated_at'),
       );
@@ -60,6 +62,9 @@ class Profile extends ValueObject {
   final String? programId;
   final DateTime createdAt;
   final DateTime updatedAt;
+
+  /// Whether the student keeps a streak (and so appears on the school's leaderboard).
+  final bool streakOptIn;
 
   bool get isVerified => status == AccountStatus.verified;
 
