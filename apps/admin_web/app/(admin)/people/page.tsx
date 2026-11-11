@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { Search01Icon, UserAdd01Icon } from "@hugeicons/core-free-icons";
+import { Delete02Icon, Search01Icon, UserAdd01Icon } from "@hugeicons/core-free-icons";
 
 import { FlashToast } from "@/components/FlashToast";
 import { JoinRequestActions } from "@/components/people/JoinRequestActions";
@@ -19,6 +19,7 @@ import { Tabs, type TabItem } from "@/components/ui/Tabs";
 import { StickyToolbar } from "@/components/ui/StickyToolbar";
 
 import { requireAdmin } from "@/lib/auth";
+import { daysLeft } from "@/lib/invites";
 import { format, type Locale } from "@/lib/i18n/messages";
 import { getMessages } from "@/lib/i18n/server";
 import { PAGE_SIZE, PAGE_SIZES, first, lastPage, pageRange, parsePage, parsePageSize, sizeParam } from "@/lib/pagination";
@@ -37,7 +38,7 @@ import {
 } from "@/lib/people";
 import { createClient } from "@/lib/supabase/server";
 
-import { declineMember, verifyMember } from "./actions";
+import { cancelInvite, declineMember, verifyMember } from "./actions";
 
 export const metadata: Metadata = { title: "People" };
 
@@ -92,23 +93,40 @@ async function PeopleList({ searchParams }: { searchParams: SearchParams }) {
     .order(verifying ? "join_requested_at" : "created_at", { ascending: verifying })
     .range(from, to);
   if (verifying) request = request.eq("role", "student").eq("status", "pending").not("join_requested_at", "is", null);
-  else if (role !== "all") request = request.eq("role", role);
+  else if (role !== "all" && role !== "invited") request = request.eq("role", role);
   if (q) request = request.or(searchFilter(q));
+
+  // Open invites (ADR 0015): not accounts yet, so they come from their own table, read only by the school's admins.
+  const invitedFilter = q ? `email.ilike.%${q}%` : null;
+  let invitedRows = supabase
+    .from("staff_invites")
+    .select("email, role, expires_at")
+    .gt("expires_at", new Date().toISOString())
+    .order("created_at", { ascending: false })
+    .limit(100);
+  let invitedCount = supabase.from("staff_invites").select("email", { count: "exact", head: true }).gt("expires_at", new Date().toISOString());
+  if (invitedFilter) {
+    invitedRows = invitedRows.or(invitedFilter);
+    invitedCount = invitedCount.or(invitedFilter);
+  }
+  const inviting = role === "invited";
 
   let toVerify = supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "student").eq("status", "pending").not("join_requested_at", "is", null);
   if (q) toVerify = toVerify.or(searchFilter(q));
 
   // Counts only, no rows: one per role for the numbers on the tabs, following the search.
-  const [listed, verifyCount, ...counted] = await Promise.all([
+  const [listed, verifyCount, invitedTotal, invites, ...counted] = await Promise.all([
     request,
     toVerify,
+    invitedCount,
+    inviting ? invitedRows : Promise.resolve({ data: [] as { email: string; role: "student" | "staff" | "admin"; expires_at: string }[] }),
     ...ROLES.map((r) => {
       let counting = supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", r);
       if (q) counting = counting.or(searchFilter(q));
       return counting;
     }),
   ]);
-  const counts = roleTabCounts(Object.fromEntries(ROLES.map((r, index) => [r, counted[index].count])), verifyCount.count);
+  const counts = roleTabCounts(Object.fromEntries(ROLES.map((r, index) => [r, counted[index].count])), verifyCount.count, invitedTotal.count);
 
   // A page past the last one is not a failure: the database answers "range not satisfiable" and there is nothing there.
   const { data, count } = listed;
@@ -121,7 +139,7 @@ async function PeopleList({ searchParams }: { searchParams: SearchParams }) {
     label: t.people.filters[filter],
     href: href(filter, q, 1, size),
     count: counts[filter],
-    tone: filter === "verify" ? (counts.verify > 0 ? "warn" : "neutral") : filter === "admin" ? "info" : filter === "staff" ? "warn" : "neutral",
+    tone: filter === "verify" ? (counts.verify > 0 ? "warn" : "neutral") : filter === "invited" ? "info" : filter === "admin" ? "info" : filter === "staff" ? "warn" : "neutral",
   }));
 
   return (
@@ -176,8 +194,50 @@ async function PeopleList({ searchParams }: { searchParams: SearchParams }) {
       {done ? <FlashToast message={t.people.done[done]} /> : null}
       {errorKey ? <Notice tone="bad">{t.people.errors[errorKey]}</Notice> : null}
       {verifying ? <p className="max-w-2xl text-sm text-muted">{t.people.verify.intro}</p> : null}
+      {inviting ? <p className="max-w-2xl text-sm text-muted">{t.people.invite.tabIntro}</p> : null}
 
-      {error ? (
+      {inviting ? (
+        (invites.data ?? []).length === 0 ? (
+          <EmptyState illustration="/illustrations/staff.webp" title={t.people.invite.none} />
+        ) : (
+          <TableCard>
+            <DataTable minWidth="36rem">
+              <Head>
+                <Th>{t.people.invite.email}</Th>
+                <Th>{t.people.columns.role}</Th>
+                <Th>{t.people.columns.status}</Th>
+                <Th>{t.people.invite.expires}</Th>
+                <Th>
+                  <span className="sr-only">{t.people.invite.cancel}</span>
+                </Th>
+              </Head>
+              <tbody>
+                {(invites.data ?? []).map((invite) => (
+                  <Tr key={invite.email}>
+                    <Td className="break-all font-semibold">{invite.email}</Td>
+                    <Td>
+                      <Chip tone={roleTone(invite.role)}>{t.role[invite.role]}</Chip>
+                    </Td>
+                    <Td>
+                      <Chip tone="info">{t.people.invite.waiting}</Chip>
+                    </Td>
+                    <Td className="text-muted">{format(t.people.invite.daysLeft, { count: daysLeft(invite.expires_at, new Date()) })}</Td>
+                    <Td>
+                      <form action={cancelInvite}>
+                        <input type="hidden" name="email" value={invite.email} />
+                        <input type="hidden" name="from" value="people" />
+                        <Button type="submit" variant="ghost" icon={Delete02Icon} aria-label={format(t.people.invite.cancelFor, { email: invite.email })}>
+                          {t.people.invite.cancel}
+                        </Button>
+                      </form>
+                    </Td>
+                  </Tr>
+                ))}
+              </tbody>
+            </DataTable>
+          </TableCard>
+        )
+      ) : error ? (
         <Notice tone="bad">{t.people.loadError}</Notice>
       ) : rows.length === 0 ? (
         <EmptyState illustration={verifying ? "/illustrations/verified.webp" : "/illustrations/staff.webp"} title={verifying && !q ? t.people.verify.empty : t.people.empty} />

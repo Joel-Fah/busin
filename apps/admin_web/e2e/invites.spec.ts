@@ -37,8 +37,15 @@ test("an administrator adds staff by email, sees the invite wait, and withdraws 
   await expect(row).toContainText("Staff");
   await expect(row).toContainText("in 30 days");
 
-  await row.getByRole("button", { name: `Withdraw the invite for ${newEmail}` }).click();
+  // People shows it too, in the Invited tab, before the first sign-in; it can be withdrawn there.
+  await page.goto("/people");
+  await page.getByRole("link", { name: /Invited/ }).click();
+  await expect(page).toHaveURL(/\/people\?role=invited/);
+  const listed = page.getByRole("row").filter({ hasText: newEmail });
+  await expect(listed).toContainText("Waiting for a first sign-in");
+  await listed.getByRole("button", { name: `Withdraw the invite for ${newEmail}` }).click();
   await expect(page.getByText("Invite withdrawn.")).toBeVisible();
+  await expect(page).toHaveURL(/role=invited/);
   await expect(page.getByRole("row").filter({ hasText: newEmail })).toHaveCount(0);
 });
 

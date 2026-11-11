@@ -122,7 +122,8 @@ describe("tones and tab counts", () => {
   });
 
   it("adds up the total and treats a missing count as zero", () => {
-    expect(roleTabCounts({ student: 120, staff: 6, admin: 2 })).toEqual({ all: 128, verify: 0, student: 120, staff: 6, admin: 2 });
+    expect(roleTabCounts({ student: 120, staff: 6, admin: 2 })).toEqual({ all: 128, verify: 0, invited: 0, student: 120, staff: 6, admin: 2 });
+    expect(roleTabCounts({ staff: 6 }, 0, 2)).toMatchObject({ all: 6, invited: 2 });
     expect(roleTabCounts({ student: 120 }, 3).verify).toBe(3);
     expect(roleTabCounts({ student: 120 }, null).verify).toBe(0);
     expect(roleTabCounts({ student: null }).all).toBe(0);
