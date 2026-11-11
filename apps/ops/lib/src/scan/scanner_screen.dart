@@ -13,6 +13,7 @@ import 'package:uuid/uuid.dart';
 
 import '../providers.dart';
 import '../queue/scan_queue.dart';
+import '../profile/ops_settings.dart';
 import '../router.dart';
 import '../trips/trip_providers.dart';
 import 'scan_decision.dart';
@@ -164,13 +165,13 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
     switch (decision) {
       case Admit(:final rider):
         await _queue(code, rider.studentId, now);
-        BusinHaptics.medium();
+        _feedback(good: true);
         _show(_Good(name: rider.fullName, avatarUrl: rider.avatarUrl, matricule: rider.matricule));
       case AlreadyOnBoard(:final rider):
-        BusinHaptics.light();
+        _feedback(good: true, again: true);
         _show(_Good(name: rider.fullName, avatarUrl: rider.avatarUrl, matricule: rider.matricule, again: true));
       case Refuse(:final kind):
-        unawaited(HapticFeedback.vibrate());
+        _feedback(good: false);
         _show(_Bad(switch (kind) {
           RefusalKind.invalid => l10n.opsResultInvalid,
           RefusalKind.expired => l10n.opsResultExpired,
@@ -228,10 +229,10 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
           final parsed = QrCodeVerifier.parse(code);
           if (parsed != null && !duplicate) await _queue(code, parsed.studentId, now, accepted: true);
           ref.invalidate(manifestProvider(widget.tripId));
-          BusinHaptics.medium();
+          _feedback(good: true, again: duplicate);
           _show(_Good(name: student.fullName, avatarUrl: student.avatarUrl, matricule: student.matricule, again: duplicate));
         case ScanRefused(:final reason):
-          unawaited(HapticFeedback.vibrate());
+          _feedback(good: false);
           _show(_Bad(switch (reason) {
             ScanFailure.invalidCode => l10n.opsResultInvalid,
             ScanFailure.expiredCode => l10n.opsResultExpired,
@@ -245,6 +246,21 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
     } catch (_) {
       if (mounted) _show(_Bad(l10n.errorGeneric));
     }
+  }
+
+  /// A buzz and a sound for each result, as the staff member chose in their profile.
+  void _feedback({required bool good, bool again = false}) {
+    final settings = ref.read(opsSettingsProvider);
+    if (settings.vibrate) {
+      if (!good) {
+        unawaited(HapticFeedback.vibrate());
+      } else if (again) {
+        BusinHaptics.light();
+      } else {
+        BusinHaptics.medium();
+      }
+    }
+    if (settings.sound) unawaited(SystemSound.play(good ? SystemSoundType.click : SystemSoundType.alert));
   }
 
   @override
