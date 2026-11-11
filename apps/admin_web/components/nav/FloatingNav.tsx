@@ -53,8 +53,8 @@ type Props = {
   groups: { label: string; keys: NavKey[] }[];
   /** `also` lists the setup pages the profile page opens: the Profile tab stays lit while the admin is on one. */
   profile: { name: string; avatarUrl: string | null; href: string; also?: string[] };
-  text: { primary: string; menu: string; closeMenu: string; profile: string; profileTab: string; home: string; current: string; waiting: string };
-  /** Things waiting for the admin, by tab (pending subscriptions, students to verify). Zero or missing shows nothing. */
+  text: { primary: string; menu: string; closeMenu: string; profile: string; profileTab: string; home: string; current: string; waiting: string; attention: string };
+  /** Things waiting for the admin, by tab (pending subscriptions, students to verify, trips running too long). Zero or missing shows nothing. */
   counts?: Partial<Record<NavKey, number>>;
 };
 
@@ -192,7 +192,7 @@ export function FloatingNav({ keys, labels, groups, profile, text, counts = {} }
           <Badge count={counts[key] ?? 0} />
         </span>
         {labels[key]}
-        <WaitingText id={`nav-waiting-${key}-${slides ? "bar" : "menu"}`} count={counts[key] ?? 0} label={text.waiting} />
+        <WaitingText id={`nav-waiting-${key}-${slides ? "bar" : "menu"}`} count={counts[key] ?? 0} label={key === "trips" ? text.attention : text.waiting} />
       </Link>
     );
   };

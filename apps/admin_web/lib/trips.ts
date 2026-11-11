@@ -69,6 +69,7 @@ export type TripSaveErrorKey =
   | "not_editable"
   | "cannot_cancel"
   | "cannot_archive"
+  | "cannot_end"
   | "invalid"
   | "generic";
 
@@ -100,6 +101,7 @@ const FORM_ERRORS: readonly string[] = [
   "not_editable",
   "cannot_cancel",
   "cannot_archive",
+  "cannot_end",
   "invalid",
   "generic",
 ];
@@ -108,11 +110,11 @@ export function isTripFormErrorKey(value: string | undefined): value is TripForm
   return value !== undefined && FORM_ERRORS.includes(value);
 }
 
-export type TripAction = "cancel" | "archive";
+export type TripAction = "cancel" | "archive" | "end";
 
 /** Maps a database error code from cancelling or archiving. 55000 means the trip is not in a state that allows it. */
 export function tripActionErrorKey(code: string | undefined, action: TripAction): TripSaveErrorKey {
-  if (code === "55000") return action === "cancel" ? "cannot_cancel" : "cannot_archive";
+  if (code === "55000") return action === "cancel" ? "cannot_cancel" : action === "end" ? "cannot_end" : "cannot_archive";
   if (code === "22023") return "invalid";
   return "generic";
 }
@@ -128,7 +130,7 @@ export function parseReason(value: unknown): string | null | undefined {
   return reason.length > MAX_REASON_LENGTH ? null : reason;
 }
 
-export const TRIP_DONE = ["created", "saved", "cancelled", "archived", "restored"] as const;
+export const TRIP_DONE = ["created", "saved", "cancelled", "archived", "restored", "ended"] as const;
 export type TripDone = (typeof TRIP_DONE)[number];
 
 export function isTripDone(value: string | undefined): value is TripDone {
@@ -238,4 +240,36 @@ export function applyTripFilters<Q>(query: Q, filters: TripFilters, timeZone: st
     q = q.gte("scheduled_start", bounds.from).lt("scheduled_start", bounds.to);
   }
   return q as unknown as Q;
+}
+
+/** Why a running trip is overdue (see `admin_overdue_trips`). */
+export type OverdueReason = "earlier_day" | "silent" | "long";
+
+export function isOverdueReason(value: unknown): value is OverdueReason {
+  return value === "earlier_day" || value === "silent" || value === "long";
+}
+
+/** One row of `admin_overdue_trips`. */
+export type OverdueRow = { trip_id: string; reason: string; started_at: string; last_position_at: string | null };
+
+export type Overdue = { reason: OverdueReason; startedAt: string; /** Whole minutes: since the last position when silent, else since the start. */ minutes: number };
+
+/** The overdue trips by id, with how long the reason has lasted. Rows with an unknown reason are skipped. */
+export function overdueById(rows: readonly OverdueRow[], now: Date): Map<string, Overdue> {
+  const result = new Map<string, Overdue>();
+  for (const row of rows) {
+    if (!isOverdueReason(row.reason)) continue;
+    const since = row.reason === "silent" && row.last_position_at ? row.last_position_at : row.started_at;
+    const minutes = Math.max(0, Math.floor((now.getTime() - new Date(since).getTime()) / 60_000));
+    result.set(row.trip_id, { reason: row.reason, startedAt: row.started_at, minutes });
+  }
+  return result;
+}
+
+/** "45 min", "3 h", "3 h 5 min". */
+export function formatMinutes(minutes: number): string {
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  if (hours === 0) return `${rest} min`;
+  return rest === 0 ? `${hours} h` : `${hours} h ${rest} min`;
 }

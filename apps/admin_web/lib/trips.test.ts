@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   MAX_REASON_LENGTH,
   NO_DRIVER,
+  formatMinutes,
+  overdueById,
   applyTripFilters,
   parseTripFilters,
   tripsHref,
@@ -171,5 +173,36 @@ describe("trip filters", () => {
       "gte scheduled_start 2026-11-04T00:00:00.000Z",
       "lt scheduled_start 2026-11-05T00:00:00.000Z",
     ]);
+  });
+});
+
+describe("overdue trips", () => {
+  const now = new Date("2026-11-11T12:00:00Z");
+  it("keeps known reasons and measures each from the right moment", () => {
+    const map = overdueById(
+      [
+        { trip_id: "a", reason: "silent", started_at: "2026-11-11T10:00:00Z", last_position_at: "2026-11-11T11:15:00Z" },
+        { trip_id: "b", reason: "long", started_at: "2026-11-11T08:30:00Z", last_position_at: "2026-11-11T11:59:00Z" },
+        { trip_id: "c", reason: "earlier_day", started_at: "2026-11-10T07:00:00Z", last_position_at: null },
+        { trip_id: "d", reason: "weird", started_at: "2026-11-11T07:00:00Z", last_position_at: null },
+      ],
+      now,
+    );
+    expect(map.get("a")).toEqual({ reason: "silent", startedAt: "2026-11-11T10:00:00Z", minutes: 45 });
+    expect(map.get("b")?.minutes).toBe(210);
+    expect(map.get("c")?.reason).toBe("earlier_day");
+    expect(map.has("d")).toBe(false);
+  });
+
+  it("writes durations in hours and minutes", () => {
+    expect(formatMinutes(45)).toBe("45 min");
+    expect(formatMinutes(180)).toBe("3 h");
+    expect(formatMinutes(185)).toBe("3 h 5 min");
+  });
+
+  it("maps a refused end to its message", () => {
+    expect(tripActionErrorKey("55000", "end")).toBe("cannot_end");
+    expect(isTripFormErrorKey("cannot_end")).toBe(true);
+    expect(isTripDone("ended")).toBe(true);
   });
 });
