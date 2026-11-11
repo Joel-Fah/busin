@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:busin_student/src/offline/offline_providers.dart';
+import 'package:busin_app/busin_app.dart';
 import 'package:busin_student/src/providers.dart';
 import 'package:busin_student/src/screens/splash_screen.dart';
 import 'package:busin_ui/busin_ui.dart';

@@ -1,9 +1,9 @@
+import 'package:busin_app/busin_app.dart';
 import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'router.dart';
-import 'settings/appearance.dart';
 
 class StudentApp extends ConsumerWidget {
   const StudentApp({super.key});

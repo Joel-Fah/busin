@@ -1,3 +1,4 @@
+import 'package:busin_app/busin_app.dart';
 import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,7 +12,6 @@ import '../profile/profile_form.dart';
 import '../profile/school_badge.dart';
 import '../providers.dart';
 import '../router.dart';
-import '../settings/appearance.dart';
 import '../streaks/streak_providers.dart';
 import '../subscription/subscription_providers.dart';
 

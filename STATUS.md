@@ -33,9 +33,9 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 
 ## Handoff: phase 4 (in progress)
 
-Done: #249 day keys (busin2 codes, staff day keys, queued scans with their time and id); #251 trip control (start, end, position, manifest), stacked on #249.
+Done: #249 day keys (busin2 codes, staff day keys, queued scans with their time and id); #251 trip control (start, end, position, manifest), stacked on #249; #253 the busin_app package (shared app plumbing), stacked on #251.
 
-Next: the shared app package, the ops app shell, the scanner with its offline queue, and driver mode.
+Next: the ops app shell, the scanner with its offline queue, and driver mode.
 
 ## Handoff: ideas round (2026-11-11)
 

@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:busin_app/busin_app.dart';
 import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +8,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-import '../auth/auth_service.dart';
 import '../providers.dart';
 import '../router.dart';
 import 'splash_screen.dart';
