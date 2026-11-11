@@ -1,4 +1,4 @@
-/// The three legal documents, bundled with the app so they open offline and never depend on a web address that can move.
+/// The three legal documents, shared by the student and ops apps and bundled with them so they open offline and never depend on a web address that can move.
 /// Written without a school's name: the page shows which school it applies to, so the same text serves every school.
 ///
 /// This is a working draft of the plain-language terms. The owner and the school must have it reviewed before release.

@@ -1,3 +1,4 @@
+import 'package:busin_app/busin_app.dart';
 import 'package:busin_core/busin_core.dart';
 import 'package:busin_ops/src/access.dart';
 import 'package:busin_ops/src/app.dart';
@@ -45,6 +46,8 @@ void main() {
       expect(redirectFor(const OpsBlocked(OpsBlockReason.notStaff), Routes.today), Routes.blocked);
       expect(redirectFor(OpsAllowed(staff()), Routes.signIn), Routes.today);
       expect(redirectFor(OpsAllowed(staff()), Routes.trip('t1')), isNull);
+      expect(redirectFor(const OpsSignedOut(), Routes.legal(LegalDoc.privacy)), isNull, reason: 'readable before sign-in');
+      expect(redirectFor(const OpsLoading(), Routes.legal(LegalDoc.terms)), isNull);
     });
   });
 
@@ -60,6 +63,16 @@ void main() {
       expect(startRefusal(trip: busy[1], today: busy, isToday: true), StartRefusal.busBusy);
       expect(startRefusal(trip: busy[1], today: busy, isToday: false), StartRefusal.notToday);
       expect(startRefusal(trip: trip('c', bus: 'b2'), today: busy, isToday: true), StartRefusal.notScheduled);
+    });
+
+    testWidgets('the privacy policy opens from sign-in, with the part for staff and drivers', (tester) async {
+      await open(tester, auth: FakeAuth(), profiles: {}, trips: FakeTrips([]));
+      await tester.scrollUntilVisible(find.text('Privacy policy'), 200, scrollable: find.byType(Scrollable).first);
+      await tester.tap(find.text('Privacy policy'));
+      await tester.pumpAndSettle();
+      expect(find.text('In short'), findsOneWidget);
+      await tester.scrollUntilVisible(find.text('If you are staff or a driver'), 300, scrollable: find.byType(Scrollable).last);
+      expect(find.text('If you are staff or a driver'), findsOneWidget);
     });
 
     testWidgets('a student is told this app is for staff', (tester) async {

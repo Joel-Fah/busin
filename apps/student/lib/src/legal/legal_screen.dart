@@ -1,3 +1,4 @@
+import 'package:busin_app/busin_app.dart';
 import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,7 +7,6 @@ import 'package:hugeicons/hugeicons.dart';
 
 import '../router.dart';
 import '../subscription/subscription_providers.dart';
-import 'legal_documents.dart';
 
 /// What each document is called, says in one line, and looks like: shared by the profile list and the page header.
 class LegalDocInfo {
