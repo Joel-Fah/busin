@@ -85,12 +85,42 @@ describe("a semester in the past", () => {
   });
 
   it("is not checked without a today (the database repeats the rule anyway)", () => {
-    expect(parseSemesterForm(form({ ...valid, start_date: "2020-01-01", end_date: "2020-06-30" }))).toMatchObject({ ok: true });
+    expect(parseSemesterForm(form({ ...valid, year: "2020", start_date: "2020-01-01", end_date: "2020-06-30" }))).toMatchObject({ ok: true });
   });
 
   it("is recognised from the database's reason", () => {
     expect(semesterSaveErrorKey("22023", "semester_in_past")).toBe("end_past");
     expect(semesterSaveErrorKey("22023", "something else")).toBe("generic");
+  });
+});
+
+describe("a semester's length and year", () => {
+  const today = "2026-11-12";
+
+  it("must last 7 to 366 days: a five-year semester is refused (the case that was in the portal)", () => {
+    expect(parseSemesterForm(form({ ...valid, year: "2021", start_date: "2021-02-04", end_date: "2026-04-04" }))).toEqual({ ok: false, error: "span" });
+    expect(parseSemesterForm(form({ ...valid, start_date: "2026-09-01", end_date: "2026-09-05" }))).toEqual({ ok: false, error: "span" });
+    expect(parseSemesterForm(form({ ...valid, start_date: "2026-09-01", end_date: "2026-09-08" }))).toMatchObject({ ok: true });
+    expect(parseSemesterForm(form({ ...valid, start_date: "2026-09-01", end_date: "2027-09-02" }))).toMatchObject({ ok: true });
+    expect(parseSemesterForm(form({ ...valid, start_date: "2026-09-01", end_date: "2027-09-03" }))).toEqual({ ok: false, error: "span" });
+  });
+
+  it("must have the year it starts or ends in", () => {
+    expect(parseSemesterForm(form({ ...valid, year: "2030", start_date: "2026-09-01", end_date: "2027-01-31" }))).toEqual({ ok: false, error: "year_dates" });
+    expect(parseSemesterForm(form({ ...valid, year: "2026", start_date: "2026-09-01", end_date: "2027-01-31" }))).toMatchObject({ ok: true });
+    expect(parseSemesterForm(form({ ...valid, year: "2027", start_date: "2026-09-01", end_date: "2027-01-31" }))).toMatchObject({ ok: true });
+  });
+
+  it("is left alone when an old row is edited with its dates and year unchanged", () => {
+    const old = { startDate: "2021-02-04", endDate: "2026-04-04", year: 2021 };
+    const same = form({ ...valid, name: "summer", year: "2021", start_date: old.startDate, end_date: old.endDate });
+    expect(parseSemesterForm(same, { today, unchanged: old })).toMatchObject({ ok: true });
+    expect(parseSemesterForm(form({ ...valid, year: "2030", start_date: old.startDate, end_date: old.endDate }), { today, unchanged: old })).toEqual({ ok: false, error: "year_dates" });
+  });
+
+  it("is recognised from the database's reasons", () => {
+    expect(semesterSaveErrorKey("22023", "semester_length")).toBe("span");
+    expect(semesterSaveErrorKey("22023", "semester_year")).toBe("year_dates");
   });
 });
 

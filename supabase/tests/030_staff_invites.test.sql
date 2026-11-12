@@ -1,17 +1,18 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(22);
+select plan(23);
 
 insert into public.schools (id, name) values ('10000000-0000-4000-8000-000000000001', 'School A'), ('10000000-0000-4000-8000-000000000002', 'School B');
 insert into public.school_domains (domain, school_id) values ('a.edu', '10000000-0000-4000-8000-000000000001'), ('b.edu', '10000000-0000-4000-8000-000000000002');
 insert into auth.users (id, email, raw_app_meta_data) values
   ('a3000000-0000-4000-8000-000000000001', 'admin@a.edu', '{"provider":"google"}'),
   ('a2000000-0000-4000-8000-000000000001', 'staff@a.edu', '{"provider":"google"}'),
+  ('a2000000-0000-4000-8000-000000000002', 'staff2@a.edu', '{"provider":"google"}'),
   ('a1000000-0000-4000-8000-000000000001', 'student@a.edu', '{"provider":"google"}'),
   ('b3000000-0000-4000-8000-000000000001', 'admin@b.edu', '{"provider":"google"}'),
   ('b1000000-0000-4000-8000-000000000001', 'student@b.edu', '{"provider":"google"}');
 update public.profiles set role = 'admin' where id in ('a3000000-0000-4000-8000-000000000001', 'b3000000-0000-4000-8000-000000000001');
-update public.profiles set role = 'staff' where id = 'a2000000-0000-4000-8000-000000000001';
+update public.profiles set role = 'staff' where id in ('a2000000-0000-4000-8000-000000000001', 'a2000000-0000-4000-8000-000000000002');
 
 -- An account with no school yet: School A accepts other emails for a moment.
 update public.schools set accepts_open_signup = true where id = '10000000-0000-4000-8000-000000000001';
@@ -22,8 +23,9 @@ update public.schools set accepts_open_signup = false where id = '10000000-0000-
 set local role authenticated;
 set local "request.jwt.claims" = '{"sub":"a3000000-0000-4000-8000-000000000001","role":"authenticated"}';
 select is(public.admin_invite_staff('  Driver.New@Gmail.com ', 'staff'), 'invited', 'a new email waits for its first sign-in');
-select is(public.admin_invite_staff('student@a.edu', 'staff'), 'applied', 'an account of the school gets the role at once');
-select is(public.admin_invite_staff('waiting@elsewhere.org', 'staff'), 'applied', 'so does an account with no school yet');
+select throws_ok($$select public.admin_invite_staff('student@a.edu', 'staff')$$, '55000', 'student_account', 'a student''s account is not turned into staff');
+select is(public.admin_invite_staff('staff2@a.edu', 'admin'), 'applied', 'a staff member of the school gets the new role at once');
+select throws_ok($$select public.admin_invite_staff('waiting@elsewhere.org', 'staff')$$, '55000', 'student_account', 'nor is an account with no school yet (it is a student''s too)');
 select throws_ok($$select public.admin_invite_staff('student@b.edu', 'staff')$$, '55000', 'other_school', 'an account of another school is not taken');
 select throws_ok($$select public.admin_invite_staff('admin@a.edu', 'staff')$$, '42501', null, 'not the admin''s own account');
 select throws_ok($$select public.admin_invite_staff('not an email', 'staff')$$, '22023', 'invalid_email', 'the email is checked');
@@ -34,8 +36,8 @@ select is((select role::text from public.staff_invites where email = 'late@gmail
 select is((select count(*)::int from public.staff_invites), 2, 'the admin sees the school''s open invites');
 reset role;
 
-select is((select school_id::text || ':' || role::text || ':' || status::text from public.profiles where email = 'waiting@elsewhere.org'),
-  '10000000-0000-4000-8000-000000000001:staff:verified', 'the account without a school joined, verified, as staff');
+select is((select coalesce(school_id::text, 'none') || ':' || role::text || ':' || status::text from public.profiles where email = 'waiting@elsewhere.org'),
+  'none:student:pending', 'that account is left as it was');
 
 set local role authenticated;
 set local "request.jwt.claims" = '{"sub":"b3000000-0000-4000-8000-000000000001","role":"authenticated"}';
@@ -54,7 +56,7 @@ insert into auth.users (id, email, raw_app_meta_data) values ('d1000000-0000-400
 select is((select school_id::text || ':' || role::text || ':' || status::text from public.profiles where id = 'd1000000-0000-4000-8000-000000000001'),
   '10000000-0000-4000-8000-000000000001:staff:verified', 'an invited email joins the school as staff, whatever its domain');
 select is((select count(*)::int from public.staff_invites where email = 'driver.new@gmail.com'), 0, 'the invite is used up');
-select is((select count(*)::int from public.audit_log where action in ('invite.created', 'invite.applied', 'invite.accepted') and school_id = '10000000-0000-4000-8000-000000000001'), 6, 'every step is audited');
+select is((select count(*)::int from public.audit_log where action in ('invite.created', 'invite.applied', 'invite.accepted') and school_id = '10000000-0000-4000-8000-000000000001'), 5, 'every step is audited');
 
 -- An expired invite is ignored: the school email falls back to a plain student.
 insert into public.staff_invites (email, school_id, role, expires_at) values ('expired@a.edu', '10000000-0000-4000-8000-000000000001', 'staff', now() - interval '1 day');

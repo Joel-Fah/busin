@@ -42,10 +42,10 @@ export async function updateSemester(formData: FormData): Promise<void> {
 
   const supabase = await createClient();
   // The dates the semester has now: leaving them alone is always allowed, even on an old semester.
-  const { data: current } = await supabase.from("semesters").select("start_date, end_date").eq("id", id).maybeSingle();
+  const { data: current } = await supabase.from("semesters").select("start_date, end_date, year").eq("id", id).maybeSingle();
   const parsed = parseSemesterForm(formData, {
     today: todayInZone(admin.schoolTimezone),
-    unchanged: current ? { startDate: current.start_date, endDate: current.end_date } : undefined,
+    unchanged: current ? { startDate: current.start_date, endDate: current.end_date, year: current.year } : undefined,
   });
   if (!parsed.ok) redirect(`/semesters/${id}?error=${parsed.error}`);
   const { name, year, startDate, endDate } = parsed.value;

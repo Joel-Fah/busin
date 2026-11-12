@@ -6,9 +6,13 @@ export type SemesterName = (typeof SEMESTER_NAMES)[number];
 export const MIN_YEAR = 2000;
 export const MAX_YEAR = 2100;
 
+/** A semester lasts at least a week and at most a year. The database repeats this. */
+export const MIN_SEMESTER_DAYS = 7;
+export const MAX_SEMESTER_DAYS = 366;
+
 export type SemesterInput = { name: SemesterName; year: number; startDate: string; endDate: string };
 
-export type SemesterFormError = "name" | "year" | "start_date" | "end_date" | "date_order" | "end_past";
+export type SemesterFormError = "name" | "year" | "start_date" | "end_date" | "date_order" | "end_past" | "span" | "year_dates";
 
 export function isSemesterName(value: unknown): value is SemesterName {
   return typeof value === "string" && (SEMESTER_NAMES as readonly string[]).includes(value);
@@ -25,11 +29,12 @@ export function isIsoDate(value: unknown): value is string {
 /**
  * Validates the semester form fields. The database repeats these rules; this gives clear messages. With `check`, a
  * semester whose last day is before the school's `today` is refused, unless it is an edit that leaves both dates as
- * they were (`unchanged`), so an old semester can still be renamed.
+ * they were (`unchanged`), so an old semester can still be renamed. Its length (7 to 366 days) and its year (the year it
+ * starts or ends in) are held to the same exception.
  */
 export function parseSemesterForm(
   form: { get(name: string): unknown },
-  check?: { today: string; unchanged?: { startDate: string; endDate: string } },
+  check?: { today: string; unchanged?: { startDate: string; endDate: string; year?: number } },
 ): { ok: true; value: SemesterInput } | { ok: false; error: SemesterFormError } {
   const name = form.get("name");
   if (!isSemesterName(name)) return { ok: false, error: "name" };
@@ -49,14 +54,23 @@ export function parseSemesterForm(
   const same = check?.unchanged && check.unchanged.startDate === startDate && check.unchanged.endDate === endDate;
   if (check && !same && endDate < check.today) return { ok: false, error: "end_past" };
 
+  const sameYear = same && check?.unchanged?.year === year;
+  if (!same) {
+    const days = Math.round((Date.parse(`${endDate}T00:00:00Z`) - Date.parse(`${startDate}T00:00:00Z`)) / 86_400_000);
+    if (days < MIN_SEMESTER_DAYS || days > MAX_SEMESTER_DAYS) return { ok: false, error: "span" };
+  }
+  if (!sameYear && (year < Number(startDate.slice(0, 4)) || year > Number(endDate.slice(0, 4)))) return { ok: false, error: "year_dates" };
+
   return { ok: true, value: { name, year, startDate, endDate } };
 }
 
-export type SemesterSaveErrorKey = "taken" | "end_past" | "invalid" | "not_found" | "generic";
+export type SemesterSaveErrorKey = "taken" | "end_past" | "span" | "year_dates" | "invalid" | "not_found" | "generic";
 
 /** Maps a database error from saving a semester. 23505 is the unique name and year per school. */
 export function semesterSaveErrorKey(code: string | undefined, message?: string): SemesterSaveErrorKey {
   if (code === "22023" && message === "semester_in_past") return "end_past";
+  if (code === "22023" && message === "semester_length") return "span";
+  if (code === "22023" && message === "semester_year") return "year_dates";
   switch (code) {
     case "23505":
       return "taken";
@@ -81,6 +95,8 @@ const FORM_ERRORS: readonly string[] = [
   "end_date",
   "date_order",
   "end_past",
+  "span",
+  "year_dates",
   "taken",
   "invalid",
   "not_found",
