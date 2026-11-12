@@ -35,14 +35,14 @@ export async function saveStop(_previous: SaveStopState, formData: FormData): Pr
       .insert({ school_id: admin.schoolId, name, location: toEwkt(position), active })
       .select("id")
       .single();
-    if (error || !data) return { status: "error", error: stopSaveErrorKey(error?.code) };
+    if (error || !data) return { status: "error", error: stopSaveErrorKey(error?.code, error?.message) };
     revalidatePath("/stops");
     return { status: "saved", id: data.id, created: true };
   }
 
   if (!isUuid(id)) return { status: "error", error: "not_found" };
   const { error } = await supabase.from("stops").update({ name, location: toEwkt(position), active }).eq("id", id).select("id").single();
-  if (error) return { status: "error", error: stopSaveErrorKey(error.code) };
+  if (error) return { status: "error", error: stopSaveErrorKey(error.code, error.message) };
   revalidatePath("/stops");
   return { status: "saved", id, created: false };
 }
