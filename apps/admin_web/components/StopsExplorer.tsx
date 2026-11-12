@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useCallback, useMemo, useState } from "react";
+import { useActionState, useCallback, useMemo, useRef, useState, type FormEvent } from "react";
 import {
   Add01Icon,
   ArrowRight01Icon,
@@ -23,11 +23,13 @@ import { Chip } from "@/components/ui/Chip";
 import { HelpSheet } from "@/components/ui/HelpSheet";
 import { Icon } from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
+import { Modal } from "@/components/ui/Modal";
 import { SideSheet } from "@/components/ui/SideSheet";
 import { distanceMeters, formatDistance, isValidLatLng, type LatLng } from "@/lib/geo";
 import { format, type Messages } from "@/lib/i18n/messages";
 import type { MapProviderId } from "@/lib/map/config";
-import { MAX_STOP_NAME_LENGTH, parseCoordinate } from "@/lib/stops";
+import { formatKm } from "@/lib/route";
+import { MAX_STOP_NAME_LENGTH, nearbyStop, parseCoordinate, type NearbyStop } from "@/lib/stops";
 import { describeUsage } from "@/lib/stops";
 import type { AreaCount, StopRow } from "@/lib/stops-data";
 
@@ -108,6 +110,27 @@ export function StopsExplorer({ stops, areas, failed, map, initialSheet, t }: Pr
 
   const editing = sheet?.mode === "edit" ? sheet.id : null;
   const pinned = sheet ? draftPosition(draft) : null;
+
+  // Another stop close to the pin: the same place is refused, a near one is asked about before saving.
+  const formRef = useRef<HTMLFormElement>(null);
+  const confirmedClose = useRef(false);
+  const [nearby, setNearby] = useState<NearbyStop | null>(null);
+  const [asking, setAsking] = useState(false);
+  const checkNearby = (event: FormEvent<HTMLFormElement>) => {
+    if (confirmedClose.current) {
+      confirmedClose.current = false;
+      return;
+    }
+    const position = draftPosition(draft);
+    const original = editing ? stops.find((stop) => stop.id === editing)?.position : null;
+    // Saving a stop without moving it never asks: two stops that are already close are not the admin's news.
+    const moved = !original || !position || original.lat !== position.lat || original.lng !== position.lng;
+    const found = position && moved ? nearbyStop(position, stops, editing) : null;
+    setNearby(found);
+    if (!found) return;
+    event.preventDefault();
+    if (found.kind === "close") setAsking(true);
+  };
   // The tiles step aside while a sheet or the full list needs the room.
   const tilesOpen = sheet === null && !split;
 
@@ -475,7 +498,7 @@ export function StopsExplorer({ stops, areas, failed, map, initialSheet, t }: Pr
         closeLabel={t.help.close}
         modal={false}
       >
-        <form action={formAction} key={sheet ? `${sheet.mode}-${editing ?? "new"}` : "closed"} className="flex flex-col gap-5">
+        <form ref={formRef} action={formAction} onSubmit={checkNearby} key={sheet ? `${sheet.mode}-${editing ?? "new"}` : "closed"} className="flex flex-col gap-5">
           {editing ? <input type="hidden" name="id" value={editing} /> : null}
           <p className="text-sm text-muted">{s.sheet.placing}</p>
 
@@ -523,7 +546,11 @@ export function StopsExplorer({ stops, areas, failed, map, initialSheet, t }: Pr
             onChange={(event) => setDraft((d) => ({ ...d, active: event.target.checked }))}
           />
 
-          {result.status === "error" ? (
+          {nearby?.kind === "same" ? (
+            <p role="alert" className="rounded-sm bg-bad-bg px-3.5 py-2.5 text-sm text-bad">
+              {format(s.close.same, { name: nearby.stop.name, distance: formatKm(nearby.meters) })}
+            </p>
+          ) : result.status === "error" ? (
             <p role="alert" className="rounded-sm bg-bad-bg px-3.5 py-2.5 text-sm text-bad">
               {s.errors[result.error]}
             </p>
@@ -534,6 +561,31 @@ export function StopsExplorer({ stops, areas, failed, map, initialSheet, t }: Pr
           </Button>
         </form>
       </SideSheet>
+
+      <Modal
+        open={asking}
+        onClose={() => setAsking(false)}
+        title={s.close.title}
+        description={nearby ? format(s.close.body, { name: nearby.stop.name, distance: formatKm(nearby.meters) }) : undefined}
+        actions={
+          <>
+            <Button type="button" variant="secondary" onClick={() => setAsking(false)}>
+              {s.close.back}
+            </Button>
+            <Button
+              type="button"
+              onClick={() => {
+                // The answer is yes: send the form again, this time without asking.
+                setAsking(false);
+                confirmedClose.current = true;
+                formRef.current?.requestSubmit();
+              }}
+            >
+              {editing ? s.close.saveAnyway : s.close.addAnyway}
+            </Button>
+          </>
+        }
+      />
     </>
   );
 }

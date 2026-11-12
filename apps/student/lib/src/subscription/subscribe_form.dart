@@ -101,6 +101,8 @@ class _SubscribeFormState extends ConsumerState<SubscribeForm> {
           SubscribeFailure.alreadyRequested => l10n.subscribeErrorExists,
           SubscribeFailure.offline => l10n.errorOffline,
           SubscribeFailure.rejectedFile => l10n.subscribeErrorType,
+          SubscribeFailure.proofRequired => l10n.subscribeErrorProof,
+          SubscribeFailure.semesterEnded => l10n.subscribeErrorEnded,
           SubscribeFailure.other => l10n.errorGeneric,
         };
       });

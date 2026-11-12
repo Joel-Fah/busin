@@ -20,7 +20,7 @@ class OpsLoadFailed extends OpsAccess {
   final Object error;
 }
 
-enum OpsBlockReason { notStaff, suspended }
+enum OpsBlockReason { notStaff, pending, suspended }
 
 class OpsBlocked extends OpsAccess {
   const OpsBlocked(this.reason);
@@ -49,6 +49,7 @@ OpsAccess opsAccessFor({
   if (profileError != null) return OpsLoadFailed(profileError);
   if (profile == null) return const OpsSignedOut();
   if (!profile.role.isStaffOrAdmin || profile.schoolId == null) return const OpsBlocked(OpsBlockReason.notStaff);
+  if (profile.status == AccountStatus.pending) return const OpsBlocked(OpsBlockReason.pending);
   if (profile.status != AccountStatus.verified) return const OpsBlocked(OpsBlockReason.suspended);
   return OpsAllowed(profile);
 }

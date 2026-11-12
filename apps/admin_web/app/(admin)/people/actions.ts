@@ -7,6 +7,7 @@ import { requireAdmin } from "@/lib/auth";
 import { isUuid } from "@/lib/ids";
 import { inviteErrorKey, isInviteRole, normalizeInviteEmail } from "@/lib/invites";
 import { MAX_DECLINE_REASON, isRole, peopleErrorKey } from "@/lib/people";
+import { checkReason } from "@/lib/reasons";
 import { createClient } from "@/lib/supabase/server";
 
 /**
@@ -25,7 +26,7 @@ export async function changeRole(formData: FormData): Promise<void> {
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("admin_set_user_role", { p_user_id: id, p_role: role });
-  if (error) redirect(`/people/${id}?error=${peopleErrorKey(error.code)}`);
+  if (error) redirect(`/people/${id}?error=${peopleErrorKey(error.code, error.message)}`);
 
   revalidatePath("/people");
   redirect(`/people/${id}?done=role`);
@@ -43,7 +44,7 @@ export async function changeStatus(formData: FormData): Promise<void> {
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("admin_set_user_status", { p_user_id: id, p_status: status });
-  if (error) redirect(`/people/${id}?error=${peopleErrorKey(error.code)}`);
+  if (error) redirect(`/people/${id}?error=${peopleErrorKey(error.code, error.message)}`);
 
   revalidatePath("/people");
   redirect(`/people/${id}?done=${status === "suspended" ? "suspended" : "restored"}`);
@@ -62,7 +63,7 @@ export async function verifyMember(formData: FormData): Promise<void> {
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("admin_verify_member", { p_user_id: id });
-  if (error) redirect(back(formData, id, `error=${peopleErrorKey(error.code)}`));
+  if (error) redirect(back(formData, id, `error=${peopleErrorKey(error.code, error.message)}`));
 
   revalidatePath("/people");
   redirect(back(formData, id, "done=verified"));
@@ -73,12 +74,13 @@ export async function declineMember(formData: FormData): Promise<void> {
   await requireAdmin();
   const id = formData.get("id");
   if (!isUuid(id)) redirect("/people?role=verify");
-  const raw = formData.get("reason");
-  const reason = typeof raw === "string" ? raw.trim().slice(0, MAX_DECLINE_REASON) : "";
+  // Optional, but a real sentence when given (10 to 300 characters, spaces tidied): the student reads it.
+  const reason = checkReason(formData.get("reason"), { required: false, max: MAX_DECLINE_REASON });
+  if (!reason.ok) redirect(back(formData, id, `error=${reason.problem}`));
 
   const supabase = await createClient();
-  const { error } = await supabase.rpc("admin_decline_member", { p_user_id: id, p_reason: reason });
-  if (error) redirect(back(formData, id, `error=${peopleErrorKey(error.code)}`));
+  const { error } = await supabase.rpc("admin_decline_member", { p_user_id: id, p_reason: reason.value ?? undefined });
+  if (error) redirect(back(formData, id, `error=${peopleErrorKey(error.code, error.message)}`));
 
   revalidatePath("/people");
   redirect(formData.get("from") === "detail" ? "/people?role=verify&done=declined" : back(formData, id, "done=declined"));

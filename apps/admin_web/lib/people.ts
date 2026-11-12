@@ -91,13 +91,25 @@ export function roleTabCounts(byRole: Partial<Record<Role, number | null>>, toVe
   };
 }
 
-export type PeopleErrorKey = "self" | "invalid" | "not_found" | "generic";
+export type PeopleErrorKey =
+  | "self"
+  | "invalid"
+  | "not_found"
+  | "role_family"
+  | "account_not_active"
+  | "last_admin"
+  | "invalid_transition"
+  | "reason_too_short"
+  | "reason_too_long"
+  | "generic";
 
 /**
  * Maps the database error code of `admin_set_user_role` and `admin_set_user_status`.
  * The portal only calls them for administrators, so 42501 means the admin tried to change themselves.
  */
-export function peopleErrorKey(code: string | undefined): PeopleErrorKey {
+export function peopleErrorKey(code: string | undefined, message?: string): PeopleErrorKey {
+  if (code === "22023" && (message === "reason_too_short" || message === "reason_too_long" || message === "role_family")) return message;
+  if (code === "55000" && (message === "account_not_active" || message === "last_admin" || message === "invalid_transition")) return message;
   switch (code) {
     case "42501":
       return "self";
@@ -111,7 +123,10 @@ export function peopleErrorKey(code: string | undefined): PeopleErrorKey {
 }
 
 export function isPeopleErrorKey(value: string | undefined): value is PeopleErrorKey {
-  return value === "self" || value === "invalid" || value === "not_found" || value === "generic";
+  return (
+    typeof value === "string" &&
+    ["self", "invalid", "not_found", "role_family", "account_not_active", "last_admin", "invalid_transition", "reason_too_short", "reason_too_long", "generic"].includes(value)
+  );
 }
 
 export type PeopleDone = "role" | "suspended" | "restored" | "verified" | "declined" | "withdrawn";

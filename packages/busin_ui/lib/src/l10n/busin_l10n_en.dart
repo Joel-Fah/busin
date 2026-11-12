@@ -389,6 +389,10 @@ class BusinL10nEn extends BusinL10n {
   String get subscribeErrorType => 'Use a JPEG, PNG or WebP photo.';
 
   @override
+  String get subscribeErrorProof =>
+      'The payment proof is missing. Add a clear photo of your receipt and send the request again.';
+
+  @override
   String get subscribeErrorEnded =>
       'This semester has ended. Pull down to refresh and see what is open now.';
 
@@ -1591,6 +1595,13 @@ class BusinL10nEn extends BusinL10n {
   @override
   String get opsShareNotYours =>
       'The driver or the assistant of this trip shares its position.';
+
+  @override
+  String get opsPendingTitle => 'Your account is waiting for approval';
+
+  @override
+  String get opsPendingBody =>
+      'A school administrator has to verify your account before you can use BusIn Ops. Ask them, then open the app again.';
 
   @override
   String get opsFieldStart => 'Start a trip that is not listed';

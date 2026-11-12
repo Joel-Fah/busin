@@ -84,6 +84,8 @@ export type TripSaveErrorKey =
   | "driver_unavailable"
   | "assistant_unavailable"
   | "start_past"
+  | "reason_too_short"
+  | "reason_too_long"
   | "not_editable"
   | "cannot_cancel"
   | "cannot_archive"
@@ -118,6 +120,8 @@ const FORM_ERRORS: readonly string[] = [
   "direction",
   "start",
   "start_past",
+  "reason_too_short",
+  "reason_too_long",
   "bus_unavailable",
   "driver_unavailable",
   "assistant_unavailable",
@@ -136,7 +140,9 @@ export function isTripFormErrorKey(value: string | undefined): value is TripForm
 export type TripAction = "cancel" | "archive" | "end";
 
 /** Maps a database error code from cancelling or archiving. 55000 means the trip is not in a state that allows it. */
-export function tripActionErrorKey(code: string | undefined, action: TripAction): TripSaveErrorKey {
+export function tripActionErrorKey(code: string | undefined, action: TripAction, message?: string): TripSaveErrorKey {
+  if (code === "22023" && message === "reason_too_short") return "reason_too_short";
+  if (code === "22023" && message === "reason_too_long") return "reason_too_long";
   if (code === "55000") return action === "cancel" ? "cannot_cancel" : action === "end" ? "cannot_end" : "cannot_archive";
   if (code === "22023") return "invalid";
   return "generic";
@@ -145,13 +151,6 @@ export function tripActionErrorKey(code: string | undefined, action: TripAction)
 /** The longest reason a cancellation can carry. The database enforces the same limit. */
 export const MAX_REASON_LENGTH = 300;
 
-/** The reason typed when cancelling: trimmed, empty means none, and null when it is too long. */
-export function parseReason(value: unknown): string | null | undefined {
-  if (typeof value !== "string") return undefined;
-  const reason = value.trim();
-  if (reason === "") return undefined;
-  return reason.length > MAX_REASON_LENGTH ? null : reason;
-}
 
 export const TRIP_DONE = ["created", "saved", "cancelled", "archived", "restored", "ended"] as const;
 export type TripDone = (typeof TRIP_DONE)[number];

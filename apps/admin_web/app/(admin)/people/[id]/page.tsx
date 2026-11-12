@@ -17,7 +17,7 @@ import { Select } from "@/components/ui/Select";
 import { requireAdmin } from "@/lib/auth";
 import { getMessages } from "@/lib/i18n/server";
 import { isUuid } from "@/lib/ids";
-import { ROLES, accountTone, isPeopleDone, isPeopleErrorKey, roleTone } from "@/lib/people";
+import { accountTone, isPeopleDone, isPeopleErrorKey, roleTone } from "@/lib/people";
 import { createClient } from "@/lib/supabase/server";
 
 import { changeRole, changeStatus, declineMember, verifyMember } from "../actions";
@@ -111,24 +111,35 @@ async function PersonDetail({ params, searchParams }: { params: Params; searchPa
           </Card>
         ) : (
           <div className="flex flex-col gap-6">
-            <Card className="flex flex-col gap-4">
-              <h2 className="text-xl font-bold">{d.roleHeading}</h2>
-              <form action={changeRole} className="flex flex-col gap-5">
-                <input type="hidden" name="id" value={person.id} />
-                <Select
-                  id="role"
-                  name="role"
-                  label={d.roleLabel}
-                  icon={UserMultiple02Icon}
-                  hint={d.roleHint}
-                  defaultValue={person.role}
-                  options={ROLES.map((role) => ({ value: role, label: t.role[role] }))}
-                />
-                <div>
-                  <Button type="submit">{d.roleButton}</Button>
-                </div>
-              </form>
-            </Card>
+            {person.status === "suspended" ? <Notice tone="warn">{d.suspendedNotice}</Notice> : null}
+
+            {/* A suspended account is frozen, so there is no role form for it. A student's role is not changed: staff
+                and administrators are one family, students another. */}
+            {person.status === "suspended" ? null : person.role === "student" ? (
+              <Card className="flex flex-col gap-2">
+                <h2 className="text-xl font-bold">{d.roleHeading}</h2>
+                <p className="text-sm text-muted">{d.roleStudentFixed}</p>
+              </Card>
+            ) : person.status === "verified" ? (
+              <Card className="flex flex-col gap-4">
+                <h2 className="text-xl font-bold">{d.roleHeading}</h2>
+                <form action={changeRole} className="flex flex-col gap-5">
+                  <input type="hidden" name="id" value={person.id} />
+                  <Select
+                    id="role"
+                    name="role"
+                    label={d.roleLabel}
+                    icon={UserMultiple02Icon}
+                    hint={d.roleHint}
+                    defaultValue={person.role}
+                    options={(["staff", "admin"] as const).map((role) => ({ value: role, label: t.role[role] }))}
+                  />
+                  <div>
+                    <Button type="submit">{d.roleButton}</Button>
+                  </div>
+                </form>
+              </Card>
+            ) : null}
 
             <Card className="flex flex-col gap-4">
               <h2 className="text-xl font-bold">{d.accountHeading}</h2>

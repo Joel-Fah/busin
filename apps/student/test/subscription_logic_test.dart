@@ -89,6 +89,11 @@ void main() {
     expect(failureFor(const Offline('x')), SubscribeFailure.offline);
     expect(failureFor(const Invalid('x')), SubscribeFailure.rejectedFile);
     expect(failureFor(const NotAllowed('x')), SubscribeFailure.other);
+    // The server's short reasons say what is wrong (ADR: reasons come from our own functions).
+    expect(failureFor(const Invalid('x', reason: 'proof_required')), SubscribeFailure.proofRequired);
+    expect(failureFor(const Invalid('x', reason: 'proof_missing')), SubscribeFailure.proofRequired);
+    expect(failureFor(const Conflict('x', reason: 'semester_ended')), SubscribeFailure.semesterEnded);
+    expect(failureFor(const Invalid('x', reason: 'something_else')), SubscribeFailure.other, reason: 'not about the file');
     expect(failureFor(StateError('x')), SubscribeFailure.other);
   });
 }

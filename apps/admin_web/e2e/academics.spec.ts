@@ -48,6 +48,16 @@ test("an administrator builds a faculty with a department, renames it, and remov
   await again.getByRole("button", { name: "Add a department" }).click();
   await expect(page.getByText("That name is already used here.")).toBeVisible();
 
+  // Case and extra spaces do not make it a different name.
+  const variant = page.locator("div.relative").filter({ has: page.locator(`input[value="${faculty}"]`) }).last().locator("form").filter({ has: page.getByRole("button", { name: "Add a department" }) });
+  await variant.getByLabel("Department name").fill(`  ${department.toUpperCase()}  `);
+  await variant.getByRole("button", { name: "Add a department" }).click();
+  await expect(page.getByText("That name is already used here.")).toBeVisible();
+  const facultyVariant = page.locator("form").filter({ has: page.getByRole("button", { name: "Add a faculty" }) });
+  await facultyVariant.getByLabel("Faculty name").fill(faculty.toLowerCase());
+  await facultyVariant.getByRole("button", { name: "Add a faculty" }).click();
+  await expect(page.getByText("That name is already used here.")).toBeVisible();
+
   // A faculty with departments cannot be removed
   await page.locator("form").filter({ has: page.locator(`input[value="${faculty}"]`) }).getByRole("button", { name: "Remove" }).click();
   await expect(page.getByText("Remove its departments first.")).toBeVisible();

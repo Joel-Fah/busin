@@ -811,6 +811,12 @@ abstract class BusinL10n {
   /// **'Use a JPEG, PNG or WebP photo.'**
   String get subscribeErrorType;
 
+  /// No description provided for @subscribeErrorProof.
+  ///
+  /// In en, this message translates to:
+  /// **'The payment proof is missing. Add a clear photo of your receipt and send the request again.'**
+  String get subscribeErrorProof;
+
   /// No description provided for @subscribeErrorEnded.
   ///
   /// In en, this message translates to:
@@ -2826,6 +2832,18 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'The driver or the assistant of this trip shares its position.'**
   String get opsShareNotYours;
+
+  /// No description provided for @opsPendingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is waiting for approval'**
+  String get opsPendingTitle;
+
+  /// No description provided for @opsPendingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A school administrator has to verify your account before you can use BusIn Ops. Ask them, then open the app again.'**
+  String get opsPendingBody;
 
   /// No description provided for @opsFieldStart.
   ///

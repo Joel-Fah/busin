@@ -22,12 +22,12 @@ export function Avatar({ name, url, size = 40, className = "" }: Props) {
   return url ? (
     // The picture comes from the sign-in provider or storage; the host is not fixed, so it is not optimised.
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={url} alt="" referrerPolicy="no-referrer" style={box} className={`shrink-0 rounded-sm object-cover ${className}`} />
+    <img src={url} alt="" referrerPolicy="no-referrer" style={box} className={`aspect-square shrink-0 rounded-sm object-cover ${className}`} />
   ) : (
     <span
       aria-hidden
       style={{ ...box, fontSize: size * 0.38 }}
-      className={`inline-flex shrink-0 items-center justify-center rounded-sm bg-surface-2 font-bold text-fg ${className}`}
+      className={`inline-flex aspect-square shrink-0 items-center justify-center rounded-sm bg-surface-2 font-bold text-fg ${className}`}
     >
       {initials(name)}
     </span>
