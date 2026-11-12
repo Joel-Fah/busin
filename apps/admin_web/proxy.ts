@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/proxy";
 
 // The landing page is public; signed-out visitors reach it at "/" through the rewrite below.
-const PUBLIC_PATHS = ["/login", "/auth/callback", "/dev/login", "/landing", "/credits", "/robots.txt", "/sitemap.xml", "/llms.txt"];
+const PUBLIC_PATHS = ["/login", "/auth/callback", "/dev/login", "/landing", "/credits", "/robots.txt", "/sitemap.xml", "/llms.txt", "/.well-known/ard.json"];
 
 function isPublic(pathname: string): boolean {
   return PUBLIC_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));

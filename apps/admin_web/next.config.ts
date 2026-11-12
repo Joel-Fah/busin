@@ -14,6 +14,8 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   poweredByHeader: false,
+  // The stylesheets are put into the page itself, so the first paint does not wait for three extra requests.
+  experimental: { inlineCss: true },
   // The development indicator sits bottom-left by default, over the sidebar sign-out button.
   devIndicators: { position: "bottom-right" },
   async headers() {
