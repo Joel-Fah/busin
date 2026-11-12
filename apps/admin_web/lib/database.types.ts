@@ -589,6 +589,32 @@ isOneToOne: false
       referencedColumns: ["id","school_id"]
     }
                   ]
+                },"trip_position_leases": {
+                  Row: {
+                    "holder": string,"renewed_at": string,"school_id": string,"trip_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "holder": string,"renewed_at"?: string,"school_id": string,"trip_id": string
+                  }
+                  Update: {
+                    "holder"?: string,"renewed_at"?: string,"school_id"?: string,"trip_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "trip_position_leases_holder_fkey"
+      columns: ["holder"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "trip_position_leases_trip_id_school_id_fkey"
+      columns: ["trip_id","school_id"]
+isOneToOne: false
+      referencedRelation: "trips"
+      referencedColumns: ["id","school_id"]
+    }
+                  ]
                 },"trip_positions": {
                   Row: {
                     "id": number,"location": unknown,"recorded_at": string,"school_id": string,"speed_mps": number | null,"trip_id": string
@@ -611,17 +637,23 @@ isOneToOne: false
                   ]
                 },"trips": {
                   Row: {
-                    "archived_at": string | null,"bus_id": string,"created_at": string,"direction": Database["public"]['Enums']["trip_direction"],"driver_id": string | null,"ended_at": string | null,"id": string,"scheduled_start": string,"school_id": string,"started_at": string | null,"started_by": string | null,"status": Database["public"]['Enums']["trip_status"]
+                    "archived_at": string | null,"assistant_id": string | null,"bus_id": string,"created_at": string,"direction": Database["public"]['Enums']["trip_direction"],"driver_id": string | null,"ended_at": string | null,"id": string,"scheduled_start": string,"school_id": string,"started_at": string | null,"started_by": string | null,"status": Database["public"]['Enums']["trip_status"]
                   }
                   ComputedFields: never
                   Insert: {
-                    "archived_at"?: string | null,"bus_id": string,"created_at"?: string,"direction": Database["public"]['Enums']["trip_direction"],"driver_id"?: string | null,"ended_at"?: string | null,"id"?: string,"scheduled_start": string,"school_id": string,"started_at"?: string | null,"started_by"?: string | null,"status"?: Database["public"]['Enums']["trip_status"]
+                    "archived_at"?: string | null,"assistant_id"?: string | null,"bus_id": string,"created_at"?: string,"direction": Database["public"]['Enums']["trip_direction"],"driver_id"?: string | null,"ended_at"?: string | null,"id"?: string,"scheduled_start": string,"school_id": string,"started_at"?: string | null,"started_by"?: string | null,"status"?: Database["public"]['Enums']["trip_status"]
                   }
                   Update: {
-                    "archived_at"?: string | null,"bus_id"?: string,"created_at"?: string,"direction"?: Database["public"]['Enums']["trip_direction"],"driver_id"?: string | null,"ended_at"?: string | null,"id"?: string,"scheduled_start"?: string,"school_id"?: string,"started_at"?: string | null,"started_by"?: string | null,"status"?: Database["public"]['Enums']["trip_status"]
+                    "archived_at"?: string | null,"assistant_id"?: string | null,"bus_id"?: string,"created_at"?: string,"direction"?: Database["public"]['Enums']["trip_direction"],"driver_id"?: string | null,"ended_at"?: string | null,"id"?: string,"scheduled_start"?: string,"school_id"?: string,"started_at"?: string | null,"started_by"?: string | null,"status"?: Database["public"]['Enums']["trip_status"]
                   }
                   Relationships: [
                     {
+      foreignKeyName: "trips_assistant_fk"
+      columns: ["assistant_id","school_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id","school_id"]
+    },{
       foreignKeyName: "trips_bus_id_school_id_fkey"
       columns: ["bus_id","school_id"]
 isOneToOne: false
@@ -884,6 +916,11 @@ isOneToOne: false
 "trip_manifest":
 { Args: { "p_trip_id": string }; Returns: {
               "avatar_url": string,"full_name": string,"matricule": string,"scan_id": string,"scanned_at": string,"stop_id": string,"student_id": string
+            }[]
+                           },
+"trip_position_holder":
+{ Args: { "p_trip_id": string }; Returns: {
+              "holder_id": string,"holder_name": string,"is_me": boolean,"seconds_ago": number
             }[]
                            },
 "unregister_device_token":
