@@ -31,6 +31,20 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: ops trips, offline, no-splash fix (2026-11-13)
+
+Done (four stacked PRs into `dev`, top first: #357 ops screens, #355 database, #353 ops offline, #351 no-splash fix):
+- #351: the student and ops apps no longer jump back to the loading screen when the profile reloads in the background (the student app's Code tab loop offline), and rechecks run only on a real return from the background.
+- #353: the ops app opens without a connection from a copy kept in secure storage (profile, school, today's trips and buses), with a No connection notice; wiped when access is lost.
+- #355 (database): staff read, start, scan on and read the boarding list of only their own trips; unassigned trips are for administrators; `my_trip_history` and `my_trip_stats` (on time = within 10 minutes).
+- #357 (ops app): Trips, History, Stats and Profile tabs; trips by week; 12 weeks of stats with charts (new painted charts in busin_ui); the Google picture in the top bar and on the profile. Checked live on the tablet.
+
+Next: the owner approves running `20261115100000_staff_own_trips` on the hosted project, then merges #357, #355, #353, #351 top-down into `dev`. Queued request: export the portal styleguide as Markdown (for AI agents) and PDF (for reading and printing).
+
+Owner device test: assign yourself to a few trips in the portal; in the ops app check Trips by week, History and Stats; unplug from the PC and reopen the ops app (opens from the saved copy); in the student app go offline, open the Code tab and switch tabs (no return to the loading screen). The Google picture shows when the phone has internet (the tablet had none during the check, so it showed initials).
+
+Note: your staff account now sees only trips where you are driver or assistant, locally and on the hosted project once migrated.
+
 ## Handoff: fixes list (2026-11-12)
 
 Done (five stacked PRs into `dev`, top first: logo drop zone (this one), #346 roles and suspended accounts, #344 unique names and stops, #342 subscription proof and reasons, #340 no past dates): every rule is enforced in the database for any client, with portal messages and consistent app behaviour. Past semesters and trips refused (school day), semester length 7 to 366 days with the year matching the dates; no approval without a proof, reasons 10 to 500 characters with presets; names unique ignoring case and spaces, stops refused under 25 m and confirmed under 200 m; staff and administrator interchangeable, students closed off, a suspended account frozen until restored (apps recheck live); the logo takes a dropped image.
