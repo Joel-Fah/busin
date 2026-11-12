@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { checkReason } from "./reasons";
 import {
   MAX_REASON_LENGTH,
   NO_DRIVER,
@@ -10,7 +11,6 @@ import {
   tripsHref,
   isTripDone,
   isTripFormErrorKey,
-  parseReason,
   parseStatusFilter,
   parseTripForm,
   tripStatusTone,
@@ -50,6 +50,26 @@ describe("parseTripForm", () => {
     expect(parseTripForm(form({ ...valid, assistant_id: "x" }), "UTC")).toEqual({ ok: false, error: "assistant" });
     // An assistant with no driver yet is fine.
     expect(parseTripForm(form({ ...valid, driver_id: "", assistant_id: ASSISTANT }), "UTC")).toMatchObject({ ok: true, value: { driverId: null, assistantId: ASSISTANT } });
+  });
+
+  it("refuses a start before this minute, and lets an old trip keep its start", () => {
+    const now = new Date("2026-11-02T06:30:30Z"); // 07:30:30 at Douala
+    const at = (local: string) => parseTripForm(form({ ...valid, scheduled_start: local }), "Africa/Douala", { now });
+    expect(at("2026-11-02T07:29")).toEqual({ ok: false, error: "start_past" });
+    expect(at("2026-11-02T07:30")).toMatchObject({ ok: true }); // this very minute
+    expect(at("2026-11-02T07:31")).toMatchObject({ ok: true });
+    expect(at("2026-11-03T06:00")).toMatchObject({ ok: true });
+    // An edit that leaves the start alone is fine even when that time has passed.
+    const kept = parseTripForm(form({ ...valid, scheduled_start: "2026-11-01T07:00" }), "Africa/Douala", { now, unchangedStart: "2026-11-01T06:00:00+00:00" });
+    expect(kept).toMatchObject({ ok: true });
+    expect(parseTripForm(form({ ...valid, scheduled_start: "2026-11-01T07:15" }), "Africa/Douala", { now, unchangedStart: "2026-11-01T06:00:00+00:00" })).toEqual({ ok: false, error: "start_past" });
+    // Without a check nothing is refused here (the database still does).
+    expect(parseTripForm(form({ ...valid, scheduled_start: "2020-01-01T07:00" }), "Africa/Douala")).toMatchObject({ ok: true });
+  });
+
+  it("recognises the database's reason", () => {
+    expect(tripSaveErrorKey("22023", "trip_start_in_past")).toBe("start_past");
+    expect(tripSaveErrorKey("22023", "other")).toBe("generic");
   });
 
   it("rejects bad fields with the field name", () => {
@@ -119,12 +139,17 @@ describe("cancelling and archiving", () => {
     expect(isTripFormErrorKey("cannot_archive")).toBe(true);
   });
 
-  it("trims the reason, treats nothing as none and refuses one that is too long", () => {
-    expect(parseReason("  in the garage ")).toBe("in the garage");
-    expect(parseReason("   ")).toBeUndefined();
-    expect(parseReason(null)).toBeUndefined();
-    expect(parseReason("x".repeat(MAX_REASON_LENGTH))).toHaveLength(MAX_REASON_LENGTH);
-    expect(parseReason("x".repeat(MAX_REASON_LENGTH + 1))).toBeNull();
+  it("holds the cancel reason to the shared rules: optional, but a real sentence when given, 300 characters at most", () => {
+    expect(checkReason("  the bus is in   the garage ", { required: false, max: MAX_REASON_LENGTH })).toEqual({ ok: true, value: "the bus is in the garage" });
+    expect(checkReason("   ", { required: false, max: MAX_REASON_LENGTH })).toEqual({ ok: true, value: null });
+    expect(checkReason("rain", { required: false, max: MAX_REASON_LENGTH })).toEqual({ ok: false, problem: "reason_too_short" });
+    expect(checkReason("x".repeat(MAX_REASON_LENGTH + 1), { required: false, max: MAX_REASON_LENGTH })).toEqual({ ok: false, problem: "reason_too_long" });
+  });
+
+  it("tells the reason problems apart from the database's short message", () => {
+    expect(tripActionErrorKey("22023", "cancel", "reason_too_short")).toBe("reason_too_short");
+    expect(tripActionErrorKey("22023", "cancel", "reason_too_long")).toBe("reason_too_long");
+    expect(tripActionErrorKey("22023", "cancel", "other")).toBe("invalid");
   });
 
   it("counts archived trips on their own tab, outside the total", () => {

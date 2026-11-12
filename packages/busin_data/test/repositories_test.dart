@@ -336,12 +336,13 @@ void main() {
         studentId: _other,
         semesterId: _id,
         stopId: _id,
+        proofPath: '$_school/$_other/receipt.jpg',
       ));
 
       expect(created.isLive, isTrue);
       expect(h.last.method, 'POST');
       final body = jsonDecode(h.last.body) as Map<String, dynamic>;
-      expect(body.keys.toSet(), {'school_id', 'student_id', 'semester_id', 'stop_id'});
+      expect(body.keys.toSet(), {'school_id', 'student_id', 'semester_id', 'stop_id', 'proof_path'});
       expect(body.containsKey('status'), isFalse);
       expect(h.last.url.queryParameters['select'], isNot(contains('*')));
     });
@@ -547,7 +548,7 @@ void main() {
     test('a second live subscription is a Conflict', () async {
       final h = Harness((_) async => refusal('23505', status: 409));
       expect(
-        h.repos.subscriptions.request(const NewSubscription(schoolId: _school, studentId: _other, semesterId: _id, stopId: _id)),
+        h.repos.subscriptions.request(const NewSubscription(schoolId: _school, studentId: _other, semesterId: _id, stopId: _id, proofPath: '$_school/$_other/receipt.jpg')),
         throwsA(isA<Conflict>()),
       );
     });

@@ -122,6 +122,18 @@ class FakeProfileRepository implements ProfileRepository {
     return byId[userId] ?? (throw const NotFound('profile'));
   }
 
+  /// A change the server reports (a school suspending the account).
+  final StreamController<Profile> changes = StreamController<Profile>.broadcast();
+
+  @override
+  Stream<Profile> watchProfile(String userId) => Stream.multi((controller) {
+        // As the real stream: the profile as it is now first, then the changes.
+        final now = byId[userId];
+        if (now != null) controller.add(now);
+        final sub = changes.stream.listen(controller.add);
+        controller.onCancel = sub.cancel;
+      });
+
   /// What was last saved, to check in tests.
   Map<String, String?>? lastUpdate;
   AcademicChoice? lastAcademic;

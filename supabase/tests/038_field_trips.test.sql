@@ -60,7 +60,7 @@ select is((select origin || ':' || status::text || ':' || driver_id::text || ':'
   'it runs at once, marked as started in the field, with the caller as driver and the other as assistant');
 select is((select count(*) from private.notification_outbox o join public.trips t on t.id = o.ref_id
   where o.kind = 'crew_assigned' and o.user_id = 'a2000000-0000-4000-8000-000000000002' and t.bus_id = 'e1000000-0000-4000-8000-000000000001'), 1::bigint, 'the other crew member is told');
-select is((select count(*) from public.audit_log where action = 'trip.started_in_field' and actor_id = 'a2000000-0000-4000-8000-000000000001'), 1::bigint, 'and it is in the audit log');
+select is((select count(*) from public.audit_log where action = 'trip.started_in_field' and actor_id = 'a2000000-0000-4000-8000-000000000001' and created_at = now()), 1::bigint, 'and it is in the audit log');
 
 -- ---------------------------------------------------------------- the creator runs it
 set local role authenticated;
@@ -101,7 +101,7 @@ set local role authenticated;
 set local "request.jwt.claims" = '{"sub":"a3000000-0000-4000-8000-000000000001","role":"authenticated"}';
 select lives_ok($$select public.admin_set_field_trips(false)$$, 'an administrator turns field trips off');
 reset role;
-select is((select count(*) from public.audit_log where action = 'school.field_trips'), 1::bigint, 'and it is in the audit log');
+select is((select count(*) from public.audit_log where action = 'school.field_trips' and created_at = now()), 1::bigint, 'and it is in the audit log');
 
 set local role authenticated;
 set local "request.jwt.claims" = '{"sub":"a2000000-0000-4000-8000-000000000001","role":"authenticated"}';

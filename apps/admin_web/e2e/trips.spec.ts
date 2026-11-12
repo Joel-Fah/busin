@@ -200,6 +200,18 @@ test.describe("administrator managing trips", () => {
     expect((await tripOnBus(scheduledId, idleBusId)).length).toBe(0);
   });
 
+  test("a start time in the past is refused by the server", async ({ page }) => {
+    await page.goto("/trips/new");
+    await page.waitForLoadState("networkidle");
+    await chooseOption(page, "Bus", `${prefix} RUN`);
+    // Tamper with the field, as the server must not trust the form.
+    await pickDateTime(page, START);
+    await setPickerValue(page, "scheduled_start", "2020-01-01T07:30");
+    await page.getByRole("button", { name: "Schedule trip" }).click();
+    await expect(page.getByRole("alert").filter({ hasText: "That start time has already passed." })).toBeVisible();
+    expect((await tripOnBus(scheduledId, busId)).filter((trip) => new Date(trip.scheduled_start).getFullYear() === 2020)).toHaveLength(0);
+  });
+
   test("only staff are offered as drivers", async ({ page }) => {
     await page.goto("/trips/new");
     await page.getByRole("combobox", { name: "Driver" }).click();
@@ -230,10 +242,24 @@ test.describe("administrator managing trips", () => {
     await expect(page.getByRole("button", { name: "Save trip" })).toHaveCount(0);
   });
 
+  test("the cancel reason offers presets, and a few words are refused", async ({ page }) => {
+    await page.goto(`/trips/${scheduledId}`);
+    await page.getByText("Cancel this trip", { exact: true }).last().click();
+    await page.getByRole("button", { name: "The bus is out of service." }).click();
+    await expect(page.getByLabel("Reason", { exact: true })).toHaveValue("The bus is out of service.");
+
+    // A few words: past the browser's own check (a tampered form), the server refuses and the trip stays.
+    await page.getByLabel("Reason", { exact: true }).evaluate((el) => (el as HTMLTextAreaElement).removeAttribute("minlength"));
+    await page.getByLabel("Reason", { exact: true }).fill("rain");
+    await page.getByRole("button", { name: "Cancel trip" }).click();
+    await expect(page.getByRole("alert").filter({ hasText: "The reason is too short" })).toBeVisible();
+    expect((await serviceClient().from("trips").select("status").eq("id", scheduledId).single()).data?.status).toBe("scheduled");
+  });
+
   test("cancelling a trip keeps it, records the reason and locks it", async ({ page }) => {
     await page.goto(`/trips/${cancelId}`);
     await page.getByText("Cancel this trip", { exact: true }).last().click();
-    await page.getByLabel("Reason").fill("The bus is in the garage.");
+    await page.getByLabel("Reason", { exact: true }).fill("The bus is in the garage.");
     await page.getByRole("button", { name: "Cancel trip" }).click();
 
     await expect(page.getByRole("status")).toContainText("Trip cancelled.");

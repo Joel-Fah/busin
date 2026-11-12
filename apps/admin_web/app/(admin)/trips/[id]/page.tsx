@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { Archive01Icon, ArchiveRestoreIcon, ArrowRight01Icon, Cancel01Icon, Note01Icon, StopCircleIcon } from "@hugeicons/core-free-icons";
+import { Archive01Icon, ArchiveRestoreIcon, ArrowRight01Icon, Cancel01Icon, StopCircleIcon } from "@hugeicons/core-free-icons";
 
 import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -11,7 +11,7 @@ import { ListSkeleton } from "@/components/ui/ListSkeleton";
 import { FlashToast } from "@/components/FlashToast";
 import { Notice } from "@/components/ui/Notice";
 import { Button } from "@/components/ui/Button";
-import { Textarea } from "@/components/ui/Textarea";
+import { ReasonField } from "@/components/ReasonField";
 
 import { TripForm } from "@/components/TripForm";
 import { requireAdmin } from "@/lib/auth";
@@ -21,7 +21,7 @@ import { isUuid } from "@/lib/ids";
 import { MAX_REASON_LENGTH, formatMinutes, isDirection, isTripDone, isTripFormErrorKey, isTripStatus, overdueById, tripStatusTone, type Overdue } from "@/lib/trips";
 import { loadTripOptions } from "@/lib/trips-data";
 import { createClient } from "@/lib/supabase/server";
-import { utcToZonedLocal } from "@/lib/zoned";
+import { todayInZone, utcToZonedLocal } from "@/lib/zoned";
 
 import { cancelTrip, endTrip, setTripArchived, updateTrip } from "../actions";
 
@@ -89,6 +89,7 @@ async function TripDetail({ params, searchParams }: { params: Params; searchPara
   const editable = trip.status === "scheduled";
   const archived = trip.archived_at !== null;
   const m = t.trips.manage;
+  const reasonText = { presetsLabel: t.reasons.presetsLabel, counter: t.reasons.counter, minimum: t.reasons.minimum };
 
   return (
     <>
@@ -120,6 +121,7 @@ async function TripDetail({ params, searchParams }: { params: Params; searchPara
           buses={buses}
           drivers={drivers}
           timeZone={admin.schoolTimezone}
+          today={todayInZone(admin.schoolTimezone)}
           trip={{
             id: trip.id,
             busId: trip.bus_id,
@@ -148,7 +150,7 @@ async function TripDetail({ params, searchParams }: { params: Params; searchPara
             <form action={cancelTrip} className="mt-4 flex flex-col gap-4">
               <input type="hidden" name="id" value={trip.id} />
               <p className="text-sm text-muted">{m.cancelHint}</p>
-              <Textarea id="reason" name="reason" label={m.reason} icon={Note01Icon} hint={m.reasonHint} maxLength={MAX_REASON_LENGTH} rows={3} />
+              <ReasonField id="reason" name="reason" text={{ ...reasonText, label: m.reason, hint: m.reasonHint }} presets={t.trips.reasons.cancel} max={MAX_REASON_LENGTH} />
               <div>
                 <Button type="submit" variant="danger" icon={Cancel01Icon}>
                   {m.cancelConfirm}

@@ -16,11 +16,13 @@ type Props = {
   drivers: DriverOption[];
   /** The school's timezone, shown so the admin knows which clock the start time is on. */
   timeZone: string;
+  /** The school's day today (YYYY-MM-DD): earlier days are not offered. */
+  today: string;
   trip?: { id: string; busId: string; driverId: string | null; assistantId: string | null; direction: Direction; start: string };
 };
 
 /** The form used to schedule and to edit a trip. */
-export function TripForm({ action, t, locale, buses, drivers, timeZone, trip }: Props) {
+export function TripForm({ action, t, locale, buses, drivers, timeZone, today, trip }: Props) {
   const f = t.trips.form;
   return (
     <Card className="max-w-2xl">
@@ -74,6 +76,7 @@ export function TripForm({ action, t, locale, buses, drivers, timeZone, trip }: 
           hint={format(f.startHint, { zone: timeZone })}
           locale={locale}
           step={5}
+          minDate={today}
           defaultValue={trip?.start ?? ""}
           text={{ date: t.pickers.date, time: t.pickers.time, dateLabel: t.pickers.dateLabel, timeLabel: t.pickers.timeLabel }}
         />

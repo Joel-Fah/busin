@@ -33,7 +33,7 @@ set local role authenticated;
 set local "request.jwt.claims" = '{"sub":"a3000000-0000-4000-8000-000000000001","role":"authenticated"}';
 select lives_ok($$update public.trips set assistant_id = 'a2000000-0000-4000-8000-000000000002' where id = 'f1000000-0000-4000-8000-000000000003'$$, 'an administrator adds an assistant to a trip');
 select throws_ok($$update public.trips set assistant_id = driver_id where id = 'f1000000-0000-4000-8000-000000000003'$$, '23514', null, 'the assistant cannot also be the driver');
-select throws_ok($$update public.trips set assistant_id = 'b2000000-0000-4000-8000-000000000001' where id = 'f1000000-0000-4000-8000-000000000003'$$, '23503', null, 'nor someone from another school');
+select throws_ok($$update public.trips set assistant_id = 'b2000000-0000-4000-8000-000000000001' where id = 'f1000000-0000-4000-8000-000000000003'$$, '22023', 'crew_not_staff', 'nor someone from another school');
 reset role;
 
 set local role authenticated;

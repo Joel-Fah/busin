@@ -1,11 +1,10 @@
 "use client";
 
-import { Message01Icon } from "@hugeicons/core-free-icons";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
-import { Textarea } from "@/components/ui/Textarea";
+import { ReasonField, type ReasonFieldText } from "@/components/ReasonField";
 import { MAX_DECLINE_REASON } from "@/lib/people";
 
 type Copy = {
@@ -18,6 +17,9 @@ type Copy = {
   reasonHint: string;
   cancel: string;
   confirmDecline: string;
+  /** "Quick reasons", the counter and the minimum, shared with the other reason fields. */
+  field: Pick<ReasonFieldText, "presetsLabel" | "counter" | "minimum">;
+  presets: readonly string[];
 };
 
 type Props = {
@@ -62,15 +64,12 @@ export function JoinRequestActions({ id, from = "list", copy, verify, decline }:
         <form id={formId} action={decline}>
           <input type="hidden" name="id" value={id} />
           <input type="hidden" name="from" value={from} />
-          <Textarea
+          <ReasonField
             id={`${formId}-reason`}
             name="reason"
-            label={copy.reason}
-            icon={Message01Icon}
-            placeholder={copy.reasonPlaceholder}
-            hint={copy.reasonHint}
-            maxLength={MAX_DECLINE_REASON}
-            rows={3}
+            text={{ ...copy.field, label: copy.reason, placeholder: copy.reasonPlaceholder, hint: copy.reasonHint }}
+            presets={copy.presets}
+            max={MAX_DECLINE_REASON}
           />
         </form>
       </Modal>

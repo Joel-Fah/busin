@@ -15,10 +15,12 @@ type Props = {
   semester?: { id: string; name: SemesterName; year: number; startDate: string; endDate: string };
   /** Suggested year for a new semester. */
   defaultYear: number;
+  /** The school's day today (YYYY-MM-DD): a semester cannot end before it. */
+  today: string;
 };
 
 /** The form used to add and to edit a semester. */
-export function SemesterForm({ action, t, locale, semester, defaultYear }: Props) {
+export function SemesterForm({ action, t, locale, semester, defaultYear, today }: Props) {
   const f = t.semesters.form;
   return (
     <Card className="max-w-2xl">
@@ -50,7 +52,7 @@ export function SemesterForm({ action, t, locale, semester, defaultYear }: Props
 
         <div className="grid gap-6 sm:grid-cols-2">
           <DatePicker id="start_date" name="start_date" label={f.startDate} locale={locale} text={t.pickers.date} defaultValue={semester?.startDate ?? ""} />
-          <DatePicker id="end_date" name="end_date" label={f.endDate} locale={locale} text={t.pickers.date} defaultValue={semester?.endDate ?? ""} />
+          <DatePicker id="end_date" name="end_date" label={f.endDate} locale={locale} text={t.pickers.date} min={today} defaultValue={semester?.endDate ?? ""} />
         </div>
         <p className="-mt-3 text-sm text-muted">{f.datesHint}</p>
 

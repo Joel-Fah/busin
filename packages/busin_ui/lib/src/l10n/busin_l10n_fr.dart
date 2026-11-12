@@ -395,6 +395,14 @@ class BusinL10nFr extends BusinL10n {
   String get subscribeErrorType => 'Utilisez une photo JPEG, PNG ou WebP.';
 
   @override
+  String get subscribeErrorProof =>
+      'La preuve de paiement est manquante. Ajoutez une photo nette de votre reçu et renvoyez la demande.';
+
+  @override
+  String get subscribeErrorEnded =>
+      'Ce semestre est terminé. Tirez vers le bas pour actualiser et voir ce qui est ouvert.';
+
+  @override
   String get subscribeErrorTooLarge =>
       'Cette photo est trop volumineuse. Choisissez-en une de moins de 5 Mo.';
 
@@ -1618,6 +1626,13 @@ class BusinL10nFr extends BusinL10n {
   @override
   String get opsShareNotYours =>
       'Le chauffeur ou l\'assistant de ce trajet partage sa position.';
+
+  @override
+  String get opsPendingTitle => 'Votre compte attend une validation';
+
+  @override
+  String get opsPendingBody =>
+      'Un administrateur de l\'école doit valider votre compte avant que vous puissiez utiliser BusIn Ops. Demandez-lui, puis rouvrez l\'application.';
 
   @override
   String get opsFieldStart => 'Démarrer un trajet qui n\'est pas dans la liste';

@@ -2,6 +2,7 @@
 /// session kept in secure storage, the theme and language choices, the offline helpers, and the legal texts.
 library;
 
+export 'src/account/account_watcher.dart';
 export 'src/auth/auth_service.dart';
 export 'src/auth/secure_session_storage.dart';
 export 'src/auth/supabase_auth_service.dart';

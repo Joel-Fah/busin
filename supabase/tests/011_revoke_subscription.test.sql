@@ -48,10 +48,10 @@ set local role authenticated;
 set local "request.jwt.claims" = '{"sub":"a3000000-0000-4000-8000-000000000001","role":"authenticated"}';
 select throws_ok(
   $$select public.admin_revoke_subscription('11000000-0000-4000-8000-000000000001', '   ')$$,
-  '22023', 'A reason is required to revoke a subscription', 'a reason is required');
+  '22023', 'reason_required', 'a reason is required');
 select throws_ok(
   $$select public.admin_revoke_subscription('11000000-0000-4000-8000-000000000001', repeat('x', 501))$$,
-  '22023', 'The note is too long (500 characters at most)', 'the reason has a limit');
+  '22023', 'reason_too_long', 'the reason has a limit');
 select throws_ok(
   $$select public.admin_revoke_subscription('11000000-0000-4000-8000-000000000002', 'changed my mind')$$,
   '55000', 'Only approved subscriptions can be revoked', 'a pending one cannot be revoked (it is reviewed instead)');
@@ -63,17 +63,20 @@ select is((select status::text from public.subscriptions where id = '11000000-00
 select is((select review_note from public.subscriptions where id = '11000000-0000-4000-8000-000000000001'), 'Payment was reversed', 'the reason is kept for the student');
 select is((select reviewed_by from public.subscriptions where id = '11000000-0000-4000-8000-000000000001'), 'a3000000-0000-4000-8000-000000000001'::uuid, 'who revoked it is recorded');
 select throws_ok(
-  $$select public.admin_revoke_subscription('11000000-0000-4000-8000-000000000001', 'again')$$,
+  $$select public.admin_revoke_subscription('11000000-0000-4000-8000-000000000001', 'Trying to revoke it again')$$,
   '55000', 'Only approved subscriptions can be revoked', 'a revoked one cannot be revoked twice');
 
 reset role;
 select is((select count(*)::int from public.audit_log where action = 'subscription.revoked' and target_id = '11000000-0000-4000-8000-000000000001'), 1, 'the revocation is in the audit log');
 
 -- the student can ask again once it is revoked (the live-subscription rule no longer blocks)
+reset role;
+insert into storage.objects (bucket_id, name, owner) values
+  ('proofs', '10000000-0000-4000-8000-000000000001/a1000000-0000-4000-8000-000000000001/again.jpg', 'a1000000-0000-4000-8000-000000000001');
 set local role authenticated;
 set local "request.jwt.claims" = '{"sub":"a1000000-0000-4000-8000-000000000001","role":"authenticated"}';
 select lives_ok(
-  $$insert into public.subscriptions (school_id, student_id, semester_id, stop_id) values ('10000000-0000-4000-8000-000000000001', 'a1000000-0000-4000-8000-000000000001', 'c1000000-0000-4000-8000-000000000001', 'd1000000-0000-4000-8000-000000000001')$$,
+  $$insert into public.subscriptions (school_id, student_id, semester_id, stop_id, proof_path) values ('10000000-0000-4000-8000-000000000001', 'a1000000-0000-4000-8000-000000000001', 'c1000000-0000-4000-8000-000000000001', 'd1000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001/a1000000-0000-4000-8000-000000000001/again.jpg')$$,
   'the student can request again after a revocation');
 
 -- and a revoked subscription is not counted as a way to board

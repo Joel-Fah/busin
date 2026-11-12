@@ -175,7 +175,7 @@ void main() {
 
   test('a second live request for the semester is a Conflict', () async {
     await expectLater(
-      repos.subscriptions.request(NewSubscription(schoolId: _school, studentId: studentId, semesterId: _semester, stopId: _stop)),
+      repos.subscriptions.request(NewSubscription(schoolId: _school, studentId: studentId, semesterId: _semester, stopId: _stop, proofPath: '$_school/$studentId/receipt.jpg')),
       throwsA(isA<Conflict>()),
     );
   });
@@ -277,7 +277,7 @@ void main() {
 
   test('a student cannot send a request in someone else\'s name', () async {
     await expectLater(
-      repos.subscriptions.request(NewSubscription(schoolId: _school, studentId: otherId, semesterId: _semester, stopId: _stop)),
+      repos.subscriptions.request(NewSubscription(schoolId: _school, studentId: otherId, semesterId: _semester, stopId: _stop, proofPath: '$_school/$otherId/receipt.jpg')),
       throwsA(isA<NotAllowed>()),
     );
   });

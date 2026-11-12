@@ -5,8 +5,9 @@ import { redirect } from "next/navigation";
 
 import { requireAdmin } from "@/lib/auth";
 import { isUuid } from "@/lib/ids";
+import { checkReason } from "@/lib/reasons";
 import {
-  parseReason,
+  MAX_REASON_LENGTH,
   parseTripForm,
   tripActionErrorKey,
   tripSaveErrorKey,
@@ -65,7 +66,7 @@ async function checkAssignments(
 export async function createTrip(formData: FormData): Promise<void> {
   const admin = await requireAdmin();
 
-  const parsed = parseTripForm(formData, admin.schoolTimezone);
+  const parsed = parseTripForm(formData, admin.schoolTimezone, { now: new Date() });
   if (!parsed.ok) redirect(`/trips/new?error=${parsed.error}`);
   const { busId, driverId, assistantId, direction, scheduledStart } = parsed.value;
 
@@ -85,7 +86,7 @@ export async function createTrip(formData: FormData): Promise<void> {
     })
     .select("id")
     .single();
-  if (error || !data) redirect(`/trips/new?error=${tripSaveErrorKey(error?.code)}`);
+  if (error || !data) redirect(`/trips/new?error=${tripSaveErrorKey(error?.code, error?.message)}`);
 
   revalidatePath("/trips");
   redirect(`/trips/${data.id}?done=created`);
@@ -101,18 +102,19 @@ export async function updateTrip(formData: FormData): Promise<void> {
   const id = formData.get("id");
   if (!isUuid(id)) redirect("/trips");
 
-  const parsed = parseTripForm(formData, admin.schoolTimezone);
-  if (!parsed.ok) redirect(`/trips/${id}?error=${parsed.error}`);
-  const { busId, driverId, assistantId, direction, scheduledStart } = parsed.value;
-
   const supabase = await createClient();
   const { data: current } = await supabase
     .from("trips")
-    .select("bus_id")
+    .select("bus_id, scheduled_start")
     .eq("id", id)
     .eq("status", "scheduled")
     .maybeSingle();
   if (!current) redirect(`/trips/${id}?error=not_editable`);
+
+  // Leaving the start as it is always works, even for a trip whose time has passed without it starting.
+  const parsed = parseTripForm(formData, admin.schoolTimezone, { now: new Date(), unchangedStart: current.scheduled_start });
+  if (!parsed.ok) redirect(`/trips/${id}?error=${parsed.error}`);
+  const { busId, driverId, assistantId, direction, scheduledStart } = parsed.value;
 
   const problem = await checkAssignments(parsed.value, current.bus_id);
   if (problem) redirect(`/trips/${id}?error=${problem}`);
@@ -124,7 +126,7 @@ export async function updateTrip(formData: FormData): Promise<void> {
     .eq("status", "scheduled")
     .select("id")
     .single();
-  if (error) redirect(`/trips/${id}?error=${tripSaveErrorKey(error.code)}`);
+  if (error) redirect(`/trips/${id}?error=${tripSaveErrorKey(error.code, error.message)}`);
 
   revalidatePath("/trips");
   redirect(`/trips/${id}?done=saved`);
@@ -141,12 +143,13 @@ export async function cancelTrip(formData: FormData): Promise<void> {
   const id = formData.get("id");
   if (!isUuid(id)) redirect("/trips");
 
-  const reason = parseReason(formData.get("reason"));
-  if (reason === null) redirect(`/trips/${id}?error=invalid`);
+  // Optional, but a real sentence when given (10 to 300 characters, spaces tidied).
+  const reason = checkReason(formData.get("reason"), { required: false, max: MAX_REASON_LENGTH });
+  if (!reason.ok) redirect(`/trips/${id}?error=${reason.problem}`);
 
   const supabase = await createClient();
-  const { error } = await supabase.rpc("admin_cancel_trip", { p_trip_id: id, p_reason: reason });
-  if (error) redirect(`/trips/${id}?error=${tripActionErrorKey(error.code, "cancel")}`);
+  const { error } = await supabase.rpc("admin_cancel_trip", { p_trip_id: id, p_reason: reason.value ?? undefined });
+  if (error) redirect(`/trips/${id}?error=${tripActionErrorKey(error.code, "cancel", error.message)}`);
 
   revalidatePath("/trips");
   redirect(`/trips/${id}?done=cancelled`);

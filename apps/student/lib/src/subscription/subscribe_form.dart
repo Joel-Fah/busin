@@ -77,6 +77,16 @@ class _SubscribeFormState extends ConsumerState<SubscribeForm> {
     final proof = _proof;
     if (access is! Allowed || stop == null || proof == null) return;
 
+    // A form left open past the semester's last day would send a request for a semester that is over. Check the
+    // school's own day first, and reload what is open.
+    final school = await ref.read(schoolProvider.future);
+    final today = ref.read(schoolClockProvider).today(school.timezone, now: ref.read(nowProvider)());
+    if (widget.semester.endDate.isBefore(today)) {
+      ref.invalidate(subscriptionOverviewProvider);
+      if (mounted) setState(() => _error = l10n.subscribeErrorEnded);
+      return;
+    }
+
     setState(() {
       _busy = true;
       _error = null;
@@ -91,6 +101,8 @@ class _SubscribeFormState extends ConsumerState<SubscribeForm> {
           SubscribeFailure.alreadyRequested => l10n.subscribeErrorExists,
           SubscribeFailure.offline => l10n.errorOffline,
           SubscribeFailure.rejectedFile => l10n.subscribeErrorType,
+          SubscribeFailure.proofRequired => l10n.subscribeErrorProof,
+          SubscribeFailure.semesterEnded => l10n.subscribeErrorEnded,
           SubscribeFailure.other => l10n.errorGeneric,
         };
       });

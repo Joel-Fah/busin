@@ -1,6 +1,16 @@
 import { describe, expect, it } from "vitest";
 
-import { isLocalDateTime, utcToZonedLocal, zonedLocalToUtc } from "./zoned";
+import { isLocalDateTime, todayInZone, utcToZonedLocal, zonedLocalToUtc } from "./zoned";
+
+describe("todayInZone", () => {
+  it("is the school's calendar day, not the server's", () => {
+    const instant = new Date("2026-11-01T23:30:00Z");
+    expect(todayInZone("UTC", instant)).toBe("2026-11-01");
+    expect(todayInZone("Africa/Douala", instant)).toBe("2026-11-02");
+    expect(todayInZone("America/New_York", instant)).toBe("2026-11-01");
+    expect(todayInZone("Pacific/Kiritimati", instant)).toBe("2026-11-02");
+  });
+});
 
 describe("isLocalDateTime", () => {
   it("accepts real date and times only", () => {

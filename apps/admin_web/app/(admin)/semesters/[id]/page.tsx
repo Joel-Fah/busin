@@ -12,6 +12,7 @@ import { requireAdmin } from "@/lib/auth";
 import { getMessages } from "@/lib/i18n/server";
 import { isUuid } from "@/lib/ids";
 import { isSemesterDone, isSemesterFormErrorKey, isSemesterName } from "@/lib/semesters";
+import { todayInZone } from "@/lib/zoned";
 import { createClient } from "@/lib/supabase/server";
 
 import { updateSemester } from "../actions";
@@ -37,7 +38,7 @@ function single(value: string | string[] | undefined): string | undefined {
 }
 
 async function SemesterDetail({ params, searchParams }: { params: Params; searchParams: SearchParams }) {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const { locale, t } = await getMessages();
   const { id } = await params;
   if (!isUuid(id)) notFound();
@@ -69,6 +70,7 @@ async function SemesterDetail({ params, searchParams }: { params: Params; search
         t={t}
         locale={locale}
         defaultYear={semester.year}
+        today={todayInZone(admin.schoolTimezone)}
         semester={{
           id: semester.id,
           name: semester.name,

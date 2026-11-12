@@ -39,6 +39,7 @@ void main() {
     test('students and suspended staff are not', () {
       expect((of(staff(role: UserRole.student)) as OpsBlocked).reason, OpsBlockReason.notStaff);
       expect((of(staff(status: AccountStatus.suspended)) as OpsBlocked).reason, OpsBlockReason.suspended);
+      expect((of(staff(status: AccountStatus.pending)) as OpsBlocked).reason, OpsBlockReason.pending, reason: 'waiting for approval is not suspended');
       expect(of(null, userId: null), isA<OpsSignedOut>());
     });
 
@@ -57,6 +58,15 @@ void main() {
       final split = splitTrips([trip('a'), trip('b', driver: 'u1'), trip('c', driver: 'u2')], 'u1');
       expect(split.mine.map((t) => t.id), ['b']);
       expect(split.others.map((t) => t.id), ['a', 'c']);
+    });
+
+    test('Start is only for a trip scheduled for the school\'s today, in the school\'s own timezone', () {
+      const clock = SchoolClock();
+      // 23:30 UTC on 12 November is already 13 November at Douala (UTC+1).
+      final now = DateTime.utc(2026, 11, 12, 23, 30);
+      expect(tripIsToday(clock: clock, zone: 'Africa/Douala', scheduledStart: DateTime.utc(2026, 11, 13, 6), now: now), isTrue);
+      expect(tripIsToday(clock: clock, zone: 'Africa/Douala', scheduledStart: DateTime.utc(2026, 11, 12, 6), now: now), isFalse, reason: 'yesterday at the school');
+      expect(tripIsToday(clock: clock, zone: 'Africa/Douala', scheduledStart: DateTime.utc(2026, 11, 14, 6), now: now), isFalse, reason: 'tomorrow');
     });
 
     test('a trip is mine when I am its assistant too', () {
