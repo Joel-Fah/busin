@@ -55,12 +55,13 @@ final accountRecheckProvider = Provider<Future<void> Function()>((ref) {
 
 /// What the app may show. The router and every guarded screen read this.
 final accessProvider = Provider<OpsAccess>((ref) {
-  final session = ref.watch(authUserIdProvider);
-  final profile = ref.watch(profileProvider);
+  // A reload in the background keeps what is in hand: only the first read, or a different person, counts as loading.
+  final session = held(ref.watch(authUserIdProvider));
+  final profile = held(ref.watch(profileProvider), belongs: (p) => p == null || p.id == session.value);
   return opsAccessFor(
-    sessionLoading: session.isLoading,
+    sessionLoading: session.loading,
     userId: session.value,
-    profileLoading: profile.isLoading,
+    profileLoading: profile.loading,
     profileError: profile.error,
     profile: profile.value,
   );

@@ -76,9 +76,13 @@ class FakeProfiles implements ProfileRepository {
   final StreamController<Profile> changes = StreamController<Profile>.broadcast();
   int reads = 0;
 
+  /// When set, the profile is not given until this completes (a slow or unreachable backend).
+  Completer<void>? hold;
+
   @override
   Future<Profile> getProfile(String userId) async {
     reads++;
+    if (hold != null) await hold!.future;
     return byId[userId] ?? (throw const NotFound('profile'));
   }
 
