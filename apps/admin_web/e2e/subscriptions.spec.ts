@@ -78,13 +78,48 @@ test.describe("administrator reviewing", () => {
 
     await row.getByRole("link").click();
     await expect(page).toHaveURL(new RegExp(`/subscriptions/${approveId}$`));
-    await expect(page.getByText("No proof was uploaded.")).toBeVisible();
+    // The fixture has a proof path but no stored file, so the page says the proof could not be shown.
+    await expect(page.getByText("The proof could not be loaded. Reload the page to try again.")).toBeVisible();
   });
 
   test("the approved filter does not list a pending request", async ({ page }) => {
     await page.goto("/subscriptions?status=approved");
     await expect(page.getByRole("link", { name: "Approved" })).toHaveAttribute("aria-current", "page");
     await expect(page.getByRole("row").filter({ hasText: nameOf(`approve-${tag}`) })).toHaveCount(0);
+  });
+
+  test("a request without a proof cannot be approved, only rejected", async ({ page }) => {
+    const noProof = await createUser(`noproof-${tag}`, "student");
+    try {
+      const noProofId = await createSubscription(noProof.id, stopId, false);
+      await page.goto(`/subscriptions/${noProofId}`);
+      await expect(page.getByText("No payment proof was uploaded, so this request cannot be approved.")).toBeVisible();
+      await expect(page.getByRole("button", { name: "Approve", exact: true })).toBeDisabled();
+    } finally {
+      await deleteUser(noProof);
+    }
+  });
+
+  test("a rejection reason is offered as clickable presets, must be a real sentence, and what was typed stays on an error", async ({ page }) => {
+    await page.goto(`/subscriptions/${rejectId}`);
+    await page.getByText("Reject with a reason").click();
+    const reason = page.getByLabel("Reason for rejection");
+
+    // A preset fills the empty field; a second one is added after it.
+    await page.getByRole("button", { name: "The amount on the receipt does not match the fee." }).click();
+    await expect(reason).toHaveValue("The amount on the receipt does not match the fee.");
+    await page.getByRole("button", { name: "The receipt is for a different semester." }).click();
+    await expect(reason).toHaveValue("The amount on the receipt does not match the fee. The receipt is for a different semester.");
+
+    // Too short: the browser asks first; past it (a tampered form), the server says so under the field and keeps the text.
+    await reason.evaluate((el) => (el as HTMLTextAreaElement).removeAttribute("minlength"));
+    await reason.fill("no good");
+    await expect(page.getByText(/\d+ of 500 characters\./)).toContainText("At least 10.");
+    await page.getByRole("button", { name: "Reject", exact: false }).last().click();
+    await expect(page.getByRole("alert").filter({ hasText: "too short" })).toBeVisible();
+    await expect(page.getByLabel("Reason for rejection")).toHaveValue("no good");
+    const { data } = await serviceClient().from("subscriptions").select("status").eq("id", rejectId).single();
+    expect(data?.status).toBe("pending");
   });
 
   test("approving records the decision and writes the audit log", async ({ page }) => {

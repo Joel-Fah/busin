@@ -32,16 +32,18 @@ export function parseStatusFilter(value: string | string[] | undefined): StatusF
 
 export type TripInput = { busId: string; driverId: string | null; assistantId: string | null; direction: Direction; scheduledStart: string };
 
-export type TripFormError = "bus" | "driver" | "assistant" | "crew" | "direction" | "start";
+export type TripFormError = "bus" | "driver" | "assistant" | "crew" | "direction" | "start" | "start_past";
 
 /**
  * Validates the trip form fields. `timeZone` is the school's, because the start time is typed as a
  * wall-clock time. Whether the bus is in service and the driver is staff is checked by the action,
- * which has the database at hand.
+ * which has the database at hand. With `check`, a start before the current minute is refused, unless
+ * it is an edit that leaves the start as it was (`unchangedStart`), so an old trip can still be edited.
  */
 export function parseTripForm(
   form: { get(name: string): unknown },
   timeZone: string,
+  check?: { now: Date; unchangedStart?: string },
 ): { ok: true; value: TripInput } | { ok: false; error: TripFormError } {
   const busId = form.get("bus_id");
   if (!isUuid(busId)) return { ok: false, error: "bus" };
@@ -68,6 +70,11 @@ export function parseTripForm(
 
   const start = zonedLocalToUtc(form.get("scheduled_start"), timeZone);
   if (!start) return { ok: false, error: "start" };
+  if (check) {
+    const sameStart = check.unchangedStart !== undefined && new Date(check.unchangedStart).getTime() === start.getTime();
+    const thisMinute = Math.floor(check.now.getTime() / 60_000) * 60_000;
+    if (!sameStart && start.getTime() < thisMinute) return { ok: false, error: "start_past" };
+  }
 
   return { ok: true, value: { busId, driverId, assistantId, direction, scheduledStart: start.toISOString() } };
 }
@@ -76,6 +83,9 @@ export type TripSaveErrorKey =
   | "bus_unavailable"
   | "driver_unavailable"
   | "assistant_unavailable"
+  | "start_past"
+  | "reason_too_short"
+  | "reason_too_long"
   | "not_editable"
   | "cannot_cancel"
   | "cannot_archive"
@@ -83,8 +93,9 @@ export type TripSaveErrorKey =
   | "invalid"
   | "generic";
 
-/** Maps a database error code from saving a trip. PGRST116 on update means no scheduled trip matched. */
-export function tripSaveErrorKey(code: string | undefined): TripSaveErrorKey {
+/** Maps a database error from saving a trip. PGRST116 on update means no scheduled trip matched. */
+export function tripSaveErrorKey(code: string | undefined, message?: string): TripSaveErrorKey {
+  if (code === "22023" && message === "trip_start_in_past") return "start_past";
   switch (code) {
     case "23503":
       return "bus_unavailable";
@@ -108,6 +119,9 @@ const FORM_ERRORS: readonly string[] = [
   "crew",
   "direction",
   "start",
+  "start_past",
+  "reason_too_short",
+  "reason_too_long",
   "bus_unavailable",
   "driver_unavailable",
   "assistant_unavailable",
@@ -126,7 +140,9 @@ export function isTripFormErrorKey(value: string | undefined): value is TripForm
 export type TripAction = "cancel" | "archive" | "end";
 
 /** Maps a database error code from cancelling or archiving. 55000 means the trip is not in a state that allows it. */
-export function tripActionErrorKey(code: string | undefined, action: TripAction): TripSaveErrorKey {
+export function tripActionErrorKey(code: string | undefined, action: TripAction, message?: string): TripSaveErrorKey {
+  if (code === "22023" && message === "reason_too_short") return "reason_too_short";
+  if (code === "22023" && message === "reason_too_long") return "reason_too_long";
   if (code === "55000") return action === "cancel" ? "cannot_cancel" : action === "end" ? "cannot_end" : "cannot_archive";
   if (code === "22023") return "invalid";
   return "generic";
@@ -135,13 +151,6 @@ export function tripActionErrorKey(code: string | undefined, action: TripAction)
 /** The longest reason a cancellation can carry. The database enforces the same limit. */
 export const MAX_REASON_LENGTH = 300;
 
-/** The reason typed when cancelling: trimmed, empty means none, and null when it is too long. */
-export function parseReason(value: unknown): string | null | undefined {
-  if (typeof value !== "string") return undefined;
-  const reason = value.trim();
-  if (reason === "") return undefined;
-  return reason.length > MAX_REASON_LENGTH ? null : reason;
-}
 
 export const TRIP_DONE = ["created", "saved", "cancelled", "archived", "restored", "ended"] as const;
 export type TripDone = (typeof TRIP_DONE)[number];

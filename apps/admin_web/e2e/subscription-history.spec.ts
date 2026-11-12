@@ -65,7 +65,7 @@ test("every operation on a student's requests of the semester is kept, and a rev
 
   await page.goto(`/subscriptions/${firstId}`);
   await page.getByText("Give this subscription back").click();
-  await page.getByLabel("Note for the student (optional)").fill("Paid in cash");
+  await page.getByLabel("Reason for giving it back").fill("Paid in cash at the office");
   await page.getByRole("button", { name: "Reinstate subscription" }).click();
   await expect(page.getByText("Subscription reinstated.")).toBeVisible();
 

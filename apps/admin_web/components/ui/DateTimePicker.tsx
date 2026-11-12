@@ -20,12 +20,14 @@ type Props = {
   hint?: string;
   error?: string;
   disabled?: boolean;
+  /** The earliest day that can be picked (YYYY-MM-DD). The time of day is not limited here; the server checks it. */
+  minDate?: string;
   text?: { date: DatePickerText; time: TimePickerText; dateLabel: string; timeLabel: string };
   className?: string;
 };
 
 /** A date picker and a time picker side by side, sending one combined value with the form. */
-export function DateTimePicker({ id, label, name, defaultValue = "", onChange, locale, step, hint, error, disabled, text, className = "" }: Props) {
+export function DateTimePicker({ id, label, name, defaultValue = "", onChange, locale, step, hint, error, disabled, minDate, text, className = "" }: Props) {
   const initial = splitDateTime(defaultValue);
   const [date, setDate] = useState(initial.date);
   const [time, setTime] = useState(initial.time);
@@ -42,6 +44,7 @@ export function DateTimePicker({ id, label, name, defaultValue = "", onChange, l
           value={date}
           locale={locale}
           text={text?.date}
+          min={minDate}
           disabled={disabled}
           error={error ? " " : undefined}
           onChange={(next) => {

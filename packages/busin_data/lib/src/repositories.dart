@@ -39,6 +39,18 @@ class SupabaseProfileRepository implements ProfileRepository {
         final row = await _client.from('profiles').update(changes).eq('id', userId).select(Columns.profile).single();
         return Profile.fromJson(row);
       });
+
+  @override
+  Stream<Profile> watchProfile(String userId) {
+    // Filtered to the person's own row on the server, which only lets them read their own.
+    return _client
+        .from('profiles')
+        .stream(primaryKey: ['id'])
+        .eq('id', userId)
+        .expand((rows) => rows)
+        .map(Profile.fromJson)
+        .handleError((Object error) => throw mapError(error));
+  }
 }
 
 class SupabaseAcademicRepository implements AcademicRepository {

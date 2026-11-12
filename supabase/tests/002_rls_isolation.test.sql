@@ -85,6 +85,12 @@ select throws_ok(
   $$insert into public.stops (school_id, name, location) values ('10000000-0000-4000-8000-000000000001', 'X', extensions.st_point(1, 1)::extensions.geography)$$,
   '42501', null, 'student cannot create a stop');
 
+-- The proof the app uploads first (a request needs a stored proof).
+reset role;
+insert into storage.objects (bucket_id, name, owner) values
+  ('proofs', '10000000-0000-4000-8000-000000000001/a1000000-0000-4000-8000-000000000001/proof.jpg', 'a1000000-0000-4000-8000-000000000001');
+set local role authenticated;
+set local "request.jwt.claims" = '{"sub":"a1000000-0000-4000-8000-000000000001","role":"authenticated"}';
 select lives_ok(
   $$insert into public.subscriptions (school_id, student_id, semester_id, stop_id, proof_path)
     values ('10000000-0000-4000-8000-000000000001', 'a1000000-0000-4000-8000-000000000001',

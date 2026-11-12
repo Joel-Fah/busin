@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { MAX_STOP_NAME_LENGTH, describeUsage, parseCoordinate, parseStopForm, stopSaveErrorKey } from "./stops";
+import { MAX_STOP_NAME_LENGTH, describeUsage, nearbyStop, parseCoordinate, parseStopForm, stopSaveErrorKey } from "./stops";
 
 function form(values: Record<string, string>) {
   return { get: (name: string) => values[name] ?? null };
@@ -79,5 +79,35 @@ describe("describeUsage", () => {
   it("adds the requests that are waiting", () => {
     expect(describeUsage(12, 3, labels)).toBe("12 students, 3 waiting");
     expect(describeUsage(0, 2, labels)).toBe("No students yet, 2 waiting");
+  });
+});
+
+describe("nearbyStop", () => {
+  const here = { lat: 3.85, lng: 11.5 };
+  // 0.0001 degree of latitude is about 11 m.
+  const at = (id: string, name: string, lat: number, active = true) => ({ id, name, active, position: { lat, lng: 11.5 } });
+
+  it("says the same place under 25 m, close under 200 m, and nothing beyond", () => {
+    expect(nearbyStop(here, [at("a", "Gate", 3.85)])).toMatchObject({ kind: "same", stop: { name: "Gate" } });
+    expect(nearbyStop(here, [at("a", "Gate", 3.85018)])).toMatchObject({ kind: "same" });
+    const close = nearbyStop(here, [at("a", "Gate", 3.8512)]);
+    expect(close).toMatchObject({ kind: "close", stop: { name: "Gate" } });
+    expect(close!.meters).toBeGreaterThan(100);
+    expect(close!.meters).toBeLessThan(200);
+    expect(nearbyStop(here, [at("a", "Far", 3.86)])).toBeNull();
+  });
+
+  it("finds the nearest of several, ignores inactive stops and the stop being edited", () => {
+    const stops = [at("a", "Far-ish", 3.8512), at("b", "Nearest", 3.8503), at("c", "Inactive", 3.85, false)];
+    expect(nearbyStop(here, stops)).toMatchObject({ stop: { name: "Nearest" }, kind: "close" });
+    expect(nearbyStop(here, stops, "b")).toMatchObject({ stop: { name: "Far-ish" } });
+    expect(nearbyStop(here, [at("c", "Inactive", 3.85, false)])).toBeNull();
+    expect(nearbyStop(here, [{ id: "d", name: "No position", active: true, position: null }])).toBeNull();
+  });
+
+  it("recognises the database's refusal", () => {
+    expect(stopSaveErrorKey("22023", "stop_too_close")).toBe("too_close");
+    expect(stopSaveErrorKey("22023", "other")).toBe("invalid");
+    expect(stopSaveErrorKey("23505")).toBe("name_taken");
   });
 });

@@ -31,6 +31,11 @@ export function zonedLocalToUtc(local: unknown, timeZone: string): Date | null {
   return new Date(second);
 }
 
+/** The calendar day in `timeZone` right now (or at `now`), as YYYY-MM-DD. The school's day, not the server's. */
+export function todayInZone(timeZone: string, now: Date = new Date()): string {
+  return utcToZonedLocal(now, timeZone).slice(0, 10);
+}
+
 /** The wall clock in `timeZone` at `instant`, as YYYY-MM-DDTHH:mm for a datetime-local input. */
 export function utcToZonedLocal(instant: string | Date, timeZone: string): string {
   const at = typeof instant === "string" ? new Date(instant) : instant;

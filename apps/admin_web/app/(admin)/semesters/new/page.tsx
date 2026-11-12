@@ -8,7 +8,8 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { SemesterForm } from "@/components/SemesterForm";
 import { requireAdmin } from "@/lib/auth";
 import { getMessages } from "@/lib/i18n/server";
-import { isSemesterFormErrorKey, todayIso } from "@/lib/semesters";
+import { isSemesterFormErrorKey } from "@/lib/semesters";
+import { todayInZone } from "@/lib/zoned";
 
 import { createSemester } from "../actions";
 
@@ -28,12 +29,13 @@ export default function NewSemesterPage({ searchParams }: { searchParams: Search
 }
 
 async function NewSemester({ searchParams }: { searchParams: SearchParams }) {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const { locale, t } = await getMessages();
 
   const { error } = await searchParams;
   const errorParam = Array.isArray(error) ? error[0] : error;
   const errorKey = isSemesterFormErrorKey(errorParam) ? errorParam : null;
+  const today = todayInZone(admin.schoolTimezone);
 
   return (
     <>
@@ -42,7 +44,7 @@ async function NewSemester({ searchParams }: { searchParams: SearchParams }) {
 
       {errorKey ? <Notice tone="bad">{t.semesters.errors[errorKey]}</Notice> : null}
 
-      <SemesterForm action={createSemester} t={t} locale={locale} defaultYear={Number(todayIso().slice(0, 4))} />
+      <SemesterForm action={createSemester} t={t} locale={locale} defaultYear={Number(today.slice(0, 4))} today={today} />
     </>
   );
 }

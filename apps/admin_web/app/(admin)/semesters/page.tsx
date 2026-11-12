@@ -13,7 +13,8 @@ import { DataTable, Head, TableCard, Td, Th, Tr } from "@/components/ui/Table";
 
 import { requireAdmin } from "@/lib/auth";
 import { getMessages } from "@/lib/i18n/server";
-import { semesterPhase, todayIso } from "@/lib/semesters";
+import { semesterPhase } from "@/lib/semesters";
+import { todayInZone } from "@/lib/zoned";
 import { loadSemesters } from "@/lib/semesters-data";
 
 export const metadata: Metadata = { title: "Semesters" };
@@ -30,10 +31,10 @@ export default function SemestersPage() {
 }
 
 async function SemestersList() {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const { locale, t } = await getMessages();
   const { semesters, failed } = await loadSemesters();
-  const today = todayIso();
+  const today = todayInZone(admin.schoolTimezone);
   // A calendar day, not a moment: read it as UTC so the time zone cannot move it.
   const plainDate = (iso: string) => new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeZone: "UTC" }).format(new Date(`${iso}T00:00:00Z`));
 

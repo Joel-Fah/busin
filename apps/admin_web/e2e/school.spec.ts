@@ -138,6 +138,60 @@ test.describe("the school profile", () => {
     const after = await serviceClient().from("schools").select("logo_path").eq("id", SEED.schoolId).single();
     expect(after.data?.logo_path).toBeNull();
   });
+
+  test("a logo dropped on the zone lights it up and is saved; a wrong file is refused with its own message", async ({ page }) => {
+    await page.goto("/school");
+    const zone = page.locator("[data-dropzone]");
+    const dropFile = async (name: string, type: string, make: () => Promise<number[]>) => {
+      const bytes = await page.evaluate(make);
+      const transfer = await page.evaluateHandle(
+        ({ name, type, bytes }) => {
+          const data = new DataTransfer();
+          data.items.add(new File([new Uint8Array(bytes)], name, { type }));
+          return data;
+        },
+        { name, type, bytes },
+      );
+      await zone.dispatchEvent("dragenter", { dataTransfer: transfer });
+      await zone.dispatchEvent("dragover", { dataTransfer: transfer });
+      return transfer;
+    };
+
+    const png = () =>
+      page.evaluate(async () => {
+        const canvas = Object.assign(document.createElement("canvas"), { width: 300, height: 300 });
+        const context = canvas.getContext("2d")!;
+        context.fillStyle = "#0c5d6d";
+        context.fillRect(60, 60, 180, 180);
+        const blob = await new Promise<Blob>((resolve) => canvas.toBlob((b) => resolve(b!), "image/png"));
+        return Array.from(new Uint8Array(await blob.arrayBuffer()));
+      });
+
+    // A text file: the zone lights up on drag, and the drop is refused with the wrong-type message.
+    const text = await dropFile("notes.txt", "text/plain", async () => [104, 105]);
+    await expect(zone).toHaveAttribute("data-over", "true");
+    await expect(zone.getByText("Drop the image to upload it")).toBeVisible();
+    await zone.dispatchEvent("drop", { dataTransfer: text });
+    await expect(zone).not.toHaveAttribute("data-over", "true");
+    await expect(page.getByText("That file is not a PNG, JPEG or WebP image.")).toBeVisible();
+
+    // A real image: saved.
+    const bytes = await png();
+    const image = await page.evaluateHandle(
+      ({ bytes }) => {
+        const data = new DataTransfer();
+        data.items.add(new File([new Uint8Array(bytes)], "logo.png", { type: "image/png" }));
+        return data;
+      },
+      { bytes },
+    );
+    await zone.dispatchEvent("dragenter", { dataTransfer: image });
+    await expect(zone).toHaveAttribute("data-over", "true");
+    await zone.dispatchEvent("drop", { dataTransfer: image });
+    await expect(page.getByText("Logo saved.")).toBeVisible();
+    const { data } = await serviceClient().from("schools").select("logo_path").eq("id", SEED.schoolId).single();
+    expect(data?.logo_path).toMatch(new RegExp(`^${SEED.schoolId}/logo-\\d+\\.webp$`));
+  });
 });
 
 test("a student cannot open the school profile", async ({ page, context }) => {
