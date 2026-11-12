@@ -2833,6 +2833,18 @@ abstract class BusinL10n {
   /// **'The driver or the assistant of this trip shares its position.'**
   String get opsShareNotYours;
 
+  /// No description provided for @opsPendingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is waiting for approval'**
+  String get opsPendingTitle;
+
+  /// No description provided for @opsPendingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A school administrator has to verify your account before you can use BusIn Ops. Ask them, then open the app again.'**
+  String get opsPendingBody;
+
   /// No description provided for @opsFieldStart.
   ///
   /// In en, this message translates to:

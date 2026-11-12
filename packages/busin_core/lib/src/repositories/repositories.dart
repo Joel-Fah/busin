@@ -44,6 +44,10 @@ abstract interface class ProfileRepository {
     String? matricule,
     AcademicChoice? academic,
   });
+
+  /// The person's own profile as it changes on the server (an administrator changing the role, suspending the account).
+  /// The first value is the profile as it is now.
+  Stream<Profile> watchProfile(String userId);
 }
 
 abstract interface class AcademicRepository {

@@ -38,6 +38,7 @@ class BlockedScreen extends ConsumerWidget {
     final reason = access is OpsBlocked ? access.reason : OpsBlockReason.notStaff;
     final (title, body, art) = switch (reason) {
       OpsBlockReason.notStaff => (l10n.opsNotStaffTitle, l10n.opsNotStaffBody, BusinIllustration.staff),
+      OpsBlockReason.pending => (l10n.opsPendingTitle, l10n.opsPendingBody, BusinIllustration.waiting),
       OpsBlockReason.suspended => (l10n.blockedSuspendedTitle, l10n.blockedSuspendedBody, BusinIllustration.blocked),
     };
     return Scaffold(

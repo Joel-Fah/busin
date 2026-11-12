@@ -560,6 +560,8 @@
   "opsShareNotificationTitle": "BusIn Ops partage la position du bus",
   "opsShareNotificationText": "Les étudiants peuvent suivre ce bus jusqu'à la fin du trajet.",
   "opsShareNotYours": "Le chauffeur ou l'assistant de ce trajet partage sa position.",
+  "opsPendingTitle": "Votre compte attend une validation",
+  "opsPendingBody": "Un administrateur de l'école doit valider votre compte avant que vous puissiez utiliser BusIn Ops. Demandez-lui, puis rouvrez l'application.",
   "opsFieldStart": "Démarrer un trajet qui n'est pas dans la liste",
   "opsFieldTitle": "Démarrer un trajet",
   "opsFieldBody": "À utiliser quand personne n'a planifié le trajet. Il est marqué comme démarré sur le terrain, et les administrateurs de votre école peuvent le voir.",

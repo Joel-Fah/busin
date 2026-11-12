@@ -31,6 +31,16 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: fixes list (2026-11-12)
+
+Done (five stacked PRs into `dev`, top first: logo drop zone (this one), #346 roles and suspended accounts, #344 unique names and stops, #342 subscription proof and reasons, #340 no past dates): every rule is enforced in the database for any client, with portal messages and consistent app behaviour. Past semesters and trips refused (school day), semester length 7 to 366 days with the year matching the dates; no approval without a proof, reasons 10 to 500 characters with presets; names unique ignoring case and spaces, stops refused under 25 m and confirmed under 200 m; staff and administrator interchangeable, students closed off, a suspended account frozen until restored (apps recheck live); the logo takes a dropped image.
+
+Next: the owner approves running the hosted migrations `20261114130000`, `140000`, `150000`, `160000`, `170000` on `busin-preview` (before `main` deploys; existing name clashes are renamed with " (2)", existing pending requests without proof stay and can be rejected with a preset), then merges the PRs top-down into `dev` and `dev` into `main`.
+
+Known: two stops map e2e tests (marker click, ping) already fail on `main`; the ops app still has no push registration.
+
+Owner device test: suspend a signed-in student or staff from the portal and watch the app block within seconds; try to subscribe to an ended semester; drop a logo on the School page.
+
 ## Handoff: field trips (2026-11-12)
 
 Done (ADR 0020, three stacked PRs into `dev`: database #333, admin portal #335, ops app and shared models after them): staff can start a trip nobody scheduled from the ops app (bus, direction, driver or assistant, the other crew member optional). The trip runs at once, marked as started in the field and by whom; the portal shows a chip, a Source filter and who started it; the school page has an on/off switch (on by default). Guards on the server: free bus in service, no scheduled twin today, 5 a day per person.

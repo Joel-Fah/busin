@@ -1597,6 +1597,13 @@ class BusinL10nEn extends BusinL10n {
       'The driver or the assistant of this trip shares its position.';
 
   @override
+  String get opsPendingTitle => 'Your account is waiting for approval';
+
+  @override
+  String get opsPendingBody =>
+      'A school administrator has to verify your account before you can use BusIn Ops. Ask them, then open the app again.';
+
+  @override
   String get opsFieldStart => 'Start a trip that is not listed';
 
   @override

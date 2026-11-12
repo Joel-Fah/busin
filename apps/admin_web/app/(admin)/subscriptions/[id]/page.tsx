@@ -67,7 +67,7 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
     .from("subscriptions")
     .select(
       `id, status, created_at, proof_path, review_note, reviewed_at, student_id, semester_id,
-       student:profiles!subscriptions_student_id_school_id_fkey(full_name, email, matricule),
+       student:profiles!subscriptions_student_id_school_id_fkey(full_name, email, matricule, status),
        semester:semesters!subscriptions_semester_id_school_id_fkey(name, year),
        stop:stops!subscriptions_stop_id_school_id_fkey(name),
        reviewer:profiles!subscriptions_reviewed_by_fkey(full_name)`,
@@ -212,7 +212,18 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
             </dl>
           </Card>
 
-          {row.status === "pending" ? (
+          {/* A suspended student's subscription is frozen: nothing is done to it until the account is restored. */}
+          {row.student?.status === "suspended" ? (
+            <Card className="flex flex-col gap-3">
+              <h2 className="text-xl font-bold">{t.subscriptions.detail.decision}</h2>
+              <Notice tone="warn">{t.subscriptions.detail.studentSuspended}</Notice>
+              <div>
+                <ButtonLink href={`/people/${row.student_id}`} variant="secondary">
+                  {t.subscriptions.detail.openPerson}
+                </ButtonLink>
+              </div>
+            </Card>
+          ) : row.status === "pending" ? (
             <Card className="flex flex-col gap-5">
               <h2 className="text-xl font-bold">{t.subscriptions.detail.decision}</h2>
               <form action={approveSubscription} className="flex flex-col gap-3">

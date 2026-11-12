@@ -17,7 +17,7 @@ const nameOf = (label: string) => `E2E ${label}`;
 test.beforeAll(async () => {
   admin = await createUser(`ppl-admin-${tag}`, "admin");
   staff = await createUser(`ppl-staff-${tag}`, "staff");
-  promote = await createUser(`promote-${tag}`, "student");
+  promote = await createUser(`promote-${tag}`, "staff");
   suspend = await createUser(`suspend-${tag}`, "student");
   plainStudent = await createUser(`plain-${tag}`, "student");
 });
@@ -43,10 +43,10 @@ test.describe("administrator managing people", () => {
     await filters.getByRole("link", { name: "Staff" }).click();
     await expect(page).toHaveURL(/role=staff/);
     await expect(page.getByRole("row").filter({ hasText: nameOf(`ppl-staff-${tag}`) })).toBeVisible();
-    await expect(page.getByRole("row").filter({ hasText: nameOf(`promote-${tag}`) })).toHaveCount(0);
+    await expect(page.getByRole("row").filter({ hasText: nameOf(`plain-${tag}`) })).toHaveCount(0);
 
     await filters.getByRole("link", { name: "Students" }).click();
-    await expect(page.getByRole("row").filter({ hasText: nameOf(`promote-${tag}`) })).toBeVisible();
+    await expect(page.getByRole("row").filter({ hasText: nameOf(`plain-${tag}`) })).toBeVisible();
     await expect(page.getByRole("row").filter({ hasText: nameOf(`ppl-staff-${tag}`) })).toHaveCount(0);
   });
 
@@ -82,12 +82,13 @@ test.describe("administrator managing people", () => {
     await page.getByRole("button", { name: "Search" }).click();
     await page.getByRole("row").filter({ hasText: nameOf(`promote-${tag}`) }).getByRole("link").first().click();
 
-    await chooseOption(page, "New role", "Staff");
+    // Staff and administrator are swapped here; a student is not offered a role at all (see the next test).
+    await chooseOption(page, "New role", "Administrator");
     await page.getByRole("button", { name: "Change role" }).click();
     await expect(page.getByRole("status")).toContainText("Role changed.");
 
     const db = serviceClient();
-    expect((await db.from("profiles").select("role").eq("id", promote.id).single()).data?.role).toBe("staff");
+    expect((await db.from("profiles").select("role").eq("id", promote.id).single()).data?.role).toBe("admin");
 
     const { data: entries } = await db
       .from("audit_log")
@@ -96,20 +97,54 @@ test.describe("administrator managing people", () => {
       .eq("action", "user.role_changed");
     expect(entries).toHaveLength(1);
     expect(entries?.[0].actor_id).toBe(admin.id);
-    expect(entries?.[0].details).toMatchObject({ from: "student", to: "staff" });
+    expect(entries?.[0].details).toMatchObject({ from: "staff", to: "admin" });
+  });
+
+  test("a student has no role to change, and a suspended person can only be restored", async ({ page }) => {
+    // A student keeps the student role: no role form, and the page says why.
+    await page.goto("/people");
+    await page.getByRole("searchbox").fill(`plain-${tag}`);
+    await page.getByRole("button", { name: "Search" }).click();
+    await page.getByRole("row").filter({ hasText: nameOf(`plain-${tag}`) }).getByRole("link").first().click();
+    await expect(page.getByText("Students keep the student role.")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Change role" })).toHaveCount(0);
+
+    // Suspended: frozen. Only Restore is left, with the reason.
+    const db = serviceClient();
+    await db.from("profiles").update({ status: "suspended" }).eq("id", plainStudent.id);
+    try {
+      await page.reload();
+      await expect(page.getByText("This account is suspended. Nothing can be changed on it until you restore it.")).toBeVisible();
+      await expect(page.getByRole("button", { name: "Restore this account" })).toBeVisible();
+      await expect(page.getByText("Suspend this account")).toHaveCount(0);
+    } finally {
+      await db.from("profiles").update({ status: "verified" }).eq("id", plainStudent.id);
+    }
+  });
+
+  test("a suspended staff member's role cannot be changed either", async ({ page }) => {
+    const db = serviceClient();
+    await db.from("profiles").update({ status: "suspended" }).eq("id", staff.id);
+    try {
+      await page.goto(`/people/${staff.id}`);
+      await expect(page.getByText("This account is suspended.")).toBeVisible();
+      await expect(page.getByRole("button", { name: "Change role" })).toHaveCount(0);
+    } finally {
+      await db.from("profiles").update({ status: "verified" }).eq("id", staff.id);
+    }
   });
 
   test("suspending and restoring an account", async ({ page }) => {
     await page.goto(`/people/${suspend.id}`);
     await page.getByText("Suspend this account").click();
     await page.getByRole("button", { name: "Confirm suspension" }).click();
-    await expect(page.getByRole("status")).toContainText("Account suspended.");
+    await expect(page.getByRole("status").filter({ hasText: "Account suspended." })).toBeVisible();
 
     const db = serviceClient();
     expect((await db.from("profiles").select("status").eq("id", suspend.id).single()).data?.status).toBe("suspended");
 
     await page.getByRole("button", { name: "Restore this account" }).click();
-    await expect(page.getByRole("status")).toContainText("Account restored.");
+    await expect(page.getByRole("status").filter({ hasText: "Account restored." })).toBeVisible();
     expect((await db.from("profiles").select("status").eq("id", suspend.id).single()).data?.status).toBe("verified");
   });
 

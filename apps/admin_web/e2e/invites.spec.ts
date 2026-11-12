@@ -2,7 +2,7 @@ import { randomBytes } from "node:crypto";
 
 import { expect, test } from "@playwright/test";
 
-import { createUser, deleteUser, serviceClient, signInBrowser, type TestUser } from "./support";
+import { createUser, deleteUser, serviceClient, signInBrowser, type TestUser, chooseOption } from "./support";
 
 const tag = randomBytes(3).toString("hex");
 const newEmail = `e2e-invite-${tag}@personal-mail.org`;
@@ -49,14 +49,29 @@ test("an administrator adds staff by email, sees the invite wait, and withdraws 
   await expect(page.getByRole("row").filter({ hasText: newEmail })).toHaveCount(0);
 });
 
-test("an account already at the school gets the role at once", async ({ page, context }) => {
+test("a staff member of the school gets the new role at once", async ({ page, context }) => {
+  await signInBrowser(context, admin);
+  await page.goto("/people/invite");
+  await page.getByLabel("Email", { exact: true }).fill(staff.email);
+  await chooseOption(page, "Role", "Administrator");
+  await page.getByRole("button", { name: "Add", exact: true }).click();
+  try {
+    await expect(page.getByText("Done. That account now has the role.")).toBeVisible();
+    const { data } = await serviceClient().from("profiles").select("role").eq("id", staff.id).single();
+    expect(data?.role).toBe("admin");
+  } finally {
+    await serviceClient().from("profiles").update({ role: "staff" }).eq("id", staff.id);
+  }
+});
+
+test("a student's account is never turned into staff by an invite", async ({ page, context }) => {
   await signInBrowser(context, admin);
   await page.goto("/people/invite");
   await page.getByLabel("Email", { exact: true }).fill(student.email);
   await page.getByRole("button", { name: "Add", exact: true }).click();
-  await expect(page.getByText("Done. That account now has the role.")).toBeVisible();
+  await expect(page.getByRole("alert").filter({ hasText: "is a student's account here" })).toBeVisible();
   const { data } = await serviceClient().from("profiles").select("role").eq("id", student.id).single();
-  expect(data?.role).toBe("staff");
+  expect(data?.role).toBe("student");
 });
 
 test("a staff member cannot add staff", async ({ page, context }) => {

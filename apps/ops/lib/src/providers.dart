@@ -39,6 +39,20 @@ final profileProvider = FutureProvider<Profile?>((ref) async {
   return ref.watch(profileRepositoryProvider).getProfile(userId);
 }, retry: noAutomaticRetry);
 
+/// Looks again at the signed-in person's profile and reloads the app's access when the role, the status (suspended,
+/// pending) or the school changed on the server. Called when the app returns to the foreground, when the server reports
+/// a change, and when a call is refused. Quiet: nothing flickers when nothing changed, and without a connection nothing
+/// is assumed.
+final accountRecheckProvider = Provider<Future<void> Function()>((ref) {
+  return () async {
+    final access = ref.read(accessProvider);
+    final current = access is OpsAllowed ? access.profile : ref.read(profileProvider).value;
+    if (current == null) return;
+    final changed = await accountChanged(repository: ref.read(profileRepositoryProvider), current: current);
+    if (changed == true) ref.invalidate(profileProvider);
+  };
+});
+
 /// What the app may show. The router and every guarded screen read this.
 final accessProvider = Provider<OpsAccess>((ref) {
   final session = ref.watch(authUserIdProvider);

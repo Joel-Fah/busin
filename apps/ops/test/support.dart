@@ -72,8 +72,24 @@ class FakeProfiles implements ProfileRepository {
   FakeProfiles(this.byId);
   final Map<String, Profile> byId;
 
+  /// A change the server reports (an administrator suspending the account, changing the role).
+  final StreamController<Profile> changes = StreamController<Profile>.broadcast();
+  int reads = 0;
+
   @override
-  Future<Profile> getProfile(String userId) async => byId[userId] ?? (throw const NotFound('profile'));
+  Future<Profile> getProfile(String userId) async {
+    reads++;
+    return byId[userId] ?? (throw const NotFound('profile'));
+  }
+
+  @override
+  Stream<Profile> watchProfile(String userId) => Stream.multi((controller) {
+        // As the real stream: the profile as it is now first, then the changes.
+        final now = byId[userId];
+        if (now != null) controller.add(now);
+        final sub = changes.stream.listen(controller.add);
+        controller.onCancel = sub.cancel;
+      });
 
   @override
   dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
@@ -314,6 +330,7 @@ List<Override> overridesFor({
   FakeScans? scans,
   FakePositions? positions,
   FakeLive? live,
+  FakeProfiles? profileRepository,
   bool online = true,
 }) =>
     [
@@ -327,7 +344,7 @@ List<Override> overridesFor({
       scannerViewProvider.overrideWithValue(fakeCamera),
       connectivityProvider.overrideWith((ref) => Stream.value(online)),
       authServiceProvider.overrideWithValue(auth),
-      profileRepositoryProvider.overrideWithValue(FakeProfiles(profiles)),
+      profileRepositoryProvider.overrideWithValue(profileRepository ?? FakeProfiles(profiles)),
       schoolRepositoryProvider.overrideWithValue(FakeSchools()),
       tripsRepositoryProvider.overrideWithValue(trips),
       busesRepositoryProvider.overrideWithValue(FakeBuses()),
