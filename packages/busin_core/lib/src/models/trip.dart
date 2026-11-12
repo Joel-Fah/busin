@@ -16,6 +16,8 @@ class Trip extends ValueObject {
     this.startedAt,
     this.endedAt,
     this.startedBy,
+    this.origin = 'scheduled',
+    this.createdBy,
   });
 
   factory Trip.fromJson(Map<String, dynamic> json) => Trip(
@@ -30,6 +32,8 @@ class Trip extends ValueObject {
         startedAt: optTimestamp(json, 'started_at'),
         endedAt: optTimestamp(json, 'ended_at'),
         startedBy: optString(json, 'started_by'),
+        origin: optString(json, 'origin') ?? 'scheduled',
+        createdBy: optString(json, 'created_by'),
       );
 
   final String id;
@@ -47,6 +51,15 @@ class Trip extends ValueObject {
 
   /// Who started the trip (null until it starts).
   final String? startedBy;
+
+  /// `scheduled` (an administrator made it) or `field` (a staff member started it from the ops app, ADR 0020).
+  final String origin;
+
+  /// Who made a trip started in the field.
+  final String? createdBy;
+
+  /// Started in the field rather than scheduled by an administrator.
+  bool get startedInField => origin == 'field';
 
   /// Scans are only accepted on an active trip.
   bool get acceptsScans => status == TripStatus.active;
@@ -81,5 +94,7 @@ class Trip extends ValueObject {
         startedAt,
         endedAt,
         startedBy,
+        origin,
+        createdBy,
       ];
 }

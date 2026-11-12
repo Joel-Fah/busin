@@ -43,9 +43,17 @@ RepositoryException _fromFunction(FunctionException error) {
   };
 }
 
+/// The short code a database function put in its error message (`bus_busy`), or null for any other text. Only a single
+/// lowercase word with underscores qualifies, so a message with row contents or a sentence is never passed on.
+String? _reasonOf(String? message) {
+  final text = message?.trim() ?? '';
+  return RegExp(r'^[a-z][a-z_]{2,39}$').hasMatch(text) ? text : null;
+}
+
 RepositoryException _fromCode(PostgrestException error) {
   final code = error.code ?? '';
   final message = 'database $code';
+  final reason = _reasonOf(error.message);
   switch (code) {
     // Row Level Security, wrong role, or a function refusing the caller.
     case '42501':
@@ -53,15 +61,15 @@ RepositoryException _fromCode(PostgrestException error) {
     case '403':
     // Too many requests (a function's quota, raised as PT429 so PostgREST answers 429).
     case 'PT429':
-      return NotAllowed(message);
+      return NotAllowed(message, reason: reason);
     // No row (a single-row read found none), or an id the function does not know.
     case 'PGRST116':
     case 'P0002':
-      return NotFound(message);
+      return NotFound(message, reason: reason);
     // Unique violation, or a state that does not allow the change (for example already reviewed).
     case '23505':
     case '55000':
-      return Conflict(message);
+      return Conflict(message, reason: reason);
     // Bad value, constraint or reference.
     case '22023':
     case '22P02':
@@ -70,7 +78,7 @@ RepositoryException _fromCode(PostgrestException error) {
     case '23502':
     case '23503':
     case '23514':
-      return Invalid(message);
+      return Invalid(message, reason: reason);
     default:
       return Unexpected(message);
   }

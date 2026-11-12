@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'busin_l10n.dart';
 
 // ignore_for_file: type=lint
@@ -1522,8 +1523,7 @@ class BusinL10nFr extends BusinL10n {
       locale: localeName,
       other:
           '$count scans attendent encore d\'être envoyés. Connectez-vous d\'abord à internet, puis déconnectez-vous.',
-      one:
-          '1 scan attend encore d\'être envoyé. Connectez-vous d\'abord à internet, puis déconnectez-vous.',
+      one: '1 scan attend encore d\'être envoyé. Connectez-vous d\'abord à internet, puis déconnectez-vous.',
     );
     return '$_temp0';
   }
@@ -1618,6 +1618,79 @@ class BusinL10nFr extends BusinL10n {
   @override
   String get opsShareNotYours =>
       'Le chauffeur ou l\'assistant de ce trajet partage sa position.';
+
+  @override
+  String get opsFieldStart => 'Démarrer un trajet qui n\'est pas dans la liste';
+
+  @override
+  String get opsFieldTitle => 'Démarrer un trajet';
+
+  @override
+  String get opsFieldBody =>
+      'À utiliser quand personne n\'a planifié le trajet. Il est marqué comme démarré sur le terrain, et les administrateurs de votre école peuvent le voir.';
+
+  @override
+  String get opsFieldBus => 'Bus';
+
+  @override
+  String get opsFieldNoBuses =>
+      'Aucun bus n\'est libre pour l\'instant. Les bus hors service ou déjà sur un trajet ne sont pas listés.';
+
+  @override
+  String get opsFieldDirection => 'Sens';
+
+  @override
+  String get opsFieldRole => 'Vous êtes';
+
+  @override
+  String get opsFieldRoleDriver => 'Le chauffeur';
+
+  @override
+  String get opsFieldRoleAssistant => 'L\'assistant';
+
+  @override
+  String get opsFieldOtherDriver => 'Qui est le chauffeur ?';
+
+  @override
+  String get opsFieldOtherAssistant => 'Qui est l\'assistant ?';
+
+  @override
+  String get opsFieldOtherNone => 'Personne pour l\'instant';
+
+  @override
+  String get opsFieldOtherHint =>
+      'Cette personne est ajoutée au trajet et prévenue, et peut le démarrer, scanner et partager la position.';
+
+  @override
+  String get opsFieldConfirm => 'Démarrer le trajet';
+
+  @override
+  String get opsFieldStarted =>
+      'Trajet démarré. Il est marqué comme démarré sur le terrain.';
+
+  @override
+  String get opsFieldBadge => 'Démarré sur le terrain';
+
+  @override
+  String get opsFieldScheduled =>
+      'Un trajet pour ce bus et ce sens est déjà planifié aujourd\'hui. Démarrez-le depuis la liste.';
+
+  @override
+  String get opsFieldBusBusy => 'Ce bus est déjà sur un trajet.';
+
+  @override
+  String get opsFieldOutOfService => 'Ce bus est hors service.';
+
+  @override
+  String get opsFieldLimit =>
+      'Vous avez démarré le maximum de trajets autorisé aujourd\'hui. Demandez à un administrateur de planifier le suivant.';
+
+  @override
+  String get opsFieldOff => 'Votre école a désactivé cette option.';
+
+  @override
+  String get opsFieldCrew =>
+      'Ce collègue ne peut pas être ajouté. Choisissez quelqu\'un d\'autre.';
 
   @override
   String opsShareStandby(String name) {
