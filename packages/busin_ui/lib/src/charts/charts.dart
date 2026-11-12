@@ -154,14 +154,18 @@ class _Grow extends StatelessWidget {
 const _axisWidth = 30.0;
 const _labelsHeight = 18.0;
 
+/// Room for one label under the axis, centred on its bar or point ("24 Aug" fits).
+const _labelWidth = 64.0;
+
 /// Which labels to draw so they do not run into each other: every one when they fit, otherwise every second or third.
 bool _showLabel(int index, int count, double width) {
-  final step = math.max(1, (count * 34 / math.max(width, 1)).ceil());
+  final step = math.max(1, (count * 44 / math.max(width, 1)).ceil());
   return (count - 1 - index) % step == 0;
 }
 
 void _text(Canvas canvas, String value, TextStyle style, Offset at, {TextAlign align = TextAlign.center, double width = 40}) {
-  final painter = TextPainter(text: TextSpan(text: value, style: style), textDirection: TextDirection.ltr, textAlign: align, maxLines: 1)
+  // One line; a label that is still too long ends in an ellipsis rather than losing a word.
+  final painter = TextPainter(text: TextSpan(text: value, style: style), textDirection: TextDirection.ltr, textAlign: align, maxLines: 1, ellipsis: '…')
     ..layout(minWidth: width, maxWidth: width);
   painter.paint(canvas, at);
 }
@@ -217,7 +221,7 @@ class _BarPainter extends CustomPainter {
         y -= h;
       }
       if (_showLabel(i, bars.length, chart.width)) {
-        _text(canvas, bar.label, label, Offset(chart.left + slot * i + slot / 2 - 20, chart.bottom + 6));
+        _text(canvas, bar.label, label, Offset(chart.left + slot * i + slot / 2 - _labelWidth / 2, chart.bottom + 6), width: _labelWidth);
       }
     }
   }
@@ -255,7 +259,9 @@ class _LinePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final chart = Rect.fromLTWH(_axisWidth + 4, 8, size.width - _axisWidth - 12, size.height - _labelsHeight - 14);
+    // Wider than the bar chart's axis: it says "100%".
+    const axis = _axisWidth + 12;
+    final chart = Rect.fromLTWH(axis + 4, 8, size.width - axis - 12, size.height - _labelsHeight - 14);
     double yOf(double v) => chart.bottom - chart.height * ((v - min) / (max - min)).clamp(0, 1);
     final line = Paint()
       ..color = grid
@@ -263,7 +269,7 @@ class _LinePainter extends CustomPainter {
     for (final f in [0.0, 0.5, 1.0]) {
       final v = min + (max - min) * f;
       canvas.drawLine(Offset(chart.left, yOf(v)), Offset(chart.right, yOf(v)), line);
-      _text(canvas, format(v), label, Offset(0, yOf(v) - 7), align: TextAlign.right, width: _axisWidth);
+      _text(canvas, format(v), label, Offset(0, yOf(v) - 7), align: TextAlign.right, width: axis);
     }
     final goal = target;
     if (goal != null) {
@@ -327,7 +333,7 @@ class _LinePainter extends CustomPainter {
       canvas.drawCircle(at, 3, Paint()..color = color);
     }
     for (var i = 0; i < labels.length; i++) {
-      if (_showLabel(i, labels.length, chart.width)) _text(canvas, labels[i], label, Offset(xOf(i) - 20, chart.bottom + 6));
+      if (_showLabel(i, labels.length, chart.width)) _text(canvas, labels[i], label, Offset(xOf(i) - _labelWidth / 2, chart.bottom + 6), width: _labelWidth);
     }
   }
 

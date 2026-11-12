@@ -68,8 +68,12 @@ class _StatsBody extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     final material = MaterialLocalizations.of(context);
     String percent(double v) => '${(v * 100).round()}%';
-    // Week labels on the axis: the day and month of each Monday.
-    final labels = [for (final w in weeks) material.formatShortMonthDay(w.weekStart)];
+    // Week labels on the axis: each Monday's day, with the month on the first week and when it changes ("24 Aug", "31",
+    // "7 Sep", "14").
+    final labels = [
+      for (var i = 0; i < weeks.length; i++)
+        i == 0 || weeks[i].weekStart.month != weeks[i - 1].weekStart.month ? material.formatShortMonthDay(weeks[i].weekStart) : '${weeks[i].weekStart.day}',
+    ];
 
     final punctuality = summary.punctuality;
     final delay = summary.avgDelayMinutes;
