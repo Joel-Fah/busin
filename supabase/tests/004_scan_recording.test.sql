@@ -32,13 +32,14 @@ insert into public.stops (id, school_id, name, location) values
 insert into public.buses (id, school_id, plate, capacity) values
   ('e1000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', 'A-1', 50),
   ('e2000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000002', 'B-1', 50);
-insert into public.trips (id, school_id, bus_id, direction, status, scheduled_start, started_at) values
+-- The scanning staff member is the driver of the school A trips (staff scan only on their own trips).
+insert into public.trips (id, school_id, bus_id, direction, status, scheduled_start, started_at, driver_id) values
   ('f1000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001',
-   'e1000000-0000-4000-8000-000000000001', 'inbound', 'active', now(), now()),
+   'e1000000-0000-4000-8000-000000000001', 'inbound', 'active', now(), now(), 'a2000000-0000-4000-8000-000000000001'),
   ('f1000000-0000-4000-8000-000000000002', '10000000-0000-4000-8000-000000000001',
-   'e1000000-0000-4000-8000-000000000001', 'outbound', 'scheduled', now(), null),
+   'e1000000-0000-4000-8000-000000000001', 'outbound', 'scheduled', now(), null, 'a2000000-0000-4000-8000-000000000001'),
   ('f2000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000002',
-   'e2000000-0000-4000-8000-000000000001', 'inbound', 'active', now(), now());
+   'e2000000-0000-4000-8000-000000000001', 'inbound', 'active', now(), now(), null);
 insert into public.subscriptions (school_id, student_id, semester_id, stop_id, status) values
   ('10000000-0000-4000-8000-000000000001', 'a1000000-0000-4000-8000-000000000001',
    'c1000000-0000-4000-8000-000000000001', 'd1000000-0000-4000-8000-000000000001', 'approved'),
