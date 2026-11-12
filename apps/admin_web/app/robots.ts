@@ -2,16 +2,15 @@ import type { MetadataRoute } from "next";
 
 import { siteUrl } from "@/lib/landing/site";
 
-/** The landing page may be indexed; the portal and its sign-in never are. */
+/**
+ * Only the public pages are open to crawlers: the landing page (at the root, and its share image under /landing) and the
+ * credits. Everything else, the portal and sign-in included, is closed by default, so a page added later is private
+ * until someone decides otherwise. For a crawler the longest matching rule wins, so the allowed paths beat "/".
+ */
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: [
-      {
-        userAgent: "*",
-        allow: ["/$", "/landing"],
-        disallow: ["/login", "/auth", "/dev", "/no-access", "/profile", "/people", "/subscriptions", "/trips", "/scans", "/stops", "/buses", "/semesters", "/academics", "/styleguide"],
-      },
-    ],
+    rules: [{ userAgent: "*", allow: ["/$", "/landing", "/credits"], disallow: ["/"] }],
     sitemap: `${siteUrl()}/sitemap.xml`,
+    host: siteUrl(),
   };
 }

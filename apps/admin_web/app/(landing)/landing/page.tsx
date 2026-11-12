@@ -56,14 +56,29 @@ export default function LandingPage() {
   );
 }
 
+/** What search engines read about the site itself: who publishes it and what it is. Facts only; no ratings or prices. */
+function structuredData(description: string) {
+  const base = siteUrl();
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      { "@type": "Organization", "@id": `${base}/#organization`, name: "BusIn", url: `${base}/`, logo: `${base}/icon.svg` },
+      { "@type": "WebSite", "@id": `${base}/#website`, name: "BusIn", url: `${base}/`, description, inLanguage: ["en", "fr"], publisher: { "@id": `${base}/#organization` } },
+    ],
+  };
+}
+
 async function LandingContent() {
   const { locale, t } = await getMessages();
   const copy = landingCatalogues[locale];
   const sections = copy.sections;
+  // "<" is escaped so no text in the data can close the script element.
+  const jsonLd = JSON.stringify(structuredData(copy.meta.description)).replace(/</g, "\\u003c");
 
   return (
     <InterestProvider copy={copy.form} locale={locale}>
       <div lang={locale} data-landing className="relative bg-bg text-fg">
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
         <RoughFilter />
         <LandingIntro />
         <Sky />

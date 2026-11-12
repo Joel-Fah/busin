@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
@@ -9,6 +10,8 @@ import { decideAccess } from "@/lib/access";
 import { getCurrentUser } from "@/lib/auth";
 import { format } from "@/lib/i18n/messages";
 import { getMessages } from "@/lib/i18n/server";
+
+export const metadata: Metadata = { title: "No access" };
 
 // These routes depend on who is signed in and redirect visitors who are not, so Next's
 // "instant navigation" check cannot apply. Their user-specific parts stream behind <Suspense>.
