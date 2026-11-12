@@ -79,6 +79,8 @@ async function LandingContent() {
     <InterestProvider copy={copy.form} locale={locale}>
       <div lang={locale} data-landing className="relative bg-bg text-fg">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
+        {/* React moves this into the head: where agents find the ARD manifest (ARD spec, section 5.1). */}
+        <link rel="ard" href="/.well-known/ard.json" />
         <RoughFilter />
         <LandingIntro />
         <Sky />
