@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:busin_app/busin_app.dart';
 import 'package:busin_core/busin_core.dart';
 import 'package:busin_ui/busin_ui.dart';
@@ -70,6 +72,8 @@ class _TripScreenState extends ConsumerState<TripScreen> {
       // Offered right away, unless the staff member turned that off in their profile.
       if (mounted && me != null && running.sharesPosition(me.userId, isAdmin: false) && ref.read(opsSettingsProvider).offerShare) await _share(true);
     } on NotAllowed {
+      // Refused: perhaps because the account was suspended or its role changed; look again before blaming the trip.
+      unawaited(ref.read(accountRecheckProvider)());
       if (mounted) BusinToast.show(context, l10n.opsAssignedElsewhere, tone: ToastTone.warning);
     } on Conflict {
       if (!mounted) return;
@@ -120,6 +124,7 @@ class _TripScreenState extends ConsumerState<TripScreen> {
       _reload();
       context.canPop() ? context.pop() : context.go(Routes.today);
     } on NotAllowed {
+      unawaited(ref.read(accountRecheckProvider)());
       if (mounted) BusinToast.show(context, l10n.opsAssignedElsewhere, tone: ToastTone.warning);
     } catch (_) {
       if (mounted) BusinToast.show(context, l10n.errorGeneric, tone: ToastTone.error);

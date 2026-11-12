@@ -59,6 +59,18 @@ final snapshotKeeperProvider = Provider<SnapshotKeeper>((ref) => SnapshotKeeper(
 
 final authUserIdProvider = StreamProvider<String?>((ref) => ref.watch(authServiceProvider).userIdChanges);
 
+/// Looks again at the signed-in person's profile and reloads the app's access when the role, the status (suspended,
+/// pending) or the school changed on the server. Called when the app returns to the foreground and when the server
+/// reports a change. Quiet: nothing flickers when nothing changed, and without a connection nothing is assumed.
+final accountRecheckProvider = Provider<Future<void> Function()>((ref) {
+  return () async {
+    final current = ref.read(profileProvider).value;
+    if (current == null) return;
+    final changed = await accountChanged(repository: ref.read(profileRepositoryProvider), current: current);
+    if (changed == true) ref.invalidate(profileProvider);
+  };
+});
+
 /// The signed-in user's own profile, read from the server. Only when the server cannot be reached is the copy saved on the
 /// phone used instead (so the app can open offline); a server answer, even a refusal, always wins over it.
 final profileProvider = FutureProvider<Profile?>((ref) async {
