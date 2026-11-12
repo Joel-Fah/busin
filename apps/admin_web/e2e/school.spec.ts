@@ -96,6 +96,27 @@ test.describe("the school profile", () => {
     expect(data).toEqual({ public_listing: true, terms_version: "2026-11-11" });
   });
 
+  test("an administrator turns off starting trips from the ops app, and back on", async ({ page }) => {
+    const db = serviceClient();
+    try {
+      await page.goto("/school");
+      const toggle = page.getByRole("switch", { name: /Let staff start a trip that was not scheduled/ });
+      await expect(toggle).toBeChecked();
+      await toggle.uncheck();
+      await page.getByRole("button", { name: "Save", exact: true }).click();
+      await expect(page.getByRole("status")).toContainText("Saved.");
+      expect((await db.from("schools").select("allow_field_trips").eq("id", SEED.schoolId).single()).data?.allow_field_trips).toBe(false);
+
+      await page.goto("/school");
+      await page.getByRole("switch", { name: /Let staff start a trip that was not scheduled/ }).check();
+      await page.getByRole("button", { name: "Save", exact: true }).click();
+      await expect(page.getByRole("status")).toContainText("Saved.");
+      expect((await db.from("schools").select("allow_field_trips").eq("id", SEED.schoolId).single()).data?.allow_field_trips).toBe(true);
+    } finally {
+      await db.from("schools").update({ allow_field_trips: true }).eq("id", SEED.schoolId);
+    }
+  });
+
   test("a logo is shrunk, stored in the school's folder and can be removed", async ({ page }) => {
     await page.goto("/school");
     // A 900 by 600 PNG made in the browser, as an admin would pick from their computer.

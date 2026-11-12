@@ -64,7 +64,7 @@ async function TripDetail({ params, searchParams }: { params: Params; searchPara
   const supabase = await createClient();
   const { data: trip } = await supabase
     .from("trips")
-    .select("id, bus_id, driver_id, assistant_id, direction, status, scheduled_start, archived_at")
+    .select("id, bus_id, driver_id, assistant_id, direction, status, scheduled_start, archived_at, origin, created_by")
     .eq("id", id)
     .maybeSingle();
   if (!trip || !isDirection(trip.direction) || !isTripStatus(trip.status)) notFound();
@@ -75,6 +75,11 @@ async function TripDetail({ params, searchParams }: { params: Params; searchPara
     running ? supabase.rpc("admin_overdue_trips") : Promise.resolve({ data: [] }),
   ]);
   const overdue = overdueById(overdueRows.data ?? [], new Date()).get(trip.id);
+  // Who started it, when it was started in the field from the ops app rather than scheduled here.
+  const starter =
+    trip.origin === "field" && trip.created_by
+      ? (await supabase.from("profiles").select("full_name, email").eq("id", trip.created_by).maybeSingle()).data
+      : null;
 
   const query = await searchParams;
   const doneParam = single(query.done);
@@ -93,11 +98,14 @@ async function TripDetail({ params, searchParams }: { params: Params; searchPara
         <p className="mt-2 flex flex-wrap items-center gap-2">
           <Chip tone={tripStatusTone(trip.status)}>{t.trips.status[trip.status]}</Chip>
           {archived ? <Chip tone="neutral">{t.trips.archivedChip}</Chip> : null}
+          {trip.origin === "field" ? <Chip tone="accent">{t.trips.fieldChip}</Chip> : null}
           {overdue ? <Chip tone="warn">{t.trips.overdue.chip}</Chip> : null}
         </p>
       </header>
 
       {overdue ? <Notice tone="warn">{format(t.trips.overdue.notice, { why: overdueWhy(overdue, t, locale, admin.schoolTimezone) })}</Notice> : null}
+
+      {trip.origin === "field" ? <Notice tone="info">{format(t.trips.fieldNotice, { name: starter?.full_name || starter?.email || "-" })}</Notice> : null}
 
       {done ? <FlashToast message={t.trips.done[done]} /> : null}
       {errorKey ? <Notice tone="bad">{t.trips.errors[errorKey]}</Notice> : null}
