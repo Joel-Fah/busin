@@ -1,0 +1,440 @@
+/*
+  BusIn design tokens for the admin portal. The documented source is the styleguide page
+  (/styleguide) and docs/decisions/0009-design-system.md. Colour values live in globals.css
+  (light and dark); this file adds shape, contour, motion and the Tailwind mapping.
+*/
+
+:root {
+  /* Shape: rounded beyond normal, never a pill and never a squircle. */
+  --r-xs: 8px;
+  --r-sm: 16px;
+  --r-md: 20px;
+  --r-lg: 28px;
+  --r-xl: 36px;
+
+  /* Contour: a thin rounded stroke drawn inside a container. */
+  --contour-inset: 16px;
+  --contour-width: 1.5px;
+  --contour: color-mix(in srgb, var(--fg) 16%, transparent);
+
+  /* Surfaces that float over content get a translucent fill and a blur. */
+  --glass: color-mix(in srgb, var(--surface) 72%, transparent);
+  --glass-blur: 18px;
+
+  /* Motion. */
+  --dur-fast: 160ms;
+  --dur: 280ms;
+  --dur-slow: 520ms;
+
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-brand: var(--brand);
+  --color-on-brand: var(--on-brand);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-link: var(--link);
+  --color-focus: var(--focus);
+  --color-ok: var(--ok);
+  --color-ok-bg: var(--ok-bg);
+  --color-warn: var(--warn);
+  --color-warn-bg: var(--warn-bg);
+  --color-bad: var(--bad);
+  --color-bad-bg: var(--bad-bg);
+  --color-info: var(--info);
+  --color-info-bg: var(--info-bg);
+  --color-glass: var(--glass);
+  --color-contour: var(--contour);
+
+  --font-sans: var(--font);
+
+  --radius-xs: var(--r-xs);
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r-md);
+  --radius-lg: var(--r-lg);
+  --radius-xl: var(--r-xl);
+
+  --shadow-soft: var(--shadow);
+}
+
+/* Static tokens (not theme dependent): float shadow, easing and the brand ramps from the app's constants. */
+@theme {
+  --shadow-float: 0 12px 36px rgb(0 20 26 / 18%), 0 2px 8px rgb(0 20 26 / 10%);
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  /* The brand seed in both themes, for surfaces that must stay teal (logo panels). */
+  --color-seed: #002a33;
+  --color-teal-50: #e9fffd;
+  --color-teal-100: #c9fff9;
+  --color-teal-200: #99fff7;
+  --color-teal-300: #54fff5;
+  --color-teal-400: #07fffc;
+  --color-teal-500: #00e3ef;
+  --color-teal-600: #00b4c9;
+  --color-teal-700: #008fa1;
+  --color-teal-800: #087282;
+  --color-teal-900: #0c5d6d;
+  --color-orange-50: #fef8ec;
+  --color-orange-100: #fde9c8;
+  --color-orange-200: #fad28d;
+  --color-orange-300: #f7b552;
+  --color-orange-400: #ef7611;
+  --color-orange-500: #d4550b;
+  --color-orange-600: #b0380d;
+  --color-orange-700: #8f2c11;
+  --color-orange-800: #752512;
+  --color-orange-900: #431005;
+}
+
+/* `dark:` follows the theme toggle first and the device setting when the choice is "system". */
+@custom-variant dark {
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    &:where(:not([data-theme="light"], [data-theme="light"] *)) {
+      @slot;
+    }
+  }
+}
+
+/*
+  The contour thread. A stitched line, not a solid border. On interactive elements (buttons, links)
+  and on empty states it slides forward when the pointer enters or the element gets keyboard focus,
+  and slides back when it leaves, while the thread thickens a little and eases back to its resting width. Cards are not interactive, so their thread stays still. The colour
+  never changes: each component sets --thread-color so it stays tonal with its own background.
+*/
+.contour-thread {
+  fill: none;
+  stroke: var(--thread-color, var(--contour));
+  stroke-width: var(--contour-width);
+  stroke-linecap: round;
+  stroke-dasharray: var(--thread-dash, 9 7);
+  stroke-dashoffset: 0;
+  transition:
+    stroke-dashoffset 900ms var(--ease-soft),
+    stroke-width 600ms var(--ease-soft);
+}
+
+:is(:hover, :focus-visible) > .contour-live .contour-thread {
+  stroke-dashoffset: calc(var(--thread-length, 16px) * -3);
+  stroke-width: var(--thread-hover-width, 2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contour-thread {
+    transition: none;
+  }
+}
+
+/*
+ * Accordion (details): the panel eases its height and fades its content. Uses ::details-content and interpolate-size,
+ * so a browser without them (older Firefox and Safari) simply opens and closes at once. Reduced motion collapses the
+ * durations through the tokens above.
+ */
+.accordion {
+  interpolate-size: allow-keywords;
+}
+
+.accordion::details-content {
+  block-size: 0;
+  overflow: clip;
+  opacity: 0;
+  transition:
+    block-size var(--dur) var(--ease-soft),
+    opacity var(--dur-fast) var(--ease-soft),
+    content-visibility var(--dur) allow-discrete;
+}
+
+.accordion[open]::details-content {
+  block-size: auto;
+  opacity: 1;
+}
+
+@keyframes shimmer {
+  to {
+    background-position-x: -200%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 1ms;
+    --dur: 1ms;
+    --dur-slow: 1ms;
+  }
+}
+
+/*
+  Page load choreography (see lib/intro.ts). The pre-paint script sets data-reveal on the page so the
+  navigation bar starts hidden, and data-intro on the first load of a session so the logo cover shows.
+  If scripts fail, the bar still appears after a few seconds.
+*/
+.brand-intro {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+}
+
+html[data-intro] .brand-intro {
+  display: flex;
+}
+
+html[data-reveal] .nav-bar {
+  opacity: 0;
+  animation: nav-fallback 0.01s 5s forwards;
+}
+
+@keyframes nav-fallback {
+  to {
+    opacity: 1;
+  }
+}
+
+dialog.sheet::backdrop {
+  background: color-mix(in srgb, var(--color-seed) 45%, transparent);
+  animation: sheet-fade var(--dur) var(--ease-soft);
+}
+
+@keyframes sheet-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/*
+  Texture. Grain is drawn by an inline SVG noise filter, so it costs no image download and scales
+  to any size. It is decorative: banners, feature cards and empty-state backdrops, never behind
+  tables, forms or small text. Strength comes from --grain (0 to 1; soft-light is gentle, so 0.5 to 1 is typical). The pseudo-element sits
+  above the element's own background and below its content.
+*/
+:root {
+  --noise-fine: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --noise-coarse: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.42' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.texture-grain,
+.texture-grain-coarse {
+  position: relative;
+  isolation: isolate;
+}
+
+.texture-grain::before,
+.texture-grain-coarse::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  background-image: var(--noise-fine);
+  background-size: 220px 220px;
+  mix-blend-mode: soft-light;
+  opacity: var(--grain, 0.55);
+}
+
+.texture-grain-coarse::before {
+  background-image: var(--noise-coarse);
+  background-size: 300px 300px;
+}
+
+/* Rough edge: wobbles the outline of a decorative shape. Needs <RoughFilter /> on the page. Never put text in it. */
+.texture-rough {
+  filter: url('#busin-rough');
+}
+
+@media (forced-colors: active) {
+  .texture-grain::before,
+  .texture-grain-coarse::before {
+    display: none;
+  }
+}
+
+/* Native date and time pickers: same typeface as the rest, and a quieter picker button. */
+input[type='date'],
+input[type='time'],
+input[type='datetime-local'] {
+  font-family: inherit;
+  min-width: 0;
+}
+
+input::-webkit-calendar-picker-indicator {
+  opacity: 0.55;
+  cursor: pointer;
+}
+
+input::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* A toast eases down from above and settles, and glides back up when it leaves. Reduced motion: a plain fade. */
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-18px) scale(0.97);
+  }
+}
+
+@keyframes toast-out {
+  to {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.98);
+  }
+}
+
+.toast-in {
+  animation: toast-in 460ms var(--ease-soft) both;
+}
+
+.toast-out {
+  animation: toast-out 380ms cubic-bezier(0.4, 0, 0.7, 0.2) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast-in {
+    animation: toast-fade 160ms linear both;
+  }
+
+  .toast-out {
+    animation: toast-fade-out 160ms linear both;
+  }
+}
+
+@keyframes toast-ring {
+  to {
+    stroke-dashoffset: 100;
+  }
+}
+
+.toast-ring {
+  animation: toast-ring linear forwards;
+}
+
+@keyframes toast-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes toast-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [popover] {
+    animation: none !important;
+  }
+}
+
+/* Behind an open sheet or modal the page does not scroll. The scrollbar's width is added back as padding so nothing jumps. */
+html.scroll-locked {
+  overflow: hidden;
+  padding-right: var(--lock-pad, 0);
+}
+
+dialog.sheet {
+  overscroll-behavior: contain;
+}
+
+/*
+  Scrollbars inside containers (sheets, modals, lists, tables): thin, quiet, and gone when not in use.
+  The thumb shows while the pointer is over the container and for a moment after it scrolls (keyboard
+  scrolling counts, as it fires the same scroll event) (the .is-scrolling class comes from components/ScrollbarFade.tsx), then fades away.
+  The page's own scrollbar is left to the browser.
+*/
+.overflow-x-auto,
+.overflow-y-auto,
+.scroll-fade,
+dialog,
+[popover] {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 600ms var(--ease-soft);
+}
+
+:is(.overflow-x-auto, .overflow-y-auto, .scroll-fade, dialog, [popover]):is(:hover, .is-scrolling) {
+  scrollbar-color: color-mix(in srgb, var(--fg) 28%, transparent) transparent;
+}
+
+/*
+  The toolbar of a list page (search and filters), see components/ui/StickyToolbar.tsx. At rest it is
+  just the controls. Stuck to the top it becomes a compact glass bar; the controls change place with an
+  animation, and these rules are the compact layout. On narrow screens it keeps wrapping, because one
+  row would not fit.
+*/
+.sticky-toolbar {
+  border-radius: var(--r-lg);
+  padding: 0;
+  transition:
+    background-color var(--dur) var(--ease-soft),
+    box-shadow var(--dur) var(--ease-soft),
+    padding var(--dur) var(--ease-soft);
+}
+
+.sticky-toolbar[data-stuck='true'] {
+  padding: 0.5rem 0.75rem;
+  background: var(--glass);
+  box-shadow: var(--shadow-float);
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur));
+  align-items: center;
+}
+
+/* The labels give way to the placeholders in the compact bar, but stay for screen readers. */
+.sticky-toolbar[data-stuck='true'] label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/*
+  A toolbar that is only tabs (Trips, Subscriptions) stretches them across the whole bar when it sticks, so the
+  bar is as wide as the table below and the tabs share it out, instead of a small group in a wide bar.
+*/
+.sticky-toolbar[data-stuck='true'] > nav:only-child {
+  display: flex;
+  flex: 1 1 auto;
+  width: 100%;
+}
+
+.sticky-toolbar[data-stuck='true'] > nav:only-child > [data-tab] {
+  flex: 1 1 0;
+  justify-content: center;
+}
+
+@media (min-width: 64rem) {
+  .sticky-toolbar[data-stuck='true'] {
+    flex-wrap: nowrap;
+  }
+
+  .sticky-toolbar[data-stuck='true'] > form {
+    flex: 1 1 auto;
+    flex-wrap: nowrap;
+    align-items: center;
+    width: auto;
+    min-width: 0;
+    max-width: 38rem;
+  }
+}

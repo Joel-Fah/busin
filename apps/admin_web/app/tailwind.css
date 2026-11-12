@@ -1,0 +1,11 @@
+/*
+  Entry stylesheet. Tailwind is loaded without its preflight reset so the existing pages keep
+  their look while they are redesigned one by one. The legacy sheet sits in the base layer, so
+  Tailwind utilities always win over it. Delete the globals.css import once every page is migrated.
+*/
+@layer theme, base, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme);
+@import "./globals.css" layer(base);
+@import "tailwindcss/utilities.css" layer(utilities);
+@import "./theme.css";

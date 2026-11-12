@@ -1,0 +1,21 @@
+# Keep the build context small and keep secrets and local state out of the image.
+**/node_modules
+**/.next
+**/.env
+**/.env.*
+!**/.env.example
+**/test-results
+**/playwright-report
+**/*.tsbuildinfo
+.git
+.github
+.claude
+.vscode
+apps/legacy
+apps/student
+apps/ops
+packages
+docs
+supabase
+build_log.md
+STATUS.md

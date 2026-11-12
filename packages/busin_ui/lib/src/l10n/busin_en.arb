@@ -1,0 +1,754 @@
+{
+  "@@locale": "en",
+  "actionRetry": "Try again",
+  "actionCancel": "Cancel",
+  "actionSave": "Save",
+  "actionClose": "Close",
+  "actionConfirm": "Confirm",
+  "actionBack": "Back",
+  "actionContinue": "Continue",
+  "actionSignOut": "Sign out",
+  "stateLoading": "Loading...",
+  "stateEmpty": "Nothing here yet",
+  "errorGeneric": "Something went wrong. Try again.",
+  "errorOffline": "No connection. Check your network and try again.",
+  "errorNotAllowed": "You do not have access to this.",
+  "errorNotFound": "This could not be found.",
+  "roleStudent": "Student",
+  "roleStaff": "Staff",
+  "roleAdmin": "Administrator",
+  "accountPending": "Pending",
+  "accountVerified": "Active",
+  "accountSuspended": "Suspended",
+  "subscriptionPending": "Pending",
+  "subscriptionApproved": "Approved",
+  "subscriptionRejected": "Rejected",
+  "subscriptionRevoked": "Revoked",
+  "subscriptionExpired": "Expired",
+  "tripScheduled": "Scheduled",
+  "tripActive": "Running",
+  "tripCompleted": "Completed",
+  "tripCancelled": "Cancelled",
+  "directionInbound": "Going to school",
+  "directionOutbound": "Going home",
+  "semesterFall": "Fall",
+  "semesterSpring": "Spring",
+  "semesterSummer": "Summer",
+  "semesterLabel": "{name} {year}",
+  "@semesterLabel": {
+    "description": "A semester as people name it, for example Fall 2026.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "avatarOf": "Picture of {name}",
+  "@avatarOf": {
+    "description": "Spoken name of a person's avatar.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "setupWelcome": "Welcome, {name}",
+  "@setupWelcome": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "setupBody": "Tell your school who you are so the driver can find you. It takes a minute.",
+  "setupSave": "Save and continue",
+  "setupNotYou": "Not you? Sign out",
+  "fieldFullName": "Full name",
+  "fieldFullNameHint": "As on your student card",
+  "fieldMatricule": "Student number",
+  "fieldMatriculeHint": "For example ICT2026-0001",
+  "fieldPhone": "Phone number",
+  "fieldPhoneHint": "For example 677 12 34 56",
+  "fieldDepartment": "Department",
+  "fieldDepartmentHint": "Choose your department",
+  "fieldProgram": "Program",
+  "fieldProgramHint": "Choose your degree level",
+  "fieldFaculty": "Faculty",
+  "fieldFacultyHint": "Choose your faculty",
+  "fieldDepartmentFirst": "Choose a faculty first",
+  "choiceNone": "Not chosen",
+  "fieldTooShort": "That looks too short.",
+  "fieldTooLong": "That is too long.",
+  "fieldInvalid": "Check this one: it has characters we cannot use.",
+  "profileTitle": "Your profile",
+  "profileOpen": "Open your profile",
+  "profileDetails": "Your details",
+  "profileEdit": "Edit details",
+  "profileNotSet": "Not set",
+  "profileMemberSince": "Member since {date}",
+  "@profileMemberSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "profileSaved": "Details saved.",
+  "profileSignOut": "Sign out",
+  "profileSignOutTitle": "Sign out of BusIn?",
+  "profileSignOutBody": "You will need to sign in with Google again.",
+  "profileCredits": "3D illustrations by Thiings (thiings.co)",
+  "fieldRequired": "This field is required.",
+  "loadingSlowTitle": "This is taking longer than usual",
+  "loadingSlowBody": "Check your connection. BusIn keeps trying.",
+  "loadingLabel": "Loading",
+  "appName": "BusIn",
+  "signInTitle": "Hop on. BusIn handles the rest.",
+  "signInSubtitle": "Sign in with your school Google account to subscribe, show your boarding code and follow your bus.",
+  "signInWithGoogle": "Continue with Google",
+  "signInCancelled": "Sign-in was cancelled.",
+  "signInFailed": "Sign-in did not work. Try again.",
+  "signInNotAllowed": "This Google account is not allowed here. Use your school account.",
+  "blockedStaffTitle": "This app is for students",
+  "blockedStaffBody": "Your account is a staff or administrator account. Staff use the BusIn ops app, and administrators use the admin portal.",
+  "blockedPendingTitle": "Your account is waiting for approval",
+  "blockedPendingBody": "A school administrator needs to verify your account before you can use BusIn.",
+  "blockedSuspendedTitle": "Your account is suspended",
+  "blockedSuspendedBody": "Contact your school's transport office to find out why.",
+  "navSubscription": "Subscription",
+  "navQr": "Boarding code",
+  "navHistory": "History",
+  "navProfile": "Profile",
+  "profileAppearance": "Appearance",
+  "profileAppearanceHint": "Kept on this phone.",
+  "profileTheme": "Theme",
+  "themeSystem": "System",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "profileLanguage": "Language",
+  "languageSystem": "System",
+  "profileHistory": "Boarding history",
+  "profileHistoryBody": "Every time you boarded, newest first.",
+  "navBus": "My bus",
+  "comingSoonTitle": "Coming soon",
+  "comingSoonBody": "This part of the app is being built.",
+  "subscriptionNoSemesterTitle": "No semester open yet",
+  "subscriptionNoSemesterBody": "You can subscribe as soon as your school adds the semester.",
+  "subscriptionStarts": "Starts {date}",
+  "@subscriptionStarts": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "subscribeHeading": "Subscribe for {semester}",
+  "@subscribeHeading": {
+    "placeholders": {
+      "semester": {
+        "type": "String"
+      }
+    }
+  },
+  "subscribeIntro": "Choose where you board and add a photo of your payment receipt. Your school checks it and approves your request.",
+  "subscribeStopLabel": "Your stop",
+  "subscribeStopHint": "Choose where you board",
+  "subscribeStopSearch": "Search stops",
+  "subscribeStopNone": "No stop matches.",
+  "subscribeProofLabel": "Payment proof",
+  "subscribeProofHint": "Add a clear photo of your receipt",
+  "subscribeProofPrivacy": "Only you and your school's administrators can see it.",
+  "proofTakePhoto": "Take a photo",
+  "proofChoosePhoto": "Choose from gallery",
+  "proofChange": "Change photo",
+  "subscribeSubmit": "Send request",
+  "subscribeErrorType": "Use a JPEG, PNG or WebP photo.",
+  "subscribeErrorTooLarge": "That photo is too large. Pick one under 5 MB.",
+  "subscribeErrorExists": "You already have a request for this semester. Pull down to refresh.",
+  "subscriptionStop": "Stop",
+  "subscriptionSent": "Sent {date}",
+  "@subscriptionSent": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "proofView": "View your payment proof full screen",
+  "proofClose": "Close",
+  "requestsTitle": "Your requests this semester",
+  "requestsHint": "Everything that happened, the latest first.",
+  "requestOf": "Request of {date}",
+  "@requestOf": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "requestEventRequested": "You sent the request",
+  "requestEventApproved": "Your school approved it",
+  "requestEventRejected": "Your school declined it",
+  "requestEventRevoked": "Your school ended it",
+  "requestEventReinstated": "Your school gave it back",
+  "subscriptionProofTitle": "Your payment proof",
+  "statusPendingTitle": "Request sent",
+  "statusPendingBody": "Your school is checking your payment proof. Pull down to see if it has been decided.",
+  "statusApprovedTitle": "You are subscribed",
+  "statusApprovedBody": "You can board at {stop}.",
+  "@statusApprovedBody": {
+    "placeholders": {
+      "stop": {
+        "type": "String"
+      }
+    }
+  },
+  "statusApprovedAction": "Show boarding code",
+  "statusRejectedTitle": "Request not approved",
+  "statusRejectedReason": "Your school's reason:",
+  "statusRejectedNoReason": "Your school did not give a reason.",
+  "statusRequestAgain": "Request again",
+  "statusRevokedTitle": "Subscription ended by your school",
+  "statusRevokedReason": "Your school's reason:",
+  "statusExpiredTitle": "Subscription ended",
+  "statusExpiredBody": "This subscription is no longer valid. You can send a new request.",
+  "qrChecking": "Checking your subscription",
+  "qrTitle": "Boarding code",
+  "qrHint": "Show this code to the driver or staff when you board.",
+  "qrImageLabel": "Your boarding code. It changes every 30 seconds.",
+  "qrLive": "Live code",
+  "qrPrivateTitle": "Keep your code to yourself",
+  "qrPrivateBodyProtected": "It changes by itself, and screenshots are turned off here.",
+  "qrPrivateBody": "It changes by itself and only works for you.",
+  "qrRefreshed": "Code refreshed.",
+  "boardTitle": "How to board",
+  "boardStep1": "Have this screen open when you reach the door.",
+  "boardStep2": "Hold your phone to the scanner until it confirms.",
+  "boardStep3": "Take any seat. Your ride is saved in History.",
+  "qrNoSubscriptionTitle": "No active subscription",
+  "qrNoSubscriptionBody": "Your boarding code appears as soon as your subscription is approved.",
+  "qrGoToSubscription": "Go to subscription",
+  "qrOfflineTitle": "Connect once to set up your code",
+  "qrOfflineBody": "Your phone needs the internet one time to get your boarding code. After that it works without a connection.",
+  "historyTitle": "Your boardings",
+  "historyStatWeek": "Boardings this week",
+  "historyStatStop": "Most used stop",
+  "historyStatStopNone": "None yet",
+  "historyDayCount": "{count, plural, =1{1 boarding} other{{count} boardings}}",
+  "@historyDayCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "historyDayFirst": "First boarding",
+  "historyDayLast": "Last boarding",
+  "historyDayStops": "Stops used",
+  "historySelectedDay": "Selected day",
+  "historyEmptyTitle": "No boardings yet",
+  "historyEmptyBody": "Each time you board with your code, it appears here.",
+  "historyStopUnknown": "Stop not recorded",
+  "historyLoadMoreFailed": "Could not load more. Tap to try again.",
+  "busLockedTitle": "Following the bus is for subscribers",
+  "busLockedBody": "Once your subscription is approved you can see where your bus is, live.",
+  "busLockedAction": "Go to subscription",
+  "busNoneTitle": "No bus is running right now",
+  "busNoneBody": "When a trip starts you can follow its bus here.",
+  "busWaiting": "Waiting for the bus to share its location.",
+  "busUpdatedSeconds": "Updated {seconds} s ago",
+  "@busUpdatedSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "busUpdatedMinutes": "Updated {minutes} min ago",
+  "@busUpdatedMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "busStale": "Last seen {minutes} min ago. The bus may be out of signal.",
+  "@busStale": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "busSpeed": "{kmh} km/h",
+  "@busSpeed": {
+    "placeholders": {
+      "kmh": {
+        "type": "String"
+      }
+    }
+  },
+  "busEtaMinutes": "{minutes} min",
+  "@busEtaMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "busEtaArriving": "Arriving",
+  "busEtaCaption": "{km} km from {stop}",
+  "@busEtaCaption": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      },
+      "stop": {
+        "type": "String"
+      }
+    }
+  },
+  "busDistanceKm": "{km} km",
+  "@busDistanceKm": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "busEtaLabel": "Estimated arrival",
+  "busRunning": "Running buses",
+  "busYourStop": "Your stop",
+  "busRecenter": "Show the bus",
+  "busLiveFailed": "Live updates are not available right now.",
+  "busMapLabel": "Map of the bus and the stops",
+  "busUpdateFollowing": "Following {bus} · {direction}",
+  "@busUpdateFollowing": {"placeholders": {"bus": {"type": "String"}, "direction": {"type": "String"}}},
+  "busUpdateAtStop": "At {stop}",
+  "@busUpdateAtStop": {"placeholders": {"stop": {"type": "String"}}},
+  "busUpdateLeftStop": "Left {stop}",
+  "@busUpdateLeftStop": {"placeholders": {"stop": {"type": "String"}}},
+  "busUpdateStopped": "Not moving for {minutes} min",
+  "@busUpdateStopped": {"placeholders": {"minutes": {"type": "String"}}},
+  "busUpdateMoving": "Moving again",
+  "busUpdateNearMyStop": "Almost at your stop, about {minutes} min away",
+  "@busUpdateNearMyStop": {"placeholders": {"minutes": {"type": "String"}}},
+  "busUpdatePassedMyStop": "The bus has passed your stop",
+  "busUpdateSignalLost": "No news from the bus for {minutes} min",
+  "@busUpdateSignalLost": {"placeholders": {"minutes": {"type": "String"}}},
+  "busUpdateSignalBack": "Back in touch with the bus",
+  "busUpdateEnded": "The trip of {bus} has ended",
+  "@busUpdateEnded": {"placeholders": {"bus": {"type": "String"}}},
+  "busUpdateDismiss": "Hide this update",
+  "busUpdatesTitle": "Live updates",
+  "busUpdatesEmpty": "What the bus does appears here while you follow it.",
+  "busMeShow": "Show me",
+  "busMeHide": "Hide me",
+  "busMeFind": "Find me",
+  "busMeWhyTitle": "See yourself on the map",
+  "busMeWhyBody": "BusIn will use your phone's precise location while this tab is open, to show you next to your stop and the bus. It stays on your phone: it is never sent or kept.",
+  "busMeContinue": "Continue",
+  "busMeNotNow": "Not now",
+  "busMeDenied": "Location is not allowed for BusIn, so you are not shown.",
+  "busMeDeniedForever": "Location is turned off for BusIn. You can allow it in your phone's settings.",
+  "busMeOff": "Location is switched off on your phone.",
+  "busMeSettings": "Open settings",
+  "busMeApproximate": "Your phone shares only an approximate position. Allow precise location for BusIn to see exactly where you are.",
+  "busMeWalkM": "{distance} m from your stop, about {minutes} min on foot",
+  "@busMeWalkM": {"placeholders": {"distance": {"type": "String"}, "minutes": {"type": "String"}}},
+  "busMeWalkKm": "{distance} km from your stop, about {minutes} min on foot",
+  "@busMeWalkKm": {"placeholders": {"distance": {"type": "String"}, "minutes": {"type": "String"}}},
+  "pushPromptTitle": "Get notified",
+  "pushPromptBody": "We can tell you as soon as your school decides on your request, even when the app is closed.",
+  "pushPromptEnable": "Turn on notifications",
+  "pushPromptLater": "Not now",
+  "pushPromptDenied": "Notifications are off. You can turn them on in your phone's settings.",
+  "pushForegroundApproved": "Your subscription was approved.",
+  "pushForegroundRejected": "Your school has decided on your subscription.",
+  "liveReinstated": "Your school gave your subscription back.",
+  "liveRevoked": "Your school ended your subscription.",
+  "pushForegroundView": "View",
+  "navQrShort": "Code",
+  "greetMorning": "Good morning",
+  "greetAfternoon": "Good afternoon",
+  "greetEvening": "Good evening",
+  "stageSent": "Sent",
+  "stageChecking": "Checking",
+  "stageDecided": "Decision",
+  "stageSemantics": "Step {number} of {total}: {label}",
+  "@stageSemantics": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "howTitle": "How it works",
+  "howStep1": "Choose where you board.",
+  "howStep2": "Add a photo of your payment receipt.",
+  "howStep3": "Your school checks it and decides.",
+  "howStep4": "Show your boarding code and ride.",
+  "proofAdded": "Photo added",
+  "legalTitle": "Legal",
+  "legalHint": "Terms and privacy. They are in the app, so you can read them offline.",
+  "legalTerms": "Terms of use",
+  "legalTermsBody": "The rules for using BusIn",
+  "legalPrivacy": "Privacy policy",
+  "legalPrivacyBody": "What we keep about you, and why",
+  "legalAcceptable": "Acceptable use",
+  "legalAcceptableBody": "What is and is not allowed",
+  "legalInShort": "In short",
+  "legalUpdated": "Updated {date}",
+  "legalAppliesTo": "Applies to {school}",
+  "legalAlsoRead": "Also read",
+  "legalQuestionsTitle": "Questions about your data?",
+  "legalQuestionsBody": "Ask your school's administration. They can correct your details and answer requests about your account.",
+  "legalReadTime": "{minutes} min read",
+  "@legalUpdated": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@legalAppliesTo": {
+    "placeholders": {
+      "school": {
+        "type": "String"
+      }
+    }
+  },
+  "@legalReadTime": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "legalOnThisPage": "On this page",
+  "offlineTitle": "No connection",
+  "offlineBody": "Your saved pass still works at the door. Last updated {when}.",
+  "offlineSavedCopy": "This is the copy saved on this phone ({when}). Connect to the internet to send or change a request.",
+  "offlineNeedsConnection": "Connect to the internet to send your request.",
+  "@offlineBody": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "@offlineSavedCopy": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "proofUnavailable": "Your payment proof",
+  "proofUnavailableHint": "It could not be loaded. Tap to try again.",
+  "joinTitle": "Choose your school",
+  "joinBody": "Your Google account is not a school email, so ask your school to let you in. An administrator there will check it is you.",
+  "joinSearch": "Search for your school",
+  "joinSearchHint": "Name or city",
+  "joinEmptyTitle": "No school accepts your email yet",
+  "joinEmptyBody": "Sign in with your school email, or ask your school to accept students with other email addresses.",
+  "joinNoMatch": "No school matches your search.",
+  "joinConfirmTitle": "Ask to join {school}?",
+  "@joinConfirmTitle": {
+    "placeholders": {
+      "school": {
+        "type": "String"
+      }
+    }
+  },
+  "joinConfirmBody": "An administrator of {school} will check that you are their student. You can change your request while you wait.",
+  "@joinConfirmBody": {
+    "placeholders": {
+      "school": {
+        "type": "String"
+      }
+    }
+  },
+  "joinConfirmAction": "Ask to join",
+  "joinSent": "Request sent.",
+  "joinTooSoon": "Wait a few seconds before changing your request.",
+  "joinDeclinedTitle": "{school} declined your request",
+  "@joinDeclinedTitle": {
+    "placeholders": {
+      "school": {
+        "type": "String"
+      }
+    }
+  },
+  "joinDeclinedNoReason": "They did not give a reason. You can ask another school, or contact them.",
+  "joinDeclinedReason": "Their reason: {reason}",
+  "@joinDeclinedReason": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "waitingTitle": "Waiting for {school}",
+  "@waitingTitle": {
+    "placeholders": {
+      "school": {
+        "type": "String"
+      }
+    }
+  },
+  "waitingBody": "You asked to join on {date}. An administrator of your school will check your request; you can use BusIn as soon as they accept it.",
+  "@waitingBody": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "waitingCheck": "Check again",
+  "waitingStill": "Still waiting. We will check again when you come back to the app.",
+  "waitingChange": "Choose another school",
+  "joiningTitle": "You are joining {school}",
+  "@joiningTitle": {
+    "placeholders": {
+      "school": {
+        "type": "String"
+      }
+    }
+  },
+  "joiningBody": "Your school email puts you in this school.",
+  "joiningNotMine": "Not my school?",
+  "joiningNotMineTitle": "Not your school?",
+  "joiningNotMineBody": "You signed in with an email of {school}. If you study somewhere else, sign out and sign in with your own school's account.",
+  "@joiningNotMineBody": {
+    "placeholders": {
+      "school": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationsTitle": "Notifications",
+  "notificationsHint": "Choose your bus days and what BusIn reminds you of.",
+  "notificationsDays": "My bus days",
+  "notificationsDaysHint": "Reminders come only on these days.",
+  "notificationsMorning": "Morning reminder",
+  "notificationsMorningHint": "A nudge before you leave home.",
+  "notificationsEvening": "Evening reminder",
+  "notificationsEveningHint": "Almost time to head back to the bus.",
+  "notificationsBusNear": "Bus near my stop",
+  "notificationsBusNearHint": "When your bus is about this far from your stop.",
+  "notificationsBusNearMinutes": "{minutes} min",
+  "@notificationsBusNearMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "notificationsBoarding": "A word when I board",
+  "notificationsBoardingHint": "A short message on screen when your code is scanned.",
+  "notificationsSchool": "From your school",
+  "notificationsSchoolHint": "Changes to your semester or service. Always on.",
+  "notificationsAt": "At {time}",
+  "@notificationsAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationsSaved": "Saved.",
+  "notificationsPermission": "Allow notifications in your phone's settings so reminders can show.",
+  "reminderMorningTitle": "Bus day",
+  "reminderMorningBody": "Your pass is ready. Open BusIn to see where the bus is.",
+  "reminderEveningTitle": "Heading home?",
+  "reminderEveningBody": "Time to get ready for the bus. Open BusIn to see where it is.",
+  "boardedTitle": "On board",
+  "boardedEarlier": "You boarded at {time}",
+  "boardedClose": "Close",
+  "@boardedEarlier": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "streakTitle": "Streaks",
+  "streakHint": "Count the days you take the bus, and join your school's leaderboard.",
+  "streakOnTitle": "Keep a streak?",
+  "streakOnBody": "BusIn counts the days you board. Rest days and days without buses do not break it; only a bus day you miss does. You will also appear on your school's leaderboard as {name}. You can turn it off at any time.",
+  "@streakOnBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "streakOnAction": "Turn on streaks",
+  "streakDays": "{count, plural, =0{No streak yet} =1{1-day streak} other{{count}-day streak}}",
+  "@streakDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "streakBest": "Best {count}",
+  "@streakBest": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "streakRides": "{count, plural, =1{1 ride this semester} other{{count} rides this semester}}",
+  "@streakRides": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "streakSheetTitle": "Your streak",
+  "streakRode": "Rode",
+  "streakMissed": "Missed",
+  "streakRest": "Rest or no bus",
+  "streakToday": "Today",
+  "streakViewLabel": "Streak view",
+  "streakTabCalendar": "Calendar",
+  "streakTabBoard": "Leaderboard",
+  "leaderboardNote": "Students of your school who keep a streak, by current streak.",
+  "leaderboardEmpty": "No one is on the board yet.",
+  "leaderboardYou": "You",
+  "leaderboardRank": "Rank {rank}",
+  "@leaderboardRank": {"placeholders": {"rank": {"type": "int"}}},
+  "pushForegroundBusNear": "Your bus is a few minutes from your stop.",
+  "areaTitle": "My area",
+  "areaHint": "Roughly where you live, to help your school place stops. Optional.",
+  "areaLaterHint": "Add it when you are home.",
+  "areaIntro": "Tell your school roughly where you live, so it can place stops and plan routes near students. It is rounded to about 500 metres, never tracked, and only you can see it. Your school only sees how many students live in each zone, and how far groups of at least five live from their stops.",
+  "areaAtHome": "Are you home right now?",
+  "areaYesHome": "Yes, I am home",
+  "areaNoSearch": "No, search a place",
+  "areaExplainTitle": "One reading, roughly",
+  "areaExplainBody": "BusIn will ask for your approximate location and read it once. It is rounded to about 500 metres before it is saved, and the app never reads it again unless you ask.",
+  "areaContinue": "Continue",
+  "areaNameLabel": "What do you call this area?",
+  "areaNameHint": "For example your neighbourhood",
+  "areaDefaultName": "Home",
+  "areaSave": "Save my area",
+  "areaSearchLabel": "Search a neighbourhood or street",
+  "areaSearchEmpty": "No place found.",
+  "areaNotSeeing": "Not seeing your street?",
+  "areaNotSeeingBody": "Do it from home instead: BusIn then reads your approximate location once. Your profile will remind you.",
+  "areaRemindMe": "Remind me at home",
+  "areaSaved": "Your area is saved.",
+  "areaRemoved": "Your area was removed.",
+  "areaRemove": "Remove my area",
+  "areaChange": "Change",
+  "areaRounded": "Rounded to about 500 metres. Only you can see it.",
+  "areaTooFar": "This place is too far from your school's buses.",
+  "areaDenied": "BusIn cannot read your location. You can search a place instead.",
+  "areaDeniedForever": "Location is blocked for BusIn. Allow it in your phone settings, or search a place.",
+  "areaOpenSettings": "Open settings",
+  "areaOff": "Location is turned off on your phone.",
+  "areaFailed": "Your location could not be read. Try again or search a place.",
+  "areaTooMany": "Too many searches. Wait a minute and try again.",
+  "notificationsSampleSent": "We sent you an example, so you can see how it looks.",
+  "sampleBusNearTitle": "Your bus is almost here",
+  "sampleBusNearBody": "It is a few minutes from your stop. Open BusIn to follow it.",
+  "areaOsmCredit": "Places from OpenStreetMap contributors",
+  "placeKindArea": "Neighbourhood",
+  "placeKindVillage": "Village or locality",
+  "placeKindStreet": "Street",
+  "placeKindLandmark": "Landmark",
+  "opsAppName": "BusIn Ops",
+  "opsSignInTitle": "Run the trips. Check every boarding.",
+  "opsSignInSubtitle": "Staff sign-in. Use your school Google account to start trips, scan boarding codes and share the bus position.",
+  "opsNotStaffTitle": "This app is for staff",
+  "opsNotStaffBody": "Students use the BusIn app to show their boarding code. If you should have staff access, ask your school's administrator.",
+  "opsProblemTitle": "BusIn Ops could not load your account",
+  "opsTodayTitle": "Today's trips",
+  "opsTodayEmpty": "No trips are scheduled today.",
+  "opsTodayMine": "Assigned to you",
+  "opsTodayOthers": "Other trips",
+  "opsDeparts": "Departs {time}",
+  "@opsDeparts": {"placeholders": {"time": {"type": "String"}}},
+  "opsTripTitle": "Trip",
+  "opsStart": "Start trip",
+  "opsEnd": "End trip",
+  "opsEndTitle": "End this trip?",
+  "opsEndBody": "No one can board it after this, and the bus position stops being shared.",
+  "opsStarted": "Trip started.",
+  "opsEnded": "Trip ended.",
+  "opsAssignedElsewhere": "Assigned to another staff member. Only they or an administrator can start it.",
+  "opsBusBusy": "This bus is already on another trip. End that one first.",
+  "opsNotToday": "This trip is not scheduled for today.",
+  "opsNotScheduled": "This trip has already started or is over.",
+  "opsBoarded": "{count} of {capacity} on board",
+  "@opsBoarded": {"placeholders": {"count": {"type": "int"}, "capacity": {"type": "int"}}},
+  "opsScannerSoon": "Start the trip to scan boarding codes.",
+  "opsProblemBody": "Check the connection and try again. The first sign-in on a phone needs a connection.",
+  "opsScan": "Scan boarding codes",
+  "opsScanHint": "Point the camera at the student's boarding code.",
+  "opsResultBoarded": "On board",
+  "opsResultAlready": "Already on board",
+  "opsResultInvalid": "Not a valid boarding code",
+  "opsResultExpired": "This code has expired. Ask the student to reopen their code.",
+  "opsResultNotOnList": "Not on today's list. No valid subscription for today.",
+  "opsResultNoKeys": "Today's list is missing. Connect to the internet to download it.",
+  "opsResultChecking": "Checking with the server...",
+  "opsResultNotVerified": "This account is not active.",
+  "opsResultNoSubscription": "No valid subscription for today.",
+  "opsResultUnknown": "Not a student of this school.",
+  "opsKeysStatus": "Today's list: {count} riders, updated {time}",
+  "@opsKeysStatus": {"placeholders": {"count": {"type": "int"}, "time": {"type": "String"}}},
+  "opsKeysMissing": "No list for today yet. Connect to download it.",
+  "opsKeysRefresh": "Update the list",
+  "opsPending": "{count, plural, =0{All scans sent} =1{1 scan waiting to send} other{{count} scans waiting to send}}",
+  "@opsPending": {"placeholders": {"count": {"type": "int"}}},
+  "opsRefusedLaterTitle": "Refused by the server after boarding",
+  "opsRefusedLaterBody": "The phone let these students on, but the server did not accept the boarding (for example a subscription revoked since this morning).",
+  "opsCameraDenied": "Allow the camera to scan boarding codes.",
+  "opsLocationWhyTitle": "Where each boarding happens",
+  "opsLocationWhyBody": "BusIn Ops records the stop where each student boards, from this phone's location while the scanner is open. It is used for this trip and for planning stops, never to follow you.",
+  "opsLocationContinue": "Continue",
+  "opsSignOutPending": "{count, plural, =1{1 scan is still waiting to send. Connect to the internet first, then sign out.} other{{count} scans are still waiting to send. Connect to the internet first, then sign out.}}",
+  "opsProfileOpen": "Profile and settings",
+  "opsSettingsScanning": "Scanning",
+  "opsSettingsVibrate": "Vibrate on each scan",
+  "opsSettingsSound": "Sound on each scan",
+  "opsSettingsSoundHint": "A click when a student is let on, an alert when refused.",
+  "opsSettingsDriving": "Driver mode",
+  "opsSettingsOfferShare": "Offer to share the bus position when I start a trip",
+  "opsSettingsOfferShareHint": "You can always turn sharing on from the trip.",
+  "opsSettingsPhone": "On this phone",
+  "opsSettingsSendNow": "Send now",
+  "opsSettingsAllSent": "Everything is sent.",
+  "opsSettingsNotSent": "Not sent yet: no connection. It will go when the connection is back.",
+  "@opsSignOutPending": {"placeholders": {"count": {"type": "int"}}},
+  "opsAtStop": "At {stop}",
+  "@opsAtStop": {"placeholders": {"stop": {"type": "String"}}},
+  "opsShareTitle": "Share the bus position",
+  "opsShareBody": "Students following this bus see where it is, and those waiting get a push when it is a few minutes away.",
+  "opsShareLast": "Sharing. Last sent {time}",
+  "@opsShareLast": {"placeholders": {"time": {"type": "String"}}},
+  "opsShareStarting": "Sharing. Waiting for the first position...",
+  "opsShareWaiting": "No connection. Sharing resumes by itself.",
+  "opsShareOff": "Not sharing",
+  "opsShareDenied": "Allow location to share the bus position.",
+  "opsShareWhyTitle": "Sharing the bus position",
+  "opsShareWhyBody": "While the trip runs, this phone sends its position every 10 seconds, also with the screen off. A notification shows while it does. It stops when the trip ends or when you turn it off.",
+  "opsShareNotificationTitle": "BusIn Ops is sharing the bus position",
+  "opsShareNotificationText": "Students can follow this bus until the trip ends.",
+  "opsShareNotYours": "The staff member assigned to this trip shares its position."
+}

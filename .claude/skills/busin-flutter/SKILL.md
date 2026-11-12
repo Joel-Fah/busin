@@ -1,0 +1,69 @@
+---
+name: busin-flutter
+description: Conventions for the BusIn Flutter apps and Dart packages (student, ops, busin_core, busin_data, busin_ui). Load before writing or reviewing any Dart or Flutter code.
+---
+
+# BusIn Flutter and Dart
+
+## Toolchain
+- Flutter is pinned in `.fvmrc` (3.47.9, Dart 3.13). Always run `fvm flutter ...` and `fvm dart ...`. Never use a global Flutter.
+- Android builds use Java 21. The release signing config must not fail when `key.properties` is absent; fall back to debug signing.
+- Upgrades are their own PR: `fvm use`, `pub upgrade`, analyze, test, smoke test.
+
+## Layout and layering
+- Dart pub workspace at the repo root. Each member has `resolution: workspace`.
+- `busin_core`: pure Dart (no Flutter, no Supabase). Models, enums, value objects, repository interfaces, validation.
+- `busin_data`: the only package that talks to the backend. It imports `supabase` (the pure Dart client that `supabase_flutter` wraps), so its tests run with plain `dart test`; an app starts `supabase_flutter` for sessions and deep links and passes its client to `SupabaseRepositories`. Implements the core interfaces, names its columns in one place, maps every backend error to a `RepositoryException`.
+- `busin_ui`: palette, shape scale, Material 3 themes, widgets, shared EN/FR strings (`BusinL10n`). No data access.
+- Apps depend on the packages; packages never depend on apps. `apps/legacy` is read-only reference and stays outside the workspace.
+
+## Code style
+- `flutter_lints` enabled in every package through `analysis_options.yaml`. Zero analyzer warnings in new code.
+- Immutable models with `fromMap` and `toMap` (or json), covered by tests. Stored times come from the server in UTC; never trust the device clock.
+- Small files and widgets. Split screens past about 400 lines. The legacy app has screens of 1,000 to 2,300 lines; do not copy that.
+- No emojis, no `print`. Use `debugPrint` inside `kDebugMode`, and never log personal data.
+- Strings go through localization (EN and FR). Colors and sizes come from the theme (see `busin-design-system`).
+
+## State and navigation
+- State: `flutter_riverpod` 3.x with plain `Notifier` and `AsyncNotifier` (no code generation yet). Navigation: `go_router`. Decision and reasons: [ADR 0007](../../../docs/decisions/0007-state-management-navigation-storage.md). Do not use GetX, `get_storage`, or GetX snackbars and dialogs in new code.
+- Every repository and service is a provider, so tests override it with a fake. Providers that hold user data watch the auth state, so they reset on sign-out. Screens use `ref.watch` and never touch storage or the backend directly.
+- Route guards read the role from the session. Admin screens do not exist in client apps. The `go_router` redirect reads the auth state from a provider.
+- Local storage: `shared_preferences` for harmless preferences, `flutter_secure_storage` for the auth session and the QR secret, `drift` (SQLite) for the ops app queue and caches. Never put a secret in preferences.
+
+```dart
+// A list that loads once, exposes loading and error states, and is faked in tests.
+class StopsNotifier extends AsyncNotifier<List<Stop>> {
+  @override
+  Future<List<Stop>> build() => ref.watch(stopsRepositoryProvider).listStops();
+}
+
+final stopsProvider = AsyncNotifierProvider<StopsNotifier, List<Stop>>(StopsNotifier.new);
+
+// In a widget: switch on the AsyncValue.
+// ref.watch(stopsProvider).when(data: ..., loading: ..., error: ...);
+```
+
+## Data and least-load
+- Repository methods take explicit parameters and return typed models. Select named columns, paginate with `range`, and filter Realtime subscriptions.
+- Cache read-only reference data (stops, semester) in memory for the session.
+- Ops app: SQLite local queue, idempotent sync, scans keyed by trip and student.
+
+## Config
+- Public values only, through `--dart-define-from-file=config/<env>.json` and `String.fromEnvironment`. No `.env` asset, no `flutter_dotenv`.
+
+## Platform
+- Android first. Complete the iOS Google client id and URL scheme before claiming iOS support.
+- Location: requested at the moment of use, after an explanation. Ops app: scanning and driver mode (foreground service). Student app: My area (approximate, once; ADR 0013) and Show me on My bus (precise, only while the tab shows, never sent; ADR 0016).
+- Block screenshots on the QR screen.
+
+## Testing
+- Claude writes and runs unit tests for models, repositories (with fakes), QR derivation and sync logic: `fvm dart test` or `fvm flutter test`.
+- Widget tests for critical reusable widgets. The owner does device and emulator testing; list manual test steps in the PR.
+- Anything that depends on Row Level Security or storage policies also gets a live test in `packages/busin_data/test/live/` (opt-in: `fvm dart test -t live --run-skipped` against the local stack, with a real user session). Unit tests with fakes cannot prove a policy.
+
+## Done checklist
+- [ ] `fvm flutter analyze` clean
+- [ ] Tests added or updated and passing
+- [ ] Light and dark checked, EN and FR strings present
+- [ ] No admin code or all-collection query in a client app
+- [ ] Manual test steps listed for the owner

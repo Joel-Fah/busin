@@ -1,0 +1,29 @@
+name: checks
+
+# Deliberately minimal to conserve free Actions minutes: pull requests only,
+# only when docs or tooling change, one cheap job, superseded runs cancelled.
+# Heavier per-tier jobs (flutter test, supabase test db, admin web) are added
+# only in the phase that creates the tier, if they earn their minutes.
+on:
+  pull_request:
+    branches: [dev, main]
+    paths:
+      - '**.md'
+      - 'tools/**'
+      - 'package.json'
+      - '.github/workflows/checks.yml'
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - run: npm run check

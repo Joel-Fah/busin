@@ -1,0 +1,35 @@
+{
+  "name": "busin",
+  "private": true,
+  "description": "BusIn monorepo: npm workspace root for the admin portal and backend tooling.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "workspaces": [
+    "apps/admin_web"
+  ],
+  "scripts": {
+    "check:emoji": "node tools/check-no-emoji.mjs",
+    "check:links": "node tools/check-md-links.mjs",
+    "check": "npm run check:emoji && npm run check:links",
+    "backend:start": "node tools/ensure-supabase-env.mjs && supabase start -x studio,imgproxy,vector,logflare,postgres-meta,mailpit,supavisor",
+    "backend:stop": "supabase stop",
+    "backend:reset": "supabase db reset",
+    "test:functions": "node --test supabase/functions/_shared/push.test.ts supabase/functions/_shared/route.test.ts supabase/functions/_shared/route-order.test.ts",
+    "backend:test": "supabase test db",
+    "web:setup": "node tools/write-web-env.mjs",
+    "web": "npm run dev -w apps/admin_web",
+    "dev:device": "node tools/dev-device.mjs",
+    "dev:user": "node tools/dev-user.mjs",
+    "seed:demo": "node tools/seed-demo.mjs",
+    "dev:bus": "node tools/simulate-bus.mjs",
+    "dev:push": "node tools/send-test-push.mjs",
+    "places:import": "node tools/import-places.mjs",
+    "test:tools": "node --test tools/places-osm.test.mjs",
+    "supabase": "supabase"
+  },
+  "devDependencies": {
+    "supabase": "2.122.0"
+  }
+}
