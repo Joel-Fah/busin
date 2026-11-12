@@ -32,6 +32,11 @@ class PositionPublisher {
 
   ShareStatus status = ShareStatus.sharing;
   DateTime? lastSentAt;
+
+  /// The name of the crew member whose phone leads the position while this phone's fixes are set aside by the
+  /// server (ADR 0019); null when this phone leads or nobody does. This phone takes over by itself when the leader
+  /// has been quiet for 30 seconds: its next fix is then kept.
+  String? standbyFor;
   bool _sending = false;
 
   /// Called on every change of [status] or [lastSentAt].
@@ -45,9 +50,15 @@ class PositionPublisher {
     if (last != null && at.difference(last) < interval) return false;
     _sending = true;
     try {
-      await positions.publish(tripId: tripId, position: fix.point, speedMps: fix.speed, headingDeg: fix.heading, accuracyM: fix.accuracy);
+      final kept = await positions.publish(tripId: tripId, position: fix.point, speedMps: fix.speed, headingDeg: fix.heading, accuracyM: fix.accuracy);
       lastSentAt = at;
       status = ShareStatus.sharing;
+      if (kept) {
+        standbyFor = null;
+      } else {
+        // Set aside: because another phone leads, or only because the fix was imprecise. Ask which.
+        await _askWhoLeads();
+      }
       return true;
     } on Offline {
       status = ShareStatus.waiting;
@@ -68,8 +79,18 @@ class PositionPublisher {
     }
   }
 
+  Future<void> _askWhoLeads() async {
+    try {
+      final holder = await positions.positionHolder(tripId);
+      standbyFor = holder != null && !holder.isMe ? (holder.name.isEmpty ? holder.holderId : holder.name) : null;
+    } catch (_) {
+      // Without the answer the last one stands; the next fix asks again.
+    }
+  }
+
   void stop() {
     status = ShareStatus.stopped;
+    standbyFor = null;
     onChange?.call();
   }
 }

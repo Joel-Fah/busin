@@ -23,7 +23,7 @@ import { createClient } from "@/lib/supabase/server";
 async function checkAssignments(
   input: TripInput,
   currentBusId?: string,
-): Promise<Extract<TripFormErrorKey, "bus_unavailable" | "driver_unavailable" | "generic"> | null> {
+): Promise<Extract<TripFormErrorKey, "bus_unavailable" | "driver_unavailable" | "assistant_unavailable" | "generic"> | null> {
   const supabase = await createClient();
 
   const { data: bus, error: busError } = await supabase
@@ -45,6 +45,19 @@ async function checkAssignments(
     if (driverError) return "generic";
     if (!driver) return "driver_unavailable";
   }
+
+  // The assistant is held to the same rule as the driver: an active staff member of the school.
+  if (input.assistantId) {
+    const { data: assistant, error: assistantError } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("id", input.assistantId)
+      .eq("role", "staff")
+      .eq("status", "verified")
+      .maybeSingle();
+    if (assistantError) return "generic";
+    if (!assistant) return "assistant_unavailable";
+  }
   return null;
 }
 
@@ -54,7 +67,7 @@ export async function createTrip(formData: FormData): Promise<void> {
 
   const parsed = parseTripForm(formData, admin.schoolTimezone);
   if (!parsed.ok) redirect(`/trips/new?error=${parsed.error}`);
-  const { busId, driverId, direction, scheduledStart } = parsed.value;
+  const { busId, driverId, assistantId, direction, scheduledStart } = parsed.value;
 
   const problem = await checkAssignments(parsed.value);
   if (problem) redirect(`/trips/new?error=${problem}`);
@@ -66,6 +79,7 @@ export async function createTrip(formData: FormData): Promise<void> {
       school_id: admin.schoolId,
       bus_id: busId,
       driver_id: driverId,
+      assistant_id: assistantId,
       direction,
       scheduled_start: scheduledStart,
     })
@@ -89,7 +103,7 @@ export async function updateTrip(formData: FormData): Promise<void> {
 
   const parsed = parseTripForm(formData, admin.schoolTimezone);
   if (!parsed.ok) redirect(`/trips/${id}?error=${parsed.error}`);
-  const { busId, driverId, direction, scheduledStart } = parsed.value;
+  const { busId, driverId, assistantId, direction, scheduledStart } = parsed.value;
 
   const supabase = await createClient();
   const { data: current } = await supabase
@@ -105,7 +119,7 @@ export async function updateTrip(formData: FormData): Promise<void> {
 
   const { error } = await supabase
     .from("trips")
-    .update({ bus_id: busId, driver_id: driverId, direction, scheduled_start: scheduledStart })
+    .update({ bus_id: busId, driver_id: driverId, assistant_id: assistantId, direction, scheduled_start: scheduledStart })
     .eq("id", id)
     .eq("status", "scheduled")
     .select("id")

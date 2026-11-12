@@ -76,7 +76,7 @@ async function TripsList({ searchParams }: { searchParams: SearchParams }) {
   let request = narrow(
     supabase
       .from("trips")
-      .select("id, bus_id, driver_id, direction, status, scheduled_start", { count: "exact" })
+      .select("id, bus_id, driver_id, assistant_id, direction, status, scheduled_start", { count: "exact" })
       .order("scheduled_start", { ascending: false })
       .range(from, to),
   );
@@ -107,7 +107,7 @@ async function TripsList({ searchParams }: { searchParams: SearchParams }) {
 
   // Names for this page only, so the list never loads every bus and person.
   const busIds = [...new Set(rows.map((row) => row.bus_id))];
-  const driverIds = [...new Set(rows.flatMap((row) => (row.driver_id ? [row.driver_id] : [])))];
+  const driverIds = [...new Set(rows.flatMap((row) => [row.driver_id, row.assistant_id].filter((id): id is string => id !== null)))];
   const hasRunning = rows.some((row) => row.status === "active");
   const [busRows, driverRows, overdueRows] = await Promise.all([
     busIds.length ? supabase.from("buses").select("id, plate, name").in("id", busIds) : { data: [] },
@@ -232,6 +232,7 @@ async function TripsList({ searchParams }: { searchParams: SearchParams }) {
                     {...text}
                   />
                 </Th>
+                <Th>{t.trips.columns.assistant}</Th>
                 <Th>{t.trips.columns.status}</Th>
               </Head>
               <tbody>
@@ -245,6 +246,7 @@ async function TripsList({ searchParams }: { searchParams: SearchParams }) {
                     <Td>{plates.get(row.bus_id) ?? "-"}</Td>
                     <Td>{isDirection(row.direction) ? t.trips.direction[row.direction] : "-"}</Td>
                     <Td className="text-muted">{(row.driver_id && drivers.get(row.driver_id)) || t.trips.noDriver}</Td>
+                    <Td className="text-muted">{(row.assistant_id && drivers.get(row.assistant_id)) || t.trips.noAssistant}</Td>
                     <Td>
                       <span className="flex flex-wrap items-center gap-1.5">
                         {isTripStatus(row.status) ? <Chip tone={tripStatusTone(row.status)}>{t.trips.status[row.status]}</Chip> : null}

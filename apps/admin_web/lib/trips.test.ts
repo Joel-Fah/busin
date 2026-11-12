@@ -21,6 +21,7 @@ import {
 
 const BUS = "a1000000-0000-4000-8000-000000000001";
 const DRIVER = "a1000000-0000-4000-8000-000000000002";
+const ASSISTANT = "a1000000-0000-4000-8000-000000000003";
 
 function form(values: Record<string, string>) {
   return { get: (name: string) => values[name] ?? null };
@@ -32,13 +33,23 @@ describe("parseTripForm", () => {
   it("accepts a valid form and converts the start to an instant", () => {
     expect(parseTripForm(form(valid), "Africa/Douala")).toEqual({
       ok: true,
-      value: { busId: BUS, driverId: DRIVER, direction: "inbound", scheduledStart: "2026-11-02T06:30:00.000Z" },
+      value: { busId: BUS, driverId: DRIVER, assistantId: null, direction: "inbound", scheduledStart: "2026-11-02T06:30:00.000Z" },
     });
   });
 
   it("allows a trip without a driver yet", () => {
     const result = parseTripForm(form({ ...valid, driver_id: "" }), "UTC");
     expect(result.ok && result.value.driverId).toBeNull();
+  });
+
+  it("takes an optional assistant, who cannot be the driver", () => {
+    const withAssistant = parseTripForm(form({ ...valid, assistant_id: ASSISTANT }), "UTC");
+    expect(withAssistant.ok && withAssistant.value.assistantId).toBe(ASSISTANT);
+    expect(parseTripForm(form({ ...valid, assistant_id: "" }), "UTC")).toMatchObject({ ok: true, value: { assistantId: null } });
+    expect(parseTripForm(form({ ...valid, assistant_id: DRIVER }), "UTC")).toEqual({ ok: false, error: "crew" });
+    expect(parseTripForm(form({ ...valid, assistant_id: "x" }), "UTC")).toEqual({ ok: false, error: "assistant" });
+    // An assistant with no driver yet is fine.
+    expect(parseTripForm(form({ ...valid, driver_id: "", assistant_id: ASSISTANT }), "UTC")).toMatchObject({ ok: true, value: { driverId: null, assistantId: ASSISTANT } });
   });
 
   it("rejects bad fields with the field name", () => {

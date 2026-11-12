@@ -9,7 +9,7 @@ import 'position_publisher.dart';
 
 final livePositionsRepositoryProvider = Provider((ref) => ref.watch(repositoriesProvider).livePositions);
 
-typedef DriveState = ({ShareStatus status, DateTime? lastSentAt});
+typedef DriveState = ({ShareStatus status, DateTime? lastSentAt, String? standbyFor});
 
 /// Sharing the bus position for one trip (driver mode). Kept while the app runs, whatever screen is open; the
 /// foreground service keeps the readings coming with the screen off. Stops on sign-out, when the trip ends, or when
@@ -27,7 +27,7 @@ class DriverMode extends Notifier<DriveState> {
     ref.listen(accessProvider, (_, next) {
       if (next is! OpsAllowed) stop();
     });
-    return (status: ShareStatus.stopped, lastSentAt: null);
+    return (status: ShareStatus.stopped, lastSentAt: null, standbyFor: null);
   }
 
   bool get isOn => state.status != ShareStatus.stopped;
@@ -39,20 +39,20 @@ class DriverMode extends Notifier<DriveState> {
     if (!await feed.hasPermission() && !await feed.requestPermission()) return false;
     final publisher = PositionPublisher(tripId: tripId, positions: ref.read(livePositionsRepositoryProvider), now: ref.read(nowProvider));
     publisher.onChange = () {
-      state = (status: publisher.status, lastSentAt: publisher.lastSentAt);
+      state = (status: publisher.status, lastSentAt: publisher.lastSentAt, standbyFor: publisher.standbyFor);
       if (publisher.status == ShareStatus.stopped) _cancel();
     };
     _publisher = publisher;
-    state = (status: ShareStatus.sharing, lastSentAt: null);
+    state = (status: ShareStatus.sharing, lastSentAt: null, standbyFor: null);
     _sub = feed.watchDriving(title: title, text: text).listen((fix) => publisher.offer(fix), onError: (Object _) {
-      state = (status: ShareStatus.waiting, lastSentAt: state.lastSentAt);
+      state = (status: ShareStatus.waiting, lastSentAt: state.lastSentAt, standbyFor: state.standbyFor);
     });
     return true;
   }
 
   void stop() {
     _cancel();
-    state = (status: ShareStatus.stopped, lastSentAt: state.lastSentAt);
+    state = (status: ShareStatus.stopped, lastSentAt: state.lastSentAt, standbyFor: null);
   }
 
   void _cancel() {
