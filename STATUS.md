@@ -31,6 +31,14 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: hosted preview (2026-11-12)
+
+Done: `dev` merged into `main` (#313, 109 issues closed). Hosted Supabase project `busin-preview` (Frankfurt, ref `wfhgricucmqdungzuxch`): all 42 migrations, ICT University seed, demo data, stored road, `route-directions` deployed with the Mapbox token. Secrets are in `supabase/.env.hosted` (git-ignored). ADR 0018, [hosting guide](docs/guides/hosting.md).
+
+Next: connect GitHub to Vercel, create the Vercel project (root `apps/admin_web`, production branch `main`), set its environment variables, then push the hosted auth settings (site URL, redirect URLs, access token hook) and enable Google.
+
+Owner must do: connect GitHub to your Vercel account and install the Vercel GitHub app on this repository; add the hosted callback URL to the Google OAuth client and put its client id and secret in `supabase/.env.hosted`; tell me which Google account becomes the first administrator.
+
 ## Handoff: phase 5 (in progress)
 
 Done: #261 the stop load map (Insights tab, nightly pg_cron count), stacked on #259; #263 add staff by email (ADR 0015), stacked on #261; #265 proximity per stop with desire lines, stacked on #263; #267 overdue trips (badge, End trip, hourly safety net), stacked on #265; #269 notification icon (no more square), stacked on #267; #271 live bus updates on My bus, stacked on #269; #273 Show me on My bus (ADR 0016) and the wide-screen update feed, stacked on #271; #275 terms, privacy, school terms (version 2026-11-11) and landing refreshed, stacked on #273; #277 the same texts in the ops app, stacked on #275; #279 an Invited tab in People; #281 bus updates kept across tabs and Find me; #283 the scanner in two panels on a tablet in landscape; #285 the ops profile and settings (each stacked on the one before); #287 students nearer another stop, stacked on #285; #289 the Insights graph view, stacked on #287; #291 stop suggestions, stacked on #289.
