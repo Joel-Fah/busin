@@ -362,7 +362,7 @@ void main() {
   });
 
   group('who runs a trip', () {
-    Trip trip({String? driver, String? startedBy, TripStatus status = TripStatus.scheduled}) => Trip(
+    Trip trip({String? driver, String? assistant, String? startedBy, TripStatus status = TripStatus.scheduled}) => Trip(
           id: 't',
           schoolId: 's',
           busId: 'b',
@@ -370,6 +370,7 @@ void main() {
           status: status,
           scheduledStart: DateTime.utc(2026, 11, 12, 7),
           driverId: driver,
+          assistantId: assistant,
           startedBy: startedBy,
         );
 
@@ -387,6 +388,31 @@ void main() {
       expect(trip(driver: 'd', startedBy: 'x').sharesPosition('x', isAdmin: false), isFalse);
       expect(trip(startedBy: 'x').sharesPosition('x', isAdmin: false), isTrue);
       expect(trip(startedBy: 'x').sharesPosition('y', isAdmin: false), isFalse);
+    });
+
+    test('the assistant runs the trip and shares the position like the driver (ADR 0019)', () {
+      expect(trip(driver: 'd', assistant: 'a').canRun('a', isAdmin: false), isTrue);
+      expect(trip(driver: 'd', assistant: 'a').canRun('d', isAdmin: false), isTrue);
+      expect(trip(driver: 'd', assistant: 'a').canRun('x', isAdmin: false), isFalse);
+      expect(trip(assistant: 'a').canRun('x', isAdmin: false), isFalse, reason: 'an assistant alone is still a crew');
+      expect(trip(assistant: 'a').canRun('a', isAdmin: false), isTrue);
+      expect(trip(driver: 'd', assistant: 'a').sharesPosition('a', isAdmin: false), isTrue);
+      expect(trip(driver: 'd', assistant: 'a', startedBy: 'x').sharesPosition('x', isAdmin: false), isFalse);
+      expect(trip(assistant: 'a', startedBy: 'x').sharesPosition('x', isAdmin: false), isFalse);
+      expect(trip(driver: 'd', assistant: 'a').isCrew('a'), isTrue);
+      expect(trip(driver: 'd', assistant: 'a').isCrew('x'), isFalse);
+      expect(trip().hasNoCrew, isTrue);
+      expect(trip(assistant: 'a').hasNoCrew, isFalse);
+    });
+
+    test('reads the assistant and the position holder', () {
+      final parsed = Trip.fromJson({
+        'id': 't', 'school_id': 's', 'bus_id': 'b', 'driver_id': 'd', 'assistant_id': 'a', 'direction': 'inbound', 'status': 'scheduled',
+        'scheduled_start': '2026-11-12T07:00:00+00:00', 'started_at': null, 'ended_at': null,
+      });
+      expect(parsed.assistantId, 'a');
+      final holder = PositionHolder.fromJson({'holder_id': 'a', 'holder_name': 'Alex', 'is_me': false, 'seconds_ago': 7});
+      expect(holder, const PositionHolder(holderId: 'a', name: 'Alex', isMe: false, secondsAgo: 7));
     });
 
     test('reads who started it', () {

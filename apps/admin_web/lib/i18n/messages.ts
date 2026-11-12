@@ -854,10 +854,10 @@ export const en = {
   },
   trips: {
     title: 'Trips',
-    subtitle: 'Scheduled bus runs. Drivers start and end them in the ops app.',
+    subtitle: 'Scheduled bus runs. The driver or the assistant starts and ends them in the ops app.',
     help: {
       title: 'How trips work',
-      intro: 'A trip is one run of a bus, going to school or going home, at a set time. Drivers start and end it in the ops app.',
+      intro: 'A trip is one run of a bus, going to school or going home, at a set time. The driver or the assistant starts and ends it in the ops app.',
       scenarios: {
         plan: {
           title: "Planning tomorrow's first run",
@@ -866,6 +866,10 @@ export const en = {
         driver: {
           title: 'The driver changes',
           body: 'Open a trip that has not started and pick another driver. A trip that is running or finished cannot be edited.',
+        },
+        crew: {
+          title: 'An assistant on board',
+          body: 'Choose an assistant next to the driver: a staff member on the bus who can start the trip, scan boarding codes and share the bus position. When both share their position, one phone leads and the other takes over if it goes quiet.',
         },
         running: {
           title: 'Is a trip running?',
@@ -879,8 +883,9 @@ export const en = {
     status: { scheduled: 'Scheduled', active: 'Running', completed: 'Completed', cancelled: 'Cancelled' },
     archivedChip: 'Archived',
     direction: { inbound: 'Going to school', outbound: 'Going home' },
-    columns: { start: 'Start', bus: 'Bus', direction: 'Direction', driver: 'Driver', status: 'Status' },
+    columns: { start: 'Start', bus: 'Bus', direction: 'Direction', driver: 'Driver', assistant: 'Assistant', status: 'Status' },
     noDriver: 'Not assigned',
+    noAssistant: 'None',
     empty: 'No trips match this filter.',
     emptyFiltered: 'Try removing a filter above the table.',
     emptyArchived: 'No archived trips.',
@@ -901,6 +906,9 @@ export const en = {
       driver: 'Driver',
       noDriver: 'Not assigned yet',
       driverHint: 'Staff members whose account is active. You can assign the driver later.',
+      assistant: 'Assistant',
+      noAssistant: 'No assistant',
+      assistantHint: 'Optional. A staff member on the bus who can start the trip, scan boarding codes and share the bus position.',
       direction: 'Direction',
       start: 'Start time',
       startHint: 'Local time of the school ({zone}).',
@@ -946,6 +954,9 @@ export const en = {
       start: 'Enter a valid start date and time.',
       bus_unavailable: 'That bus is not available. Choose a bus that is in service.',
       driver_unavailable: 'That person cannot drive. Choose an active staff member.',
+      assistant: 'Choose an assistant from the list.',
+      crew: 'The driver and the assistant must be two different people.',
+      assistant_unavailable: 'That person cannot be an assistant. Choose an active staff member.',
       not_editable: 'This trip has already started or is over, so it cannot be changed.',
       cannot_cancel: 'Only a trip that has not started can be cancelled.',
       cannot_archive: 'Only a completed or cancelled trip can be archived.',
@@ -1973,10 +1984,10 @@ export const fr: Messages = {
   },
   trips: {
     title: "Trajets",
-    subtitle: "Les trajets de bus planifiés. Les chauffeurs les démarrent et les terminent dans l'application ops.",
+    subtitle: "Les trajets de bus planifiés. Le chauffeur ou l'assistant les démarre et les termine dans l'application ops.",
     help: {
       title: 'Comment fonctionnent les trajets',
-      intro: "Un trajet est un parcours d'un bus, vers l'école ou vers la maison, à une heure donnée. Les chauffeurs le démarrent et le terminent dans l'application des opérations.",
+      intro: "Un trajet est un parcours d'un bus, vers l'école ou vers la maison, à une heure donnée. Le chauffeur ou l'assistant le démarre et le termine dans l'application des opérations.",
       scenarios: {
         plan: {
           title: 'Planifier le premier départ de demain',
@@ -1985,6 +1996,10 @@ export const fr: Messages = {
         driver: {
           title: 'Le chauffeur change',
           body: "Ouvrez un trajet qui n'a pas commencé et choisissez un autre chauffeur. Un trajet en cours ou terminé ne peut pas être modifié.",
+        },
+        crew: {
+          title: 'Un assistant à bord',
+          body: "Choisissez un assistant à côté du chauffeur : un membre du personnel dans le bus qui peut démarrer le trajet, scanner les codes d'embarquement et partager la position du bus. Quand les deux partagent leur position, un téléphone la donne et l'autre prend le relais s'il se tait.",
         },
         running: {
           title: 'Un trajet est-il en cours ?',
@@ -1998,8 +2013,9 @@ export const fr: Messages = {
     status: { scheduled: "Planifié", active: "En cours", completed: "Terminé", cancelled: "Annulé" },
     archivedChip: "Archivé",
     direction: { inbound: "Vers l'école", outbound: "Retour à la maison" },
-    columns: { start: "Départ", bus: "Bus", direction: "Sens", driver: "Chauffeur", status: "Statut" },
+    columns: { start: "Départ", bus: "Bus", direction: "Sens", driver: "Chauffeur", assistant: "Assistant", status: "Statut" },
     noDriver: "Non assigné",
+    noAssistant: "Aucun",
     empty: "Aucun trajet ne correspond à ce filtre.",
     emptyFiltered: "Essayez de retirer un filtre au-dessus du tableau.",
     emptyArchived: "Aucun trajet archivé.",
@@ -2020,6 +2036,9 @@ export const fr: Messages = {
       driver: "Chauffeur",
       noDriver: "Pas encore assigné",
       driverHint: "Les membres du personnel dont le compte est actif. Vous pouvez assigner le chauffeur plus tard.",
+      assistant: "Assistant",
+      noAssistant: "Pas d'assistant",
+      assistantHint: "Facultatif. Un membre du personnel à bord qui peut démarrer le trajet, scanner les codes d'embarquement et partager la position du bus.",
       direction: "Sens",
       start: "Heure de départ",
       startHint: "Heure locale de l'école ({zone}).",
@@ -2065,6 +2084,9 @@ export const fr: Messages = {
       start: "Saisissez une date et une heure de départ valides.",
       bus_unavailable: "Ce bus n'est pas disponible. Choisissez un bus en service.",
       driver_unavailable: "Cette personne ne peut pas conduire. Choisissez un membre du personnel actif.",
+      assistant: "Choisissez un assistant dans la liste.",
+      crew: "Le chauffeur et l'assistant doivent être deux personnes différentes.",
+      assistant_unavailable: "Cette personne ne peut pas être assistant. Choisissez un membre du personnel actif.",
       not_editable: "Ce trajet a déjà démarré ou est terminé, il ne peut donc pas être modifié.",
       cannot_cancel: "Seul un trajet qui n'a pas commencé peut être annulé.",
       cannot_archive: "Seul un trajet terminé ou annulé peut être archivé.",

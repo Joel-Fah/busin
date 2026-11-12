@@ -64,7 +64,7 @@ async function TripDetail({ params, searchParams }: { params: Params; searchPara
   const supabase = await createClient();
   const { data: trip } = await supabase
     .from("trips")
-    .select("id, bus_id, driver_id, direction, status, scheduled_start, archived_at")
+    .select("id, bus_id, driver_id, assistant_id, direction, status, scheduled_start, archived_at")
     .eq("id", id)
     .maybeSingle();
   if (!trip || !isDirection(trip.direction) || !isTripStatus(trip.status)) notFound();
@@ -116,6 +116,7 @@ async function TripDetail({ params, searchParams }: { params: Params; searchPara
             id: trip.id,
             busId: trip.bus_id,
             driverId: trip.driver_id,
+            assistantId: trip.assistant_id,
             direction: trip.direction,
             start: utcToZonedLocal(trip.scheduled_start, admin.schoolTimezone),
           }}

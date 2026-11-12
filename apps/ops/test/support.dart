@@ -29,7 +29,7 @@ Profile staff({String id = 'u1', UserRole role = UserRole.staff, AccountStatus s
 /// 07:00 at the school (Africa/Douala, UTC+1) on 12 November 2026.
 final morning = DateTime.utc(2026, 11, 12, 6);
 
-Trip trip(String id, {String bus = 'b1', String? driver, TripStatus status = TripStatus.scheduled, DateTime? at, String? startedBy}) => Trip(
+Trip trip(String id, {String bus = 'b1', String? driver, String? assistant, TripStatus status = TripStatus.scheduled, DateTime? at, String? startedBy}) => Trip(
       id: id,
       schoolId: schoolId,
       busId: bus,
@@ -37,6 +37,7 @@ Trip trip(String id, {String bus = 'b1', String? driver, TripStatus status = Tri
       status: status,
       scheduledStart: at ?? morning.add(const Duration(minutes: 30)),
       driverId: driver,
+      assistantId: assistant,
       startedBy: startedBy,
     );
 
@@ -105,7 +106,7 @@ class FakeTrips implements TripsRepository {
     started.add(tripId);
     final i = trips.indexWhere((t) => t.id == tripId);
     final t = trips[i];
-    trips[i] = trip(t.id, bus: t.busId, driver: t.driverId, status: TripStatus.active, at: t.scheduledStart, startedBy: 'u1');
+    trips[i] = trip(t.id, bus: t.busId, driver: t.driverId, assistant: t.assistantId, status: TripStatus.active, at: t.scheduledStart, startedBy: 'u1');
   }
 
   @override
@@ -113,7 +114,7 @@ class FakeTrips implements TripsRepository {
     ended.add(tripId);
     final i = trips.indexWhere((t) => t.id == tripId);
     final t = trips[i];
-    trips[i] = trip(t.id, bus: t.busId, driver: t.driverId, status: TripStatus.completed, at: t.scheduledStart, startedBy: t.startedBy);
+    trips[i] = trip(t.id, bus: t.busId, driver: t.driverId, assistant: t.assistantId, status: TripStatus.completed, at: t.scheduledStart, startedBy: t.startedBy);
   }
 
   @override
@@ -220,12 +221,21 @@ class FakeLive implements LivePositionsRepository {
   final List<GeoPoint> sent = [];
   Object? error;
 
+  /// What the server does with a fix: kept, or set aside because another phone leads.
+  bool keep = true;
+
+  /// Who leads right now, as `trip_position_holder` answers.
+  PositionHolder? holder;
+
   @override
   Future<bool> publish({required String tripId, required GeoPoint position, double? speedMps, double? headingDeg, double? accuracyM}) async {
     if (error != null) throw error!;
     sent.add(position);
-    return true;
+    return keep;
   }
+
+  @override
+  Future<PositionHolder?> positionHolder(String tripId) async => holder;
 
   @override
   dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();

@@ -59,6 +59,12 @@ void main() {
       expect(split.others.map((t) => t.id), ['a', 'c']);
     });
 
+    test('a trip is mine when I am its assistant too', () {
+      final split = splitTrips([trip('a', driver: 'u2', assistant: 'u1'), trip('b', driver: 'u2')], 'u1');
+      expect(split.mine.map((t) => t.id), ['a']);
+      expect(split.others.map((t) => t.id), ['b']);
+    });
+
     test('a refused start is explained from what the app knows', () {
       final busy = [trip('a', bus: 'b1', status: TripStatus.active), trip('b', bus: 'b1')];
       expect(startRefusal(trip: busy[1], today: busy, isToday: true), StartRefusal.busBusy);
@@ -159,7 +165,7 @@ void main() {
       await tester.tap(find.text('Bus B1'));
       await settle(tester);
       expect(find.text('Start trip'), findsNothing);
-      expect(find.textContaining('Assigned to another staff member'), findsOneWidget);
+      expect(find.textContaining('Assigned to other staff members'), findsOneWidget);
     });
 
     testWidgets('a bus already on a trip is explained', (tester) async {

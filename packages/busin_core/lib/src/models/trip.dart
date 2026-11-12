@@ -12,6 +12,7 @@ class Trip extends ValueObject {
     required this.status,
     required this.scheduledStart,
     this.driverId,
+    this.assistantId,
     this.startedAt,
     this.endedAt,
     this.startedBy,
@@ -22,6 +23,7 @@ class Trip extends ValueObject {
         schoolId: reqString(json, 'school_id'),
         busId: reqString(json, 'bus_id'),
         driverId: optString(json, 'driver_id'),
+        assistantId: optString(json, 'assistant_id'),
         direction: TripDirection.parse(json['direction']),
         status: TripStatus.parse(json['status']),
         scheduledStart: reqTimestamp(json, 'scheduled_start'),
@@ -34,6 +36,9 @@ class Trip extends ValueObject {
   final String schoolId;
   final String busId;
   final String? driverId;
+
+  /// A second staff member on board (ADR 0019): runs the trip and shares the position like the driver.
+  final String? assistantId;
   final TripDirection direction;
   final TripStatus status;
   final DateTime scheduledStart;
@@ -46,16 +51,22 @@ class Trip extends ValueObject {
   /// Scans are only accepted on an active trip.
   bool get acceptsScans => status == TripStatus.active;
 
-  /// Whether [userId] may start or end this trip, as the server decides (`start_trip`, `end_trip`): the staff member
-  /// assigned to it, anyone on staff when nobody is assigned, and admins always. Ending is also open to whoever
-  /// started it.
-  bool canRun(String userId, {required bool isAdmin}) =>
-      isAdmin || driverId == null || driverId == userId || (status == TripStatus.active && startedBy == userId);
+  /// Nobody is assigned: no driver and no assistant.
+  bool get hasNoCrew => driverId == null && assistantId == null;
 
-  /// Whether [userId] shares this bus's position (`publish_position`): the assignee, or whoever started it when
-  /// nobody is assigned, or an admin.
+  /// Whether [userId] is the driver or the assistant of this trip.
+  bool isCrew(String userId) => driverId == userId || assistantId == userId;
+
+  /// Whether [userId] may start or end this trip, as the server decides (`start_trip`, `end_trip`): the driver or the
+  /// assistant, anyone on staff when nobody is assigned, and admins always. Ending is also open to whoever started it.
+  bool canRun(String userId, {required bool isAdmin}) =>
+      isAdmin || hasNoCrew || isCrew(userId) || (status == TripStatus.active && startedBy == userId);
+
+  /// Whether [userId] may share this bus's position (`publish_position`): the driver or the assistant, or whoever
+  /// started it when nobody is assigned, or an admin. When both crew members share, the server keeps the position of
+  /// one phone at a time (see [PositionHolder]).
   bool sharesPosition(String userId, {required bool isAdmin}) =>
-      isAdmin || driverId == userId || (driverId == null && startedBy == userId);
+      isAdmin || isCrew(userId) || (hasNoCrew && startedBy == userId);
 
   @override
   List<Object?> get props => [
@@ -63,6 +74,7 @@ class Trip extends ValueObject {
         schoolId,
         busId,
         driverId,
+        assistantId,
         direction,
         status,
         scheduledStart,
