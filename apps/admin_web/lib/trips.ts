@@ -30,9 +30,9 @@ export function parseStatusFilter(value: string | string[] | undefined): StatusF
   return STATUS_FILTERS.find((filter) => filter === candidate) ?? "all";
 }
 
-export type TripInput = { busId: string; driverId: string | null; direction: Direction; scheduledStart: string };
+export type TripInput = { busId: string; driverId: string | null; assistantId: string | null; direction: Direction; scheduledStart: string };
 
-export type TripFormError = "bus" | "driver" | "direction" | "start";
+export type TripFormError = "bus" | "driver" | "assistant" | "crew" | "direction" | "start";
 
 /**
  * Validates the trip form fields. `timeZone` is the school's, because the start time is typed as a
@@ -54,18 +54,28 @@ export function parseTripForm(
     driverId = rawDriver;
   }
 
+  // An empty assistant means "none". The assistant is a second person: never the driver.
+  const rawAssistant = form.get("assistant_id");
+  let assistantId: string | null = null;
+  if (typeof rawAssistant === "string" && rawAssistant !== "") {
+    if (!isUuid(rawAssistant)) return { ok: false, error: "assistant" };
+    assistantId = rawAssistant;
+  }
+  if (assistantId !== null && assistantId === driverId) return { ok: false, error: "crew" };
+
   const direction = form.get("direction");
   if (!isDirection(direction)) return { ok: false, error: "direction" };
 
   const start = zonedLocalToUtc(form.get("scheduled_start"), timeZone);
   if (!start) return { ok: false, error: "start" };
 
-  return { ok: true, value: { busId, driverId, direction, scheduledStart: start.toISOString() } };
+  return { ok: true, value: { busId, driverId, assistantId, direction, scheduledStart: start.toISOString() } };
 }
 
 export type TripSaveErrorKey =
   | "bus_unavailable"
   | "driver_unavailable"
+  | "assistant_unavailable"
   | "not_editable"
   | "cannot_cancel"
   | "cannot_archive"
@@ -94,10 +104,13 @@ export type TripFormErrorKey = TripFormError | TripSaveErrorKey;
 const FORM_ERRORS: readonly string[] = [
   "bus",
   "driver",
+  "assistant",
+  "crew",
   "direction",
   "start",
   "bus_unavailable",
   "driver_unavailable",
+  "assistant_unavailable",
   "not_editable",
   "cannot_cancel",
   "cannot_archive",
