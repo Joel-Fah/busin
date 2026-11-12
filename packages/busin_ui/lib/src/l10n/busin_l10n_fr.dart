@@ -1716,4 +1716,189 @@ class BusinL10nFr extends BusinL10n {
   String opsShareStandby(String name) {
     return 'Le téléphone de $name partage la position du bus. Ce téléphone prend le relais tout seul s\'il se tait.';
   }
+
+  @override
+  String get navTrips => 'Trajets';
+
+  @override
+  String get navStats => 'Stats';
+
+  @override
+  String get opsTodayEmptyMine =>
+      'Aucun trajet ne vous est attribué aujourd\'hui.';
+
+  @override
+  String get opsUpcomingTitle => 'À venir';
+
+  @override
+  String get opsUpcomingEmpty =>
+      'Rien d\'autre ne vous est attribué dans les quatre prochaines semaines.';
+
+  @override
+  String get opsWeekThis => 'Cette semaine';
+
+  @override
+  String get opsWeekNext => 'La semaine prochaine';
+
+  @override
+  String get opsWeekLast => 'La semaine dernière';
+
+  @override
+  String opsWeekOf(String date) {
+    return 'Semaine du $date';
+  }
+
+  @override
+  String get opsHistoryTitle => 'Vos trajets';
+
+  @override
+  String get opsHistoryEmpty => 'Vos trajets passés apparaîtront ici.';
+
+  @override
+  String get opsHistoryEnd => 'C\'est tout.';
+
+  @override
+  String get opsRoleDriver => 'Chauffeur';
+
+  @override
+  String get opsRoleAssistant => 'Assistant';
+
+  @override
+  String get opsRoleStarter => 'Lancé par vous';
+
+  @override
+  String opsBoardedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count montés',
+      one: '1 monté',
+      zero: 'Personne n\'est monté',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get opsOnTime => 'À l\'heure';
+
+  @override
+  String opsLateBy(int minutes) {
+    return '$minutes min de retard';
+  }
+
+  @override
+  String get opsNotRun => 'Pas effectué';
+
+  @override
+  String opsDuration(String duration) {
+    return '$duration sur la route';
+  }
+
+  @override
+  String opsMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String opsHoursMinutes(int hours, int minutes) {
+    return '$hours h $minutes min';
+  }
+
+  @override
+  String get opsStatsTitle => 'Vos stats';
+
+  @override
+  String get opsStatsPeriod => '12 dernières semaines';
+
+  @override
+  String get opsStatsEmpty =>
+      'Vos stats apparaissent après vos premiers trajets.';
+
+  @override
+  String get opsStatsTrips => 'Trajets';
+
+  @override
+  String get opsStatsOnTime => 'À l\'heure';
+
+  @override
+  String get opsStatsAvgDelay => 'Retard moyen';
+
+  @override
+  String get opsStatsBoarded => 'Élèves montés';
+
+  @override
+  String get opsStatsOnRoad => 'Sur la route';
+
+  @override
+  String opsStatsPerTrip(String count) {
+    return '$count par trajet';
+  }
+
+  @override
+  String get opsStatsNoData => 'Pas encore';
+
+  @override
+  String get opsStatsTripsChart => 'Trajets par semaine';
+
+  @override
+  String get opsStatsPunctualityChart => 'À l\'heure par semaine';
+
+  @override
+  String get opsStatsBoardedChart => 'Élèves montés par semaine';
+
+  @override
+  String get opsStatsLegendOnTime => 'À l\'heure';
+
+  @override
+  String get opsStatsLegendLate => 'En retard';
+
+  @override
+  String get opsStatsLegendField => 'Lancé sur le terrain';
+
+  @override
+  String get opsStatsLegendNotRun => 'Annulé ou manqué';
+
+  @override
+  String opsStatsTripsSummary(
+    int trips,
+    int onTime,
+    int late,
+    int field,
+    int notRun,
+  ) {
+    return '$trips trajets en 12 semaines : $onTime à l\'heure, $late en retard, $field lancés sur le terrain, $notRun annulés ou manqués.';
+  }
+
+  @override
+  String opsStatsPunctualitySummary(String percent, String best, String worst) {
+    return 'À l\'heure sur 12 semaines : $percent. Meilleure semaine $best, semaine la plus faible $worst.';
+  }
+
+  @override
+  String opsStatsBoardedSummary(int count) {
+    return '$count élèves montés en 12 semaines.';
+  }
+
+  @override
+  String opsStatsRoles(int driver, int assistant) {
+    return 'Comme chauffeur : $driver. Comme assistant : $assistant.';
+  }
+
+  @override
+  String opsStatsBreakdown(int completed, int cancelled, int missed) {
+    return 'Terminés $completed · annulés $cancelled · manqués $missed';
+  }
+
+  @override
+  String get opsStatsPunctualityHint =>
+      'À l\'heure signifie parti au plus 10 minutes après l\'heure prévue. Les trajets lancés sur le terrain n\'ont pas d\'horaire et ne sont pas chronométrés.';
+
+  @override
+  String get opsStatsTrendUp => 'Mieux que les 4 semaines d\'avant';
+
+  @override
+  String get opsStatsTrendDown => 'En dessous des 4 semaines d\'avant';
+
+  @override
+  String get opsStatsTrendSame => 'Stable sur les 8 dernières semaines';
 }

@@ -38,19 +38,18 @@ class OpsProfileScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: Text(l10n.profileTitle)),
       body: SafeArea(
+        bottom: false,
         child: ContentColumn(
           child: ListView(
-            padding: const EdgeInsets.all(BusinSpace.x5),
+            // Room at the bottom for the floating tab bar.
+            padding: EdgeInsets.fromLTRB(BusinSpace.x5, BusinSpace.x5, BusinSpace.x5, BusinSpace.x5 + BusinScope.of(context).bottomInset),
             children: [
               if (profile != null)
                 BusinCard(
                   child: Row(
                     children: [
-                      CircleAvatar(
-                        radius: 26,
-                        backgroundColor: p.surface2,
-                        child: Text(profile.fullName.isEmpty ? '?' : profile.fullName.characters.first.toUpperCase(), style: text.titleLarge),
-                      ),
+                      // The Google picture, or the initials when there is none.
+                      UserAvatar(name: profile.fullName, email: profile.email, imageUrl: profile.avatarUrl, size: 56, semanticLabel: profile.fullName),
                       const SizedBox(width: BusinSpace.x4),
                       Expanded(
                         child: Column(

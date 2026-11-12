@@ -461,6 +461,20 @@ class SupabaseTripsRepository implements TripsRepository {
         final rows = await _client.rpc<List<dynamic>>('trip_manifest', params: {'p_trip_id': tripId});
         return rows.cast<Map<String, dynamic>>().map(ManifestEntry.fromJson).toList(growable: false);
       });
+
+  @override
+  Future<List<TripHistoryEntry>> myHistory({required DateTime before, int limit = 20}) => guarded(() async {
+        if (limit < 1 || limit > 50) throw const Invalid('A page of history holds 1 to 50 trips.');
+        final rows = await _client.rpc<List<dynamic>>('my_trip_history', params: {'p_before': before.toUtc().toIso8601String(), 'p_limit': limit});
+        return rows.cast<Map<String, dynamic>>().map(TripHistoryEntry.fromJson).toList(growable: false);
+      });
+
+  @override
+  Future<List<WeekStats>> myStats({int weeks = 12}) => guarded(() async {
+        if (weeks < 1 || weeks > 26) throw const Invalid('Stats cover 1 to 26 weeks.');
+        final rows = await _client.rpc<List<dynamic>>('my_trip_stats', params: {'p_weeks': weeks});
+        return rows.cast<Map<String, dynamic>>().map(WeekStats.fromJson).toList(growable: false);
+      });
 }
 
 class SupabaseDeviceTokensRepository implements DeviceTokensRepository {
