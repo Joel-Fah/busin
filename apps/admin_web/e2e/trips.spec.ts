@@ -146,6 +146,40 @@ test.describe("administrator managing trips", () => {
     await expect(page.getByRole("alert").filter({ hasText: "The driver and the assistant must be two different people." })).toBeVisible();
   });
 
+  test("a trip started in the field shows a chip, who started it, and can be filtered", async ({ page }) => {
+    const db = serviceClient();
+    const { data: field, error } = await db
+      .from("trips")
+      .insert({
+        school_id: SEED.schoolId,
+        bus_id: busId,
+        driver_id: driver.id,
+        direction: "inbound",
+        status: "completed",
+        scheduled_start: "2090-09-01T06:30:00Z",
+        started_at: "2090-09-01T06:30:00Z",
+        ended_at: "2090-09-01T07:10:00Z",
+        origin: "field",
+        created_by: driver.id,
+      })
+      .select("id")
+      .single();
+    expect(error).toBeNull();
+    try {
+      await page.goto("/trips?source=field");
+      const row = page.getByRole("row").filter({ hasText: `${prefix} RUN` });
+      await expect(row).toHaveCount(1);
+      await expect(row).toContainText("Field");
+      await expect(page.getByRole("row").filter({ hasText: "Not assigned" }).filter({ hasText: "Field" })).toHaveCount(0);
+
+      await page.goto(`/trips/${field!.id}`);
+      await expect(page.getByText("Started in the field").first()).toBeVisible();
+      await expect(page.getByText(new RegExp(`E2E trip-driver-${tag}.* started this trip from the ops app`))).toBeVisible();
+    } finally {
+      await db.from("trips").delete().eq("id", field!.id);
+    }
+  });
+
   test("an out-of-service bus is not offered", async ({ page }) => {
     await page.goto("/trips/new");
     await page.getByRole("combobox", { name: "Bus" }).click();

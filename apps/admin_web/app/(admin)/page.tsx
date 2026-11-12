@@ -102,7 +102,7 @@ async function Overview() {
       supabase.from("semesters").select("name, year, start_date, end_date").lte("start_date", todayIso).gte("end_date", todayIso).order("start_date", { ascending: false }).limit(1),
       supabase
         .from("trips")
-        .select("id, direction, status, scheduled_start, bus_id, driver_id, assistant_id", { count: "exact" })
+        .select("id, direction, status, scheduled_start, bus_id, driver_id, assistant_id, origin", { count: "exact" })
         .is("archived_at", null)
         .gte("scheduled_start", startOfToday.toISOString())
         .lt("scheduled_start", endOfToday.toISOString())
@@ -326,6 +326,7 @@ async function Overview() {
                         </span>
                         <span className="block truncate text-xs text-muted">{[trip.driver_id, trip.assistant_id].filter((id): id is string => id !== null).map(nameOf).join(", ") || t.trips.noDriver}</span>
                       </span>
+                      {trip.origin === "field" ? <Chip tone="accent">{t.trips.fieldShort}</Chip> : null}
                       <Chip tone={tripStatusTone(trip.status)}>{t.trips.status[trip.status]}</Chip>
                     </Link>
                   </li>

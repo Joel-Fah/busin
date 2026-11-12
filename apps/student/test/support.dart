@@ -424,6 +424,12 @@ class FakeHistory implements ScansRepository, TripsRepository {
   Future<List<Scan>> listForTrip(String tripId, {PageRequest page = const PageRequest()}) => throw UnimplementedError();
 
   @override
+  Future<FieldTripOptions> fieldTripOptions() => throw UnimplementedError();
+
+  @override
+  Future<String> startFieldTrip({required String busId, required TripDirection direction, required CrewRole role, String? otherId}) => throw UnimplementedError();
+
+  @override
   Future<List<Trip>> listForCrew(String staffId, {required DateTime from, required DateTime to}) => throw UnimplementedError();
 
   @override

@@ -148,6 +148,7 @@ describe("trip filters", () => {
       bus: BUS,
       direction: "outbound",
       driver: DRIVER,
+      source: null,
       size: 20,
     });
     expect(parseTripFilters({ date: "2026-02-30", bus: "x", direction: "up", driver: "y" })).toEqual({
@@ -156,9 +157,18 @@ describe("trip filters", () => {
       bus: null,
       direction: null,
       driver: null,
+      source: null,
       size: 20,
     });
     expect(parseTripFilters({ driver: NO_DRIVER }).driver).toBe(NO_DRIVER);
+  });
+
+  it("reads the source filter for trips started in the field, and nothing else", () => {
+    expect(parseTripFilters({ source: "field" }).source).toBe("field");
+    expect(parseTripFilters({ source: "scheduled" }).source).toBeNull();
+    expect(parseTripFilters({ source: "x" }).source).toBeNull();
+    expect(tripsHref(parseTripFilters({ source: "field" }))).toContain("source=field");
+    expect(tripsHref(parseTripFilters({}))).not.toContain("source");
   });
 
   it("builds addresses without empty parts", () => {

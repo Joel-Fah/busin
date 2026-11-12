@@ -2821,6 +2821,138 @@ abstract class BusinL10n {
   /// **'The driver or the assistant of this trip shares its position.'**
   String get opsShareNotYours;
 
+  /// No description provided for @opsFieldStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a trip that is not listed'**
+  String get opsFieldStart;
+
+  /// No description provided for @opsFieldTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a trip'**
+  String get opsFieldTitle;
+
+  /// No description provided for @opsFieldBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this when nobody scheduled the trip. It is marked as started in the field, and your school\'s administrators can see it.'**
+  String get opsFieldBody;
+
+  /// No description provided for @opsFieldBus.
+  ///
+  /// In en, this message translates to:
+  /// **'Bus'**
+  String get opsFieldBus;
+
+  /// No description provided for @opsFieldNoBuses.
+  ///
+  /// In en, this message translates to:
+  /// **'No bus is free right now. Buses out of service or already on a trip are not listed.'**
+  String get opsFieldNoBuses;
+
+  /// No description provided for @opsFieldDirection.
+  ///
+  /// In en, this message translates to:
+  /// **'Direction'**
+  String get opsFieldDirection;
+
+  /// No description provided for @opsFieldRole.
+  ///
+  /// In en, this message translates to:
+  /// **'You are'**
+  String get opsFieldRole;
+
+  /// No description provided for @opsFieldRoleDriver.
+  ///
+  /// In en, this message translates to:
+  /// **'The driver'**
+  String get opsFieldRoleDriver;
+
+  /// No description provided for @opsFieldRoleAssistant.
+  ///
+  /// In en, this message translates to:
+  /// **'The assistant'**
+  String get opsFieldRoleAssistant;
+
+  /// No description provided for @opsFieldOtherDriver.
+  ///
+  /// In en, this message translates to:
+  /// **'Who is the driver?'**
+  String get opsFieldOtherDriver;
+
+  /// No description provided for @opsFieldOtherAssistant.
+  ///
+  /// In en, this message translates to:
+  /// **'Who is the assistant?'**
+  String get opsFieldOtherAssistant;
+
+  /// No description provided for @opsFieldOtherNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody yet'**
+  String get opsFieldOtherNone;
+
+  /// No description provided for @opsFieldOtherHint.
+  ///
+  /// In en, this message translates to:
+  /// **'They are added to the trip and told, and can start it, scan and share the position.'**
+  String get opsFieldOtherHint;
+
+  /// No description provided for @opsFieldConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Start the trip'**
+  String get opsFieldConfirm;
+
+  /// No description provided for @opsFieldStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip started. It is marked as started in the field.'**
+  String get opsFieldStarted;
+
+  /// No description provided for @opsFieldBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Started in the field'**
+  String get opsFieldBadge;
+
+  /// No description provided for @opsFieldScheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'A trip for this bus and direction is already scheduled today. Start that one from the list.'**
+  String get opsFieldScheduled;
+
+  /// No description provided for @opsFieldBusBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'This bus is already on a trip.'**
+  String get opsFieldBusBusy;
+
+  /// No description provided for @opsFieldOutOfService.
+  ///
+  /// In en, this message translates to:
+  /// **'This bus is out of service.'**
+  String get opsFieldOutOfService;
+
+  /// No description provided for @opsFieldLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'You have started the most trips allowed today. Ask an administrator to schedule the next.'**
+  String get opsFieldLimit;
+
+  /// No description provided for @opsFieldOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school has turned this off.'**
+  String get opsFieldOff;
+
+  /// No description provided for @opsFieldCrew.
+  ///
+  /// In en, this message translates to:
+  /// **'That colleague cannot be added. Pick someone else.'**
+  String get opsFieldCrew;
+
   /// No description provided for @opsShareStandby.
   ///
   /// In en, this message translates to:
