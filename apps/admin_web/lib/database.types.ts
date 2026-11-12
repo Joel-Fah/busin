@@ -397,14 +397,14 @@ isOneToOne: false
                   ]
                 },"schools": {
                   Row: {
-                    "about": string | null,"accepts_open_signup": boolean,"address": string | null,"campus_location": unknown,"campus_name": string | null,"city": string | null,"contact_email": string | null,"country": string | null,"created_at": string,"id": string,"logo_path": string | null,"name": string,"open_signup_domains": (string)[],"phone": string | null,"public_listing": boolean,"short_name": string | null,"status": string,"terms_accepted_at": string | null,"terms_accepted_by": string | null,"terms_version": string | null,"timezone": string,"website": string | null
+                    "about": string | null,"accepts_open_signup": boolean,"address": string | null,"allow_field_trips": boolean,"campus_location": unknown,"campus_name": string | null,"city": string | null,"contact_email": string | null,"country": string | null,"created_at": string,"id": string,"logo_path": string | null,"name": string,"open_signup_domains": (string)[],"phone": string | null,"public_listing": boolean,"short_name": string | null,"status": string,"terms_accepted_at": string | null,"terms_accepted_by": string | null,"terms_version": string | null,"timezone": string,"website": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "about"?: string | null,"accepts_open_signup"?: boolean,"address"?: string | null,"campus_location"?: unknown,"campus_name"?: string | null,"city"?: string | null,"contact_email"?: string | null,"country"?: string | null,"created_at"?: string,"id"?: string,"logo_path"?: string | null,"name": string,"open_signup_domains"?: (string)[],"phone"?: string | null,"public_listing"?: boolean,"short_name"?: string | null,"status"?: string,"terms_accepted_at"?: string | null,"terms_accepted_by"?: string | null,"terms_version"?: string | null,"timezone"?: string,"website"?: string | null
+                    "about"?: string | null,"accepts_open_signup"?: boolean,"address"?: string | null,"allow_field_trips"?: boolean,"campus_location"?: unknown,"campus_name"?: string | null,"city"?: string | null,"contact_email"?: string | null,"country"?: string | null,"created_at"?: string,"id"?: string,"logo_path"?: string | null,"name": string,"open_signup_domains"?: (string)[],"phone"?: string | null,"public_listing"?: boolean,"short_name"?: string | null,"status"?: string,"terms_accepted_at"?: string | null,"terms_accepted_by"?: string | null,"terms_version"?: string | null,"timezone"?: string,"website"?: string | null
                   }
                   Update: {
-                    "about"?: string | null,"accepts_open_signup"?: boolean,"address"?: string | null,"campus_location"?: unknown,"campus_name"?: string | null,"city"?: string | null,"contact_email"?: string | null,"country"?: string | null,"created_at"?: string,"id"?: string,"logo_path"?: string | null,"name"?: string,"open_signup_domains"?: (string)[],"phone"?: string | null,"public_listing"?: boolean,"short_name"?: string | null,"status"?: string,"terms_accepted_at"?: string | null,"terms_accepted_by"?: string | null,"terms_version"?: string | null,"timezone"?: string,"website"?: string | null
+                    "about"?: string | null,"accepts_open_signup"?: boolean,"address"?: string | null,"allow_field_trips"?: boolean,"campus_location"?: unknown,"campus_name"?: string | null,"city"?: string | null,"contact_email"?: string | null,"country"?: string | null,"created_at"?: string,"id"?: string,"logo_path"?: string | null,"name"?: string,"open_signup_domains"?: (string)[],"phone"?: string | null,"public_listing"?: boolean,"short_name"?: string | null,"status"?: string,"terms_accepted_at"?: string | null,"terms_accepted_by"?: string | null,"terms_version"?: string | null,"timezone"?: string,"website"?: string | null
                   }
                   Relationships: [
                     
@@ -637,14 +637,14 @@ isOneToOne: false
                   ]
                 },"trips": {
                   Row: {
-                    "archived_at": string | null,"assistant_id": string | null,"bus_id": string,"created_at": string,"direction": Database["public"]['Enums']["trip_direction"],"driver_id": string | null,"ended_at": string | null,"id": string,"scheduled_start": string,"school_id": string,"started_at": string | null,"started_by": string | null,"status": Database["public"]['Enums']["trip_status"]
+                    "archived_at": string | null,"assistant_id": string | null,"bus_id": string,"created_at": string,"created_by": string | null,"direction": Database["public"]['Enums']["trip_direction"],"driver_id": string | null,"ended_at": string | null,"id": string,"origin": string,"scheduled_start": string,"school_id": string,"started_at": string | null,"started_by": string | null,"status": Database["public"]['Enums']["trip_status"]
                   }
                   ComputedFields: never
                   Insert: {
-                    "archived_at"?: string | null,"assistant_id"?: string | null,"bus_id": string,"created_at"?: string,"direction": Database["public"]['Enums']["trip_direction"],"driver_id"?: string | null,"ended_at"?: string | null,"id"?: string,"scheduled_start": string,"school_id": string,"started_at"?: string | null,"started_by"?: string | null,"status"?: Database["public"]['Enums']["trip_status"]
+                    "archived_at"?: string | null,"assistant_id"?: string | null,"bus_id": string,"created_at"?: string,"created_by"?: string | null,"direction": Database["public"]['Enums']["trip_direction"],"driver_id"?: string | null,"ended_at"?: string | null,"id"?: string,"origin"?: string,"scheduled_start": string,"school_id": string,"started_at"?: string | null,"started_by"?: string | null,"status"?: Database["public"]['Enums']["trip_status"]
                   }
                   Update: {
-                    "archived_at"?: string | null,"assistant_id"?: string | null,"bus_id"?: string,"created_at"?: string,"direction"?: Database["public"]['Enums']["trip_direction"],"driver_id"?: string | null,"ended_at"?: string | null,"id"?: string,"scheduled_start"?: string,"school_id"?: string,"started_at"?: string | null,"started_by"?: string | null,"status"?: Database["public"]['Enums']["trip_status"]
+                    "archived_at"?: string | null,"assistant_id"?: string | null,"bus_id"?: string,"created_at"?: string,"created_by"?: string | null,"direction"?: Database["public"]['Enums']["trip_direction"],"driver_id"?: string | null,"ended_at"?: string | null,"id"?: string,"origin"?: string,"scheduled_start"?: string,"school_id"?: string,"started_at"?: string | null,"started_by"?: string | null,"status"?: Database["public"]['Enums']["trip_status"]
                   }
                   Relationships: [
                     {
@@ -659,6 +659,12 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "buses"
       referencedColumns: ["id","school_id"]
+    },{
+      foreignKeyName: "trips_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
     },{
       foreignKeyName: "trips_driver_id_school_id_fkey"
       columns: ["driver_id","school_id"]
@@ -748,6 +754,9 @@ isOneToOne: false
 "admin_set_campus":
 { Args: { "p_lat": number,"p_lng": number,"p_name": string }; Returns: undefined
                            },
+"admin_set_field_trips":
+{ Args: { "p_allowed": boolean }; Returns: undefined
+                           },
 "admin_set_school_logo":
 { Args: { "p_path": string }; Returns: undefined
                            },
@@ -808,6 +817,9 @@ isOneToOne: false
                            },
 "end_trip":
 { Args: { "p_trip_id": string }; Returns: undefined
+                           },
+"field_trip_options":
+{ Args: Record<PropertyKey, never>; Returns: Json
                            },
 "get_my_qr_secret":
 { Args: Record<PropertyKey, never>; Returns: string
@@ -906,6 +918,9 @@ isOneToOne: false
 { Args: Record<PropertyKey, never>; Returns: {
               "avatar_url": string,"day": string,"day_key": string,"full_name": string,"matricule": string,"stop_id": string,"student_id": string
             }[]
+                           },
+"start_field_trip":
+{ Args: { "p_bus_id": string,"p_direction": Database["public"]['Enums']["trip_direction"],"p_other_id"?: string,"p_role": string }; Returns: string
                            },
 "start_trip":
 { Args: { "p_trip_id": string }; Returns: undefined
