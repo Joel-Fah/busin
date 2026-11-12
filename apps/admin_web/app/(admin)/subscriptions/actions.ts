@@ -70,7 +70,7 @@ export async function revokeSubscription(_previous: ReasonFormState, formData: F
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("admin_revoke_subscription", { p_subscription_id: id, p_note: checked.value ?? "" });
-  if (error) return { error: reasonProblemFromDb(error.code, error.message) ?? revokeErrorKey(error.code), text };
+  if (error) return { error: reasonProblemFromDb(error.code, error.message) ?? revokeErrorKey(error.code, error.message), text };
 
   revalidatePath("/subscriptions");
   redirect(`/subscriptions/${id}?done=revoked`);

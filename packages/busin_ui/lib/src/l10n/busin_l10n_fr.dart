@@ -1628,6 +1628,13 @@ class BusinL10nFr extends BusinL10n {
       'Le chauffeur ou l\'assistant de ce trajet partage sa position.';
 
   @override
+  String get opsPendingTitle => 'Votre compte attend une validation';
+
+  @override
+  String get opsPendingBody =>
+      'Un administrateur de l\'école doit valider votre compte avant que vous puissiez utiliser BusIn Ops. Demandez-lui, puis rouvrez l\'application.';
+
+  @override
   String get opsFieldStart => 'Démarrer un trajet qui n\'est pas dans la liste';
 
   @override

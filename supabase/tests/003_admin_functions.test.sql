@@ -91,11 +91,11 @@ select throws_ok(
   'P0002', 'Subscription not found', 'admin cannot review another school subscription');
 
 select lives_ok(
-  $$select public.admin_set_user_role('a1000000-0000-4000-8000-000000000002', 'staff')$$,
-  'admin can promote a student to staff');
+  $$select public.admin_set_user_role('a2000000-0000-4000-8000-000000000001', 'admin')$$,
+  'admin can promote staff to administrator');
 select is(
-  (select role::text from public.profiles where id = 'a1000000-0000-4000-8000-000000000002'),
-  'staff', 'the role changed');
+  (select role::text from public.profiles where id = 'a2000000-0000-4000-8000-000000000001'),
+  'admin', 'the role changed');
 select throws_ok(
   $$select public.admin_set_user_role('a3000000-0000-4000-8000-000000000001', 'student')$$,
   '42501', 'You cannot change your own role', 'admin cannot change their own role');

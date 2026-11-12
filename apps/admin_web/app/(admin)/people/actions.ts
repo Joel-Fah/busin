@@ -26,7 +26,7 @@ export async function changeRole(formData: FormData): Promise<void> {
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("admin_set_user_role", { p_user_id: id, p_role: role });
-  if (error) redirect(`/people/${id}?error=${peopleErrorKey(error.code)}`);
+  if (error) redirect(`/people/${id}?error=${peopleErrorKey(error.code, error.message)}`);
 
   revalidatePath("/people");
   redirect(`/people/${id}?done=role`);
@@ -44,7 +44,7 @@ export async function changeStatus(formData: FormData): Promise<void> {
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("admin_set_user_status", { p_user_id: id, p_status: status });
-  if (error) redirect(`/people/${id}?error=${peopleErrorKey(error.code)}`);
+  if (error) redirect(`/people/${id}?error=${peopleErrorKey(error.code, error.message)}`);
 
   revalidatePath("/people");
   redirect(`/people/${id}?done=${status === "suspended" ? "suspended" : "restored"}`);
@@ -63,7 +63,7 @@ export async function verifyMember(formData: FormData): Promise<void> {
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("admin_verify_member", { p_user_id: id });
-  if (error) redirect(back(formData, id, `error=${peopleErrorKey(error.code)}`));
+  if (error) redirect(back(formData, id, `error=${peopleErrorKey(error.code, error.message)}`));
 
   revalidatePath("/people");
   redirect(back(formData, id, "done=verified"));

@@ -1,6 +1,6 @@
 /** Pure helpers for the stops pages. Kept separate so they are unit tested. */
 
-import { isValidLatLng, type LatLng } from "@/lib/geo";
+import { distanceMeters, isValidLatLng, type LatLng } from "@/lib/geo";
 
 export const MAX_STOP_NAME_LENGTH = 120;
 
@@ -34,10 +34,11 @@ export function parseStopForm(form: {
   return { ok: true, value: { name, position: { lat, lng }, active } };
 }
 
-export type StopSaveErrorKey = "name_taken" | "invalid" | "not_found" | "generic";
+export type StopSaveErrorKey = "name_taken" | "too_close" | "invalid" | "not_found" | "generic";
 
-/** Maps a database error code from saving a stop. 23505 is the unique name per school. */
-export function stopSaveErrorKey(code: string | undefined): StopSaveErrorKey {
+/** Maps a database error from saving a stop. 23505 is the unique name per school; 22023 "stop_too_close" is the same place. */
+export function stopSaveErrorKey(code: string | undefined, message?: string): StopSaveErrorKey {
+  if (code === "22023" && message === "stop_too_close") return "too_close";
   switch (code) {
     case "23505":
       return "name_taken";
@@ -77,4 +78,28 @@ export type UsageLabels = { none: string; one: string; many: string; pending: st
 export function describeUsage(students: number, pending: number, labels: UsageLabels): string {
   const main = students === 0 ? labels.none : students === 1 ? labels.one : labels.many.replace("{count}", String(students));
   return pending > 0 ? `${main}, ${labels.pending.replace("{count}", String(pending))}` : main;
+}
+
+/** Closer than this to another stop is the same place: refused (the database refuses it too). */
+export const SAME_PLACE_M = 25;
+/** Closer than this, the administrator is asked whether they are sure. */
+export const CLOSE_M = 200;
+
+type Located = { id: string; name: string; active: boolean; position: LatLng | null };
+
+export type NearbyStop = { stop: { id: string; name: string }; meters: number; kind: "same" | "close" };
+
+/**
+ * The closest other active stop to `position`, when it is within CLOSE_M: "same" under SAME_PLACE_M (refused), "close"
+ * otherwise (ask first). `excludeId` leaves out the stop being edited. Null when nothing is near.
+ */
+export function nearbyStop(position: LatLng, stops: readonly Located[], excludeId?: string | null): NearbyStop | null {
+  let best: { stop: Located; meters: number } | null = null;
+  for (const stop of stops) {
+    if (!stop.active || !stop.position || stop.id === excludeId) continue;
+    const meters = distanceMeters(position, stop.position);
+    if (!best || meters < best.meters) best = { stop, meters };
+  }
+  if (!best || best.meters >= CLOSE_M) return null;
+  return { stop: { id: best.stop.id, name: best.stop.name }, meters: best.meters, kind: best.meters < SAME_PLACE_M ? "same" : "close" };
 }

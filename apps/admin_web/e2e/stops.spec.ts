@@ -180,6 +180,54 @@ test.describe("administrator managing stops", () => {
     await expect(page.locator(PIN)).toHaveCount(1);
   });
 
+  test("a stop close to another asks first, showing the distance, and the same place is refused", async ({ page }) => {
+    // Far from every other test's stops. 0.0009 degree of latitude is about 100 m.
+    const anchor = `${prefix} anchor`;
+    await insertStop(anchor, "SRID=4326;POINT(9.1000000 9.1000000)");
+    // These stops are far from the others and would change how the map frames them in later tests: remove them after.
+    try {
+    await page.goto("/stops");
+    await page.getByRole("button", { name: "Add a stop" }).click();
+    const sheet = page.getByRole("dialog", { name: "Add a stop" });
+    await sheet.getByLabel("Name").fill(`${prefix} near`);
+    await sheet.getByLabel("Latitude").fill("9.1009");
+    await sheet.getByLabel("Longitude").fill("9.1");
+    await sheet.getByRole("button", { name: "Add stop" }).click();
+
+    // Asked first: the name and the distance, and nothing is saved yet.
+    const ask = page.getByRole("dialog", { name: "Another stop is close" });
+    await expect(ask).toBeVisible();
+    await expect(ask).toContainText(anchor);
+    await expect(ask).toContainText(/about 1\d0 m away/);
+    expect(await stopByName(`${prefix} near`)).toBeNull();
+
+    // Back to the map changes nothing.
+    await ask.getByRole("button", { name: "Back to the map" }).click();
+    await expect(ask).toBeHidden();
+    expect(await stopByName(`${prefix} near`)).toBeNull();
+
+    // Adding anyway saves it.
+    await sheet.getByRole("button", { name: "Add stop" }).click();
+    await expect(ask).toBeVisible();
+    await ask.getByRole("button", { name: "Add anyway" }).click();
+    await expect(page.getByRole("status").filter({ hasText: "Stop added." })).toBeVisible();
+    expect(await stopByName(`${prefix} near`)).not.toBeNull();
+
+    // The very same coordinates: refused, with the stop's name, and no question.
+    await page.getByRole("button", { name: "Add a stop" }).click();
+    const again = page.getByRole("dialog", { name: "Add a stop" });
+    await again.getByLabel("Name").fill(`${prefix} twin`);
+    await again.getByLabel("Latitude").fill("9.1");
+    await again.getByLabel("Longitude").fill("9.1");
+    await again.getByRole("button", { name: "Add stop" }).click();
+    await expect(again.getByRole("alert")).toContainText(`${anchor} is already at this place`);
+    await expect(page.getByRole("dialog", { name: "Another stop is close" })).toBeHidden();
+    expect(await stopByName(`${prefix} twin`)).toBeNull();
+    } finally {
+      await serviceClient().from("stops").delete().in("name", [anchor, `${prefix} near`, `${prefix} twin`]);
+    }
+  });
+
   test("an impossible latitude is refused with a clear message", async ({ page }) => {
     await page.goto("/stops");
     await page.getByRole("button", { name: "Add a stop" }).click();

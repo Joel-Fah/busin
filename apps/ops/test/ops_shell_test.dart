@@ -39,6 +39,7 @@ void main() {
     test('students and suspended staff are not', () {
       expect((of(staff(role: UserRole.student)) as OpsBlocked).reason, OpsBlockReason.notStaff);
       expect((of(staff(status: AccountStatus.suspended)) as OpsBlocked).reason, OpsBlockReason.suspended);
+      expect((of(staff(status: AccountStatus.pending)) as OpsBlocked).reason, OpsBlockReason.pending, reason: 'waiting for approval is not suspended');
       expect(of(null, userId: null), isA<OpsSignedOut>());
     });
 

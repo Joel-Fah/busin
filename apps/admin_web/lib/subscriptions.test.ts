@@ -84,6 +84,9 @@ describe("reviewErrorKey", () => {
     expect(reviewErrorKey("55000", "semester_ended")).toBe("semester_ended");
     expect(reviewErrorKey("55000", "Only pending subscriptions can be reviewed")).toBe("already_reviewed");
     expect(reinstateErrorKey("55000", "semester_ended")).toBe("semester_ended");
+    expect(reviewErrorKey("55000", "account_suspended")).toBe("account_suspended");
+    expect(revokeErrorKey("55000", "account_suspended")).toBe("account_suspended");
+    expect(reinstateErrorKey("55000", "account_suspended")).toBe("account_suspended");
   });
 });
 
