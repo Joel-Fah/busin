@@ -22,6 +22,8 @@
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.118.0",
     "@tailwindcss/postcss": "4.3.4",
+    "@vercel/analytics": "2.0.1",
+    "@vercel/speed-insights": "2.1.0",
     "gsap": "3.15.0",
     "mapbox-gl": "3.34.2",
     "maplibre-gl": "^6.16.0",

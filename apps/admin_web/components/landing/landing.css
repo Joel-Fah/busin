@@ -160,17 +160,32 @@ html:has([data-landing]) {
   scale: 1;
 }
 
+/* The step in the middle of the window is the one that speaks. The others are calmer, but never faded: fading text to
+   35% cannot meet the contrast minimum (it needs about 92%), so they keep their full-contrast text, with the heading
+   in the muted colour and the time badge washed out. */
 @media (min-width: 64rem) {
-  .day-step {
-    opacity: 0.35;
-    transition: opacity 0.6s var(--ease-soft);
+  .day-step .day-heading {
+    color: var(--muted);
+    transition: color 0.6s var(--ease-soft);
   }
 
-  .day-story[data-step="0"] [data-day-step="0"],
-  .day-story[data-step="1"] [data-day-step="1"],
-  .day-story[data-step="2"] [data-day-step="2"],
-  .day-story[data-step="3"] [data-day-step="3"] {
-    opacity: 1;
+  .day-step .day-badge {
+    filter: saturate(0.35);
+    transition: filter 0.6s var(--ease-soft);
+  }
+
+  .day-story[data-step="0"] [data-day-step="0"] .day-heading,
+  .day-story[data-step="1"] [data-day-step="1"] .day-heading,
+  .day-story[data-step="2"] [data-day-step="2"] .day-heading,
+  .day-story[data-step="3"] [data-day-step="3"] .day-heading {
+    color: var(--fg);
+  }
+
+  .day-story[data-step="0"] [data-day-step="0"] .day-badge,
+  .day-story[data-step="1"] [data-day-step="1"] .day-badge,
+  .day-story[data-step="2"] [data-day-step="2"] .day-badge,
+  .day-story[data-step="3"] [data-day-step="3"] .day-badge {
+    filter: none;
   }
 }
 

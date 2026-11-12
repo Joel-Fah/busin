@@ -65,11 +65,11 @@ export function DayStory({ copy }: { copy: LandingCopy["day"] }) {
           <li key={step.time} data-day-step={i} className="day-step flex flex-col gap-6 lg:min-h-[78vh] lg:justify-center">
             <div className="flex flex-col gap-3">
               <p className="m-0 flex items-center gap-3 text-sm font-bold text-muted">
-                <span className="rounded-xs bg-accent px-2.5 py-1 font-extrabold tabular-nums text-on-accent">{step.time}</span>
+                <span className="day-badge rounded-xs bg-accent px-2.5 py-1 font-extrabold tabular-nums text-on-accent">{step.time}</span>
                 <span aria-hidden className="h-px w-10 border-t border-dashed border-line" />
                 {i + 1} / {copy.steps.length}
               </p>
-              <h3 className="m-0 text-3xl font-extrabold tracking-tight sm:text-4xl">{step.title}</h3>
+              <h3 className="day-heading m-0 text-3xl font-extrabold tracking-tight sm:text-4xl">{step.title}</h3>
               <p className="m-0 max-w-[30rem] text-pretty text-lg leading-relaxed text-muted">{step.text}</p>
             </div>
             <div className="lg:hidden">
