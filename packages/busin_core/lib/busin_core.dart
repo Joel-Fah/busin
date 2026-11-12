@@ -12,6 +12,7 @@ export 'src/geo_point.dart';
 export 'src/models/academic.dart';
 export 'src/models/bus.dart';
 export 'src/models/joining.dart';
+export 'src/models/field_trip.dart';
 export 'src/models/live_position.dart';
 export 'src/models/position_holder.dart';
 export 'src/models/notification_preferences.dart';

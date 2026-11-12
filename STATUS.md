@@ -31,6 +31,16 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: field trips (2026-11-12)
+
+Done (ADR 0020, three stacked PRs into `dev`: database #333, admin portal #335, ops app and shared models after them): staff can start a trip nobody scheduled from the ops app (bus, direction, driver or assistant, the other crew member optional). The trip runs at once, marked as started in the field and by whom; the portal shows a chip, a Source filter and who started it; the school page has an on/off switch (on by default). Guards on the server: free bus in service, no scheduled twin today, 5 a day per person.
+
+Next: the owner approves running the migration `20261114120000_field_trips` on the hosted project, and merges the three PRs.
+
+Open point (needs the owner): the push to the other crew member is queued by the server (`crew_assigned`) but the ops app has no push registration (only the student app does), so it cannot reach a phone yet. It needs the ops app registered with Firebase (its own Android app and `google-services.json`), the same hosted push credential as the student app, and a small registrar like the student app's. Until then the person sees the trip under Assigned to you when they open the app.
+
+Owner device test (ops app): with no trip scheduled for a bus, open Today, tap Start a trip that is not listed, pick a bus and a direction, choose The assistant, pick a driver, start; the trip opens running with a Started in the field mark and offers sharing; in the portal the trips list shows the Field chip and the Source filter finds it; turn the switch off on the School page and the button disappears after pulling Today down to refresh.
+
 ## Handoff: trip crew (2026-11-12)
 
 Done (ADR 0019, three stacked PRs into `dev`: database #326, admin portal #328, ops app and shared models after them): a trip has a driver and an optional assistant (staff). Either starts and ends it and shares the bus position; with nobody assigned the old rules stand. When both share, one phone leads through a 30 second lease and the other takes over by itself if it goes quiet; students never see who.

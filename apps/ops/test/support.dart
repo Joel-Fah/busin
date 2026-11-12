@@ -93,6 +93,15 @@ class FakeTrips implements TripsRepository {
   Object? startError;
   List<ManifestEntry> boarded = const [];
 
+  /// What the sheet that starts a trip nobody scheduled offers, and what it was asked to start.
+  FieldTripOptions fieldOptions = const FieldTripOptions(
+    allowed: true,
+    buses: [FieldTripBus(id: 'b1', plate: 'B1'), FieldTripBus(id: 'b2', plate: 'B2', name: 'Express')],
+    staff: [StaffOption(id: 'u2', name: 'Dina Driver')],
+  );
+  final List<({String busId, TripDirection direction, CrewRole role, String? otherId})> fieldStarts = [];
+  Object? fieldError;
+
   @override
   Future<List<Trip>> listBetween({required DateTime from, required DateTime to}) async =>
       trips.where((t) => !t.scheduledStart.isBefore(from) && t.scheduledStart.isBefore(to)).toList();
@@ -107,6 +116,31 @@ class FakeTrips implements TripsRepository {
     final i = trips.indexWhere((t) => t.id == tripId);
     final t = trips[i];
     trips[i] = trip(t.id, bus: t.busId, driver: t.driverId, assistant: t.assistantId, status: TripStatus.active, at: t.scheduledStart, startedBy: 'u1');
+  }
+
+  @override
+  Future<FieldTripOptions> fieldTripOptions() async => fieldOptions;
+
+  @override
+  Future<String> startFieldTrip({required String busId, required TripDirection direction, required CrewRole role, String? otherId}) async {
+    if (fieldError != null) throw fieldError!;
+    fieldStarts.add((busId: busId, direction: direction, role: role, otherId: otherId));
+    final id = 'field${fieldStarts.length}';
+    trips.add(Trip(
+      id: id,
+      schoolId: 's1',
+      busId: busId,
+      direction: direction,
+      status: TripStatus.active,
+      scheduledStart: DateTime.now().toUtc(),
+      startedAt: DateTime.now().toUtc(),
+      driverId: role == CrewRole.driver ? 'u1' : otherId,
+      assistantId: role == CrewRole.assistant ? 'u1' : otherId,
+      startedBy: 'u1',
+      origin: 'field',
+      createdBy: 'u1',
+    ));
+    return id;
   }
 
   @override

@@ -1,8 +1,10 @@
+import '../enums.dart';
 import '../models/academic.dart';
 import 'dart:typed_data';
 
 import '../geo_point.dart';
 import '../models/bus.dart';
+import '../models/field_trip.dart';
 import '../models/joining.dart';
 import '../models/position_holder.dart';
 import '../models/live_position.dart';
@@ -199,6 +201,22 @@ abstract interface class TripsRepository {
   /// Starts a scheduled trip of today (ops app). [NotAllowed] when it is assigned to someone else; [Conflict] when
   /// it is not scheduled, not today, or its bus is already on another trip.
   Future<void> start(String tripId);
+
+  /// What the app needs to start a trip nobody scheduled: whether the school allows it, the free buses and the
+  /// colleagues to choose from (staff only).
+  Future<FieldTripOptions> fieldTripOptions();
+
+  /// Starts a trip nobody scheduled (ADR 0020) and returns its id. [role] is what the caller is on it; [otherId] is
+  /// the other crew member, if any. [NotAllowed] when the school has it off or the daily limit is reached (see
+  /// [RepositoryException.reason]: `field_trips_off`, `too_many_field_trips`); [Conflict] when the bus is out of
+  /// service or busy, or a scheduled trip exists today for it (`bus_out_of_service`, `bus_busy`,
+  /// `use_scheduled_trip`); [Invalid] for a crew member who cannot be picked (`invalid_crew`).
+  Future<String> startFieldTrip({
+    required String busId,
+    required TripDirection direction,
+    required CrewRole role,
+    String? otherId,
+  });
 
   /// Ends a running trip (ops app).
   Future<void> end(String tripId);
