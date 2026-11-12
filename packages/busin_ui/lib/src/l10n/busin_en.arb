@@ -166,6 +166,7 @@
   "proofChange": "Change photo",
   "subscribeSubmit": "Send request",
   "subscribeErrorType": "Use a JPEG, PNG or WebP photo.",
+  "subscribeErrorProof": "The payment proof is missing. Add a clear photo of your receipt and send the request again.",
   "subscribeErrorEnded": "This semester has ended. Pull down to refresh and see what is open now.",
   "subscribeErrorTooLarge": "That photo is too large. Pick one under 5 MB.",
   "subscribeErrorExists": "You already have a request for this semester. Pull down to refresh.",

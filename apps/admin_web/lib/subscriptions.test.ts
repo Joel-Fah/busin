@@ -7,7 +7,6 @@ import {
   isUuid,
   pageRange,
   parsePage,
-  parseReason,
   parseStatusFilter,
   reviewErrorKey,
   statusTone,
@@ -62,18 +61,12 @@ describe("pageRange", () => {
   });
 });
 
-describe("parseReason", () => {
-  it("trims and accepts a normal reason", () => {
-    expect(parseReason("  Receipt is unreadable  ")).toBe("Receipt is unreadable");
-  });
-
-  it("refuses empty, blank, non-text and over-long reasons", () => {
-    expect(parseReason("")).toBeNull();
-    expect(parseReason("   ")).toBeNull();
-    expect(parseReason(null)).toBeNull();
-    expect(parseReason(42)).toBeNull();
-    expect(parseReason("x".repeat(MAX_REASON_LENGTH + 1))).toBeNull();
-    expect(parseReason("x".repeat(MAX_REASON_LENGTH))).not.toBeNull();
+describe("the reasons of the review pages", () => {
+  it("are held to the shared rules (10 to 500 characters, tidied)", async () => {
+    const { checkReason } = await import("./reasons");
+    expect(checkReason("  Receipt is   unreadable  ", { required: true, max: MAX_REASON_LENGTH })).toEqual({ ok: true, value: "Receipt is unreadable" });
+    expect(checkReason("", { required: true, max: MAX_REASON_LENGTH })).toEqual({ ok: false, problem: "reason_required" });
+    expect(checkReason("x".repeat(MAX_REASON_LENGTH + 1), { required: true, max: MAX_REASON_LENGTH })).toEqual({ ok: false, problem: "reason_too_long" });
   });
 });
 
@@ -84,6 +77,13 @@ describe("reviewErrorKey", () => {
     expect(reviewErrorKey("P0002")).toBe("not_found");
     expect(reviewErrorKey("XX000")).toBe("generic");
     expect(reviewErrorKey(undefined)).toBe("generic");
+  });
+
+  it("tells the new refusals apart by the database's short message", () => {
+    expect(reviewErrorKey("22023", "proof_required")).toBe("proof_required");
+    expect(reviewErrorKey("55000", "semester_ended")).toBe("semester_ended");
+    expect(reviewErrorKey("55000", "Only pending subscriptions can be reviewed")).toBe("already_reviewed");
+    expect(reinstateErrorKey("55000", "semester_ended")).toBe("semester_ended");
   });
 });
 

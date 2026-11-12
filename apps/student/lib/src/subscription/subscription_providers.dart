@@ -105,7 +105,7 @@ final proofUrlProvider = FutureProvider.autoDispose.family<String, String>(
 );
 
 /// Why a request could not be sent, as the screen explains it.
-enum SubscribeFailure { alreadyRequested, offline, rejectedFile, other }
+enum SubscribeFailure { alreadyRequested, offline, rejectedFile, proofRequired, semesterEnded, other }
 
 /// Uploads the proof, then sends the request. The proof goes first because the request needs its path;
 /// if the request then fails the file stays, unreferenced, in the student's own private folder.
@@ -138,9 +138,13 @@ class SubscriptionService {
 final subscriptionServiceProvider = Provider<SubscriptionService>(SubscriptionService.new);
 
 SubscribeFailure failureFor(Object error) => switch (error) {
+      // The server's own short reasons first (`proof_required`, `proof_missing`, `semester_ended`).
+      Conflict(reason: 'semester_ended') => SubscribeFailure.semesterEnded,
+      Invalid(reason: 'proof_required' || 'proof_missing') => SubscribeFailure.proofRequired,
       Conflict() => SubscribeFailure.alreadyRequested,
       Offline() => SubscribeFailure.offline,
-      Invalid() => SubscribeFailure.rejectedFile,
+      // A file the app itself refused (type, size) has no reason; any other Invalid is not about the file.
+      Invalid(reason: null) => SubscribeFailure.rejectedFile,
       _ => SubscribeFailure.other,
     };
 

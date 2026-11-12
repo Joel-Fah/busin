@@ -50,23 +50,24 @@ export function tabCounts(byStatus: Partial<Record<SubscriptionStatus, number | 
   };
 }
 
-/** Trimmed reason, or null when it is empty or too long. */
-export function parseReason(raw: unknown): string | null {
-  if (typeof raw !== "string") return null;
-  const value = raw.trim();
-  if (value.length === 0 || value.length > MAX_REASON_LENGTH) return null;
-  return value;
-}
+export type ReviewErrorKey =
+  | "already_reviewed"
+  | "invalid"
+  | "not_found"
+  | "not_approved"
+  | "not_revoked"
+  | "live_exists"
+  | "proof_required"
+  | "semester_ended"
+  | "generic";
 
-export type ReviewErrorKey = "already_reviewed" | "invalid" | "not_found" | "not_approved" | "not_revoked" | "live_exists" | "generic";
-
-/** Maps the database error code of `admin_review_subscription` to a message key. */
-export function reviewErrorKey(code: string | undefined): ReviewErrorKey {
+/** Maps the database error of `admin_review_subscription` to a message key. The short messages tell the refusals apart. */
+export function reviewErrorKey(code: string | undefined, message?: string): ReviewErrorKey {
   switch (code) {
     case "55000":
-      return "already_reviewed";
+      return message === "semester_ended" ? "semester_ended" : "already_reviewed";
     case "22023":
-      return "invalid";
+      return message === "proof_required" ? "proof_required" : "invalid";
     case "P0002":
       return "not_found";
     default:
@@ -74,7 +75,7 @@ export function reviewErrorKey(code: string | undefined): ReviewErrorKey {
   }
 }
 
-/** Maps the database error code of `admin_revoke_subscription` to a message key. */
+/** Maps the database error of `admin_revoke_subscription` to a message key. */
 export function revokeErrorKey(code: string | undefined): ReviewErrorKey {
   switch (code) {
     case "55000":
@@ -95,6 +96,7 @@ export function revokeErrorKey(code: string | undefined): ReviewErrorKey {
 export function reinstateErrorKey(code: string | undefined, message?: string): ReviewErrorKey {
   switch (code) {
     case "55000":
+      if (message === "semester_ended") return "semester_ended";
       return message?.includes("already has a live") ? "live_exists" : "not_revoked";
     case "22023":
       return "invalid";
@@ -105,7 +107,17 @@ export function reinstateErrorKey(code: string | undefined, message?: string): R
   }
 }
 
-const REVIEW_ERRORS: readonly string[] = ["already_reviewed", "invalid", "not_found", "not_approved", "not_revoked", "live_exists", "generic"];
+const REVIEW_ERRORS: readonly string[] = [
+  "already_reviewed",
+  "invalid",
+  "not_found",
+  "not_approved",
+  "not_revoked",
+  "live_exists",
+  "proof_required",
+  "semester_ended",
+  "generic",
+];
 
 export function isReviewErrorKey(value: string | undefined): value is ReviewErrorKey {
   return typeof value === "string" && REVIEW_ERRORS.includes(value);

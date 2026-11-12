@@ -133,6 +133,7 @@
   "proofChange": "Changer de photo",
   "subscribeSubmit": "Envoyer la demande",
   "subscribeErrorType": "Utilisez une photo JPEG, PNG ou WebP.",
+  "subscribeErrorProof": "La preuve de paiement est manquante. Ajoutez une photo nette de votre reçu et renvoyez la demande.",
   "subscribeErrorEnded": "Ce semestre est terminé. Tirez vers le bas pour actualiser et voir ce qui est ouvert.",
   "subscribeErrorTooLarge": "Cette photo est trop volumineuse. Choisissez-en une de moins de 5 Mo.",
   "subscribeErrorExists": "Vous avez déjà une demande pour ce semestre. Tirez vers le bas pour actualiser.",

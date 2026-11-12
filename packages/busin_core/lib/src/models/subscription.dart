@@ -95,7 +95,7 @@ class NewSubscription extends ValueObject {
     required this.studentId,
     required this.semesterId,
     required this.stopId,
-    this.proofPath,
+    required this.proofPath,
   });
 
   final String schoolId;
@@ -103,8 +103,9 @@ class NewSubscription extends ValueObject {
   final String semesterId;
   final String stopId;
 
-  /// Must be `<schoolId>/<studentId>/<file>`, as the database requires.
-  final String? proofPath;
+  /// The uploaded proof of payment. Required: the database refuses a request without one that exists in storage.
+  /// Must be `<schoolId>/<studentId>/<file>`.
+  final String proofPath;
 
   /// The proof path the database accepts for this student and a file name.
   static String proofPathFor({
@@ -119,7 +120,7 @@ class NewSubscription extends ValueObject {
         'student_id': studentId,
         'semester_id': semesterId,
         'stop_id': stopId,
-        'proof_path': ?proofPath,
+        'proof_path': proofPath,
       };
 
   @override

@@ -395,6 +395,10 @@ class BusinL10nFr extends BusinL10n {
   String get subscribeErrorType => 'Utilisez une photo JPEG, PNG ou WebP.';
 
   @override
+  String get subscribeErrorProof =>
+      'La preuve de paiement est manquante. Ajoutez une photo nette de votre reçu et renvoyez la demande.';
+
+  @override
   String get subscribeErrorEnded =>
       'Ce semestre est terminé. Tirez vers le bas pour actualiser et voir ce qui est ouvert.';
 

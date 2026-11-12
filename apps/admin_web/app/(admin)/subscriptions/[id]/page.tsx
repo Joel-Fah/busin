@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import Image from "next/image";
 import { Suspense } from "react";
-import { ArrowLeft01Icon, ArrowUpRight01Icon, Cancel01Icon, Comment01Icon, Tick02Icon } from "@hugeicons/core-free-icons";
+import { ArrowLeft01Icon, ArrowUpRight01Icon, Cancel01Icon, Tick02Icon } from "@hugeicons/core-free-icons";
 import Link from "next/link";
 
 import { FlashToast } from "@/components/FlashToast";
+import { ReasonForm } from "@/components/ReasonForm";
 import { StatusSummary } from "@/components/subscriptions/StatusSummary";
 import { Accordion } from "@/components/ui/Accordion";
 import { Avatar } from "@/components/ui/Avatar";
@@ -15,10 +16,10 @@ import { Chip } from "@/components/ui/Chip";
 import { Icon } from "@/components/ui/Icon";
 import { ListSkeleton } from "@/components/ui/ListSkeleton";
 import { Notice } from "@/components/ui/Notice";
-import { Textarea } from "@/components/ui/Textarea";
 
 import { requireAdmin } from "@/lib/auth";
 import { format } from "@/lib/i18n/messages";
+import { REASON_MIN } from "@/lib/reasons";
 import { getMessages } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -33,7 +34,7 @@ import {
   type RequestHistory,
 } from "@/lib/subscriptions";
 
-import { reinstateSubscription, reviewSubscription, revokeSubscription } from "../actions";
+import { approveSubscription, reinstateSubscription, rejectSubscription, revokeSubscription } from "../actions";
 
 export const metadata: Metadata = { title: "Subscription" };
 
@@ -142,6 +143,15 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
   const errorParam = single(query.error);
   const errorKey = isReviewErrorKey(errorParam) ? errorParam : null;
 
+  // Words for the reason forms: the shared labels, and what each problem the server can answer with says.
+  const reasonText = { presetsLabel: t.reasons.presetsLabel, counter: t.reasons.counter, minimum: t.reasons.minimum };
+  const reasonErrors: Record<string, string> = {
+    ...t.subscriptions.errors,
+    reason_required: t.reasons.problems.reason_required,
+    reason_too_short: format(t.reasons.problems.reason_too_short, { min: REASON_MIN }),
+    reason_too_long: format(t.reasons.problems.reason_too_long, { max: MAX_REASON_LENGTH }),
+  };
+
   const dateTime = (value: string) =>
     new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short", timeZone: admin.schoolTimezone }).format(
       new Date(value),
@@ -205,12 +215,15 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
           {row.status === "pending" ? (
             <Card className="flex flex-col gap-5">
               <h2 className="text-xl font-bold">{t.subscriptions.detail.decision}</h2>
-              <form action={reviewSubscription} className="flex flex-col gap-3">
+              <form action={approveSubscription} className="flex flex-col gap-3">
                 <input type="hidden" name="id" value={row.id} />
-                <input type="hidden" name="decision" value="approved" />
-                <p className="text-sm text-muted">{t.subscriptions.detail.approveHint}</p>
+                {row.proof_path ? (
+                  <p className="text-sm text-muted">{t.subscriptions.detail.approveHint}</p>
+                ) : (
+                  <Notice tone="warn">{t.subscriptions.detail.approveNeedsProof}</Notice>
+                )}
                 <div>
-                  <Button type="submit" icon={Tick02Icon}>
+                  <Button type="submit" icon={Tick02Icon} disabled={!row.proof_path}>
                     {t.subscriptions.detail.approve}
                   </Button>
                 </div>
@@ -220,26 +233,16 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
                 <summary className="inline-flex cursor-pointer list-none items-center gap-2 rounded-sm px-4 py-2.5 text-sm font-semibold text-bad transition-colors duration-(--dur-fast) hover:bg-bad-bg focus-visible:outline-3 focus-visible:outline-focus [&::-webkit-details-marker]:hidden">
                   {t.subscriptions.detail.rejectOpen}
                 </summary>
-                <form action={reviewSubscription} className="mt-4 flex flex-col gap-4">
-                  <input type="hidden" name="id" value={row.id} />
-                  <input type="hidden" name="decision" value="rejected" />
-                  <Textarea
-                    id="note"
-                    name="note"
-                    label={t.subscriptions.detail.reasonLabel}
-                    icon={Comment01Icon}
-                    required
-                    maxLength={MAX_REASON_LENGTH}
-                    rows={3}
-                    hint={t.subscriptions.detail.reasonHint}
-                    placeholder={t.subscriptions.detail.reasonPlaceholder}
-                  />
-                  <div>
-                    <Button type="submit" variant="danger" icon={Cancel01Icon}>
-                      {t.subscriptions.detail.rejectConfirm}
-                    </Button>
-                  </div>
-                </form>
+                <ReasonForm
+                  action={rejectSubscription}
+                  hidden={{ id: row.id }}
+                  idPrefix="reject"
+                  text={{ ...reasonText, label: t.subscriptions.detail.reasonLabel, hint: t.subscriptions.detail.reasonHint, placeholder: t.subscriptions.detail.reasonPlaceholder }}
+                  presets={t.subscriptions.reasons.reject}
+                  max={MAX_REASON_LENGTH}
+                  errors={reasonErrors}
+                  submit={{ label: t.subscriptions.detail.rejectConfirm, icon: Cancel01Icon, variant: "danger" }}
+                />
               </details>
             </Card>
           ) : (
@@ -264,26 +267,17 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
                   <summary className="inline-flex cursor-pointer list-none items-center gap-2 rounded-sm px-4 py-2.5 text-sm font-semibold text-bad transition-colors duration-(--dur-fast) hover:bg-bad-bg focus-visible:outline-3 focus-visible:outline-focus [&::-webkit-details-marker]:hidden">
                     {t.subscriptions.detail.revokeOpen}
                   </summary>
-                  <form action={revokeSubscription} className="mt-4 flex flex-col gap-4">
-                    <input type="hidden" name="id" value={row.id} />
-                    <p className="text-sm text-muted">{t.subscriptions.detail.revokeHint}</p>
-                    <Textarea
-                      id="revoke-note"
-                      name="note"
-                      label={t.subscriptions.detail.revokeReasonLabel}
-                      icon={Comment01Icon}
-                      required
-                      maxLength={MAX_REASON_LENGTH}
-                      rows={3}
-                      hint={t.subscriptions.detail.reasonHint}
-                      placeholder={t.subscriptions.detail.reasonPlaceholder}
-                    />
-                    <div>
-                      <Button type="submit" variant="danger" icon={Cancel01Icon}>
-                        {t.subscriptions.detail.revokeConfirm}
-                      </Button>
-                    </div>
-                  </form>
+                  <ReasonForm
+                    action={revokeSubscription}
+                    hidden={{ id: row.id }}
+                    idPrefix="revoke"
+                    intro={<p className="text-sm text-muted">{t.subscriptions.detail.revokeHint}</p>}
+                    text={{ ...reasonText, label: t.subscriptions.detail.revokeReasonLabel, hint: t.subscriptions.detail.reasonHint, placeholder: t.subscriptions.detail.reasonPlaceholder }}
+                    presets={t.subscriptions.reasons.revoke}
+                    max={MAX_REASON_LENGTH}
+                    errors={reasonErrors}
+                    submit={{ label: t.subscriptions.detail.revokeConfirm, icon: Cancel01Icon, variant: "danger" }}
+                  />
                 </details>
               ) : null}
               {row.status === "revoked" && !supersededBy ? (
@@ -291,23 +285,17 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
                   <summary className="inline-flex cursor-pointer list-none items-center gap-2 rounded-sm px-4 py-2.5 text-sm font-semibold text-ok transition-colors duration-(--dur-fast) hover:bg-ok-bg focus-visible:outline-3 focus-visible:outline-focus [&::-webkit-details-marker]:hidden">
                     {t.subscriptions.detail.reinstateOpen}
                   </summary>
-                  <form action={reinstateSubscription} className="mt-4 flex flex-col gap-4">
-                    <input type="hidden" name="id" value={row.id} />
-                    <p className="text-sm text-muted">{t.subscriptions.detail.reinstateHint}</p>
-                    <Textarea
-                      id="reinstate-note"
-                      name="note"
-                      label={t.subscriptions.detail.reinstateNoteLabel}
-                      icon={Comment01Icon}
-                      maxLength={MAX_REASON_LENGTH}
-                      rows={3}
-                    />
-                    <div>
-                      <Button type="submit" icon={Tick02Icon}>
-                        {t.subscriptions.detail.reinstateConfirm}
-                      </Button>
-                    </div>
-                  </form>
+                  <ReasonForm
+                    action={reinstateSubscription}
+                    hidden={{ id: row.id }}
+                    idPrefix="reinstate"
+                    intro={<p className="text-sm text-muted">{t.subscriptions.detail.reinstateHint}</p>}
+                    text={{ ...reasonText, label: t.subscriptions.detail.reinstateNoteLabel, hint: t.subscriptions.detail.reasonHint }}
+                    presets={t.subscriptions.reasons.reinstate}
+                    max={MAX_REASON_LENGTH}
+                    errors={reasonErrors}
+                    submit={{ label: t.subscriptions.detail.reinstateConfirm, icon: Tick02Icon }}
+                  />
                 </details>
               ) : null}
             </Card>

@@ -811,6 +811,12 @@ abstract class BusinL10n {
   /// **'Use a JPEG, PNG or WebP photo.'**
   String get subscribeErrorType;
 
+  /// No description provided for @subscribeErrorProof.
+  ///
+  /// In en, this message translates to:
+  /// **'The payment proof is missing. Add a clear photo of your receipt and send the request again.'**
+  String get subscribeErrorProof;
+
   /// No description provided for @subscribeErrorEnded.
   ///
   /// In en, this message translates to:

@@ -133,7 +133,8 @@ export async function signInBrowser(context: BrowserContext, user: TestUser): Pr
 }
 
 /** Creates a subscription request for a student, as the app would (status starts as pending). */
-export async function createSubscription(studentId: string, stopId: string = SEED.stopId): Promise<string> {
+/** A request for the seed semester. It has a proof path by default, since a request cannot be approved without one. */
+export async function createSubscription(studentId: string, stopId: string = SEED.stopId, withProof = true): Promise<string> {
   const { data, error } = await serviceClient()
     .from("subscriptions")
     .insert({
@@ -141,6 +142,7 @@ export async function createSubscription(studentId: string, stopId: string = SEE
       student_id: studentId,
       semester_id: SEED.semesterId,
       stop_id: stopId,
+      proof_path: withProof ? `${SEED.schoolId}/${studentId}/e2e-proof.jpg` : null,
     })
     .select("id")
     .single();

@@ -23,13 +23,13 @@ insert into public.semesters (id, school_id, name, year, start_date, end_date) v
 insert into public.stops (id, school_id, name, location) values
   ('d1000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', 'Stop A', extensions.st_point(11.5, 3.85)::extensions.geography),
   ('d2000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000002', 'Stop B', extensions.st_point(11.6, 3.86)::extensions.geography);
-insert into public.subscriptions (id, school_id, student_id, semester_id, stop_id) values
+insert into public.subscriptions (id, school_id, student_id, semester_id, stop_id, proof_path) values
   ('11000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001',
-   'a1000000-0000-4000-8000-000000000001', 'c1000000-0000-4000-8000-000000000001', 'd1000000-0000-4000-8000-000000000001'),
+   'a1000000-0000-4000-8000-000000000001', 'c1000000-0000-4000-8000-000000000001', 'd1000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001/a1000000-0000-4000-8000-000000000001/p1.jpg'),
   ('11000000-0000-4000-8000-000000000002', '10000000-0000-4000-8000-000000000001',
-   'a1000000-0000-4000-8000-000000000002', 'c1000000-0000-4000-8000-000000000001', 'd1000000-0000-4000-8000-000000000001'),
+   'a1000000-0000-4000-8000-000000000002', 'c1000000-0000-4000-8000-000000000001', 'd1000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001/a1000000-0000-4000-8000-000000000002/p2.jpg'),
   ('11000000-0000-4000-8000-000000000003', '10000000-0000-4000-8000-000000000002',
-   'b1000000-0000-4000-8000-000000000001', 'c2000000-0000-4000-8000-000000000001', 'd2000000-0000-4000-8000-000000000001');
+   'b1000000-0000-4000-8000-000000000001', 'c2000000-0000-4000-8000-000000000001', 'd2000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000002/b1000000-0000-4000-8000-000000000001/p3.jpg');
 
 -- ---------------------------------------------------------------- student
 set local role authenticated;
@@ -72,11 +72,11 @@ select is(
   (select count(*)::int from public.audit_log where action = 'subscription.approved'),
   1, 'approval is written to the audit log');
 select throws_ok(
-  $$select public.admin_review_subscription('11000000-0000-4000-8000-000000000001', 'rejected', 'late')$$,
+  $$select public.admin_review_subscription('11000000-0000-4000-8000-000000000001', 'rejected', 'Too late to review')$$,
   '55000', 'Only pending subscriptions can be reviewed', 'a reviewed subscription cannot be reviewed again');
 select throws_ok(
   $$select public.admin_review_subscription('11000000-0000-4000-8000-000000000002', 'rejected')$$,
-  '22023', 'A reason is required to reject a subscription', 'rejection needs a reason');
+  '22023', 'reason_required', 'rejection needs a reason');
 select throws_ok(
   $$select public.admin_review_subscription('11000000-0000-4000-8000-000000000002', 'maybe')$$,
   '22023', 'Decision must be approved or rejected', 'unknown decision is rejected');

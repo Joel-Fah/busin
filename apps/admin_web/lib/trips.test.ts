@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { checkReason } from "./reasons";
 import {
   MAX_REASON_LENGTH,
   NO_DRIVER,
@@ -10,7 +11,6 @@ import {
   tripsHref,
   isTripDone,
   isTripFormErrorKey,
-  parseReason,
   parseStatusFilter,
   parseTripForm,
   tripStatusTone,
@@ -139,12 +139,17 @@ describe("cancelling and archiving", () => {
     expect(isTripFormErrorKey("cannot_archive")).toBe(true);
   });
 
-  it("trims the reason, treats nothing as none and refuses one that is too long", () => {
-    expect(parseReason("  in the garage ")).toBe("in the garage");
-    expect(parseReason("   ")).toBeUndefined();
-    expect(parseReason(null)).toBeUndefined();
-    expect(parseReason("x".repeat(MAX_REASON_LENGTH))).toHaveLength(MAX_REASON_LENGTH);
-    expect(parseReason("x".repeat(MAX_REASON_LENGTH + 1))).toBeNull();
+  it("holds the cancel reason to the shared rules: optional, but a real sentence when given, 300 characters at most", () => {
+    expect(checkReason("  the bus is in   the garage ", { required: false, max: MAX_REASON_LENGTH })).toEqual({ ok: true, value: "the bus is in the garage" });
+    expect(checkReason("   ", { required: false, max: MAX_REASON_LENGTH })).toEqual({ ok: true, value: null });
+    expect(checkReason("rain", { required: false, max: MAX_REASON_LENGTH })).toEqual({ ok: false, problem: "reason_too_short" });
+    expect(checkReason("x".repeat(MAX_REASON_LENGTH + 1), { required: false, max: MAX_REASON_LENGTH })).toEqual({ ok: false, problem: "reason_too_long" });
+  });
+
+  it("tells the reason problems apart from the database's short message", () => {
+    expect(tripActionErrorKey("22023", "cancel", "reason_too_short")).toBe("reason_too_short");
+    expect(tripActionErrorKey("22023", "cancel", "reason_too_long")).toBe("reason_too_long");
+    expect(tripActionErrorKey("22023", "cancel", "other")).toBe("invalid");
   });
 
   it("counts archived trips on their own tab, outside the total", () => {

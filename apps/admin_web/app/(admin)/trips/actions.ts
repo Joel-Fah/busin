@@ -5,8 +5,9 @@ import { redirect } from "next/navigation";
 
 import { requireAdmin } from "@/lib/auth";
 import { isUuid } from "@/lib/ids";
+import { checkReason } from "@/lib/reasons";
 import {
-  parseReason,
+  MAX_REASON_LENGTH,
   parseTripForm,
   tripActionErrorKey,
   tripSaveErrorKey,
@@ -142,12 +143,13 @@ export async function cancelTrip(formData: FormData): Promise<void> {
   const id = formData.get("id");
   if (!isUuid(id)) redirect("/trips");
 
-  const reason = parseReason(formData.get("reason"));
-  if (reason === null) redirect(`/trips/${id}?error=invalid`);
+  // Optional, but a real sentence when given (10 to 300 characters, spaces tidied).
+  const reason = checkReason(formData.get("reason"), { required: false, max: MAX_REASON_LENGTH });
+  if (!reason.ok) redirect(`/trips/${id}?error=${reason.problem}`);
 
   const supabase = await createClient();
-  const { error } = await supabase.rpc("admin_cancel_trip", { p_trip_id: id, p_reason: reason });
-  if (error) redirect(`/trips/${id}?error=${tripActionErrorKey(error.code, "cancel")}`);
+  const { error } = await supabase.rpc("admin_cancel_trip", { p_trip_id: id, p_reason: reason.value ?? undefined });
+  if (error) redirect(`/trips/${id}?error=${tripActionErrorKey(error.code, "cancel", error.message)}`);
 
   revalidatePath("/trips");
   redirect(`/trips/${id}?done=cancelled`);
