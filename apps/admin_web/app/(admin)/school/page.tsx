@@ -38,7 +38,7 @@ import { first } from "@/lib/pagination";
 import { SCHOOL_LIMITS, SCHOOL_TERMS_VERSION, logoUrl, type SchoolSaveError } from "@/lib/school";
 import { createClient } from "@/lib/supabase/server";
 
-import { acceptSchoolTerms, removeSchoolLogo, saveSchoolProfile, uploadSchoolLogo } from "./actions";
+import { acceptSchoolTerms, removeSchoolLogo, saveFieldTrips, saveSchoolProfile, uploadSchoolLogo } from "./actions";
 
 export const metadata: Metadata = { title: "School profile" };
 
@@ -71,7 +71,7 @@ async function School({ searchParams }: { searchParams: SearchParams }) {
   const [{ data: school }, { data: domains }] = await Promise.all([
     supabase
       .from("schools")
-      .select("name, short_name, website, contact_email, phone, address, city, country, about, logo_path, accepts_open_signup, open_signup_domains, public_listing, terms_version, terms_accepted_at")
+      .select("name, short_name, website, contact_email, phone, address, city, country, about, logo_path, accepts_open_signup, open_signup_domains, public_listing, allow_field_trips, terms_version, terms_accepted_at")
       .eq("id", admin.schoolId)
       .maybeSingle(),
     supabase.from("school_domains").select("domain").eq("school_id", admin.schoolId).order("domain").limit(20),
@@ -90,7 +90,7 @@ async function School({ searchParams }: { searchParams: SearchParams }) {
       <BackLink href="/profile">{s.back}</BackLink>
       <PageHeader title={s.title} subtitle={s.subtitle} />
 
-      {done === "saved" ? <FlashToast message={s.saved} /> : done === "terms" ? <FlashToast message={s.terms.done} /> : null}
+      {done === "saved" ? <FlashToast message={s.saved} /> : done === "terms" ? <FlashToast message={s.terms.done} /> : done === "field_trips" ? <FlashToast message={s.fieldTrips.done} /> : null}
       {error ? <Notice tone="bad">{s.errors[error]}</Notice> : null}
 
       <Card className="flex flex-col gap-4">
@@ -177,6 +177,18 @@ async function School({ searchParams }: { searchParams: SearchParams }) {
         <div>
           <Button type="submit">{s.save}</Button>
         </div>
+      </form>
+
+      <form action={saveFieldTrips}>
+        <Card className="flex flex-col gap-4">
+          <h2 className="text-xl font-bold">{s.fieldTrips.title}</h2>
+          <Switch name="allow_field_trips" label={s.fieldTrips.label} hint={s.fieldTrips.hint} defaultChecked={school.allow_field_trips} />
+          <div>
+            <Button type="submit" variant="secondary">
+              {s.fieldTrips.save}
+            </Button>
+          </div>
+        </Card>
       </form>
 
       <Card className="flex flex-col gap-4">

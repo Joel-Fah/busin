@@ -22,6 +22,25 @@ final todayBusesProvider = FutureProvider.autoDispose<Map<String, Bus>>((ref) as
   return {for (final bus in buses) bus.id: bus};
 }, retry: noAutomaticRetry);
 
+/// What the sheet that starts a trip nobody scheduled offers (ADR 0020). The Today screen shows its button only when the
+/// school allows it.
+final fieldTripOptionsProvider = FutureProvider.autoDispose<FieldTripOptions>(
+  (ref) => ref.watch(tripsRepositoryProvider).fieldTripOptions(),
+  retry: noAutomaticRetry,
+);
+
+/// The trip just started in the field: its screen offers sharing the position when it opens, as starting a listed trip
+/// does.
+class ShareOffer extends Notifier<String?> {
+  @override
+  String? build() => null;
+
+  void offer(String tripId) => state = tripId;
+  void clear() => state = null;
+}
+
+final shareOfferProvider = NotifierProvider<ShareOffer, String?>(ShareOffer.new);
+
 /// One trip, fresh from the server.
 final tripProvider = FutureProvider.autoDispose.family<Trip, String>((ref, id) => ref.watch(tripsRepositoryProvider).getTrip(id), retry: noAutomaticRetry);
 

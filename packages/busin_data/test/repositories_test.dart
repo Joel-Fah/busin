@@ -387,6 +387,50 @@ void main() {
       expect(body['p_speed_mps'], 6);
     });
 
+    test('reads the choices for starting a trip nobody scheduled', () async {
+      final h = Harness((_) async => json({
+            'allowed': true,
+            'buses': [
+              {'id': _id, 'plate': 'A-1', 'name': null},
+            ],
+            'staff': [
+              {'id': _other, 'name': 'Dina'},
+            ],
+          }));
+      final options = await h.repos.trips.fieldTripOptions();
+      expect(options.allowed, isTrue);
+      expect(options.buses.single.plate, 'A-1');
+      expect(options.staff.single.name, 'Dina');
+      expect(h.last.url.path, '/rest/v1/rpc/field_trip_options');
+    });
+
+    test('starts a trip nobody scheduled and returns its id', () async {
+      final h = Harness((_) async => json(_other));
+      final id = await h.repos.trips.startFieldTrip(busId: _id, direction: TripDirection.outbound, role: CrewRole.assistant, otherId: _other);
+      expect(id, _other);
+      final body = jsonDecode(h.last.body) as Map<String, dynamic>;
+      expect(h.last.url.path, '/rest/v1/rpc/start_field_trip');
+      expect(body, {'p_bus_id': _id, 'p_direction': 'outbound', 'p_role': 'assistant', 'p_other_id': _other});
+    });
+
+    test('says why a field trip was refused, from the short code the function raised', () async {
+      Future<RepositoryException> refused(String code, String message) async {
+        final h = Harness((_) async => json({'code': code, 'message': message}, status: 400));
+        try {
+          await h.repos.trips.startFieldTrip(busId: _id, direction: TripDirection.inbound, role: CrewRole.driver);
+        } on RepositoryException catch (e) {
+          return e;
+        }
+        fail('expected a refusal');
+      }
+
+      expect(await refused('55000', 'use_scheduled_trip'), isA<Conflict>().having((e) => e.reason, 'reason', 'use_scheduled_trip'));
+      expect(await refused('PT429', 'too_many_field_trips'), isA<NotAllowed>().having((e) => e.reason, 'reason', 'too_many_field_trips'));
+      expect(await refused('42501', 'field_trips_off'), isA<NotAllowed>().having((e) => e.reason, 'reason', 'field_trips_off'));
+      // A sentence, or anything with row contents, is never passed on as a reason.
+      expect(await refused('55000', 'Trip 7 of Ada is busy'), isA<Conflict>().having((e) => e.reason, 'reason', isNull));
+    });
+
     test('asks whose phone leads the position, and reads no row as nobody', () async {
       final h = Harness((_) async => json([
             {'holder_id': _other, 'holder_name': 'Alex', 'is_me': false, 'seconds_ago': 6},

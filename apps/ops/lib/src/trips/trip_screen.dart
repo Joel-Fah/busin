@@ -28,6 +28,27 @@ class TripScreen extends ConsumerStatefulWidget {
 class _TripScreenState extends ConsumerState<TripScreen> {
   bool _busy = false;
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _offerShareIfJustStarted());
+  }
+
+  /// A trip just started in the field opens here; whoever shares its position is offered to start sharing right away,
+  /// as after starting a listed trip.
+  Future<void> _offerShareIfJustStarted() async {
+    if (ref.read(shareOfferProvider) != widget.tripId) return;
+    ref.read(shareOfferProvider.notifier).clear();
+    final me = staffOf(ref.read(accessProvider));
+    try {
+      final trip = await ref.read(tripProvider(widget.tripId).future);
+      if (!mounted || me == null || !trip.sharesPosition(me.userId, isAdmin: false) || !ref.read(opsSettingsProvider).offerShare) return;
+      await _share(true);
+    } catch (_) {
+      // The screen shows its own error and a retry.
+    }
+  }
+
   void _reload() {
     ref.invalidate(tripProvider(widget.tripId));
     ref.invalidate(manifestProvider(widget.tripId));
@@ -158,6 +179,10 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                               StatusChip(label: l10n.tripStatus(trip.status), tone: tripTone(trip.status)),
                             ],
                           ),
+                          if (trip.startedInField) ...[
+                            const SizedBox(height: BusinSpace.x2),
+                            Align(alignment: Alignment.centerLeft, child: StatusChip(label: l10n.opsFieldBadge, tone: StatusTone.info)),
+                          ],
                           const SizedBox(height: BusinSpace.x2),
                           Text(
                             l10n.opsDeparts(MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(time))),

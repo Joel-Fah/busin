@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'busin_l10n.dart';
 
 // ignore_for_file: type=lint
@@ -1494,8 +1495,7 @@ class BusinL10nEn extends BusinL10n {
       locale: localeName,
       other:
           '$count scans are still waiting to send. Connect to the internet first, then sign out.',
-      one:
-          '1 scan is still waiting to send. Connect to the internet first, then sign out.',
+      one: '1 scan is still waiting to send. Connect to the internet first, then sign out.',
     );
     return '$_temp0';
   }
@@ -1587,6 +1587,79 @@ class BusinL10nEn extends BusinL10n {
   @override
   String get opsShareNotYours =>
       'The driver or the assistant of this trip shares its position.';
+
+  @override
+  String get opsFieldStart => 'Start a trip that is not listed';
+
+  @override
+  String get opsFieldTitle => 'Start a trip';
+
+  @override
+  String get opsFieldBody =>
+      'Use this when nobody scheduled the trip. It is marked as started in the field, and your school\'s administrators can see it.';
+
+  @override
+  String get opsFieldBus => 'Bus';
+
+  @override
+  String get opsFieldNoBuses =>
+      'No bus is free right now. Buses out of service or already on a trip are not listed.';
+
+  @override
+  String get opsFieldDirection => 'Direction';
+
+  @override
+  String get opsFieldRole => 'You are';
+
+  @override
+  String get opsFieldRoleDriver => 'The driver';
+
+  @override
+  String get opsFieldRoleAssistant => 'The assistant';
+
+  @override
+  String get opsFieldOtherDriver => 'Who is the driver?';
+
+  @override
+  String get opsFieldOtherAssistant => 'Who is the assistant?';
+
+  @override
+  String get opsFieldOtherNone => 'Nobody yet';
+
+  @override
+  String get opsFieldOtherHint =>
+      'They are added to the trip and told, and can start it, scan and share the position.';
+
+  @override
+  String get opsFieldConfirm => 'Start the trip';
+
+  @override
+  String get opsFieldStarted =>
+      'Trip started. It is marked as started in the field.';
+
+  @override
+  String get opsFieldBadge => 'Started in the field';
+
+  @override
+  String get opsFieldScheduled =>
+      'A trip for this bus and direction is already scheduled today. Start that one from the list.';
+
+  @override
+  String get opsFieldBusBusy => 'This bus is already on a trip.';
+
+  @override
+  String get opsFieldOutOfService => 'This bus is out of service.';
+
+  @override
+  String get opsFieldLimit =>
+      'You have started the most trips allowed today. Ask an administrator to schedule the next.';
+
+  @override
+  String get opsFieldOff => 'Your school has turned this off.';
+
+  @override
+  String get opsFieldCrew =>
+      'That colleague cannot be added. Pick someone else.';
 
   @override
   String opsShareStandby(String name) {

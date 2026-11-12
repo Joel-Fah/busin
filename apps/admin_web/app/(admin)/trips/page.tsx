@@ -76,7 +76,7 @@ async function TripsList({ searchParams }: { searchParams: SearchParams }) {
   let request = narrow(
     supabase
       .from("trips")
-      .select("id, bus_id, driver_id, assistant_id, direction, status, scheduled_start", { count: "exact" })
+      .select("id, bus_id, driver_id, assistant_id, direction, status, scheduled_start, origin", { count: "exact" })
       .order("scheduled_start", { ascending: false })
       .range(from, to),
   );
@@ -134,6 +134,7 @@ async function TripsList({ searchParams }: { searchParams: SearchParams }) {
     ...(filters.bus ? [{ label: t.trips.columns.bus, value: plateOf.get(filters.bus) ?? "-", href: without({ bus: null }) }] : []),
     ...(filters.direction ? [{ label: t.trips.columns.direction, value: t.trips.direction[filters.direction], href: without({ direction: null }) }] : []),
     ...(driverLabel ? [{ label: t.trips.columns.driver, value: driverLabel, href: without({ driver: null }) }] : []),
+    ...(filters.source === "field" ? [{ label: t.trips.columns.status, value: t.trips.fieldChip, href: without({ source: null }) }] : []),
   ];
   const anyFilter = chips.length > 0;
 
@@ -171,7 +172,7 @@ async function TripsList({ searchParams }: { searchParams: SearchParams }) {
 
       <FilterChips
         chips={chips}
-        clearAllHref={without({ date: null, bus: null, direction: null, driver: null })}
+        clearAllHref={without({ date: null, bus: null, direction: null, driver: null, source: null })}
         {...chipText(t)}
       />
 
@@ -233,7 +234,16 @@ async function TripsList({ searchParams }: { searchParams: SearchParams }) {
                   />
                 </Th>
                 <Th>{t.trips.columns.assistant}</Th>
-                <Th>{t.trips.columns.status}</Th>
+                <Th>
+                  <ColumnFilter
+                    label={t.trips.columns.status}
+                    value={filters.source ?? null}
+                    clearHref={without({ source: null })}
+                    allLabel={cf.allSources}
+                    options={[{ value: "field", label: t.trips.fieldChip, href: without({ source: "field" }) }]}
+                    {...text}
+                  />
+                </Th>
               </Head>
               <tbody>
                 {rows.map((row) => (
@@ -250,6 +260,7 @@ async function TripsList({ searchParams }: { searchParams: SearchParams }) {
                     <Td>
                       <span className="flex flex-wrap items-center gap-1.5">
                         {isTripStatus(row.status) ? <Chip tone={tripStatusTone(row.status)}>{t.trips.status[row.status]}</Chip> : null}
+                        {row.origin === "field" ? <Chip tone="accent">{t.trips.fieldShort}</Chip> : null}
                         {overdue.has(row.id) ? <Chip tone="warn" icon={Alert02Icon}>{t.trips.overdue.chip}</Chip> : null}
                       </span>
                     </Td>

@@ -415,6 +415,33 @@ void main() {
       expect(holder, const PositionHolder(holderId: 'a', name: 'Alex', isMe: false, secondsAgo: 7));
     });
 
+    test('reads a trip started in the field, and the choices for starting one (ADR 0020)', () {
+      final field = Trip.fromJson({
+        'id': 't', 'school_id': 's', 'bus_id': 'b', 'driver_id': 'd', 'assistant_id': null, 'direction': 'outbound', 'status': 'active',
+        'scheduled_start': '2026-11-12T07:00:00+00:00', 'started_at': '2026-11-12T07:00:00+00:00', 'ended_at': null,
+        'origin': 'field', 'created_by': 'd',
+      });
+      expect(field.startedInField, isTrue);
+      expect(field.createdBy, 'd');
+      expect(trip().startedInField, isFalse, reason: 'a trip without an origin was scheduled');
+
+      final options = FieldTripOptions.fromJson({
+        'allowed': true,
+        'buses': [
+          {'id': 'b1', 'plate': 'A-1', 'name': null},
+          {'id': 'b2', 'plate': 'A-2', 'name': 'Express'},
+        ],
+        'staff': [
+          {'id': 'u2', 'name': 'Dina'},
+        ],
+      });
+      expect(options.allowed, isTrue);
+      expect(options.buses.map((b) => b.label), ['A-1', 'Express']);
+      expect(options.staff.single.name, 'Dina');
+      expect(FieldTripOptions.fromJson({'allowed': false, 'buses': <Object>[], 'staff': <Object>[]}).allowed, isFalse);
+      expect(CrewRole.assistant.wire, 'assistant');
+    });
+
     test('reads who started it', () {
       final parsed = Trip.fromJson({
         'id': 't', 'school_id': 's', 'bus_id': 'b', 'driver_id': null, 'direction': 'inbound', 'status': 'active',

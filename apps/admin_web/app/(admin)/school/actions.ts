@@ -36,6 +36,16 @@ export async function saveSchoolProfile(formData: FormData): Promise<void> {
   redirect("/school?done=saved");
 }
 
+/** Turns on or off that staff can start a trip from the ops app when none was scheduled (ADR 0020). */
+export async function saveFieldTrips(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("admin_set_field_trips", { p_allowed: formData.get("allow_field_trips") === "on" });
+  if (error) redirect("/school?error=generic");
+  revalidatePath("/school");
+  redirect("/school?done=field_trips");
+}
+
 /** The school accepts the current version of the terms for schools. */
 export async function acceptSchoolTerms(): Promise<void> {
   await requireAdmin();
