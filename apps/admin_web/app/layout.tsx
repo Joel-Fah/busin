@@ -5,11 +5,15 @@ import { ScrollbarFade } from "@/components/ScrollbarFade";
 import { ToastProvider } from "@/components/ui/Toast";
 import { TooltipLayer } from "@/components/ui/TooltipLayer";
 import { introInitScript } from "@/lib/intro";
+import { siteUrl } from "@/lib/landing/site";
 import { themeInitScript } from "@/lib/theme";
 
 import "./tailwind.css";
 
 export const metadata: Metadata = {
+  // Relative addresses (canonical links, share images) resolve against the public address of the site.
+  metadataBase: new URL(siteUrl()),
+  applicationName: "BusIn",
   title: { default: "BusIn admin", template: "%s | BusIn admin" },
   description: "Administration portal for BusIn campus bus management.",
   robots: { index: false, follow: false },

@@ -20,7 +20,16 @@ export const instant = false;
 export async function generateMetadata(): Promise<Metadata> {
   const { locale } = await getMessages();
   const copy = landingCatalogues[locale].credits;
-  return { metadataBase: new URL(siteUrl()), title: { absolute: `${copy.title}: BusIn` }, description: copy.meta, alternates: { canonical: "/credits" }, robots: { index: true, follow: true } };
+  const title = `${copy.title}: BusIn`;
+  return {
+    metadataBase: new URL(siteUrl()),
+    title: { absolute: title },
+    description: copy.meta,
+    alternates: { canonical: "/credits" },
+    robots: { index: true, follow: true },
+    openGraph: { title, description: copy.meta, type: "website", url: "/credits", siteName: "BusIn", locale: locale === "fr" ? "fr_FR" : "en_US" },
+    twitter: { card: "summary", title, description: copy.meta },
+  };
 }
 
 export default function CreditsPage() {
