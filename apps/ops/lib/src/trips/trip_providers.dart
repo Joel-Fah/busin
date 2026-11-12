@@ -38,10 +38,10 @@ final manifestProvider = FutureProvider.autoDispose.family<List<ManifestEntry>, 
   retry: noAutomaticRetry,
 );
 
-/// Today's trips split for the list: the ones assigned to me first, then the others.
+/// Today's trips split for the list: the ones I am on the crew of (driver or assistant) first, then the others.
 ({List<Trip> mine, List<Trip> others}) splitTrips(List<Trip> trips, String userId) => (
-      mine: [for (final t in trips) if (t.driverId == userId) t],
-      others: [for (final t in trips) if (t.driverId != userId) t],
+      mine: [for (final t in trips) if (t.isCrew(userId)) t],
+      others: [for (final t in trips) if (!t.isCrew(userId)) t],
     );
 
 /// Why starting a trip was refused, worked out from what the app knows (the server says only "conflict").

@@ -109,7 +109,7 @@ void main() {
       expect(query['offset'], '20');
     });
 
-    test('a driver\'s trips are limited to a window and to that driver', () async {
+    test('a crew member\'s trips are limited to a window and to the trips they drive or assist', () async {
       final h = Harness((_) async => json([
             {
               'id': _id,
@@ -123,7 +123,7 @@ void main() {
               'ended_at': null,
             },
           ]));
-      final trips = await h.repos.trips.listForDriver(
+      final trips = await h.repos.trips.listForCrew(
         _id,
         from: DateTime.utc(2026, 11, 5),
         to: DateTime.utc(2026, 11, 6),
@@ -131,7 +131,7 @@ void main() {
 
       expect(trips.single.direction, TripDirection.inbound);
       final query = h.last.url.queryParameters;
-      expect(query['driver_id'], 'eq.$_id');
+      expect(query['or'], '(driver_id.eq.$_id,assistant_id.eq.$_id)');
       expect(query['scheduled_start'], contains('2026-11-06'));
       expect(query['limit'], '100');
     });
@@ -385,6 +385,20 @@ void main() {
       expect(h.last.url.path, '/rest/v1/rpc/publish_position');
       expect(body['p_lat'], 3.85);
       expect(body['p_speed_mps'], 6);
+    });
+
+    test('asks whose phone leads the position, and reads no row as nobody', () async {
+      final h = Harness((_) async => json([
+            {'holder_id': _other, 'holder_name': 'Alex', 'is_me': false, 'seconds_ago': 6},
+          ]));
+      final holder = await h.repos.livePositions.positionHolder(_id);
+      expect(holder?.name, 'Alex');
+      expect(holder?.isMe, isFalse);
+      expect(h.last.url.path, '/rest/v1/rpc/trip_position_holder');
+      expect((jsonDecode(h.last.body) as Map<String, dynamic>)['p_trip_id'], _id);
+
+      final nobody = Harness((_) async => json(<Object>[]));
+      expect(await nobody.repos.livePositions.positionHolder(_id), isNull);
     });
   });
 

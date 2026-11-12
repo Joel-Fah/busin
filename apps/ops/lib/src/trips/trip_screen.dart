@@ -262,9 +262,12 @@ class _ShareCard extends ConsumerWidget {
     final text = Theme.of(context).textTheme;
     final drive = ref.watch(driverModeProvider(tripId));
     final last = drive.lastSentAt;
+    final standbyFor = drive.standbyFor;
     final status = switch (drive.status) {
       ShareStatus.stopped => l10n.opsShareOff,
       ShareStatus.waiting => l10n.opsShareWaiting,
+      // Another crew member's phone leads: this one keeps sending and takes over by itself if the leader goes quiet.
+      ShareStatus.sharing when standbyFor != null => l10n.opsShareStandby(standbyFor),
       ShareStatus.sharing when last == null => l10n.opsShareStarting,
       ShareStatus.sharing => l10n.opsShareLast(
           MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(const SchoolClock().wallClock(zone, last!))),
