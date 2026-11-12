@@ -103,11 +103,23 @@ class TodayScreen extends ConsumerWidget {
                   return ListView(children: [EmptyState(illustration: BusinIllustration.busStop, title: l10n.opsTodayEmpty)]);
                 }
                 final split = splitTrips(list, me.userId);
+                final since = ref.watch(offlineSinceProvider);
                 return ListView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   // Room under the last card for the button that starts a trip nobody scheduled.
                   padding: const EdgeInsets.fromLTRB(BusinSpace.x5, BusinSpace.x2, BusinSpace.x5, 96),
                   children: [
+                    // Without a connection the list is the copy saved on the phone; scanning still works.
+                    if (since != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: BusinSpace.x3),
+                        child: Notice(
+                          tone: StatusTone.warn,
+                          icon: HugeIcons.strokeRoundedWifiDisconnected01,
+                          title: l10n.offlineTitle,
+                          child: Text(l10n.opsOfflineBody(savedWhen(context, since))),
+                        ),
+                      ),
                     if (split.mine.isNotEmpty) section(l10n.opsTodayMine, split.mine),
                     if (split.others.isNotEmpty) section(l10n.opsTodayOthers, split.others),
                   ],
@@ -161,4 +173,11 @@ class TripCard extends StatelessWidget {
       ),
     );
   }
+}
+
+/// "12 Nov 2026, 06:05": when the saved copy was made, in the phone's own clock and language.
+String savedWhen(BuildContext context, DateTime savedAt) {
+  final material = MaterialLocalizations.of(context);
+  final local = savedAt.toLocal();
+  return '${material.formatMediumDate(local)}, ${material.formatTimeOfDay(TimeOfDay.fromDateTime(local), alwaysUse24HourFormat: MediaQuery.alwaysUse24HourFormatOf(context))}';
 }

@@ -1379,6 +1379,11 @@ class BusinL10nFr extends BusinL10n {
   String get opsTodayEmpty => 'Aucun trajet n\'est prévu aujourd\'hui.';
 
   @override
+  String opsOfflineBody(String when) {
+    return 'Affichage de ce que ce téléphone a enregistré ($when). Les scans sont gardés et envoyés au retour de la connexion.';
+  }
+
+  @override
   String get opsTodayMine => 'Qui vous sont confiés';
 
   @override

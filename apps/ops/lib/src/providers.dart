@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'access.dart';
 import 'keys/roster.dart';
+import 'offline/ops_snapshot.dart';
 
 /// Set once at start-up (see main.dart). Tests override the providers below it instead.
 final appConfigProvider = Provider<AppConfig>((ref) => throw UnimplementedError('appConfigProvider is overridden at start-up'));
@@ -32,11 +33,30 @@ final schoolClockProvider = Provider<SchoolClock>((ref) => const SchoolClock());
 /// The signed-in user's id, or null. Everything that holds user data watches this, so it resets on sign-out.
 final authUserIdProvider = StreamProvider<String?>((ref) => ref.watch(authServiceProvider).userIdChanges);
 
-/// The signed-in user's own profile, from the server.
+/// Where the copy that lets the app open offline is kept (secure storage).
+final opsSnapshotStoreProvider = Provider<OpsSnapshotStore>((ref) => SecureOpsSnapshotStore());
+
+final opsSnapshotKeeperProvider = Provider<OpsSnapshotKeeper>((ref) => OpsSnapshotKeeper(ref.watch(opsSnapshotStoreProvider), ref.watch(nowProvider)));
+
+/// The signed-in user's own profile, read from the server. Only when the server cannot be reached is the copy saved on the
+/// phone used instead (so the app opens offline); a server answer, even a refusal, always wins over it.
 final profileProvider = FutureProvider<Profile?>((ref) async {
   final userId = ref.watch(authUserIdProvider).value;
   if (userId == null) return null;
-  return ref.watch(profileRepositoryProvider).getProfile(userId);
+  final keeper = ref.watch(opsSnapshotKeeperProvider);
+  return serverOrSaved<Profile?>(
+    ref,
+    source: 'profile',
+    live: () => ref.watch(profileRepositoryProvider).getProfile(userId),
+    // Only an active staff member or administrator keeps a copy: anything else is wiped, so a blocked account cannot open
+    // offline.
+    save: (profile) => profile != null && profile.role != UserRole.student && profile.status == AccountStatus.verified ? keeper.saveProfile(userId, profile) : keeper.clear(userId),
+    saved: () async {
+      final snapshot = await keeper.load(userId);
+      final profile = snapshot?.profile;
+      return profile == null ? null : (value: profile, savedAt: snapshot!.savedAt);
+    },
+  );
 }, retry: noAutomaticRetry);
 
 /// Looks again at the signed-in person's profile and reloads the app's access when the role, the status (suspended,
@@ -71,14 +91,27 @@ final accessProvider = Provider<OpsAccess>((ref) {
 final schoolProvider = FutureProvider<School>((ref) async {
   final access = ref.watch(accessProvider);
   if (access is! OpsAllowed) throw StateError('Only staff have a school here.');
-  return ref.watch(schoolRepositoryProvider).getSchool(access.profile.schoolId!);
+  final userId = access.profile.id;
+  final keeper = ref.watch(opsSnapshotKeeperProvider);
+  return serverOrSaved<School>(
+    ref,
+    source: 'school',
+    live: () => ref.watch(schoolRepositoryProvider).getSchool(access.profile.schoolId!),
+    save: (school) => keeper.saveSchool(userId, school),
+    saved: () async {
+      final snapshot = await keeper.load(userId);
+      final school = snapshot?.school;
+      return school == null || school.id != access.profile.schoolId ? null : (value: school, savedAt: snapshot!.savedAt);
+    },
+  );
 }, retry: noAutomaticRetry);
 
-/// Signs out and forgets today's day keys. The scan queue is kept: scans are never dropped (the screens refuse to sign
+/// Signs out and forgets today's day keys and the copy kept for opening offline. The scan queue is kept: scans are never dropped (the screens refuse to sign
 /// out while some wait to be sent).
 final signOutProvider = Provider<Future<void> Function()>((ref) {
   return () async {
     await ref.read(rosterStoreProvider).clear();
+    await ref.read(opsSnapshotKeeperProvider).clearAll();
     await ref.read(authServiceProvider).signOut();
   };
 });

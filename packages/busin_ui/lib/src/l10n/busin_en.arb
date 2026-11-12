@@ -681,6 +681,14 @@
   "opsProblemTitle": "BusIn Ops could not load your account",
   "opsTodayTitle": "Today's trips",
   "opsTodayEmpty": "No trips are scheduled today.",
+  "opsOfflineBody": "Showing what this phone saved ({when}). Scans are kept and sent when the connection returns.",
+  "@opsOfflineBody": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
   "opsTodayMine": "Assigned to you",
   "opsTodayOthers": "Other trips",
   "opsDeparts": "Departs {time}",

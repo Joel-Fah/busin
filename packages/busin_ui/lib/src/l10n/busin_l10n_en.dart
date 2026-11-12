@@ -1356,6 +1356,11 @@ class BusinL10nEn extends BusinL10n {
   String get opsTodayEmpty => 'No trips are scheduled today.';
 
   @override
+  String opsOfflineBody(String when) {
+    return 'Showing what this phone saved ($when). Scans are kept and sent when the connection returns.';
+  }
+
+  @override
   String get opsTodayMine => 'Assigned to you';
 
   @override

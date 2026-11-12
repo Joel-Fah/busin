@@ -2443,6 +2443,12 @@ abstract class BusinL10n {
   /// **'No trips are scheduled today.'**
   String get opsTodayEmpty;
 
+  /// No description provided for @opsOfflineBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing what this phone saved ({when}). Scans are kept and sent when the connection returns.'**
+  String opsOfflineBody(String when);
+
   /// No description provided for @opsTodayMine.
   ///
   /// In en, this message translates to:

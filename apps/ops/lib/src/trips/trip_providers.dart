@@ -12,14 +12,55 @@ final todayTripsProvider = FutureProvider.autoDispose<List<Trip>>((ref) async {
   final today = clock.today(school.timezone, now: ref.read(nowProvider)());
   final from = clock.dayStart(school.timezone, today);
   final to = clock.dayStart(school.timezone, today.add(const Duration(days: 1)));
-  return ref.watch(tripsRepositoryProvider).listBetween(from: from, to: to);
+  final access = ref.watch(accessProvider);
+  if (access is! OpsAllowed) return const [];
+  final userId = access.profile.id;
+  final keeper = ref.watch(opsSnapshotKeeperProvider);
+  final day = dayKey(today);
+  // Kept on the phone so the list (and scanning) still works at the bus door without a signal.
+  return serverOrSaved<List<Trip>>(
+    ref,
+    source: 'trips',
+    live: () => ref.watch(tripsRepositoryProvider).listBetween(from: from, to: to),
+    save: (trips) => keeper.saveTrips(userId, day, trips),
+    saved: () async {
+      final snapshot = await keeper.load(userId);
+      final trips = snapshot?.trips;
+      // Another day's list is never shown as today's.
+      return trips == null || snapshot!.tripsDay != day ? null : (value: trips, savedAt: snapshot.savedAt);
+    },
+  );
 }, retry: noAutomaticRetry);
+
+/// A school day as `yyyy-mm-dd`, the key the saved list of trips is filed under.
+String dayKey(DateTime day) => '${day.year.toString().padLeft(4, '0')}-${day.month.toString().padLeft(2, '0')}-${day.day.toString().padLeft(2, '0')}';
+
+/// The trips kept on the phone, for one trip's screen when the server cannot be reached.
+Future<List<Trip>> _savedTrips(Ref ref) async {
+  final access = ref.read(accessProvider);
+  if (access is! OpsAllowed) return const [];
+  return (await ref.read(opsSnapshotKeeperProvider).load(access.profile.id))?.trips ?? const [];
+}
 
 /// The buses of today's trips, by id (for their names and seats).
 final todayBusesProvider = FutureProvider.autoDispose<Map<String, Bus>>((ref) async {
   final trips = await ref.watch(todayTripsProvider.future);
   final ids = {for (final trip in trips) trip.busId}.toList();
-  final buses = await ref.watch(busesRepositoryProvider).listByIds(ids);
+  final access = ref.watch(accessProvider);
+  if (access is! OpsAllowed) return const {};
+  final userId = access.profile.id;
+  final keeper = ref.watch(opsSnapshotKeeperProvider);
+  final buses = await serverOrSaved<List<Bus>>(
+    ref,
+    source: 'buses',
+    live: () => ref.watch(busesRepositoryProvider).listByIds(ids),
+    save: (buses) => keeper.saveBuses(userId, buses),
+    saved: () async {
+      final snapshot = await keeper.load(userId);
+      final buses = snapshot?.buses;
+      return buses == null ? null : (value: buses, savedAt: snapshot!.savedAt);
+    },
+  );
   return {for (final bus in buses) bus.id: bus};
 }, retry: noAutomaticRetry);
 
@@ -43,13 +84,29 @@ class ShareOffer extends Notifier<String?> {
 final shareOfferProvider = NotifierProvider<ShareOffer, String?>(ShareOffer.new);
 
 /// One trip, fresh from the server.
-final tripProvider = FutureProvider.autoDispose.family<Trip, String>((ref, id) => ref.watch(tripsRepositoryProvider).getTrip(id), retry: noAutomaticRetry);
+final tripProvider = FutureProvider.autoDispose.family<Trip, String>((ref, id) async {
+  try {
+    return await ref.watch(tripsRepositoryProvider).getTrip(id);
+  } on Offline {
+    // Without a connection, the trip as today's list last showed it, so it can still be opened and scanned.
+    final saved = (await _savedTrips(ref)).where((t) => t.id == id).firstOrNull;
+    if (saved == null) rethrow;
+    return saved;
+  }
+}, retry: noAutomaticRetry);
 
 /// The bus of one trip.
 final tripBusProvider = FutureProvider.autoDispose.family<Bus?, String>((ref, id) async {
   final trip = await ref.watch(tripProvider(id).future);
-  final buses = await ref.watch(busesRepositoryProvider).listByIds([trip.busId]);
-  return buses.firstOrNull;
+  try {
+    final buses = await ref.watch(busesRepositoryProvider).listByIds([trip.busId]);
+    return buses.firstOrNull;
+  } on Offline {
+    final access = ref.read(accessProvider);
+    if (access is! OpsAllowed) return null;
+    final saved = (await ref.read(opsSnapshotKeeperProvider).load(access.profile.id))?.buses ?? const <Bus>[];
+    return saved.where((b) => b.id == trip.busId).firstOrNull;
+  }
 }, retry: noAutomaticRetry);
 
 /// Who has boarded a trip.

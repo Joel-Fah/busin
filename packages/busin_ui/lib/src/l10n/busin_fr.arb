@@ -495,6 +495,7 @@
   "opsProblemTitle": "BusIn Ops n'a pas pu charger votre compte",
   "opsTodayTitle": "Trajets du jour",
   "opsTodayEmpty": "Aucun trajet n'est prévu aujourd'hui.",
+  "opsOfflineBody": "Affichage de ce que ce téléphone a enregistré ({when}). Les scans sont gardés et envoyés au retour de la connexion.",
   "opsTodayMine": "Qui vous sont confiés",
   "opsTodayOthers": "Autres trajets",
   "opsDeparts": "Départ à {time}",
