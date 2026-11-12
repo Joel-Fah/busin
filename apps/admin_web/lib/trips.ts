@@ -191,6 +191,8 @@ export type TripFilters = {
   direction: Direction | null;
   /** A driver id, NO_DRIVER for trips without one, or null for everyone. */
   driver: string | null;
+  /** Only trips started in the field from the ops app (not scheduled by an administrator); left out means all. */
+  source?: "field" | null;
   /** Rows per page (one of PAGE_SIZES); left out means the default. */
   size?: number;
 };
@@ -201,6 +203,7 @@ export type TripQuery = {
   bus?: string | string[];
   direction?: string | string[];
   driver?: string | string[];
+  source?: string | string[];
   size?: string | string[];
 };
 
@@ -214,6 +217,7 @@ export function parseTripFilters(query: TripQuery): TripFilters {
     bus: uuidParam(query.bus),
     direction: choiceParam(query.direction, DIRECTIONS),
     driver: driver === NO_DRIVER ? NO_DRIVER : uuidParam(query.driver),
+    source: choiceParam(query.source, ["field"] as const),
     size: parsePageSize(query.size),
   };
 }
@@ -226,6 +230,7 @@ export function tripsHref(filters: TripFilters, page = 1): string {
     bus: filters.bus,
     direction: filters.direction,
     driver: filters.driver,
+    source: filters.source ?? null,
     size: sizeParam(filters.size),
     page: page > 1 ? page : null,
   });
@@ -246,6 +251,7 @@ export function applyTripFilters<Q>(query: Q, filters: TripFilters, timeZone: st
   let q = query as unknown as Chain;
   if (filters.bus) q = q.eq("bus_id", filters.bus);
   if (filters.direction) q = q.eq("direction", filters.direction);
+  if (filters.source === "field") q = q.eq("origin", "field");
   if (filters.driver === NO_DRIVER) q = q.is("driver_id", null);
   else if (filters.driver) q = q.eq("driver_id", filters.driver);
   if (filters.date) {

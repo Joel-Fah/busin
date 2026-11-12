@@ -9,6 +9,7 @@ import 'package:hugeicons/hugeicons.dart';
 import '../providers.dart';
 import '../router.dart';
 import '../scan/scan_providers.dart';
+import 'field_trip_sheet.dart';
 import 'trip_providers.dart';
 
 /// Today's trips at the school: the ones assigned to me first. Tapping one opens it to start, scan or end it.
@@ -28,7 +29,22 @@ class TodayScreen extends ConsumerWidget {
     final buses = ref.watch(todayBusesProvider).value ?? const <String, Bus>{};
     final zone = ref.watch(schoolProvider).value?.timezone ?? 'UTC';
 
+    // A trip nobody scheduled can be started from here, when the school allows it (ADR 0020).
+    final fieldAllowed = ref.watch(fieldTripOptionsProvider).value?.allowed ?? false;
+
+    Future<void> startField() async {
+      // Fresh choices each time: buses come and go as trips start and end.
+      ref.invalidate(fieldTripOptionsProvider);
+      final tripId = await showBusinSheet<String>(context, builder: (context) => const FieldTripSheet());
+      if (tripId == null || !context.mounted) return;
+      ref.invalidate(todayTripsProvider);
+      ref.read(shareOfferProvider.notifier).offer(tripId);
+      BusinToast.show(context, l10n.opsFieldStarted, tone: ToastTone.success);
+      context.push(Routes.trip(tripId));
+    }
+
     Future<void> refresh() async {
+      ref.invalidate(fieldTripOptionsProvider);
       ref.invalidate(todayTripsProvider);
       await ref.read(todayTripsProvider.future).catchError((Object _) => const <Trip>[]);
     }
@@ -49,6 +65,13 @@ class TodayScreen extends ConsumerWidget {
         );
 
     return Scaffold(
+      floatingActionButton: fieldAllowed
+          ? FloatingActionButton.extended(
+              onPressed: startField,
+              icon: HugeIcon(icon: HugeIcons.strokeRoundedBus01, color: p.fg),
+              label: Text(l10n.opsFieldStart),
+            )
+          : null,
       appBar: AppBar(
         title: Text(l10n.opsTodayTitle),
         actions: [
@@ -82,7 +105,8 @@ class TodayScreen extends ConsumerWidget {
                 final split = splitTrips(list, me.userId);
                 return ListView(
                   physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: BusinSpace.x5, vertical: BusinSpace.x2),
+                  // Room under the last card for the button that starts a trip nobody scheduled.
+                  padding: const EdgeInsets.fromLTRB(BusinSpace.x5, BusinSpace.x2, BusinSpace.x5, 96),
                   children: [
                     if (split.mine.isNotEmpty) section(l10n.opsTodayMine, split.mine),
                     if (split.others.isNotEmpty) section(l10n.opsTodayOthers, split.others),

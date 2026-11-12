@@ -3,7 +3,7 @@
 // Design: docs/decisions/0010-push-notifications.md.
 
 export type Locale = "en" | "fr";
-export type Kind = "subscription_approved" | "subscription_rejected" | "school_notice" | "bus_near_stop";
+export type Kind = "subscription_approved" | "subscription_rejected" | "school_notice" | "bus_near_stop" | "crew_assigned";
 
 /** One claimed notification, as claim_notifications returns it. */
 export type Claimed = {
@@ -34,10 +34,15 @@ const TEXT: Record<Kind, Record<Locale, { title: string; body: string }>> = {
     en: { title: "Your bus is almost here", body: "It is a few minutes from your stop. Open BusIn to follow it." },
     fr: { title: "Votre bus arrive", body: "Il est à quelques minutes de votre arrêt. Ouvrez BusIn pour le suivre." },
   },
+  // A staff member was put on a trip's crew by a colleague who started it in the field (ADR 0020). No names, no bus.
+  crew_assigned: {
+    en: { title: "You were added to a trip", body: "A colleague started a trip with you on board. Open BusIn Ops to see it." },
+    fr: { title: "Vous avez été ajouté à un trajet", body: "Un collègue a démarré un trajet avec vous à bord. Ouvrez BusIn Ops pour le voir." },
+  },
 };
 
 export function isKind(value: string): value is Kind {
-  return value === "subscription_approved" || value === "subscription_rejected" || value === "school_notice" || value === "bus_near_stop";
+  return value === "subscription_approved" || value === "subscription_rejected" || value === "school_notice" || value === "bus_near_stop" || value === "crew_assigned";
 }
 
 export function asLocale(value: string): Locale {

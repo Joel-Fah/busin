@@ -417,6 +417,29 @@ class SupabaseTripsRepository implements TripsRepository {
       });
 
   @override
+  Future<FieldTripOptions> fieldTripOptions() => guarded(() async {
+        final data = await _client.rpc<dynamic>('field_trip_options');
+        return FieldTripOptions.fromJson(Map<String, dynamic>.from(data as Map));
+      });
+
+  @override
+  Future<String> startFieldTrip({
+    required String busId,
+    required TripDirection direction,
+    required CrewRole role,
+    String? otherId,
+  }) =>
+      guarded(() async {
+        final id = await _client.rpc<dynamic>('start_field_trip', params: {
+          'p_bus_id': busId,
+          'p_direction': direction.name,
+          'p_role': role.wire,
+          'p_other_id': otherId,
+        });
+        return id as String;
+      });
+
+  @override
   Future<void> end(String tripId) => guarded(() async {
         await _client.rpc<void>('end_trip', params: {'p_trip_id': tripId});
       });
