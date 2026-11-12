@@ -2494,7 +2494,7 @@ abstract class BusinL10n {
   /// No description provided for @opsAssignedElsewhere.
   ///
   /// In en, this message translates to:
-  /// **'Assigned to another staff member. Only they or an administrator can start it.'**
+  /// **'Assigned to other staff members. Only the driver, the assistant or an administrator can start it.'**
   String get opsAssignedElsewhere;
 
   /// No description provided for @opsBusBusy.
@@ -2818,8 +2818,14 @@ abstract class BusinL10n {
   /// No description provided for @opsShareNotYours.
   ///
   /// In en, this message translates to:
-  /// **'The staff member assigned to this trip shares its position.'**
+  /// **'The driver or the assistant of this trip shares its position.'**
   String get opsShareNotYours;
+
+  /// No description provided for @opsShareStandby.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}\'s phone is sharing the bus position. This phone takes over by itself if it goes quiet.'**
+  String opsShareStandby(String name);
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {

@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import '../geo_point.dart';
 import '../models/bus.dart';
 import '../models/joining.dart';
+import '../models/position_holder.dart';
 import '../models/live_position.dart';
 import '../models/notification_preferences.dart';
 import '../models/profile.dart';
@@ -174,9 +175,10 @@ abstract interface class QrRepository {
 }
 
 abstract interface class TripsRepository {
-  /// Trips a driver is assigned to that start within [from] and [to], soonest first.
-  Future<List<Trip>> listForDriver(
-    String driverId, {
+  /// Trips a staff member is on the crew of (as the driver or the assistant) that start within [from] and [to],
+  /// soonest first.
+  Future<List<Trip>> listForCrew(
+    String staffId, {
     required DateTime from,
     required DateTime to,
   });
@@ -276,4 +278,8 @@ abstract interface class LivePositionsRepository {
     double? headingDeg,
     double? accuracyM,
   });
+
+  /// Whose phone leads the position of this trip right now, or null when nobody does (staff only). Used by the crew's
+  /// app to say whether to keep sharing or stand by.
+  Future<PositionHolder?> positionHolder(String tripId);
 }
