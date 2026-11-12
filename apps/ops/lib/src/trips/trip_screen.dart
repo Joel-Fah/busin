@@ -205,7 +205,9 @@ class _TripScreenState extends ConsumerState<TripScreen> {
                     if (trip.status == TripStatus.scheduled) ...[
                       Text(l10n.opsScannerSoon, style: text.bodyMedium?.copyWith(color: p.muted)),
                       const SizedBox(height: BusinSpace.x4),
-                      if (canRun)
+                      if (canRun && !tripIsToday(clock: ref.watch(schoolClockProvider), zone: zone, scheduledStart: trip.scheduledStart, now: ref.read(nowProvider)()))
+                        Notice(child: Text(l10n.opsNotToday))
+                      else if (canRun)
                         BusinButton(
                           label: l10n.opsStart,
                           icon: HugeIcons.strokeRoundedPlayCircle,

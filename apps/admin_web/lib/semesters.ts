@@ -8,7 +8,7 @@ export const MAX_YEAR = 2100;
 
 export type SemesterInput = { name: SemesterName; year: number; startDate: string; endDate: string };
 
-export type SemesterFormError = "name" | "year" | "start_date" | "end_date" | "date_order";
+export type SemesterFormError = "name" | "year" | "start_date" | "end_date" | "date_order" | "end_past";
 
 export function isSemesterName(value: unknown): value is SemesterName {
   return typeof value === "string" && (SEMESTER_NAMES as readonly string[]).includes(value);
@@ -22,10 +22,15 @@ export function isIsoDate(value: unknown): value is string {
   return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
 }
 
-/** Validates the semester form fields. The database repeats these rules; this gives clear messages. */
-export function parseSemesterForm(form: {
-  get(name: string): unknown;
-}): { ok: true; value: SemesterInput } | { ok: false; error: SemesterFormError } {
+/**
+ * Validates the semester form fields. The database repeats these rules; this gives clear messages. With `check`, a
+ * semester whose last day is before the school's `today` is refused, unless it is an edit that leaves both dates as
+ * they were (`unchanged`), so an old semester can still be renamed.
+ */
+export function parseSemesterForm(
+  form: { get(name: string): unknown },
+  check?: { today: string; unchanged?: { startDate: string; endDate: string } },
+): { ok: true; value: SemesterInput } | { ok: false; error: SemesterFormError } {
   const name = form.get("name");
   if (!isSemesterName(name)) return { ok: false, error: "name" };
 
@@ -41,13 +46,17 @@ export function parseSemesterForm(form: {
   // ISO dates sort the same as calendar dates, so a string comparison is enough.
   if (endDate <= startDate) return { ok: false, error: "date_order" };
 
+  const same = check?.unchanged && check.unchanged.startDate === startDate && check.unchanged.endDate === endDate;
+  if (check && !same && endDate < check.today) return { ok: false, error: "end_past" };
+
   return { ok: true, value: { name, year, startDate, endDate } };
 }
 
-export type SemesterSaveErrorKey = "taken" | "invalid" | "not_found" | "generic";
+export type SemesterSaveErrorKey = "taken" | "end_past" | "invalid" | "not_found" | "generic";
 
-/** Maps a database error code from saving a semester. 23505 is the unique name and year per school. */
-export function semesterSaveErrorKey(code: string | undefined): SemesterSaveErrorKey {
+/** Maps a database error from saving a semester. 23505 is the unique name and year per school. */
+export function semesterSaveErrorKey(code: string | undefined, message?: string): SemesterSaveErrorKey {
+  if (code === "22023" && message === "semester_in_past") return "end_past";
   switch (code) {
     case "23505":
       return "taken";
@@ -71,6 +80,7 @@ const FORM_ERRORS: readonly string[] = [
   "start_date",
   "end_date",
   "date_order",
+  "end_past",
   "taken",
   "invalid",
   "not_found",
@@ -85,11 +95,6 @@ export type SemesterDone = "created" | "saved";
 
 export function isSemesterDone(value: string | undefined): value is SemesterDone {
   return value === "created" || value === "saved";
-}
-
-/** Today in UTC as YYYY-MM-DD, used to mark the semester that is running. */
-export function todayIso(now: Date = new Date()): string {
-  return now.toISOString().slice(0, 10);
 }
 
 export type SemesterPhase = "current" | "upcoming" | "past";

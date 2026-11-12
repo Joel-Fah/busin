@@ -105,6 +105,21 @@ void main() {
     expect(find.text('Send request'), findsNothing);
   });
 
+  testWidgets('a form left open after the semester ended sends nothing and says so', (tester) async {
+    // The fake clock reads the real now; this semester ended long ago.
+    final backend = FakeBackend(current: semester(start: '2020-09-01', end: '2021-01-31'));
+    final picker = FakeProofPicker(samplePhoto());
+    await open(tester, backend, picker: picker);
+    await chooseStop(tester, 'Carrefour Vogt');
+    await choosePhoto(tester);
+    await tester.tap(find.text('Send request'));
+    await tester.pumpAndSettle();
+
+    expect(backend.requests, isEmpty, reason: 'nothing is sent for a semester that is over');
+    expect(backend.uploads, isEmpty, reason: 'and no photo is uploaded for it');
+    expect(find.text('This semester has ended. Pull down to refresh and see what is open now.'), findsOneWidget);
+  });
+
   testWidgets('the stop sheet can be searched', (tester) async {
     await open(tester, FakeBackend(current: semester()));
     await tester.tap(find.text('Your stop'));

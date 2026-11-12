@@ -1,3 +1,4 @@
+import 'package:busin_app/busin_app.dart';
 import 'package:busin_core/busin_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -62,6 +63,11 @@ final manifestProvider = FutureProvider.autoDispose.family<List<ManifestEntry>, 
       mine: [for (final t in trips) if (t.isCrew(userId)) t],
       others: [for (final t in trips) if (!t.isCrew(userId)) t],
     );
+
+/// Whether a trip is scheduled for the school's today (its own timezone). The server refuses to start any other day
+/// (`trip_not_today`), so the app does not offer Start for one.
+bool tripIsToday({required SchoolClock clock, required String zone, required DateTime scheduledStart, required DateTime now}) =>
+    clock.today(zone, now: scheduledStart) == clock.today(zone, now: now);
 
 /// Why starting a trip was refused, worked out from what the app knows (the server says only "conflict").
 enum StartRefusal { notToday, busBusy, notScheduled }

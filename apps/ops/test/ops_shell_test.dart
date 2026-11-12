@@ -59,6 +59,15 @@ void main() {
       expect(split.others.map((t) => t.id), ['a', 'c']);
     });
 
+    test('Start is only for a trip scheduled for the school\'s today, in the school\'s own timezone', () {
+      const clock = SchoolClock();
+      // 23:30 UTC on 12 November is already 13 November at Douala (UTC+1).
+      final now = DateTime.utc(2026, 11, 12, 23, 30);
+      expect(tripIsToday(clock: clock, zone: 'Africa/Douala', scheduledStart: DateTime.utc(2026, 11, 13, 6), now: now), isTrue);
+      expect(tripIsToday(clock: clock, zone: 'Africa/Douala', scheduledStart: DateTime.utc(2026, 11, 12, 6), now: now), isFalse, reason: 'yesterday at the school');
+      expect(tripIsToday(clock: clock, zone: 'Africa/Douala', scheduledStart: DateTime.utc(2026, 11, 14, 6), now: now), isFalse, reason: 'tomorrow');
+    });
+
     test('a trip is mine when I am its assistant too', () {
       final split = splitTrips([trip('a', driver: 'u2', assistant: 'u1'), trip('b', driver: 'u2')], 'u1');
       expect(split.mine.map((t) => t.id), ['a']);

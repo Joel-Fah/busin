@@ -9,6 +9,7 @@ import { TripForm } from "@/components/TripForm";
 import { requireAdmin } from "@/lib/auth";
 import { getMessages } from "@/lib/i18n/server";
 import { isTripFormErrorKey } from "@/lib/trips";
+import { todayInZone } from "@/lib/zoned";
 import { loadTripOptions } from "@/lib/trips-data";
 
 import { createTrip } from "../actions";
@@ -47,7 +48,7 @@ async function NewTrip({ searchParams }: { searchParams: SearchParams }) {
       ) : (
         <>
           {errorKey ? <Notice tone="bad">{t.trips.errors[errorKey]}</Notice> : null}
-          <TripForm action={createTrip} t={t} locale={locale} buses={buses} drivers={drivers} timeZone={admin.schoolTimezone} />
+          <TripForm action={createTrip} t={t} locale={locale} buses={buses} drivers={drivers} timeZone={admin.schoolTimezone} today={todayInZone(admin.schoolTimezone)} />
         </>
       )}
     </>

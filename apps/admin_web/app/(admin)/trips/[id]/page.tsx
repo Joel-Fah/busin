@@ -21,7 +21,7 @@ import { isUuid } from "@/lib/ids";
 import { MAX_REASON_LENGTH, formatMinutes, isDirection, isTripDone, isTripFormErrorKey, isTripStatus, overdueById, tripStatusTone, type Overdue } from "@/lib/trips";
 import { loadTripOptions } from "@/lib/trips-data";
 import { createClient } from "@/lib/supabase/server";
-import { utcToZonedLocal } from "@/lib/zoned";
+import { todayInZone, utcToZonedLocal } from "@/lib/zoned";
 
 import { cancelTrip, endTrip, setTripArchived, updateTrip } from "../actions";
 
@@ -120,6 +120,7 @@ async function TripDetail({ params, searchParams }: { params: Params; searchPara
           buses={buses}
           drivers={drivers}
           timeZone={admin.schoolTimezone}
+          today={todayInZone(admin.schoolTimezone)}
           trip={{
             id: trip.id,
             busId: trip.bus_id,

@@ -101,6 +101,46 @@ test.describe("administrator managing semesters", () => {
     expect(await semester("summer", YEAR)).toBeNull();
   });
 
+  test("refuses a semester that has already ended, but allows one that has started and runs on", async ({ page }) => {
+    // The seed school is in Africa/Douala: its day is what counts, not the server's.
+    const school = (offset: number) => new Date(Date.now() + offset * 86_400_000 + 3_600_000).toISOString().slice(0, 10);
+    await page.goto("/semesters/new");
+    await chooseOption(page, "Semester", "Fall");
+    await page.getByLabel("Year").fill("2020");
+    await setPickerValue(page, "start_date", "2020-09-01");
+    await setPickerValue(page, "end_date", "2020-12-20");
+    await page.getByRole("button", { name: "Add semester" }).click();
+    await expect(page.getByRole("alert").filter({ hasText: "That semester has already ended." })).toBeVisible();
+    expect(await semester("fall", 2020)).toBeNull();
+
+    await page.goto("/semesters/new");
+    await chooseOption(page, "Semester", "Summer");
+    await page.getByLabel("Year").fill(String(YEAR));
+    await setPickerValue(page, "start_date", school(-2));
+    await setPickerValue(page, "end_date", school(60));
+    await page.getByRole("button", { name: "Add semester" }).click();
+    await expect(page.getByRole("status")).toContainText("Semester added.");
+    expect(await semester("summer", YEAR)).not.toBeNull();
+  });
+
+  test("an old semester can still be edited when its dates are left alone", async ({ page }) => {
+    const db = serviceClient();
+    const { data } = await db
+      .from("semesters")
+      .insert({ school_id: SEED.schoolId, name: "fall", year: 2019, start_date: "2019-09-01", end_date: "2020-01-31" })
+      .select("id")
+      .single();
+    try {
+      await page.goto(`/semesters/${data!.id}`);
+      await page.getByLabel("Year").fill("2018");
+      await page.getByRole("button", { name: "Save semester" }).click();
+      await expect(page.getByRole("status")).toContainText("Semester saved.");
+      expect((await db.from("semesters").select("year").eq("id", data!.id).single()).data?.year).toBe(2018);
+    } finally {
+      await db.from("semesters").delete().eq("id", data!.id);
+    }
+  });
+
   test("refuses a semester that already exists", async ({ page }) => {
     await page.goto("/semesters/new");
     await chooseOption(page, "Semester", "Spring");

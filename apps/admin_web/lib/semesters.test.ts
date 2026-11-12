@@ -8,7 +8,6 @@ import {
   parseSemesterForm,
   semesterPhase,
   semesterSaveErrorKey,
-  todayIso,
 } from "./semesters";
 
 function form(values: Record<string, string>) {
@@ -68,6 +67,33 @@ describe("parseSemesterForm", () => {
   });
 });
 
+describe("a semester in the past", () => {
+  const today = "2026-11-12";
+
+  it("is refused when its last day is before the school's today, and the one running or ahead is allowed", () => {
+    expect(parseSemesterForm(form({ ...valid, start_date: "2026-01-01", end_date: "2026-06-30" }), { today })).toEqual({ ok: false, error: "end_past" });
+    expect(parseSemesterForm(form({ ...valid, start_date: "2026-09-01", end_date: "2026-11-11" }), { today })).toEqual({ ok: false, error: "end_past" });
+    expect(parseSemesterForm(form({ ...valid, start_date: "2026-09-01", end_date: "2026-11-12" }), { today })).toMatchObject({ ok: true });
+    expect(parseSemesterForm(form({ ...valid, start_date: "2026-09-01", end_date: "2027-01-31" }), { today })).toMatchObject({ ok: true });
+  });
+
+  it("lets an old semester be edited when both dates are left as they were", () => {
+    const old = { startDate: "2026-01-01", endDate: "2026-06-30" };
+    const edited = form({ ...valid, year: "2026", start_date: old.startDate, end_date: old.endDate });
+    expect(parseSemesterForm(edited, { today, unchanged: old })).toMatchObject({ ok: true });
+    expect(parseSemesterForm(form({ ...valid, start_date: "2026-01-02", end_date: old.endDate }), { today, unchanged: old })).toEqual({ ok: false, error: "end_past" });
+  });
+
+  it("is not checked without a today (the database repeats the rule anyway)", () => {
+    expect(parseSemesterForm(form({ ...valid, start_date: "2020-01-01", end_date: "2020-06-30" }))).toMatchObject({ ok: true });
+  });
+
+  it("is recognised from the database's reason", () => {
+    expect(semesterSaveErrorKey("22023", "semester_in_past")).toBe("end_past");
+    expect(semesterSaveErrorKey("22023", "something else")).toBe("generic");
+  });
+});
+
 describe("semesterSaveErrorKey", () => {
   it("maps database codes", () => {
     expect(semesterSaveErrorKey("23505")).toBe("taken");
@@ -95,9 +121,5 @@ describe("semesterPhase", () => {
     expect(semesterPhase("2026-09-01", "2026-12-20", "2026-09-01")).toBe("current");
     expect(semesterPhase("2026-09-01", "2026-12-20", "2026-12-20")).toBe("current");
     expect(semesterPhase("2026-09-01", "2026-12-20", "2026-12-21")).toBe("past");
-  });
-
-  it("formats today", () => {
-    expect(todayIso(new Date("2026-11-01T23:30:00Z"))).toBe("2026-11-01");
   });
 });

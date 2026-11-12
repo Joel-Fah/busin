@@ -811,6 +811,12 @@ abstract class BusinL10n {
   /// **'Use a JPEG, PNG or WebP photo.'**
   String get subscribeErrorType;
 
+  /// No description provided for @subscribeErrorEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'This semester has ended. Pull down to refresh and see what is open now.'**
+  String get subscribeErrorEnded;
+
   /// No description provided for @subscribeErrorTooLarge.
   ///
   /// In en, this message translates to:

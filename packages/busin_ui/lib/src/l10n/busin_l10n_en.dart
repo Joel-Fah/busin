@@ -389,6 +389,10 @@ class BusinL10nEn extends BusinL10n {
   String get subscribeErrorType => 'Use a JPEG, PNG or WebP photo.';
 
   @override
+  String get subscribeErrorEnded =>
+      'This semester has ended. Pull down to refresh and see what is open now.';
+
+  @override
   String get subscribeErrorTooLarge =>
       'That photo is too large. Pick one under 5 MB.';
 

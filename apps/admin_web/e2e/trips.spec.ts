@@ -200,6 +200,18 @@ test.describe("administrator managing trips", () => {
     expect((await tripOnBus(scheduledId, idleBusId)).length).toBe(0);
   });
 
+  test("a start time in the past is refused by the server", async ({ page }) => {
+    await page.goto("/trips/new");
+    await page.waitForLoadState("networkidle");
+    await chooseOption(page, "Bus", `${prefix} RUN`);
+    // Tamper with the field, as the server must not trust the form.
+    await pickDateTime(page, START);
+    await setPickerValue(page, "scheduled_start", "2020-01-01T07:30");
+    await page.getByRole("button", { name: "Schedule trip" }).click();
+    await expect(page.getByRole("alert").filter({ hasText: "That start time has already passed." })).toBeVisible();
+    expect((await tripOnBus(scheduledId, busId)).filter((trip) => new Date(trip.scheduled_start).getFullYear() === 2020)).toHaveLength(0);
+  });
+
   test("only staff are offered as drivers", async ({ page }) => {
     await page.goto("/trips/new");
     await page.getByRole("combobox", { name: "Driver" }).click();
