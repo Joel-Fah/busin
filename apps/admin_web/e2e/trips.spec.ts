@@ -11,6 +11,7 @@ let admin: TestUser;
 let staff: TestUser;
 let student: TestUser;
 let driver: TestUser;
+let assistant: TestUser;
 let busId: string;
 let idleBusId: string;
 let scheduledId: string;
@@ -28,6 +29,7 @@ test.beforeAll(async () => {
   staff = await createUser(`trip-staff-${tag}`, "staff");
   student = await createUser(`trip-student-${tag}`, "student");
   driver = await createUser(`trip-driver-${tag}`, "staff");
+  assistant = await createUser(`trip-assistant-${tag}`, "staff");
 
   const db = serviceClient();
   const bus = await db
@@ -84,7 +86,7 @@ test.afterAll(async () => {
   await db.from("audit_log").delete().eq("actor_id", admin?.id ?? "");
   await db.from("trips").delete().in("bus_id", [busId, idleBusId]);
   await db.from("buses").delete().like("plate", `${prefix}%`);
-  for (const user of [admin, staff, student, driver]) {
+  for (const user of [admin, staff, student, driver, assistant]) {
     if (user) await deleteUser(user);
   }
 });
@@ -92,7 +94,7 @@ test.afterAll(async () => {
 async function tripOnBus(id: string, bus: string) {
   const { data } = await serviceClient()
     .from("trips")
-    .select("id, driver_id, direction, status, scheduled_start")
+    .select("id, driver_id, assistant_id, direction, status, scheduled_start")
     .eq("bus_id", bus)
     .neq("id", id);
   return data ?? [];
@@ -119,6 +121,7 @@ test.describe("administrator managing trips", () => {
     await page.goto("/trips/new");
     await chooseOption(page, "Bus", `${prefix} RUN`);
     await chooseOption(page, "Driver", `E2E trip-driver-${tag}`);
+    await chooseOption(page, "Assistant", `E2E trip-assistant-${tag}`);
     await chooseOption(page, "Direction", "Going home");
     await pickDateTime(page, START);
     await page.getByRole("button", { name: "Schedule trip" }).click();
@@ -127,9 +130,20 @@ test.describe("administrator managing trips", () => {
     const created = (await tripOnBus(scheduledId, busId)).filter((trip) => ![activeId, cancelId, finishedId].includes(trip.id));
     expect(created).toHaveLength(1);
     expect(created[0].driver_id).toBe(driver.id);
+    expect(created[0].assistant_id).toBe(assistant.id);
     expect(created[0].direction).toBe("outbound");
     expect(created[0].status).toBe("scheduled");
     expect(new Date(created[0].scheduled_start).toISOString()).toBe(new Date(START_UTC).toISOString());
+  });
+
+  test("the assistant cannot be the driver", async ({ page }) => {
+    await page.goto("/trips/new");
+    await chooseOption(page, "Bus", `${prefix} RUN`);
+    await chooseOption(page, "Driver", `E2E trip-driver-${tag}`);
+    await chooseOption(page, "Assistant", `E2E trip-driver-${tag}`);
+    await pickDateTime(page, START);
+    await page.getByRole("button", { name: "Schedule trip" }).click();
+    await expect(page.getByRole("alert").filter({ hasText: "The driver and the assistant must be two different people." })).toBeVisible();
   });
 
   test("an out-of-service bus is not offered", async ({ page }) => {

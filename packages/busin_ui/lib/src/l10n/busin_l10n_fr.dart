@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'busin_l10n.dart';
 
 // ignore_for_file: type=lint
@@ -1405,7 +1404,7 @@ class BusinL10nFr extends BusinL10n {
 
   @override
   String get opsAssignedElsewhere =>
-      'Confié à un autre membre du personnel. Seuls cette personne ou un administrateur peuvent le démarrer.';
+      'Confié à d\'autres membres du personnel. Seuls le chauffeur, l\'assistant ou un administrateur peuvent le démarrer.';
 
   @override
   String get opsBusBusy =>
@@ -1523,7 +1522,8 @@ class BusinL10nFr extends BusinL10n {
       locale: localeName,
       other:
           '$count scans attendent encore d\'être envoyés. Connectez-vous d\'abord à internet, puis déconnectez-vous.',
-      one: '1 scan attend encore d\'être envoyé. Connectez-vous d\'abord à internet, puis déconnectez-vous.',
+      one:
+          '1 scan attend encore d\'être envoyé. Connectez-vous d\'abord à internet, puis déconnectez-vous.',
     );
     return '$_temp0';
   }
@@ -1617,5 +1617,10 @@ class BusinL10nFr extends BusinL10n {
 
   @override
   String get opsShareNotYours =>
-      'La personne affectée à ce trajet partage sa position.';
+      'Le chauffeur ou l\'assistant de ce trajet partage sa position.';
+
+  @override
+  String opsShareStandby(String name) {
+    return 'Le téléphone de $name partage la position du bus. Ce téléphone prend le relais tout seul s\'il se tait.';
+  }
 }

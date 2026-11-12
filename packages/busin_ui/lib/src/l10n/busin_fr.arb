@@ -503,7 +503,7 @@
   "opsEndBody": "Plus personne ne pourra y monter, et la position du bus ne sera plus partagée.",
   "opsStarted": "Trajet démarré.",
   "opsEnded": "Trajet terminé.",
-  "opsAssignedElsewhere": "Confié à un autre membre du personnel. Seuls cette personne ou un administrateur peuvent le démarrer.",
+  "opsAssignedElsewhere": "Confié à d'autres membres du personnel. Seuls le chauffeur, l'assistant ou un administrateur peuvent le démarrer.",
   "opsBusBusy": "Ce bus est déjà sur un autre trajet. Terminez d'abord celui-là.",
   "opsNotToday": "Ce trajet n'est pas prévu aujourd'hui.",
   "opsNotScheduled": "Ce trajet a déjà commencé ou est terminé.",
@@ -557,5 +557,6 @@
   "opsShareWhyBody": "Pendant le trajet, ce téléphone envoie sa position toutes les 10 secondes, même écran éteint. Une notification s'affiche pendant ce temps. Le partage s'arrête à la fin du trajet ou quand vous le désactivez.",
   "opsShareNotificationTitle": "BusIn Ops partage la position du bus",
   "opsShareNotificationText": "Les étudiants peuvent suivre ce bus jusqu'à la fin du trajet.",
-  "opsShareNotYours": "La personne affectée à ce trajet partage sa position."
+  "opsShareNotYours": "Le chauffeur ou l'assistant de ce trajet partage sa position.",
+  "opsShareStandby": "Le téléphone de {name} partage la position du bus. Ce téléphone prend le relais tout seul s'il se tait."
 }

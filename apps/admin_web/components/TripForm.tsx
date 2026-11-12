@@ -16,7 +16,7 @@ type Props = {
   drivers: DriverOption[];
   /** The school's timezone, shown so the admin knows which clock the start time is on. */
   timeZone: string;
-  trip?: { id: string; busId: string; driverId: string | null; direction: Direction; start: string };
+  trip?: { id: string; busId: string; driverId: string | null; assistantId: string | null; direction: Direction; start: string };
 };
 
 /** The form used to schedule and to edit a trip. */
@@ -46,6 +46,16 @@ export function TripForm({ action, t, locale, buses, drivers, timeZone, trip }: 
           hint={f.driverHint}
           defaultValue={trip?.driverId ?? ""}
           options={[{ value: "", label: f.noDriver }, ...drivers.map((driver) => ({ value: driver.id, label: driver.name }))]}
+        />
+
+        <Select
+          id="assistant_id"
+          name="assistant_id"
+          label={f.assistant}
+          icon={UserIcon}
+          hint={f.assistantHint}
+          defaultValue={trip?.assistantId ?? ""}
+          options={[{ value: "", label: f.noAssistant }, ...drivers.map((person) => ({ value: person.id, label: person.name }))]}
         />
 
         <Select

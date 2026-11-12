@@ -102,7 +102,7 @@ async function Overview() {
       supabase.from("semesters").select("name, year, start_date, end_date").lte("start_date", todayIso).gte("end_date", todayIso).order("start_date", { ascending: false }).limit(1),
       supabase
         .from("trips")
-        .select("id, direction, status, scheduled_start, bus_id, driver_id", { count: "exact" })
+        .select("id, direction, status, scheduled_start, bus_id, driver_id, assistant_id", { count: "exact" })
         .is("archived_at", null)
         .gte("scheduled_start", startOfToday.toISOString())
         .lt("scheduled_start", endOfToday.toISOString())
@@ -121,7 +121,7 @@ async function Overview() {
   const busIds = [...new Set((todaysTrips.data ?? []).map((trip) => trip.bus_id))];
   const personIds = [
     ...new Set([
-      ...(todaysTrips.data ?? []).flatMap((trip) => (trip.driver_id ? [trip.driver_id] : [])),
+      ...(todaysTrips.data ?? []).flatMap((trip) => [trip.driver_id, trip.assistant_id].filter((id): id is string => id !== null)),
       ...(waiting.data ?? []).map((row) => row.student_id),
     ]),
   ];
@@ -324,7 +324,7 @@ async function Overview() {
                         <span className="block truncate text-sm font-semibold">
                           {plateOf.get(trip.bus_id) ?? ""} <span className="font-normal text-muted">{t.trips.direction[trip.direction]}</span>
                         </span>
-                        <span className="block truncate text-xs text-muted">{trip.driver_id ? nameOf(trip.driver_id) : t.trips.noDriver}</span>
+                        <span className="block truncate text-xs text-muted">{[trip.driver_id, trip.assistant_id].filter((id): id is string => id !== null).map(nameOf).join(", ") || t.trips.noDriver}</span>
                       </span>
                       <Chip tone={tripStatusTone(trip.status)}>{t.trips.status[trip.status]}</Chip>
                     </Link>

@@ -690,7 +690,7 @@
   "opsEndBody": "No one can board it after this, and the bus position stops being shared.",
   "opsStarted": "Trip started.",
   "opsEnded": "Trip ended.",
-  "opsAssignedElsewhere": "Assigned to another staff member. Only they or an administrator can start it.",
+  "opsAssignedElsewhere": "Assigned to other staff members. Only the driver, the assistant or an administrator can start it.",
   "opsBusBusy": "This bus is already on another trip. End that one first.",
   "opsNotToday": "This trip is not scheduled for today.",
   "opsNotScheduled": "This trip has already started or is over.",
@@ -750,5 +750,7 @@
   "opsShareWhyBody": "While the trip runs, this phone sends its position every 10 seconds, also with the screen off. A notification shows while it does. It stops when the trip ends or when you turn it off.",
   "opsShareNotificationTitle": "BusIn Ops is sharing the bus position",
   "opsShareNotificationText": "Students can follow this bus until the trip ends.",
-  "opsShareNotYours": "The staff member assigned to this trip shares its position."
+  "opsShareNotYours": "The driver or the assistant of this trip shares its position.",
+  "opsShareStandby": "{name}'s phone is sharing the bus position. This phone takes over by itself if it goes quiet.",
+  "@opsShareStandby": {"placeholders": {"name": {"type": "String"}}}
 }

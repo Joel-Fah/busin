@@ -31,6 +31,14 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: trip crew (2026-11-12)
+
+Done (ADR 0019, three stacked PRs into `dev`: database #326, admin portal #328, ops app and shared models after them): a trip has a driver and an optional assistant (staff). Either starts and ends it and shares the bus position; with nobody assigned the old rules stand. When both share, one phone leads through a 30 second lease and the other takes over by itself if it goes quiet; students never see who.
+
+Next: the owner approves running the new migration (`20261114100000_trip_crew`) on the hosted `busin-preview` project; then device test.
+
+Owner device test (ops app, two phones or one phone and the portal): in the portal schedule a trip with a driver and an assistant; on the assistant's phone the trip is under "Assigned to you", start it and accept sharing; on the driver's phone open the same trip and turn sharing on; the second phone should say whose phone is sharing and keep sending; stop the first phone's sharing, and within about 40 seconds the other takes over (the bus dot keeps moving on the student app).
+
 ## Handoff: hosted preview (2026-11-12)
 
 Done: `dev` merged into `main` (#313, 109 issues closed). Hosted Supabase project `busin-preview` (Frankfurt, ref `wfhgricucmqdungzuxch`): all 42 migrations, ICT University seed, demo data, stored road, `route-directions` deployed with the Mapbox token. Secrets are in `supabase/.env.hosted` (git-ignored). ADR 0018, [hosting guide](docs/guides/hosting.md).

@@ -356,8 +356,8 @@ class SupabaseTripsRepository implements TripsRepository {
   final SupabaseClient _client;
 
   @override
-  Future<List<Trip>> listForDriver(
-    String driverId, {
+  Future<List<Trip>> listForCrew(
+    String staffId, {
     required DateTime from,
     required DateTime to,
   }) =>
@@ -365,7 +365,8 @@ class SupabaseTripsRepository implements TripsRepository {
         final data = await _client
             .from('trips')
             .select(Columns.trip)
-            .eq('driver_id', driverId)
+            // The id is the signed-in user's own uuid, never typed text, so it is safe in the filter.
+            .or('driver_id.eq.$staffId,assistant_id.eq.$staffId')
             .gte('scheduled_start', from.toUtc().toIso8601String())
             .lt('scheduled_start', to.toUtc().toIso8601String())
             .order('scheduled_start', ascending: true)
@@ -573,6 +574,13 @@ class SupabaseLivePositionsRepository implements LivePositionsRepository {
           'p_accuracy_m': accuracyM,
         });
         return kept == true;
+      });
+
+  @override
+  Future<PositionHolder?> positionHolder(String tripId) => guarded(() async {
+        final rows = await _client.rpc<List<dynamic>>('trip_position_holder', params: {'p_trip_id': tripId});
+        if (rows.isEmpty) return null;
+        return PositionHolder.fromJson(Map<String, dynamic>.from(rows.first as Map));
       });
 
   @override
