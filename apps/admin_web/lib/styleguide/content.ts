@@ -194,6 +194,54 @@ export const EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
 export const MOTION_NOTE =
   "Easing is a soft ease-out (0.22, 1, 0.36, 1) everywhere. Loading uses shimmers shaped like the content they stand in for, never a spinner on its own.";
 
+/** How BusIn draws people (owner direction, 2026-11-13): the landing scene is the reference. */
+export const PEOPLE_STYLE = {
+  intro:
+    "People are drawn flat and warm: students in real school life, with a little stippled grain on what they wear. It is the house style for every illustration with people in it, on the web, in the apps and in print. The two references below set the look.",
+  rules: [
+    "Flat shapes, no outlines, no gradients, no 3D. A few thin lines mark folds, pleats and seams.",
+    "A stippled speckle of small lighter and darker flecks on clothes, bags, foliage and walls. Never on skin or faces.",
+    "A warm palette around the brand: mustard, terracotta, olive and leaf greens, sage and sand, deep teal for structures, orange for the one accent.",
+    "Rounded bodies with slightly long limbs, small expressive hands, chunky shoes with light soles.",
+    "Simple faces: dot eyes, a small mouth, round rosy cheeks. Feelings show in the pose first.",
+    "Expressive hair and details: a long braid that swings, a high bun, tight curls, big hoop earrings.",
+    "Students as they are: mostly African, varied in skin tone and build, with backpacks, totes, phones and a coffee.",
+    "No words, letters or logos inside an illustration. Text belongs to the interface around it, in both languages.",
+  ],
+  palette: [
+    ["Mustard", "#f0b63c"],
+    ["Terracotta", "#cf6a43"],
+    ["Olive", "#7f8a3c"],
+    ["Leaf green", "#79a744"],
+    ["Deep green", "#36683a"],
+    ["Sage", "#b9c8b0"],
+    ["Sand", "#f0c57e"],
+    ["Brick", "#d9774f"],
+    ["Brand teal", "#0c5d6d"],
+    ["Brand orange", "#f5951f"],
+  ] as [string, string][],
+  skin: ["#e8bb94", "#c4885e", "#8c5a3c", "#6f4430"],
+  referenceNote:
+    "Style references only (public/styleguide/references). Copy the drawing, the palette and the grain; not the lettering in them: illustrations carry no words or logos.",
+  /** A prompt that reproduces the style with an image model. */
+  prompt:
+    "Flat vector editorial illustration with a stippled grain texture (small lighter and darker specks on clothes, bags, foliage and walls, none on skin). Warm palette: mustard #f0b63c, terracotta #cf6a43, olive #7f8a3c, leaf green #79a744, deep green #36683a, sage #b9c8b0, sand #f0c57e, with deep teal #0c5d6d for structures and orange #f5951f as the single accent. Young African university students with rounded bodies, slightly long limbs, small expressive hands, chunky sneakers with light soles, simple faces with dot eyes and round rosy cheeks, expressive hair (a long swinging braid, a high bun, tight curls) and big hoop earrings. Calm warm daylight, no outlines, no gradients, no 3D, no text, letters or logos anywhere in the image.",
+};
+
+/** The landing page's bus stop scene: how it is made and kept. */
+export const LANDING_SCENE = {
+  intro:
+    "The landing page opens on a campus bus stop drawn in the people style. It is built in layers so it stays sharp, follows the theme and keeps its speech chips: a street picture by day and one by night, each person as a cut-out on top, and the BusIn mark laid on the two flyers.",
+  rules: [
+    "The street has no people and no words. Its sky is cut away, so the page's own sky (sun, clouds, moon and stars) shows through.",
+    "The night picture is an edit of the day one with the same framing: it takes the day picture's sky cut, and every person and flyer stays in place.",
+    "People are placed in percent of the picture, standing on the pavement; the walkers, the bench and the spot by the sign stay clear in the street picture for them.",
+    "Street details stay small and calm: a dog, two chickens, birds, a bin, fallen leaves, a few cracks. The people come first.",
+    "The flyers are drawn blank; the real BusIn mark goes on them in the page, never drawn by the image model.",
+    "Replacing a picture means a new file name, so caches never serve the old one. The prompts live in docs/guides/landing-hero-art.md.",
+  ],
+};
+
 export const ILLUSTRATION_NOTE =
   "From thiings.co, free to use. They sit on the page background with no frame, at 96 to 160px, and are never used as wallpaper. Stored as WebP at 480px.";
 
@@ -217,6 +265,10 @@ export const THREE_D: [string, string][] = [
 /** How each component behaves, in the words the page uses under its demo. */
 export const COMPONENT_NOTES: { name: string; note: string }[] = [
   { name: "Buttons", note: "Primary (accent), secondary, ghost and danger, with an optional icon; a disabled button stays readable. A link that looks like a button is ButtonLink. Labels are verbs that say what happens: Save stop, not Submit." },
+  {
+    name: "Sign in with Google",
+    note: "The sign-in button carries Google's own four-colour G on a small white disc (GoogleMark), never a generic icon, as Google's brand rules ask; the label says what happens in the page's language. The student and ops apps use the same mark (GoogleMark in busin_ui).",
+  },
   { name: "Chips", note: "A short state label in a tone: neutral, accent, ok (Approved), warn (Pending), bad (Rejected), info (Running). The label always carries the meaning; the tone only supports it." },
   {
     name: "Tags",

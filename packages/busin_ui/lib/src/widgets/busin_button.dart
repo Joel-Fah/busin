@@ -31,6 +31,7 @@ class BusinButton extends StatefulWidget {
     required this.onPressed,
     this.variant = BusinButtonVariant.primary,
     this.icon,
+    this.leading,
     this.loading = false,
     this.expand = false,
   });
@@ -39,6 +40,9 @@ class BusinButton extends StatefulWidget {
   final VoidCallback? onPressed;
   final BusinButtonVariant variant;
   final List<List<dynamic>>? icon;
+
+  /// A widget before the label instead of an icon (for example [GoogleMark] on the sign-in button).
+  final Widget? leading;
 
   /// Shows progress and ignores presses.
   final bool loading;
@@ -78,9 +82,11 @@ class _BusinButtonState extends State<BusinButton> {
         children: [
           if (widget.loading)
             SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: ink))
+          else if (widget.leading != null)
+            widget.leading!
           else if (widget.icon != null)
             HugeIcon(icon: widget.icon!, size: 18, color: ink),
-          if (widget.loading || widget.icon != null) const SizedBox(width: BusinSpace.x2),
+          if (widget.loading || widget.leading != null || widget.icon != null) const SizedBox(width: BusinSpace.x2),
           Flexible(
             child: Text(
               widget.label,

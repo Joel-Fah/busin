@@ -87,7 +87,9 @@ void main() {
   test('failureFor sorts what a repository throws into what the screen explains', () {
     expect(failureFor(const Conflict('x')), SubscribeFailure.alreadyRequested);
     expect(failureFor(const Offline('x')), SubscribeFailure.offline);
-    expect(failureFor(const Invalid('x')), SubscribeFailure.rejectedFile);
+    expect(failureFor(const ProofRejected(Invalid('x'))), SubscribeFailure.rejectedFile, reason: 'only the upload refusing the photo blames the file');
+    expect(failureFor(const Invalid('x')), SubscribeFailure.other, reason: 'a refused request is not about the photo');
+    expect(failureFor(const Invalid('x', reason: 'missing_reference')), SubscribeFailure.unavailable);
     expect(failureFor(const NotAllowed('x')), SubscribeFailure.other);
     // The server's short reasons say what is wrong (ADR: reasons come from our own functions).
     expect(failureFor(const Invalid('x', reason: 'proof_required')), SubscribeFailure.proofRequired);
