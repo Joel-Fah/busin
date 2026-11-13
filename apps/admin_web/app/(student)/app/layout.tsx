@@ -4,6 +4,7 @@ import { Suspense } from "react";
 
 import { FirstOpen } from "@/components/student/FirstOpen";
 import { ServiceWorker } from "@/components/student/ServiceWorker";
+import { UpdateNotice } from "@/components/student/UpdateNotice";
 import { getStudentCopy } from "@/lib/i18n/server";
 import { downloads } from "@/lib/landing/downloads";
 import { RoughFilter } from "@/components/ui/RoughFilter";
@@ -76,5 +77,10 @@ export default function StudentAppLayout({ children }: { children: React.ReactNo
 async function Welcome() {
   const { s } = await getStudentCopy();
   const links = downloads();
-  return <FirstOpen welcome={s.welcome} appSheet={s.appSheet} links={{ android: links.play ?? links.apk, ios: links.ios }} />;
+  return (
+    <>
+      <FirstOpen welcome={s.welcome} appSheet={s.appSheet} links={{ android: links.play ?? links.apk, ios: links.ios }} />
+      <UpdateNotice copy={s.update} />
+    </>
+  );
 }

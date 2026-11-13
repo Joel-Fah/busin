@@ -364,6 +364,7 @@ const en = {
     failed: "Notifications could not be turned on. Try again.",
     busNear: "Your bus is a few minutes from your stop.",
   },
+  update: { text: "BusIn was updated.", reload: "Reload", later: "Later", close: "Hide this note" },
   welcome: {
     title: "BusIn just hopped onto the web",
     body: "No download needed. Subscribe, show your boarding code and follow your bus, right here in your browser. Add it to your home screen and it opens like an app.",
@@ -753,6 +754,7 @@ const fr: StudentCopy = {
     failed: "Les notifications n’ont pas pu être activées. Réessayez.",
     busNear: "Votre bus est à quelques minutes de votre arrêt.",
   },
+  update: { text: "BusIn a été mis à jour.", reload: "Recharger", later: "Plus tard", close: "Masquer cette note" },
   welcome: {
     title: "BusIn débarque sur le web",
     body: "Rien à télécharger. Abonnez-vous, présentez votre code d’embarquement et suivez votre bus, ici même dans votre navigateur. Ajoutez-le à votre écran d’accueil et il s’ouvre comme une application.",
