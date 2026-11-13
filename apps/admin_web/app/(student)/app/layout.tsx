@@ -23,7 +23,14 @@ export const metadata: Metadata = {
       { url: "/app-icons/icon-192.png", sizes: "192x192", type: "image/png" },
       { url: "/app-icons/icon-512.png", sizes: "512x512", type: "image/png" },
     ],
-    apple: [{ url: "/app-icons/apple-touch-180.png", sizes: "180x180" }],
+    // iOS reads these, not the manifest: one per size it asks for (iPhone 180, iPad Pro 167, iPad 152). A copy also sits at
+    // /apple-touch-icon.png and /apple-touch-icon-precomposed.png, which some iOS versions fetch first; without an icon in
+    // time, iOS draws the first letter of the name instead.
+    apple: [
+      { url: "/app-icons/apple-touch-180.png", sizes: "180x180", type: "image/png" },
+      { url: "/app-icons/apple-touch-167.png", sizes: "167x167", type: "image/png" },
+      { url: "/app-icons/apple-touch-152.png", sizes: "152x152", type: "image/png" },
+    ],
   },
   formatDetection: { telephone: false },
   // The share card of the student web app (opengraph-image.tsx beside this file), with its own words.

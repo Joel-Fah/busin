@@ -25,6 +25,7 @@ const en = {
     failed: "Sign-in did not work. Try again.",
     notAllowed: "This Google account is not allowed here. Use your school account.",
     working: "Signing you in",
+    other: "Trouble signing in? Continue with Google another way",
   },
   blocked: {
     staffTitle: "This app is for students",
@@ -413,6 +414,7 @@ const fr: StudentCopy = {
     failed: "La connexion n’a pas fonctionné. Réessayez.",
     notAllowed: "Ce compte Google n’est pas autorisé ici. Utilisez votre compte de l’école.",
     working: "Connexion en cours",
+    other: "Un souci pour vous connecter ? Continuer avec Google autrement",
   },
   blocked: {
     staffTitle: "Cette application est réservée aux étudiants",
