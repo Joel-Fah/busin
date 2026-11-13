@@ -18,6 +18,7 @@ import {
   UserMultiple02Icon,
 } from "@hugeicons/core-free-icons";
 
+import { BusStopScene } from "@/components/landing/BusStopScene";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Avatar } from "@/components/ui/Avatar";
@@ -42,6 +43,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { DataTable, Head, TableCard, Td, Th, Tr } from "@/components/ui/Table";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { requireAdmin } from "@/lib/auth";
+import { landingCatalogues } from "@/lib/i18n/landing";
 import { AA_TEXT, contrastRatio } from "@/lib/ui/contrast";
 import { RADIUS, innerRadius } from "@/lib/ui/radius";
 import { DARK as dark, LIGHT as light, TEXT_PAIRS } from "@/lib/ui/tokens";
@@ -58,6 +60,7 @@ import {
   NAV_HELP,
   NAV_RULES,
   NEVER,
+  PEOPLE_STYLE,
   PHOTO_NOTE,
   PRINCIPLES,
   ROUGH_NOTE,
@@ -383,7 +386,29 @@ async function Styleguide() {
       </Section>
 
       <Section {...sectionProps("imagery")}>
-        <h3 className="mb-3 text-lg font-bold">3D objects</h3>
+        <h3 className="mb-3 text-lg font-bold">People illustrations</h3>
+        <p className="mb-4 max-w-2xl text-sm text-muted">{PEOPLE_STYLE.intro}</p>
+        <div className="overflow-hidden rounded-lg bg-surface shadow-soft">
+          <BusStopScene chips={landingCatalogues.en.hero.chips} />
+        </div>
+        <ul className="m-0 mt-4 grid list-none gap-2 p-0 text-sm sm:grid-cols-2">
+          {PEOPLE_STYLE.rules.map((rule) => (
+            <li key={rule} className="rounded-md bg-surface-2 p-4">
+              {rule}
+            </li>
+          ))}
+        </ul>
+        <div className="mt-4 grid grid-cols-5 gap-2 sm:grid-cols-10" aria-label="People illustration palette">
+          {PEOPLE_STYLE.palette.map(([name, hex]) => (
+            <div key={name}>
+              <div className="h-12 rounded-xs" style={{ background: hex }} />
+              <p className="mt-1 text-[11px] font-semibold">{name}</p>
+              <p className="text-[11px] text-muted">{hex}</p>
+            </div>
+          ))}
+        </div>
+
+        <h3 className="mt-8 mb-3 text-lg font-bold">3D objects</h3>
         <p className="mb-4 max-w-2xl text-sm text-muted">{ILLUSTRATION_NOTE}</p>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
           {THREE_D.map(([file, label]) => (

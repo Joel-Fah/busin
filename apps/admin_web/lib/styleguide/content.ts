@@ -194,6 +194,38 @@ export const EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
 export const MOTION_NOTE =
   "Easing is a soft ease-out (0.22, 1, 0.36, 1) everywhere. Loading uses shimmers shaped like the content they stand in for, never a spinner on its own.";
 
+/** How BusIn draws people (owner direction, 2026-11-13): the landing scene is the reference. */
+export const PEOPLE_STYLE = {
+  intro:
+    "People are drawn flat and warm, the way the landing page's bus stop scene is: students in real school life, with a little stippled grain on what they wear. It is the house style for every illustration with people in it, on the web, in the apps and in print.",
+  rules: [
+    "Flat shapes, no outlines, no gradients, no 3D. A few thin lines mark folds, pleats and seams.",
+    "A stippled speckle of small lighter and darker flecks on clothes, bags, foliage and walls. Never on skin or faces.",
+    "A warm palette around the brand: mustard, terracotta, olive and leaf greens, sage and sand, deep teal for structures, orange for the one accent.",
+    "Rounded bodies with slightly long limbs, small expressive hands, chunky shoes with light soles.",
+    "Simple faces: dot eyes, a small mouth, round rosy cheeks. Feelings show in the pose first.",
+    "Expressive hair and details: a long braid that swings, a high bun, tight curls, big hoop earrings.",
+    "Students as they are: mostly African, varied in skin tone and build, with backpacks, totes, phones and a coffee.",
+    "No words, letters or logos inside an illustration. Text belongs to the interface around it, in both languages.",
+  ],
+  palette: [
+    ["Mustard", "#f0b63c"],
+    ["Terracotta", "#cf6a43"],
+    ["Olive", "#7f8a3c"],
+    ["Leaf green", "#79a744"],
+    ["Deep green", "#36683a"],
+    ["Sage", "#b9c8b0"],
+    ["Sand", "#f0c57e"],
+    ["Brick", "#d9774f"],
+    ["Brand teal", "#0c5d6d"],
+    ["Brand orange", "#f5951f"],
+  ] as [string, string][],
+  skin: ["#e8bb94", "#c4885e", "#8c5a3c", "#6f4430"],
+  /** A prompt that reproduces the style with an image model. */
+  prompt:
+    "Flat vector editorial illustration with a stippled grain texture (small lighter and darker specks on clothes, bags, foliage and walls, none on skin). Warm palette: mustard #f0b63c, terracotta #cf6a43, olive #7f8a3c, leaf green #79a744, deep green #36683a, sage #b9c8b0, sand #f0c57e, with deep teal #0c5d6d for structures and orange #f5951f as the single accent. Young African university students with rounded bodies, slightly long limbs, small expressive hands, chunky sneakers with light soles, simple faces with dot eyes and round rosy cheeks, expressive hair (a long swinging braid, a high bun, tight curls) and big hoop earrings. Calm warm daylight, no outlines, no gradients, no 3D, no text, letters or logos anywhere in the image.",
+};
+
 export const ILLUSTRATION_NOTE =
   "From thiings.co, free to use. They sit on the page background with no frame, at 96 to 160px, and are never used as wallpaper. Stored as WebP at 480px.";
 
