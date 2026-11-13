@@ -13,11 +13,18 @@ export function createMarkerElement(item: MapMarker): HTMLElement {
     item.selected ? "map-marker-selected" : "",
     item.variant === "me" ? "map-marker-me" : "",
     item.variant === "campus" ? "map-marker-campus" : "",
+    item.variant === "bus" ? "map-marker-bus" : "",
     item.badge ? "map-marker-badge" : "",
   ]
     .filter(Boolean)
     .join(" ");
   if (item.badge) element.textContent = item.badge;
+  if (item.variant === "bus") {
+    const picture = document.createElement("img");
+    picture.src = "/app/map-bus.webp";
+    picture.alt = "";
+    element.append(picture);
+  }
   element.setAttribute("aria-label", item.label);
   element.dataset.tip = item.label;
   if (item.href && element instanceof HTMLAnchorElement) element.href = item.href;

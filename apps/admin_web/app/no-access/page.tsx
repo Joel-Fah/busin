@@ -29,6 +29,8 @@ async function NoAccessContent() {
   const current = await getCurrentUser();
   if (!current) redirect("/login");
   if (decideAccess(current.profile) === "admin") redirect("/");
+  // Students have their own web app (ADR 0021).
+  if (current.profile?.role === "student") redirect("/app");
 
   const { locale, t } = await getMessages();
   const email = current.profile?.email ?? current.user.email ?? "";

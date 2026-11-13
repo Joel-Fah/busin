@@ -29,6 +29,8 @@ test.describe("the landing page's interest form", () => {
     // One button, whichever phone the visitor has.
     await expect(page.locator("section[aria-labelledby=download] [data-interest=notify]")).toHaveCount(1);
     await expect(page.locator("section[aria-labelledby=download] [data-interest=notify]")).toHaveText("Get notified");
+    // The student web app has its own card, available now (ADR 0021).
+    await expect(page.locator("section[aria-labelledby=download]").getByRole("link", { name: "Open BusIn" })).toHaveAttribute("href", "/app");
 
     await page.locator("section[aria-labelledby=download] [data-interest=notify]").click();
     const dialog = page.getByRole("dialog", { name: "Tell me when the app is out" });

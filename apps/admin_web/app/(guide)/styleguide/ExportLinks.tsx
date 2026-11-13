@@ -1,4 +1,4 @@
-import { Download04Icon, FileAttachmentIcon } from "@hugeicons/core-free-icons";
+import { DownloadCircle01Icon, FileAttachmentIcon } from "@hugeicons/core-free-icons";
 
 import { ButtonLink } from "@/components/ui/Button";
 
@@ -9,7 +9,7 @@ import { ButtonLink } from "@/components/ui/Button";
 export function ExportLinks() {
   return (
     <div className="flex flex-wrap gap-2" role="group" aria-label="Export the styleguide">
-      <ButtonLink href="/styleguide/export/markdown" variant="secondary" icon={Download04Icon} download tip="A Markdown file to give an AI agent">
+      <ButtonLink href="/styleguide/export/markdown" variant="secondary" icon={DownloadCircle01Icon} download tip="A Markdown file to give an AI agent">
         Markdown for agents
       </ButtonLink>
       <ButtonLink href="/styleguide/export/pdf" variant="secondary" icon={FileAttachmentIcon} download tip="A PDF to read or print">

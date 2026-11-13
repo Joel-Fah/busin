@@ -36,7 +36,7 @@ select lives_ok($$select public.register_device_token('token-of-student-one-aaaa
 select is((select count(*)::int from public.device_tokens), 1, 'and sees it');
 select is((select locale from public.device_tokens), 'fr', 'with the language the phone uses');
 select throws_ok($$select public.register_device_token('short', 'android')$$, '22023', 'That does not look like a device token', 'a token that is too short is refused');
-select throws_ok($$select public.register_device_token('token-of-student-one-bbbbbbbbbbbb', 'windows')$$, '22023', 'The platform must be android or ios', 'an unknown platform is refused');
+select throws_ok($$select public.register_device_token('token-of-student-one-bbbbbbbbbbbb', 'windows')$$, '22023', 'The platform must be android, ios or web', 'an unknown platform is refused');
 select throws_ok($$select public.register_device_token('token-of-student-one-cccccccccccc', 'ios', 'de')$$, '22023', 'The language must be en or fr', 'an unknown language is refused');
 select throws_ok($$insert into public.device_tokens (school_id, user_id, token, platform) values ('10000000-0000-4000-8000-000000000001', 'a1000000-0000-4000-8000-000000000001', 'token-inserted-directly-xxxx', 'android')$$, '42501', null, 'a table write is not allowed, only the function');
 select throws_ok($$delete from public.device_tokens$$, '42501', null, 'neither is a delete');

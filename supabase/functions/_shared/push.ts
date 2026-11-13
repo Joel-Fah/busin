@@ -54,15 +54,41 @@ export function asLocale(value: string): Locale {
   return value === "fr" ? "fr" : "en";
 }
 
-/** The FCM HTTP v1 request body for one phone. */
-export function buildMessage(token: string, kind: Kind, refId: string | null, locale: Locale) {
+/** Where a tapped web notification opens the student web app (ADR 0021), as the app's push routes. */
+export function webRoute(kind: Kind): string {
+  if (kind === "bus_near_stop") return "/app/bus";
+  if (kind === "crew_assigned") return "/app";
+  return "/app/subscription";
+}
+
+/**
+ * The FCM HTTP v1 request body for one device. A browser (platform "web", the student web app) gets a webpush message:
+ * the app's icon, and the page to open when tapped, on the site at `webBase` (https only; without it the tap opens the
+ * service worker's default). Phones get the Android and Apple blocks.
+ */
+export function buildMessage(token: string, kind: Kind, refId: string | null, locale: Locale, platform = "android", webBase?: string) {
   const text = TEXT[kind][locale];
+  const data = { kind, ...(refId ? { ref_id: refId } : {}) };
+  if (platform === "web") {
+    const base = webBase && /^https:\/\/[^/\s]+$/.test(webBase) ? webBase : null;
+    return {
+      message: {
+        token,
+        notification: { title: text.title, body: text.body },
+        data,
+        webpush: {
+          notification: base ? { icon: `${base}/app-icons/icon-192.png`, badge: `${base}/app-icons/badge-96.png` } : {},
+          ...(base ? { fcm_options: { link: `${base}${webRoute(kind)}` } } : {}),
+        },
+      },
+    };
+  }
   return {
     message: {
       token,
       notification: { title: text.title, body: text.body },
       // Only ids: the app looks the details up itself, signed in as the student.
-      data: { kind, ...(refId ? { ref_id: refId } : {}) },
+      data,
       android: { priority: "HIGH", notification: { channel_id: "busin_updates" } },
       apns: { payload: { aps: { sound: "default" } } },
     },
@@ -89,6 +115,8 @@ export type Deps = {
   send: (message: ReturnType<typeof buildMessage>) => Promise<SendResult>;
   completeNotification: (id: number, error: string | null) => Promise<void>;
   dropToken: (token: string) => Promise<void>;
+  /** The student web app's https address (PUSH_WEB_BASE_URL), for web notifications' icon and link. */
+  webBase?: string;
 };
 
 export type BatchReport = { processed: number; sent: number; deadTokens: number; failed: number };
@@ -115,7 +143,7 @@ export async function processBatch(deps: Deps, rows: Claimed[]): Promise<BatchRe
     for (const phone of row.tokens) {
       let result: SendResult;
       try {
-        result = await deps.send(buildMessage(phone.token, row.kind, row.ref_id, asLocale(phone.locale)));
+        result = await deps.send(buildMessage(phone.token, row.kind, row.ref_id, asLocale(phone.locale), phone.platform, deps.webBase));
       } catch {
         result = { status: 0, body: "network error" };
       }

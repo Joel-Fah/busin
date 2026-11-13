@@ -31,6 +31,15 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: student web app (2026-11-13)
+
+Done, as stacked PRs into `dev` (merge in order): ADR 0021 (#390), shell, sign-in and install (#392), join, waiting and setup (#394), subscription (#396), boarding code (#398), My bus (#400), profile and settings (#402), offline (#404), web push (#406), landing link (this PR). The PWA lives at `/app`, mirrors the student app's flows and words, installs with the teal-on-white icon, works offline once opened, and shows codes from a key the browser cannot read out.
+
+Owner, before it goes live:
+- set `NEXT_PUBLIC_GOOGLE_CLIENT_ID` (the Google web client id Supabase uses) on Vercel and in `.env.local`, and add the site (and `http://127.0.0.1:3000`) to that client's Authorized JavaScript origins; until then the sign-in button uses the redirect flow;
+- web push is set up (2026-11-13): Firebase web app "BusIn Web" with its Web Push key, the five `NEXT_PUBLIC_FIREBASE_*` values on Vercel (Production and Preview) and in `.env.local`, `PUSH_WEB_BASE_URL=https://busin-navy.vercel.app` on the functions, the hosted migration `20261115140000_web_push` applied and `send-push` redeployed. It works on the site once these PRs reach `main` and Vercel rebuilds;
+- run the student specs against a production build: `E2E_PROD=1 E2E_PORT=3100 npx playwright test e2e/student-web*.spec.ts` (the dev server forces reloads on these pages, and only a production build registers the service worker).
+
 ## Handoff: revoke push (2026-11-13)
 
 Done: #386 (PR below): a revoked subscription pushes to the student. Needs the hosted migration `20261115130000_push_revoked` and a redeploy of `send-push` (both with the owner's approval), and a student app rebuild for the tap to open the subscription tab (older builds still show the notification).

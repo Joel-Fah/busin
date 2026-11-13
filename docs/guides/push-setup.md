@@ -35,6 +35,16 @@ If it does not arrive: check that the app has notification permission in the pho
 3. Deploy: `supabase functions deploy send-push`.
 4. Choose what calls it (ADR 0010, option A: a `pg_cron` job every minute that posts to the function with the `x-push-secret` header).
 
+## 4. The student web app (owner)
+
+The PWA at `/app` (ADR 0021) uses the same Firebase project and the same `send-push` function; only the browser side is new.
+
+1. In the Firebase console: Project settings, Your apps, add a **Web app** (no hosting). Copy its config.
+2. Cloud Messaging, **Web Push certificates**: generate a key pair and copy the public key.
+3. Set these public values on Vercel and in `apps/admin_web/.env.local`: `NEXT_PUBLIC_FIREBASE_API_KEY`, `NEXT_PUBLIC_FIREBASE_PROJECT_ID`, `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`, `NEXT_PUBLIC_FIREBASE_APP_ID`, `NEXT_PUBLIC_FIREBASE_VAPID_KEY`. Until they are set the app does not offer notifications.
+4. Apply the migration `20261115140000_web_push.sql` (the platform `web`) and set the function secret `PUSH_WEB_BASE_URL` to the site's https address (no trailing slash), then redeploy `send-push`.
+5. Try it: open `/app` in Chrome on Android (or add it to the home screen on an iPhone with iOS 16.4 or later), turn notifications on from Profile, Notifications, and approve a request from the portal.
+
 ## What is not covered yet
 - iOS needs an Apple developer account, an APNs key uploaded to Firebase and the `GoogleService-Info.plist`. The app code is ready for it; the setup is not done.
 - Notification kinds beyond subscription decisions (trip events) arrive with the later phases.

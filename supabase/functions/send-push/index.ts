@@ -86,6 +86,7 @@ Deno.serve(async (request) => {
       dropToken: async (value) => {
         await supabase.rpc("drop_device_token", { p_token: value });
       },
+      webBase: (Deno.env.get("PUSH_WEB_BASE_URL") ?? "").replace(/\/+$/, "") || undefined,
     },
     rows,
   );

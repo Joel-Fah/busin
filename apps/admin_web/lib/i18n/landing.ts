@@ -46,6 +46,8 @@ export type LandingCopy = {
   private: { facts: { title: string; text: string }[] };
   download: {
     students: { title: string; text: string; soon: string; notify: string; play: string; apk: string; ios: string };
+    /** The student web app at /app (ADR 0021): no download, any browser. */
+    web: { title: string; text: string; cta: string; note: string; badge: string };
     team: { title: string; text: string; cta: string };
   };
   form: {
@@ -130,6 +132,13 @@ const en: LandingCopy = {
       play: "Get it on Google Play",
       apk: "Download the APK",
       ios: "Download on the App Store",
+    },
+    web: {
+      title: "In your browser",
+      text: "No download, no store. Open BusIn on any phone or computer, add it to your home screen, and it works like the app, boarding code included, even without a connection.",
+      cta: "Open BusIn",
+      note: "Sign in with your school Google account.",
+      badge: "Available now",
     },
     team: {
       title: "For the school team",
@@ -274,6 +283,13 @@ const fr: LandingCopy = {
       play: "Disponible sur Google Play",
       apk: "Télécharger l'APK",
       ios: "Télécharger dans l'App Store",
+    },
+    web: {
+      title: "Dans votre navigateur",
+      text: "Rien à télécharger, pas de store. Ouvrez BusIn sur n'importe quel téléphone ou ordinateur, ajoutez-le à l'écran d'accueil, et il fonctionne comme l'application, code d'embarquement compris, même sans connexion.",
+      cta: "Ouvrir BusIn",
+      note: "Connectez-vous avec le compte Google de votre école.",
+      badge: "Disponible",
     },
     team: {
       title: "Pour l'équipe de l'école",

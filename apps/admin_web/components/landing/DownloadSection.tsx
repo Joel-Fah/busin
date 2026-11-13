@@ -1,4 +1,4 @@
-import { Bus01Icon, Download04Icon, Location01Icon, PlayStoreIcon, QrCodeIcon, Tick02Icon, UserGroupIcon } from "@hugeicons/core-free-icons";
+import { Bus01Icon, DownloadCircle01Icon, GlobeIcon, Location01Icon, LockIcon, PlayStoreIcon, QrCodeIcon, Tick02Icon, UserGroupIcon } from "@hugeicons/core-free-icons";
 import type { ReactNode } from "react";
 
 import { ButtonLink } from "@/components/ui/Button";
@@ -7,7 +7,7 @@ import { Icon } from "@/components/ui/Icon";
 import type { LandingCopy } from "@/lib/i18n/landing";
 import type { Downloads } from "@/lib/landing/downloads";
 
-import { DayScreen } from "./day/DayScreens";
+import { DayScreen, FakeCode } from "./day/DayScreens";
 import { Laptop, Phone, Tablet } from "./devices/Devices";
 import { InterestButton } from "./interest/Interest";
 import { Reveal } from "./motion/Reveal";
@@ -16,19 +16,36 @@ import { Reveal } from "./motion/Reveal";
  * A card with its words on top and its devices rising from the bottom edge, cut off by it. Pointing at the card lifts the
  * devices a little and spreads them apart (MOVE, below); for reduced motion they stay where they are.
  */
-function DeviceCard({ title, text, badge, actions, devices }: { title: string; text: string; badge?: string; actions: ReactNode; devices: ReactNode }) {
+function DeviceCard({
+  title,
+  text,
+  badge,
+  badgeTone = "warn",
+  wide = false,
+  actions,
+  devices,
+}: {
+  title: string;
+  text: string;
+  badge?: string;
+  badgeTone?: "warn" | "ok";
+  /** Across both columns on a wide screen. */
+  wide?: boolean;
+  actions: ReactNode;
+  devices: ReactNode;
+}) {
   return (
-    <Reveal className="group/card relative flex flex-col overflow-hidden rounded-xl bg-surface shadow-soft transition-shadow duration-(--dur) ease-soft [--thread-color:var(--color-line)] hover:shadow-float">
+    <Reveal className={`group/card relative flex flex-col overflow-hidden rounded-xl bg-surface shadow-soft transition-shadow duration-(--dur) ease-soft [--thread-color:var(--color-line)] hover:shadow-float ${wide ? "lg:col-span-2 lg:flex-row" : ""}`}>
       <Contour radius={36} inset={10} />
-      <div className="relative flex flex-col gap-4 p-8 sm:p-10">
+      <div className={`relative flex flex-col gap-4 p-8 sm:p-10 ${wide ? "lg:w-[44%] lg:shrink-0 lg:justify-center" : ""}`}>
         <div className="flex flex-wrap items-center gap-3">
           <h3 className="m-0 text-3xl font-extrabold tracking-tight">{title}</h3>
-          {badge ? <span className="whitespace-nowrap rounded-xs bg-warn-bg px-2.5 py-1 text-xs font-bold text-warn">{badge}</span> : null}
+          {badge ? <span className={`whitespace-nowrap rounded-xs px-2.5 py-1 text-xs font-bold ${badgeTone === "ok" ? "bg-ok-bg text-ok" : "bg-warn-bg text-warn"}`}>{badge}</span> : null}
         </div>
         <p className="m-0 max-w-[30rem] text-pretty text-lg leading-relaxed text-muted">{text}</p>
         <div className="mt-2 flex flex-wrap gap-3">{actions}</div>
       </div>
-      <div className="relative mt-auto h-[19rem] overflow-hidden sm:h-[22rem]">{devices}</div>
+      <div className={`relative mt-auto h-[19rem] overflow-hidden sm:h-[22rem] ${wide ? "lg:mt-0 lg:h-auto lg:min-h-[24rem] lg:flex-1" : ""}`}>{devices}</div>
     </Reveal>
   );
 }
@@ -36,11 +53,57 @@ function DeviceCard({ title, text, badge, actions, devices }: { title: string; t
 /** How each device moves when the card is pointed at: up a little, and away from the device beside it. */
 const MOVE = {
   base: "transition-[translate,rotate] duration-(--dur-slow) ease-soft",
-  phoneLeft: "motion-safe:group-hover/card:-translate-x-5 motion-safe:group-hover/card:-translate-y-3 motion-safe:group-hover/card:-rotate-6",
-  phoneRight: "motion-safe:group-hover/card:translate-x-5 motion-safe:group-hover/card:-translate-y-5 motion-safe:group-hover/card:rotate-6",
-  laptop: "motion-safe:group-hover/card:translate-x-[18%] motion-safe:group-hover/card:-translate-y-3",
-  tablet: "motion-safe:group-hover/card:-translate-x-5 motion-safe:group-hover/card:-translate-y-4 motion-safe:group-hover/card:-rotate-4",
+  phoneLeft: "motion-safe:group-hover/card:-translate-x-2 motion-safe:group-hover/card:-translate-y-2 motion-safe:group-hover/card:-rotate-4",
+  phoneRight: "motion-safe:group-hover/card:translate-x-2 motion-safe:group-hover/card:-translate-y-2.5 motion-safe:group-hover/card:rotate-4",
+  laptop: "motion-safe:group-hover/card:translate-x-[15%] motion-safe:group-hover/card:-translate-y-1.5",
+  /** The browser card's laptop, which sits without the team card's sideways offset. */
+  laptopLeft: "motion-safe:group-hover/card:-translate-x-2 motion-safe:group-hover/card:-translate-y-1.5",
+  tablet: "motion-safe:group-hover/card:-translate-x-2 motion-safe:group-hover/card:-translate-y-2 motion-safe:group-hover/card:-rotate-3",
 };
+
+/** A browser's address bar over a screen: the web app at /app of this site. Shapes, a lock and the address only. */
+function BrowserFrame({ host, small = false, children }: { host: string; small?: boolean; children: ReactNode }) {
+  return (
+    <div className="flex size-full flex-col bg-bg">
+      <div className={`flex items-center gap-2 bg-surface ${small ? "px-2 pt-7 pb-1.5" : "px-3 py-2"}`}>
+        {small ? null : (
+          <span aria-hidden className="flex gap-1">
+            <span className="size-2 rounded-full bg-bad/70" />
+            <span className="size-2 rounded-full bg-warn/70" />
+            <span className="size-2 rounded-full bg-ok/70" />
+          </span>
+        )}
+        <span className={`flex min-w-0 flex-1 items-center gap-1.5 rounded-full bg-surface-2 text-muted ${small ? "px-2 py-0.5 text-[9px]" : "px-3 py-1 text-[11px]"}`}>
+          <Icon icon={LockIcon} size={small ? 9 : 11} />
+          <span className="truncate">{host}/app</span>
+        </span>
+      </div>
+      <div className="relative min-h-0 flex-1 overflow-hidden">{children}</div>
+    </div>
+  );
+}
+
+/** The web app's boarding ticket, small: seed teal, the same code as the student card's pass on a white panel, the name. */
+function WebTicket() {
+  return (
+    <div className="grid size-full place-items-center p-5">
+      <div className="flex w-[40%] flex-col items-center gap-3 rounded-[1.4rem] bg-seed p-4 text-white shadow-float">
+        <span className="flex w-full items-center justify-between text-[10px] font-bold">
+          <span className="h-2.5 w-10 rounded-xs bg-white/80" />
+          <span className="flex items-center gap-1 rounded-full bg-white/15 px-2 py-0.5">
+            <span className="size-1.5 rounded-full bg-ok" />
+            <span className="h-1.5 w-6 rounded-xs bg-white/70" />
+          </span>
+        </span>
+        <span className="block w-full rounded-xl bg-white p-2.5 text-[#0b1a1f]">
+          <FakeCode />
+        </span>
+        <span className="h-2.5 w-3/4 self-start rounded-xs bg-white/85" />
+        <span className="-mt-1 h-2 w-1/2 self-start rounded-xs bg-white/50" />
+      </div>
+    </div>
+  );
+}
 
 /** The driver's view on a tablet: today's trip, its stops, and a big start button. Shapes and icons only. */
 function TripScreen() {
@@ -114,10 +177,10 @@ function OfficeScreen() {
 }
 
 /**
- * Get BusIn: the student app (Android and iPhone, one Get notified until a store link is set) and the tools for the
- * school team, each card with its devices. Where the team's tools come from is deliberately not said.
+ * Get BusIn: the student app (Android and iPhone, one Get notified until a store link is set; the web app at /app always)
+ * and the tools for the school team, each card with its devices. Where the team's tools come from is deliberately not said.
  */
-export function DownloadSection({ copy, day, links }: { copy: LandingCopy["download"]; day: LandingCopy["day"]; links: Downloads }) {
+export function DownloadSection({ copy, day, links, host }: { copy: LandingCopy["download"]; day: LandingCopy["day"]; links: Downloads; host: string }) {
   const s = copy.students;
   const any = links.play || links.apk || links.ios;
   return (
@@ -134,12 +197,12 @@ export function DownloadSection({ copy, day, links }: { copy: LandingCopy["downl
               </ButtonLink>
             ) : null}
             {links.apk ? (
-              <ButtonLink href={links.apk} icon={Download04Icon} variant={links.play ? "secondary" : "primary"}>
+              <ButtonLink href={links.apk} icon={DownloadCircle01Icon} variant={links.play ? "secondary" : "primary"}>
                 {s.apk}
               </ButtonLink>
             ) : null}
             {links.ios ? (
-              <ButtonLink href={links.ios} icon={Download04Icon} variant={links.play || links.apk ? "secondary" : "primary"}>
+              <ButtonLink href={links.ios} icon={DownloadCircle01Icon} variant={links.play || links.apk ? "secondary" : "primary"}>
                 {s.ios}
               </ButtonLink>
             ) : null}
@@ -174,6 +237,39 @@ export function DownloadSection({ copy, day, links }: { copy: LandingCopy["downl
               <Tablet className={`w-[16rem] -rotate-2 sm:w-[19rem] ${MOVE.base} ${MOVE.tablet}`}>
                 <TripScreen />
               </Tablet>
+            </div>
+          </div>
+        }
+      />
+      <DeviceCard
+        title={copy.web.title}
+        text={copy.web.text}
+        badge={copy.web.badge}
+        badgeTone="ok"
+        wide
+        actions={
+          <>
+            <ButtonLink href="/app" icon={GlobeIcon}>
+              {copy.web.cta}
+            </ButtonLink>
+            <p className="m-0 self-center text-sm text-muted">{copy.web.note}</p>
+          </>
+        }
+        devices={
+          <div className="absolute inset-0">
+            <div className="absolute top-10 left-1/2 -translate-x-[58%] lg:top-auto lg:bottom-[-3rem]">
+              <Laptop className={`w-[30rem] sm:w-[34rem] ${MOVE.base} ${MOVE.laptopLeft}`}>
+                <BrowserFrame host={host}>
+                  <WebTicket />
+                </BrowserFrame>
+              </Laptop>
+            </div>
+            <div className="absolute top-20 right-[6%] hidden sm:block lg:top-auto lg:bottom-[-8rem]">
+              <Phone kind="android" time="7:12" className={`w-[12rem] rotate-3 ${MOVE.base} ${MOVE.phoneRight}`}>
+                <BrowserFrame host={host} small>
+                  <DayScreen index={2} copy={day} />
+                </BrowserFrame>
+              </Phone>
             </div>
           </div>
         }
