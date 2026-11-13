@@ -9,10 +9,13 @@ import 'package:hugeicons/hugeicons.dart';
 import '../providers.dart';
 import '../router.dart';
 import '../scan/scan_providers.dart';
+import '../access.dart';
 import 'field_trip_sheet.dart';
+import 'my_trips_providers.dart';
 import 'trip_providers.dart';
 
-/// Today's trips at the school: the ones assigned to me first. Tapping one opens it to start, scan or end it.
+/// My trips: today's (an administrator also sees the school's other trips of today), then the ones coming up in the next
+/// weeks, grouped by week. Tapping one opens it to start, scan or end it.
 class TodayScreen extends ConsumerWidget {
   const TodayScreen({super.key});
 
@@ -28,6 +31,12 @@ class TodayScreen extends ConsumerWidget {
     final trips = ref.watch(todayTripsProvider);
     final buses = ref.watch(todayBusesProvider).value ?? const <String, Bus>{};
     final zone = ref.watch(schoolProvider).value?.timezone ?? 'UTC';
+    final access = ref.watch(accessProvider);
+    final profile = access is OpsAllowed ? access.profile : null;
+    final upcoming = ref.watch(upcomingTripsProvider).value ?? const <Trip>[];
+    final upcomingBuses = ref.watch(upcomingBusesProvider).value ?? const <String, Bus>{};
+    final thisMonday = ref.watch(thisMondayProvider);
+    final bottom = BusinScope.of(context).bottomInset;
 
     // A trip nobody scheduled can be started from here, when the school allows it (ADR 0020).
     final fieldAllowed = ref.watch(fieldTripOptionsProvider).value?.allowed ?? false;
@@ -46,10 +55,11 @@ class TodayScreen extends ConsumerWidget {
     Future<void> refresh() async {
       ref.invalidate(fieldTripOptionsProvider);
       ref.invalidate(todayTripsProvider);
+      ref.invalidate(upcomingTripsProvider);
       await ref.read(todayTripsProvider.future).catchError((Object _) => const <Trip>[]);
     }
 
-    Widget section(String title, List<Trip> list) => Column(
+    Widget section(String title, List<Trip> list, {Map<String, Bus>? busesOf, bool withDay = false}) => Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(
@@ -59,31 +69,53 @@ class TodayScreen extends ConsumerWidget {
             for (final trip in list)
               Padding(
                 padding: const EdgeInsets.only(bottom: BusinSpace.x3),
-                child: TripCard(trip: trip, bus: buses[trip.busId], zone: zone, onTap: () => context.push(Routes.trip(trip.id))),
+                child: TripCard(trip: trip, bus: (busesOf ?? buses)[trip.busId], zone: zone, withDay: withDay, onTap: () => context.push(Routes.trip(trip.id))),
               ),
           ],
         );
 
+    // The trips ahead, one section per week.
+    List<Widget> comingUp() => [
+          Padding(
+            padding: const EdgeInsets.only(top: BusinSpace.x6),
+            child: Text(l10n.opsUpcomingTitle, style: text.titleMedium),
+          ),
+          if (upcoming.isEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: BusinSpace.x2),
+              child: Text(l10n.opsUpcomingEmpty, style: text.bodyMedium?.copyWith(color: p.muted)),
+            ),
+          for (final week in groupByWeek(upcoming, (Trip t) => t.scheduledStart, zone: zone))
+            section(weekLabel(context, week.monday, thisMonday: thisMonday), week.items, busesOf: upcomingBuses, withDay: true),
+        ];
+
     return Scaffold(
       floatingActionButton: fieldAllowed
-          ? FloatingActionButton.extended(
-              onPressed: startField,
-              icon: HugeIcon(icon: HugeIcons.strokeRoundedBus01, color: p.fg),
-              label: Text(l10n.opsFieldStart),
+          ? Padding(
+              // Above the floating tab bar.
+              padding: EdgeInsets.only(bottom: bottom),
+              child: FloatingActionButton.extended(
+                onPressed: startField,
+                icon: HugeIcon(icon: HugeIcons.strokeRoundedBus01, color: p.fg),
+                label: Text(l10n.opsFieldStart),
+              ),
             )
           : null,
       appBar: AppBar(
         title: Text(l10n.opsTodayTitle),
         actions: [
-          // The profile holds the settings, the legal texts and signing out.
+          // The profile holds the settings, the legal texts and signing out; the button is the person's own picture.
           IconButton(
             tooltip: l10n.opsProfileOpen,
-            icon: HugeIcon(icon: HugeIcons.strokeRoundedUserCircle, color: p.fg),
-            onPressed: () => context.push(Routes.profile),
+            icon: profile == null
+                ? HugeIcon(icon: HugeIcons.strokeRoundedUserCircle, color: p.fg)
+                : UserAvatar(name: profile.fullName, email: profile.email, imageUrl: profile.avatarUrl, size: 32),
+            onPressed: () => context.go(Routes.profile),
           ),
         ],
       ),
       body: SafeArea(
+        bottom: false,
         child: ContentColumn(
           child: RefreshIndicator(
             onRefresh: refresh,
@@ -99,15 +131,15 @@ class TodayScreen extends ConsumerWidget {
                 ],
               ),
               data: (list) {
-                if (list.isEmpty || me == null) {
-                  return ListView(children: [EmptyState(illustration: BusinIllustration.busStop, title: l10n.opsTodayEmpty)]);
-                }
+                if (me == null) return const SizedBox.shrink();
                 final split = splitTrips(list, me.userId);
+                // Staff only receive their own trips from the server; the others of today are an administrator's view.
+                final others = me.isAdmin ? split.others : const <Trip>[];
                 final since = ref.watch(offlineSinceProvider);
                 return ListView(
                   physics: const AlwaysScrollableScrollPhysics(),
-                  // Room under the last card for the button that starts a trip nobody scheduled.
-                  padding: const EdgeInsets.fromLTRB(BusinSpace.x5, BusinSpace.x2, BusinSpace.x5, 96),
+                  // Room under the last card for the floating tab bar and the button that starts a trip nobody scheduled.
+                  padding: EdgeInsets.fromLTRB(BusinSpace.x5, BusinSpace.x2, BusinSpace.x5, 96 + bottom),
                   children: [
                     // Without a connection the list is the copy saved on the phone; scanning still works.
                     if (since != null)
@@ -121,7 +153,13 @@ class TodayScreen extends ConsumerWidget {
                         ),
                       ),
                     if (split.mine.isNotEmpty) section(l10n.opsTodayMine, split.mine),
-                    if (split.others.isNotEmpty) section(l10n.opsTodayOthers, split.others),
+                    if (split.mine.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: BusinSpace.x5),
+                        child: Text(me.isAdmin && others.isEmpty ? l10n.opsTodayEmpty : l10n.opsTodayEmptyMine, style: text.bodyMedium?.copyWith(color: p.muted)),
+                      ),
+                    if (others.isNotEmpty) section(l10n.opsTodayOthers, others),
+                    ...comingUp(),
                   ],
                 );
               },
@@ -135,7 +173,10 @@ class TodayScreen extends ConsumerWidget {
 
 /// One trip in the list: when it leaves, which way, which bus, and where it stands.
 class TripCard extends StatelessWidget {
-  const TripCard({super.key, required this.trip, required this.bus, required this.zone, required this.onTap});
+  const TripCard({super.key, required this.trip, required this.bus, required this.zone, required this.onTap, this.withDay = false});
+
+  /// Say the day too (a trip that is not today's).
+  final bool withDay;
 
   final Trip trip;
   final Bus? bus;
@@ -149,7 +190,11 @@ class TripCard extends StatelessWidget {
     final l10n = BusinL10n.of(context);
     final p = BusinPalette.of(context);
     final text = Theme.of(context).textTheme;
-    final time = MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(const SchoolClock().wallClock(zone, trip.scheduledStart)));
+    final material = MaterialLocalizations.of(context);
+    final wall = const SchoolClock().wallClock(zone, trip.scheduledStart);
+    final clock = material.formatTimeOfDay(TimeOfDay.fromDateTime(wall));
+    // A trip of another day says which: "Tue, Nov 17, 7:30".
+    final time = withDay ? '${material.formatMediumDate(wall)}, $clock' : clock;
     return BusinCard(
       onTap: onTap,
       child: Row(

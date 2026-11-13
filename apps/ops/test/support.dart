@@ -137,6 +137,26 @@ class FakeTrips implements TripsRepository {
       ? throw const Offline('test')
       : trips.where((t) => !t.scheduledStart.isBefore(from) && t.scheduledStart.isBefore(to)).toList();
 
+  /// The signed-in staff member's past trips and weekly stats, as the server would give them.
+  List<TripHistoryEntry> history = const [];
+  List<WeekStats> stats = const [];
+  final List<DateTime> historyAsked = [];
+
+  @override
+  Future<List<Trip>> listForCrew(String staffId, {required DateTime from, required DateTime to}) async => offline
+      ? throw const Offline('test')
+      : trips.where((t) => t.isCrew(staffId) && !t.scheduledStart.isBefore(from) && t.scheduledStart.isBefore(to)).toList();
+
+  @override
+  Future<List<TripHistoryEntry>> myHistory({required DateTime before, int limit = 20}) async {
+    if (offline) throw const Offline('test');
+    historyAsked.add(before);
+    return history.where((e) => e.scheduledStart.isBefore(before)).take(limit).toList();
+  }
+
+  @override
+  Future<List<WeekStats>> myStats({int weeks = 12}) async => offline ? throw const Offline('test') : stats;
+
   @override
   Future<Trip> getTrip(String tripId) async => offline ? throw const Offline('test') : trips.firstWhere((t) => t.id == tripId);
 
