@@ -31,6 +31,10 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: landing touches (2026-11-13)
+
+Done: #383 (PR below): Get BusIn devices lift and spread on hover; a full textured moon at night. Next: the owner merges into `dev`.
+
 ## Handoff: quick actions (2026-11-13)
 
 Done: #381 (PR below). The trip form links to Add a bus (and back, with the bus chosen) and Invite staff when they are missing; the overview has quick actions and a Getting started checklist while the school is not set up.
