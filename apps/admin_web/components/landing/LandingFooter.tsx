@@ -14,7 +14,7 @@ type Props = { copy: LandingCopy["footer"]; nav: LandingCopy["nav"]; invite: str
 
 const SECTIONS = ["day", "people", "schools", "faq"] as const;
 
-/** The end of the page: who we are in one line, the sections, the way in for schools, for students (the web app) and for staff, and the language and theme choices. */
+/** The end of the page: who we are in one line, the sections, the way in for schools and for staff, and the language and theme choices. */
 export function LandingFooter({ copy, nav, invite, locale, t }: Props) {
   return (
     <footer className="mx-auto mt-28 max-w-[88rem] px-5 pb-12 sm:px-8">
@@ -41,14 +41,9 @@ export function LandingFooter({ copy, nav, invite, locale, t }: Props) {
           <InterestButton kind="school" variant="secondary">
             {invite}
           </InterestButton>
-          <div className="mt-1 flex flex-wrap gap-x-5 gap-y-2">
-            <Link href="/app/sign-in" className="w-fit text-sm font-semibold text-fg no-underline hover:text-accent">
-              {copy.student}
-            </Link>
-            <Link href="/login" className="w-fit text-sm font-semibold text-fg no-underline hover:text-accent">
-              {copy.staff}
-            </Link>
-          </div>
+          <Link href="/login" className="mt-1 w-fit text-sm font-semibold text-fg no-underline hover:text-accent">
+            {copy.staff}
+          </Link>
         </div>
         <nav aria-label={copy.legal.title} className="relative flex flex-col gap-3">
           <p className="m-0 text-sm font-bold text-muted">{copy.legal.title}</p>

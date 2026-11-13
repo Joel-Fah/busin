@@ -12,7 +12,6 @@ export type LandingCopy = {
   footer: {
     tagline: string;
     staff: string;
-    student: string;
     theme: string;
     rights: string;
     explore: string;
@@ -217,7 +216,7 @@ const en: LandingCopy = {
     ],
     back: "Back to BusIn",
   },
-  footer: { tagline: "A companion for the daily ride.", staff: "Staff sign in", student: "Student sign in", theme: "Theme", rights: "BusIn", explore: "On this page", forSchools: "For schools", legal: { title: "Legal and credits", privacy: "Privacy", terms: "Terms of use", soon: "Soon", credits: "Credits" } },
+  footer: { tagline: "A companion for the daily ride.", staff: "Staff sign in", theme: "Theme", rights: "BusIn", explore: "On this page", forSchools: "For schools", legal: { title: "Legal and credits", privacy: "Privacy", terms: "Terms of use", soon: "Soon", credits: "Credits" } },
 };
 
 const fr: LandingCopy = {
@@ -368,7 +367,7 @@ const fr: LandingCopy = {
     ],
     back: "Retour à BusIn",
   },
-  footer: { tagline: "Un compagnon pour le trajet de tous les jours.", staff: "Connexion du personnel", student: "Connexion étudiant", theme: "Thème", rights: "BusIn", explore: "Sur cette page", forSchools: "Pour les écoles", legal: { title: "Mentions et crédits", privacy: "Confidentialité", terms: "Conditions d'utilisation", soon: "Bientôt", credits: "Crédits" } },
+  footer: { tagline: "Un compagnon pour le trajet de tous les jours.", staff: "Connexion du personnel", theme: "Thème", rights: "BusIn", explore: "Sur cette page", forSchools: "Pour les écoles", legal: { title: "Mentions et crédits", privacy: "Confidentialité", terms: "Conditions d'utilisation", soon: "Bientôt", credits: "Crédits" } },
 };
 
 export const landingCatalogues: Record<Locale, LandingCopy> = { en, fr };
