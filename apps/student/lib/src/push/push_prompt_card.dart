@@ -1,3 +1,4 @@
+import 'package:busin_app/busin_app.dart';
 import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,7 +6,6 @@ import 'package:hugeicons/hugeicons.dart';
 
 import '../providers.dart';
 import 'push_providers.dart';
-import 'push_service.dart';
 
 /// Offers to turn notifications on, at the moment the student has something to wait for (a request that is pending).
 /// Shown once: "Turn on" asks the system, "Not now" hides it for good. If the system says no, it says how to change that.

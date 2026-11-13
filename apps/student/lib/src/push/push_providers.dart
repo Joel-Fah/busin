@@ -1,8 +1,8 @@
+import 'package:busin_app/busin_app.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../providers.dart';
-import 'push_service.dart';
 
 final sharedPreferencesProvider = FutureProvider<SharedPreferences>((ref) => SharedPreferences.getInstance());
 

@@ -823,6 +823,12 @@ abstract class BusinL10n {
   /// **'This semester has ended. Pull down to refresh and see what is open now.'**
   String get subscribeErrorEnded;
 
+  /// No description provided for @subscribeErrorUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This semester or stop is no longer open. The list has been refreshed: choose again.'**
+  String get subscribeErrorUnavailable;
+
   /// No description provided for @subscribeErrorTooLarge.
   ///
   /// In en, this message translates to:
@@ -3282,6 +3288,12 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'Steady over the last 8 weeks'**
   String get opsStatsTrendSame;
+
+  /// No description provided for @opsPushCrewAssigned.
+  ///
+  /// In en, this message translates to:
+  /// **'You were added to a trip. It is in your trips.'**
+  String get opsPushCrewAssigned;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {

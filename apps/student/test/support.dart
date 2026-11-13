@@ -13,7 +13,6 @@ import 'package:busin_student/src/reminders/notification_providers.dart';
 import 'package:busin_student/src/reminders/reminder_plan.dart';
 import 'package:busin_student/src/reminders/reminder_scheduler.dart';
 import 'package:busin_student/src/streaks/streak_providers.dart';
-import 'package:busin_student/src/push/push_service.dart';
 import 'package:busin_student/src/qr/qr_providers.dart';
 import 'package:busin_student/src/qr/screen_security.dart';
 import 'package:busin_student/src/qr/secret_store.dart';

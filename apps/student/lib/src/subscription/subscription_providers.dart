@@ -105,7 +105,14 @@ final proofUrlProvider = FutureProvider.autoDispose.family<String, String>(
 );
 
 /// Why a request could not be sent, as the screen explains it.
-enum SubscribeFailure { alreadyRequested, offline, rejectedFile, proofRequired, semesterEnded, other }
+enum SubscribeFailure { alreadyRequested, offline, rejectedFile, proofRequired, semesterEnded, unavailable, other }
+
+/// The storage refused the photo itself (its type or size): the only failure that is about the file.
+class ProofRejected implements Exception {
+  const ProofRejected(this.cause);
+
+  final RepositoryException cause;
+}
 
 /// Uploads the proof, then sends the request. The proof goes first because the request needs its path;
 /// if the request then fails the file stays, unreferenced, in the student's own private folder.
@@ -122,12 +129,18 @@ class SubscriptionService {
   }) async {
     // Only an allowed student subscribes, and a verified account always has a school (ADR 0012).
     final schoolId = profile.schoolId!;
-    final path = await _ref.read(proofsRepositoryProvider).upload(
-          schoolId: schoolId,
-          studentId: profile.id,
-          bytes: proof.bytes,
-          contentType: proof.contentType,
-        );
+    final String path;
+    try {
+      path = await _ref.read(proofsRepositoryProvider).upload(
+            schoolId: schoolId,
+            studentId: profile.id,
+            bytes: proof.bytes,
+            contentType: proof.contentType,
+          );
+    } on Invalid catch (e) {
+      // Only here is a refusal about the photo; a refused request below is about the semester, the stop or the rules.
+      throw ProofRejected(e);
+    }
     await _ref.read(subscriptionsRepositoryProvider).request(
           NewSubscription(schoolId: schoolId, studentId: profile.id, semesterId: semester.id, stopId: stop.id, proofPath: path),
         );
@@ -141,10 +154,12 @@ SubscribeFailure failureFor(Object error) => switch (error) {
       // The server's own short reasons first (`proof_required`, `proof_missing`, `semester_ended`).
       Conflict(reason: 'semester_ended') => SubscribeFailure.semesterEnded,
       Invalid(reason: 'proof_required' || 'proof_missing') => SubscribeFailure.proofRequired,
+      // The semester or the stop was removed meanwhile (the screen showed an old list).
+      Invalid(reason: 'missing_reference') => SubscribeFailure.unavailable,
       Conflict() => SubscribeFailure.alreadyRequested,
       Offline() => SubscribeFailure.offline,
-      // A file the app itself refused (type, size) has no reason; any other Invalid is not about the file.
-      Invalid(reason: null) => SubscribeFailure.rejectedFile,
+      // Only a refusal of the upload itself is about the file; any other Invalid is not.
+      ProofRejected() => SubscribeFailure.rejectedFile,
       _ => SubscribeFailure.other,
     };
 

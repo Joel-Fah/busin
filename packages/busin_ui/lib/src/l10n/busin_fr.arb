@@ -135,6 +135,7 @@
   "subscribeErrorType": "Utilisez une photo JPEG, PNG ou WebP.",
   "subscribeErrorProof": "La preuve de paiement est manquante. Ajoutez une photo nette de votre reçu et renvoyez la demande.",
   "subscribeErrorEnded": "Ce semestre est terminé. Tirez vers le bas pour actualiser et voir ce qui est ouvert.",
+  "subscribeErrorUnavailable": "Ce semestre ou cet arrêt n’est plus ouvert. La liste a été actualisée : choisissez à nouveau.",
   "subscribeErrorTooLarge": "Cette photo est trop volumineuse. Choisissez-en une de moins de 5 Mo.",
   "subscribeErrorExists": "Vous avez déjà une demande pour ce semestre. Tirez vers le bas pour actualiser.",
   "subscriptionStop": "Arrêt",
@@ -633,5 +634,6 @@
   "opsStatsPunctualityHint": "À l'heure signifie parti au plus 10 minutes après l'heure prévue. Les trajets lancés sur le terrain n'ont pas d'horaire et ne sont pas chronométrés.",
   "opsStatsTrendUp": "Mieux que les 4 semaines d'avant",
   "opsStatsTrendDown": "En dessous des 4 semaines d'avant",
-  "opsStatsTrendSame": "Stable sur les 8 dernières semaines"
+  "opsStatsTrendSame": "Stable sur les 8 dernières semaines",
+  "opsPushCrewAssigned": "Vous avez été ajouté à un trajet. Il est dans vos trajets."
 }

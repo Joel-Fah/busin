@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { Login03Icon } from "@hugeicons/core-free-icons";
 
 import { AuthShell } from "@/components/AuthShell";
 import { Button } from "@/components/ui/Button";
+import { GoogleMark } from "@/components/ui/GoogleMark";
 import { Notice } from "@/components/ui/Notice";
 
 import { LanguageSwitch } from "@/components/LanguageSwitch";
@@ -46,8 +46,11 @@ async function LoginContent({ searchParams }: { searchParams: SearchParams }) {
       <p className="text-muted">{t.login.hint}</p>
       {errorText ? <Notice tone="bad">{errorText}</Notice> : null}
       <form action={signInWithGoogle}>
-        <Button type="submit" icon={Login03Icon} className="w-full">
-          {t.login.button}
+        <Button type="submit" className="w-full">
+          <span className="inline-flex items-center gap-2.5">
+            <GoogleMark />
+            {t.login.button}
+          </span>
         </Button>
       </form>
       {devLoginAllowed() ? (

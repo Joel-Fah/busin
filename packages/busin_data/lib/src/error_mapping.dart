@@ -71,12 +71,15 @@ RepositoryException _fromCode(PostgrestException error) {
     case '55000':
       return Conflict(message, reason: reason);
     // Bad value, constraint or reference.
+    // A reference to a row that is gone (a semester or a stop removed meanwhile): said so, so a screen does not blame
+    // something else.
+    case '23503':
+      return Invalid(message, reason: reason ?? 'missing_reference');
     case '22023':
     case '22P02':
     case '22007':
     case '22008':
     case '23502':
-    case '23503':
     case '23514':
       return Invalid(message, reason: reason);
     default:

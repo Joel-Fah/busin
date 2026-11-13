@@ -29,6 +29,8 @@ Future<void> main() async {
     postgrestOptions: const PostgrestClientOptions(retryEnabled: false),
   );
   final client = Supabase.instance.client;
+  // Without Firebase configured this is a stand-in that does nothing, and the app works the same otherwise.
+  final push = await FirebasePushService.tryCreate();
   // Read before the first frame, so the chosen theme and language are there from the start.
   final preferences = await SharedPreferences.getInstance();
 
@@ -39,6 +41,7 @@ Future<void> main() async {
         appPreferencesProvider.overrideWithValue(preferences),
         appConfigProvider.overrideWithValue(config),
         supabaseClientProvider.overrideWithValue(client),
+        pushServiceProvider.overrideWithValue(push),
         authServiceProvider.overrideWithValue(SupabaseAuthService(client, googleServerClientId: config.googleServerClientId)),
       ],
       child: const OpsApp(),

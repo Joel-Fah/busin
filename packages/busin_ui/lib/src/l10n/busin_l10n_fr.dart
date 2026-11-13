@@ -403,6 +403,10 @@ class BusinL10nFr extends BusinL10n {
       'Ce semestre est terminé. Tirez vers le bas pour actualiser et voir ce qui est ouvert.';
 
   @override
+  String get subscribeErrorUnavailable =>
+      'Ce semestre ou cet arrêt n’est plus ouvert. La liste a été actualisée : choisissez à nouveau.';
+
+  @override
   String get subscribeErrorTooLarge =>
       'Cette photo est trop volumineuse. Choisissez-en une de moins de 5 Mo.';
 
@@ -1901,4 +1905,8 @@ class BusinL10nFr extends BusinL10n {
 
   @override
   String get opsStatsTrendSame => 'Stable sur les 8 dernières semaines';
+
+  @override
+  String get opsPushCrewAssigned =>
+      'Vous avez été ajouté à un trajet. Il est dans vos trajets.';
 }

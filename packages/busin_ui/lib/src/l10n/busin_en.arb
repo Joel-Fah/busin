@@ -168,6 +168,7 @@
   "subscribeErrorType": "Use a JPEG, PNG or WebP photo.",
   "subscribeErrorProof": "The payment proof is missing. Add a clear photo of your receipt and send the request again.",
   "subscribeErrorEnded": "This semester has ended. Pull down to refresh and see what is open now.",
+  "subscribeErrorUnavailable": "This semester or stop is no longer open. The list has been refreshed: choose again.",
   "subscribeErrorTooLarge": "That photo is too large. Pick one under 5 MB.",
   "subscribeErrorExists": "You already have a request for this semester. Pull down to refresh.",
   "subscriptionStop": "Stop",
@@ -948,5 +949,6 @@
   "opsStatsPunctualityHint": "On time means started no more than 10 minutes after the scheduled time. Trips started in the field have no schedule and are not timed.",
   "opsStatsTrendUp": "Better than the 4 weeks before",
   "opsStatsTrendDown": "Below the 4 weeks before",
-  "opsStatsTrendSame": "Steady over the last 8 weeks"
+  "opsStatsTrendSame": "Steady over the last 8 weeks",
+  "opsPushCrewAssigned": "You were added to a trip. It is in your trips."
 }

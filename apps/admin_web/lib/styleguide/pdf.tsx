@@ -19,12 +19,14 @@ import {
   GRAIN_NOTE,
   GUIDE,
   ILLUSTRATION_NOTE,
+  LANDING_SCENE,
   LOGO_MOTION,
   MOTION_NOTE,
   MOTION_STEPS,
   NAV_HELP,
   NAV_RULES,
   NEVER,
+  PEOPLE_STYLE,
   PHOTO_NOTE,
   PRINCIPLES,
   RADIUS_USE,
@@ -340,6 +342,20 @@ function StyleguideDocument({ generatedOn }: { generatedOn: string }) {
       </Part>
 
       <Part id="imagery">
+        <Text style={styles.h2}>People illustrations</Text>
+        <Text style={styles.body}>{PEOPLE_STYLE.intro}</Text>
+        <Bullets items={PEOPLE_STYLE.rules} />
+        <View style={[styles.row, { marginBottom: 8 }]} wrap={false}>
+          {PEOPLE_STYLE.palette.map(([name, hex]) => (
+            <View key={name} style={{ width: "9%" }}>
+              <View style={{ height: 22, borderRadius: 4, backgroundColor: hex }} />
+              <Text style={[styles.small, { fontSize: 6.5 }]}>{name}</Text>
+            </View>
+          ))}
+        </View>
+        <Text style={styles.h2}>The landing scene</Text>
+        <Text style={styles.body}>{LANDING_SCENE.intro}</Text>
+        <Bullets items={LANDING_SCENE.rules} />
         <Text style={styles.h2}>3D objects</Text>
         <Text style={styles.body}>{ILLUSTRATION_NOTE}</Text>
         <Text style={styles.small}>The set: {THREE_D.map(([, label]) => label).join(", ")}.</Text>

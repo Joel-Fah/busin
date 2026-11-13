@@ -1,3 +1,4 @@
+import 'package:busin_app/busin_app.dart';
 import 'dart:async';
 
 import 'package:busin_ui/busin_ui.dart';
@@ -8,8 +9,7 @@ import 'package:go_router/go_router.dart';
 import '../providers.dart';
 import '../subscription/live_changes.dart';
 import '../subscription/subscription_providers.dart';
-import 'push_registrar.dart';
-import 'push_service.dart';
+import 'push_routes.dart';
 
 /// Wraps the signed-in app and keeps notifications connected to it: registers the token if the person already allowed
 /// them, follows a replaced token, opens the right tab when a notification is tapped (also when it launched the app),

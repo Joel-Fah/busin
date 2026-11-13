@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="channel_updates_name">Trip updates</string>
+    <string name="channel_updates_description">Tells you when a colleague puts you on a trip.</string>
+</resources>

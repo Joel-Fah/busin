@@ -15,12 +15,14 @@ import {
   GRAIN_NOTE,
   GUIDE,
   ILLUSTRATION_NOTE,
+  LANDING_SCENE,
   LOGO_MOTION,
   MOTION_NOTE,
   MOTION_STEPS,
   NAV_HELP,
   NAV_RULES,
   NEVER,
+  PEOPLE_STYLE,
   PHOTO_NOTE,
   PRINCIPLES,
   RADIUS_USE,
@@ -230,6 +232,22 @@ ${MOTION_NOTE}
 
 ${s("imagery").intro}
 
+### People illustrations
+
+${PEOPLE_STYLE.intro}
+
+${list(PEOPLE_STYLE.rules)}
+
+${table(["Colour", "Hex"], PEOPLE_STYLE.palette.map(([name, hex]) => [name, hex]))}
+
+Skin tones in use: ${PEOPLE_STYLE.skin.join(", ")}.
+
+### The landing scene
+
+${LANDING_SCENE.intro}
+
+${list(LANDING_SCENE.rules)}
+
 ### 3D objects
 
 ${ILLUSTRATION_NOTE}
@@ -265,6 +283,19 @@ Read: Imagery, Colour, Hard rules.
 
 Prompt to start from: "A single [object] as a soft, rounded 3D render, gentle studio lighting, deep teal (${SEED})
 with one small orange (${LIGHT.accent}) accent, transparent background, no text, centred, square."
+
+### A people illustration (a scene or a character)
+
+Read: Imagery (People illustrations), Colour, Hard rules.
+
+- Follow the people illustration rules above; the reference images are in the styleguide (\`public/styleguide/references/\`).
+- A scene keeps one ground line and calm daylight; leave the sky plain, the page draws its own.
+- A single character stands alone on white or transparent, full figure, so it can be placed anywhere.
+- No words, letters or logos in the image: captions and labels are interface text, in English and French.
+
+Prompt to start from (add the subject and the pose at the start):
+
+> ${PEOPLE_STYLE.prompt}
 
 ### A photograph or banner
 
