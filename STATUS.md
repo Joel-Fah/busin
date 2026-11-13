@@ -33,7 +33,7 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 
 ## Handoff: student web app (in progress, 2026-11-13)
 
-ADR 0021 (#389, PR #390), slice 1 (shell, sign-in, install) and slice 2 (join, waiting, setup) are up as stacked PRs into `dev`. Next: subscription, code, bus, profile, offline, web push, landing link.
+ADR 0021 (#389, PR #390), slice 1 (shell, sign-in, install), slice 2 (join, waiting, setup) and slice 3 (subscription) are up as stacked PRs into `dev`. Next: code, bus, profile, offline, web push, landing link.
 
 Owner, before it goes live:
 - set `NEXT_PUBLIC_GOOGLE_CLIENT_ID` (the Google web client id Supabase uses) on Vercel and in `.env.local`, and add the site (and `http://127.0.0.1:3000`) to that client's Authorized JavaScript origins; until then the sign-in button uses the redirect flow;
