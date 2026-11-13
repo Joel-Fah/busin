@@ -713,6 +713,9 @@ isOneToOne: false
 "admin_decline_member":
 { Args: { "p_reason"?: string,"p_user_id": string }; Returns: undefined
                            },
+"admin_delete_stop":
+{ Args: { "p_stop_id": string }; Returns: undefined
+                           },
 "admin_desire_lines":
 { Args: Record<PropertyKey, never>; Returns: {
               "distance_m": number,"lat": number,"lng": number,"stop_id": string,"students": number
@@ -768,6 +771,11 @@ isOneToOne: false
                            },
 "admin_set_user_status":
 { Args: { "p_status": Database["public"]['Enums']["account_status"],"p_user_id": string }; Returns: undefined
+                           },
+"admin_stop_history":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "boardings": number,"stop_id": string,"subscriptions": number
+            }[]
                            },
 "admin_stop_loads":
 { Args: { "p_days"?: number }; Returns: {
@@ -855,6 +863,16 @@ isOneToOne: false
 "my_streak":
 { Args: { "p_semester_id": string }; Returns: {
               "best_streak": number,"current_streak": number,"rides": number
+            }[]
+                           },
+"my_trip_history":
+{ Args: { "p_before": string,"p_limit"?: number }; Returns: {
+              "boarded": number,"bus_id": string,"bus_label": string,"direction": Database["public"]['Enums']["trip_direction"],"ended_at": string,"id": string,"my_role": string,"origin": string,"scheduled_start": string,"started_at": string,"status": Database["public"]['Enums']["trip_status"]
+            }[]
+                           },
+"my_trip_stats":
+{ Args: { "p_weeks"?: number }; Returns: {
+              "as_assistant": number,"as_driver": number,"avg_delay_minutes": number,"boarded": number,"cancelled": number,"completed": number,"field_trips": number,"late": number,"minutes_on_road": number,"missed": number,"on_time": number,"trips": number,"week_start": string
             }[]
                            },
 "place_import_box":
