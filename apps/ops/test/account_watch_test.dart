@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:busin_core/busin_core.dart';
 import 'package:busin_ops/src/app.dart';
+import 'package:busin_ops/src/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -50,6 +53,28 @@ void main() {
     await settle(tester);
     // Only the phone number changed: it asks, finds nothing new, and the screen stays as it is.
     profiles.changes.add(staff());
+    await settle(tester);
+    expect(find.text("Today's trips"), findsOneWidget);
+  });
+
+  testWidgets('reloading the profile in the background keeps the screen', (tester) async {
+    tester.view.physicalSize = const Size(800, 1800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final profiles = FakeProfiles({'u1': staff()});
+    await tester.pumpWidget(ProviderScope(
+      overrides: overridesFor(auth: FakeAuth(signedInAs: 'u1'), profiles: {'u1': staff()}, profileRepository: profiles, trips: FakeTrips([trip('t1', driver: 'u1')])),
+      child: const OpsApp(),
+    ));
+    await settle(tester);
+    expect(find.text("Today's trips"), findsOneWidget);
+
+    // The backend is unreachable: the reload hangs, and the list stays.
+    profiles.hold = Completer<void>();
+    ProviderScope.containerOf(tester.element(find.byType(OpsApp))).invalidate(profileProvider);
+    await settle(tester, 3);
+    expect(find.text("Today's trips"), findsOneWidget, reason: 'the profile in hand is kept while it reloads');
+    profiles.hold!.complete();
     await settle(tester);
     expect(find.text("Today's trips"), findsOneWidget);
   });

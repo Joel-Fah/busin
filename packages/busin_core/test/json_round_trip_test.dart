@@ -63,4 +63,28 @@ void main() {
     );
     expect(Subscription.fromJson(reviewed.toJson()), reviewed);
   });
+
+  test('a trip and a bus read back as they were written', () {
+    final trip = Trip(
+      id: 't1',
+      schoolId: 's1',
+      busId: 'b1',
+      direction: TripDirection.inbound,
+      status: TripStatus.active,
+      scheduledStart: DateTime.utc(2026, 11, 12, 6, 30),
+      driverId: 'd1',
+      assistantId: 'a1',
+      startedAt: DateTime.utc(2026, 11, 12, 6, 34),
+      startedBy: 'a1',
+      origin: 'field',
+      createdBy: 'a1',
+    );
+    expect(Trip.fromJson(trip.toJson()), trip);
+    final bare = Trip(id: 't2', schoolId: 's1', busId: 'b1', direction: TripDirection.outbound, status: TripStatus.scheduled, scheduledStart: DateTime.utc(2026, 11, 12, 16));
+    expect(Trip.fromJson(bare.toJson()), bare);
+    const bus = Bus(id: 'b1', schoolId: 's1', plate: 'LT-123-AB', capacity: 50, inService: true, name: 'Blue');
+    expect(Bus.fromJson(bus.toJson()), bus);
+    const plain = Bus(id: 'b2', schoolId: 's1', plate: 'LT-9', capacity: 30, inService: false);
+    expect(Bus.fromJson(plain.toJson()), plain);
+  });
 }

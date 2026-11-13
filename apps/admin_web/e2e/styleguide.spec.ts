@@ -192,6 +192,23 @@ test.describe("administrator reading the styleguide", () => {
     await expect(page.getByRole("navigation", { name: "Main navigation" })).toBeVisible();
   });
 
+  test("exports the guide as Markdown for agents and as a PDF", async ({ page }) => {
+    await page.goto("/styleguide");
+    const exports = page.getByRole("group", { name: "Export the styleguide" });
+
+    const [md] = await Promise.all([page.waitForEvent("download"), exports.getByRole("link", { name: "Markdown for agents" }).click()]);
+    expect(md.suggestedFilename()).toBe("busin-design-system.md");
+    const text = await (await import("node:fs/promises")).readFile((await md.path())!, "utf8");
+    expect(text).toContain("## How to use this file");
+    expect(text).toContain("## Hard rules");
+    expect(text).toContain("```json");
+
+    const [pdf] = await Promise.all([page.waitForEvent("download"), exports.getByRole("link", { name: "PDF" }).click()]);
+    expect(pdf.suggestedFilename()).toBe("busin-design-system.pdf");
+    const bytes = await (await import("node:fs/promises")).readFile((await pdf.path())!);
+    expect(bytes.subarray(0, 5).toString()).toBe("%PDF-");
+  });
+
   test("is not linked from the navigation", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("link", { name: /styleguide/i })).toHaveCount(0);
@@ -206,6 +223,16 @@ for (const [label, who] of [
     await signInBrowser(context, who());
     await page.goto("/styleguide");
     await expect(page).toHaveURL(/\/no-access$/);
+  });
+
+  test(`${label} cannot download its exports`, async ({ context }) => {
+    await signInBrowser(context, who());
+    for (const path of ["/styleguide/export/markdown", "/styleguide/export/pdf"]) {
+      const response = await context.request.get(path, { maxRedirects: 0 });
+      expect(response.status(), path).toBeGreaterThanOrEqual(300);
+      expect(response.status(), path).toBeLessThan(400);
+      expect(response.headers().location ?? "", path).toMatch(/\/no-access$/);
+    }
   });
 }
 
