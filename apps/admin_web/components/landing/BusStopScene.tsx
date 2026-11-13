@@ -33,7 +33,7 @@ const PEOPLE: { src: string; alt: string; left: number; bottom: number; height: 
   { src: "girl-walking", alt: "", left: 17.2, bottom: 16.8, height: 33, aspect: 418 / 560 },
   { src: "boy-walking", alt: "", left: 23.8, bottom: 16.8, height: 33, aspect: 419 / 560 },
   // Her seat line (69% down her picture, where her backpack rests too) on the bench plank (y 866 of 1184).
-  { src: "girl-bench", alt: "", left: 43, bottom: 20.3, height: 21.1, aspect: 465 / 560 },
+  { src: "girl-bench", alt: "", left: 43, bottom: 19, height: 25.3, aspect: 465 / 560 },
   { src: "boy-waiting", alt: "", left: 66.9, bottom: 16.8, height: 33, aspect: 291 / 560 },
 ];
 
