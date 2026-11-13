@@ -45,7 +45,7 @@ export type LandingCopy = {
   };
   private: { facts: { title: string; text: string }[] };
   download: {
-    students: { title: string; text: string; soon: string; notify: string; play: string; apk: string; ios: string };
+    students: { title: string; text: string; soon: string; notify: string; play: string; apk: string; ios: string; web: string };
     team: { title: string; text: string; cta: string };
   };
   form: {
@@ -124,9 +124,10 @@ const en: LandingCopy = {
   download: {
     students: {
       title: "For students",
-      text: "On Android and iPhone: subscribe, carry your pass, see the bus coming.",
-      soon: "Coming soon",
+      text: "On Android and iPhone, or in any browser: subscribe, carry your pass, see the bus coming.",
+      soon: "Apps coming soon",
       notify: "Get notified",
+      web: "Use it in your browser",
       play: "Get it on Google Play",
       apk: "Download the APK",
       ios: "Download on the App Store",
@@ -268,9 +269,10 @@ const fr: LandingCopy = {
   download: {
     students: {
       title: "Pour les étudiants",
-      text: "Sur Android et iPhone : abonnez-vous, gardez votre pass, voyez le bus arriver.",
-      soon: "Bientôt",
+      text: "Sur Android et iPhone, ou dans n'importe quel navigateur : abonnez-vous, gardez votre pass, voyez le bus arriver.",
+      soon: "Applications bientôt",
       notify: "Me prévenir",
+      web: "L'utiliser dans le navigateur",
       play: "Disponible sur Google Play",
       apk: "Télécharger l'APK",
       ios: "Télécharger dans l'App Store",

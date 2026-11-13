@@ -1,4 +1,4 @@
-import { Bus01Icon, Download04Icon, Location01Icon, PlayStoreIcon, QrCodeIcon, Tick02Icon, UserGroupIcon } from "@hugeicons/core-free-icons";
+import { Bus01Icon, Download04Icon, GlobeIcon, Location01Icon, PlayStoreIcon, QrCodeIcon, Tick02Icon, UserGroupIcon } from "@hugeicons/core-free-icons";
 import type { ReactNode } from "react";
 
 import { ButtonLink } from "@/components/ui/Button";
@@ -114,8 +114,8 @@ function OfficeScreen() {
 }
 
 /**
- * Get BusIn: the student app (Android and iPhone, one Get notified until a store link is set) and the tools for the
- * school team, each card with its devices. Where the team's tools come from is deliberately not said.
+ * Get BusIn: the student app (Android and iPhone, one Get notified until a store link is set; the web app at /app always)
+ * and the tools for the school team, each card with its devices. Where the team's tools come from is deliberately not said.
  */
 export function DownloadSection({ copy, day, links }: { copy: LandingCopy["download"]; day: LandingCopy["day"]; links: Downloads }) {
   const s = copy.students;
@@ -143,7 +143,15 @@ export function DownloadSection({ copy, day, links }: { copy: LandingCopy["downl
                 {s.ios}
               </ButtonLink>
             ) : null}
-            {any ? null : <InterestButton kind="notify">{s.notify}</InterestButton>}
+            {/* The student web app (ADR 0021) is always there, for anyone who cannot install the app. */}
+            <ButtonLink href="/app" icon={GlobeIcon} variant={any ? "secondary" : "primary"}>
+              {s.web}
+            </ButtonLink>
+            {any ? null : (
+              <InterestButton kind="notify" variant="secondary">
+                {s.notify}
+              </InterestButton>
+            )}
           </>
         }
         devices={
