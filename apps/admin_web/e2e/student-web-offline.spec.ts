@@ -49,3 +49,22 @@ test("opened once online, the pass and the code still show without a connection"
   await expect(page.getByRole("heading", { name: "No connection" })).toBeVisible();
   await context.setOffline(false);
 });
+
+test("when a new version takes over while the app is open, a note offers a reload", async ({ page, context }) => {
+  await signInBrowser(context, student);
+  await page.goto("/app/profile");
+  await page.evaluate(async () => {
+    await navigator.serviceWorker.ready;
+    if (!navigator.serviceWorker.controller) await new Promise((resolve) => navigator.serviceWorker.addEventListener("controllerchange", resolve, { once: true }));
+  });
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Your profile" })).toBeVisible();
+  await page.waitForLoadState("networkidle"); // the page is listening once it has hydrated
+  // A new worker script, as after a release: it installs and takes over this page.
+  await page.evaluate(() => navigator.serviceWorker.register("/app/sw.js?release=next", { scope: "/app/" }));
+  const notice = page.getByTestId("update-notice");
+  await expect(notice).toContainText("BusIn was updated.");
+  await notice.getByRole("button", { name: "Reload" }).click();
+  await expect(page.getByRole("heading", { name: "Your profile" })).toBeVisible();
+  await expect(page.getByTestId("update-notice")).toHaveCount(0);
+});
