@@ -116,6 +116,25 @@ void main() {
       expect(find.text('Boarding code'), findsOneWidget);
     });
 
+    testWidgets('on a slow network the late answer is used as it is, so the notice goes even if asking again would be slow too', (tester) async {
+      final phone = await usedOnline(tester);
+      final first = Completer<void>();
+      final profiles = students()..hold = first;
+      await launch(tester, phone, profiles: profiles, backend: approvedBackend(), copyWait: const Duration(seconds: 1));
+      expect(find.text('No connection'), findsOneWidget, reason: 'the server is slower than the wait');
+
+      // From now on every new read would hang: only the answer already on its way can clear the notice.
+      profiles.hold = Completer<void>();
+      final readsBefore = profiles.reads;
+      first.complete();
+      for (var i = 0; i < 10; i++) {
+        await tester.pump(const Duration(milliseconds: 200));
+      }
+      expect(find.text('No connection'), findsNothing, reason: 'the late answer replaced the copy');
+      expect(profiles.reads, readsBefore, reason: 'without asking the server again');
+      expect(find.text('Boarding code'), findsOneWidget);
+    });
+
     testWidgets('with no saved copy a stalled read ends in the problem screen at the limit, not before', (tester) async {
       final profiles = students()..hold = Completer<void>();
       await launch(tester, Phone(), profiles: profiles, backend: approvedBackend(), gateTimeout: const Duration(seconds: 5));
