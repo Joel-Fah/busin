@@ -7,7 +7,7 @@ import { Icon } from "@/components/ui/Icon";
 import type { LandingCopy } from "@/lib/i18n/landing";
 import type { Downloads } from "@/lib/landing/downloads";
 
-import { DayScreen } from "./day/DayScreens";
+import { DayScreen, FakeCode } from "./day/DayScreens";
 import { Laptop, Phone, Tablet } from "./devices/Devices";
 import { InterestButton } from "./interest/Interest";
 import { Reveal } from "./motion/Reveal";
@@ -53,10 +53,12 @@ function DeviceCard({
 /** How each device moves when the card is pointed at: up a little, and away from the device beside it. */
 const MOVE = {
   base: "transition-[translate,rotate] duration-(--dur-slow) ease-soft",
-  phoneLeft: "motion-safe:group-hover/card:-translate-x-5 motion-safe:group-hover/card:-translate-y-3 motion-safe:group-hover/card:-rotate-6",
-  phoneRight: "motion-safe:group-hover/card:translate-x-5 motion-safe:group-hover/card:-translate-y-5 motion-safe:group-hover/card:rotate-6",
-  laptop: "motion-safe:group-hover/card:translate-x-[18%] motion-safe:group-hover/card:-translate-y-3",
-  tablet: "motion-safe:group-hover/card:-translate-x-5 motion-safe:group-hover/card:-translate-y-4 motion-safe:group-hover/card:-rotate-4",
+  phoneLeft: "motion-safe:group-hover/card:-translate-x-2 motion-safe:group-hover/card:-translate-y-2 motion-safe:group-hover/card:-rotate-4",
+  phoneRight: "motion-safe:group-hover/card:translate-x-2 motion-safe:group-hover/card:-translate-y-2.5 motion-safe:group-hover/card:rotate-4",
+  laptop: "motion-safe:group-hover/card:translate-x-[15%] motion-safe:group-hover/card:-translate-y-1.5",
+  /** The browser card's laptop, which sits without the team card's sideways offset. */
+  laptopLeft: "motion-safe:group-hover/card:-translate-x-2 motion-safe:group-hover/card:-translate-y-1.5",
+  tablet: "motion-safe:group-hover/card:-translate-x-2 motion-safe:group-hover/card:-translate-y-2 motion-safe:group-hover/card:-rotate-3",
 };
 
 /** A browser's address bar over a screen: the web app at /app of this site. Shapes, a lock and the address only. */
@@ -81,9 +83,8 @@ function BrowserFrame({ host, small = false, children }: { host: string; small?:
   );
 }
 
-/** The web app's boarding ticket, small: seed teal, a white panel with a dotted code, the student's name. Shapes only. */
+/** The web app's boarding ticket, small: seed teal, the same code as the student card's pass on a white panel, the name. */
 function WebTicket() {
-  const dots = Array.from({ length: 289 }, (_, i) => ((i * 37) % 13 + (i * 11) % 7) % 3 !== 0);
   return (
     <div className="grid size-full place-items-center p-5">
       <div className="flex w-[40%] flex-col items-center gap-3 rounded-[1.4rem] bg-seed p-4 text-white shadow-float">
@@ -94,10 +95,8 @@ function WebTicket() {
             <span className="h-1.5 w-6 rounded-xs bg-white/70" />
           </span>
         </span>
-        <span className="grid w-full gap-[2px] rounded-xl bg-white p-2" style={{ gridTemplateColumns: "repeat(17, minmax(0, 1fr))" }}>
-          {dots.map((on, i) => (
-            <span key={i} className={`aspect-square rounded-full ${on ? "bg-seed" : "bg-transparent"}`} />
-          ))}
+        <span className="block w-full rounded-xl bg-white p-2.5 text-[#0b1a1f]">
+          <FakeCode />
         </span>
         <span className="h-2.5 w-3/4 self-start rounded-xs bg-white/85" />
         <span className="-mt-1 h-2 w-1/2 self-start rounded-xs bg-white/50" />
@@ -259,7 +258,7 @@ export function DownloadSection({ copy, day, links, host }: { copy: LandingCopy[
         devices={
           <div className="absolute inset-0">
             <div className="absolute top-10 left-1/2 -translate-x-[58%] lg:top-auto lg:bottom-[-3rem]">
-              <Laptop className={`w-[30rem] sm:w-[34rem] ${MOVE.base} ${MOVE.laptop}`}>
+              <Laptop className={`w-[30rem] sm:w-[34rem] ${MOVE.base} ${MOVE.laptopLeft}`}>
                 <BrowserFrame host={host}>
                   <WebTicket />
                 </BrowserFrame>

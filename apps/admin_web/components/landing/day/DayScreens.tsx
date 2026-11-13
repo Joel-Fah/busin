@@ -60,7 +60,7 @@ function SubscriptionScreen({ copy }: { copy: Copy["sub"] }) {
 }
 
 /** A code-like pattern: fixed (never a real code), with the three corner squares a scanner looks for. */
-function FakeCode() {
+export function FakeCode() {
   const cells: ReactNode[] = [];
   let seed = 7;
   for (let y = 0; y < 21; y++) {
