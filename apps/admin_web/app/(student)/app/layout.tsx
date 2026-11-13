@@ -26,6 +26,19 @@ export const metadata: Metadata = {
     apple: [{ url: "/app-icons/apple-touch-180.png", sizes: "180x180" }],
   },
   formatDetection: { telephone: false },
+  // The share card of the student web app (opengraph-image.tsx beside this file), with its own words.
+  openGraph: {
+    type: "website",
+    siteName: "BusIn",
+    title: "BusIn, right in your browser",
+    description: "Subscribe to the school bus, show your boarding code and follow your bus, from any phone or computer. No download.",
+    url: "/app",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BusIn, right in your browser",
+    description: "Subscribe to the school bus, show your boarding code and follow your bus, from any phone or computer. No download.",
+  },
   robots: { index: false, follow: false },
 };
 

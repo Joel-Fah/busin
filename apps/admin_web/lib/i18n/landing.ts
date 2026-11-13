@@ -12,6 +12,7 @@ export type LandingCopy = {
   footer: {
     tagline: string;
     staff: string;
+    student: string;
     theme: string;
     rights: string;
     explore: string;
@@ -45,7 +46,9 @@ export type LandingCopy = {
   };
   private: { facts: { title: string; text: string }[] };
   download: {
-    students: { title: string; text: string; soon: string; notify: string; play: string; apk: string; ios: string; web: string };
+    students: { title: string; text: string; soon: string; notify: string; play: string; apk: string; ios: string };
+    /** The student web app at /app (ADR 0021): no download, any browser. */
+    web: { title: string; text: string; cta: string; note: string; badge: string };
     team: { title: string; text: string; cta: string };
   };
   form: {
@@ -124,13 +127,19 @@ const en: LandingCopy = {
   download: {
     students: {
       title: "For students",
-      text: "On Android and iPhone, or in any browser: subscribe, carry your pass, see the bus coming.",
-      soon: "Apps coming soon",
+      text: "On Android and iPhone: subscribe, carry your pass, see the bus coming.",
+      soon: "Coming soon",
       notify: "Get notified",
-      web: "Use it in your browser",
       play: "Get it on Google Play",
       apk: "Download the APK",
       ios: "Download on the App Store",
+    },
+    web: {
+      title: "In your browser",
+      text: "No download, no store. Open BusIn on any phone or computer, add it to your home screen, and it works like the app, boarding code included, even without a connection.",
+      cta: "Open BusIn",
+      note: "Sign in with your school Google account.",
+      badge: "Available now",
     },
     team: {
       title: "For the school team",
@@ -208,7 +217,7 @@ const en: LandingCopy = {
     ],
     back: "Back to BusIn",
   },
-  footer: { tagline: "A companion for the daily ride.", staff: "Staff sign in", theme: "Theme", rights: "BusIn", explore: "On this page", forSchools: "For schools", legal: { title: "Legal and credits", privacy: "Privacy", terms: "Terms of use", soon: "Soon", credits: "Credits" } },
+  footer: { tagline: "A companion for the daily ride.", staff: "Staff sign in", student: "Student sign in", theme: "Theme", rights: "BusIn", explore: "On this page", forSchools: "For schools", legal: { title: "Legal and credits", privacy: "Privacy", terms: "Terms of use", soon: "Soon", credits: "Credits" } },
 };
 
 const fr: LandingCopy = {
@@ -269,13 +278,19 @@ const fr: LandingCopy = {
   download: {
     students: {
       title: "Pour les étudiants",
-      text: "Sur Android et iPhone, ou dans n'importe quel navigateur : abonnez-vous, gardez votre pass, voyez le bus arriver.",
-      soon: "Applications bientôt",
+      text: "Sur Android et iPhone : abonnez-vous, gardez votre pass, voyez le bus arriver.",
+      soon: "Bientôt",
       notify: "Me prévenir",
-      web: "L'utiliser dans le navigateur",
       play: "Disponible sur Google Play",
       apk: "Télécharger l'APK",
       ios: "Télécharger dans l'App Store",
+    },
+    web: {
+      title: "Dans votre navigateur",
+      text: "Rien à télécharger, pas de store. Ouvrez BusIn sur n'importe quel téléphone ou ordinateur, ajoutez-le à l'écran d'accueil, et il fonctionne comme l'application, code d'embarquement compris, même sans connexion.",
+      cta: "Ouvrir BusIn",
+      note: "Connectez-vous avec le compte Google de votre école.",
+      badge: "Disponible",
     },
     team: {
       title: "Pour l'équipe de l'école",
@@ -353,7 +368,7 @@ const fr: LandingCopy = {
     ],
     back: "Retour à BusIn",
   },
-  footer: { tagline: "Un compagnon pour le trajet de tous les jours.", staff: "Connexion du personnel", theme: "Thème", rights: "BusIn", explore: "Sur cette page", forSchools: "Pour les écoles", legal: { title: "Mentions et crédits", privacy: "Confidentialité", terms: "Conditions d'utilisation", soon: "Bientôt", credits: "Crédits" } },
+  footer: { tagline: "Un compagnon pour le trajet de tous les jours.", staff: "Connexion du personnel", student: "Connexion étudiant", theme: "Thème", rights: "BusIn", explore: "Sur cette page", forSchools: "Pour les écoles", legal: { title: "Mentions et crédits", privacy: "Confidentialité", terms: "Conditions d'utilisation", soon: "Bientôt", credits: "Crédits" } },
 };
 
 export const landingCatalogues: Record<Locale, LandingCopy> = { en, fr };
