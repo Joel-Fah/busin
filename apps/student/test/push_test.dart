@@ -49,6 +49,7 @@ void main() {
       expect(routeForPush(const PushMessage(kind: 'subscription_approved')), '/subscription');
       expect(routeForPush(const PushMessage(kind: 'subscription_rejected', refId: 'x')), '/subscription');
       expect(routeForPush(const PushMessage(kind: 'subscription_revoked', refId: 'x')), '/subscription');
+      expect(routeForPush(const PushMessage(kind: 'subscription_restored', refId: 'x')), '/subscription');
       expect(routeForPush(const PushMessage(kind: 'bus_near_stop', refId: 'trip')), '/bus');
     });
     test('a kind this version does not know goes nowhere', () => expect(routeForPush(const PushMessage(kind: 'something_new')), isNull));
@@ -251,6 +252,19 @@ void main() {
 
     expect(find.text('Your school ended your subscription.'), findsOneWidget);
     expect(find.text('You are subscribed'), findsNothing);
+  });
+
+  testWidgets('a restored subscription is said as given back, not as a new approval', (tester) async {
+    final push = FakePushService();
+    final backend = FakeBackend(current: semester(), mine: [subscription(status: SubscriptionStatus.revoked)]);
+    await openApp(tester, push: push, backend: backend);
+
+    backend.mine[0] = subscription(status: SubscriptionStatus.approved);
+    push.arrived.add(const PushMessage(kind: 'subscription_restored', refId: 'sub1'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Your school gave your subscription back.'), findsOneWidget);
+    expect(find.text('Your subscription was approved.'), findsNothing);
   });
 
   testWidgets('a kind this version does not know changes nothing and shows nothing', (tester) async {

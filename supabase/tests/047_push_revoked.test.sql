@@ -20,7 +20,7 @@ select is((select user_id from private.notification_outbox), 'a1000000-0000-4000
 select is((select ref_id from private.notification_outbox), '51000000-0000-4000-8000-000000000001'::uuid, 'about that subscription');
 
 update public.subscriptions set status = 'approved' where id = '51000000-0000-4000-8000-000000000001';
-select is((select count(*)::int from private.notification_outbox where kind = 'subscription_approved'), 1, 'getting it back still queues an approval');
+select is((select count(*)::int from private.notification_outbox where kind = 'subscription_restored'), 1, 'getting it back is queued as a restoration, not a new approval');
 
 update public.subscriptions set status = 'expired' where id = '51000000-0000-4000-8000-000000000001';
 update public.subscriptions set status = 'revoked' where id = '51000000-0000-4000-8000-000000000001';

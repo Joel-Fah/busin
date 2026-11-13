@@ -70,14 +70,16 @@ class _PushBinderState extends ConsumerState<PushBinder> {
       'subscription_approved' => l10n.pushForegroundApproved,
       'subscription_rejected' => l10n.pushForegroundRejected,
       'subscription_revoked' => l10n.liveRevoked,
+      'subscription_restored' => l10n.liveReinstated,
       _ => null,
     };
     if (text == null) return;
     // The live feed may have said it already (both arrive together while the app is open).
-    final status = message.kind.substring('subscription_'.length);
+    // A restored subscription is what the live feed calls a reinstatement: the same key, so it is said once.
+    final status = message.kind == 'subscription_restored' ? 'reinstated' : message.kind.substring('subscription_'.length);
     final id = message.refId;
-    // A reinstatement arrives as an approval: the live feed may have claimed it under its own name.
     final announced = ref.read(announcedChangesProvider.notifier);
+    // An older server sends a reinstatement as an approval: the live feed may have claimed it under its own name.
     if (id != null && status == 'approved' && ref.read(announcedChangesProvider).contains(changeKey(id, 'reinstated'))) return;
     if (id != null && !announced.claim(changeKey(id, status))) return;
     _show(text, message);

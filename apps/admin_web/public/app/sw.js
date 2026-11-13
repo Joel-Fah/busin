@@ -7,7 +7,7 @@
 // - Next's static files (hashed, never change) and the app's icons: from the cache first.
 // - Everything else, and every call to Supabase (another origin), is left to the network: data is kept by the app itself.
 
-const VERSION = "v3";
+const VERSION = "v4";
 const SLOW_MS = 8000;
 const STATIC = `busin-static-${VERSION}`;
 const PAGES = `busin-pages-${VERSION}`;
