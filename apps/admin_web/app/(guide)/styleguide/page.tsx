@@ -58,6 +58,7 @@ import {
   NAV_HELP,
   NAV_RULES,
   NEVER,
+  PEOPLE_STYLE,
   PHOTO_NOTE,
   PRINCIPLES,
   ROUGH_NOTE,
@@ -383,7 +384,47 @@ async function Styleguide() {
       </Section>
 
       <Section {...sectionProps("imagery")}>
-        <h3 className="mb-3 text-lg font-bold">3D objects</h3>
+        <h3 className="mb-3 text-lg font-bold">People illustrations</h3>
+        <p className="mb-4 max-w-2xl text-sm text-muted">{PEOPLE_STYLE.intro}</p>
+        <div className="grid gap-3 sm:grid-cols-[2fr_1fr]">
+          <figure className="relative m-0 aspect-[1600/791] overflow-hidden rounded-lg bg-surface-2">
+            <Image
+              src="/styleguide/references/people-scene.webp"
+              alt="Reference: students at a bus stop in front of a campus, drawn flat with a stippled grain, in mustard, terracotta, teal and greens"
+              fill
+              sizes="(min-width: 640px) 66vw, 100vw"
+              className="object-cover"
+            />
+          </figure>
+          <figure className="relative m-0 aspect-[900/604] overflow-hidden rounded-lg bg-white sm:aspect-auto">
+            <Image
+              src="/styleguide/references/people-character.webp"
+              alt="Reference: a student walking with a long swinging braid, hoop earrings, a mustard sweater, a pleated teal skirt and a striped tote"
+              fill
+              sizes="(min-width: 640px) 33vw, 100vw"
+              className="object-contain"
+            />
+          </figure>
+        </div>
+        <p className="mt-2 text-xs text-muted">{PEOPLE_STYLE.referenceNote}</p>
+        <ul className="m-0 mt-4 grid list-none gap-2 p-0 text-sm sm:grid-cols-2">
+          {PEOPLE_STYLE.rules.map((rule) => (
+            <li key={rule} className="rounded-md bg-surface-2 p-4">
+              {rule}
+            </li>
+          ))}
+        </ul>
+        <div className="mt-4 grid grid-cols-5 gap-2 sm:grid-cols-10" aria-label="People illustration palette">
+          {PEOPLE_STYLE.palette.map(([name, hex]) => (
+            <div key={name}>
+              <div className="h-12 rounded-xs" style={{ background: hex }} />
+              <p className="mt-1 text-[11px] font-semibold">{name}</p>
+              <p className="text-[11px] text-muted">{hex}</p>
+            </div>
+          ))}
+        </div>
+
+        <h3 className="mt-8 mb-3 text-lg font-bold">3D objects</h3>
         <p className="mb-4 max-w-2xl text-sm text-muted">{ILLUSTRATION_NOTE}</p>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
           {THREE_D.map(([file, label]) => (
