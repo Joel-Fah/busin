@@ -19,6 +19,7 @@ import {
   GRAIN_NOTE,
   GUIDE,
   ILLUSTRATION_NOTE,
+  LANDING_SCENE,
   LOGO_MOTION,
   MOTION_NOTE,
   MOTION_STEPS,
@@ -352,6 +353,9 @@ function StyleguideDocument({ generatedOn }: { generatedOn: string }) {
             </View>
           ))}
         </View>
+        <Text style={styles.h2}>The landing scene</Text>
+        <Text style={styles.body}>{LANDING_SCENE.intro}</Text>
+        <Bullets items={LANDING_SCENE.rules} />
         <Text style={styles.h2}>3D objects</Text>
         <Text style={styles.body}>{ILLUSTRATION_NOTE}</Text>
         <Text style={styles.small}>The set: {THREE_D.map(([, label]) => label).join(", ")}.</Text>

@@ -15,6 +15,7 @@ import {
   GRAIN_NOTE,
   GUIDE,
   ILLUSTRATION_NOTE,
+  LANDING_SCENE,
   LOGO_MOTION,
   MOTION_NOTE,
   MOTION_STEPS,
@@ -240,6 +241,12 @@ ${list(PEOPLE_STYLE.rules)}
 ${table(["Colour", "Hex"], PEOPLE_STYLE.palette.map(([name, hex]) => [name, hex]))}
 
 Skin tones in use: ${PEOPLE_STYLE.skin.join(", ")}.
+
+### The landing scene
+
+${LANDING_SCENE.intro}
+
+${list(LANDING_SCENE.rules)}
 
 ### 3D objects
 

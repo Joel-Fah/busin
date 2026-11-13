@@ -228,6 +228,20 @@ export const PEOPLE_STYLE = {
     "Flat vector editorial illustration with a stippled grain texture (small lighter and darker specks on clothes, bags, foliage and walls, none on skin). Warm palette: mustard #f0b63c, terracotta #cf6a43, olive #7f8a3c, leaf green #79a744, deep green #36683a, sage #b9c8b0, sand #f0c57e, with deep teal #0c5d6d for structures and orange #f5951f as the single accent. Young African university students with rounded bodies, slightly long limbs, small expressive hands, chunky sneakers with light soles, simple faces with dot eyes and round rosy cheeks, expressive hair (a long swinging braid, a high bun, tight curls) and big hoop earrings. Calm warm daylight, no outlines, no gradients, no 3D, no text, letters or logos anywhere in the image.",
 };
 
+/** The landing page's bus stop scene: how it is made and kept. */
+export const LANDING_SCENE = {
+  intro:
+    "The landing page opens on a campus bus stop drawn in the people style. It is built in layers so it stays sharp, follows the theme and keeps its speech chips: a street picture by day and one by night, each person as a cut-out on top, and the BusIn mark laid on the two flyers.",
+  rules: [
+    "The street has no people and no words. Its sky is cut away, so the page's own sky (sun, clouds, moon and stars) shows through.",
+    "The night picture is an edit of the day one with the same framing: it takes the day picture's sky cut, and every person and flyer stays in place.",
+    "People are placed in percent of the picture, standing on the pavement; the walkers, the bench and the spot by the sign stay clear in the street picture for them.",
+    "Street details stay small and calm: a dog, two chickens, birds, a bin, fallen leaves, a few cracks. The people come first.",
+    "The flyers are drawn blank; the real BusIn mark goes on them in the page, never drawn by the image model.",
+    "Replacing a picture means a new file name, so caches never serve the old one. The prompts live in docs/guides/landing-hero-art.md.",
+  ],
+};
+
 export const ILLUSTRATION_NOTE =
   "From thiings.co, free to use. They sit on the page background with no frame, at 96 to 160px, and are never used as wallpaper. Stored as WebP at 480px.";
 

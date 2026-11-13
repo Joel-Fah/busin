@@ -4,13 +4,14 @@ The landing page's bus stop scene is built from separate images in the BusIn peo
 styleguide, Imagery, and the references in `apps/admin_web/public/styleguide/references/`). The owner generates the
 images with an image model; the portal places them, animates them a little and keeps the speech chips on top.
 
-Put the finished files in `apps/admin_web/public/landing/scene/` with these names (PNG with a transparent background is
-best; WebP with transparency also works). Sizes are minimums.
+The model's JPEGs are fine: the white backgrounds and the plain skies are cut to transparency afterwards, and the files go
+to `apps/admin_web/public/landing/scene/` as WebP. A replaced picture gets a new name (for example `street-day-2.webp`),
+so no cache serves the old one; the names live in `components/landing/BusStopScene.tsx`. Sizes are minimums.
 
 | File | What | Size |
 |---|---|---|
-| `background-day.png` | The street without people, by day | 3200 x 1060 |
-| `background-night.png` | The same picture at night, same framing | 3200 x 1060 |
+| `street-day` | The street without people, by day | 3584 x 1184 |
+| `street-night` | The same picture at night, same framing | 3584 x 1184 |
 | `girl-walking.png` | The girl telling a story, walking right | about 1400 tall |
 | `boy-walking.png` | The boy a step ahead, looking back laughing | about 1400 tall |
 | `girl-bench.png` | The girl sitting on the bench, on her phone | about 1100 tall |
@@ -86,3 +87,29 @@ The second reference is already this person; regenerate it on a transparent back
 - Transparent around every person; if the tool only gives white, say so and the portal side will cut it out.
 - People drawn at the same scale and with the same grain and palette as each other and as the background.
 - The background's pavement edge straight and level, the bench empty, the bus sign without text.
+
+## 7. Street details and the flyers (added to both backgrounds)
+
+Edit the day background, then make the night one from it, so the framing stays identical.
+
+> Edit the attached background illustration. Keep everything exactly as it is: the same framing (3:1), the same layout,
+> every building, tree, lamp, the shelter, the empty bench and the bus stop sign in the same place and size, the same
+> flat vector style with stippled grain, the same palette, and a plain white sky with nothing drawn in it. Add a few
+> quiet everyday street details, small and subtle: a small tan street dog lying in the shade under the big tree (about
+> 6% across); two small chickens pecking at the far right near the campus (about 85% across); tufts of grass and small
+> weeds along the walls, the pavement edge and one or two cracks; fallen leaves under the trees and near the shelter; a
+> small dark teal litter bin beside the shelter's left post with a crumpled paper cup next to it; a little sandy dust
+> along the kerb and two or three thin cracks; a couple of small birds on the shelter roof; and two small promotional
+> flyers stuck on the shelter as blank paper posters with no text and no logo (one on the left glass panel at shoulder
+> height, one on the back glass above the right end of the bench), cream paper with a deep teal border and a small
+> orange band at the top, held by tape at the corners, one slightly tilted. Leave clear: the pavement from about 14% to
+> 30% across, the bench and the ground in front of it, and the pavement from about 63% to 73% across. No people, no
+> cars, no text, letters, numbers or logos.
+
+> Same image, every shape and detail in exactly the same place and size, turned into the night version shown in the
+> attached night reference: deep blue-teal tones, warm lit windows, the lamps glowing with soft pools of light, the
+> shelter lit softly. The flyers stay blank, lit by the shelter. The dog, the chickens and the details stay, darker and
+> cooler away from the lamps. One plain flat sky colour, no moon, no stars, no gradient. No text, letters or logos.
+
+The BusIn mark is laid on the flyers by the page (their position in percent is in `BusStopScene.tsx`): measure the
+paper of each flyer again when the street picture changes.

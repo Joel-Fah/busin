@@ -37,6 +37,15 @@ const PEOPLE: { src: string; alt: string; left: number; bottom: number; height: 
   { src: "boy-waiting", alt: "", left: 66.9, bottom: 16.8, height: 33, aspect: 291 / 560 },
 ];
 
+/**
+ * The two BusIn flyers taped to the shelter: the picture has them blank (an image model cannot draw the logo), so the real
+ * mark is laid over each one's paper. Centre and width in percent of the picture; the left one hangs a little tilted.
+ */
+const FLYERS = [
+  { cx: 42.66, cy: 56.2, width: 1.4, rotate: -11 },
+  { cx: 51.79, cy: 54.9, width: 1.56, rotate: 0 },
+];
+
 /** Lamps whose glow the night picture lost where it reached into the sky (cut away so the page's own sky shows). */
 const LAMPS = [
   { left: 33.1, top: 30.2 },
@@ -45,7 +54,8 @@ const LAMPS = [
 
 /**
  * The bus stop at the start of the day, across the whole page: a campus street with its shelter, the tree and the tower,
- * and four students (two arriving, one on the bench on her phone, one checking his watch by the sign). Drawn as
+ * and four students (two arriving, one on the bench on her phone, one checking his watch by the sign), with a few quiet
+ * street details (a dog, two chickens, birds, a bin, fallen leaves) and two BusIn flyers on the shelter. Drawn as
  * illustrations in the BusIn people style (the styleguide, Imagery) and laid as layers: the street (a day and a night
  * picture, following the theme, the sky cut away so the page's own sky shows), then each person. The layers settle in
  * once; on a phone the shelter and the sign stay in view.
@@ -56,12 +66,23 @@ export function BusStopScene({ chips }: { chips: LandingCopy["hero"]["chips"] })
       {/* The picture keeps its own proportions; on a narrow screen it is cut on both sides, around the shelter. */}
       <div className="absolute bottom-0 left-1/2 h-full -translate-x-1/2" style={{ aspectRatio: ASPECT }}>
         <div data-scene-layer className="absolute inset-0">
-          <Image src="/landing/scene/background-day.webp" alt="" fill sizes="(min-width: 640px) 100vw, 1100px" className="scene-day object-cover" />
-          <Image src="/landing/scene/background-night.webp" alt="" fill sizes="(min-width: 640px) 100vw, 1100px" className="scene-night object-cover" />
+          <Image src="/landing/scene/street-day.webp" alt="" fill sizes="(min-width: 640px) 100vw, 1100px" className="scene-day object-cover" />
+          <Image src="/landing/scene/street-night.webp" alt="" fill sizes="(min-width: 640px) 100vw, 1100px" className="scene-night object-cover" />
           {LAMPS.map((lamp) => (
             <span key={lamp.left} aria-hidden className="scene-night scene-glow" style={{ left: `${lamp.left}%`, top: `${lamp.top}%` }} />
           ))}
         </div>
+
+        {FLYERS.map((flyer) => (
+          <div
+            key={flyer.cx}
+            aria-hidden
+            className="scene-person absolute"
+            style={{ left: `${flyer.cx}%`, top: `${flyer.cy}%`, width: `${flyer.width}%`, aspectRatio: "164 / 101", translate: "-50% -50%", rotate: `${flyer.rotate}deg` }}
+          >
+            <Image src="/brand/cyan.svg" alt="" fill sizes="40px" />
+          </div>
+        ))}
 
         {PEOPLE.map((person) => (
           <div

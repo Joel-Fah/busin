@@ -18,6 +18,7 @@ import {
   UserMultiple02Icon,
 } from "@hugeicons/core-free-icons";
 
+import { BusStopScene } from "@/components/landing/BusStopScene";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Avatar } from "@/components/ui/Avatar";
@@ -42,6 +43,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { DataTable, Head, TableCard, Td, Th, Tr } from "@/components/ui/Table";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { requireAdmin } from "@/lib/auth";
+import { landingCatalogues } from "@/lib/i18n/landing";
 import { AA_TEXT, contrastRatio } from "@/lib/ui/contrast";
 import { RADIUS, innerRadius } from "@/lib/ui/radius";
 import { DARK as dark, LIGHT as light, TEXT_PAIRS } from "@/lib/ui/tokens";
@@ -52,6 +54,7 @@ import {
   GRAIN_NOTE,
   GUIDE,
   ILLUSTRATION_NOTE,
+  LANDING_SCENE,
   LOGO_MOTION,
   MOTION_NOTE,
   MOTION_STEPS,
@@ -423,6 +426,19 @@ async function Styleguide() {
             </div>
           ))}
         </div>
+
+        <h3 className="mt-8 mb-3 text-lg font-bold">The landing scene</h3>
+        <p className="mb-4 max-w-2xl text-sm text-muted">{LANDING_SCENE.intro}</p>
+        <div className="overflow-hidden rounded-lg bg-surface-2 pt-16">
+          <BusStopScene chips={landingCatalogues.en.hero.chips} />
+        </div>
+        <ul className="m-0 mt-4 grid list-none gap-2 p-0 text-sm sm:grid-cols-2">
+          {LANDING_SCENE.rules.map((rule) => (
+            <li key={rule} className="rounded-md bg-surface-2 p-4">
+              {rule}
+            </li>
+          ))}
+        </ul>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">3D objects</h3>
         <p className="mb-4 max-w-2xl text-sm text-muted">{ILLUSTRATION_NOTE}</p>
