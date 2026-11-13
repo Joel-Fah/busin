@@ -3,7 +3,7 @@
 // Design: docs/decisions/0010-push-notifications.md.
 
 export type Locale = "en" | "fr";
-export type Kind = "subscription_approved" | "subscription_rejected" | "school_notice" | "bus_near_stop" | "crew_assigned";
+export type Kind = "subscription_approved" | "subscription_rejected" | "subscription_revoked" | "school_notice" | "bus_near_stop" | "crew_assigned";
 
 /** One claimed notification, as claim_notifications returns it. */
 export type Claimed = {
@@ -24,6 +24,11 @@ const TEXT: Record<Kind, Record<Locale, { title: string; body: string }>> = {
     en: { title: "Request not approved", body: "Your school has decided on your subscription. Open BusIn to see why." },
     fr: { title: "Demande non approuvée", body: "Votre école a statué sur votre abonnement. Ouvrez BusIn pour en connaître la raison." },
   },
+  // An approved subscription was taken back by the school. The reason is shown in the app, not here.
+  subscription_revoked: {
+    en: { title: "Subscription revoked", body: "Your school revoked your bus subscription. Open BusIn to see why." },
+    fr: { title: "Abonnement révoqué", body: "Votre école a révoqué votre abonnement au bus. Ouvrez BusIn pour en connaître la raison." },
+  },
   // A change from the school (for now: the dates of a semester the student is subscribed to). Always sent.
   school_notice: {
     en: { title: "News from your school", body: "Your school changed something about your bus service. Open BusIn to see what." },
@@ -42,7 +47,7 @@ const TEXT: Record<Kind, Record<Locale, { title: string; body: string }>> = {
 };
 
 export function isKind(value: string): value is Kind {
-  return value === "subscription_approved" || value === "subscription_rejected" || value === "school_notice" || value === "bus_near_stop" || value === "crew_assigned";
+  return value === "subscription_approved" || value === "subscription_rejected" || value === "subscription_revoked" || value === "school_notice" || value === "bus_near_stop" || value === "crew_assigned";
 }
 
 export function asLocale(value: string): Locale {
