@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth";
 import { busSaveErrorKey, parseBusForm } from "@/lib/buses";
 import { isUuid } from "@/lib/ids";
+import { safeNext } from "@/lib/next-path";
 import { createClient } from "@/lib/supabase/server";
 
 /**
@@ -16,8 +17,11 @@ import { createClient } from "@/lib/supabase/server";
 export async function createBus(formData: FormData): Promise<void> {
   const admin = await requireAdmin();
 
+  // A detour from another page (the trip form) goes back there with the new bus chosen.
+  const next = safeNext(formData.get("next"));
+  const again = (query: string) => `/buses/new?${query}${next ? `&next=${encodeURIComponent(next)}` : ""}`;
   const parsed = parseBusForm(formData);
-  if (!parsed.ok) redirect(`/buses/new?error=${parsed.error}`);
+  if (!parsed.ok) redirect(again(`error=${parsed.error}`));
   const { plate, name, capacity, inService } = parsed.value;
 
   const supabase = await createClient();
@@ -26,9 +30,11 @@ export async function createBus(formData: FormData): Promise<void> {
     .insert({ school_id: admin.schoolId, plate, name, capacity, in_service: inService })
     .select("id")
     .single();
-  if (error || !data) redirect(`/buses/new?error=${busSaveErrorKey(error?.code, error?.message)}`);
+  if (error || !data) redirect(again(`error=${busSaveErrorKey(error?.code, error?.message)}`));
 
   revalidatePath("/buses");
+  if (next === "/trips/new") redirect(`/trips/new?bus=${data.id}`);
+  if (next === "/") redirect("/?done=bus");
   redirect(`/buses/${data.id}?done=created`);
 }
 

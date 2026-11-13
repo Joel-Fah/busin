@@ -19,10 +19,12 @@ type Props = {
   /** The school's day today (YYYY-MM-DD): earlier days are not offered. */
   today: string;
   trip?: { id: string; busId: string; driverId: string | null; assistantId: string | null; direction: Direction; start: string };
+  /** A bus to start with (just added from this form). */
+  busId?: string;
 };
 
 /** The form used to schedule and to edit a trip. */
-export function TripForm({ action, t, locale, buses, drivers, timeZone, today, trip }: Props) {
+export function TripForm({ action, t, locale, buses, drivers, timeZone, today, trip, busId }: Props) {
   const f = t.trips.form;
   return (
     <Card className="max-w-2xl">
@@ -35,7 +37,7 @@ export function TripForm({ action, t, locale, buses, drivers, timeZone, today, t
           label={f.bus}
           icon={Bus01Icon}
           placeholder={f.choose}
-          defaultValue={trip?.busId ?? ""}
+          defaultValue={trip?.busId ?? busId ?? ""}
           hint={buses.length === 0 ? f.noBuses : undefined}
           options={buses.map((bus) => ({ value: bus.id, label: `${bus.label}${bus.inService ? "" : ` (${f.outOfService})`}` }))}
         />
