@@ -54,7 +54,8 @@ describe("the Markdown export for agents", () => {
   });
 
   it("has recipes for the common goals and no emojis", () => {
-    for (const goal of ["A project illustration", "A new portal screen", "Interface copy", "A design review"]) expect(md).toContain(`### ${goal}`);
+    for (const goal of ["A project illustration", "A people illustration", "A new portal screen", "Interface copy", "A design review"]) expect(md).toContain(`### ${goal}`);
+    expect(md).toContain("### People illustrations");
     expect(EMOJI.test(md)).toBe(false);
   });
 });
