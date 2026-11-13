@@ -1,10 +1,11 @@
 "use client";
 
-import { useActionState, useCallback, useMemo, useRef, useState, type FormEvent } from "react";
+import { useActionState, useCallback, useMemo, useRef, useState, useTransition, type FormEvent } from "react";
 import {
   Add01Icon,
   ArrowRight01Icon,
   Cancel01Icon,
+  Delete02Icon,
   FlagTriangleRightIcon,
   Edit02Icon,
   Gps01Icon,
@@ -13,7 +14,7 @@ import {
   Search01Icon,
 } from "@hugeicons/core-free-icons";
 
-import { saveStop, type SaveStopState } from "@/app/(admin)/stops/actions";
+import { deleteStop, saveStop, type SaveStopState } from "@/app/(admin)/stops/actions";
 import { MapView } from "@/components/map/MapView";
 import type { MapMarker } from "@/components/map/types";
 import { NavDock } from "@/components/nav/NavDock";
@@ -29,8 +30,7 @@ import { distanceMeters, formatDistance, isValidLatLng, type LatLng } from "@/li
 import { format, type Messages } from "@/lib/i18n/messages";
 import type { MapProviderId } from "@/lib/map/config";
 import { formatKm } from "@/lib/route";
-import { MAX_STOP_NAME_LENGTH, nearbyStop, parseCoordinate, type NearbyStop } from "@/lib/stops";
-import { describeUsage } from "@/lib/stops";
+import { MAX_STOP_NAME_LENGTH, canDeleteStop, describeHistory, describeUsage, nearbyStop, parseCoordinate, type DeleteStopErrorKey, type NearbyStop } from "@/lib/stops";
 import type { AreaCount, StopRow } from "@/lib/stops-data";
 
 type Props = {
@@ -110,6 +110,27 @@ export function StopsExplorer({ stops, areas, failed, map, initialSheet, t }: Pr
 
   const editing = sheet?.mode === "edit" ? sheet.id : null;
   const pinned = sheet ? draftPosition(draft) : null;
+  const editingStop = editing ? stops.find((stop) => stop.id === editing) : undefined;
+
+  // Deleting a stop nothing ever used: asked first, then the database decides (and audits it).
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleteError, setDeleteError] = useState<DeleteStopErrorKey | null>(null);
+  const [deleting, startDeleting] = useTransition();
+  const removeStop = () => {
+    if (!editing) return;
+    startDeleting(async () => {
+      const outcome = await deleteStop(editing);
+      setConfirmingDelete(false);
+      if (outcome.status === "error") {
+        setDeleteError(outcome.error);
+        return;
+      }
+      setDeleteError(null);
+      setSheet(null);
+      setSelectedId(null);
+      setNotice({ text: s.done.deleted });
+    });
+  };
 
   // Another stop close to the pin: the same place is refused, a near one is asked about before saving.
   const formRef = useRef<HTMLFormElement>(null);
@@ -559,8 +580,44 @@ export function StopsExplorer({ stops, areas, failed, map, initialSheet, t }: Pr
           <Button type="submit" disabled={pending}>
             {editing ? f.save : f.create}
           </Button>
+
+          {editingStop ? (
+            <div className="mt-3 flex flex-col gap-3">
+              {canDeleteStop(editingStop.history) ? (
+                <Button type="button" variant="danger" icon={Delete02Icon} disabled={deleting} onClick={() => setConfirmingDelete(true)}>
+                  {s.remove.button}
+                </Button>
+              ) : (
+                <p className="text-sm text-muted">
+                  {editingStop.history.subscriptions < 0 ? s.remove.unknown : format(s.remove.kept, { records: describeHistory(editingStop.history, s.remove) })}
+                </p>
+              )}
+              {deleteError ? (
+                <p role="alert" className="rounded-sm bg-bad-bg px-3.5 py-2.5 text-sm text-bad">
+                  {s.remove.errors[deleteError]}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
         </form>
       </SideSheet>
+
+      <Modal
+        open={confirmingDelete}
+        onClose={() => setConfirmingDelete(false)}
+        title={format(s.remove.title, { name: editingStop?.name ?? "" })}
+        description={s.remove.body}
+        actions={
+          <>
+            <Button type="button" variant="secondary" onClick={() => setConfirmingDelete(false)}>
+              {s.remove.cancel}
+            </Button>
+            <Button type="button" variant="danger" icon={Delete02Icon} disabled={deleting} onClick={removeStop}>
+              {s.remove.confirm}
+            </Button>
+          </>
+        }
+      />
 
       <Modal
         open={asking}
