@@ -334,6 +334,27 @@ export const en = {
   },
   insights: {
     title: 'Insights',
+    nothingYet: {
+      load: {
+        title: 'No rides counted yet',
+        body: 'This view shows how full the bus gets at each stop. It fills in once students have approved subscriptions, and then with every boarding staff scan at the door.',
+      },
+      proximity: {
+        title: 'Not enough students yet',
+        body: 'This view shows how far students live from their stop. A stop appears once at least 5 of its students have shared their area in the student app.',
+      },
+      graph: {
+        title: 'Nothing to connect yet',
+        body: 'The graph links the stops by who rides from where and who lives near them. It fills in once there are subscriptions or boardings.',
+      },
+      suggestions: {
+        title: 'No suggestions yet',
+        body: 'Suggestions for new, merged or quiet stops come from where students live and where they board. They appear once enough students have shared their area and trips have run for a few weeks.',
+      },
+      semester: 'Open a semester',
+      trip: 'Schedule a trip',
+      stops: 'Review the stops',
+    },
     views: { label: 'What to show', load: 'Stop load', proximity: 'Proximity', graph: 'Graph', suggestions: 'Suggestions' },
     period: { label: 'Period', p28: '4 weeks', p56: '8 weeks', p112: '16 weeks' },
     mapLabel: 'Map of how full the bus gets at each stop',
@@ -1570,6 +1591,27 @@ export const fr: Messages = {
   },
   insights: {
     title: 'Analyses',
+    nothingYet: {
+      load: {
+        title: 'Aucun trajet compté pour l’instant',
+        body: 'Cette vue montre à quel point le bus se remplit à chaque arrêt. Elle se remplit dès que des étudiants ont des abonnements approuvés, puis à chaque montée scannée à la porte.',
+      },
+      proximity: {
+        title: 'Pas encore assez d’étudiants',
+        body: 'Cette vue montre à quelle distance les étudiants habitent de leur arrêt. Un arrêt apparaît dès qu’au moins 5 de ses étudiants ont partagé leur zone dans l’application étudiante.',
+      },
+      graph: {
+        title: 'Rien à relier pour l’instant',
+        body: 'Le graphe relie les arrêts selon qui monte où et qui habite près d’eux. Il se remplit dès qu’il y a des abonnements ou des montées.',
+      },
+      suggestions: {
+        title: 'Pas encore de suggestions',
+        body: 'Les suggestions d’arrêts nouveaux, regroupés ou peu utilisés viennent d’où habitent les étudiants et d’où ils montent. Elles apparaissent quand assez d’étudiants ont partagé leur zone et que les trajets tournent depuis quelques semaines.',
+      },
+      semester: 'Ouvrir un semestre',
+      trip: 'Programmer un trajet',
+      stops: 'Revoir les arrêts',
+    },
     views: { label: 'Que montrer', load: 'Charge des arrêts', proximity: 'Proximité', graph: 'Graphe', suggestions: 'Suggestions' },
     period: { label: 'Période', p28: '4 semaines', p56: '8 semaines', p112: '16 semaines' },
     mapLabel: 'Carte du remplissage du bus à chaque arrêt',

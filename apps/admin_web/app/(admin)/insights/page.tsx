@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { GraphExplorer } from "@/components/insights/GraphExplorer";
+import { InsightsEmpty } from "@/components/insights/InsightsEmpty";
 import { InsightsExplorer } from "@/components/insights/InsightsExplorer";
 import { SuggestionsExplorer } from "@/components/insights/SuggestionsExplorer";
 import { ProximityExplorer } from "@/components/insights/ProximityExplorer";
@@ -10,6 +11,7 @@ import { centroid } from "@/lib/geo";
 import { getMessages } from "@/lib/i18n/server";
 import { DEFAULT_LOAD_PERIOD, parseInsightView, parseLoadPeriod } from "@/lib/insights";
 import { loadProximity, loadRouteOverlay, loadStopLoads, loadSuggestions } from "@/lib/insights-data";
+import { graphIsEmpty, loadIsEmpty, proximityIsEmpty, suggestionsAreEmpty } from "@/lib/insights-empty";
 import { mapConfig } from "@/lib/map/config";
 
 export const metadata: Metadata = { title: "Insights" };
@@ -45,21 +47,26 @@ async function Insights({ searchParams }: { searchParams: SearchParams }) {
       loadSuggestions(),
       routePromise,
     ]);
+    // Nothing to show yet (a school just starting): say what the view needs instead of an empty graph.
+    if (!loadFailed && !proximityFailed && graphIsEmpty(loads, proximity)) return <InsightsEmpty view="graph" t={t} />;
     return <GraphExplorer loads={loads} proximity={proximity} suggestions={suggestions} route={route} failed={loadFailed || proximityFailed} t={t} />;
   }
   if (view === "suggestions") {
     const [{ suggestions, stops, failed }, route] = await Promise.all([loadSuggestions(), routePromise]);
+    if (!failed && suggestionsAreEmpty(suggestions)) return <InsightsEmpty view="suggestions" t={t} />;
     const center = centroid(stops.flatMap((stop) => (stop.position ? [stop.position] : []))) ?? config.fallbackCenter;
     return <SuggestionsExplorer suggestions={suggestions} stops={stops} route={route} failed={failed} map={{ ...mapProps, center }} t={t} />;
   }
   if (view === "proximity") {
     const [{ proximity, corridor, failed }, route] = await Promise.all([loadProximity(), routePromise]);
+    if (!failed && proximityIsEmpty(proximity)) return <InsightsEmpty view="proximity" t={t} />;
     const center = centroid(proximity.stops.flatMap((stop) => (stop.position ? [stop.position] : []))) ?? config.fallbackCenter;
     return <ProximityExplorer proximity={proximity} corridor={corridor} route={route} failed={failed} map={{ ...mapProps, center }} t={t} />;
   }
 
   const period = parseLoadPeriod(query.days);
   const [{ loads, failed }, route] = await Promise.all([loadStopLoads(period), routePromise]);
+  if (!failed && loadIsEmpty(loads)) return <InsightsEmpty view="load" t={t} />;
 
   // Dates are written here, in the school's time zone, so the server and the browser show the same text.
   const counted = loads.refreshedAt
