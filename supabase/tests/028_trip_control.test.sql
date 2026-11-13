@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(24);
+select plan(25);
 
 insert into public.schools (id, name) values ('10000000-0000-4000-8000-000000000001', 'School A'), ('10000000-0000-4000-8000-000000000002', 'School B');
 insert into public.school_domains (domain, school_id) values ('a.edu', '10000000-0000-4000-8000-000000000001'), ('b.edu', '10000000-0000-4000-8000-000000000002');
@@ -24,8 +24,8 @@ insert into public.trips (id, school_id, bus_id, driver_id, direction, scheduled
   ('f1000000-0000-4000-8000-000000000002', '10000000-0000-4000-8000-000000000001', 'e1000000-0000-4000-8000-000000000002', null, 'inbound', now()),
   -- same bus as the first
   ('f1000000-0000-4000-8000-000000000003', '10000000-0000-4000-8000-000000000001', 'e1000000-0000-4000-8000-000000000001', 'a2000000-0000-4000-8000-000000000001', 'outbound', now()),
-  -- another day
-  ('f1000000-0000-4000-8000-000000000004', '10000000-0000-4000-8000-000000000001', 'e1000000-0000-4000-8000-000000000002', null, 'outbound', now() + interval '3 days'),
+  -- another day, assigned to the second staff member
+  ('f1000000-0000-4000-8000-000000000004', '10000000-0000-4000-8000-000000000001', 'e1000000-0000-4000-8000-000000000002', 'a2000000-0000-4000-8000-000000000002', 'outbound', now() + interval '3 days'),
   -- another school
   ('f2000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000002', 'e2000000-0000-4000-8000-000000000001', null, 'inbound', now());
 
@@ -35,8 +35,10 @@ set local "request.jwt.claims" = '{"sub":"a2000000-0000-4000-8000-000000000002",
 select throws_ok($$select public.start_trip('f1000000-0000-4000-8000-000000000001')$$, '42501', null, 'another staff member cannot start a trip assigned to someone');
 select throws_ok($$select public.start_trip('f2000000-0000-4000-8000-000000000001')$$, 'P0002', 'Trip not found', 'nor another school''s trip');
 select throws_ok($$select public.start_trip('f1000000-0000-4000-8000-000000000004')$$, '55000', 'trip_not_today', 'a trip of another day cannot start');
-select lives_ok($$select public.start_trip('f1000000-0000-4000-8000-000000000002')$$, 'any staff member can start a trip nobody is assigned to');
+select throws_ok($$select public.start_trip('f1000000-0000-4000-8000-000000000002')$$, '42501', null, 'a trip nobody is assigned to is not for staff to start (administrators run it)');
 reset role;
+-- That trip runs, started by the second staff member before staff were limited to their own trips.
+update public.trips set status = 'active', started_at = now(), started_by = 'a2000000-0000-4000-8000-000000000002' where id = 'f1000000-0000-4000-8000-000000000002';
 
 set local role authenticated;
 set local "request.jwt.claims" = '{"sub":"a1000000-0000-4000-8000-000000000001","role":"authenticated"}';
@@ -76,7 +78,8 @@ select is((select count(*)::int from public.trip_positions where trip_id = 'f100
 -- ---------------------------------------------------------------- manifest
 set local role authenticated;
 set local "request.jwt.claims" = '{"sub":"a2000000-0000-4000-8000-000000000002","role":"authenticated"}';
-select is((select count(*)::int from public.trip_manifest('f1000000-0000-4000-8000-000000000001')), 0, 'staff read the manifest (nobody yet)');
+select throws_ok($$select * from public.trip_manifest('f1000000-0000-4000-8000-000000000001')$$, 'P0002', 'Trip not found', 'staff do not read the manifest of a trip they are not on');
+select is((select count(*)::int from public.trip_manifest('f1000000-0000-4000-8000-000000000002')), 0, 'but do read one they started (nobody yet)');
 select throws_ok($$select * from public.trip_manifest('f2000000-0000-4000-8000-000000000001')$$, 'P0002', 'Trip not found', 'not another school''s');
 reset role;
 set local role authenticated;

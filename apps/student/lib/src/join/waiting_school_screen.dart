@@ -24,7 +24,8 @@ class _WaitingSchoolScreenState extends ConsumerState<WaitingSchoolScreen> {
   @override
   void initState() {
     super.initState();
-    _lifecycle = AppLifecycleListener(onResume: _recheck);
+    // Back from the background (onShow), not every focus change: a resume alone also follows a system dialog.
+    _lifecycle = AppLifecycleListener(onShow: _recheck);
   }
 
   @override

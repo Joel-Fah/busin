@@ -1356,6 +1356,11 @@ class BusinL10nEn extends BusinL10n {
   String get opsTodayEmpty => 'No trips are scheduled today.';
 
   @override
+  String opsOfflineBody(String when) {
+    return 'Showing what this phone saved ($when). Scans are kept and sent when the connection returns.';
+  }
+
+  @override
   String get opsTodayMine => 'Assigned to you';
 
   @override
@@ -1680,4 +1685,187 @@ class BusinL10nEn extends BusinL10n {
   String opsShareStandby(String name) {
     return '$name\'s phone is sharing the bus position. This phone takes over by itself if it goes quiet.';
   }
+
+  @override
+  String get navTrips => 'Trips';
+
+  @override
+  String get navStats => 'Stats';
+
+  @override
+  String get opsTodayEmptyMine => 'No trips are assigned to you today.';
+
+  @override
+  String get opsUpcomingTitle => 'Coming up';
+
+  @override
+  String get opsUpcomingEmpty =>
+      'Nothing else is assigned to you in the next four weeks.';
+
+  @override
+  String get opsWeekThis => 'This week';
+
+  @override
+  String get opsWeekNext => 'Next week';
+
+  @override
+  String get opsWeekLast => 'Last week';
+
+  @override
+  String opsWeekOf(String date) {
+    return 'Week of $date';
+  }
+
+  @override
+  String get opsHistoryTitle => 'Your trips';
+
+  @override
+  String get opsHistoryEmpty => 'Your past trips will appear here.';
+
+  @override
+  String get opsHistoryEnd => 'That is everything.';
+
+  @override
+  String get opsRoleDriver => 'Driver';
+
+  @override
+  String get opsRoleAssistant => 'Assistant';
+
+  @override
+  String get opsRoleStarter => 'Started it';
+
+  @override
+  String opsBoardedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count boarded',
+      one: '1 boarded',
+      zero: 'Nobody boarded',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get opsOnTime => 'On time';
+
+  @override
+  String opsLateBy(int minutes) {
+    return '$minutes min late';
+  }
+
+  @override
+  String get opsNotRun => 'Not run';
+
+  @override
+  String opsDuration(String duration) {
+    return '$duration on the road';
+  }
+
+  @override
+  String opsMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String opsHoursMinutes(int hours, int minutes) {
+    return '$hours h $minutes min';
+  }
+
+  @override
+  String get opsStatsTitle => 'Your stats';
+
+  @override
+  String get opsStatsPeriod => 'Last 12 weeks';
+
+  @override
+  String get opsStatsEmpty => 'Your stats appear after your first trips.';
+
+  @override
+  String get opsStatsTrips => 'Trips';
+
+  @override
+  String get opsStatsOnTime => 'On time';
+
+  @override
+  String get opsStatsAvgDelay => 'Average delay';
+
+  @override
+  String get opsStatsBoarded => 'Students boarded';
+
+  @override
+  String get opsStatsOnRoad => 'On the road';
+
+  @override
+  String opsStatsPerTrip(String count) {
+    return '$count per trip';
+  }
+
+  @override
+  String get opsStatsNoData => 'None yet';
+
+  @override
+  String get opsStatsTripsChart => 'Trips per week';
+
+  @override
+  String get opsStatsPunctualityChart => 'On time per week';
+
+  @override
+  String get opsStatsBoardedChart => 'Students boarded per week';
+
+  @override
+  String get opsStatsLegendOnTime => 'On time';
+
+  @override
+  String get opsStatsLegendLate => 'Late';
+
+  @override
+  String get opsStatsLegendField => 'Started in the field';
+
+  @override
+  String get opsStatsLegendNotRun => 'Cancelled or missed';
+
+  @override
+  String opsStatsTripsSummary(
+    int trips,
+    int onTime,
+    int late,
+    int field,
+    int notRun,
+  ) {
+    return '$trips trips in 12 weeks: $onTime on time, $late late, $field started in the field, $notRun cancelled or missed.';
+  }
+
+  @override
+  String opsStatsPunctualitySummary(String percent, String best, String worst) {
+    return 'On time over 12 weeks: $percent. Best week $best, weakest week $worst.';
+  }
+
+  @override
+  String opsStatsBoardedSummary(int count) {
+    return '$count students boarded in 12 weeks.';
+  }
+
+  @override
+  String opsStatsRoles(int driver, int assistant) {
+    return 'As driver: $driver. As assistant: $assistant.';
+  }
+
+  @override
+  String opsStatsBreakdown(int completed, int cancelled, int missed) {
+    return 'Completed $completed · cancelled $cancelled · missed $missed';
+  }
+
+  @override
+  String get opsStatsPunctualityHint =>
+      'On time means started no more than 10 minutes after the scheduled time. Trips started in the field have no schedule and are not timed.';
+
+  @override
+  String get opsStatsTrendUp => 'Better than the 4 weeks before';
+
+  @override
+  String get opsStatsTrendDown => 'Below the 4 weeks before';
+
+  @override
+  String get opsStatsTrendSame => 'Steady over the last 8 weeks';
 }

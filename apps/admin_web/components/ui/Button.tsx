@@ -69,9 +69,26 @@ export function ButtonLink({
   children,
   className = "",
   href,
-}: Common & { href: string }) {
+  download = false,
+  tip,
+}: Common & {
+  href: string;
+  /** A file to save (an export) rather than a page: a plain link, so the router does not try to open it. */
+  download?: boolean;
+  /** A hint shown on hover and focus (see Tooltip). */
+  tip?: string;
+}) {
+  if (download) {
+    return (
+      <a href={href} download data-tip={tip} className={`${BASE} ${VARIANTS[variant]} ${className}`}>
+        <Inner variant={variant} icon={icon}>
+          {children}
+        </Inner>
+      </a>
+    );
+  }
   return (
-    <Link href={href} className={`${BASE} ${VARIANTS[variant]} ${className}`}>
+    <Link href={href} data-tip={tip} className={`${BASE} ${VARIANTS[variant]} ${className}`}>
       <Inner variant={variant} icon={icon}>
         {children}
       </Inner>

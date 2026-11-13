@@ -80,6 +80,32 @@ export function describeUsage(students: number, pending: number, labels: UsageLa
   return pending > 0 ? `${main}, ${labels.pending.replace("{count}", String(pending))}` : main;
 }
 
+/** Whether a stop can be deleted: nothing on record uses it (a negative count means the history could not be read). */
+export function canDeleteStop(history: { subscriptions: number; boardings: number }): boolean {
+  return history.subscriptions === 0 && history.boardings === 0;
+}
+
+export type HistoryLabels = { subscriptionOne: string; subscriptionMany: string; boardingOne: string; boardingMany: string; and: string };
+
+/** "3 subscriptions and 1 boarding": what keeps a stop. Only the counts above zero are named. */
+export function describeHistory(history: { subscriptions: number; boardings: number }, labels: HistoryLabels): string {
+  const count = (n: number, one: string, many: string) => (n === 1 ? one : many.replace("{count}", String(n)));
+  const parts = [
+    history.subscriptions > 0 ? count(history.subscriptions, labels.subscriptionOne, labels.subscriptionMany) : null,
+    history.boardings > 0 ? count(history.boardings, labels.boardingOne, labels.boardingMany) : null,
+  ].filter((p): p is string => p !== null);
+  return parts.length === 2 ? labels.and.replace("{a}", parts[0]).replace("{b}", parts[1]) : (parts[0] ?? "");
+}
+
+export type DeleteStopErrorKey = "in_use" | "not_found" | "generic";
+
+/** Maps a refusal of admin_delete_stop: 55000 stop_in_use (something uses it), P0002 (gone, or another school's). */
+export function deleteStopErrorKey(code: string | undefined, message?: string): DeleteStopErrorKey {
+  if (code === "55000" && message === "stop_in_use") return "in_use";
+  if (code === "P0002") return "not_found";
+  return "generic";
+}
+
 /** Closer than this to another stop is the same place: refused (the database refuses it too). */
 export const SAME_PLACE_M = 25;
 /** Closer than this, the administrator is asked whether they are sure. */

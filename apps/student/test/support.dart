@@ -365,6 +365,13 @@ class FakeHistory implements ScansRepository, TripsRepository {
   final List<Scan> scans;
   final List<Trip> trips;
 
+  // Staff only: never asked for by the student app.
+  @override
+  Future<List<TripHistoryEntry>> myHistory({required DateTime before, int limit = 20}) => throw UnimplementedError();
+
+  @override
+  Future<List<WeekStats>> myStats({int weeks = 12}) => throw UnimplementedError();
+
   /// What the live "newest boarding" feed delivers; a test adds a scan to announce a boarding.
   final StreamController<Scan?> latest = StreamController<Scan?>.broadcast();
 

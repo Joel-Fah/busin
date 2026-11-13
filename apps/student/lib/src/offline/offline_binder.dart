@@ -19,8 +19,8 @@ void refreshFromServer(WidgetRef ref) {
   ref.invalidate(canFollowBusesProvider);
 }
 
-/// Asks the server again when the network comes back, and when the app is opened again, but only while something on screen is
-/// a saved copy. Mounted once, inside the signed-in frame.
+/// Asks the server again when the network comes back, and when the app comes back from the background (not on a focus
+/// blip), but only while something on screen is a saved copy. Mounted once, inside the signed-in frame.
 class OfflineBinder extends ConsumerStatefulWidget {
   const OfflineBinder({super.key, required this.child});
 
@@ -31,6 +31,8 @@ class OfflineBinder extends ConsumerStatefulWidget {
 }
 
 class _OfflineBinderState extends ConsumerState<OfflineBinder> with WidgetsBindingObserver {
+  final _away = AwayTracker();
+
   @override
   void initState() {
     super.initState();
@@ -47,7 +49,7 @@ class _OfflineBinderState extends ConsumerState<OfflineBinder> with WidgetsBindi
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed && _showingSavedCopy) refreshFromServer(ref);
+    if (_away.cameBack(state) && _showingSavedCopy) refreshFromServer(ref);
   }
 
   @override

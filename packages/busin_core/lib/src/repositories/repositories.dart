@@ -12,6 +12,7 @@ import '../models/notification_preferences.dart';
 import '../models/profile.dart';
 import '../models/rider_key.dart';
 import '../models/manifest_entry.dart';
+import '../models/my_trips.dart';
 import '../models/scan.dart';
 import '../models/scan_outcome.dart';
 import '../models/school.dart';
@@ -225,8 +226,15 @@ abstract interface class TripsRepository {
   /// Ends a running trip (ops app).
   Future<void> end(String tripId);
 
-  /// Who has boarded the trip, newest first (staff).
+  /// Who has boarded the trip, newest first (staff on the trip, administrators).
   Future<List<ManifestEntry>> manifest(String tripId);
+
+  /// The signed-in staff member's past trips scheduled before [before], newest first, at most [limit] (1 to 50). Pass
+  /// the start of today first, then the last entry's [TripHistoryEntry.scheduledStart] for the next page.
+  Future<List<TripHistoryEntry>> myHistory({required DateTime before, int limit = 20});
+
+  /// The signed-in staff member's last [weeks] weeks (1 to 26, this week included), oldest first, one per week.
+  Future<List<WeekStats>> myStats({int weeks = 12});
 }
 
 abstract interface class DeviceTokensRepository {
