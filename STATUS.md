@@ -31,9 +31,9 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
-## Handoff: student web app (in progress, 2026-11-13)
+## Handoff: student web app (2026-11-13)
 
-ADR 0021 (#389, PR #390), slice 1 (shell, sign-in, install), slice 2 (join, waiting, setup), slice 3 (subscription), slice 4 (boarding code), slice 5 (My bus), slice 6 (profile), slice 7 (offline) and slice 8 (web push) are up as stacked PRs into `dev`. Next: landing link.
+Done, as stacked PRs into `dev` (merge in order): ADR 0021 (#390), shell, sign-in and install (#392), join, waiting and setup (#394), subscription (#396), boarding code (#398), My bus (#400), profile and settings (#402), offline (#404), web push (#406), landing link (this PR). The PWA lives at `/app`, mirrors the student app's flows and words, installs with the teal-on-white icon, works offline once opened, and shows codes from a key the browser cannot read out.
 
 Owner, before it goes live:
 - set `NEXT_PUBLIC_GOOGLE_CLIENT_ID` (the Google web client id Supabase uses) on Vercel and in `.env.local`, and add the site (and `http://127.0.0.1:3000`) to that client's Authorized JavaScript origins; until then the sign-in button uses the redirect flow;
