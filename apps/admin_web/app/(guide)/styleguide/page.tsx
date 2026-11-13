@@ -45,8 +45,34 @@ import { requireAdmin } from "@/lib/auth";
 import { AA_TEXT, contrastRatio } from "@/lib/ui/contrast";
 import { RADIUS, innerRadius } from "@/lib/ui/radius";
 import { DARK as dark, LIGHT as light, TEXT_PAIRS } from "@/lib/ui/tokens";
+import {
+  AUDIENCE,
+  COLOUR_STATE_NOTE,
+  COMPONENT_NOTES,
+  GRAIN_NOTE,
+  GUIDE,
+  ILLUSTRATION_NOTE,
+  LOGO_MOTION,
+  MOTION_NOTE,
+  MOTION_STEPS,
+  NAV_HELP,
+  NAV_RULES,
+  NEVER,
+  PHOTO_NOTE,
+  PRINCIPLES,
+  ROUGH_NOTE,
+  SECTIONS,
+  TEXTURE_USE,
+  THREE_D,
+  TYPE_NOTE,
+  VOICE_PAIRS,
+  VOICE_RULES,
+  section,
+  type SectionId,
+} from "@/lib/styleguide/content";
 
 import { MenuDemo, MenuPlacementDemo, ModalDemo, SheetDemo, TabsDemo, ToastDemo } from "./Demos";
+import { ExportLinks } from "./ExportLinks";
 import { Pair, Section } from "./Section";
 import { SectionRail } from "./SectionRail";
 
@@ -54,23 +80,6 @@ export const metadata: Metadata = { title: "Styleguide" };
 
 // Depends on who is signed in, so it cannot be an instant navigation.
 export const instant = false;
-
-const SECTIONS = [
-  ["overview", "Overview"],
-  ["voice", "Voice and tone"],
-  ["logo", "Logo"],
-  ["colour", "Colour"],
-  ["type", "Typography"],
-  ["shape", "Shape"],
-  ["contour", "Contour"],
-  ["texture", "Texture"],
-  ["icons", "Icons"],
-  ["navigation", "Navigation"],
-  ["motion", "Motion"],
-  ["imagery", "Imagery"],
-  ["components", "Components"],
-  ["rules", "Never"],
-] as const;
 
 const NAV_ICONS = [
   ["Overview", GeometricShapes01Icon],
@@ -82,19 +91,6 @@ const NAV_ICONS = [
   ["Buses", Bus01Icon],
   ["Menu", Menu03Icon],
   ["Back", ArrowLeft01Icon],
-] as const;
-
-const THREE_D = [
-  ["bus", "Bus"],
-  ["bus-stop", "Bus stop"],
-  ["ticket1", "Ticket"],
-  ["papers", "Papers"],
-  ["seat", "Seat"],
-  ["semester", "Semester"],
-  ["waiting", "Waiting"],
-  ["verified", "Verified"],
-  ["blocked", "Blocked"],
-  ["staff", "Staff"],
 ] as const;
 
 // A bento layout: each tile has its own size and crop. Wide tiles take the middle of a tall photo.
@@ -163,81 +159,57 @@ async function Styleguide() {
         />
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-seed via-seed/80 to-transparent" />
         <div className="flex min-h-72 flex-col justify-end gap-3 p-8 sm:p-12">
-          <p className="text-sm font-semibold text-white/80">BusIn design system</p>
-          <h1 className="text-5xl font-extrabold tracking-tight sm:text-6xl">Styleguide</h1>
-          <p className="max-w-lg text-base text-white/85">
-            How the admin portal looks, reads and moves. One reference, so everything we build stays consistent over
-            time.
-          </p>
+          <p className="text-sm font-semibold text-white/80">{GUIDE.name}</p>
+          <h1 className="text-5xl font-extrabold tracking-tight sm:text-6xl">{GUIDE.title}</h1>
+          <p className="max-w-lg text-base text-white/85">{GUIDE.summary}</p>
         </div>
       </header>
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
-        <p className="max-w-xl text-sm text-muted">
-          Update this page in the same change as any component. It is not linked from the navigation.
-        </p>
-        <ThemeToggle labels={{ group: "Theme", system: "System", light: "Light", dark: "Dark" }} />
+        <p className="max-w-xl text-sm text-muted">{GUIDE.upkeep}</p>
+        <div className="flex flex-wrap items-center gap-3">
+          <ExportLinks />
+          <ThemeToggle labels={{ group: "Theme", system: "System", light: "Light", dark: "Dark" }} />
+        </div>
       </div>
 
       <nav aria-label="Jump to a section" className="mt-6 flex flex-wrap gap-x-5 gap-y-2 min-[94rem]:hidden">
-        {SECTIONS.map(([id, label]) => (
+        {SECTIONS.map(({ id, title }) => (
           <a key={id} href={`#${id}`} className="text-sm font-semibold text-muted no-underline hover:text-fg">
-            {label}
+            {title}
           </a>
         ))}
       </nav>
 
       <div className="mt-4">
-      <Section
-        id="overview"
-        title="Overview"
-        intro="BusIn helps a school run its campus buses: who is subscribed, who boarded, where the buses stop. The portal is for the people who run that."
-      >
+      <Section {...sectionProps("overview")}>
         <div className="grid gap-4 sm:grid-cols-3">
-          {[
-            ["Gentle", "Soft surfaces, rounded shapes and quiet motion. Nothing shouts."],
-            ["Clear", "One main action per screen. Plain words. Every state is labelled, never colour alone."],
-            ["Consistent", "Every colour, radius and duration is a token. Components never use a literal value."],
-          ].map(([title, body]) => (
+          {PRINCIPLES.map(([title, body]) => (
             <Card key={title} className="p-7">
               <h3 className="text-lg font-bold">{title}</h3>
               <p className="mt-2 text-sm text-muted">{body}</p>
             </Card>
           ))}
         </div>
-        <p className="mt-6 max-w-2xl text-sm text-muted">
-          Audience: school administrators, mostly on tablets and desktops, and drivers on phones in the ops app.
-          Everything works from 390px wide up, and is designed desktop first.
-        </p>
+        <p className="mt-6 max-w-2xl text-sm text-muted">{AUDIENCE}</p>
       </Section>
 
-      <Section
-        id="voice"
-        title="Voice and tone"
-        intro="The portal is calm and plain. Staff and administrators read it between other jobs, so it says what happened and what to do next. The student app is warmer and lighter, but uses the same words for the same things."
-      >
+      <Section {...sectionProps("voice")}>
         <ul className="m-0 grid list-none gap-2 p-0 text-sm sm:grid-cols-2">
-          {[
-            "Write the way a helpful colleague speaks. Short sentences, active verbs.",
-            "Use the product words: semester, subscription, stop, trip, boarding, bus. Do not invent synonyms.",
-            "Say what happened, then how to fix it. No blame, no jargon, no error codes on screen.",
-            "Directions read Going to school and Going home.",
-            "English and French ship together. If a string is not translated, it is not finished.",
-            "No emojis, anywhere.",
-          ].map((line) => (
+          {VOICE_RULES.map((line) => (
             <li key={line} className="rounded-md bg-surface-2 p-4">
               {line}
             </li>
           ))}
         </ul>
         <div className="mt-6 space-y-3">
-          <Pair doText="That bus is not available. Pick one that is in service." dontText="Error 422: invalid bus_id." />
-          <Pair doText="Nothing to review right now." dontText="No records found." />
-          <Pair doText="Save stop" dontText="Submit" />
+          {VOICE_PAIRS.map((pair) => (
+            <Pair key={pair.do} doText={pair.do} dontText={pair.dont} />
+          ))}
         </div>
       </Section>
 
-      <Section id="logo" title="Logo" intro="The hand-lettered mark. Teal on light surfaces, white on dark ones. Keep clear space of at least one third of its height around it, and never stretch, recolour or outline it.">
+      <Section {...sectionProps("logo")}>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="relative flex h-44 items-center justify-center rounded-lg bg-surface shadow-soft">
             <Contour radius={28} />
@@ -248,24 +220,14 @@ async function Styleguide() {
             <Image src="/brand/white.svg" alt="BusIn logo, white" width={164} height={101} />
           </div>
         </div>
-        <p className="mt-4 text-sm text-muted">
-          Opening animation (arrives with the shell): the outline draws, then the fill fades in. Once per session,
-          skippable, and static when the device asks for reduced motion.
-        </p>
+        <p className="mt-4 text-sm text-muted">{LOGO_MOTION}</p>
       </Section>
 
-      <Section
-        id="colour"
-        title="Colour"
-        intro="Deep teal is the brand, orange is the action. Both themes use the same tokens, so a component never needs to know which theme it is in."
-      >
+      <Section {...sectionProps("colour")}>
         <h3 className="mb-3 text-lg font-bold">Surface and text tokens</h3>
         <Swatches names={SURFACE_TOKENS} light={light} dark={dark} />
         <h3 className="mt-8 mb-3 text-lg font-bold">State tokens</h3>
-        <p className="mb-3 text-sm text-muted">
-          State text is darker than the app fills so it stays readable on its tint. A state always carries an icon or a
-          label as well as its colour.
-        </p>
+        <p className="mb-3 text-sm text-muted">{COLOUR_STATE_NOTE}</p>
         <Swatches names={STATE_TOKENS.flatMap((n) => [n, `${n}-bg`])} light={light} dark={dark} />
         <h3 className="mt-8 mb-3 text-lg font-bold">Brand ramps</h3>
         <Ramp name="teal" />
@@ -296,11 +258,7 @@ async function Styleguide() {
         <p className="mt-3 text-sm text-muted">A unit test fails if any pair above drops under {AA_TEXT}.</p>
       </Section>
 
-      <Section
-        id="type"
-        title="Typography"
-        intro="Plus Jakarta Sans, a variable font with a friendly geometric shape. It is open licence and exists for web and Flutter, so every tier can use the same face. It replaces Bevellier, whose licence we could not confirm."
-      >
+      <Section {...sectionProps("type")}>
         <div className="space-y-5 rounded-lg bg-surface p-8 shadow-soft">
           <p className="text-5xl font-extrabold tracking-tight">Page headline, 48 extra bold</p>
           <p className="text-3xl font-bold tracking-tight">Section title, 30 bold</p>
@@ -309,17 +267,10 @@ async function Styleguide() {
           <p className="text-sm text-muted">Secondary text, 14 regular, muted. Used for hints and descriptions.</p>
           <p className="text-xs font-semibold tracking-wide text-muted uppercase">Label, 12 semibold, spaced</p>
         </div>
-        <p className="mt-4 text-sm text-muted">
-          Headlines are larger than before and sit tight; body copy keeps a line height of 1.5. Use weight, not size,
-          to separate neighbours.
-        </p>
+        <p className="mt-4 text-sm text-muted">{TYPE_NOTE}</p>
       </Section>
 
-      <Section
-        id="shape"
-        title="Shape"
-        intro="Rounded beyond normal, never a pill and never a squircle. Five sizes on a 4px grid: xs for chips and small tags, sm for buttons and fields, md, lg for cards and xl for large surfaces. When one shape sits inside another, the inner radius is the outer radius minus the padding between them, so the corners stay concentric."
-      >
+      <Section {...sectionProps("shape")}>
         <div className="grid gap-4 sm:grid-cols-5">
           {(Object.entries(RADIUS) as [string, number][]).map(([name, px]) => (
             <div key={name} className="flex flex-col items-start gap-2">
@@ -341,11 +292,7 @@ async function Styleguide() {
         </div>
       </Section>
 
-      <Section
-        id="contour"
-        title="Contour"
-        intro="A thin rounded stroke drawn inside a container, 16px in on cards, 6px in on the navigation bar, 4px in on buttons. It is drawn as a stitched thread, not a solid line: round-capped dashes. On buttons, links and empty states the thread slides forward when you hover or focus and back when you leave; on cards it stays still. Its colour never changes: it is the element's own colour, mixed toward its text. It is the quiet signature that makes BusIn surfaces recognisable. Empty states use the thread on its own, without a card."
-      >
+      <Section {...sectionProps("contour")}>
         <div className="grid gap-4 sm:grid-cols-2">
           <Card>
             <h3 className="text-lg font-bold">A card</h3>
@@ -355,11 +302,7 @@ async function Styleguide() {
         </div>
       </Section>
 
-      <Section
-        id="texture"
-        title="Texture"
-        intro="A little roughness keeps the interface from feeling sterile. Grain and rough edges are decoration: they live on banners, feature cards and backdrops, never behind tables, forms or small text."
-      >
+      <Section {...sectionProps("texture")}>
         <h3 className="mb-3 text-lg font-bold">Grain</h3>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
@@ -373,11 +316,7 @@ async function Styleguide() {
             </div>
           ))}
         </div>
-        <p className="mt-3 max-w-2xl text-sm text-muted">
-          Two strengths of noise, drawn by an inline SVG filter, so there is no image to download and it stays sharp at
-          any size. Set the strength with --grain (about 0.5 to 1, with soft-light blending, which is gentle on light colours). It sits above the
-          background and below the content, does not animate, and is hidden in high contrast mode.
-        </p>
+        <p className="mt-3 max-w-2xl text-sm text-muted">{GRAIN_NOTE}</p>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Rough edge</h3>
         <div className="flex flex-wrap items-center gap-6">
@@ -389,19 +328,11 @@ async function Styleguide() {
             <span className="relative"> highlight</span>
           </p>
         </div>
-        <p className="mt-3 max-w-2xl text-sm text-muted">
-          The outline wobbles like cut paper or a marker stroke. Use it on a decorative shape behind or beside text,
-          never on the text itself, and render the filter once per page.
-        </p>
+        <p className="mt-3 max-w-2xl text-sm text-muted">{ROUGH_NOTE}</p>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">In use</h3>
         <ul className="m-0 grid list-none gap-2 p-0 text-sm sm:grid-cols-2">
-          {[
-            "Page banners and the first card of a page: fine grain.",
-            "Large empty-state backdrops and illustrations: coarse grain, kept faint.",
-            "Never on tables, forms, buttons or anything under about 18px of text.",
-            "Check contrast with the grain on; the strength may never lower it below WCAG AA.",
-          ].map((line) => (
+          {TEXTURE_USE.map((line) => (
             <li key={line} className="rounded-md bg-surface-2 p-4">
               {line}
             </li>
@@ -409,11 +340,7 @@ async function Styleguide() {
         </ul>
       </Section>
 
-      <Section
-        id="icons"
-        title="Icons"
-        intro="Hugeicons, stroke rounded, free set, drawn at 1.8 stroke. Always through the Icon component so size and stroke stay uniform. Icons come with a label unless the meaning is universal."
-      >
+      <Section {...sectionProps("icons")}>
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-5 lg:grid-cols-9">
           {NAV_ICONS.map(([label, icon]) => (
             <div key={label} className="flex flex-col items-center gap-2 rounded-md bg-surface p-4 shadow-soft">
@@ -424,21 +351,9 @@ async function Styleguide() {
         </div>
       </Section>
 
-      <Section
-        id="navigation"
-        title="Navigation"
-        intro="One floating bar at the bottom of every page, in place of a sidebar. It never hides on scroll and never changes between pages, so it is always where the thumb expects it."
-      >
+      <Section {...sectionProps("navigation")}>
         <ul className="m-0 grid list-none gap-2 p-0 text-sm sm:grid-cols-2">
-          {[
-            "Glass: a translucent surface with a blur, so content shows softly behind it.",
-            "Tabs are icon above label. The current page is tinted; the others sit on the bar with no background of their own.",
-            "The logo and the profile picture sit at the ends and take no label. Theme, language and sign out live on the profile page.",
-            "On wide screens every tab shows. On tablets in portrait and on phones the bar shows the current page and a Menu button that opens the tabs upward, grouped.",
-            "The bar slides in from below when the dashboard loads, once, after the logo intro. It does not replay between pages.",
-            "A page can fill the space above the tabs (the dock). The bar grows upward and the tabs stay in place.",
-            "A small accent count sits on a tab's icon when something waits there: subscription requests to review, students to verify. Above nine it reads 9+. On small screens the Menu button shows the total. The exact number is the tab's description for assistive technology, so its name stays the page's name.",
-          ].map((line) => (
+          {NAV_RULES.map((line) => (
             <li key={line} className="rounded-md bg-surface-2 p-4">
               {line}
             </li>
@@ -446,35 +361,20 @@ async function Styleguide() {
         </ul>
         <p className="mt-4 text-sm text-muted">The bar is not drawn on this page, so the documentation stays uncluttered. Open any portal page to see it.</p>
         <h3 className="mt-8 mb-3 text-lg font-bold">Page header and help</h3>
-        <p className="max-w-2xl text-sm text-muted">
-          Every page starts with a large headline. A help button beside it opens a side sheet with worked examples from
-          real days, so a new administrator learns the page by reading situations, not instructions. See the Overview
-          page for the first one.
-        </p>
+        <p className="max-w-2xl text-sm text-muted">{NAV_HELP}</p>
       </Section>
 
-      <Section
-        id="motion"
-        title="Motion"
-        intro="Motion is gentle and short. GSAP drives the larger moves (navigation bar reveal, side sheet, logo draw, later the tab indicator); simple state changes use CSS. All of it stops when the device asks for reduced motion."
-      >
+      <Section {...sectionProps("motion")}>
         <div className="grid gap-3 sm:grid-cols-3">
-          {[
-            ["Fast", "160ms", "Hover and press feedback"],
-            ["Standard", "280ms", "Menus, sheets, tab changes"],
-            ["Slow", "520ms", "Page-level entrances, the logo fill"],
-          ].map(([name, ms, use]) => (
+          {MOTION_STEPS.map(({ name, ms, use }) => (
             <div key={name} className="rounded-md bg-surface p-5 shadow-soft">
-              <p className="text-2xl font-bold">{ms}</p>
+              <p className="text-2xl font-bold">{ms}ms</p>
               <p className="text-sm font-semibold">{name}</p>
               <p className="mt-1 text-sm text-muted">{use}</p>
             </div>
           ))}
         </div>
-        <p className="mt-4 text-sm text-muted">
-          Easing is a soft ease-out (0.22, 1, 0.36, 1) everywhere. Loading uses shimmers shaped like the content they
-          stand in for, never a spinner on its own.
-        </p>
+        <p className="mt-4 text-sm text-muted">{MOTION_NOTE}</p>
         <div className="mt-4 space-y-3 rounded-lg bg-surface p-6 shadow-soft" aria-label="Shimmer example">
           <Skeleton className="h-6 w-1/3" />
           <Skeleton className="h-4 w-full" />
@@ -482,16 +382,9 @@ async function Styleguide() {
         </div>
       </Section>
 
-      <Section
-        id="imagery"
-        title="Imagery"
-        intro="Illustration only where it carries meaning, such as an empty state or a first-run message. It is never decoration. Keep every image that is already in the app."
-      >
+      <Section {...sectionProps("imagery")}>
         <h3 className="mb-3 text-lg font-bold">3D objects</h3>
-        <p className="mb-4 max-w-2xl text-sm text-muted">
-          From thiings.co, free to use. They sit on the page background with no frame, at 96 to 160px, and are never
-          used as wallpaper. Stored as WebP at 480px.
-        </p>
+        <p className="mb-4 max-w-2xl text-sm text-muted">{ILLUSTRATION_NOTE}</p>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
           {THREE_D.map(([file, label]) => (
             <div key={file} className="flex flex-col items-center gap-2 rounded-lg bg-surface p-4 shadow-soft">
@@ -502,10 +395,7 @@ async function Styleguide() {
         </div>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Photographs</h3>
-        <p className="mb-4 max-w-2xl text-sm text-muted">
-          From Pexels, free to use without credit. Real transport scenes in warm light. Large corners (36px), WebP,
-          about 100 to 170 KB, always with alt text.
-        </p>
+        <p className="mb-4 max-w-2xl text-sm text-muted">{PHOTO_NOTE}</p>
         <div className="grid auto-rows-[10rem] grid-flow-dense grid-cols-2 gap-3 sm:auto-rows-[10.5rem] sm:grid-cols-6">
           {BENTO.map((photo) => (
             <figure key={photo.file} className={`group relative m-0 overflow-hidden rounded-lg bg-surface-2 ${photo.tile}`}>
@@ -532,7 +422,7 @@ async function Styleguide() {
         />
       </Section>
 
-      <Section id="components" title="Components" intro="Each component is shown in its states. New components are added here first.">
+      <Section {...sectionProps("components")}>
         <h3 className="mb-3 text-lg font-bold">Buttons</h3>
         <div className="flex flex-wrap items-center gap-3">
           <Button>Save stop</Button>
@@ -545,6 +435,7 @@ async function Styleguide() {
             As a link
           </ButtonLink>
         </div>
+        <p className="mt-3 max-w-2xl text-sm text-muted">{note("Buttons")}</p>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Chips</h3>
         <div className="flex flex-wrap gap-2">
@@ -555,6 +446,7 @@ async function Styleguide() {
           <Chip tone="bad">Rejected</Chip>
           <Chip tone="info">Running</Chip>
         </div>
+        <p className="mt-3 max-w-2xl text-sm text-muted">{note("Chips")}</p>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Fields</h3>
         <div className="grid max-w-3xl gap-4 sm:grid-cols-2">
@@ -574,11 +466,7 @@ async function Styleguide() {
             removeLabel="Remove"
           />
         </div>
-        <p className="mt-3 max-w-2xl text-sm text-muted">
-          Tags: a comma, a space or Enter turns the text into a tag; each tag has a remove button, and clicking it puts it
-          back in the field to edit. Backspace in the empty field edits the last tag. A tag that breaks the rule is shown
-          in the error colour. The tags are sent with the form as one comma-separated field.
-        </p>
+        <p className="mt-3 max-w-2xl text-sm text-muted">{note("Tags")}</p>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Dropdown, date and time</h3>
         <div className="grid max-w-3xl gap-4 sm:grid-cols-2">
@@ -608,12 +496,7 @@ async function Styleguide() {
           <TimePicker id="sg-time" label="Departure" defaultValue="07:30" />
           <DateTimePicker id="sg-dt" name="start" label="Start time" hint="Local time of the school." className="sm:col-span-2" />
         </div>
-        <p className="mt-3 max-w-2xl text-sm text-muted">
-          All three are drawn in the design system, not by the browser, so they match everything else. Each opens up or
-          down, whichever has room, and sits above sheets and modals. Keyboard: arrows move, Home and End jump, Enter
-          picks, Escape closes; in the calendar Page Up and Page Down change the month; in the dropdown, typing jumps
-          to a match. Each sends its value with the form.
-        </p>
+        <p className="mt-3 max-w-2xl text-sm text-muted">{note("Dropdown, date and time")}</p>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Checkbox, radio and switch</h3>
         <div className="grid max-w-3xl gap-6 sm:grid-cols-3">
@@ -638,23 +521,17 @@ async function Styleguide() {
             <Switch label="Not available" disabled />
           </div>
         </div>
+        <p className="mt-3 max-w-2xl text-sm text-muted">{note("Checkbox, radio and switch")}</p>
 
         <h3 id="tabs" className="mt-8 mb-3 text-lg font-bold">
           Tabs with counters
         </h3>
         <TabsDemo />
-        <p className="mt-3 max-w-2xl text-sm text-muted">
-          Tabs are links, so each one is a real address and works without scripts. The current tab is raised, and the
-          highlight slides to the next with an elastic stretch. Unselected tabs have no background. Counters take a tone:
-          warn for work waiting, ok for done.
-        </p>
+        <p className="mt-3 max-w-2xl text-sm text-muted">{note("Tabs with counters")}</p>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Menu</h3>
         <MenuDemo />
-        <p className="mt-4 mb-3 max-w-2xl text-sm text-muted">
-          A menu can open below, above, to the left or to the right of its button. Whatever is asked, it moves to the side
-          with room if it would run off the screen.
-        </p>
+        <p className="mt-4 mb-3 max-w-2xl text-sm text-muted">{note("Menu")}</p>
         <MenuPlacementDemo />
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Table</h3>
@@ -691,13 +568,7 @@ async function Styleguide() {
             </tbody>
           </DataTable>
         </TableCard>
-        <p className="mt-3 max-w-2xl text-sm text-muted">
-          One set of pieces builds every list: TableCard (the raised, rounded surface that scrolls sideways on a narrow
-          screen), DataTable, Head, Th, Tr and Td. They are real table elements, so screen readers get a real table.
-          Headings are quiet uppercase, rows tint on hover, a person is an avatar and a name, a state is a chip with its
-          label, and a name that leads somewhere is a link without an underline. Show only the columns that help; never
-          coordinates or ids.
-        </p>
+        <p className="mt-3 max-w-2xl text-sm text-muted">{note("Table")}</p>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Pagination</h3>
         <Pager
@@ -707,25 +578,11 @@ async function Styleguide() {
           next={{ href: "#components", label: "Next" }}
           perPage={{ label: "Per page", groupLabel: "Items per page", current: 20, options: [10, 20, 50, 100].map((size) => ({ size, href: "#components" })) }}
         />
-        <p className="mt-3 max-w-2xl text-sm text-muted">
-          Under every list that has more than one page: the range on the left, Previous and Next on the right. Each is a
-          link to a real address, so the page can be bookmarked, and a button only appears when there is somewhere to go.
-          A page past the last one is an empty list, never an error. Lists show 20 at a time by default; Per page offers
-          10, 20, 50 or 100, kept in the address with the filters, and changing it goes back to the first page. Lists are
-          paginated by the server, so a long list never loads more than one page (100 rows at most).
-        </p>
+        <p className="mt-3 max-w-2xl text-sm text-muted">{note("Pagination")}</p>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Toasts</h3>
         <ToastDemo />
-        <p className="mt-3 max-w-2xl text-sm text-muted">
-          A short message that floats at the top and leaves by itself: the stitched thread, an icon for its state and a
-          close button. The button is a rounded tile in a slightly deeper tint of the state, and a ring along its edge empties
-          as the time runs out; there is no other stroke. It eases in over 460 ms, glides back up over 380 ms (a plain fade under reduced motion)
-          and takes one at a time. Hovering it, or focusing it with the keyboard, pauses the clock and the ring; moving away carries on from where it stopped. Good news leaves quickly (2.8 s), a problem stays to be read (7 s). After a save, a
-          page opens with its confirmation as a toast (FlashToast reads the done value in the address and then clears
-          it). Use it for confirmations and reminders; an error the person must act on stays on the page, as a notice.
-          The apps have the same component with the same times and ring (swipe up to dismiss).
-        </p>
+        <p className="mt-3 max-w-2xl text-sm text-muted">{note("Toasts")}</p>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Notices</h3>
         <div className="flex max-w-2xl flex-col gap-3">
@@ -734,31 +591,17 @@ async function Styleguide() {
           <Notice tone="warn">This bus is out of service.</Notice>
           <Notice tone="info">Distances are approximate.</Notice>
         </div>
-        <p className="mt-3 max-w-2xl text-sm text-muted">
-          A short message in a tone. Successes are announced politely (status), failures at once (alert). Say what
-          happened, then what to do; the tone is never the only signal.
-        </p>
+        <p className="mt-3 max-w-2xl text-sm text-muted">{note("Notices")}</p>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Empty and loading states</h3>
         <div className="grid gap-6 lg:grid-cols-2">
           <EmptyState illustration="/illustrations/papers.webp" title="No subscriptions here" body="Try another tab." />
           <ListSkeleton rows={3} />
         </div>
-        <p className="mt-3 max-w-2xl text-sm text-muted">
-          An empty list says so with the thread around it and, where it helps, an illustration; it is not a card. While a
-          list loads, a shimmer in the same shapes holds its place, so nothing jumps when the content arrives.
-        </p>
+        <p className="mt-3 max-w-2xl text-sm text-muted">{note("Empty and loading states")}</p>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Sticky toolbar</h3>
-        <p className="max-w-2xl text-sm text-muted">
-          The search and filters of a list stay in reach. Scrolled past, they stick to the top and realign into one
-          compact glass row (search and tabs side by side, labels kept for screen readers) while the list moves behind;
-          back at the top they glide to their roomy layout again. The change animates in both directions, is instant for
-          people who prefer less motion, and the list below never jumps. On a narrow screen the compact bar keeps
-          wrapping, because one row would not fit. Wrap a list&apos;s controls in StickyToolbar to get it; People,
-          Subscriptions and Trips are the examples to open. When a toolbar is only tabs (Subscriptions,
-          Trips) they stretch to fill the bar as it sticks, so the bar is as wide as the table.
-        </p>
+        <p className="max-w-2xl text-sm text-muted">{note("Sticky toolbar")}</p>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Column filters</h3>
         <div className="flex max-w-3xl flex-col gap-4">
@@ -814,14 +657,7 @@ async function Styleguide() {
             </DataTable>
           </TableCard>
         </div>
-        <p className="mt-3 max-w-2xl text-sm text-muted">
-          A list is narrowed from its column headings: a small filter button after the name opens a panel of choices (a
-          calendar for a date column), and a dot marks a heading that is filtered. Each filter lives in the
-          page address, so a filtered list can be shared and survives a reload; picking a choice is a link, so it works
-          with the keyboard and without scripts. Every active filter also shows as a chip above the table that removes
-          it with one click, and the numbers on the tabs follow the filters. Long lists of choices (more than eight)
-          get a search box. Use them where a column has a short set of values worth narrowing by; not every column needs one.
-        </p>
+        <p className="mt-3 max-w-2xl text-sm text-muted">{note("Column filters")}</p>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Tooltip</h3>
         <div className="flex flex-wrap items-center gap-3">
@@ -844,22 +680,14 @@ async function Styleguide() {
             </button>
           ))}
         </div>
-        <p className="mt-3 max-w-2xl text-sm text-muted">
-          Any element with a data-tip attribute gets one, on hover after a short pause and on keyboard focus; data-tip-side
-          picks the side, and it moves to the side with room. It is drawn by one layer for the whole page, so it also
-          serves map markers, and it replaces the browser&apos;s own title tooltip. Icon buttons keep their aria-label:
-          the tooltip is a hint, not the only name.
-        </p>
+        <p className="mt-3 max-w-2xl text-sm text-muted">{note("Tooltip")}</p>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Side sheet and modal</h3>
         <div className="flex flex-wrap items-start gap-3">
           <SheetDemo />
           <ModalDemo />
         </div>
-        <p className="mt-3 max-w-2xl text-sm text-muted">
-          Both float with a margin all round and rounded corners, never docked to an edge. Danger actions (delete,
-          suspend, sign out) always use the danger style, and a destructive choice asks first.
-        </p>
+        <p className="mt-3 max-w-2xl text-sm text-muted">{note("Side sheet and modal")}</p>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Card</h3>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -868,24 +696,12 @@ async function Styleguide() {
             <p className="mt-1 text-4xl font-extrabold">12</p>
           </Card>
         </div>
-        <p className="mt-6 text-sm text-muted">
-          Coming next: toast, table, pagination.</p>
+        <p className="mt-4 max-w-2xl text-sm text-muted">{note("Card")}</p>
       </Section>
 
-      <Section id="rules" title="Never" intro="Rules that keep the system honest.">
+      <Section {...sectionProps("rules")}>
         <ul className="m-0 grid list-none gap-2 p-0 text-sm sm:grid-cols-2">
-          {[
-            "No one-sided borders on cards or quotes.",
-            "No solid contour. It is always the stitched thread.",
-            "No underlined links. Use colour, weight or an icon.",
-            "No pill shapes. Use the radius scale.",
-            "No literal colours, radii or durations in a component. Use tokens.",
-            "No state shown by colour alone.",
-            "No grain or rough edge behind tables, forms or small text.",
-            "No icon without a label unless its meaning is universal.",
-            "No emojis.",
-            "No text in only one language.",
-          ].map((rule) => (
+          {NEVER.map((rule) => (
             <li key={rule} className="rounded-md bg-surface-2 p-4">
               {rule}
             </li>
@@ -896,10 +712,21 @@ async function Styleguide() {
 
       {/* The rail lives in the right margin, outside the content column, so it takes no reading space. */}
       <div className="absolute top-0 left-full hidden h-full pl-10 min-[94rem]:block">
-        <SectionRail items={SECTIONS.map(([id, label]) => ({ id, label }))} />
+        <SectionRail items={SECTIONS.map(({ id, title }) => ({ id, label: title }))} />
       </div>
     </div>
   );
+}
+
+/** A section's id, title and intro, from the shared content. */
+function sectionProps(id: SectionId) {
+  const { title, intro } = section(id);
+  return { id, title, intro };
+}
+
+/** A component's note, from the shared content. */
+function note(name: string): string {
+  return COMPONENT_NOTES.find((n) => n.name === name)?.note ?? "";
 }
 
 function Swatches({ names, light, dark }: { names: string[]; light: Record<string, string>; dark: Record<string, string> }) {
