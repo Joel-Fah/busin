@@ -16,6 +16,7 @@ import type { StudentCopy } from "@/lib/i18n/student";
 import type { MapConfig } from "@/lib/map/config";
 import { BusUpdateDetector, STALE_AFTER_MS, estimateEta, walkToStop, type BusUpdate, type Position, type StopPoint } from "@/lib/student/bus";
 import { browserClient } from "@/lib/supabase/browser";
+import { Contour } from "@/components/ui/Contour";
 
 export type RunningTrip = { id: string; busId: string; bus: string; direction: "inbound" | "outbound" };
 
@@ -222,7 +223,8 @@ export function BusTracker({ copy, locale, map, trips, stops, myStop, initial }:
 
       {liveFailed ? <Notice tone="warn">{copy.liveFailed}</Notice> : null}
 
-      <section className="flex flex-col gap-3 rounded-lg bg-surface p-5 shadow-soft" aria-live="polite" data-testid="bus-status">
+      <section className="flex flex-col gap-3 relative rounded-lg bg-surface p-5 shadow-soft" aria-live="polite" data-testid="bus-status">
+        <Contour radius={28} inset={10} />
         <p className="m-0 text-sm font-semibold text-muted">
           {trip.bus} · {copy.directions[trip.direction]}
         </p>
@@ -247,7 +249,8 @@ export function BusTracker({ copy, locale, map, trips, stops, myStop, initial }:
         )}
       </section>
 
-      <section className="flex flex-col gap-2 rounded-lg bg-surface p-5 shadow-soft" aria-labelledby="updates-title">
+      <section className="flex flex-col gap-2 relative rounded-lg bg-surface p-5 shadow-soft" aria-labelledby="updates-title">
+        <Contour radius={28} inset={10} />
         <h2 id="updates-title" className="m-0 text-base font-bold">
           {copy.updatesTitle}
         </h2>
@@ -257,7 +260,8 @@ export function BusTracker({ copy, locale, map, trips, stops, myStop, initial }:
       </section>
 
       {myStop ? (
-        <section className="flex flex-col gap-3 rounded-lg bg-surface p-5 shadow-soft">
+        <section className="flex flex-col gap-3 relative rounded-lg bg-surface p-5 shadow-soft">
+          <Contour radius={28} inset={10} />
           {me.kind === "problem" ? <Notice tone="warn">{me.text}</Notice> : null}
           {walk ? (
             <p className="m-0 flex items-center gap-2 text-sm">

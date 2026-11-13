@@ -10,6 +10,7 @@ import { requireStudent } from "@/lib/student/session";
 import { createClient } from "@/lib/supabase/server";
 import { startOfDayInTimeZone } from "@/lib/time";
 import { todayInZone } from "@/lib/zoned";
+import { Contour } from "@/components/ui/Contour";
 
 export const metadata: Metadata = { title: "History" };
 export const instant = false;
@@ -67,7 +68,8 @@ async function History({ searchParams }: { searchParams: SearchParams }) {
 
   return (
     <StudentPage lang={locale} title={h.title}>
-      <section className="rounded-lg bg-surface p-5 shadow-soft">
+      <section className="relative rounded-lg bg-surface p-5 shadow-soft">
+        <Contour radius={28} inset={10} />
         <p className="m-0 text-sm text-muted">{h.week}</p>
         <p className="m-0 text-4xl font-extrabold tabular-nums">{week.count ?? 0}</p>
       </section>
@@ -83,7 +85,8 @@ async function History({ searchParams }: { searchParams: SearchParams }) {
               </div>
               <ul className="m-0 flex list-none flex-col gap-2 p-0">
                 {list.map((row) => (
-                  <li key={row.id} className="flex items-center gap-4 rounded-md bg-surface p-4 shadow-soft">
+                  <li key={row.id} className="flex items-center gap-4 relative rounded-md bg-surface p-4 shadow-soft">
+                    <Contour radius={20} inset={7} />
                     <span className="w-16 shrink-0 font-bold tabular-nums">{timeOf(row.scanned_at)}</span>
                     <span className="min-w-0">
                       <span className="block truncate font-semibold">{row.stop_id ? stopName.get(row.stop_id) ?? h.stopUnknown : h.stopUnknown}</span>

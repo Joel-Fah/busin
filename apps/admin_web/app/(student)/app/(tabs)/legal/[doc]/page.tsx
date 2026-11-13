@@ -7,6 +7,7 @@ import { format } from "@/lib/i18n/format";
 import { getStudentCopy } from "@/lib/i18n/server";
 import { LEGAL_UPDATED, legalDocument, readingMinutes, type LegalDoc } from "@/lib/student/legal";
 import { requireStudent } from "@/lib/student/session";
+import { Contour } from "@/components/ui/Contour";
 
 export const metadata: Metadata = { title: "Legal" };
 export const instant = false;
@@ -62,7 +63,8 @@ async function Doc({ params }: { params: Params }) {
           </section>
         ))}
       </article>
-      <section className="rounded-lg bg-surface p-5 shadow-soft">
+      <section className="relative rounded-lg bg-surface p-5 shadow-soft">
+        <Contour radius={28} inset={10} />
         <h2 className="m-0 text-base font-bold">{l.questionsTitle}</h2>
         <p className="m-0 mt-1 text-sm text-muted">{l.questionsBody}</p>
       </section>

@@ -1,11 +1,12 @@
 "use client";
 
-import { Download04Icon } from "@hugeicons/core-free-icons";
+import { DownloadCircle01Icon } from "@hugeicons/core-free-icons";
 import { useEffect, useState, useSyncExternalStore } from "react";
 
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import type { StudentCopy } from "@/lib/i18n/student";
+import { Contour } from "@/components/ui/Contour";
 
 type InstallPrompt = Event & { prompt(): Promise<void>; userChoice: Promise<{ outcome: string }> };
 
@@ -69,10 +70,11 @@ export function InstallCard({ copy }: { copy: StudentCopy["install"] }) {
   };
 
   return (
-    <section aria-labelledby="install-title" className="flex flex-col gap-3 rounded-lg bg-surface p-5 shadow-soft" data-testid="install-card">
+    <section aria-labelledby="install-title" className="flex flex-col gap-3 relative rounded-lg bg-surface p-5 shadow-soft" data-testid="install-card">
+      <Contour radius={28} inset={10} />
       <div className="flex items-start gap-3">
         <span className="grid size-10 shrink-0 place-items-center rounded-sm bg-accent text-on-accent">
-          <Icon icon={Download04Icon} size={20} />
+          <Icon icon={DownloadCircle01Icon} size={20} />
         </span>
         <div className="min-w-0">
           <h2 id="install-title" className="m-0 text-base font-bold">
@@ -84,6 +86,7 @@ export function InstallCard({ copy }: { copy: StudentCopy["install"] }) {
       <div className="flex flex-wrap gap-2">
         {prompt ? (
           <Button
+            icon={DownloadCircle01Icon}
             onClick={async () => {
               await prompt.prompt();
               await prompt.userChoice;

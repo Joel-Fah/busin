@@ -25,14 +25,27 @@ test.afterAll(async () => {
   for (const user of [student, staff, admin]) if (user) await deleteUser(user);
 });
 
-test("a signed-out visitor to the app is sent to its own sign-in page", async ({ page }) => {
+test("the very first visit is welcomed once, and the welcome does not come back", async ({ page }) => {
+  await page.goto("/app/sign-in");
+  const welcome = page.getByRole("dialog", { name: "BusIn just hopped onto the web" });
+  await expect(welcome).toBeVisible();
+  await welcome.getByRole("button", { name: "Hop on" }).click();
+  await expect(welcome).toBeHidden();
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Hop on. BusIn handles the rest." })).toBeVisible();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+});
+
+test("a signed-out visitor to the app is sent to its own sign-in page", async ({ page, context }) => {
+  await context.addInitScript(() => window.localStorage.setItem("busin-welcomed", "1"));
   await page.goto("/app/code");
   await expect(page).toHaveURL(/\/app\/sign-in$/);
   await expect(page.getByRole("heading", { name: "Hop on. BusIn handles the rest." })).toBeVisible();
   await expect(page.getByRole("button", { name: "Continue with Google" })).toBeVisible();
 });
 
-test("an error from Google comes back to the app's sign-in page in the student's words", async ({ page }) => {
+test("an error from Google comes back to the app's sign-in page in the student's words", async ({ page, context }) => {
+  await context.addInitScript(() => window.localStorage.setItem("busin-welcomed", "1"));
   await page.goto("/app/sign-in?error=notAllowed");
   await expect(page.getByRole("alert").filter({ hasText: "not allowed" })).toHaveText("This Google account is not allowed here. Use your school account.");
 });

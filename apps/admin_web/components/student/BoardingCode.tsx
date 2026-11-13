@@ -1,17 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import QRCode from "qrcode";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { BrandMark } from "@/components/brand/BrandMark";
 import { Button } from "@/components/ui/Button";
+import { Contour } from "@/components/ui/Contour";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Skeleton } from "@/components/ui/Skeleton";
 import type { StudentCopy } from "@/lib/i18n/student";
 import { deleteKey, loadKey, saveKey } from "@/lib/student/key-store";
-import { generateCode, importSecret, secondsRemaining } from "@/lib/student/qr";
+import { format } from "@/lib/i18n/format";
+import { generateCode, importSecret } from "@/lib/student/qr";
 import { browserClient } from "@/lib/supabase/browser";
 import { todayInZone } from "@/lib/zoned";
+
+import { QrDots } from "./QrDots";
 
 type State = { kind: "checking" } | { kind: "none" } | { kind: "offline" } | { kind: "failed" } | { kind: "ready"; key: CryptoKey };
 
@@ -32,10 +36,10 @@ type Props = {
  * connection, and is kept only as a non-extractable key (ADR 0021); without a connection the kept key works until its
  * semester ends. The server's refusal deletes it. The screen stays awake while the code shows.
  */
-export function BoardingCode({ copy, studentId, name, matricule, timeZone, approved, validUntil }: Props) {
+export function BoardingCode({ copy, studentId, name, matricule, timeZone, approved, validUntil, locale }: Props & { locale: string }) {
   const [state, setState] = useState<State>({ kind: "checking" });
-  const [image, setImage] = useState<{ url: string; code: string } | null>(null);
-  const [left, setLeft] = useState(30);
+  // The code of this 30-second window. No countdown is shown: when it changes is nobody's business but the scanner's.
+  const [code, setCode] = useState<string | null>(null);
   const lastCode = useRef<string | null>(null);
 
   const refresh = useCallback(async () => {
@@ -75,18 +79,15 @@ export function BoardingCode({ copy, studentId, name, matricule, timeZone, appro
     return () => document.removeEventListener("visibilitychange", onVisible);
   }, [refresh]);
 
-  // A new code each window, and the seconds left in this one.
+  // A new code each window.
   useEffect(() => {
     if (state.kind !== "ready") return;
     let cancelled = false;
     const tick = async () => {
-      const now = Date.now();
-      setLeft(secondsRemaining(now));
-      const code = await generateCode(state.key, studentId, now, timeZone);
-      if (cancelled || code === lastCode.current) return;
-      lastCode.current = code;
-      const url = await QRCode.toDataURL(code, { errorCorrectionLevel: "Q", margin: 1, width: 600, color: { dark: "#002a33", light: "#ffffff" } });
-      if (!cancelled) setImage({ url, code });
+      const next = await generateCode(state.key, studentId, Date.now(), timeZone);
+      if (cancelled || next === lastCode.current) return;
+      lastCode.current = next;
+      setCode(next);
     };
     void tick();
     const timer = window.setInterval(() => void tick(), 1000);
@@ -152,33 +153,48 @@ export function BoardingCode({ copy, studentId, name, matricule, timeZone, appro
     );
   }
 
+  const until = validUntil ? new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeZone: "UTC" }).format(new Date(`${validUntil}T00:00:00Z`)) : null;
+
   return (
-    <section aria-label={copy.title} className="relative mx-auto w-full max-w-sm overflow-hidden rounded-xl bg-seed p-6 text-white shadow-float" data-testid="boarding-ticket">
-      <div className="flex items-center justify-between">
-        <span className="inline-flex items-center gap-2 rounded-xs bg-white/12 px-3 py-1.5 text-sm font-bold">
-          <span className="relative flex size-2.5">
-            <span className="absolute inline-flex size-full animate-ping rounded-full bg-ok opacity-60 motion-reduce:animate-none" />
-            <span className="relative inline-flex size-2.5 rounded-full bg-ok" />
+    <section aria-label={copy.title} className="relative mx-auto w-full max-w-sm" data-testid="boarding-ticket">
+      <div className="texture-grain relative overflow-hidden rounded-xl bg-seed text-white shadow-float [--grain:0.7] [--thread-color:rgb(255_255_255/0.28)]">
+        <Contour radius={36} inset={10} />
+        <div className="relative flex items-center justify-between px-7 pt-7">
+          <BrandMark className="h-7 w-auto text-white" />
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/12 px-3 py-1.5 text-sm font-bold">
+            <span className="relative flex size-2.5">
+              <span className="absolute inline-flex size-full animate-ping rounded-full bg-ok opacity-60 motion-reduce:animate-none" />
+              <span className="relative inline-flex size-2.5 rounded-full bg-ok" />
+            </span>
+            {copy.live}
           </span>
-          {copy.live}
-        </span>
-        <span className="text-sm font-semibold text-white/75 tabular-nums" aria-hidden>
-          {left}s
-        </span>
+        </div>
+
+        <div className="relative mx-auto mt-6 aspect-square w-[82%] overflow-hidden rounded-[2rem] bg-white p-1.5 shadow-[0_10px_30px_rgb(0_0_0/0.25)]">
+          {code ? (
+            <div key={code} className="size-full animate-[student-rise_var(--dur)_var(--ease-soft)] motion-reduce:animate-none" data-testid="boarding-qr" data-code={code}>
+              <QrDots code={code} label={copy.imageLabel} />
+            </div>
+          ) : null}
+        </div>
+
+        {/* The tear line: a row of round holes, with a round notch at each end. */}
+        <div aria-hidden className="relative my-7 flex items-center">
+          <span className="-ml-4 size-8 shrink-0 rounded-full bg-bg" />
+          <span className="flex flex-1 justify-between px-3">
+            {Array.from({ length: 16 }, (_, i) => (
+              <span key={i} className="size-1.5 rounded-full bg-white/30" />
+            ))}
+          </span>
+          <span className="-mr-4 size-8 shrink-0 rounded-full bg-bg" />
+        </div>
+
+        <div className="relative px-7 pb-8">
+          <p className="m-0 text-2xl leading-tight font-extrabold">{name}</p>
+          {matricule ? <p className="m-0 mt-1 text-lg tracking-[0.12em] text-white/85">{matricule}</p> : null}
+          {until ? <p className="m-0 mt-3 text-sm text-white/65">{format(copy.validUntil, { date: until })}</p> : null}
+        </div>
       </div>
-      <div className="mx-auto mt-5 aspect-square w-full max-w-[18rem] rounded-lg bg-white p-3">
-        {image ? (
-          // The code as a picture made in the browser; never sent anywhere.
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={image.url} alt={copy.imageLabel} className="size-full" data-testid="boarding-qr" data-code={image.code} />
-        ) : null}
-      </div>
-      <div aria-hidden className="relative my-6 -mx-6 h-0.5 bg-[repeating-linear-gradient(90deg,rgb(255_255_255/0.3)_0_8px,transparent_8px_14px)]">
-        <span className="absolute -top-3 -left-3 size-6 rounded-full bg-bg" />
-        <span className="absolute -top-3 -right-3 size-6 rounded-full bg-bg" />
-      </div>
-      <p className="m-0 text-2xl font-extrabold">{name}</p>
-      {matricule ? <p className="m-0 mt-1 text-lg tracking-[0.08em] text-white/85">{matricule}</p> : null}
     </section>
   );
 }
