@@ -12,7 +12,10 @@ import {
   UserMultiple02Icon,
 } from "@hugeicons/core-free-icons";
 
+import { FlashToast } from "@/components/FlashToast";
 import { BoardingsChart } from "@/components/overview/BoardingsChart";
+import { GettingStarted } from "@/components/overview/GettingStarted";
+import { QuickActions } from "@/components/overview/QuickActions";
 import { Welcome, type Insight } from "@/components/overview/Welcome";
 import { StatusMix, type MixPart } from "@/components/overview/StatusMix";
 import { Tile } from "@/components/overview/Tile";
@@ -28,6 +31,7 @@ import { requireAdmin } from "@/lib/auth";
 import { format } from "@/lib/i18n/messages";
 import { getMessages } from "@/lib/i18n/server";
 import { firstName, greetingFor, semesterProgress, waitingAge, weekTrend, type DayCount } from "@/lib/overview";
+import { setupSteps } from "@/lib/setup";
 import { STATUSES } from "@/lib/subscriptions";
 import { createClient } from "@/lib/supabase/server";
 import { startOfDayInTimeZone } from "@/lib/time";
@@ -51,10 +55,12 @@ function OverviewSkeleton() {
   );
 }
 
-export default function OverviewPage() {
+type SearchParams = Promise<{ done?: string | string[] }>;
+
+export default function OverviewPage({ searchParams }: { searchParams: SearchParams }) {
   return (
     <Suspense fallback={<OverviewSkeleton />}>
-      <Overview />
+      <Overview searchParams={searchParams} />
     </Suspense>
   );
 }
@@ -77,8 +83,9 @@ const STATUS_COLOR: Record<(typeof STATUSES)[number], string> = {
   expired: "color-mix(in srgb, var(--fg) 35%, transparent)",
 };
 
-async function Overview() {
+async function Overview({ searchParams }: { searchParams: SearchParams }) {
   const admin = await requireAdmin();
+  const { done } = await searchParams;
   const { locale, t } = await getMessages();
   const supabase = await createClient();
   const tiles = t.overview.tiles;
@@ -90,7 +97,7 @@ async function Overview() {
 
   // Counts, one small aggregate and a few capped lists: nothing here downloads a table. Row Level Security
   // limits every query to this school.
-  const [students, activeTrips, scansToday, daily, busesTotal, busesInService, stops, semester, todaysTrips, waiting, ...byStatus] =
+  const [students, activeTrips, scansToday, daily, busesTotal, busesInService, stops, semester, todaysTrips, waiting, staff, tripsTotal, semestersOpen, ...byStatus] =
     await Promise.all([
       supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "student"),
       supabase.from("trips").select("id", { count: "exact", head: true }).eq("status", "active"),
@@ -114,6 +121,10 @@ async function Overview() {
         .eq("status", "pending")
         .order("created_at", { ascending: true })
         .limit(5),
+      // For getting started: who can crew a trip, whether any trip exists yet, and a semester that has not ended.
+      supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "staff").eq("status", "verified"),
+      supabase.from("trips").select("id", { count: "exact", head: true }),
+      supabase.from("semesters").select("id", { count: "exact", head: true }).gte("end_date", todayIso),
       ...STATUSES.map((status) => supabase.from("subscriptions").select("id", { count: "exact", head: true }).eq("status", status)),
     ]);
 
@@ -136,7 +147,7 @@ async function Overview() {
     return person?.full_name || person?.email || "";
   };
 
-  const failed = [students, activeTrips, scansToday, daily, busesTotal, busesInService, stops, semester, todaysTrips, waiting, busRows, personRows, ...byStatus].some(
+  const failed = [students, activeTrips, scansToday, daily, busesTotal, busesInService, stops, semester, todaysTrips, waiting, staff, tripsTotal, semestersOpen, busRows, personRows, ...byStatus].some(
     (result) => result.error,
   );
 
@@ -201,6 +212,13 @@ async function Overview() {
     { key: "boardings", href: "/scans", icon: ReceiptTextIcon, value: String(scansToday.count ?? 0), label: t.overview.scansToday },
     { key: "tripsToday", href: "/trips", icon: Calendar02Icon, value: String(todaysTrips.count ?? 0), label: tiles.welcome.tripsToday },
   ].slice(0, 4);
+  const setup = setupSteps({
+    semesters: semestersOpen.count ?? 0,
+    stops: stops.count ?? 0,
+    buses: busesTotal.count ?? 0,
+    staff: staff.count ?? 0,
+    trips: tripsTotal.count ?? 0,
+  });
   const longDate = new Intl.DateTimeFormat(locale, { dateStyle: "full", timeZone: admin.schoolTimezone }).format(now);
 
   return (
@@ -218,10 +236,15 @@ async function Overview() {
         }}
       />
 
+      {done === "bus" ? <FlashToast message={t.overview.quick.busAdded} /> : null}
+
       {failed ? (
         <Notice tone="bad">{t.overview.loadError}</Notice>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label={t.overview.title}>
+          <QuickActions t={t} pending={counts.pending} />
+          {setup ? <GettingStarted steps={setup} t={t} /> : null}
+
           {figures.map((figure) => {
             const { href, icon } = DESTINATIONS[figure.key];
             // What needs attention comes first and is set apart when there is something waiting.

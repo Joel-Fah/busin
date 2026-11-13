@@ -67,6 +67,28 @@ test.describe("administrator managing buses", () => {
     expect(bus?.in_service).toBe(true);
   });
 
+  test("adding a bus from the trip form comes back to it with that bus chosen", async ({ page }) => {
+    await page.goto("/buses/new?next=%2Ftrips%2Fnew");
+    await expect(page.getByRole("link", { name: "Back to the trip" })).toHaveAttribute("href", "/trips/new");
+    await page.getByLabel("Plate").fill(`${prefix} DETOUR`);
+    await page.getByLabel("Seats").fill("30");
+    await page.getByRole("button", { name: "Add bus" }).click();
+
+    await expect(page).toHaveURL(/\/trips\/new\?bus=[0-9a-f-]{36}$/);
+    const bus = await busByPlate(`${prefix} DETOUR`);
+    expect(page.url()).toContain(bus!.id);
+    await expect(page.getByRole("combobox", { name: "Bus", exact: true })).toContainText(`${prefix} DETOUR`);
+  });
+
+  test("ignores a return path that is not one of the portal's own", async ({ page }) => {
+    await page.goto("/buses/new?next=https%3A%2F%2Fexample.com");
+    await page.getByLabel("Plate").fill(`${prefix} STAYS`);
+    await page.getByLabel("Seats").fill("30");
+    await page.getByRole("button", { name: "Add bus" }).click();
+    await expect(page.getByRole("status")).toContainText("Bus added.");
+    expect(new URL(page.url()).host).toBe("127.0.0.1:" + (process.env.E2E_PORT ?? "3000"));
+  });
+
   test("edits a bus and takes it out of service", async ({ page }) => {
     await page.goto(`/buses/${existingId}`);
     await page.getByLabel("Seats").fill("45");
