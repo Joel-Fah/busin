@@ -1,0 +1,41 @@
+/* The landing scene follows the theme: the day picture, or the night one with the people a little dimmer and the lamps
+   glowing. The night picture is hidden (and so not downloaded, being lazy) unless the theme is dark. */
+.scene-night {
+  display: none;
+}
+
+.scene-glow {
+  position: absolute;
+  width: 7%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(255 217 143 / 0.45), rgb(255 217 143 / 0.12) 45%, transparent 70%);
+  pointer-events: none;
+}
+
+[data-theme="dark"] .scene-day {
+  display: none;
+}
+
+[data-theme="dark"] .scene-night {
+  display: block;
+}
+
+[data-theme="dark"] .scene-person {
+  filter: brightness(0.8) saturate(0.9);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .scene-day {
+    display: none;
+  }
+
+  :root:not([data-theme="light"]) .scene-night {
+    display: block;
+  }
+
+  :root:not([data-theme="light"]) .scene-person {
+    filter: brightness(0.8) saturate(0.9);
+  }
+}
