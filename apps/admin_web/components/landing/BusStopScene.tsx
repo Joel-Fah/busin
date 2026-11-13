@@ -27,12 +27,13 @@ const ASPECT = "3584 / 1184";
 /**
  * The people, as cut-outs over the background: where the bottom left of each picture goes and how tall it is (percent of
  * the background), and the picture's own proportions. Standing people are a third of the height with their feet on the
- * pavement; the girl on the bench sits with her hips on the seat and her feet on the pavement in front of it.
+ * pavement; the girl on the bench sits with her hips on the seat plank and her feet on the pavement just in front of it.
  */
 const PEOPLE: { src: string; alt: string; left: number; bottom: number; height: number; aspect: number }[] = [
   { src: "girl-walking", alt: "", left: 17.2, bottom: 16.8, height: 33, aspect: 418 / 560 },
   { src: "boy-walking", alt: "", left: 23.8, bottom: 16.8, height: 33, aspect: 419 / 560 },
-  { src: "girl-bench", alt: "", left: 43.5, bottom: 17.4, height: 25.3, aspect: 465 / 560 },
+  // Her seat line (69% down her picture, where her backpack rests too) on the bench plank (y 866 of 1184).
+  { src: "girl-bench", alt: "", left: 43, bottom: 20.3, height: 21.1, aspect: 465 / 560 },
   { src: "boy-waiting", alt: "", left: 66.9, bottom: 16.8, height: 33, aspect: 291 / 560 },
 ];
 
