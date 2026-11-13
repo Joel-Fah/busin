@@ -41,7 +41,7 @@ select is((select note from public.subscription_events where subscription_id = '
 select is((select note from public.subscription_events where subscription_id = '11000000-0000-4000-8000-000000000001' and action = 'reinstated'), 'Paid in cash at the office', 'and the reinstatement its note');
 select is((select actor_id from public.subscription_events where subscription_id = '11000000-0000-4000-8000-000000000001' and action = 'reinstated'), 'a3000000-0000-4000-8000-000000000001'::uuid, 'who reinstated it is recorded');
 select is((select count(*)::int from public.audit_log where action = 'subscription.reinstated' and target_id = '11000000-0000-4000-8000-000000000001'), 1, 'and it is in the audit log');
-select is((select count(*)::int from private.notification_outbox where kind = 'subscription_approved' and ref_id = '11000000-0000-4000-8000-000000000001'), 2, 'the student is told again (the approval and the reinstatement)');
+select is((select string_agg(kind, ',' order by id) from private.notification_outbox where ref_id = '11000000-0000-4000-8000-000000000001'), 'subscription_approved,subscription_revoked,subscription_restored', 'the student is told each time: approved, revoked, given back');
 
 -- only revoked ones can be reinstated, and not when a newer request is live
 set local role authenticated;
