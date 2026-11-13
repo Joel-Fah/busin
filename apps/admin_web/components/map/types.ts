@@ -18,8 +18,11 @@ export type MapMarker = {
   onSelect?: () => void;
   /** Drawn larger, as the marker the page is focused on. */
   selected?: boolean;
-  /** "me" is the visitor's own position: a blue dot with a halo, not a pin. "campus" is where the bus route ends. */
-  variant?: "me" | "campus";
+  /**
+   * "me" is the visitor's own position: a blue dot with a halo, not a pin. "campus" is where the bus route ends. "bus" is
+   * a bus followed live (the student web app), drawn as the app's bus picture.
+   */
+  variant?: "me" | "campus" | "bus";
   /** A short text inside the marker, for example the stop's number on the route. */
   badge?: string;
 };
