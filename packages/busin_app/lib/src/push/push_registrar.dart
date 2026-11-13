@@ -90,12 +90,5 @@ class PushRegistrar {
   }
 }
 
-/// Where a tapped notification should take the person. Null for a kind this version does not know.
-String? routeForPush(PushMessage message) => switch (message.kind) {
-      'subscription_approved' || 'subscription_rejected' => '/subscription',
-      'bus_near_stop' => '/bus',
-      _ => null,
-    };
-
 /// The phone's own language code, for choosing the notification wording.
 String systemLanguageCode() => PlatformDispatcher.instance.locale.languageCode;

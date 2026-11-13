@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'src/app.dart';
-import 'src/push/push_service.dart';
 import 'src/providers.dart';
 
 Future<void> main() async {

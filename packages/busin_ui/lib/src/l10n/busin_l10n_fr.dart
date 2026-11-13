@@ -1901,4 +1901,8 @@ class BusinL10nFr extends BusinL10n {
 
   @override
   String get opsStatsTrendSame => 'Stable sur les 8 dernières semaines';
+
+  @override
+  String get opsPushCrewAssigned =>
+      'Vous avez été ajouté à un trajet. Il est dans vos trajets.';
 }

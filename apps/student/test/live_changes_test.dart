@@ -1,6 +1,6 @@
+import 'package:busin_app/busin_app.dart';
 import 'package:busin_core/busin_core.dart';
 import 'package:busin_student/src/app.dart';
-import 'package:busin_student/src/push/push_service.dart';
 import 'package:busin_student/src/subscription/live_changes.dart';
 import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/material.dart';

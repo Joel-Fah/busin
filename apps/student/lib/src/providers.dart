@@ -8,8 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'auth/access.dart';
 import 'reminders/notification_providers.dart';
 import 'offline/pass_snapshot.dart';
-import 'push/push_registrar.dart';
-import 'push/push_service.dart';
+
 import 'qr/secret_store.dart';
 
 /// Set once at start-up (see main.dart). Tests override the providers below it instead.

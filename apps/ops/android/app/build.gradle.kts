@@ -47,3 +47,9 @@ kotlin {
 flutter {
     source = "../.."
 }
+
+// Firebase is optional. Without google-services.json (the owner's file, kept out of git) the app still builds and
+// runs, with push notifications off.
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+}

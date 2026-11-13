@@ -1868,4 +1868,8 @@ class BusinL10nEn extends BusinL10n {
 
   @override
   String get opsStatsTrendSame => 'Steady over the last 8 weeks';
+
+  @override
+  String get opsPushCrewAssigned =>
+      'You were added to a trip. It is in your trips.';
 }

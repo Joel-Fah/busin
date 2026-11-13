@@ -10,5 +10,7 @@ export 'src/auth/supabase_auth_service.dart';
 export 'src/config/app_config.dart';
 export 'src/legal/legal_documents.dart';
 export 'src/offline/offline_providers.dart';
+export 'src/push/push_registrar.dart';
+export 'src/push/push_service.dart';
 export 'src/settings/appearance.dart';
 export 'src/time/school_clock.dart';

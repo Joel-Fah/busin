@@ -16,6 +16,17 @@
         android:label="BusIn Ops"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <!-- Notifications from the server name this channel (see MainActivity). -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="busin_updates" />
+        <!-- The status bar icon must be a white silhouette on transparent; a full-colour icon shows as a square. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_stat_busin" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/notification_accent" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
