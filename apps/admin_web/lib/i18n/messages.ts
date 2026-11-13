@@ -2584,9 +2584,4 @@ export function isLocale(value: string | undefined | null): value is Locale {
   return value === 'en' || value === 'fr';
 }
 
-/** Replaces `{name}` placeholders. Unknown placeholders are left as they are. */
-export function format(template: string, values: Record<string, string | number>): string {
-  return template.replace(/\{(\w+)\}/g, (match, key: string) =>
-    key in values ? String(values[key]) : match,
-  );
-}
+export { format } from "./format";
