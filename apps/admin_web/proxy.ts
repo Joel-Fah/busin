@@ -22,6 +22,8 @@ const PUBLIC_PATHS = [
 ];
 
 function isPublic(pathname: string): boolean {
+  // The student web app's share card is fetched by link previews, which are never signed in.
+  if (/^\/app\/(opengraph|twitter)-image/.test(pathname)) return true;
   return PUBLIC_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
 }
 

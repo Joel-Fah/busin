@@ -50,6 +50,22 @@ test("an error from Google comes back to the app's sign-in page in the student's
   await expect(page.getByRole("alert").filter({ hasText: "not allowed" })).toHaveText("This Google account is not allowed here. Use your school account.");
 });
 
+test("the landing footer has a student sign-in beside the staff one", async ({ page }) => {
+  await page.goto("/landing");
+  const footer = page.getByRole("contentinfo");
+  await expect(footer.getByRole("link", { name: "Student sign in" })).toHaveAttribute("href", "/app/sign-in");
+  await expect(footer.getByRole("link", { name: "Staff sign in" })).toHaveAttribute("href", "/login");
+});
+
+test("a shared link to the app shows its own card, readable without signing in", async ({ page, request }) => {
+  await page.goto("/app/sign-in");
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute("content", "BusIn, right in your browser");
+  const image = await page.locator('meta[property="og:image"]').getAttribute("content");
+  const response = await request.get(new URL(image!).pathname + new URL(image!).search);
+  expect(response.status()).toBe(200);
+  expect(response.headers()["content-type"]).toContain("image/png");
+});
+
 test("the app can be installed: a manifest scoped to /app and a service worker", async ({ request }) => {
   const manifest = await (await request.get("/app/manifest.webmanifest")).json();
   expect(manifest).toMatchObject({ start_url: "/app", scope: "/app/", display: "standalone" });
