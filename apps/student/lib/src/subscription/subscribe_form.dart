@@ -96,13 +96,17 @@ class _SubscribeFormState extends ConsumerState<SubscribeForm> {
       // The overview reloads and replaces this form with the pending card.
     } catch (e) {
       if (!mounted) return;
+      final failure = failureFor(e);
+      // What was on screen is out of date: read again what is open, so the student can choose again.
+      if (failure == SubscribeFailure.unavailable || failure == SubscribeFailure.semesterEnded) ref.invalidate(subscriptionOverviewProvider);
       setState(() {
-        _error = switch (failureFor(e)) {
+        _error = switch (failure) {
           SubscribeFailure.alreadyRequested => l10n.subscribeErrorExists,
           SubscribeFailure.offline => l10n.errorOffline,
           SubscribeFailure.rejectedFile => l10n.subscribeErrorType,
           SubscribeFailure.proofRequired => l10n.subscribeErrorProof,
           SubscribeFailure.semesterEnded => l10n.subscribeErrorEnded,
+          SubscribeFailure.unavailable => l10n.subscribeErrorUnavailable,
           SubscribeFailure.other => l10n.errorGeneric,
         };
       });

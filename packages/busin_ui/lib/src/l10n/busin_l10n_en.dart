@@ -397,6 +397,10 @@ class BusinL10nEn extends BusinL10n {
       'This semester has ended. Pull down to refresh and see what is open now.';
 
   @override
+  String get subscribeErrorUnavailable =>
+      'This semester or stop is no longer open. The list has been refreshed: choose again.';
+
+  @override
   String get subscribeErrorTooLarge =>
       'That photo is too large. Pick one under 5 MB.';
 
