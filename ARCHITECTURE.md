@@ -8,6 +8,7 @@ Status: design for the rebuild. Decisions are recorded in [docs/decisions/](docs
 flowchart LR
   subgraph Clients
     S[Student app<br/>Flutter]
+    W[Student web app<br/>PWA at /app, Next.js]
     O[Ops app<br/>Flutter, Android]
     A[Admin portal<br/>Next.js]
   end
@@ -20,6 +21,10 @@ flowchart LR
     CR[pg_cron]
   end
   S --> AU
+  W --> AU
+  W --> DB
+  W -->|bus position| RT
+  W --> ST
   O --> AU
   A --> AU
   S --> DB
@@ -39,6 +44,7 @@ Each audience gets its own app so a client only contains, and only requests, wha
 | Tier | Users | Loads |
 |---|---|---|
 | Student app | Students | Own profile, own subscriptions, own scans, stops, live position of the bus they ride |
+| Student web app | Students without the app | The same as the student app, as a PWA at `/app` of the portal's site ([ADR 0021](docs/decisions/0021-student-web-app.md)) |
 | Ops app | Staff, drivers | Today's trip, cached list of valid riders for that trip, scan queue |
 | Admin portal | School admins | Paginated people, subscriptions, scans, aggregates for their school |
 
