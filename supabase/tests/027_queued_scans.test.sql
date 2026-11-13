@@ -16,9 +16,9 @@ insert into public.stops (id, school_id, name, location) values
 insert into public.buses (id, school_id, plate, capacity) values
   ('e1000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', 'A-1', 50);
 -- A trip that ran from an hour ago until ten minutes ago: the phone was offline for all of it.
-insert into public.trips (id, school_id, bus_id, direction, status, scheduled_start, started_at, ended_at) values
+insert into public.trips (id, school_id, bus_id, direction, status, scheduled_start, started_at, ended_at, driver_id) values
   ('f1000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', 'e1000000-0000-4000-8000-000000000001',
-   'inbound', 'completed', now() - interval '1 hour', now() - interval '1 hour', now() - interval '10 minutes');
+   'inbound', 'completed', now() - interval '1 hour', now() - interval '1 hour', now() - interval '10 minutes', 'a2000000-0000-4000-8000-000000000001');
 insert into public.subscriptions (school_id, student_id, semester_id, stop_id, status) values
   ('10000000-0000-4000-8000-000000000001', 'a1000000-0000-4000-8000-000000000001', 'c1000000-0000-4000-8000-000000000001',
    'd1000000-0000-4000-8000-000000000001', 'approved');

@@ -1,4 +1,5 @@
 import 'package:busin_core/busin_core.dart';
+import 'package:busin_ops/src/router.dart';
 import 'package:busin_ops/src/app.dart';
 import 'package:busin_ops/src/drive/position_publisher.dart';
 import 'package:busin_ui/busin_ui.dart';
@@ -161,7 +162,8 @@ void main() {
       child: const OpsApp(),
     ));
     await settle(tester);
-    await tester.tap(find.text('Bus B1'));
+    // Not listed for them; reached another way (reassigned while its screen was open, for example).
+    ProviderScope.containerOf(tester.element(find.byType(OpsApp))).read(routerProvider).push(Routes.trip('t1'));
     await settle(tester);
     expect(find.text('Share the bus position'), findsOneWidget);
     expect(find.byType(Switch), findsNothing);

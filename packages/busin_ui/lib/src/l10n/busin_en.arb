@@ -786,5 +786,167 @@
   "opsFieldOff": "Your school has turned this off.",
   "opsFieldCrew": "That colleague cannot be added. Pick someone else.",
   "opsShareStandby": "{name}'s phone is sharing the bus position. This phone takes over by itself if it goes quiet.",
-  "@opsShareStandby": {"placeholders": {"name": {"type": "String"}}}
+  "@opsShareStandby": {"placeholders": {"name": {"type": "String"}}},
+  "navTrips": "Trips",
+  "navStats": "Stats",
+  "opsTodayEmptyMine": "No trips are assigned to you today.",
+  "opsUpcomingTitle": "Coming up",
+  "opsUpcomingEmpty": "Nothing else is assigned to you in the next four weeks.",
+  "opsWeekThis": "This week",
+  "opsWeekNext": "Next week",
+  "opsWeekLast": "Last week",
+  "opsWeekOf": "Week of {date}",
+  "@opsWeekOf": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "opsHistoryTitle": "Your trips",
+  "opsHistoryEmpty": "Your past trips will appear here.",
+  "opsHistoryEnd": "That is everything.",
+  "opsRoleDriver": "Driver",
+  "opsRoleAssistant": "Assistant",
+  "opsRoleStarter": "Started it",
+  "opsBoardedCount": "{count, plural, =0{Nobody boarded} =1{1 boarded} other{{count} boarded}}",
+  "@opsBoardedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "opsOnTime": "On time",
+  "opsLateBy": "{minutes} min late",
+  "@opsLateBy": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "opsNotRun": "Not run",
+  "opsDuration": "{duration} on the road",
+  "@opsDuration": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "opsMinutes": "{minutes} min",
+  "@opsMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "opsHoursMinutes": "{hours} h {minutes} min",
+  "@opsHoursMinutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "opsStatsTitle": "Your stats",
+  "opsStatsPeriod": "Last 12 weeks",
+  "opsStatsEmpty": "Your stats appear after your first trips.",
+  "opsStatsTrips": "Trips",
+  "opsStatsOnTime": "On time",
+  "opsStatsAvgDelay": "Average delay",
+  "opsStatsBoarded": "Students boarded",
+  "opsStatsOnRoad": "On the road",
+  "opsStatsPerTrip": "{count} per trip",
+  "@opsStatsPerTrip": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "opsStatsNoData": "None yet",
+  "opsStatsTripsChart": "Trips per week",
+  "opsStatsPunctualityChart": "On time per week",
+  "opsStatsBoardedChart": "Students boarded per week",
+  "opsStatsLegendOnTime": "On time",
+  "opsStatsLegendLate": "Late",
+  "opsStatsLegendField": "Started in the field",
+  "opsStatsLegendNotRun": "Cancelled or missed",
+  "opsStatsTripsSummary": "{trips} trips in 12 weeks: {onTime} on time, {late} late, {field} started in the field, {notRun} cancelled or missed.",
+  "@opsStatsTripsSummary": {
+    "placeholders": {
+      "trips": {
+        "type": "int"
+      },
+      "onTime": {
+        "type": "int"
+      },
+      "late": {
+        "type": "int"
+      },
+      "field": {
+        "type": "int"
+      },
+      "notRun": {
+        "type": "int"
+      }
+    }
+  },
+  "opsStatsPunctualitySummary": "On time over 12 weeks: {percent}. Best week {best}, weakest week {worst}.",
+  "@opsStatsPunctualitySummary": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      },
+      "best": {
+        "type": "String"
+      },
+      "worst": {
+        "type": "String"
+      }
+    }
+  },
+  "opsStatsBoardedSummary": "{count} students boarded in 12 weeks.",
+  "@opsStatsBoardedSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "opsStatsRoles": "As driver: {driver}. As assistant: {assistant}.",
+  "@opsStatsRoles": {
+    "placeholders": {
+      "driver": {
+        "type": "int"
+      },
+      "assistant": {
+        "type": "int"
+      }
+    }
+  },
+  "opsStatsBreakdown": "Completed {completed} · cancelled {cancelled} · missed {missed}",
+  "@opsStatsBreakdown": {
+    "placeholders": {
+      "completed": {
+        "type": "int"
+      },
+      "cancelled": {
+        "type": "int"
+      },
+      "missed": {
+        "type": "int"
+      }
+    }
+  },
+  "opsStatsPunctualityHint": "On time means started no more than 10 minutes after the scheduled time. Trips started in the field have no schedule and are not timed.",
+  "opsStatsTrendUp": "Better than the 4 weeks before",
+  "opsStatsTrendDown": "Below the 4 weeks before",
+  "opsStatsTrendSame": "Steady over the last 8 weeks"
 }
