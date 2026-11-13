@@ -31,5 +31,7 @@ export async function updateSession(request: NextRequest) {
   });
 
   const { data } = await supabase.auth.getClaims();
-  return { response, signedIn: Boolean(data?.claims) };
+  // The role the access token hook copies into the token, for routing only (ADR 0005): pages check the live profile.
+  const role = (data?.claims?.app_metadata as { role?: unknown } | undefined)?.role;
+  return { response, signedIn: Boolean(data?.claims), role: typeof role === "string" ? role : null };
 }

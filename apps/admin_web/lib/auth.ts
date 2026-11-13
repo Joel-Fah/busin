@@ -44,6 +44,9 @@ export async function requireAdmin(): Promise<AdminContext> {
   const current = await getCurrentUser();
   if (!current) redirect("/login");
 
+  // A student who reaches the portal (the root address, the portal's sign-in) belongs in the student web app (ADR 0021).
+  if (current.profile?.role === "student") redirect("/app");
+
   // An administrator always has a school (the database allows no school only for a student waiting to join one).
   if (decideAccess(current.profile) !== "admin" || !current.profile?.school_id) {
     redirect("/no-access");

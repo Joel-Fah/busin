@@ -230,8 +230,14 @@ test.describe("administrator", () => {
   });
 });
 
+test("a student who opens the portal is sent to the student web app", async ({ page, context }) => {
+  await signInBrowser(context, student);
+  await page.goto("/");
+  await expect(page).toHaveURL(/\/app\//);
+  await expect(page.getByTestId("stat-students")).toHaveCount(0);
+});
+
 for (const [label, who] of [
-  ["a student", () => student],
   ["a staff member", () => staff],
   ["a suspended administrator", () => suspendedAdmin],
 ] as const) {

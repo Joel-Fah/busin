@@ -31,6 +31,14 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: student web app (in progress, 2026-11-13)
+
+ADR 0021 (#389, PR #390) and slice 1 (shell, sign-in, install) are up as stacked PRs into `dev`. Next: onboarding gates (join, waiting, setup), then subscription, code, bus, profile, offline, web push, landing link.
+
+Owner, before it goes live:
+- set `NEXT_PUBLIC_GOOGLE_CLIENT_ID` (the Google web client id Supabase uses) on Vercel and in `.env.local`, and add the site (and `http://127.0.0.1:3000`) to that client's Authorized JavaScript origins; until then the sign-in button uses the redirect flow;
+- run the student spec against a production build: `E2E_PROD=1 E2E_PORT=3100 npx playwright test e2e/student-web.spec.ts` (the dev server forces reloads on these pages).
+
 ## Handoff: revoke push (2026-11-13)
 
 Done: #386 (PR below): a revoked subscription pushes to the student. Needs the hosted migration `20261115130000_push_revoked` and a redeploy of `send-push` (both with the owner's approval), and a student app rebuild for the tap to open the subscription tab (older builds still show the notification).

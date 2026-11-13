@@ -1,6 +1,7 @@
 import { cookies, headers } from "next/headers";
 
 import { catalogues, isLocale, type Locale, type Messages } from "@/lib/i18n/messages";
+import { studentCatalogues, type StudentCopy } from "@/lib/i18n/student";
 
 export const LOCALE_COOKIE = "locale";
 
@@ -16,4 +17,10 @@ export async function getLocale(): Promise<Locale> {
 export async function getMessages(): Promise<{ locale: Locale; t: Messages }> {
   const locale = await getLocale();
   return { locale, t: catalogues[locale] };
+}
+
+/** The student web app's words (ADR 0021), in the visitor's language. */
+export async function getStudentCopy(): Promise<{ locale: Locale; s: StudentCopy }> {
+  const locale = await getLocale();
+  return { locale, s: studentCatalogues[locale] };
 }
