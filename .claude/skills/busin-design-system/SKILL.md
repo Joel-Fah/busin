@@ -61,6 +61,11 @@ The web portal keeps the same palette (teal and orange, light and dark) as CSS v
 
 The apps carry the same language as the portal, ported natively into `packages/busin_ui` (see [ADR 0011](../../../docs/decisions/0011-mobile-design-system.md)). Do not hand-roll a card, button, bar, chip or empty state in an app screen: use `BusinCard`, `BusinButton`, `FloatingNavBar` or `BusinNavRail` through `AdaptiveScaffold`, `StatusChip`, `EmptyState`, `Skeleton`, `showBusinSheet`; threads come from `Contour` and its `ContourStyle` presets, never a plain border. Layouts are chosen by width with `BusinLayout` (compact under 600, medium to 840, expanded from 840: rail and two panes via `SplitView`). Durations go through `BusinMotion.of(context, ...)` so reduced motion works. Review any new part in the debug styleguide (`fvm flutter run --route /styleguide`) in both themes, in portrait and landscape, before using it on a screen.
 
+## Student web app
+
+The PWA at `/app` (ADR 0021) uses the portal's components and tokens with the phone layout of the student app (a
+640 px column, a floating tab bar). Its icon is the teal mark on white, to tell it apart from the installed app.
+
 ## Localization
 
 All user-facing strings go through localization (EN and FR). Shared strings live in `busin_ui` (`BusinL10n`); a screen's own strings live in its app. Student-facing wording will be friendlier than the admin's.

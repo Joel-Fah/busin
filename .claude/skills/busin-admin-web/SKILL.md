@@ -5,7 +5,7 @@ description: Conventions for the BusIn admin portal (Next.js 16, TypeScript, Sup
 
 # BusIn admin portal
 
-Separate app in `apps/admin_web`, for school admins only. Brand and tone follow `busin-design-system`; security follows `busin-security`.
+Separate app in `apps/admin_web`, for school admins. It also serves the student web app (PWA) at `/app` from the route group `app/(student)` ([ADR 0021](../../../docs/decisions/0021-student-web-app.md)): those pages import nothing from `app/(admin)` or the admin navigation, use `requireStudent` instead of `requireAdmin`, take their words from `lib/i18n/student.ts` (kept in step with the ARB files) and follow the Flutter student app's flows. Brand and tone follow `busin-design-system`; security follows `busin-security`.
 
 ## Stack
 - Next.js 16 (App Router), React 19, TypeScript in strict mode, Node 24 LTS. Versions are pinned and recorded in ARCHITECTURE.md. Upgrades are their own PR.
