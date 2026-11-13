@@ -33,12 +33,11 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 
 ## Handoff: student web app (2026-11-13)
 
-Done, as stacked PRs into `dev` (merge in order): ADR 0021 (#390), shell, sign-in and install (#392), join, waiting and setup (#394), subscription (#396), boarding code (#398), My bus (#400), profile and settings (#402), offline (#404), web push (#406), landing link (this PR). The PWA lives at `/app`, mirrors the student app's flows and words, installs with the teal-on-white icon, works offline once opened, and shows codes from a key the browser cannot read out.
+Live on main (release #415): the student web app at `/app` (ADR 0021) with sign-in, onboarding, subscription, boarding code, My bus, profile, offline and web push, plus the landing's "In your browser" card and the `/app` share card. Set up and verified: Firebase web app "BusIn Web" with its Web Push key; `NEXT_PUBLIC_FIREBASE_*` and `NEXT_PUBLIC_GOOGLE_CLIENT_ID` on Vercel (Production and Preview); Vercel on Node 24.x; `PUSH_WEB_BASE_URL` on the functions; hosted migration `20261115140000_web_push` applied and `send-push` redeployed.
 
-Owner, before it goes live:
-- set `NEXT_PUBLIC_GOOGLE_CLIENT_ID` (the Google web client id Supabase uses) on Vercel and in `.env.local`, and add the site (and `http://127.0.0.1:3000`) to that client's Authorized JavaScript origins; until then the sign-in button uses the redirect flow;
-- web push is set up (2026-11-13): Firebase web app "BusIn Web" with its Web Push key, the five `NEXT_PUBLIC_FIREBASE_*` values on Vercel (Production and Preview) and in `.env.local`, `PUSH_WEB_BASE_URL=https://busin-navy.vercel.app` on the functions, the hosted migration `20261115140000_web_push` applied and `send-push` redeployed. It works on the site once these PRs reach `main` and Vercel rebuilds;
-- run the student specs against a production build: `E2E_PROD=1 E2E_PORT=3100 npx playwright test e2e/student-web*.spec.ts` (the dev server forces reloads on these pages, and only a production build registers the service worker).
+Owner, device test: open `https://busin-navy.vercel.app/app` on Android Chrome and install it; on an iPhone, Add to Home Screen; sign in with Google, subscribe with a receipt photo, approve it in the portal (the push should arrive), show the code to the ops app scanner, turn the network off and reopen.
+
+Notes: run the student specs against a production build (`E2E_PROD=1 E2E_PORT=3100 npx playwright test e2e/student-web*.spec.ts`); the dev server forces reloads on these pages. Vercel still stores `SUPABASE_DB_PASSWORD`, `SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET` and `DEMO_PASSWORD`, which the portal does not read; consider removing them. The "better in the app" sheet appears only once a store or APK link is set (`LANDING_*_URL`).
 
 ## Handoff: revoke push (2026-11-13)
 
