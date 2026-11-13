@@ -197,7 +197,7 @@ export const MOTION_NOTE =
 /** How BusIn draws people (owner direction, 2026-11-13): the landing scene is the reference. */
 export const PEOPLE_STYLE = {
   intro:
-    "People are drawn flat and warm, the way the landing page's bus stop scene is: students in real school life, with a little stippled grain on what they wear. It is the house style for every illustration with people in it, on the web, in the apps and in print.",
+    "People are drawn flat and warm: students in real school life, with a little stippled grain on what they wear. It is the house style for every illustration with people in it, on the web, in the apps and in print. The two references below set the look.",
   rules: [
     "Flat shapes, no outlines, no gradients, no 3D. A few thin lines mark folds, pleats and seams.",
     "A stippled speckle of small lighter and darker flecks on clothes, bags, foliage and walls. Never on skin or faces.",
@@ -221,6 +221,8 @@ export const PEOPLE_STYLE = {
     ["Brand orange", "#f5951f"],
   ] as [string, string][],
   skin: ["#e8bb94", "#c4885e", "#8c5a3c", "#6f4430"],
+  referenceNote:
+    "Style references only (public/styleguide/references). Copy the drawing, the palette and the grain; not the lettering in them: illustrations carry no words or logos.",
   /** A prompt that reproduces the style with an image model. */
   prompt:
     "Flat vector editorial illustration with a stippled grain texture (small lighter and darker specks on clothes, bags, foliage and walls, none on skin). Warm palette: mustard #f0b63c, terracotta #cf6a43, olive #7f8a3c, leaf green #79a744, deep green #36683a, sage #b9c8b0, sand #f0c57e, with deep teal #0c5d6d for structures and orange #f5951f as the single accent. Young African university students with rounded bodies, slightly long limbs, small expressive hands, chunky sneakers with light soles, simple faces with dot eyes and round rosy cheeks, expressive hair (a long swinging braid, a high bun, tight curls) and big hoop earrings. Calm warm daylight, no outlines, no gradients, no 3D, no text, letters or logos anywhere in the image.",

@@ -37,7 +37,7 @@ Radius scale 8, 16, 20, 28, 36 (`BusinRadius`), the same as the portal: rounded 
 
 ## Icons and imagery
 
-People illustrations follow one house style (owner direction, 2026-11-13): flat, warm (mustard, terracotta, olive and leaf greens, sage, sand around the brand teal and orange), a stippled speckle on clothes and foliage but never skin, rounded students with expressive hair and round rosy cheeks, no text or logos inside. The landing page's bus stop scene (`tools/landing-scene.mjs`) is the reference; the rules and a ready prompt live in the styleguide content (`PEOPLE_STYLE`) and its Markdown export.
+People illustrations follow one house style (owner direction, 2026-11-13): flat, warm (mustard, terracotta, olive and leaf greens, sage, sand around the brand teal and orange), a stippled speckle on clothes and foliage but never skin, rounded students with expressive hair and round rosy cheeks, no text or logos inside. The owner's reference images are in `apps/admin_web/public/styleguide/references/`; the rules and a ready prompt live in the styleguide content (`PEOPLE_STYLE`) and its Markdown export; the prompts for the landing hero layers are in `docs/guides/landing-hero-art.md`.
 
 Icons: `hugeicons`, stroke-rounded style (for example `strokeRoundedInformationCircle`, `strokeRoundedCancelCircle`, `strokeRoundedAlert02`, `strokeRoundedCheckmarkCircle02`). Logos are SVG in teal (`cyan`), orange and white. Illustrations are PNG/SVG under `assets/images`. No emojis anywhere.
 

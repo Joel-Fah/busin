@@ -281,7 +281,7 @@ with one small orange (${LIGHT.accent}) accent, transparent background, no text,
 
 Read: Imagery (People illustrations), Colour, Hard rules.
 
-- Follow the people illustration rules above; the landing page's bus stop scene is the reference.
+- Follow the people illustration rules above; the reference images are in the styleguide (\`public/styleguide/references/\`).
 - A scene keeps one ground line and calm daylight; leave the sky plain, the page draws its own.
 - A single character stands alone on white or transparent, full figure, so it can be placed anywhere.
 - No words, letters or logos in the image: captions and labels are interface text, in English and French.

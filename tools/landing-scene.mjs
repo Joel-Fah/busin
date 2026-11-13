@@ -3,11 +3,9 @@
 //   node tools/landing-scene.mjs                    write the two files
 //   node tools/landing-scene.mjs --preview out.html  also write a page to look at it (whole scene and each person, by day and night)
 //
-// The way it is drawn follows the BusIn people illustration style (the styleguide, Imagery): flat shapes in a warm palette
-// (mustard, terracotta, olive and sage greens, sand) around the brand's deep teal and orange, a stippled speckle on clothes,
-// foliage and buildings, rounded people with expressive hair and round rosy cheeks. The page draws the sky. Deep teal
-// stays for every structure so the shelter reads as BusIn's. Everything stands on one ground line and casts a soft shadow,
-// so nothing floats.
+// The way it is drawn follows flat editorial illustration: a calm, nearly single-hue background (one family of pale teals,
+// a halftone of dots on a few faces), deep teal for every structure, one warm brand colour for the accents, and the people
+// in saturated clothes so they read first. Everything stands on one ground line and casts a soft shadow, so nothing floats.
 //
 // People: a head with a skull, ear, two eyes (near and far), brows, nose and mouth, so a face can smile, laugh, focus or
 // worry; hair is built over the skull (a mass behind it and a cap on it), so it always sits on the head. Limbs are single
@@ -22,35 +20,20 @@ const V = (name) => `var(--s-${name})`;
 
 /** Every colour of the scene: [by day, by night]. Written out as CSS variables on the scene's svg. */
 const PALETTE = {
-  // birds over the hills
-  bird: ["#8c6a52", "#4d6a6f"],
-  // hills behind the town
-  hill: ["#b9c8b0", "#10323a"],
-  hill2: ["#a3b79c", "#0d2b33"],
-  // the town and the campus, in warm stone and brick
-  far: ["#f4ead8", "#0b2c36"],
-  far2: ["#ecdcc0", "#0f3540"],
-  mid: ["#f0c57e", "#123a45"],
-  mid2: ["#dfa75d", "#0f3440"],
-  brick: ["#d9774f", "#5b3a33"],
-  brick2: ["#bb5f3c", "#4c302b"],
-  dots: ["#c98f45", "#1c4a56"],
-  win: ["#2f5a60", "#0a2228"],
-  lit: ["#fbe8bf", "#ffd98f"],
-  // greenery
-  tree: ["#79a744", "#1f4e3b"],
-  tree2: ["#5a8b38", "#173f31"],
-  tree3: ["#36683a", "#102f26"],
-  trunk: ["#7a4b2f", "#3c2a22"],
-  trunk2: ["#5e3722", "#2e2019"],
-  palm: ["#4f8d47", "#174235"],
-  bush: ["#5d8f3d", "#163d30"],
-  bush2: ["#3f7136", "#113328"],
+  // the town and the street
+  far: ["#e1eef2", "#082631"],
+  far2: ["#d3e6ec", "#0b2f3c"],
+  mid: ["#c9dfe6", "#0c3341"],
+  mid2: ["#b6d2db", "#0f3e4e"],
+  dots: ["#a9c8d2", "#164d5e"],
+  win: ["#dcebf0", "#123e4d"],
+  lit: ["#e9f4f7", "#ffd98f"],
+  tree: ["#86b9b2", "#145154"],
+  tree2: ["#6ea69f", "#0f4245"],
+  bush: ["#4b858d", "#0b3a40"],
+  bush2: ["#3d7880", "#08313a"],
   planter: ["#0c5d6d", "#11697a"],
   planter2: ["#094a58", "#0b5160"],
-  // the speckle over cloth, leaves and walls: lighter and darker flecks of whatever is under it
-  "speck-l": ["#fff8ea", "#5d858b"],
-  "speck-d": ["#3a2414", "#000000"],
   struct: ["#163c47", "#2c6476"],
   struct2: ["#0f2e37", "#22566a"],
   roof: ["#f5951f", "#e88a17"],
@@ -58,11 +41,11 @@ const PALETTE = {
   glass: ["#ffffff", "#bfe6f2"],
   "glass-o": ["0.42", "0.08"],
   ad: ["#fdf4e3", "#f3e6c9"],
-  paver: ["#ede2cf", "#0d2f39"],
-  paver2: ["#ddceb5", "#123843"],
-  curb: ["#cdbda3", "#164350"],
-  road: ["#5f5b5d", "#08202a"],
-  lane: ["#f6efe2", "#3a6576"],
+  paver: ["#eef6f8", "#0a2d39"],
+  paver2: ["#dcebef", "#0e3644"],
+  curb: ["#cfe0e6", "#123f4e"],
+  road: ["#c3d7de", "#071f29"],
+  lane: ["#f9fcfd", "#2c5a70"],
   "glow-o": ["0", "1"],
   shadow: ["#00202a", "#000a0e"],
   "shadow-o": ["0.1", "0.38"],
@@ -91,16 +74,8 @@ const PALETTE = {
   denim: ["#3f7099", "#4a7ea8"],
   denim2: ["#2f5b80", "#386990"],
   denim3: ["#6b97bb", "#7aa5c6"],
-  skirt: ["#0f5d64", "#17808f"],
-  skirt2: ["#0a474d", "#116875"],
-  terra: ["#cf6a43", "#c56442"],
-  terra2: ["#ad5332", "#a95234"],
-  olive: ["#7f8a3c", "#7c8a44"],
-  olive2: ["#646d2c", "#626e35"],
-  brown: ["#7a4a2c", "#76492d"],
-  brown2: ["#5c3520", "#5a3522"],
-  green: ["#3f7a4e", "#4a8a5b"],
-  green2: ["#2f6140", "#3b704b"],
+  skirt: ["#0c5d6d", "#17808f"],
+  skirt2: ["#094a58", "#116875"],
   "skin-a": ["#8c5a3c", "#875739"],
   "skin-a2": ["#734730", "#6e452e"],
   "skin-b": ["#c4885e", "#bb8159"],
@@ -109,7 +84,7 @@ const PALETTE = {
   "skin-c2": ["#5a3524", "#573323"],
   "skin-d": ["#e8bb94", "#ddb18b"],
   "skin-d2": ["#d09f78", "#c69772"],
-  blush: ["#d9574a", "#cf5246"],
+  blush: ["#e8694a", "#dc6144"],
   phone: ["#1d2b31", "#25363d"],
   gold: ["#e0a83a", "#d49d33"],
   sweat: ["#8fd3ea", "#8fd3ea"],
@@ -219,11 +194,6 @@ const ellipse = (cx, cy, rx, ry, colour, extra = "") => `<ellipse cx="${n(cx)}" 
 const rect = (x, y, w, h, r, colour, extra = "") => `<rect x="${n(x)}" y="${n(y)}" width="${n(w)}" height="${n(h)}" rx="${n(r)}" fill="${colour}"${extra}/>`;
 const shade = (d, o = 1) => fill(d, V("shadow"), ` opacity="${o === 1 ? V("shadow-o") : o}"`);
 const groundShadow = (cx, cy, rx, ry = 5) => ellipse(cx, cy, rx, ry, V("shadow"), ` opacity="${V("shadow-o")}"`);
-
-/** The speckle laid over a shape: the same outline filled with the fleck pattern (flecks only, so the colour under shows). */
-const speck = (d, o = 1) => `<path d="${d}" fill="url(#s-speck)"${o === 1 ? "" : ` opacity="${o}"`}/>`;
-/** A piece of cloth: its colour and the speckle over it. */
-const cloth = (d, colour, o = 1) => fill(d, colour) + speck(d, o);
 
 let clipCount = 0;
 /** [inner], cut to the shape [d]: used for the shadow a limb casts on the body under it. */
@@ -349,8 +319,7 @@ function face(mood, { female = false, glasses = false } = {}) {
       line("M3.6 -9.6Q4.8 -10.4 6 -9.6", 0.7, ink, ' opacity="0.6"') +
       nose + line("M4 10Q5.4 8.8 6.8 9.8Q8.2 10.8 9.6 9.4", 1.05, ink),
   };
-  // Round rosy cheeks, the style's signature (softer when worried).
-  const blush = ellipse(2.2, 4.4, 3, 3, V("blush"), ` opacity="${mood === "worried" ? 0.18 : 0.42}"`) + ellipse(11.4, 4.2, 1.5, 2.4, V("blush"), ` opacity="${mood === "worried" ? 0.12 : 0.3}"`);
+  const blush = mood === "worried" ? "" : ellipse(1.8, 4.6, 2.6, 1.5, V("blush"), ' opacity="0.28"') + ellipse(11.2, 4.4, 1.3, 1.3, V("blush"), ' opacity="0.22"');
   const specs = glasses
     ? fill("M-0.8 -4.6L7 -4.6Q7.6 -4.6 7.6 -4L7.4 1.4Q7.3 2.6 6.2 2.6L0.4 2.6Q-0.6 2.6-0.7 1.6Z", "#fff", ' opacity="0.22"') +
       line("M-0.8 -4.6L7 -4.6Q7.6 -4.6 7.6 -4L7.4 1.4Q7.3 2.6 6.2 2.6L0.4 2.6Q-0.6 2.6-0.7 1.6ZM8.8 -4.4L12.6 -4.4L12.4 1.6Q12.2 2.6 11.4 2.6L9.2 2.6Q8.4 2.6 8.4 1.8ZM7.6 -3.4L8.6 -3.4M-0.8 -3.4L-4.6 -1.6", 1.1, ink)
@@ -399,62 +368,12 @@ const HAIR = {
       fill("M-13.8 2.8C-16 -8-9.6 -19.2 1 -19.6C8 -19.8 12.8 -17.2 14.2 -12.2C15 -9.6 14.2 -7.4 13.4 -6.6C11.2 -10.4 6.8 -11.6 2.6 -11C-0.6 -10.4-3.4 -8.6-4.6 -5.4C-5.6 -2.8-5.8 0.4-7 3.2C-9.4 4.8-12.4 4.6-13.8 2.8Z", c) +
       line("M-9 -13.4Q-2 -18.6 8 -17.2M-12 -6.6Q-7 -13.4 1 -14.6M2.6 -11Q8 -13.6 13.4 -10.6", 0.8, c2),
   }),
-  // A long braid swinging behind, the hair pulled back from the face.
-  swing: (c, c2) => ({
-    back: swingBraid(c, c2),
-    front:
-      fill("M-14 3.6C-16.6 -9-8.8 -19.2 1.4 -19C9.6 -18.8 15 -13 14 -6C11.4 -9.6 7.6 -11 3.6 -10.6C-1 -10.2-5 -8.6-7 -5C-8.6 -2-9 1.2-10.4 4C-11.8 5.6-13.4 5.2-14 3.6Z", c) +
-      line("M-12 -9Q-6 -15.6 3 -16.4M-13.4 -2.6Q-9.6 -10.4-1 -12.6", 0.75, c2),
-  }),
-  // A high bun with a band, the rest pulled up.
-  bun: (c, c2) => ({
-    back: "",
-    front:
-      fill("M-14.2 3.4C-16.8 -8.6-9 -19 1.2 -18.8C9.4 -18.6 14.8 -12.8 13.8 -5.8C11.2 -9.4 7.4 -10.8 3.4 -10.4C-1.2 -10-5.2 -8.4-7.2 -4.8C-8.6 -1.8-9.4 1.4-10.6 4C-12 5.4-13.6 5-14.2 3.4Z", c) +
-      `<circle cx="-4" cy="-24" r="8.6" fill="${c}"/>` +
-      line("M-9.6 -28Q-4 -33 1.8 -27.6M-11.4 -23Q-6 -18.6 2.6 -22", 0.8, c2) +
-      rect(-9.4, -17.6, 11, 3, 1.5, V("mustard")) +
-      line("M-11 -10Q-4 -16 4 -16.4", 0.75, c2),
-  }),
-  // Short tight curls, round on top.
-  curls: (c, c2) => ({
-    back: "",
-    front:
-      fill("M-15 2.6C-19.6 -4-18.4 -17 -6 -21.4C4 -24.6 15.6 -19.4 15.6 -8.6C15.6 -7 15 -6 14.2 -5.6C12.4 -9.6 8.4 -11.6 4 -11C0 -10.4-3.4 -8.6-5.2 -5C-6.2 -2.6-6.6 0.6-7.8 3.4C-10.4 5-13.6 4.6-15 2.6Z", c) +
-      [[-11, -15], [-6, -19], [0, -20.4], [6, -19], [11, -15], [-14, -8], [-9, -11], [-3, -14], [3, -15], [9, -13], [-13, -1]]
-        .map(([cx, cy]) => `<circle cx="${cx}" cy="${cy}" r="1.5" fill="none" stroke="${c2}" stroke-width="0.8"/>`)
-        .join(""),
-  }),
   // Short hair under a cap worn forward (the cap is drawn as [extra]).
   capped: (c) => ({
     back: "",
     front: fill("M-13.8 2.4C-14.8 -3.6-12.8 -8-9 -9.2L-5.4 -7C-6.6 -3.6-6.8 0-7.2 3.6C-9.6 5.2-12.6 4.6-13.8 2.4Z", c),
   }),
 };
-
-/** A long thick braid swinging out behind (head coordinates), lobe after lobe, getting thinner to a tied end. */
-function swingBraid(c, c2) {
-  const pts = [[-9, -8], [-26, -10], [-44, -4], [-58, 8], [-66, 24], [-70, 40]];
-  const sm = sample(pts, 4);
-  let back = "";
-  let marks = "";
-  const n = sm.length;
-  sm.forEach((q, i) => {
-    if (i % 2) return;
-    const t = i / (n - 1);
-    const r = 9.6 - t * 5.4;
-    const a = sm[Math.max(0, i - 1)].p;
-    const b = sm[Math.min(n - 1, i + 1)].p;
-    const deg = (Math.atan2(b[1] - a[1], b[0] - a[0]) * 180) / Math.PI;
-    back += `<ellipse cx="${n2(q.p[0])}" cy="${n2(q.p[1])}" rx="${n2(r * 1.15)}" ry="${n2(r)}" transform="rotate(${n2(deg)} ${n2(q.p[0])} ${n2(q.p[1])})" fill="${c}"/>`;
-    marks += line(`M${n2(q.p[0] - r * 0.5)} ${n2(q.p[1] - r * 0.6)}q${n2(r * 0.5)} ${n2(r * 0.7)} ${n2(r * 0.2)} ${n2(r * 1.3)}`, 0.8, c2);
-  });
-  const end = sm[n - 1].p;
-  // the tie and the loose tip
-  back += ellipse(end[0], end[1] + 3, 3.4, 2.2, V("gold")) + fill(`M${n2(end[0] - 3.6)} ${n2(end[1] + 4)}q3.6 9 0.8 13q3.4-2 5.2-12Z`, c);
-  return back + marks;
-}
-const n2 = (v) => Number(v.toFixed(1));
 
 const CAP = (c, c2) =>
   fill("M-14.2 -3.2C-15.2 -14-7.2 -20.4 1 -20.2C8.6 -20 14 -14.8 13.6 -7.4C4 -6.6-5.2 -5-14.2 -3.2Z", c) +
@@ -464,12 +383,12 @@ const CAP = (c, c2) =>
 
 // ---------------------------------------------------------------- the people (each stands on y = 0)
 
-/** He walks a step ahead and looks back at her, laughing, a thumb hooked under his backpack strap. Curls, terracotta sweater, rolled jeans, brown backpack. */
+/** He walks a step ahead and looks back at her, laughing, a thumb hooked under his backpack strap. Cap, tee, jeans, backpack. */
 function laugher() {
   const skin = V("skin-a");
   const skin2 = V("skin-a2");
-  const front = plant("sneaker", V("brown"), 22, -6, "heel");
-  const back = plant("sneaker", V("brown"), -10, 20, "toe");
+  const front = plant("sneaker", V("coral"), 22, -6, "heel");
+  const back = plant("sneaker", V("coral"), -10, 20, "toe");
   const farLeg = legPts([6, -94], front.ankle, 1.5);
   const nearLeg = legPts([-3, -94], back.ankle, 7);
   const legW = [21, 18.4, 16];
@@ -482,37 +401,39 @@ function laugher() {
   out.push(groundShadow(6, 1.5, 34));
   // far side first: the front leg (we see it past the near one) and the far arm
   out.push(dressedLeg(farLeg, legW, { cloth: V("denim2"), sock: V("white"), shoe: front, cuffColour: V("denim3"), crease: 0.4 }));
-  out.push(cloth(band(farArm, [12.4, 10.6, 9.6], { start: "round" }), V("terra2")) + line(cuff(farArm, [12.4, 10.6, 9.6], 3.4), 0.9));
+  out.push(fill(band(farArm, [10.6, 8.8, 8], { start: "round", end: "round" }), skin2));
+  out.push(fill(band([[9, -146], [12.6, -131]], [12.6, 11.2], { start: "round" }), V("cream2")));
   out.push(hand("rest", 12.2, -100, 4, skin2));
   // backpack on his back
-  out.push(cloth("M-12.6 -148C-25 -149.4-31.6 -140-31.6 -126L-30.6 -104C-30.4 -96.4-23.6 -93.6-12.6 -95Z", V("brown")));
-  out.push(fill("M-30.4 -121L-15 -121L-15 -101C-21.6 -99.4-29.6 -100-30.2 -106Z", V("brown2")));
-  out.push(line("M-28 -132Q-22 -134-16 -132", 1.2, V("mustard")) + rect(-23.6, -128, 4.4, 2.6, 1.2, V("cream")));
+  out.push(fill("M-12.6 -148C-25 -149.4-31.6 -140-31.6 -126L-30.6 -104C-30.4 -96.4-23.6 -93.6-12.6 -95Z", V("teal")));
+  out.push(fill("M-30.4 -121L-15 -121L-15 -101C-21.6 -99.4-29.6 -100-30.2 -106Z", V("teal2")));
+  out.push(line("M-28 -132Q-22 -134-16 -132", 1.2, V("teal3")) + rect(-23.6, -128, 4.4, 2.6, 1.2, V("cream")));
   // the near leg, stepping off its toe, with its rolled hem
   out.push(dressedLeg(nearLeg, legW, { cloth: V("denim"), sock: V("white"), shoe: back, cuffColour: V("denim3") }));
   out.push(fill("M-14.6 -104L15.6 -104L17 -86L-15.6 -86Z", V("denim")));
   out.push(line("M2 -103.6L2.6 -88M-8 -96Q-4 -92.6 0.6 -94", 0.9));
-  // sweater, and the strap over the front of his shoulder and down his chest
-  out.push(cloth(torso, V("terra")));
-  out.push(line("M-6 -153Q1 -148.4 8.4 -153.6", 2, V("terra2")) + line("M-14 -104.6Q0 -101.4 15.4 -104.6", 2.2, V("terra2")));
+  // tee, and the strap over the front of his shoulder and down his chest
+  out.push(fill(torso, V("cream")));
+  out.push(line("M-6 -153Q1 -148.4 8.4 -153.6", 1.2, V("cream2")) + line("M-12 -112Q0 -108 13 -112", 0.9));
   out.push(clipped(torso, `<path d="${strap}" transform="translate(-1.6 2)" fill="none" stroke="#00141b" stroke-width="3.6" opacity="0.2"/>`));
-  out.push(`<path d="${strap}" fill="none" stroke="${V("brown2")}" stroke-width="3.6" stroke-linecap="round"/>`);
-  out.push(castShadow(torso, band(nearArm, [12.4, 10.6, 9.6], { start: "round", end: "round" })));
+  out.push(`<path d="${strap}" fill="none" stroke="${V("teal2")}" stroke-width="3.6" stroke-linecap="round"/>`);
+  out.push(castShadow(torso, band(nearArm, [10.4, 9, 8], { start: "round", end: "round" })));
   // near arm: upper arm hanging, forearm up, thumb hooked under the strap
-  out.push(cloth(band(nearArm, [12.4, 10.6, 9.6], { start: "round" }), V("terra")) + line(cuff(nearArm, [12.4, 10.6, 9.6], 3.4), 0.9));
+  out.push(fill(band(nearArm, [10.4, 9, 8], { start: "round", end: "round" }), skin));
+  out.push(fill(band(nearUpper, [13.2, 11.8], { start: "round" }), V("cream")) + line(cuff(nearUpper, [13.2, 11.8], 1.8), 0.9));
   out.push(hand("grip", 5, -132, -146, skin));
   // neck and head
   out.push(fill("M-2.6 -164L5.4 -164L6 -152L-3.2 -152Z", skin2));
-  out.push(head(4, -177, { skin, skin2, mood: "laugh", tilt: 4, flip: -1, ...HAIR.curls(V("hair"), V("hair2")) }));
+  out.push(head(4, -177, { skin, skin2, mood: "laugh", tilt: 4, flip: -1, ...HAIR.capped(V("hair")), extra: CAP(V("orange"), V("orange2")) }));
   return out.join("");
 }
 
-/** She walks a step behind him, telling him something, a hand open in front of her. A long swinging braid, big hoops, mustard sweater, pleated teal skirt, striped tote, coffee. */
+/** She walks a step behind him, telling him something, a hand open in front of her. Braids, mustard top, teal midi skirt, tote, coffee. */
 function chatter() {
   const skin = V("skin-c");
   const skin2 = V("skin-c2");
-  const front = plant("sneaker", V("skirt2"), 20, -5, "heel", V("white"));
-  const back = plant("sneaker", V("skirt2"), -10, 18, "toe", V("white"));
+  const front = plant("sneaker", V("white"), 20, -5, "heel", V("teal"));
+  const back = plant("sneaker", V("white"), -10, 18, "toe", V("teal"));
   const farLeg = legPts([4, -94], back.ankle, 6);
   const nearLeg = legPts([-1, -94], front.ankle, 1.5);
   const calfW = [13, 11, 8.6];
@@ -524,26 +445,25 @@ function chatter() {
   out.push(groundShadow(6, 1.5, 32));
   out.push(fill(band(farLeg, calfW), skin2) + back.svg);
   // far arm forward, holding a takeaway coffee
-  out.push(cloth(band(farArm, [11.6, 10, 8.6], { start: "round" }), V("mustard2")) + line(cuff(farArm, [11.6, 10, 8.6], 3.2), 0.9));
+  out.push(fill(band(farArm, [10, 8.6, 7.4], { start: "round" }), V("mustard2")) + line(cuff(farArm, [10, 8.6, 7.4], 3.2), 0.9));
   out.push(fill("M16.4 -104.4L27.6 -104.4L25.8 -86.6Q25.6 -85.2 24.2 -85.2L19.8 -85.2Q18.4 -85.2 18.2 -86.6Z", V("white")) + rect(15.6, -107, 12.8, 3.4, 1.4, V("teal")) + fill("M17.2 -99L26.8 -99L26.2 -92.4L17.8 -92.4Z", V("orange")));
   out.push(hand("grip", 19, -105, -70, skin2));
   out.push(fill(band(nearLeg, calfW), skin) + front.svg);
   // skirt, flared by the stride
   const skirt = "M-13.4 -106L14.4 -106C17 -86 22 -62 25 -44C15 -39.6 1 -38.6-19 -42.4C-17.6 -62-15 -86-13.4 -106Z";
-  out.push(cloth(skirt, V("skirt")));
-  // pleats
-  out.push(line("M2 -100Q3 -70 4 -40.6M-6 -98Q-9 -72-11 -41.6M9 -98Q15 -72 17.6 -42M-2 -99Q-3 -70-4 -40M13 -99Q19 -72 21.6 -43M-10 -98Q-14 -72-15.6 -42", 0.9, V("skirt2")));
+  out.push(fill(skirt, V("skirt")));
+  out.push(line("M2 -100Q3 -70 4 -40.6M-6 -98Q-9 -72-11 -41.6M9 -98Q15 -72 17.6 -42", 1, V("skirt2")));
   out.push(fill("M-13.6 -108L14.6 -108L14.8 -102L-13.8 -102Z", V("skirt2")));
   // top
-  out.push(cloth(torso, V("mustard")));
-  out.push(line("M-5.6 -153Q1 -148 8 -153.4", 2, V("mustard2")) + line("M-13 -104.4Q1 -101 14.4 -104.4", 2.2, V("mustard2")));
+  out.push(fill(torso, V("mustard")));
+  out.push(line("M-5.6 -153Q1 -148 8 -153.4", 1.2, V("mustard2")) + line("M-11 -116Q1 -112 13 -115", 0.9));
   // tote on her near shoulder, hanging at her hip
   out.push(line("M-6 -152Q-17 -134-19 -112M-2 -152Q-9 -132-8 -112", 2.2, V("cream2")));
-  out.push(cloth("M-24 -114L-2 -114L-0.4 -86Q-0.4 -83-3.4 -83L-23.4 -83Q-26.4 -83-26.2 -86Z", V("cream")));
+  out.push(fill("M-24 -114L-2 -114L-0.4 -86Q-0.4 -83-3.4 -83L-23.4 -83Q-26.4 -83-26.2 -86Z", V("cream")));
   out.push(fill("M-25.4 -101L-1.2 -101L-1 -95L-25.8 -95Z", V("orange")) + line("M-23.8 -110L-2.4 -110", 0.8));
   out.push(castShadow(torso, band(nearFore, [9.6, 8.6, 7.6], { start: "round" })));
-  out.push(cloth(band(nearFore, [11, 9.8, 8.6], { start: "round" }), V("mustard")) + line(cuff(nearFore, [11, 9.8, 8.6], 3), 0.9));
-  out.push(cloth(band(nearUpper, [12.6, 11.4], { start: "round", end: "round" }), V("mustard")));
+  out.push(fill(band(nearFore, [9.6, 8.6, 7.6], { start: "round" }), V("mustard")) + line(cuff(nearFore, [9.6, 8.6, 7.6], 3), 0.9));
+  out.push(fill(band(nearUpper, [11, 10], { start: "round", end: "round" }), V("mustard")));
   out.push(hand("open", 26.6, -131, -116, skin));
   out.push(fill("M-2.2 -164L5 -164L5.6 -152L-2.8 -152Z", skin2));
   out.push(
@@ -553,18 +473,16 @@ function chatter() {
       mood: "chat",
       female: true,
       tilt: -2,
-      ...HAIR.swing(V("hair"), V("hair2")),
-      // big hoop earrings
-      extra: `<circle cx="-3.2" cy="9" r="3.6" fill="none" stroke="${V("gold")}" stroke-width="1.6"/>`,
+      ...HAIR.braids(V("hair"), V("hair2")),
+      extra: `<circle cx="-3.4" cy="7.6" r="1.9" fill="none" stroke="${V("gold")}" stroke-width="1"/>`,
     }),
   );
   return out.join("");
 }
 
 /**
- * On the bench, leaning forward, elbows on her knees, looking down at her phone held in both hands (we see its back).
- * A high bun, a speckled green top, terracotta trousers, headphones round her neck. The origin is on the seat under her
- * hip; the ground is 62 below.
+ * On the bench, leaning forward, elbows on his knees, looking down at his phone held in both hands (we see its back).
+ * Twists, teal hoodie, headphones round his neck. The origin is on the seat under his hip; the ground is 62 below.
  */
 function phoner() {
   const skin = V("skin-b");
@@ -578,43 +496,43 @@ function phoner() {
   const out = [];
   out.push(groundShadow(30, g + 1.5, 46));
   // far leg
-  out.push(cloth(band(farShin, [17, 15.6, 13.4]), V("terra2")) + at(61, g - 11, 0, SHOES.high(V("mustard"))) + cloth(band(farThigh, [21, 20, 18], { end: "round" }), V("terra2")));
+  out.push(fill(band(farShin, [17, 15.6, 13.4]), V("ink2")) + at(61, g - 11, 0, SHOES.high(V("orange"))) + fill(band(farThigh, [21, 20, 18], { end: "round" }), V("ink2")));
   // far arm (mostly hidden behind)
-  out.push(cloth(band([[22, -48], [42, -24], [52, -38]], [11, 9.4, 8.2], { start: "round" }), V("green2")));
+  out.push(fill(band([[22, -48], [42, -24], [52, -38]], [11, 9.4, 8.2], { start: "round" }), V("teal2")));
   // near leg: the shin into its shoe, then the thigh from under the hoodie, his seat on the bench
-  out.push(cloth(band(nearShin, [18, 16, 13.6]), V("terra")) + at(42, g - 11, 0, SHOES.high(V("mustard"))));
+  out.push(fill(band(nearShin, [18, 16, 13.6]), V("ink")) + at(42, g - 11, 0, SHOES.high(V("orange"))));
   const thigh = band(nearThigh, [22, 21, 19], { start: "round", end: "round" });
-  out.push(cloth(thigh, V("terra")) + line(fold(nearThigh, [22, 21, 19], -0.35, 0.4), 0.9));
+  out.push(fill(thigh, V("ink")) + line(fold(nearThigh, [22, 21, 19], -0.35, 0.4), 0.9));
   out.push(clipped(thigh, `<path d="${torso}" transform="translate(2 3.4)" fill="#00141b" opacity="0.22"/>`));
-  // the top over her hip, with a scatter of little leaves
-  out.push(cloth(torso, V("green")));
-  out.push([[-2, -30], [8, -40], [14, -22], [2, -14], [-8, -18], [18, -46]].map(([x, y]) => ellipse(x, y, 2.4, 1.3, V("mustard"), ' opacity="0.8"')).join(""));
-  out.push(line("M-12 -6Q2 -3 15 -6", 1.1, V("green2")));
+  // the hoodie over his hip
+  out.push(fill(torso, V("teal")));
+  out.push(fill("M-4 -24L16 -26L16 -10L-3 -8Z", V("teal2"), ' opacity="0.65"') + line("M-12 -6Q2 -3 15 -6", 1.1, V("teal2")));
+  out.push(line("M14 -53L12 -42M18 -53L17.6 -43", 1, V("cream")));
   // phone, back to us, held in both hands
   out.push(at(55, -47, -58, rect(-5, -9.6, 10, 19.2, 2.2, V("phone")) + rect(-3, -7.6, 3.2, 3.2, 1, "#4a5d66") + `<circle cx="2.4" cy="-6" r="0.9" fill="#4a5d66"/>`));
   out.push(hand("grip", 53.4, -40.6, -134, skin2));
   // near arm, elbow on the knee
   const nearArm = [[10, -48], [36, -18], [50, -34]];
   out.push(castShadow(torso, band(nearArm, [12, 10.4, 9], { start: "round" })));
-  out.push(cloth(band(nearArm, [12, 10.4, 9], { start: "round" }), V("green")) + line(cuff(nearArm, [12, 10.4, 9], 3.6), 1));
+  out.push(fill(band(nearArm, [12, 10.4, 9], { start: "round" }), V("teal")) + line(cuff(nearArm, [12, 10.4, 9], 3.6), 1));
   out.push(hand("grip", 50.6, -36, -142, skin));
   // headphones round the neck
   out.push(fill("M17 -64L24 -64L25.2 -53L16 -53Z", skin2));
   out.push(line("M11 -58Q21 -50 29 -56", 2.6, V("ink2")) + ellipse(12, -56, 3.4, 4.6, V("ink2")) + ellipse(28.4, -55, 3, 4.2, V("ink")));
-  out.push(head(27, -75, { skin, skin2, mood: "focus", tilt: 28, female: true, ...HAIR.bun(V("hair"), V("hair2")), extra: `<circle cx="-3" cy="8.6" r="1.6" fill="${V("gold")}"/>` }));
+  out.push(head(27, -75, { skin, skin2, mood: "focus", tilt: 28, ...HAIR.twists(V("hair"), V("hair2")) }));
   return out.join("");
 }
 
-/** Her backpack on the bench beside her, olive, with a front pocket and a strap slumped over it. The origin is on the seat. */
+/** His own bag on the bench beside him: a messenger bag with a flap, its strap slumped over it. The origin is on the seat. */
 function benchBag() {
-  const body = "M-17 -2C-19 -20-15 -40 1 -42C17 -40 21 -20 19 -2C19 0 17 0 15 0L-13 0C-15 0-17 0-17 -2Z";
   return (
-    `<path d="M-6 -40C-4 -54 8 -54 9 -40" fill="none" stroke="${V("olive2")}" stroke-width="3.4" stroke-linecap="round"/>` +
-    cloth(body, V("olive")) +
-    fill("M-17 -26C-10 -31 12 -31 19 -26L19 -22C11 -27-10 -27-17 -22Z", V("olive2")) +
-    cloth("M-11 -2C-12 -10-9 -16 1 -16C11 -16 14 -10 13 -2Z", V("olive2")) +
-    line("M-5 -9L7 -9", 1.4, V("mustard")) +
-    `<path d="M15 -36C25 -28 24 -12 18 -4" fill="none" stroke="${V("olive2")}" stroke-width="3.2" stroke-linecap="round"/>`
+    `<path d="M-14 -24C-10 -44 12 -46 17 -26" fill="none" stroke="${V("denim3")}" stroke-width="3.2" stroke-linecap="round"/>` +
+    fill("M-19 -24Q-19 -27-16 -27L17 -27Q20 -27 20 -24L20 -2Q20 0 18 0L-17 0Q-19 0-19 -2Z", V("denim")) +
+    fill("M-20 -27Q-20 -29.6-17 -29.6L18 -29.6Q21 -29.6 21 -27L20 -12Q19.6 -9.6 17 -9.6L-16.6 -9.6Q-19 -9.6-19.4 -12Z", V("denim2")) +
+    line("M-17 -13L18 -13", 0.8, V("denim3")) +
+    rect(-3, -14.4, 7, 7, 1.6, V("cream")) +
+    rect(-1.2, -12.6, 3.4, 3.4, 0.8, V("denim2")) +
+    fill("M-19 -6L20 -6L20 -2Q20 0 18 0L-17 0Q-19 0-19 -2Z", V("denim3"), ' opacity="0.5"')
   );
 }
 
@@ -622,25 +540,25 @@ function benchBag() {
 function bag() {
   return (
     groundShadow(0, 1, 20, 3.4) +
-    line("M-8 -36Q0 -50 8 -36", 4, V("terra2")) +
-    cloth("M-16 -4C-17 -22-13.6 -38 0 -39C13.6 -38 17 -22 16 -4C16 -1 12.6 0 9 0L-9 0C-12.6 0-16 -1-16 -4Z", V("terra")) +
-    fill("M-11 -3C-12 -12-9 -18 0 -18C9 -18 12 -12 11 -3C10.8 -1.4 9.2 -0.8 7.6 -0.8L-7.6 -0.8C-9.2 -0.8-10.8 -1.4-11 -3Z", V("terra2")) +
+    line("M-8 -36Q0 -50 8 -36", 4, V("coral2")) +
+    fill("M-16 -4C-17 -22-13.6 -38 0 -39C13.6 -38 17 -22 16 -4C16 -1 12.6 0 9 0L-9 0C-12.6 0-16 -1-16 -4Z", V("coral")) +
+    fill("M-11 -3C-12 -12-9 -18 0 -18C9 -18 12 -12 11 -3C10.8 -1.4 9.2 -0.8 7.6 -0.8L-7.6 -0.8C-9.2 -0.8-10.8 -1.4-11 -3Z", V("coral2")) +
     line("M-6 -29L6 -29", 2, V("cream")) +
     line("M-4 -10L4 -10", 1.2, V("cream"), ' opacity="0.8"') +
-    line("M-15 -9Q-21 -2-29 -1.4", 3.4, V("terra2"))
+    line("M-15 -9Q-21 -2-29 -1.4", 3.4, V("coral2"))
   );
 }
 
 /**
  * Standing by the sign, worried: weight on one leg, a hand at his chin, his phone in the other hand, looking down the road
- * for a bus that should be here by now. Glasses, a teal jacket with a mustard collar over a white tee, brown trousers. His bag is on the
+ * for a bus that should be here by now. Glasses, an orange overshirt over a white tee, dark chinos. His bag is on the
  * pavement against the sign's pole.
  */
 function worrier() {
   const skin = V("skin-d");
   const skin2 = V("skin-d2");
-  const front = plant("sneaker", V("mustard"), 14, 2, "flat");
-  const back = plant("sneaker", V("mustard"), -2, -3, "flat");
+  const front = plant("sneaker", V("teal"), 14, 2, "flat");
+  const back = plant("sneaker", V("teal"), -2, -3, "flat");
   const farLeg = legPts([-4, -94], back.ankle, 3);
   const nearLeg = legPts([5, -94], front.ankle, 0.5);
   const legW = [20, 17, 15.4];
@@ -650,24 +568,23 @@ function worrier() {
   const nearFore = [[-1, -120], [12, -136], [17, -151]];
   const out = [];
   out.push(groundShadow(6, 1.5, 28));
-  out.push(dressedLeg(farLeg, legW, { cloth: V("brown2"), sock: V("white"), shoe: back, crease: 0.4 }));
+  out.push(dressedLeg(farLeg, legW, { cloth: V("ink2"), sock: V("mustard"), shoe: back, crease: 0.4 }));
   // far arm, phone in hand
-  out.push(cloth(band(farArm, [11, 9.6, 8.6], { start: "round" }), V("teal2")) + line(cuff(farArm, [11, 9.6, 8.6], 3), 0.9));
+  out.push(fill(band(farArm, [11, 9.6, 8.6], { start: "round" }), V("orange2")) + line(cuff(farArm, [11, 9.6, 8.6], 3), 0.9));
   out.push(at(18, -94, 8, rect(-4.4, -2, 8.8, 15, 2, V("phone"))));
   out.push(hand("grip", 16.4, -102, -6, skin2));
-  out.push(dressedLeg(nearLeg, legW, { cloth: V("brown"), sock: V("white"), shoe: front }));
-  out.push(fill("M-14.4 -104L15.4 -104L17 -86L-15.4 -86Z", V("brown")));
+  out.push(dressedLeg(nearLeg, legW, { cloth: V("ink"), sock: V("mustard"), shoe: front }));
+  out.push(fill("M-14.4 -104L15.4 -104L17 -86L-15.4 -86Z", V("ink")));
   // tee and the open overshirt
   out.push(fill(torso, V("white")));
-  out.push(cloth("M-14.2 -150C-9.4 -155.6 0 -156 2 -155L-2 -100L-14 -100C-16.2 -118-17.4 -136-14.2 -150Z", V("teal")));
-  out.push(cloth("M9.4 -154.6C11.6 -154 13.4 -152.4 14.6 -150C17.2 -136 16.8 -118 15.2 -100L10.6 -100C11.4 -118 12 -136 9.4 -154.6Z", V("teal2")));
-  // the mustard collar and the zip
-  out.push(fill("M-9 -155L2 -155L-3.6 -142Z", V("mustard")) + fill("M9.4 -154.6L13.8 -152L11 -144Z", V("mustard2")));
-  out.push(line("M-1.4 -142L-2 -101", 0.9, V("teal2")));
+  out.push(fill("M-14.2 -150C-9.4 -155.6 0 -156 2 -155L-2 -100L-14 -100C-16.2 -118-17.4 -136-14.2 -150Z", V("orange")));
+  out.push(fill("M9.4 -154.6C11.6 -154 13.4 -152.4 14.6 -150C17.2 -136 16.8 -118 15.2 -100L10.6 -100C11.4 -118 12 -136 9.4 -154.6Z", V("orange2")));
+  out.push(line("M-13 -138L1 -138M-13.6 -124L-0.4 -124M-13.4 -110L-1 -110M-8 -152L-8.6 -101", 0.7, V("orange2"), ' opacity="0.9"'));
+  out.push(line("M-0.6 -154L-4.6 -144L0.4 -138", 1, V("orange2")));
   out.push(castShadow(torso, band(nearFore, [9.8, 8.6, 7.6], { start: "round" })));
   // near arm up, hand at his chin
-  out.push(cloth(band(nearUpper, [12.4, 11], { start: "round", end: "round" }), V("teal")));
-  out.push(cloth(band(nearFore, [9.8, 8.6, 7.6], { start: "round" }), V("teal")) + line(cuff(nearFore, [9.8, 8.6, 7.6], 3), 0.9));
+  out.push(fill(band(nearUpper, [12.4, 11], { start: "round", end: "round" }), V("orange")));
+  out.push(fill(band(nearFore, [9.8, 8.6, 7.6], { start: "round" }), V("orange")) + line(cuff(nearFore, [9.8, 8.6, 7.6], 3), 0.9));
   out.push(fill("M-2.6 -164L5.4 -164L6 -152L-3.2 -152Z", skin2));
   out.push(head(4, -177, { skin, skin2, mood: "worried", tilt: -6, glasses: true, ...HAIR.tidy(V("hair-b"), V("hair-b2")) }));
   out.push(hand("rest", 17.4, -151, 166, skin));
@@ -700,112 +617,27 @@ function farTower(x, w, h, kind = 0) {
   return s;
 }
 
-/** A building of the campus, one step nearer: a warm stone body, a brick parapet and band, a halftone side, rows of windows (a few lit at night). */
+/** A building of the campus, one step nearer: a body, a parapet, a halftone side, rows of windows (a few lit at night). */
 function campus(x, w, h, cols, rows, { side = 18, dots = true } = {}) {
   const top = BASE - h;
-  let s = rect(x, top, w, h + 2, 2, V("mid")) + speck(`M${x} ${top}h${w}v${h + 2}h${-w}Z`) + rect(x + w, top + 6, side, h - 4, 1, V("mid2"));
+  let s = rect(x, top, w, h + 2, 2, V("mid")) + rect(x + w, top + 6, side, h - 4, 1, V("mid2"));
   if (dots) s += rect(x + w, top + 6, side, h - 4, 1, "url(#s-dots)");
-  s += rect(x - 4, top - 8, w + 8, 10, 2, V("brick")) + rect(x, BASE - 22, w, 8, 0, V("brick"), ' opacity="0.85"');
+  s += rect(x - 4, top - 8, w + 8, 10, 2, V("mid2"));
   const gx = (w - 16) / cols;
   const gy = (h - 40) / rows;
   for (let r = 0; r < rows; r++) for (let k = 0; k < cols; k++) s += rect(x + 8 + k * gx + 3, top + 14 + r * gy, gx - 7, gy - 8, 1.5, rand() > 0.55 ? V("lit") : V("win"));
   return s;
 }
 
-const circlePath = (cx, cy, r) => `M${n(cx - r)} ${n(cy)}a${n(r)} ${n(r)} 0 1 0 ${n(2 * r)} 0a${n(r)} ${n(r)} 0 1 0 ${n(-2 * r)} 0Z`;
-
-/** A leaf as a pointed oval, [len] long, pointing [deg] from (x, y). */
-const leaf = (x, y, len, deg, colour, w = 0.38) => at(x, y, deg, fill(`M0 0Q${n(len * 0.5)} ${n(-len * w)} ${n(len)} 0Q${n(len * 0.5)} ${n(len * w)} 0 0Z`, colour));
-
-/** A round leafy tree: clustered blobs of two greens, speckled, a few leaves at the edge, its brown trunk set into the ground. */
-function tree(cx, r, h = r * 1.4, ground = BASE) {
-  const top = ground - h;
-  const blobs = [
-    [cx, top - r * 0.2, r, "tree"],
-    [cx - r * 0.72, top + r * 0.32, r * 0.64, "tree"],
-    [cx + r * 0.72, top + r * 0.28, r * 0.68, "tree2"],
-    [cx + r * 0.25, top - r * 0.75, r * 0.5, "tree"],
-  ];
-  let s = fill(`M${cx - 4} ${ground + 2}L${cx - 3} ${top}L${cx + 3} ${top}L${cx + 4} ${ground + 2}Z`, V("trunk"));
-  for (const [x, y, rr, c] of blobs) s += fill(circlePath(x, y, rr), V(c)) + speck(circlePath(x, y, rr));
-  // a darker underside and a few leaves sticking out of the outline
-  s += fill(`M${n(cx - r * 1.2)} ${n(top + r * 0.5)}Q${cx} ${n(top + r * 1.1)} ${n(cx + r * 1.3)} ${n(top + r * 0.5)}Q${cx} ${n(top + r * 0.85)} ${n(cx - r * 1.2)} ${n(top + r * 0.5)}Z`, V("tree3"), ' opacity="0.5"');
-  for (let k = 0; k < 7; k++) {
-    const a = -150 + k * 28;
-    const rad = (a * Math.PI) / 180;
-    s += leaf(cx + Math.cos(rad) * r * 0.98, top - r * 0.2 + Math.sin(rad) * r * 0.98, r * 0.32, a, V(k % 2 ? "tree" : "tree2"));
-  }
-  return s;
-}
-
-/** The big tree at the left of the street, nearer than the town: a thick trunk with two limbs and a wide leafy crown. */
-function bigTree(cx) {
-  const crownY = GROUND - 226;
-  let s = groundShadow(cx + 10, GROUND + 1, 60, 6);
-  s += fill(`M${cx - 18} ${GROUND + 2}C${cx - 14} ${GROUND - 80} ${cx - 16} ${GROUND - 160} ${cx - 34} ${crownY + 40}L${cx - 18} ${crownY + 30}C${cx - 2} ${crownY + 80} ${cx + 4} ${crownY + 90} ${cx + 22} ${crownY + 40}L${cx + 34} ${crownY + 50}C${cx + 18} ${GROUND - 160} ${cx + 16} ${GROUND - 80} ${cx + 22} ${GROUND + 2}Z`, V("trunk"));
-  s += fill(`M${cx + 4} ${GROUND + 2}C${cx + 8} ${GROUND - 80} ${cx + 6} ${GROUND - 150} ${cx + 22} ${crownY + 40}L${cx + 34} ${crownY + 50}C${cx + 18} ${GROUND - 160} ${cx + 16} ${GROUND - 80} ${cx + 22} ${GROUND + 2}Z`, V("trunk2"));
-  const blobs = [
-    [cx - 70, crownY + 10, 62, "tree2"], [cx + 70, crownY + 4, 66, "tree2"], [cx, crownY - 30, 82, "tree"],
-    [cx - 96, crownY - 40, 48, "tree"], [cx + 104, crownY - 46, 50, "tree"], [cx - 30, crownY - 96, 52, "tree"], [cx + 48, crownY - 92, 50, "tree2"],
-    [cx - 40, crownY + 26, 48, "tree"], [cx + 30, crownY + 30, 44, "tree"],
-  ];
-  for (const [x, y, rr, c] of blobs) s += fill(circlePath(x, y, rr), V(c)) + speck(circlePath(x, y, rr));
-  // leaves and a few lighter flecks of light across the crown
-  seed = 57;
-  for (let k = 0; k < 46; k++) {
-    const a = rand() * Math.PI * 2;
-    const d = 30 + rand() * 110;
-    const x = cx + Math.cos(a) * d * 1.05;
-    const y = crownY - 30 + Math.sin(a) * d * 0.62;
-    s += leaf(x, y, 12 + rand() * 9, rand() * 360, V(rand() > 0.5 ? "tree3" : "tree2"));
-  }
-  return s;
-}
-
-/** A palm: a curving ringed trunk and a crown of long fronds. */
-function palm(x, h, lean = 1) {
+/** A round tree in two tones, its trunk set into the ground. */
+function tree(cx, r, h = r * 1.4) {
   const top = BASE - h;
-  let s = "";
-  const trunk = [[x, BASE + 2], [x + 6 * lean, BASE - h * 0.5], [x + 16 * lean, top]];
-  s += fill(band(trunk, [9, 7.4, 6]), V("trunk"));
-  for (let k = 1; k < 9; k++) s += line(cuff(trunk, [9, 7.4, 6], (h / 9) * k), 1, V("trunk2"));
-  const cx = x + 16 * lean;
-  [-160, -125, -90, -55, -20, 15, -195].forEach((a, i) => {
-    const rad = (a * Math.PI) / 180;
-    const len = 46 + (i % 3) * 6;
-    const tip = [cx + Math.cos(rad) * len, top + Math.sin(rad) * len * 0.55 + 18];
-    const mid = [cx + Math.cos(rad) * len * 0.5, top + Math.sin(rad) * len * 0.5 - 6];
-    s += fill(band([[cx, top], mid, tip], [10, 9, 1], { start: "round" }), V(i % 2 ? "palm" : "tree2"));
-  });
-  return s;
-}
-
-/** A leafy plant in a bottom corner, nearer than everything: broad pointed leaves fanning up. [flip] -1 fans to the left. */
-function cornerPlant(x, baseY, flip = 1) {
-  let s = "";
-  [[-70, 120, "tree3"], [-50, 150, "tree2"], [-28, 170, "tree"], [-8, 140, "palm"], [14, 118, "tree2"], [36, 96, "mustard"]].forEach(([deg, len, c], i) => {
-    const rad = ((deg - 90) * Math.PI) / 180;
-    const tip = [x + Math.cos(rad) * len * flip, baseY + Math.sin(rad) * len];
-    const mid = [x + Math.cos(rad) * len * 0.5 * flip + 8 * flip, baseY + Math.sin(rad) * len * 0.5];
-    const d = band([[x, baseY], mid, tip], [10, 26 - i, 1]);
-    s += fill(d, V(c)) + speck(d) + line(`M${x} ${baseY}Q${n(mid[0])} ${n(mid[1])} ${n(tip[0])} ${n(tip[1])}`, 1, V("tree3"), ' opacity="0.5"');
-  });
-  return s;
-}
-
-/** A few birds over the hills. The sun, the moon and the clouds belong to the page's own sky (Sky.tsx), so the scene has none. */
-function birds() {
-  let s = "";
-  [[1290, 168, 1], [1316, 186, 0.8], [1346, 160, 0.9], [1550, 200, 0.7], [380, 150, 0.8], [408, 164, 0.7]].forEach(([x, y, k]) => (s += line(`M${x} ${y}q${5 * k} ${-6 * k} ${10 * k} 0q${5 * k} ${-6 * k} ${10 * k} 0`, 1.8, V("bird"))));
-  return s;
-}
-
-/** Hills behind the town: two soft sage ridges. */
-function hills() {
   return (
-    fill(`M780 ${BASE}C900 ${BASE - 80} 980 ${BASE - 120} 1080 ${BASE - 110}C1180 ${BASE - 100} 1240 ${BASE - 170} 1360 ${BASE - 150}C1460 ${BASE - 136} 1540 ${BASE - 96} 1620 ${BASE - 110}L1620 ${BASE}Z`, V("hill")) +
-    fill(`M-20 ${BASE}C80 ${BASE - 70} 200 ${BASE - 96} 320 ${BASE - 70}C420 ${BASE - 50} 520 ${BASE - 90} 640 ${BASE - 40}L660 ${BASE}Z`, V("hill2")) +
-    fill(`M980 ${BASE}C1100 ${BASE - 60} 1220 ${BASE - 70} 1320 ${BASE - 50}C1420 ${BASE - 30} 1520 ${BASE - 60} 1620 ${BASE - 40}L1620 ${BASE}Z`, V("hill2"))
+    rect(cx - 3.5, top, 7, h + 2, 2, V("struct"), ' opacity="0.55"') +
+    `<circle cx="${cx}" cy="${top - r * 0.2}" r="${r}" fill="${V("tree")}"/>` +
+    `<circle cx="${cx - r * 0.7}" cy="${top + r * 0.35}" r="${r * 0.62}" fill="${V("tree")}"/>` +
+    `<circle cx="${cx + r * 0.72}" cy="${top + r * 0.3}" r="${r * 0.66}" fill="${V("tree2")}"/>` +
+    `<path d="M${cx + r * 0.2} ${top - r * 0.9}A${r} ${r} 0 0 1 ${cx + r} ${top - r * 0.2}A${r * 0.66} ${r * 0.66} 0 0 1 ${cx + r * 1.38} ${top + r * 0.3}" fill="none" stroke="${V("tree2")}" stroke-width="0"/>`
   );
 }
 
@@ -814,8 +646,8 @@ function planter(x, w) {
   let bush = "";
   for (let k = x + 8; k < x + w - 4; k += 22) {
     const r = 13 + ((k * 7) % 6);
-    bush += fill(circlePath(k, BASE + 4 - r * 0.4, r), V("bush")) + speck(circlePath(k, BASE + 4 - r * 0.4, r));
-    bush += fill(circlePath(k + 9, BASE + 6 - r * 0.2, r * 0.7), V("bush2"));
+    bush += `<circle cx="${k}" cy="${BASE + 4 - r * 0.4}" r="${r}" fill="${V("bush")}"/>`;
+    bush += `<circle cx="${k + 9}" cy="${BASE + 6 - r * 0.2}" r="${r * 0.7}" fill="${V("bush2")}"/>`;
   }
   return (
     clipped(`M${x - 4} ${BASE - 60}H${x + w + 4}V${BASE + 8}H${x - 4}Z`, bush) +
@@ -874,7 +706,6 @@ function shelterFront({ L, R, roofY }) {
   s.push(fill(`M${R - 8} ${roofY + 40}L${R - 36} ${roofY + 58}L${R - 36} ${GROUND - 66}L${R - 8} ${GROUND - 44}Z`, V("struct2")));
   s.push(fill(`M${R - 12} ${roofY + 48}L${R - 32} ${roofY + 61}L${R - 32} ${GROUND - 70}L${R - 12} ${GROUND - 52}Z`, V("ad")));
   s.push(fill(`M${R - 14} ${roofY + 78}L${R - 30} ${roofY + 88}L${R - 30} ${roofY + 128}L${R - 14} ${roofY + 120}Z`, V("roof"), ' opacity="0.9"'));
-  s.push(fill(`M${R - 13} ${roofY + 150}C${R - 24} ${roofY + 140} ${R - 20} ${roofY + 170} ${R - 31} ${roofY + 166}L${R - 31} ${roofY + 190}C${R - 22} ${roofY + 192} ${R - 24} ${roofY + 170} ${R - 13} ${roofY + 176}Z`, V("mustard"), ' opacity="0.85"'));
   s.push(fill(`M${R - 15} ${roofY + 138}L${R - 29} ${roofY + 146}L${R - 29} ${roofY + 150}L${R - 15} ${roofY + 142}Z`, V("struct"), ' opacity="0.5"'));
   // front posts with their feet, and the roof
   s.push(rect(L, roofY + 22, 11, GROUND - roofY - 24, 2, V("struct")) + rect(R - 11, roofY + 22, 11, GROUND - roofY - 24, 2, V("struct")));
@@ -910,28 +741,10 @@ function sign(x) {
   );
 }
 
-/** The fleck tile: a few lighter and darker specks at random, repeated. Laid over a fill, it gives the stippled grain. */
-function speckPattern() {
-  let dots = "";
-  let r = 77;
-  const next = () => {
-    r = (r * 1103515245 + 12345) >>> 0;
-    return (r & 0xffff) / 0xffff;
-  };
-  for (let i = 0; i < 26; i++) {
-    const light = next() > 0.42;
-    dots += `<circle cx="${n2(next() * 40)}" cy="${n2(next() * 40)}" r="${n2(0.55 + next() * 0.95)}" fill="${light ? V("speck-l") : V("speck-d")}" opacity="${light ? 0.45 : 0.16}"/>`;
-  }
-  return `<pattern id="s-speck" width="40" height="40" patternUnits="userSpaceOnUse">${dots}</pattern>`;
-}
-
 function scene() {
   clipCount = 0;
   seed = 31;
   const layers = [];
-
-  // 0. Birds and the hills (the page draws the sky itself).
-  layers.push(birds() + hills());
 
   // 1. The far town: one continuous pale skyline.
   let far = "";
@@ -941,20 +754,15 @@ function scene() {
     [756, 66, 140, 0], [818, 58, 220, 1], [872, 80, 160, 0], [948, 62, 250, 1], [1006, 70, 180, 0], [1072, 56, 140, 1],
     [1124, 84, 230, 0], [1204, 60, 170, 1], [1260, 72, 270, 0], [1328, 66, 160, 1], [1390, 84, 210, 0], [1470, 56, 150, 1],
     [1522, 78, 240, 0],
-  ]
-    // the right half stays open: hills under the sky, the way the reference scene breathes
-    .filter(([x]) => x < 860)
-    .forEach(([x, w, h, k]) => (far += farTower(x, w, h, k)));
+  ].forEach(([x, w, h, k]) => (far += farTower(x, w, h, k)));
   layers.push(far);
 
   // 2. The campus, a step nearer, and its clock tower, with trees in front.
   let mid = campus(36, 170, 150, 5, 4) + campus(300, 120, 112, 4, 3) + campus(1110, 150, 130, 5, 3) + campus(1380, 180, 166, 6, 4);
-  // the clock tower in brick blocks
-  mid += rect(1300, BASE - 268, 56, 270, 2, V("brick")) + speck(`M1300 ${BASE - 268}h56v270h-56Z`) + rect(1300, BASE - 268, 18, 270, 2, V("brick2"), ' opacity="0.6"');
-  mid += fill(`M1290 ${BASE - 266}L1328 ${BASE - 318}L1366 ${BASE - 266}Z`, V("brick2"));
+  mid += rect(1300, BASE - 268, 56, 270, 2, V("mid")) + fill(`M1290 ${BASE - 266}L1328 ${BASE - 318}L1366 ${BASE - 266}Z`, V("mid2"));
   mid += `<circle cx="1328" cy="${BASE - 232}" r="17" fill="${V("lit")}"/>` + line(`M1328 ${BASE - 232}V${BASE - 243}M1328 ${BASE - 232}L1337 ${BASE - 227}`, 2.6, V("struct"));
   for (let i = 0; i < 4; i++) mid += rect(1320, BASE - 190 + i * 44, 16, 22, 2, i % 2 ? V("lit") : V("win"));
-  mid += tree(470, 26) + tree(600, 34, 46) + tree(1080, 28) + palm(1250, 150, -1) + palm(1560, 170) + palm(1600, 130, -1);
+  mid += tree(250, 30) + tree(470, 26) + tree(600, 34, 46) + tree(1080, 28) + tree(1270, 32) + tree(1590, 30);
   layers.push(mid);
 
   // 3. The street: planters, the pavement, the curb and the road melting into the page.
@@ -968,7 +776,6 @@ function scene() {
   street += line(`M0 ${BASE + 130}H1600`, 5, V("lane"), ' stroke-dasharray="50 40"');
   street += rect(0, BASE + 98, 1600, 82, 0, "url(#s-fade)");
   street += lamp(560) + lamp(1440);
-  street += bigTree(120);
   layers.push(street);
 
   // 4. The shelter with the student on the bench and his bag beside him, the sign, and a backpack set down against its pole.
@@ -985,13 +792,9 @@ function scene() {
   const put = (x, svg) => `<g transform="translate(${x} ${GROUND}) scale(${P})">${svg}</g>`;
   layers.push(put(250, chatter()) + put(340, laugher()) + put(1180, worrier()));
 
-  // 6. Leafy plants in the bottom corners, nearest of all (cut away on a phone).
-  layers.push(cornerPlant(40, GROUND + 140) + cornerPlant(1560, GROUND + 140, -1));
-
   const defs =
     `<defs>` +
     `<pattern id="s-dots" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1.1" fill="${V("dots")}"/></pattern>` +
-    speckPattern() +
     `<radialGradient id="s-glow"><stop offset="0" stop-color="#ffd98f" stop-opacity="0.55"/><stop offset="0.45" stop-color="#ffd98f" stop-opacity="0.18"/><stop offset="1" stop-color="#ffd98f" stop-opacity="0"/></radialGradient>` +
     `<linearGradient id="s-fade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--bg);stop-opacity:0"/><stop offset="1" style="stop-color:var(--bg);stop-opacity:1"/></linearGradient>` +
     `</defs>`;

@@ -18,7 +18,6 @@ import {
   UserMultiple02Icon,
 } from "@hugeicons/core-free-icons";
 
-import { BusStopScene } from "@/components/landing/BusStopScene";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Avatar } from "@/components/ui/Avatar";
@@ -43,7 +42,6 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { DataTable, Head, TableCard, Td, Th, Tr } from "@/components/ui/Table";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { requireAdmin } from "@/lib/auth";
-import { landingCatalogues } from "@/lib/i18n/landing";
 import { AA_TEXT, contrastRatio } from "@/lib/ui/contrast";
 import { RADIUS, innerRadius } from "@/lib/ui/radius";
 import { DARK as dark, LIGHT as light, TEXT_PAIRS } from "@/lib/ui/tokens";
@@ -388,9 +386,27 @@ async function Styleguide() {
       <Section {...sectionProps("imagery")}>
         <h3 className="mb-3 text-lg font-bold">People illustrations</h3>
         <p className="mb-4 max-w-2xl text-sm text-muted">{PEOPLE_STYLE.intro}</p>
-        <div className="overflow-hidden rounded-lg bg-surface shadow-soft">
-          <BusStopScene chips={landingCatalogues.en.hero.chips} />
+        <div className="grid gap-3 sm:grid-cols-[2fr_1fr]">
+          <figure className="relative m-0 aspect-[1600/791] overflow-hidden rounded-lg bg-surface-2">
+            <Image
+              src="/styleguide/references/people-scene.webp"
+              alt="Reference: students at a bus stop in front of a campus, drawn flat with a stippled grain, in mustard, terracotta, teal and greens"
+              fill
+              sizes="(min-width: 640px) 66vw, 100vw"
+              className="object-cover"
+            />
+          </figure>
+          <figure className="relative m-0 aspect-[900/604] overflow-hidden rounded-lg bg-white sm:aspect-auto">
+            <Image
+              src="/styleguide/references/people-character.webp"
+              alt="Reference: a student walking with a long swinging braid, hoop earrings, a mustard sweater, a pleated teal skirt and a striped tote"
+              fill
+              sizes="(min-width: 640px) 33vw, 100vw"
+              className="object-contain"
+            />
+          </figure>
         </div>
+        <p className="mt-2 text-xs text-muted">{PEOPLE_STYLE.referenceNote}</p>
         <ul className="m-0 mt-4 grid list-none gap-2 p-0 text-sm sm:grid-cols-2">
           {PEOPLE_STYLE.rules.map((rule) => (
             <li key={rule} className="rounded-md bg-surface-2 p-4">
