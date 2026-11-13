@@ -9,6 +9,7 @@ import { Notice } from "@/components/ui/Notice";
 import { Select } from "@/components/ui/Select";
 import type { StudentCopy } from "@/lib/i18n/student";
 import { saveSetup, type SetupState } from "@/lib/student/onboarding";
+import Link from "next/link";
 
 export type Academics = {
   faculties: { id: string; name: string }[];
@@ -20,8 +21,25 @@ export type Academics = {
  * Name, student number and phone (required), then faculty, department and program (optional), as the app's setup screen.
  * The faculty only narrows the department list; it is not stored.
  */
-export function SetupForm({ copy, fields, academics, initial }: { copy: StudentCopy["setup"]; fields: StudentCopy["fields"]; academics: Academics; initial: SetupState["values"] }) {
-  const [state, action, pending] = useActionState<SetupState, FormData>(saveSetup, { problems: {}, error: null, values: initial });
+export function SetupForm({
+  copy,
+  fields,
+  academics,
+  initial,
+  save = saveSetup,
+  submitLabel,
+  cancel,
+}: {
+  copy: StudentCopy["setup"];
+  fields: StudentCopy["fields"];
+  academics: Academics;
+  initial: SetupState["values"];
+  /** The setup gate by default; the profile passes its own action. */
+  save?: (previous: SetupState, formData: FormData) => Promise<SetupState>;
+  submitLabel?: string;
+  cancel?: { href: string; label: string };
+}) {
+  const [state, action, pending] = useActionState<SetupState, FormData>(save, { problems: {}, error: null, values: initial });
   const [faculty, setFaculty] = useState(state.values.faculty);
   const [department, setDepartment] = useState(state.values.department);
   const departments = academics.departments.filter((d) => d.facultyId === faculty);
@@ -74,8 +92,13 @@ export function SetupForm({ copy, fields, academics, initial }: { copy: StudentC
         />
       ) : null}
       <Button type="submit" className="mt-2 h-14 w-full text-base" disabled={pending}>
-        {copy.save}
+        {submitLabel ?? copy.save}
       </Button>
+      {cancel ? (
+        <Link href={cancel.href} className="inline-flex h-12 items-center justify-center rounded-sm font-semibold text-fg no-underline hover:bg-surface-2">
+          {cancel.label}
+        </Link>
+      ) : null}
     </form>
   );
 }

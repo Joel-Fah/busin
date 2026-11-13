@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
 import { checkFullName, checkMatricule, checkPhone, normalizePhone, type FieldProblem } from "./profile";
-import { currentAccess, requireGate } from "./session";
+import { currentAccess, requireGate, requireStudent } from "./session";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -51,12 +51,8 @@ export type SetupState = {
   values: { fullName: string; matricule: string; phone: string; faculty: string; department: string; program: string };
 };
 
-/**
- * Saves the details a verified student must give before using the app: name, student number and phone, and optionally
- * department and program. The student may only change these columns (the update grant); RLS limits it to their own row.
- */
-export async function saveSetup(_previous: SetupState, formData: FormData): Promise<SetupState> {
-  const { profile } = await requireGate("needsSetup");
+/** Reads and checks the details form; null problems means it may be saved. */
+function readDetails(formData: FormData): { values: SetupState["values"]; problems: SetupState["problems"] } {
   const text = (name: string) => {
     const value = formData.get(name);
     return typeof value === "string" ? value : "";
@@ -76,8 +72,11 @@ export async function saveSetup(_previous: SetupState, formData: FormData): Prom
   if (name) problems.fullName = name;
   if (matricule) problems.matricule = matricule;
   if (phone) problems.phone = phone;
-  if (Object.keys(problems).length > 0) return { problems, error: null, values };
+  return { values, problems };
+}
 
+/** Writes the details. The student may only change these columns (the update grant); RLS limits it to their own row. */
+async function writeDetails(profileId: string, values: SetupState["values"]): Promise<boolean> {
   const supabase = await createClient();
   const { error } = await supabase
     .from("profiles")
@@ -88,7 +87,27 @@ export async function saveSetup(_previous: SetupState, formData: FormData): Prom
       department_id: UUID.test(values.department) ? values.department : null,
       program_id: UUID.test(values.program) ? values.program : null,
     })
-    .eq("id", profile.id);
-  if (error) return { problems: {}, error: "failed", values };
+    .eq("id", profileId);
+  return !error;
+}
+
+/**
+ * Saves the details a verified student must give before using the app: name, student number and phone, and optionally
+ * department and program.
+ */
+export async function saveSetup(_previous: SetupState, formData: FormData): Promise<SetupState> {
+  const { profile } = await requireGate("needsSetup");
+  const { values, problems } = readDetails(formData);
+  if (Object.keys(problems).length > 0) return { problems, error: null, values };
+  if (!(await writeDetails(profile.id, values))) return { problems: {}, error: "failed", values };
   redirect("/app/subscription");
+}
+
+/** The same details, changed later from the profile. */
+export async function saveProfile(_previous: SetupState, formData: FormData): Promise<SetupState> {
+  const student = await requireStudent();
+  const { values, problems } = readDetails(formData);
+  if (Object.keys(problems).length > 0) return { problems, error: null, values };
+  if (!(await writeDetails(student.userId, values))) return { problems: {}, error: "failed", values };
+  redirect("/app/profile?saved=1");
 }
