@@ -17,6 +17,7 @@ import { format } from "@/lib/i18n/format";
 import { getStudentCopy } from "@/lib/i18n/server";
 import { requireStudent } from "@/lib/student/session";
 import { createClient } from "@/lib/supabase/server";
+import { Contour } from "@/components/ui/Contour";
 
 export const metadata: Metadata = { title: "Profile" };
 export const instant = false;
@@ -64,7 +65,8 @@ async function Profile({ searchParams }: { searchParams: SearchParams }) {
         </div>
       </Card>
 
-      <section aria-labelledby="details-title" className="flex flex-col gap-3 rounded-lg bg-surface p-5 shadow-soft">
+      <section aria-labelledby="details-title" className="flex flex-col gap-3 relative rounded-lg bg-surface p-5 shadow-soft">
+        <Contour radius={28} inset={10} />
         <div className="flex items-center justify-between gap-3">
           <h2 id="details-title" className="m-0 text-lg font-bold">
             {m.details}

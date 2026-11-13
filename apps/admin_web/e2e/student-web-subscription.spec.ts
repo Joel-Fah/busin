@@ -71,6 +71,11 @@ test("sees the approval arrive live and is offered the boarding code", async ({ 
   await expect(page.getByText("Your subscription was approved.")).toBeVisible();
   await expect(page.getByTestId("status-card")).toContainText("You are subscribed");
   await expect(page.getByRole("link", { name: "Show boarding code" })).toHaveAttribute("href", "/app/code");
+  // The proof opens over the page at its own size, not on another page.
+  await page.getByTestId("proof-thumbnail").click();
+  await expect(page.getByTestId("proof-full")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByTestId("proof-full")).toBeHidden();
 });
 
 test("after a revocation reads the school's reason and can ask again", async ({ page, context }) => {

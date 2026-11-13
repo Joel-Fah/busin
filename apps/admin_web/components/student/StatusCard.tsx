@@ -3,9 +3,11 @@ import Link from "next/link";
 
 import { Icon } from "@/components/ui/Icon";
 import { Chip } from "@/components/ui/Chip";
+import { ProofViewer } from "@/components/student/ProofViewer";
 import { format } from "@/lib/i18n/format";
 import type { StudentCopy } from "@/lib/i18n/student";
 import { stageOf, type SubscriptionRow } from "@/lib/student/subscription";
+import { Contour } from "@/components/ui/Contour";
 
 const TONE = { pending: "warn", approved: "ok", rejected: "bad", revoked: "bad", expired: "neutral" } as const;
 
@@ -35,7 +37,8 @@ export function StatusCard({
   const stages = [copy.stages.sent, copy.stages.checking, copy.stages.decided];
 
   return (
-    <section className="flex flex-col gap-4 rounded-lg bg-surface p-5 shadow-soft" aria-labelledby="status-title" data-testid="status-card">
+    <section className="flex flex-col gap-4 relative rounded-lg bg-surface p-5 shadow-soft" aria-labelledby="status-title" data-testid="status-card">
+      <Contour radius={28} inset={10} />
       <div className="flex flex-wrap items-center justify-between gap-2">
         <Chip tone={TONE[status]}>{copy.status[status]}</Chip>
         <span className="text-sm text-muted">{format(copy.sent, { date: sentOn })}</span>
@@ -71,11 +74,7 @@ export function StatusCard({
           <p className="m-0 truncate font-bold">{stopName}</p>
         </div>
         {proofUrl ? (
-          <a href={proofUrl} target="_blank" rel="noopener noreferrer" className="shrink-0 rounded-sm focus-visible:outline-3 focus-visible:outline-focus">
-            {/* A signed address from the private bucket, valid for ten minutes. */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={proofUrl} alt={copy.proofLabel} className="size-20 rounded-sm object-cover" />
-          </a>
+          <ProofViewer url={proofUrl} label={copy.proofLabel} close={copy.close} />
         ) : subscription.proof_path ? (
           <p className="m-0 max-w-40 text-xs text-muted">{copy.proofUnavailable}</p>
         ) : null}

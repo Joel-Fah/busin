@@ -85,7 +85,7 @@ async function Subscription({ searchParams }: { searchParams: SearchParams }) {
 
   if (!semester) {
     return (
-      <main lang={locale} className="mx-auto flex w-full max-w-[640px] flex-col gap-5 px-4 pt-[max(1.5rem,env(safe-area-inset-top))] pb-36 sm:px-6">
+      <main lang={locale} className="student-in mx-auto flex w-full max-w-[640px] flex-col gap-5 px-4 pt-[max(1.5rem,env(safe-area-inset-top))] pb-36 sm:px-6">
         <Banner eyebrow={longDate} title={greeting} lines={[]} art="semester" />
         <EmptyState title={c.noSemesterTitle} body={c.noSemesterBody} />
       </main>
@@ -112,7 +112,7 @@ async function Subscription({ searchParams }: { searchParams: SearchParams }) {
   const known = Object.fromEntries(rows.map((r) => [r.id, r.status]));
 
   return (
-    <main lang={locale} className="mx-auto flex w-full max-w-[640px] flex-col gap-5 px-4 pt-[max(1.5rem,env(safe-area-inset-top))] pb-36 sm:px-6">
+    <main lang={locale} className="student-in mx-auto flex w-full max-w-[640px] flex-col gap-5 px-4 pt-[max(1.5rem,env(safe-area-inset-top))] pb-36 sm:px-6">
       <LiveSubscriptions studentId={student.userId} known={known} copy={c.live} />
       <Banner eyebrow={longDate} title={greeting} lines={lines} art={art} />
       {showForm ? (

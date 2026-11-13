@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import type { StudentCopy } from "@/lib/i18n/student";
 import { disablePush, enablePush, pushState, type PushState } from "@/lib/student/push";
+import { Contour } from "@/components/ui/Contour";
 
 const noSubscription = () => () => {};
 
@@ -28,7 +29,8 @@ export function PushOptIn({ copy, locale, compact = false }: { copy: StudentCopy
   const text = now === "denied" ? copy.denied : now === "needsInstall" ? copy.needsInstall : now === "unsupported" ? copy.unsupported : now === "on" ? copy.on : copy.body;
 
   return (
-    <section aria-labelledby="push-title" className="flex flex-col gap-3 rounded-lg bg-surface p-5 shadow-soft" data-testid="push-opt-in">
+    <section aria-labelledby="push-title" className="flex flex-col gap-3 relative rounded-lg bg-surface p-5 shadow-soft" data-testid="push-opt-in">
+      <Contour radius={28} inset={10} />
       <div className="flex items-start gap-3">
         <span className="grid size-10 shrink-0 place-items-center rounded-sm bg-seed text-white">
           <Icon icon={Notification03Icon} size={20} />

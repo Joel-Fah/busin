@@ -37,7 +37,7 @@ Done, as stacked PRs into `dev` (merge in order): ADR 0021 (#390), shell, sign-i
 
 Owner, before it goes live:
 - set `NEXT_PUBLIC_GOOGLE_CLIENT_ID` (the Google web client id Supabase uses) on Vercel and in `.env.local`, and add the site (and `http://127.0.0.1:3000`) to that client's Authorized JavaScript origins; until then the sign-in button uses the redirect flow;
-- for web push: register a Firebase web app with a Web Push key, set the `NEXT_PUBLIC_FIREBASE_*` values on Vercel and in `.env.local`, set the `send-push` secret `PUSH_WEB_BASE_URL`, approve the hosted migration `20261115140000_web_push` and the `send-push` redeploy (docs/guides/push-setup.md, section 4);
+- web push is set up (2026-11-13): Firebase web app "BusIn Web" with its Web Push key, the five `NEXT_PUBLIC_FIREBASE_*` values on Vercel (Production and Preview) and in `.env.local`, `PUSH_WEB_BASE_URL=https://busin-navy.vercel.app` on the functions, the hosted migration `20261115140000_web_push` applied and `send-push` redeployed. It works on the site once these PRs reach `main` and Vercel rebuilds;
 - run the student specs against a production build: `E2E_PROD=1 E2E_PORT=3100 npx playwright test e2e/student-web*.spec.ts` (the dev server forces reloads on these pages, and only a production build registers the service worker).
 
 ## Handoff: revoke push (2026-11-13)

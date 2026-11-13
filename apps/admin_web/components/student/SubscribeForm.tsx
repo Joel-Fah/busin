@@ -13,6 +13,7 @@ import type { StudentCopy } from "@/lib/i18n/student";
 import { prepareProof } from "@/lib/student/proof-image";
 import { proofPath, subscribeProblem, uploadProblem, type SubscribeProblem } from "@/lib/student/subscription";
 import { browserClient } from "@/lib/supabase/browser";
+import { Contour } from "@/components/ui/Contour";
 
 export type StopOption = { id: string; name: string };
 
@@ -110,7 +111,8 @@ export function SubscribeForm({ copy, semesterId, schoolId, studentId, stops }: 
   };
 
   return (
-    <section className="flex flex-col gap-4 rounded-lg bg-surface p-5 shadow-soft" aria-labelledby="subscribe-intro">
+    <section className="flex flex-col gap-4 relative rounded-lg bg-surface p-5 shadow-soft" aria-labelledby="subscribe-intro">
+      <Contour radius={28} inset={10} />
       <p id="subscribe-intro" className="m-0 text-muted">
         {copy.intro}
       </p>

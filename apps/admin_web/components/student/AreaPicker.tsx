@@ -14,6 +14,7 @@ import { format } from "@/lib/i18n/format";
 import type { StudentCopy } from "@/lib/i18n/student";
 import { roundCoordinate } from "@/lib/student/area";
 import { browserClient } from "@/lib/supabase/browser";
+import { Contour } from "@/components/ui/Contour";
 
 type Place = { kind: string; label: string; lat: number; lng: number };
 type Chosen = { lat: number; lng: number; label: string; source: "device" | "search" };
@@ -95,7 +96,8 @@ export function AreaPicker({ copy, current }: { copy: StudentCopy["area"]; curre
   return (
     <div className="flex flex-col gap-4">
       {current ? (
-        <section className="flex items-center gap-4 rounded-lg bg-surface p-5 shadow-soft">
+        <section className="flex items-center gap-4 relative rounded-lg bg-surface p-5 shadow-soft">
+          <Contour radius={28} inset={10} />
           <span className="grid size-11 shrink-0 place-items-center rounded-sm bg-seed text-white">
             <Icon icon={Home01Icon} size={20} />
           </span>
@@ -109,7 +111,8 @@ export function AreaPicker({ copy, current }: { copy: StudentCopy["area"]; curre
       {problem ? <Notice tone="warn">{problem}</Notice> : null}
 
       {chosen ? (
-        <section className="flex flex-col gap-4 rounded-lg bg-surface p-5 shadow-soft">
+        <section className="flex flex-col gap-4 relative rounded-lg bg-surface p-5 shadow-soft">
+          <Contour radius={28} inset={10} />
           <Input id="area-name" label={copy.nameLabel} placeholder={copy.nameHint} icon={Home01Icon} value={name} onChange={(event) => setName(event.target.value)} maxLength={60} />
           <p className="m-0 text-sm text-muted">{copy.rounded}</p>
           <div className="flex flex-wrap gap-2">
@@ -123,7 +126,8 @@ export function AreaPicker({ copy, current }: { copy: StudentCopy["area"]; curre
         </section>
       ) : (
         <>
-          <section className="flex flex-col gap-3 rounded-lg bg-surface p-5 shadow-soft">
+          <section className="flex flex-col gap-3 relative rounded-lg bg-surface p-5 shadow-soft">
+            <Contour radius={28} inset={10} />
             <Input id="area-search" type="search" label={copy.search} icon={Search01Icon} value={query} onChange={(event) => setQuery(event.target.value)} autoComplete="off" />
             {places !== null && query.trim().length >= 2 ? (
               places.length === 0 ? (
@@ -150,7 +154,8 @@ export function AreaPicker({ copy, current }: { copy: StudentCopy["area"]; curre
             ) : null}
             <p className="m-0 text-xs text-muted">{copy.osm}</p>
           </section>
-          <section className="flex flex-col gap-3 rounded-lg bg-surface p-5 shadow-soft">
+          <section className="flex flex-col gap-3 relative rounded-lg bg-surface p-5 shadow-soft">
+            <Contour radius={28} inset={10} />
             <p className="m-0 font-bold">{copy.atHome}</p>
             <Button variant="secondary" icon={Location01Icon} onClick={() => setAsking(true)}>
               {copy.useLocation}

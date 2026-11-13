@@ -12,6 +12,7 @@ import { requireStudent } from "@/lib/student/session";
 import { setStreaks } from "@/lib/student/settings";
 import { createClient } from "@/lib/supabase/server";
 import { todayInZone } from "@/lib/zoned";
+import { Contour } from "@/components/ui/Contour";
 
 export const metadata: Metadata = { title: "Streaks" };
 export const instant = false;
@@ -48,7 +49,8 @@ async function Streaks() {
   return (
     <StudentPage lang={locale} title={k.title} subtitle={k.hint}>
       {!on ? (
-        <section className="flex flex-col gap-4 rounded-lg bg-surface p-5 shadow-soft">
+        <section className="flex flex-col gap-4 relative rounded-lg bg-surface p-5 shadow-soft">
+          <Contour radius={28} inset={10} />
           <Image src="/illustrations/bus.webp" alt="" width={96} height={96} className="size-24 object-contain" />
           <h2 className="m-0 text-xl font-bold">{k.onTitle}</h2>
           <p className="m-0 text-muted">{format(k.onBody, { name: firstName(student.fullName) || student.fullName })}</p>
@@ -74,7 +76,8 @@ async function Streaks() {
             )}
           </section>
           {semesterId ? (
-            <section aria-labelledby="board-title" className="flex flex-col gap-3 rounded-lg bg-surface p-5 shadow-soft">
+            <section aria-labelledby="board-title" className="flex flex-col gap-3 relative rounded-lg bg-surface p-5 shadow-soft">
+              <Contour radius={28} inset={10} />
               <div>
                 <h2 id="board-title" className="m-0 text-lg font-bold">
                   {k.board}

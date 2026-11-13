@@ -8,6 +8,7 @@ import { Notice } from "@/components/ui/Notice";
 import { format } from "@/lib/i18n/format";
 import type { StudentCopy } from "@/lib/i18n/student";
 import { saveNotifications, type SettingsState } from "@/lib/student/settings";
+import { Contour } from "@/components/ui/Contour";
 
 export type Preferences = { ridingDays: number; busNearOn: boolean; busNearMinutes: number; boardingOn: boolean };
 
@@ -21,7 +22,8 @@ export function NotificationSettings({ copy, initial }: { copy: StudentCopy["not
 
   return (
     <form action={action} className="flex flex-col gap-4">
-      <fieldset className="m-0 flex flex-col gap-3 rounded-lg border-0 bg-surface p-5 shadow-soft">
+      <fieldset className="m-0 flex flex-col gap-3 relative rounded-lg border-0 bg-surface p-5 shadow-soft">
+        <Contour radius={28} inset={10} />
         <legend className="float-left mb-1 p-0 text-lg font-bold">{copy.days}</legend>
         <p className="clear-both m-0 text-sm text-muted">{copy.daysHint}</p>
         <div className="grid grid-cols-7 gap-1.5">
@@ -36,7 +38,8 @@ export function NotificationSettings({ copy, initial }: { copy: StudentCopy["not
         </div>
       </fieldset>
 
-      <section className="flex flex-col gap-4 rounded-lg bg-surface p-5 shadow-soft">
+      <section className="flex flex-col gap-4 relative rounded-lg bg-surface p-5 shadow-soft">
+        <Contour radius={28} inset={10} />
         <Switch name="busNear" label={copy.busNear} hint={copy.busNearHint} checked={busNear} onChange={(event) => setBusNear(event.target.checked)} />
         {busNear ? (
           <div role="radiogroup" aria-label={copy.busNear} className="flex flex-wrap gap-2">

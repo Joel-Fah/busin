@@ -130,6 +130,14 @@ export async function signInBrowser(context: BrowserContext, user: TestUser): Pr
   if (error) throw new Error(`sign-in failed: ${error.message}`);
 
   await context.addCookies(captured.map(({ name, value }) => ({ name, value, url: BASE_URL })));
+  // The student web app welcomes a first visit with a modal (ADR 0021); tests that are not about it start as returning visitors.
+  await context.addInitScript(() => {
+    try {
+      window.localStorage.setItem("busin-welcomed", "1");
+    } catch {
+      // No storage: the welcome would show, and only the welcome test expects it.
+    }
+  });
 }
 
 /** Creates a subscription request for a student, as the app would (status starts as pending). */

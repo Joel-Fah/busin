@@ -1,4 +1,4 @@
-import { Bus01Icon, Download04Icon, GlobeIcon, Location01Icon, PlayStoreIcon, QrCodeIcon, Tick02Icon, UserGroupIcon } from "@hugeicons/core-free-icons";
+import { Bus01Icon, DownloadCircle01Icon, GlobeIcon, Location01Icon, PlayStoreIcon, QrCodeIcon, Tick02Icon, UserGroupIcon } from "@hugeicons/core-free-icons";
 import type { ReactNode } from "react";
 
 import { ButtonLink } from "@/components/ui/Button";
@@ -134,12 +134,12 @@ export function DownloadSection({ copy, day, links }: { copy: LandingCopy["downl
               </ButtonLink>
             ) : null}
             {links.apk ? (
-              <ButtonLink href={links.apk} icon={Download04Icon} variant={links.play ? "secondary" : "primary"}>
+              <ButtonLink href={links.apk} icon={DownloadCircle01Icon} variant={links.play ? "secondary" : "primary"}>
                 {s.apk}
               </ButtonLink>
             ) : null}
             {links.ios ? (
-              <ButtonLink href={links.ios} icon={Download04Icon} variant={links.play || links.apk ? "secondary" : "primary"}>
+              <ButtonLink href={links.ios} icon={DownloadCircle01Icon} variant={links.play || links.apk ? "secondary" : "primary"}>
                 {s.ios}
               </ButtonLink>
             ) : null}

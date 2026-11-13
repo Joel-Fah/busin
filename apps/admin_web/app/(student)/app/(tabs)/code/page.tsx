@@ -11,6 +11,7 @@ import { getStudentCopy } from "@/lib/i18n/server";
 import { requireStudent } from "@/lib/student/session";
 import { createClient } from "@/lib/supabase/server";
 import { todayInZone } from "@/lib/zoned";
+import { Contour } from "@/components/ui/Contour";
 
 export const metadata: Metadata = { title: "Boarding code" };
 export const instant = false;
@@ -47,7 +48,7 @@ async function Code() {
 
   return (
     <StudentPage lang={locale} title={c.title} subtitle={c.hint}>
-      <BoardingCode copy={c} studentId={student.userId} name={student.fullName} matricule={student.matricule} timeZone={student.schoolTimezone} approved={approved} validUntil={semester?.end_date ?? null} />
+      <BoardingCode copy={c} studentId={student.userId} name={student.fullName} matricule={student.matricule} timeZone={student.schoolTimezone} approved={approved} validUntil={semester?.end_date ?? null} locale={locale} />
       {approved ? (
         <>
           <p className="m-0 flex items-start gap-3 rounded-md bg-surface-2 p-4 text-sm">
@@ -57,7 +58,8 @@ async function Code() {
               <span className="text-muted">{c.privateBody}</span>
             </span>
           </p>
-          <section aria-labelledby="board-title" className="flex flex-col gap-4 rounded-lg bg-surface p-5 shadow-soft">
+          <section aria-labelledby="board-title" className="flex flex-col gap-4 relative rounded-lg bg-surface p-5 shadow-soft">
+            <Contour radius={28} inset={10} />
             <div className="flex items-center justify-between gap-3">
               <h2 id="board-title" className="m-0 text-lg font-bold">
                 {c.boardTitle}

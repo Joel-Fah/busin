@@ -1,15 +1,21 @@
+import { Accordion } from "@/components/ui/Accordion";
+import { Chip } from "@/components/ui/Chip";
+import { Contour } from "@/components/ui/Contour";
 import { format } from "@/lib/i18n/format";
 import type { StudentCopy } from "@/lib/i18n/student";
 import type { buildRequestHistory } from "@/lib/student/subscription";
 
+const TONE = { pending: "warn", approved: "ok", rejected: "bad", revoked: "bad", expired: "neutral" } as const;
+
 /**
- * "Your requests this semester", as in the app: one fold per request, the latest open, and inside it everything that
- * happened, the latest first, with the school's note when it gave one.
+ * "Your requests this semester", as in the app: one fold per request, the latest open, easing open and shut (the portal's
+ * accordion), and inside it everything that happened, the latest first, on a little timeline, with the school's note.
  */
 export function RequestHistory({ copy, history, dateOf, timeOf }: { copy: StudentCopy["subscription"]; history: ReturnType<typeof buildRequestHistory>; dateOf: (iso: string) => string; timeOf: (iso: string) => string }) {
   if (history.length === 0) return null;
   return (
-    <section aria-labelledby="requests-title" className="flex flex-col gap-3">
+    <section aria-labelledby="requests-title" className="relative flex flex-col gap-3 rounded-lg bg-surface p-6 shadow-soft">
+      <Contour radius={28} inset={10} />
       <div>
         <h2 id="requests-title" className="m-0 text-lg font-bold">
           {copy.requestsTitle}
@@ -17,21 +23,33 @@ export function RequestHistory({ copy, history, dateOf, timeOf }: { copy: Studen
         <p className="m-0 text-sm text-muted">{copy.requestsHint}</p>
       </div>
       {history.map(({ subscription, events }, index) => (
-        <details key={subscription.id} open={index === 0} className="rounded-md bg-surface p-4 shadow-soft">
-          <summary className="flex cursor-pointer items-center justify-between gap-3 font-semibold">
-            <span>{format(copy.requestOf, { date: dateOf(subscription.created_at) })}</span>
-            <span className="text-sm font-normal text-muted">{copy.status[subscription.status]}</span>
-          </summary>
-          <ol className="m-0 mt-3 flex list-none flex-col gap-3 p-0">
-            {events.map((event) => (
-              <li key={event.id} className="flex flex-col gap-0.5 border-0">
-                <span className="text-sm font-semibold">{copy.events[event.action]}</span>
-                <span className="text-xs text-muted">{timeOf(event.created_at)}</span>
-                {event.note?.trim() ? <span className="text-sm text-muted">{event.note}</span> : null}
+        <Accordion
+          key={subscription.id}
+          name="requests"
+          defaultOpen={index === 0}
+          summary={
+            <span className="flex items-center justify-between gap-3">
+              <span className="font-semibold">{format(copy.requestOf, { date: dateOf(subscription.created_at) })}</span>
+              <Chip tone={TONE[subscription.status]}>{copy.status[subscription.status]}</Chip>
+            </span>
+          }
+        >
+          <ol className="m-0 flex list-none flex-col gap-0 p-0">
+            {events.map((event, i) => (
+              <li key={event.id} className="relative flex gap-3 pb-3 last:pb-0">
+                <span aria-hidden className="relative flex w-3 shrink-0 justify-center">
+                  <span className={`mt-1.5 size-2.5 rounded-full ${i === 0 ? "bg-accent" : "bg-muted/50"}`} />
+                  {i < events.length - 1 ? <span className="absolute top-4 bottom-[-0.25rem] w-0.5 rounded-xs bg-line" /> : null}
+                </span>
+                <span className="flex min-w-0 flex-col gap-0.5">
+                  <span className="text-sm font-semibold">{copy.events[event.action]}</span>
+                  <span className="text-xs text-muted">{timeOf(event.created_at)}</span>
+                  {event.note?.trim() ? <span className="text-sm text-muted">{event.note}</span> : null}
+                </span>
               </li>
             ))}
           </ol>
-        </details>
+        </Accordion>
       ))}
     </section>
   );

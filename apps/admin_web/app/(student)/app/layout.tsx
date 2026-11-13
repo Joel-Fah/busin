@@ -1,6 +1,11 @@
 import type { Metadata, Viewport } from "next";
 
+import { Suspense } from "react";
+
+import { FirstOpen } from "@/components/student/FirstOpen";
 import { ServiceWorker } from "@/components/student/ServiceWorker";
+import { getStudentCopy } from "@/lib/i18n/server";
+import { downloads } from "@/lib/landing/downloads";
 import { RoughFilter } from "@/components/ui/RoughFilter";
 
 /**
@@ -40,6 +45,16 @@ export default function StudentAppLayout({ children }: { children: React.ReactNo
       <ServiceWorker />
       <RoughFilter />
       {children}
+      <Suspense fallback={null}>
+        <Welcome />
+      </Suspense>
     </>
   );
+}
+
+/** The first-open welcome and the "better in the app" sheet, in the visitor's language, with the app links of the landing. */
+async function Welcome() {
+  const { s } = await getStudentCopy();
+  const links = downloads();
+  return <FirstOpen welcome={s.welcome} appSheet={s.appSheet} links={{ android: links.play ?? links.apk, ios: links.ios }} />;
 }
