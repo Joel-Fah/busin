@@ -66,7 +66,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               const SizedBox(height: BusinSpace.x8),
               BusinButton(
                 label: l10n.signInWithGoogle,
-                icon: HugeIcons.strokeRoundedGoogle,
+                leading: const GoogleMark(),
                 expand: true,
                 loading: _busy,
                 onPressed: _busy ? null : _signIn,
