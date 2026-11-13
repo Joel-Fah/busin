@@ -1,5 +1,7 @@
 import { Suspense } from "react";
 
+import { OfflineBanner } from "@/components/student/OfflineBanner";
+import { SessionOwner } from "@/components/student/SessionOwner";
 import { TabBar } from "@/components/student/TabBar";
 import { getStudentCopy } from "@/lib/i18n/server";
 import { requireStudent } from "@/lib/student/session";
@@ -17,10 +19,12 @@ export default function TabsLayout({ children }: { children: React.ReactNode }) 
 
 /** The four tabs of a verified student with their details in. Anyone else is sent to their gate first. */
 async function Tabs({ children }: { children: React.ReactNode }) {
-  await requireStudent();
+  const student = await requireStudent();
   const { s } = await getStudentCopy();
   return (
     <>
+      <SessionOwner userId={student.userId} />
+      <OfflineBanner text={s.offline.banner} />
       {children}
       <TabBar copy={s.nav} />
     </>
