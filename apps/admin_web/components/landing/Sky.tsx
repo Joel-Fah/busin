@@ -45,9 +45,30 @@ function Cloud({ y, s, o }: { y: number; s: number; o: number }) {
   );
 }
 
+/** The moon: where it hangs, its seas (dark plains, blurred) and a few craters, offsets from its centre. */
+const MOON = {
+  x: 1240,
+  y: 170,
+  r: 38,
+  seas: [
+    [-11, -9, 14, 10],
+    [8, -14, 9, 7],
+    [12, 5, 11, 9],
+    [-3, 13, 8, 6],
+    [-19, 5, 6, 5],
+  ] as const,
+  craters: [
+    [15, 23, 3.2],
+    [-21, -16, 2.4],
+    [3, -26, 1.9],
+    [24, -5, 2.2],
+    [-8, 27, 1.6],
+  ] as const,
+};
+
 /**
  * The sky behind the top of the page. By day: soft clouds drifting very slowly across, never stopping, and a pale sun. By
- * night: a field of stars, some fading in and out, a few shooting stars now and then, and a thin moon. Decoration only; it
+ * night: a field of stars, some fading in and out, a few shooting stars now and then, and a full moon with its seas and craters. Decoration only; it
  * fades in. The page's colours decide which one shows, and a visitor who asked for less motion gets it still.
  */
 export function Sky() {
@@ -84,11 +105,22 @@ export function Sky() {
             <stop offset="0" stopColor="#fff" stopOpacity="0.95" />
             <stop offset="1" stopColor="#fff" stopOpacity="0" />
           </linearGradient>
-          <mask id="crescent">
-            <rect width="1600" height="700" fill="black" />
-            <circle cx="1240" cy="170" r="34" fill="white" />
-            <circle cx="1254" cy="160" r="30" fill="black" />
-          </mask>
+          {/* The full moon: lit a little from the upper left, darker towards its edge. */}
+          <radialGradient id="moon-face" cx="0.42" cy="0.38" r="0.66">
+            <stop offset="0" stopColor="#fdfaee" />
+            <stop offset="0.62" stopColor="#ece6cf" />
+            <stop offset="1" stopColor="#c4bda4" />
+          </radialGradient>
+          <clipPath id="moon-disc">
+            <circle cx={MOON.x} cy={MOON.y} r={MOON.r} />
+          </clipPath>
+          <filter id="moon-soft" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="2.4" />
+          </filter>
+          <filter id="moon-grain" x="0" y="0" width="100%" height="100%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="7" />
+            <feColorMatrix type="matrix" values="0 0 0 0 0.35  0 0 0 0 0.33  0 0 0 0 0.27  0 0 0 1.4 -0.55" />
+          </filter>
         </defs>
         {STARS.map((star, index) => (
           <circle
@@ -111,7 +143,21 @@ export function Sky() {
           </g>
         ))}
         <circle cx="1240" cy="170" r="160" fill="url(#moonglow)" />
-        <rect width="1600" height="700" fill="#f1efe0" mask="url(#crescent)" />
+        <g clipPath="url(#moon-disc)">
+          <circle cx={MOON.x} cy={MOON.y} r={MOON.r} fill="url(#moon-face)" />
+          <g filter="url(#moon-soft)" fill="#8d8774" opacity="0.38">
+            {MOON.seas.map(([dx, dy, rx, ry], index) => (
+              <ellipse key={index} cx={MOON.x + dx} cy={MOON.y + dy} rx={rx} ry={ry} />
+            ))}
+          </g>
+          {MOON.craters.map(([dx, dy, r], index) => (
+            <g key={index}>
+              <circle cx={MOON.x + dx} cy={MOON.y + dy} r={r} fill="#aaa38b" opacity="0.55" />
+              <circle cx={MOON.x + dx + r * 0.25} cy={MOON.y + dy + r * 0.25} r={r * 0.85} fill="none" stroke="#fffbea" strokeWidth="0.7" opacity="0.55" />
+            </g>
+          ))}
+          <rect x={MOON.x - MOON.r} y={MOON.y - MOON.r} width={MOON.r * 2} height={MOON.r * 2} filter="url(#moon-grain)" opacity="0.5" />
+        </g>
       </svg>
     </div>
   );

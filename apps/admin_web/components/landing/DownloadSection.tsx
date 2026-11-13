@@ -12,10 +12,13 @@ import { Laptop, Phone, Tablet } from "./devices/Devices";
 import { InterestButton } from "./interest/Interest";
 import { Reveal } from "./motion/Reveal";
 
-/** A card with its words on top and its devices rising from the bottom edge, cut off by it. */
+/**
+ * A card with its words on top and its devices rising from the bottom edge, cut off by it. Pointing at the card lifts the
+ * devices a little and spreads them apart (MOVE, below); for reduced motion they stay where they are.
+ */
 function DeviceCard({ title, text, badge, actions, devices }: { title: string; text: string; badge?: string; actions: ReactNode; devices: ReactNode }) {
   return (
-    <Reveal className="relative flex flex-col overflow-hidden rounded-xl bg-surface shadow-soft [--thread-color:var(--color-line)]">
+    <Reveal className="group/card relative flex flex-col overflow-hidden rounded-xl bg-surface shadow-soft transition-shadow duration-(--dur) ease-soft [--thread-color:var(--color-line)] hover:shadow-float">
       <Contour radius={36} inset={10} />
       <div className="relative flex flex-col gap-4 p-8 sm:p-10">
         <div className="flex flex-wrap items-center gap-3">
@@ -29,6 +32,15 @@ function DeviceCard({ title, text, badge, actions, devices }: { title: string; t
     </Reveal>
   );
 }
+
+/** How each device moves when the card is pointed at: up a little, and away from the device beside it. */
+const MOVE = {
+  base: "transition-[translate,rotate] duration-(--dur-slow) ease-soft",
+  phoneLeft: "motion-safe:group-hover/card:-translate-x-5 motion-safe:group-hover/card:-translate-y-3 motion-safe:group-hover/card:-rotate-6",
+  phoneRight: "motion-safe:group-hover/card:translate-x-5 motion-safe:group-hover/card:-translate-y-5 motion-safe:group-hover/card:rotate-6",
+  laptop: "motion-safe:group-hover/card:translate-x-[18%] motion-safe:group-hover/card:-translate-y-3",
+  tablet: "motion-safe:group-hover/card:-translate-x-5 motion-safe:group-hover/card:-translate-y-4 motion-safe:group-hover/card:-rotate-4",
+};
 
 /** The driver's view on a tablet: today's trip, its stops, and a big start button. Shapes and icons only. */
 function TripScreen() {
@@ -136,10 +148,10 @@ export function DownloadSection({ copy, day, links }: { copy: LandingCopy["downl
         }
         devices={
           <div className="absolute inset-x-0 top-6 flex justify-center">
-            <Phone kind="android" time="7:05" className="w-[14rem] -rotate-3 sm:w-[15rem]">
+            <Phone kind="android" time="7:05" className={`w-[14rem] -rotate-3 sm:w-[15rem] ${MOVE.base} ${MOVE.phoneLeft}`}>
               <DayScreen index={1} copy={day} />
             </Phone>
-            <Phone kind="iphone" time="7:22" className="relative z-10 -ml-9 mt-12 hidden w-[15rem] rotate-3 sm:block">
+            <Phone kind="iphone" time="7:22" className={`relative z-10 -ml-9 mt-12 hidden w-[15rem] rotate-3 sm:block ${MOVE.base} ${MOVE.phoneRight}`}>
               <DayScreen index={2} copy={day} />
             </Phone>
           </div>
@@ -155,11 +167,11 @@ export function DownloadSection({ copy, day, links }: { copy: LandingCopy["downl
         }
         devices={
           <div className="absolute inset-x-0 top-8 flex justify-center">
-            <Laptop className="w-[34rem] translate-x-[14%] sm:w-[38rem]">
+            <Laptop className={`w-[34rem] translate-x-[14%] sm:w-[38rem] ${MOVE.base} ${MOVE.laptop}`}>
               <OfficeScreen />
             </Laptop>
             <div className="absolute left-[3%] top-28 sm:left-[5%] sm:top-32">
-              <Tablet className="w-[16rem] -rotate-2 sm:w-[19rem]">
+              <Tablet className={`w-[16rem] -rotate-2 sm:w-[19rem] ${MOVE.base} ${MOVE.tablet}`}>
                 <TripScreen />
               </Tablet>
             </div>

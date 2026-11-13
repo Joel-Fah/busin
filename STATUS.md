@@ -31,6 +31,10 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: landing touches (2026-11-13)
+
+Done: #383 (PR below): Get BusIn devices lift and spread on hover; a full textured moon at night. Next: the owner merges into `dev`.
+
 ## Handoff: ops trips, offline, no-splash fix (2026-11-13)
 
 Done (four stacked PRs into `dev`, top first: #357 ops screens, #355 database, #353 ops offline, #351 no-splash fix):
