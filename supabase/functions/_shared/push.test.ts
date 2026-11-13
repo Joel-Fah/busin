@@ -167,3 +167,25 @@ test("secrets are compared in full, whatever their length", () => {
   assert.equal(sameSecret("short", "a-much-longer-value"), false);
   assert.equal(sameSecret("", "x"), false);
 });
+
+test("a browser gets a web message that opens the right page of the student web app", () => {
+  const message = buildMessage(token(1), "bus_near_stop", "trip-1", "en", "web", "https://busin.example");
+  assert.equal(message.message.notification.title, "Your bus is almost here");
+  assert.deepEqual(message.message.data, { kind: "bus_near_stop", ref_id: "trip-1" });
+  assert.ok(!("android" in message.message) && !("apns" in message.message));
+  const webpush = (message.message as { webpush: { fcm_options?: { link: string }; notification: { icon?: string } } }).webpush;
+  assert.equal(webpush.fcm_options?.link, "https://busin.example/app/bus");
+  assert.equal(webpush.notification.icon, "https://busin.example/app-icons/icon-192.png");
+});
+
+test("a web message without a valid https address has no link", () => {
+  for (const base of [undefined, "http://busin.example", "https://busin.example/path", "javascript:alert(1)"]) {
+    const webpush = (buildMessage(token(1), "subscription_revoked", "s", "fr", "web", base).message as { webpush: { fcm_options?: unknown } }).webpush;
+    assert.equal(webpush.fcm_options, undefined);
+  }
+});
+
+test("phones keep their Android and Apple blocks", () => {
+  const message = buildMessage(token(1), "subscription_approved", "s", "en", "ios");
+  assert.ok("android" in message.message && "apns" in message.message);
+});
