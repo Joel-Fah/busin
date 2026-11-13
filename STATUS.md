@@ -33,11 +33,12 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 
 ## Handoff: student web app (in progress, 2026-11-13)
 
-ADR 0021 (#389, PR #390), slice 1 (shell, sign-in, install), slice 2 (join, waiting, setup), slice 3 (subscription), slice 4 (boarding code), slice 5 (My bus), slice 6 (profile) and slice 7 (offline) are up as stacked PRs into `dev`. Next: web push, landing link.
+ADR 0021 (#389, PR #390), slice 1 (shell, sign-in, install), slice 2 (join, waiting, setup), slice 3 (subscription), slice 4 (boarding code), slice 5 (My bus), slice 6 (profile), slice 7 (offline) and slice 8 (web push) are up as stacked PRs into `dev`. Next: landing link.
 
 Owner, before it goes live:
 - set `NEXT_PUBLIC_GOOGLE_CLIENT_ID` (the Google web client id Supabase uses) on Vercel and in `.env.local`, and add the site (and `http://127.0.0.1:3000`) to that client's Authorized JavaScript origins; until then the sign-in button uses the redirect flow;
-- run the student spec against a production build: `E2E_PROD=1 E2E_PORT=3100 npx playwright test e2e/student-web.spec.ts` (the dev server forces reloads on these pages).
+- for web push: register a Firebase web app with a Web Push key, set the `NEXT_PUBLIC_FIREBASE_*` values on Vercel and in `.env.local`, set the `send-push` secret `PUSH_WEB_BASE_URL`, approve the hosted migration `20261115140000_web_push` and the `send-push` redeploy (docs/guides/push-setup.md, section 4);
+- run the student specs against a production build: `E2E_PROD=1 E2E_PORT=3100 npx playwright test e2e/student-web*.spec.ts` (the dev server forces reloads on these pages, and only a production build registers the service worker).
 
 ## Handoff: revoke push (2026-11-13)
 

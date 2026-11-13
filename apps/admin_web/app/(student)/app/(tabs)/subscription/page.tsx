@@ -4,6 +4,7 @@ import { Suspense } from "react";
 
 import { Banner } from "@/components/student/Banner";
 import { LiveSubscriptions } from "@/components/student/LiveSubscriptions";
+import { PushOptIn } from "@/components/student/PushOptIn";
 import { RequestHistory } from "@/components/student/RequestHistory";
 import { StatusCard } from "@/components/student/StatusCard";
 import { SubscribeForm } from "@/components/student/SubscribeForm";
@@ -126,6 +127,8 @@ async function Subscription({ searchParams }: { searchParams: SearchParams }) {
           requestAgainHref={isLive(subscription!.status) ? null : "/app/subscription?again=1"}
         />
       )}
+      {/* The moment there is something to wait for is the moment to offer to tell them. */}
+      {!showForm && subscription?.status === "pending" ? <PushOptIn copy={s.push} locale={locale} compact /> : null}
       <RequestHistory copy={c} history={history} dateOf={dateOf} timeOf={timeOf} />
     </main>
   );

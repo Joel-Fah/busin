@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { NotificationSettings } from "@/components/student/NotificationSettings";
+import { PushOptIn } from "@/components/student/PushOptIn";
 import { StudentPage } from "@/components/student/StudentPage";
 import { Notice } from "@/components/ui/Notice";
 import { getStudentCopy } from "@/lib/i18n/server";
@@ -27,6 +28,7 @@ async function Notifications() {
   const now = data?.[0];
   return (
     <StudentPage lang={locale} title={s.notifications.title} subtitle={s.notifications.hint}>
+      <PushOptIn copy={s.push} locale={locale} />
       {error || !now ? (
         <Notice tone="bad">{s.notifications.failed}</Notice>
       ) : (
