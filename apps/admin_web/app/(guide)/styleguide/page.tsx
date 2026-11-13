@@ -20,6 +20,7 @@ import {
 
 import { BusStopScene } from "@/components/landing/BusStopScene";
 import { Button, ButtonLink } from "@/components/ui/Button";
+import { GoogleMark } from "@/components/ui/GoogleMark";
 import { Card } from "@/components/ui/Card";
 import { Avatar } from "@/components/ui/Avatar";
 import { Chip } from "@/components/ui/Chip";
@@ -493,6 +494,15 @@ async function Styleguide() {
           </ButtonLink>
         </div>
         <p className="mt-3 max-w-2xl text-sm text-muted">{note("Buttons")}</p>
+        <div className="mt-4">
+          <Button>
+            <span className="inline-flex items-center gap-2.5">
+              <GoogleMark />
+              Continue with Google
+            </span>
+          </Button>
+        </div>
+        <p className="mt-3 max-w-2xl text-sm text-muted">{note("Sign in with Google")}</p>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Chips</h3>
         <div className="flex flex-wrap gap-2">

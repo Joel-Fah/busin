@@ -300,6 +300,9 @@ class _GoogleBannerState extends State<_GoogleBanner> {
                       padding: const EdgeInsets.symmetric(horizontal: BusinSpace.x6, vertical: BusinSpace.x5),
                       child: Row(
                         children: [
+                          // Google's own mark, as its brand rules ask for a sign-in with Google.
+                          const GoogleMark(size: 26),
+                          const SizedBox(width: BusinSpace.x3),
                           Expanded(child: Text(widget.label, style: text.titleMedium?.copyWith(color: ink, fontWeight: FontWeight.w800))),
                           if (widget.busy)
                             SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.5, color: ink))

@@ -265,6 +265,10 @@ export const THREE_D: [string, string][] = [
 /** How each component behaves, in the words the page uses under its demo. */
 export const COMPONENT_NOTES: { name: string; note: string }[] = [
   { name: "Buttons", note: "Primary (accent), secondary, ghost and danger, with an optional icon; a disabled button stays readable. A link that looks like a button is ButtonLink. Labels are verbs that say what happens: Save stop, not Submit." },
+  {
+    name: "Sign in with Google",
+    note: "The sign-in button carries Google's own four-colour G on a small white disc (GoogleMark), never a generic icon, as Google's brand rules ask; the label says what happens in the page's language. The student and ops apps use the same mark (GoogleMark in busin_ui).",
+  },
   { name: "Chips", note: "A short state label in a tone: neutral, accent, ok (Approved), warn (Pending), bad (Rejected), info (Running). The label always carries the meaning; the tone only supports it." },
   {
     name: "Tags",
