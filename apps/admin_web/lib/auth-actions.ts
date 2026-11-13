@@ -1,8 +1,9 @@
 "use server";
 
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+import { SIGN_IN_FROM_COOKIE } from "@/lib/sign-in-from";
 import { createClient } from "@/lib/supabase/server";
 
 /** The public address of this site, used to tell Google where to send the user back. */
@@ -16,8 +17,13 @@ async function siteUrl(): Promise<string> {
   return `${protocol}://${host}`;
 }
 
-/** Starts Google sign-in. The browser returns to /auth/callback with a one-time code. */
-export async function signInWithGoogle(): Promise<void> {
+/**
+ * Starts Google sign-in. The browser returns to /auth/callback with a one-time code. A form from the student web app
+ * sends `from=app`, so an error comes back to its own sign-in page; where a signed-in person lands is decided by role.
+ */
+export async function signInWithGoogle(formData?: FormData): Promise<void> {
+  const fromApp = formData?.get("from") === "app";
+  (await cookies()).set(SIGN_IN_FROM_COOKIE, fromApp ? "app" : "portal", { httpOnly: true, sameSite: "lax", path: "/", maxAge: 600 });
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
@@ -27,7 +33,7 @@ export async function signInWithGoogle(): Promise<void> {
     },
   });
 
-  if (error || !data.url) redirect("/login?error=generic");
+  if (error || !data.url) redirect(fromApp ? "/app/sign-in?error=failed" : "/login?error=generic");
   redirect(data.url);
 }
 
