@@ -24,7 +24,7 @@ export function TabBar({ copy }: { copy: StudentCopy["nav"] }) {
     { href: "/app/bus", label: copy.bus, icon: Bus01Icon },
     { href: "/app/profile", label: copy.profile, icon: UserIcon },
   ];
-  const active = tabs.find((tab) => pathname === tab.href || pathname.startsWith(`${tab.href}/`))?.href ?? (pathname.startsWith("/app/history") || pathname.startsWith("/app/settings") ? "/app/profile" : null);
+  const active = tabs.find((tab) => pathname === tab.href || pathname.startsWith(`${tab.href}/`))?.href ?? (["/app/history", "/app/settings", "/app/streaks", "/app/legal"].some((page) => pathname.startsWith(page)) ? "/app/profile" : null);
   const { rowRef, indicatorRef } = useSlidingIndicator('[data-tab][aria-current="page"]', active);
 
   return (
