@@ -11,15 +11,18 @@ type Props = {
   action: (formData: FormData) => Promise<void>;
   t: Messages;
   bus?: { id: string; plate: string; name: string | null; capacity: number; inService: boolean };
+  /** The page to go back to after adding (a detour from the trip form). */
+  next?: string | null;
 };
 
 /** The form used to add and to edit a bus. Server rendered; no client code needed. */
-export function BusForm({ action, t, bus }: Props) {
+export function BusForm({ action, t, bus, next }: Props) {
   const f = t.buses.form;
   return (
     <Card className="max-w-2xl">
       <form action={action} className="flex flex-col gap-6">
         {bus ? <input type="hidden" name="id" value={bus.id} /> : null}
+        {next ? <input type="hidden" name="next" value={next} /> : null}
 
         <Input
           id="plate"

@@ -183,6 +183,17 @@ test.describe("administrator", () => {
     await expect(page).toHaveURL(/\/people\?role=student$/);
   });
 
+  test("quick actions lead straight to the common tasks", async ({ page }) => {
+    await page.goto("/");
+    const quick = page.getByRole("navigation", { name: "Quick actions" });
+    await expect(quick.getByRole("link", { name: "Schedule a trip" })).toHaveAttribute("href", "/trips/new");
+    await expect(quick.getByRole("link", { name: "Add a stop" })).toHaveAttribute("href", "/stops?add");
+    await expect(quick.getByRole("link", { name: "Add a bus" })).toHaveAttribute("href", "/buses/new?next=%2F");
+    await expect(quick.getByRole("link", { name: "Invite staff" })).toHaveAttribute("href", "/people/invite");
+    await quick.getByRole("link", { name: "Schedule a trip" }).click();
+    await expect(page).toHaveURL(/\/trips\/new$/);
+  });
+
   test("the sign-in page is a branded card with the logo, a title and one clear action", async ({ browser }) => {
     const context = await browser.newContext();
     const page = await context.newPage();
