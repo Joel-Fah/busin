@@ -3282,6 +3282,12 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'Steady over the last 8 weeks'**
   String get opsStatsTrendSame;
+
+  /// No description provided for @opsPushCrewAssigned.
+  ///
+  /// In en, this message translates to:
+  /// **'You were added to a trip. It is in your trips.'**
+  String get opsPushCrewAssigned;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {

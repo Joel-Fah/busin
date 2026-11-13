@@ -1,6 +1,7 @@
 import 'package:busin_app/busin_app.dart';
 import 'package:busin_core/busin_core.dart';
 import 'package:busin_data/busin_data.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -23,6 +24,21 @@ final repositoriesProvider = Provider<SupabaseRepositories>((ref) => SupabaseRep
 final profileRepositoryProvider = Provider<ProfileRepository>((ref) => ref.watch(repositoriesProvider).profiles);
 final schoolRepositoryProvider = Provider<SchoolRepository>((ref) => ref.watch(repositoriesProvider).schools);
 final tripsRepositoryProvider = Provider<TripsRepository>((ref) => ref.watch(repositoriesProvider).trips);
+
+/// Firebase Cloud Messaging, or a stand-in that does nothing when this build has no Firebase configuration.
+final pushServiceProvider = Provider<PushService>((ref) => const NoPushService());
+
+final deviceTokensRepositoryProvider = Provider<DeviceTokensRepository>((ref) => ref.watch(repositoriesProvider).deviceTokens);
+
+/// Keeps this phone's token on the server (crew_assigned notifications), in the language the app shows.
+final pushRegistrarProvider = Provider<PushRegistrar>(
+  (ref) => PushRegistrar(
+    push: ref.watch(pushServiceProvider),
+    tokens: ref.watch(deviceTokensRepositoryProvider),
+    languageCode: () => ref.read(localeProvider)?.languageCode ?? systemLanguageCode(),
+    platform: defaultTargetPlatform,
+  ),
+);
 final busesRepositoryProvider = Provider<BusesRepository>((ref) => ref.watch(repositoriesProvider).buses);
 
 /// The time, a function so tests can stand still.
@@ -110,6 +126,8 @@ final schoolProvider = FutureProvider<School>((ref) async {
 /// out while some wait to be sent).
 final signOutProvider = Provider<Future<void> Function()>((ref) {
   return () async {
+    // The next person on this phone must not get this person's notifications.
+    await ref.read(pushRegistrarProvider).forget();
     await ref.read(rosterStoreProvider).clear();
     await ref.read(opsSnapshotKeeperProvider).clearAll();
     await ref.read(authServiceProvider).signOut();

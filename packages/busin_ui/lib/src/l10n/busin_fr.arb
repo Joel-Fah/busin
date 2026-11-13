@@ -633,5 +633,6 @@
   "opsStatsPunctualityHint": "À l'heure signifie parti au plus 10 minutes après l'heure prévue. Les trajets lancés sur le terrain n'ont pas d'horaire et ne sont pas chronométrés.",
   "opsStatsTrendUp": "Mieux que les 4 semaines d'avant",
   "opsStatsTrendDown": "En dessous des 4 semaines d'avant",
-  "opsStatsTrendSame": "Stable sur les 8 dernières semaines"
+  "opsStatsTrendSame": "Stable sur les 8 dernières semaines",
+  "opsPushCrewAssigned": "Vous avez été ajouté à un trajet. Il est dans vos trajets."
 }

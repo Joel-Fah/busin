@@ -948,5 +948,6 @@
   "opsStatsPunctualityHint": "On time means started no more than 10 minutes after the scheduled time. Trips started in the field have no schedule and are not timed.",
   "opsStatsTrendUp": "Better than the 4 weeks before",
   "opsStatsTrendDown": "Below the 4 weeks before",
-  "opsStatsTrendSame": "Steady over the last 8 weeks"
+  "opsStatsTrendSame": "Steady over the last 8 weeks",
+  "opsPushCrewAssigned": "You were added to a trip. It is in your trips."
 }
