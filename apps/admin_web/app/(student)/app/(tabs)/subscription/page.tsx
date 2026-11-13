@@ -127,8 +127,8 @@ async function Subscription({ searchParams }: { searchParams: SearchParams }) {
           requestAgainHref={isLive(subscription!.status) ? null : "/app/subscription?again=1"}
         />
       )}
-      {/* The moment there is something to wait for is the moment to offer to tell them. */}
-      {!showForm && subscription?.status === "pending" ? <PushOptIn copy={s.push} locale={locale} compact /> : null}
+      {/* Offered once to everyone, in any browser (on an iPhone it explains the Home Screen step); "Not now" is remembered. */}
+      <PushOptIn copy={s.push} locale={locale} compact />
       <RequestHistory copy={c} history={history} dateOf={dateOf} timeOf={timeOf} />
     </main>
   );

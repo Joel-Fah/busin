@@ -64,6 +64,12 @@ test("the app can be installed: a manifest scoped to /app and a service worker",
   expect(manifest).toMatchObject({ start_url: "/app", scope: "/app/", display: "standalone" });
   expect(manifest.icons.map((icon: { purpose: string }) => icon.purpose)).toEqual(["any", "any", "maskable"]);
   for (const icon of manifest.icons) expect((await request.get(icon.src)).status()).toBe(200);
+  // iOS reads apple-touch icons, not the manifest; some versions fetch the root addresses first.
+  for (const path of ["/app-icons/apple-touch-180.png", "/app-icons/apple-touch-167.png", "/app-icons/apple-touch-152.png", "/apple-touch-icon.png", "/apple-touch-icon-precomposed.png"]) {
+    const icon = await request.get(path);
+    expect(icon.status(), path).toBe(200);
+    expect(icon.headers()["content-type"], path).toContain("image/png");
+  }
   const worker = await request.get("/app/sw.js");
   expect(worker.status()).toBe(200);
   expect(worker.headers()["cache-control"]).toContain("no-cache");

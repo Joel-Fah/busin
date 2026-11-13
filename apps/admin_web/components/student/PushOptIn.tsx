@@ -10,6 +10,15 @@ import { disablePush, enablePush, pushState, type PushState } from "@/lib/studen
 import { Contour } from "@/components/ui/Contour";
 
 const noSubscription = () => () => {};
+const LATER = "busin-push-offer";
+
+function laterChosen(): boolean {
+  try {
+    return window.localStorage.getItem(LATER) === "later";
+  } catch {
+    return false;
+  }
+}
 
 /**
  * The offer to turn on notifications, as the app's card: shown where waiting for something makes it useful (a pending
@@ -18,13 +27,15 @@ const noSubscription = () => () => {};
  */
 export function PushOptIn({ copy, locale, compact = false }: { copy: StudentCopy["push"]; locale: "en" | "fr"; compact?: boolean }) {
   const initial = useSyncExternalStore(noSubscription, pushState, () => "unconfigured" as PushState);
+  // "Not now" on the compact offer is remembered in this browser; the settings page always shows the full card.
+  const later = useSyncExternalStore(noSubscription, laterChosen, () => true);
   const [state, setState] = useState<PushState | null>(null);
   const [failed, setFailed] = useState(false);
   const [busy, setBusy] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const now = state ?? initial;
 
-  if (now === "unconfigured" || dismissed || (compact && now === "on")) return null;
+  if (now === "unconfigured" || dismissed || (compact && (now === "on" || later))) return null;
 
   const text = now === "denied" ? copy.denied : now === "needsInstall" ? copy.needsInstall : now === "unsupported" ? copy.unsupported : now === "on" ? copy.on : copy.body;
 
@@ -57,7 +68,17 @@ export function PushOptIn({ copy, locale, compact = false }: { copy: StudentCopy
             {copy.enable}
           </Button>
           {compact ? (
-            <Button variant="ghost" onClick={() => setDismissed(true)}>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                try {
+                  window.localStorage.setItem(LATER, "later");
+                } catch {
+                  // Private mode: it may show again next time.
+                }
+                setDismissed(true);
+              }}
+            >
               {copy.later}
             </Button>
           ) : null}
@@ -75,6 +96,22 @@ export function PushOptIn({ copy, locale, compact = false }: { copy: StudentCopy
             }}
           >
             {copy.off}
+          </Button>
+        </div>
+      ) : compact ? (
+        <div>
+          <Button
+            variant="ghost"
+            onClick={() => {
+              try {
+                window.localStorage.setItem(LATER, "later");
+              } catch {
+                // Private mode: it may show again next time.
+              }
+              setDismissed(true);
+            }}
+          >
+            {copy.later}
           </Button>
         </div>
       ) : null}

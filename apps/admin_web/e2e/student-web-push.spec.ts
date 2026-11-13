@@ -25,6 +25,7 @@ test.afterAll(async () => {
 });
 
 test("a push that arrives while a page is on screen is said there, not as a notification", async ({ page, context }) => {
+  await context.grantPermissions(["notifications"]);
   await signInBrowser(context, student);
   const cdp = await context.newCDPSession(page);
   const registration = new Promise<string>((resolve) => {
@@ -49,10 +50,19 @@ test("a push that arrives while a page is on screen is said there, not as a noti
   await expect(page.getByText("Your bus is a few minutes from your stop.")).toBeVisible();
 });
 
-test("the notification offer stays hidden while push is not set up for the site", async ({ page, context }) => {
-  test.skip(Boolean(process.env.NEXT_PUBLIC_FIREBASE_API_KEY), "push is configured here");
+test("every student is offered notifications once on the subscription tab, and Not now is remembered", async ({ page, context }) => {
   await signInBrowser(context, student);
-  await page.goto("/app/settings/notifications");
-  await expect(page.getByRole("heading", { name: "Notifications", level: 1 })).toBeVisible();
+  await page.goto("/app/subscription");
+  const offer = page.getByTestId("push-opt-in");
+  await expect(offer).toBeVisible();
+  // The headless browser has no notifications at all, so the card explains instead of offering the switch; in a real
+  // browser it shows "Turn on notifications". Either way "Not now" is there and remembered.
+  await offer.getByRole("button", { name: "Not now" }).click();
+  await expect(offer).toBeHidden();
+  await page.reload();
+  await expect(page.getByTestId("status-card")).toBeVisible();
   await expect(page.getByTestId("push-opt-in")).toHaveCount(0);
+  // The settings page still has the full card.
+  await page.goto("/app/settings/notifications");
+  await expect(page.getByTestId("push-opt-in")).toBeVisible();
 });
