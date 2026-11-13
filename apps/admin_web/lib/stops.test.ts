@@ -1,6 +1,16 @@
 import { describe, expect, it } from "vitest";
 
-import { MAX_STOP_NAME_LENGTH, describeUsage, nearbyStop, parseCoordinate, parseStopForm, stopSaveErrorKey } from "./stops";
+import {
+  MAX_STOP_NAME_LENGTH,
+  canDeleteStop,
+  deleteStopErrorKey,
+  describeHistory,
+  describeUsage,
+  nearbyStop,
+  parseCoordinate,
+  parseStopForm,
+  stopSaveErrorKey,
+} from "./stops";
 
 function form(values: Record<string, string>) {
   return { get: (name: string) => values[name] ?? null };
@@ -109,5 +119,28 @@ describe("nearbyStop", () => {
     expect(stopSaveErrorKey("22023", "stop_too_close")).toBe("too_close");
     expect(stopSaveErrorKey("22023", "other")).toBe("invalid");
     expect(stopSaveErrorKey("23505")).toBe("name_taken");
+  });
+});
+
+describe("deleting a stop", () => {
+  const labels = { subscriptionOne: "1 subscription", subscriptionMany: "{count} subscriptions", boardingOne: "1 boarding", boardingMany: "{count} boardings", and: "{a} and {b}" };
+
+  it("is offered only when nothing on record uses the stop, and never when the history is unknown", () => {
+    expect(canDeleteStop({ subscriptions: 0, boardings: 0 })).toBe(true);
+    expect(canDeleteStop({ subscriptions: 1, boardings: 0 })).toBe(false);
+    expect(canDeleteStop({ subscriptions: 0, boardings: 3 })).toBe(false);
+    expect(canDeleteStop({ subscriptions: -1, boardings: -1 })).toBe(false);
+  });
+
+  it("says what keeps a stop, in singular and plural", () => {
+    expect(describeHistory({ subscriptions: 1, boardings: 0 }, labels)).toBe("1 subscription");
+    expect(describeHistory({ subscriptions: 0, boardings: 4 }, labels)).toBe("4 boardings");
+    expect(describeHistory({ subscriptions: 3, boardings: 1 }, labels)).toBe("3 subscriptions and 1 boarding");
+  });
+
+  it("reads the database refusal", () => {
+    expect(deleteStopErrorKey("55000", "stop_in_use")).toBe("in_use");
+    expect(deleteStopErrorKey("P0002", "Stop not found")).toBe("not_found");
+    expect(deleteStopErrorKey("42501")).toBe("generic");
   });
 });

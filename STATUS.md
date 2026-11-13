@@ -39,7 +39,9 @@ Done (four stacked PRs into `dev`, top first: #357 ops screens, #355 database, #
 - #355 (database): staff read, start, scan on and read the boarding list of only their own trips; unassigned trips are for administrators; `my_trip_history` and `my_trip_stats` (on time = within 10 minutes).
 - #357 (ops app): Trips, History, Stats and Profile tabs; trips by week; 12 weeks of stats with charts (new painted charts in busin_ui); the Google picture in the top bar and on the profile. Checked live on the tablet.
 
-Next: the owner approves running `20261115100000_staff_own_trips` on the hosted project, then merges #357, #355, #353, #351 top-down into `dev`. Queued request: export the portal styleguide as Markdown (for AI agents) and PDF (for reading and printing).
+Also: #359 exports the portal styleguide as Markdown for AI agents and as a PDF (buttons on /styleguide; new dependency @react-pdf/renderer).
+
+Next: the hosted migration `20261115100000_staff_own_trips` is applied (2026-11-13). The owner merges #359, #357, #355, #353, #351 top-down into `dev`.
 
 Owner device test: assign yourself to a few trips in the portal; in the ops app check Trips by week, History and Stats; unplug from the PC and reopen the ops app (opens from the saved copy); in the student app go offline, open the Code tab and switch tabs (no return to the loading screen). The Google picture shows when the phone has internet (the tablet had none during the check, so it showed initials).
 
