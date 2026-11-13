@@ -145,6 +145,16 @@ export function SignInPanel({ copy, locale, initialError }: { copy: StudentCopy[
         </form>
       ) : null}
       {mode === "loading" ? <div aria-hidden className="h-11 w-full max-w-[400px] animate-pulse rounded-sm bg-white/15" /> : null}
+      {/* Google's button can fail inside its own window (an address not yet allowed on the client, a blocked popup), where
+          this page cannot see it: the redirect flow is always there as a way out. */}
+      {mode !== "fallback" ? (
+        <form action={signInWithGoogle}>
+          <input type="hidden" name="from" value="app" />
+          <button type="submit" className="cursor-pointer border-0 bg-transparent p-0 font-sans text-sm font-semibold text-white/80 underline-offset-4 hover:text-white focus-visible:outline-3 focus-visible:outline-focus">
+            {copy.other}
+          </button>
+        </form>
+      ) : null}
     </div>
   );
 }
