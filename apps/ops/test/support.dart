@@ -6,6 +6,7 @@ import 'dart:typed_data';
 
 import 'package:busin_ops/src/drive/driver_mode.dart';
 import 'package:busin_ops/src/keys/roster.dart';
+import 'package:busin_ops/src/offline/ops_snapshot.dart';
 import 'package:busin_ops/src/providers.dart';
 import 'package:busin_ops/src/queue/scan_queue.dart';
 import 'package:busin_ops/src/scan/scan_providers.dart';
@@ -79,10 +80,14 @@ class FakeProfiles implements ProfileRepository {
   /// When set, the profile is not given until this completes (a slow or unreachable backend).
   Completer<void>? hold;
 
+  /// The backend cannot be reached.
+  bool offline = false;
+
   @override
   Future<Profile> getProfile(String userId) async {
     reads++;
     if (hold != null) await hold!.future;
+    if (offline) throw const Offline('test');
     return byId[userId] ?? (throw const NotFound('profile'));
   }
 
@@ -100,8 +105,10 @@ class FakeProfiles implements ProfileRepository {
 }
 
 class FakeSchools implements SchoolRepository {
+  bool offline = false;
+
   @override
-  Future<School> getSchool(String id) async => const School(id: schoolId, name: 'Test School', timezone: 'Africa/Douala', isActive: true);
+  Future<School> getSchool(String id) async => offline ? throw const Offline('test') : const School(id: schoolId, name: 'Test School', timezone: 'Africa/Douala', isActive: true);
 }
 
 class FakeTrips implements TripsRepository {
@@ -122,12 +129,36 @@ class FakeTrips implements TripsRepository {
   final List<({String busId, TripDirection direction, CrewRole role, String? otherId})> fieldStarts = [];
   Object? fieldError;
 
-  @override
-  Future<List<Trip>> listBetween({required DateTime from, required DateTime to}) async =>
-      trips.where((t) => !t.scheduledStart.isBefore(from) && t.scheduledStart.isBefore(to)).toList();
+  /// The backend cannot be reached.
+  bool offline = false;
 
   @override
-  Future<Trip> getTrip(String tripId) async => trips.firstWhere((t) => t.id == tripId);
+  Future<List<Trip>> listBetween({required DateTime from, required DateTime to}) async => offline
+      ? throw const Offline('test')
+      : trips.where((t) => !t.scheduledStart.isBefore(from) && t.scheduledStart.isBefore(to)).toList();
+
+  /// The signed-in staff member's past trips and weekly stats, as the server would give them.
+  List<TripHistoryEntry> history = const [];
+  List<WeekStats> stats = const [];
+  final List<DateTime> historyAsked = [];
+
+  @override
+  Future<List<Trip>> listForCrew(String staffId, {required DateTime from, required DateTime to}) async => offline
+      ? throw const Offline('test')
+      : trips.where((t) => t.isCrew(staffId) && !t.scheduledStart.isBefore(from) && t.scheduledStart.isBefore(to)).toList();
+
+  @override
+  Future<List<TripHistoryEntry>> myHistory({required DateTime before, int limit = 20}) async {
+    if (offline) throw const Offline('test');
+    historyAsked.add(before);
+    return history.where((e) => e.scheduledStart.isBefore(before)).take(limit).toList();
+  }
+
+  @override
+  Future<List<WeekStats>> myStats({int weeks = 12}) async => offline ? throw const Offline('test') : stats;
+
+  @override
+  Future<Trip> getTrip(String tripId) async => offline ? throw const Offline('test') : trips.firstWhere((t) => t.id == tripId);
 
   @override
   Future<void> start(String tripId) async {
@@ -179,8 +210,10 @@ class FakeTrips implements TripsRepository {
 }
 
 class FakeBuses implements BusesRepository {
+  bool offline = false;
+
   @override
-  Future<List<Bus>> listByIds(List<String> busIds) async => [
+  Future<List<Bus>> listByIds(List<String> busIds) async => offline ? throw const Offline('test') : [
         for (final id in busIds) Bus(id: id, schoolId: schoolId, plate: 'LT-$id', name: 'Bus ${id.toUpperCase()}', capacity: 50, inService: true),
       ];
 }
@@ -335,6 +368,10 @@ List<Override> overridesFor({
   FakePositions? positions,
   FakeLive? live,
   FakeProfiles? profileRepository,
+  FakeSchools? schools,
+  FakeBuses? buses,
+  OpsSnapshotStore? snapshots,
+  Duration? gateTimeout = const Duration(seconds: 15),
   bool online = true,
 }) =>
     [
@@ -349,8 +386,10 @@ List<Override> overridesFor({
       connectivityProvider.overrideWith((ref) => Stream.value(online)),
       authServiceProvider.overrideWithValue(auth),
       profileRepositoryProvider.overrideWithValue(profileRepository ?? FakeProfiles(profiles)),
-      schoolRepositoryProvider.overrideWithValue(FakeSchools()),
+      schoolRepositoryProvider.overrideWithValue(schools ?? FakeSchools()),
+      opsSnapshotStoreProvider.overrideWithValue(snapshots ?? MemoryOpsSnapshotStore()),
+      gateTimeoutProvider.overrideWithValue(gateTimeout),
       tripsRepositoryProvider.overrideWithValue(trips),
-      busesRepositoryProvider.overrideWithValue(FakeBuses()),
+      busesRepositoryProvider.overrideWithValue(buses ?? FakeBuses()),
       nowProvider.overrideWithValue(() => morning),
     ];

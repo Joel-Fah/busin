@@ -21,6 +21,9 @@ class Bus extends ValueObject {
         inService: reqBool(json, 'in_service'),
       );
 
+  /// The same shape the API returns, so [Bus.fromJson] reads it back.
+  Map<String, dynamic> toJson() => {'id': id, 'school_id': schoolId, 'plate': plate, 'name': name, 'capacity': capacity, 'in_service': inService};
+
   final String id;
   final String schoolId;
   final String plate;

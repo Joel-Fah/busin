@@ -272,6 +272,34 @@ test.describe("administrator managing stops", () => {
     expect(saved?.active).toBe(false);
   });
 
+  test("a stop nothing ever used can be deleted, after confirming", async ({ page }) => {
+    const id = await insertStop(`${prefix} mistake`, "SRID=4326;POINT(11.5400000 3.8800000)");
+    await page.goto(`/stops?edit=${id}`);
+    const sheet = page.getByRole("dialog", { name: "Edit stop" });
+    await sheet.getByRole("button", { name: "Delete stop" }).click();
+
+    const confirm = page.getByRole("dialog", { name: `Delete ${prefix} mistake?` });
+    await expect(confirm).toContainText("removed from the map and from any bus route");
+    // Keeping it closes the question and leaves the stop.
+    await confirm.getByRole("button", { name: "Keep it" }).click();
+    await expect(confirm).toBeHidden();
+    expect(await stopByName(`${prefix} mistake`)).not.toBeNull();
+
+    await sheet.getByRole("button", { name: "Delete stop" }).click();
+    await page.getByRole("dialog", { name: `Delete ${prefix} mistake?` }).getByRole("button", { name: "Delete stop" }).click();
+    await expect(page.getByRole("status")).toContainText("Stop deleted.");
+    await expect(sheet).toBeHidden();
+    await expect(dockRow(page, `${prefix} mistake`)).toHaveCount(0);
+    expect(await stopByName(`${prefix} mistake`)).toBeNull();
+  });
+
+  test("a stop with subscriptions is kept, and the sheet says why and what to do instead", async ({ page }) => {
+    await page.goto(`/stops?edit=${usageStopId}`);
+    const sheet = page.getByRole("dialog", { name: "Edit stop" });
+    await expect(sheet).toContainText("This stop is kept for the record: it has 3 subscriptions. To stop offering it to students, turn off Active.");
+    await expect(sheet.getByRole("button", { name: "Delete stop" })).toHaveCount(0);
+  });
+
   test("closes with Escape and with its button, without saving", async ({ page }) => {
     await page.goto("/stops");
     const sheet = page.getByRole("dialog", { name: "Add a stop" });

@@ -2443,6 +2443,12 @@ abstract class BusinL10n {
   /// **'No trips are scheduled today.'**
   String get opsTodayEmpty;
 
+  /// No description provided for @opsOfflineBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing what this phone saved ({when}). Scans are kept and sent when the connection returns.'**
+  String opsOfflineBody(String when);
+
   /// No description provided for @opsTodayMine.
   ///
   /// In en, this message translates to:
@@ -2982,6 +2988,300 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'{name}\'s phone is sharing the bus position. This phone takes over by itself if it goes quiet.'**
   String opsShareStandby(String name);
+
+  /// No description provided for @navTrips.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips'**
+  String get navTrips;
+
+  /// No description provided for @navStats.
+  ///
+  /// In en, this message translates to:
+  /// **'Stats'**
+  String get navStats;
+
+  /// No description provided for @opsTodayEmptyMine.
+  ///
+  /// In en, this message translates to:
+  /// **'No trips are assigned to you today.'**
+  String get opsTodayEmptyMine;
+
+  /// No description provided for @opsUpcomingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming up'**
+  String get opsUpcomingTitle;
+
+  /// No description provided for @opsUpcomingEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing else is assigned to you in the next four weeks.'**
+  String get opsUpcomingEmpty;
+
+  /// No description provided for @opsWeekThis.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get opsWeekThis;
+
+  /// No description provided for @opsWeekNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next week'**
+  String get opsWeekNext;
+
+  /// No description provided for @opsWeekLast.
+  ///
+  /// In en, this message translates to:
+  /// **'Last week'**
+  String get opsWeekLast;
+
+  /// No description provided for @opsWeekOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Week of {date}'**
+  String opsWeekOf(String date);
+
+  /// No description provided for @opsHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your trips'**
+  String get opsHistoryTitle;
+
+  /// No description provided for @opsHistoryEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Your past trips will appear here.'**
+  String get opsHistoryEmpty;
+
+  /// No description provided for @opsHistoryEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'That is everything.'**
+  String get opsHistoryEnd;
+
+  /// No description provided for @opsRoleDriver.
+  ///
+  /// In en, this message translates to:
+  /// **'Driver'**
+  String get opsRoleDriver;
+
+  /// No description provided for @opsRoleAssistant.
+  ///
+  /// In en, this message translates to:
+  /// **'Assistant'**
+  String get opsRoleAssistant;
+
+  /// No description provided for @opsRoleStarter.
+  ///
+  /// In en, this message translates to:
+  /// **'Started it'**
+  String get opsRoleStarter;
+
+  /// No description provided for @opsBoardedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Nobody boarded} =1{1 boarded} other{{count} boarded}}'**
+  String opsBoardedCount(int count);
+
+  /// No description provided for @opsOnTime.
+  ///
+  /// In en, this message translates to:
+  /// **'On time'**
+  String get opsOnTime;
+
+  /// No description provided for @opsLateBy.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min late'**
+  String opsLateBy(int minutes);
+
+  /// No description provided for @opsNotRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Not run'**
+  String get opsNotRun;
+
+  /// No description provided for @opsDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'{duration} on the road'**
+  String opsDuration(String duration);
+
+  /// No description provided for @opsMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String opsMinutes(int minutes);
+
+  /// No description provided for @opsHoursMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h {minutes} min'**
+  String opsHoursMinutes(int hours, int minutes);
+
+  /// No description provided for @opsStatsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your stats'**
+  String get opsStatsTitle;
+
+  /// No description provided for @opsStatsPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 12 weeks'**
+  String get opsStatsPeriod;
+
+  /// No description provided for @opsStatsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Your stats appear after your first trips.'**
+  String get opsStatsEmpty;
+
+  /// No description provided for @opsStatsTrips.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips'**
+  String get opsStatsTrips;
+
+  /// No description provided for @opsStatsOnTime.
+  ///
+  /// In en, this message translates to:
+  /// **'On time'**
+  String get opsStatsOnTime;
+
+  /// No description provided for @opsStatsAvgDelay.
+  ///
+  /// In en, this message translates to:
+  /// **'Average delay'**
+  String get opsStatsAvgDelay;
+
+  /// No description provided for @opsStatsBoarded.
+  ///
+  /// In en, this message translates to:
+  /// **'Students boarded'**
+  String get opsStatsBoarded;
+
+  /// No description provided for @opsStatsOnRoad.
+  ///
+  /// In en, this message translates to:
+  /// **'On the road'**
+  String get opsStatsOnRoad;
+
+  /// No description provided for @opsStatsPerTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} per trip'**
+  String opsStatsPerTrip(String count);
+
+  /// No description provided for @opsStatsNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'None yet'**
+  String get opsStatsNoData;
+
+  /// No description provided for @opsStatsTripsChart.
+  ///
+  /// In en, this message translates to:
+  /// **'Trips per week'**
+  String get opsStatsTripsChart;
+
+  /// No description provided for @opsStatsPunctualityChart.
+  ///
+  /// In en, this message translates to:
+  /// **'On time per week'**
+  String get opsStatsPunctualityChart;
+
+  /// No description provided for @opsStatsBoardedChart.
+  ///
+  /// In en, this message translates to:
+  /// **'Students boarded per week'**
+  String get opsStatsBoardedChart;
+
+  /// No description provided for @opsStatsLegendOnTime.
+  ///
+  /// In en, this message translates to:
+  /// **'On time'**
+  String get opsStatsLegendOnTime;
+
+  /// No description provided for @opsStatsLegendLate.
+  ///
+  /// In en, this message translates to:
+  /// **'Late'**
+  String get opsStatsLegendLate;
+
+  /// No description provided for @opsStatsLegendField.
+  ///
+  /// In en, this message translates to:
+  /// **'Started in the field'**
+  String get opsStatsLegendField;
+
+  /// No description provided for @opsStatsLegendNotRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled or missed'**
+  String get opsStatsLegendNotRun;
+
+  /// No description provided for @opsStatsTripsSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{trips} trips in 12 weeks: {onTime} on time, {late} late, {field} started in the field, {notRun} cancelled or missed.'**
+  String opsStatsTripsSummary(
+    int trips,
+    int onTime,
+    int late,
+    int field,
+    int notRun,
+  );
+
+  /// No description provided for @opsStatsPunctualitySummary.
+  ///
+  /// In en, this message translates to:
+  /// **'On time over 12 weeks: {percent}. Best week {best}, weakest week {worst}.'**
+  String opsStatsPunctualitySummary(String percent, String best, String worst);
+
+  /// No description provided for @opsStatsBoardedSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} students boarded in 12 weeks.'**
+  String opsStatsBoardedSummary(int count);
+
+  /// No description provided for @opsStatsRoles.
+  ///
+  /// In en, this message translates to:
+  /// **'As driver: {driver}. As assistant: {assistant}.'**
+  String opsStatsRoles(int driver, int assistant);
+
+  /// No description provided for @opsStatsBreakdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed {completed} · cancelled {cancelled} · missed {missed}'**
+  String opsStatsBreakdown(int completed, int cancelled, int missed);
+
+  /// No description provided for @opsStatsPunctualityHint.
+  ///
+  /// In en, this message translates to:
+  /// **'On time means started no more than 10 minutes after the scheduled time. Trips started in the field have no schedule and are not timed.'**
+  String get opsStatsPunctualityHint;
+
+  /// No description provided for @opsStatsTrendUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Better than the 4 weeks before'**
+  String get opsStatsTrendUp;
+
+  /// No description provided for @opsStatsTrendDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Below the 4 weeks before'**
+  String get opsStatsTrendDown;
+
+  /// No description provided for @opsStatsTrendSame.
+  ///
+  /// In en, this message translates to:
+  /// **'Steady over the last 8 weeks'**
+  String get opsStatsTrendSame;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {

@@ -131,16 +131,23 @@ void main() {
       expect(find.text('This app is for staff'), findsOneWidget);
     });
 
-    testWidgets('staff see today\'s trips, theirs first, in the school\'s time', (tester) async {
+    testWidgets('staff see only their own trips of today, in the school\'s time', (tester) async {
       final trips = FakeTrips([trip('t1', bus: 'b1'), trip('t2', bus: 'b2', driver: 'u1')]);
       await open(tester, auth: FakeAuth(signedInAs: 'u1'), profiles: {'u1': staff()}, trips: trips);
       expect(find.text('Today\'s trips'), findsOneWidget);
       expect(find.text('Assigned to you'), findsOneWidget);
-      final mine = tester.getTopLeft(find.text('Bus B2')).dy;
-      final other = tester.getTopLeft(find.text('Bus B1')).dy;
-      expect(mine, lessThan(other));
+      expect(find.text('Bus B2'), findsOneWidget);
+      expect(find.text('Bus B1'), findsNothing, reason: 'a trip they are not on is not theirs to see');
+      expect(find.text('Other trips'), findsNothing);
       // 06:30 UTC is 07:30 at the school.
-      expect(find.textContaining('7:30'), findsNWidgets(2));
+      expect(find.textContaining('7:30'), findsOneWidget);
+    });
+
+    testWidgets('an administrator also sees the school\'s other trips of today, below their own', (tester) async {
+      final trips = FakeTrips([trip('t1', bus: 'b1'), trip('t2', bus: 'b2', driver: 'u1')]);
+      await open(tester, auth: FakeAuth(signedInAs: 'u1'), profiles: {'u1': staff(role: UserRole.admin)}, trips: trips);
+      expect(find.text('Other trips'), findsOneWidget);
+      expect(tester.getTopLeft(find.text('Bus B2')).dy, lessThan(tester.getTopLeft(find.text('Bus B1')).dy));
     });
 
     testWidgets('the assignee starts a trip, and ends it after confirming', (tester) async {
@@ -172,7 +179,8 @@ void main() {
     testWidgets('a trip assigned to someone else cannot be started here', (tester) async {
       final trips = FakeTrips([trip('t1', driver: 'u2')]);
       await open(tester, auth: FakeAuth(signedInAs: 'u1'), profiles: {'u1': staff()}, trips: trips);
-      await tester.tap(find.text('Bus B1'));
+      // Not listed for them; reached another way (a trip reassigned while its screen was open, for example).
+      ProviderScope.containerOf(tester.element(find.byType(OpsApp))).read(routerProvider).push(Routes.trip('t1'));
       await settle(tester);
       expect(find.text('Start trip'), findsNothing);
       expect(find.textContaining('Assigned to other staff members'), findsOneWidget);

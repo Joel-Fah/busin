@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
 import { toEwkt } from "@/lib/geo";
 import { isUuid } from "@/lib/ids";
-import { parseStopForm, stopSaveErrorKey, type StopFormErrorKey } from "@/lib/stops";
+import { deleteStopErrorKey, parseStopForm, stopSaveErrorKey, type DeleteStopErrorKey, type StopFormErrorKey } from "@/lib/stops";
 import { createClient } from "@/lib/supabase/server";
 
 export type SaveStopState =
@@ -45,4 +45,20 @@ export async function saveStop(_previous: SaveStopState, formData: FormData): Pr
   if (error) return { status: "error", error: stopSaveErrorKey(error.code, error.message) };
   revalidatePath("/stops");
   return { status: "saved", id, created: false };
+}
+
+export type DeleteStopResult = { status: "deleted" } | { status: "error"; error: DeleteStopErrorKey };
+
+/**
+ * Deletes a stop nothing ever used (no subscription in any state, no boarding). The database decides and audits it; a
+ * stop in use is refused with a reason the sheet explains, and a stop of another school is simply not found.
+ */
+export async function deleteStop(id: string): Promise<DeleteStopResult> {
+  await requireAdmin();
+  if (!isUuid(id)) return { status: "error", error: "not_found" };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("admin_delete_stop", { p_stop_id: id });
+  if (error) return { status: "error", error: deleteStopErrorKey(error.code, error.message) };
+  revalidatePath("/stops");
+  return { status: "deleted" };
 }

@@ -374,10 +374,11 @@ void main() {
           startedBy: startedBy,
         );
 
-    test('the assignee starts and ends, anyone on staff when nobody is assigned, admins always', () {
+    test('the assignee starts and ends, admins always (and alone when nobody is assigned)', () {
       expect(trip(driver: 'd').canRun('d', isAdmin: false), isTrue);
       expect(trip(driver: 'd').canRun('x', isAdmin: false), isFalse);
-      expect(trip().canRun('x', isAdmin: false), isTrue);
+      expect(trip().canRun('x', isAdmin: false), isFalse, reason: 'nobody assigned: administrators run it');
+      expect(trip().canRun('x', isAdmin: true), isTrue);
       expect(trip(driver: 'd').canRun('x', isAdmin: true), isTrue);
       expect(trip(driver: 'd', startedBy: 'x', status: TripStatus.active).canRun('x', isAdmin: false), isTrue,
           reason: 'whoever started it may end it');
