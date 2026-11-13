@@ -823,6 +823,12 @@ abstract class BusinL10n {
   /// **'This semester has ended. Pull down to refresh and see what is open now.'**
   String get subscribeErrorEnded;
 
+  /// No description provided for @subscribeErrorUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This semester or stop is no longer open. The list has been refreshed: choose again.'**
+  String get subscribeErrorUnavailable;
+
   /// No description provided for @subscribeErrorTooLarge.
   ///
   /// In en, this message translates to:
