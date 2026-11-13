@@ -38,6 +38,7 @@ export 'src/widgets/busin_toast.dart';
 export 'src/widgets/segmented.dart';
 export 'src/widgets/empty_state.dart';
 export 'src/widgets/field_tile.dart';
+export 'src/widgets/google_mark.dart';
 export 'src/widgets/haptics.dart';
 export 'src/widgets/illustration.dart';
 export 'src/widgets/initials.dart';
