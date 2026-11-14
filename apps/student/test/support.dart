@@ -16,6 +16,7 @@ import 'package:busin_student/src/streaks/streak_providers.dart';
 import 'package:busin_student/src/qr/qr_providers.dart';
 import 'package:busin_student/src/qr/screen_security.dart';
 import 'package:busin_student/src/qr/secret_store.dart';
+import 'package:busin_student/src/subscription/installments_section.dart';
 import 'package:busin_student/src/subscription/proof_picker.dart';
 import 'package:busin_student/src/subscription/subscription_providers.dart';
 import 'package:flutter/foundation.dart';
@@ -243,10 +244,13 @@ class FakeBackend implements SchoolRepository, SemestersRepository, StopsReposit
   final List<Uint8List> uploads = [];
   DateTime? askedToday;
 
+  /// The student's school. Billed per semester, in full, unless a test says otherwise (ADR 0022).
+  School school = const School(id: 's1', name: 'Test School', timezone: 'Africa/Douala', isActive: true, billingPeriod: BillingPeriod.semester, priceXaf: 30000);
+
   @override
   Future<School> getSchool(String schoolId) async {
     if (readError != null) throw readError!;
-    return const School(id: 's1', name: 'Test School', timezone: 'Africa/Douala', isActive: true);
+    return school;
   }
 
   @override
@@ -789,6 +793,7 @@ List<Override> overridesFor(
   FakeReminderScheduler? reminders,
   FakeStreaks? streaks,
   FakeAreas? areas,
+  FakeInstallments? installments,
   FakeLocator? locator,
   FakeSecretStore? store,
   FakeScreenSecurity? security,
@@ -816,6 +821,7 @@ List<Override> overridesFor(
     reminderSchedulerProvider.overrideWithValue(reminders ?? FakeReminderScheduler()),
     streaksRepositoryProvider.overrideWithValue(streaks ?? FakeStreaks(profiles)),
     areaRepositoryProvider.overrideWithValue(areas ?? FakeAreas()),
+    installmentsRepositoryProvider.overrideWithValue(installments ?? FakeInstallments()),
     areaLocatorProvider.overrideWithValue(locator ?? FakeLocator(const LocationFailed())),
     academicRepositoryProvider.overrideWithValue(academic ?? FakeAcademic()),
     schoolRepositoryProvider.overrideWithValue(b),
@@ -1047,4 +1053,27 @@ class FakeMyLocation implements MyLocationFeed {
 
   @override
   Future<void> openSettings() async => settingsOpened++;
+}
+
+/// The parts of subscriptions paid in installments, and the proofs sent for them.
+class FakeInstallments implements InstallmentsRepository {
+  FakeInstallments([Map<String, List<Installment>>? bySubscription]) : bySubscription = bySubscription ?? {};
+
+  final Map<String, List<Installment>> bySubscription;
+  final List<({String installmentId, String proofPath})> sent = [];
+
+  @override
+  Future<List<Installment>> forSubscriptions(List<String> subscriptionIds) async =>
+      [for (final id in subscriptionIds) ...?bySubscription[id]];
+
+  @override
+  Future<void> submitProof({required String installmentId, required String proofPath}) async {
+    sent.add((installmentId: installmentId, proofPath: proofPath));
+    for (final entry in bySubscription.entries) {
+      bySubscription[entry.key] = [
+        for (final part in entry.value)
+          part.id == installmentId ? Installment.fromJson({...part.toJson(), 'status': 'submitted', 'proof_path': proofPath}) : part,
+      ];
+    }
+  }
 }

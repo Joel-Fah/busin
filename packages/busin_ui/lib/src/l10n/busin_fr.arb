@@ -635,5 +635,104 @@
   "opsStatsTrendUp": "Mieux que les 4 semaines d'avant",
   "opsStatsTrendDown": "En dessous des 4 semaines d'avant",
   "opsStatsTrendSame": "Stable sur les 8 dernières semaines",
-  "opsPushCrewAssigned": "Vous avez été ajouté à un trajet. Il est dans vos trajets."
+  "opsPushCrewAssigned": "Vous avez été ajouté à un trajet. Il est dans vos trajets.",
+  "subscribePriceSemester": "{price} pour le semestre",
+  "@subscribePriceSemester": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "subscribePriceMonth": "{price} par mois",
+  "@subscribePriceMonth": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "subscribeBillingNotSet": "Votre école configure encore les paiements. Vous pourrez demander un abonnement dès que ce sera fait.",
+  "subscribeMonthLabel": "Mois",
+  "subscribePaymentLabel": "Comment vous payez",
+  "paymentFull": "En une fois",
+  "paymentInstallments": "En plusieurs fois",
+  "subscribeFullNote": "{amount} avec cette demande.",
+  "@subscribeFullNote": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "subscribeInstallmentsNote": "{parts}. La première avec cette demande, les autres à leurs dates.",
+  "@subscribeInstallmentsNote": {
+    "placeholders": {
+      "parts": {
+        "type": "String"
+      }
+    }
+  },
+  "subscribePaymentRequired": "Choisissez comment vous payez.",
+  "subscribeErrorPeriodEnded": "Ce mois est terminé. Tirez vers le bas pour actualiser et choisissez à nouveau.",
+  "preferenceSaveTitle": "Payer ainsi la prochaine fois ?",
+  "preferenceSaveBody": "BusIn peut remplir « {mode} » pour vos prochaines demandes. Vous pouvez le changer dans votre profil.",
+  "@preferenceSaveBody": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "preferenceSave": "Enregistrer comme préférence",
+  "preferenceNotNow": "Plus tard",
+  "preferenceSaved": "Enregistré comme votre façon de payer.",
+  "profilePaymentTitle": "Comment vous préférez payer",
+  "profilePaymentHint": "Rempli quand vous demandez un abonnement.",
+  "partsTitle": "Tranches",
+  "partLabel": "Tranche {n}",
+  "@partLabel": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "partDue": "À payer le {date}",
+  "@partDue": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "partStatusDue": "Pas encore payée",
+  "partStatusSubmitted": "Preuve envoyée, en attente de l’école",
+  "partStatusPaid": "Payée",
+  "partStatusRejected": "Preuve refusée",
+  "partLate": "En retard",
+  "partSendProof": "Envoyer la preuve de paiement",
+  "partSent": "Preuve envoyée. Votre école va la vérifier.",
+  "nextMonthAsk": "Demander {month}",
+  "@nextMonthAsk": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "nextMonthState": "{month} : {status}",
+  "@nextMonthState": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "pushForegroundInstallmentPaid": "Votre école a marqué un paiement comme reçu.",
+  "pushForegroundInstallmentRejected": "Votre école n’a pas pu accepter une preuve de paiement.",
+  "pushForegroundInstallmentDue": "Un paiement arrive à échéance."
 }
