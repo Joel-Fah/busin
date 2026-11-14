@@ -9,13 +9,50 @@ import { Icon } from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { Notice } from "@/components/ui/Notice";
+import { formatAmount, splitAmount, type BillingPeriod, type InstallmentPlan } from "@/lib/billing";
+import { format } from "@/lib/i18n/format";
 import type { StudentCopy } from "@/lib/i18n/student";
 import { prepareProof } from "@/lib/student/proof-image";
 import { proofPath, subscribeProblem, uploadProblem, type SubscribeProblem } from "@/lib/student/subscription";
+import { setPaymentPreference } from "@/lib/student/settings";
 import { browserClient } from "@/lib/supabase/browser";
 import { Contour } from "@/components/ui/Contour";
 
+import { Sheet } from "./Sheet";
+
 export type StopOption = { id: string; name: string };
+export type Billing = { period: BillingPeriod; price: number; plan: InstallmentPlan | null; currency: string };
+type Mode = "full" | "installments";
+
+/** A row of exclusive choices, as the app's segmented control: one radio group, the chosen one raised. */
+function Choices<T extends string>({ label, value, options, onChange, disabled }: { label: string; value: T | null; options: { value: T; label: string }[]; onChange: (value: T) => void; disabled?: boolean }) {
+  const id = useId();
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span id={id} className="text-sm font-semibold">
+        {label}
+      </span>
+      <div role="radiogroup" aria-labelledby={id} className="grid auto-cols-fr grid-flow-col gap-1 rounded-md bg-surface-2 p-1">
+        {options.map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            role="radio"
+            aria-checked={value === option.value}
+            disabled={disabled}
+            onClick={() => onChange(option.value)}
+            className={
+              "min-h-11 cursor-pointer rounded-sm border-0 px-3 font-sans text-sm font-semibold text-fg capitalize transition-colors duration-(--dur-fast) focus-visible:outline-3 focus-visible:outline-focus disabled:cursor-default " +
+              (value === option.value ? "bg-surface shadow-soft" : "bg-transparent text-muted hover:text-fg")
+            }
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function plain(text: string): string {
   return text.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
@@ -56,8 +93,45 @@ function PickerField({ label, value, placeholder, icon, onClick, disabled }: { l
  * chosen. The photo goes straight from the browser to the student's own folder in the private bucket, then the request
  * names it; the server checks the rest (the semester is open, the photo exists, one live request per semester).
  */
-export function SubscribeForm({ copy, semesterId, schoolId, studentId, stops }: { copy: StudentCopy["subscription"]; semesterId: string; schoolId: string; studentId: string; stops: StopOption[] }) {
+export function SubscribeForm({
+  copy,
+  semesterId,
+  schoolId,
+  studentId,
+  stops,
+  billing,
+  preference,
+  months,
+  month: initialMonth = null,
+  locale,
+}: {
+  copy: StudentCopy["subscription"];
+  semesterId: string;
+  schoolId: string;
+  studentId: string;
+  stops: StopOption[];
+  /** The school's billing (ADR 0022); null while it is not set, when nothing can be sent. */
+  billing: Billing | null;
+  /** How the student prefers to pay, to fill in the choice. */
+  preference: Mode | null;
+  /** With monthly billing, the months on offer (first days). */
+  months: string[];
+  /** The month to start with. */
+  month?: string | null;
+  locale: string;
+}) {
   const router = useRouter();
+  const monthly = billing?.period === "month";
+  const offers = billing?.period === "semester" && billing.plan !== null;
+  const [month, setMonth] = useState<string | null>(initialMonth && months.includes(initialMonth) ? initialMonth : (months[0] ?? null));
+  const [mode, setMode] = useState<Mode | null>(preference);
+  const [asking, setAsking] = useState<Mode | null>(null);
+  const money = (amount: number) => formatAmount(amount, locale, billing?.currency ?? "XAF");
+  const monthName = (day: string) => new Intl.DateTimeFormat(locale, { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${day}T00:00:00Z`));
+  const done = () => {
+    router.replace("/app/subscription");
+    router.refresh();
+  };
   const fileInput = useRef<HTMLInputElement>(null);
   const [stop, setStop] = useState<StopOption | null>(null);
   const [picking, setPicking] = useState(false);
@@ -85,7 +159,11 @@ export function SubscribeForm({ copy, semesterId, schoolId, studentId, stops }: 
   };
 
   const submit = async () => {
-    if (!stop || !proof) return;
+    if (!stop || !proof || !billing) return;
+    if (offers && !mode) {
+      setProblem("payment");
+      return;
+    }
     if (!navigator.onLine) {
       setProblem("offline");
       return;
@@ -100,14 +178,28 @@ export function SubscribeForm({ copy, semesterId, schoolId, studentId, stops }: 
       setProblem(uploadProblem(upload.error as { statusCode?: string; message: string }));
       return;
     }
-    const insert = await supabase.from("subscriptions").insert({ school_id: schoolId, student_id: studentId, semester_id: semesterId, stop_id: stop.id, proof_path: path });
+    // How the student pays and, for monthly billing, the month: the server works out the price and the dates.
+    const paying: Mode = offers && mode ? mode : "full";
+    const insert = await supabase.from("subscriptions").insert({
+      school_id: schoolId,
+      student_id: studentId,
+      semester_id: semesterId,
+      stop_id: stop.id,
+      proof_path: path,
+      payment_mode: paying,
+      ...(monthly && month ? { period_start: month } : {}),
+    });
     if (insert.error) {
       setBusy(false);
       setProblem(subscribeProblem(insert.error));
       return;
     }
-    router.replace("/app/subscription");
-    router.refresh();
+    // A first choice of how to pay may become the student's preference, if they want.
+    if (offers && preference === null) {
+      setAsking(paying);
+      return;
+    }
+    done();
   };
 
   return (
@@ -116,6 +208,36 @@ export function SubscribeForm({ copy, semesterId, schoolId, studentId, stops }: 
       <p id="subscribe-intro" className="m-0 text-muted">
         {copy.intro}
       </p>
+      {billing ? (
+        <p className="m-0 text-lg font-bold">{format(monthly ? copy.priceMonth : copy.priceSemester, { price: money(billing.price) })}</p>
+      ) : (
+        <Notice tone="warn">{copy.billingNotSet}</Notice>
+      )}
+      {monthly && months.length > 0 ? (
+        <Choices label={copy.monthLabel} value={month} options={months.map((m) => ({ value: m, label: monthName(m) }))} onChange={setMonth} disabled={busy} />
+      ) : null}
+      {offers && billing ? (
+        <div className="flex flex-col gap-1.5">
+          <Choices<Mode>
+            label={copy.paymentLabel}
+            value={mode}
+            options={[
+              { value: "full", label: copy.paymentFull },
+              { value: "installments", label: copy.paymentInstallments },
+            ]}
+            onChange={(value) => {
+              setMode(value);
+              if (problem === "payment") setProblem(null);
+            }}
+            disabled={busy}
+          />
+          {mode ? (
+            <p className="m-0 text-sm text-muted" data-testid="payment-note">
+              {mode === "installments" ? format(copy.installmentsNote, { parts: splitAmount(billing.price, billing.plan!).map(money).join(", ") }) : format(copy.fullNote, { amount: money(billing.price) })}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
       <PickerField label={copy.stopLabel} value={stop?.name ?? null} placeholder={copy.stopHint} icon={Location01Icon} onClick={() => setPicking(true)} disabled={busy} />
       <div className="flex flex-col gap-2">
         <PickerField label={copy.proofLabel} value={proof ? copy.proofAdded : null} placeholder={copy.proofHint} icon={Camera01Icon} onClick={() => fileInput.current?.click()} disabled={busy} />
@@ -143,9 +265,28 @@ export function SubscribeForm({ copy, semesterId, schoolId, studentId, stops }: 
         </p>
       </div>
       {problem ? <Notice tone="bad">{copy.errors[problem]}</Notice> : null}
-      <Button type="button" className="h-14 w-full text-base" disabled={!stop || !proof || busy} onClick={submit}>
+      <Button type="button" className="h-14 w-full text-base" disabled={!stop || !proof || busy || !billing || (monthly && !month)} onClick={submit}>
         {busy ? copy.sending : copy.submit}
       </Button>
+
+      <Sheet open={asking !== null} onClose={done} label={copy.preference.title} placement="bottom">
+        <div className="relative flex flex-col gap-4 px-7 pt-6 pb-2" data-testid="preference-sheet">
+          <h2 className="m-0 text-xl font-extrabold tracking-tight">{copy.preference.title}</h2>
+          <p className="m-0 text-muted">{format(copy.preference.body, { mode: asking === "installments" ? copy.paymentInstallments : copy.paymentFull })}</p>
+          <Button
+            className="h-14 w-full text-base"
+            onClick={async () => {
+              if (asking) await setPaymentPreference(asking);
+              done();
+            }}
+          >
+            {copy.preference.save}
+          </Button>
+          <Button variant="ghost" className="h-12 w-full" onClick={done}>
+            {copy.preference.notNow}
+          </Button>
+        </div>
+      </Sheet>
 
       <Modal
         open={picking}

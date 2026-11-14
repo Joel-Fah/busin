@@ -51,7 +51,10 @@ test("sends a request with a stop and a photo of the receipt", async ({ page, co
   await chooseStop(page, stop);
   await page.getByTestId("proof-input").setInputFiles({ name: "receipt.png", mimeType: "image/png", buffer: PNG });
   await expect(page.getByText("Photo added")).toBeVisible();
+  // The seed school offers installments: the student says how they pay, and is asked whether to keep it (ADR 0022).
+  await page.getByRole("radio", { name: "In full" }).click();
   await page.getByRole("button", { name: "Send request" }).click();
+  await page.getByTestId("preference-sheet").getByRole("button", { name: "Not now" }).click();
 
   await expect(page.getByTestId("status-card")).toContainText("Request sent");
   await expect(page.getByTestId("status-card")).toContainText(stop);

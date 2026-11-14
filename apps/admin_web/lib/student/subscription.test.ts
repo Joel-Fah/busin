@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildRequestHistory, proofPath, sniffImageType, stageOf, subscribeProblem, subscriptionToShow, uploadProblem, type SubscriptionRow } from "./subscription";
+import { buildRequestHistory, liveRequests, monthChoices, proofPath, sniffImageType, stageOf, stillRunning, subscribeProblem, subscriptionToShow, uploadProblem, type SubscriptionRow } from "./subscription";
 
 const row = (id: string, status: SubscriptionRow["status"], created_at: string, semester_id = "sem"): SubscriptionRow => ({
   id,
@@ -60,5 +60,38 @@ describe("the subscription tab", () => {
     expect(subscribeProblem({ code: "42501", message: "denied" })).toBe("failed");
     expect(uploadProblem({ statusCode: "413", message: "Payload too large" })).toBe("tooLarge");
     expect(uploadProblem({ statusCode: "415", message: "mime type not supported" })).toBe("type");
+  });
+});
+
+describe("monthly billing (ADR 0022)", () => {
+  const month = (id: string, start: string, end: string, status: SubscriptionRow["status"] = "approved"): SubscriptionRow => ({
+    ...row(id, status, `${start}T08:00:00Z`),
+    period_start: start,
+    period_end: end,
+  });
+  const fall = { start_date: "2026-09-01", end_date: "2027-01-31" };
+
+  it("offers this month and the next inside the semester, not one already asked for", () => {
+    expect(monthChoices(fall, "2026-11-14", [])).toEqual(["2026-11-01", "2026-12-01"]);
+    expect(monthChoices(fall, "2026-11-14", [{ period_start: "2026-11-01" }])).toEqual(["2026-12-01"]);
+    expect(monthChoices(fall, "2027-01-20", []), "February is after the semester").toEqual(["2027-01-01"]);
+    expect(monthChoices(fall, "2026-12-05", [])).toEqual(["2026-12-01", "2027-01-01"]);
+  });
+
+  it("shows the running month first, and nothing once a month has ended", () => {
+    const nov = month("nov", "2026-11-01", "2026-11-30");
+    const dec = month("dec", "2026-12-01", "2026-12-31", "pending");
+    expect(subscriptionToShow([dec, nov], "sem", "2026-11-14")?.id).toBe("nov");
+    expect(liveRequests([dec, nov], "2026-11-14").map((s) => s.id)).toEqual(["nov", "dec"]);
+    expect(subscriptionToShow([month("oct", "2026-10-01", "2026-10-31")], "sem", "2026-11-01")).toBeNull();
+    expect(stillRunning(nov, "2026-11-30")).toBe(true);
+    expect(stillRunning(nov, "2026-12-01")).toBe(false);
+  });
+
+  it("explains the billing refusals", () => {
+    expect(subscribeProblem({ code: "55000", message: "billing_not_set" })).toBe("billing");
+    expect(subscribeProblem({ code: "55000", message: "period_ended" })).toBe("periodEnded");
+    expect(subscribeProblem({ code: "22023", message: "month_not_allowed" })).toBe("unavailable");
+    expect(subscribeProblem({ code: "23505", message: "already_requested" })).toBe("exists");
   });
 });
