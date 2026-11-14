@@ -41,6 +41,11 @@ class SupabaseProfileRepository implements ProfileRepository {
       });
 
   @override
+  Future<void> setPaymentPreference(PaymentMode? preference) => guarded(() async {
+        await _client.rpc<void>('set_payment_preference', params: {'p_preference': preference?.name});
+      });
+
+  @override
   Stream<Profile> watchProfile(String userId) {
     // Filtered to the person's own row on the server, which only lets them read their own.
     return _client

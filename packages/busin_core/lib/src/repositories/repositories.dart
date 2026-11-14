@@ -1,5 +1,6 @@
 import '../enums.dart';
 import '../models/academic.dart';
+import '../models/billing.dart';
 import 'dart:typed_data';
 
 import '../geo_point.dart';
@@ -49,6 +50,9 @@ abstract interface class ProfileRepository {
   /// The person's own profile as it changes on the server (an administrator changing the role, suspending the account).
   /// The first value is the profile as it is now.
   Stream<Profile> watchProfile(String userId);
+
+  /// Saves how the signed-in student prefers to pay (ADR 0022), or clears it with null. Students only.
+  Future<void> setPaymentPreference(PaymentMode? preference);
 }
 
 abstract interface class AcademicRepository {

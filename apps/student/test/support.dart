@@ -159,9 +159,23 @@ class FakeProfileRepository implements ProfileRepository {
       programId: academic == null ? old.programId : academic.programId,
       createdAt: old.createdAt,
       updatedAt: DateTime.now().toUtc(),
+      streakOptIn: old.streakOptIn,
+      paymentPreference: old.paymentPreference,
     );
     byId[userId] = updated;
     return updated;
+  }
+
+  /// The preferences saved, in order.
+  final savedPreferences = <PaymentMode?>[];
+
+  @override
+  Future<void> setPaymentPreference(PaymentMode? preference) async {
+    if (error != null) throw error!;
+    savedPreferences.add(preference);
+    for (final id in byId.keys.toList()) {
+      byId[id] = Profile.fromJson({...byId[id]!.toJson(), 'payment_preference': preference?.name});
+    }
   }
 }
 

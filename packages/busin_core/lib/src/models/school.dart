@@ -1,4 +1,5 @@
 import '../json.dart';
+import 'billing.dart';
 import 'joining.dart';
 import '../value_object.dart';
 
@@ -17,6 +18,10 @@ class School extends ValueObject {
     this.contactEmail,
     this.phone,
     this.about,
+    this.billingPeriod,
+    this.priceXaf,
+    this.installmentPlan,
+    this.currency = 'XAF',
   });
 
   factory School.fromJson(Map<String, dynamic> json) => School(
@@ -32,6 +37,10 @@ class School extends ValueObject {
         contactEmail: optString(json, 'contact_email'),
         phone: optString(json, 'phone'),
         about: optString(json, 'about'),
+        billingPeriod: BillingPeriod.tryParse(json['billing_period']),
+        priceXaf: optInt(json, 'price_xaf'),
+        installmentPlan: InstallmentPlan.tryParse(json['installment_plan']),
+        currency: optString(json, 'currency') ?? 'XAF',
       );
 
   final String id;
@@ -53,6 +62,19 @@ class School extends ValueObject {
   /// One or two sentences the school writes for its students.
   final String? about;
 
+  /// How students are billed (ADR 0022). Null until the school sets it; requests are refused meanwhile.
+  final BillingPeriod? billingPeriod;
+
+  /// The price of one period (a semester or a month), in whole units of [currency].
+  final int? priceXaf;
+
+  /// The plan students may pay a semester in, or null when they pay in full.
+  final InstallmentPlan? installmentPlan;
+  final String currency;
+
+  /// Whether students can ask for a subscription yet.
+  bool get billingSet => billingPeriod != null && priceXaf != null;
+
   /// The public address of the logo, given the backend's base URL.
   String? logoUrl(String supabaseUrl) => schoolLogoUrl(logoPath, supabaseUrl);
 
@@ -70,8 +92,12 @@ class School extends ValueObject {
         'contact_email': contactEmail,
         'phone': phone,
         'about': about,
+        'billing_period': billingPeriod?.name,
+        'price_xaf': priceXaf,
+        'installment_plan': installmentPlan?.code,
+        'currency': currency,
       };
 
   @override
-  List<Object?> get props => [id, name, shortName, timezone, isActive, logoPath, city, country, website, contactEmail, phone, about];
+  List<Object?> get props => [id, name, shortName, timezone, isActive, logoPath, city, country, website, contactEmail, phone, about, billingPeriod, priceXaf, installmentPlan, currency];
 }

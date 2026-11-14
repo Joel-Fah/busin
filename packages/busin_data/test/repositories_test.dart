@@ -342,8 +342,10 @@ void main() {
       expect(created.isLive, isTrue);
       expect(h.last.method, 'POST');
       final body = jsonDecode(h.last.body) as Map<String, dynamic>;
-      expect(body.keys.toSet(), {'school_id', 'student_id', 'semester_id', 'stop_id', 'proof_path'});
+      // How the student pays, never a price or a period end (the server works those out, ADR 0022).
+      expect(body.keys.toSet(), {'school_id', 'student_id', 'semester_id', 'stop_id', 'proof_path', 'payment_mode'});
       expect(body.containsKey('status'), isFalse);
+      expect(body.containsKey('amount_xaf'), isFalse);
       expect(h.last.url.queryParameters['select'], isNot(contains('*')));
     });
 
