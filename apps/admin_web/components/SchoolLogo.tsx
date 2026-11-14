@@ -17,9 +17,11 @@ export function SchoolLogo({ url, size = "sm", fallback, className = "" }: { url
     // A flex box of fixed height: the logo's max height resolves against it, so a 512 px file shrinks to fit, in proportion.
     <span className={`inline-flex shrink-0 items-center justify-center overflow-hidden bg-white ${SIZES[size]} ${className}`} data-testid="school-logo">
       {url ? (
-        // A public logo file (a Supabase host or a local preview); already small.
+        // A public logo file (a Supabase host or a local preview); already small. As tall as the plate allows, as wide as
+        // its own proportions make it: the plate then wraps the logo (up to its maximum width, where a very wide logo is
+        // fitted inside instead).
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={url} alt="" className="block h-auto max-h-full w-auto max-w-full object-contain" />
+        <img src={url} alt="" className="block h-full w-auto max-w-full object-contain" />
       ) : (
         fallback
       )}
