@@ -11,7 +11,6 @@ import '../auth/access.dart';
 import '../legal/legal_screen.dart';
 import '../profile/payment_preference_card.dart';
 import '../profile/profile_form.dart';
-import '../profile/school_badge.dart';
 import '../providers.dart';
 import '../router.dart';
 import '../streaks/streak_providers.dart';
@@ -112,7 +111,13 @@ class ProfileScreen extends ConsumerWidget {
             runSpacing: BusinSpace.x2,
             children: [
               StatusChip(label: l10n.accountStatus(profile.status), tone: accountTone(profile.status)),
-              if (school != null) SchoolBadge(school: school, supabaseUrl: ref.watch(appConfigProvider).supabaseUrl),
+              // Tapping it shows what the school's administrators wrote: address, email, phones and website.
+              if (school != null)
+                SchoolBadge(
+                  school: school,
+                  supabaseUrl: ref.watch(appConfigProvider).supabaseUrl,
+                  onTap: () => showSchoolInfoSheet(context, school: school, supabaseUrl: ref.read(appConfigProvider).supabaseUrl),
+                ),
             ],
           ),
         ],

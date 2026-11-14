@@ -7,7 +7,6 @@ import 'package:hugeicons/hugeicons.dart';
 import '../auth/access.dart';
 import '../providers.dart';
 import 'join_providers.dart';
-import 'school_logo.dart';
 
 /// For a student without a school email (ADR 0012): the schools that accept their email, a search, and a way to ask to
 /// join one. If a school declined them before, that is said first, with the reason.

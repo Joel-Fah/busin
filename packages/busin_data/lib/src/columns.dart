@@ -11,7 +11,7 @@ class Columns {
   static const installment = 'id, subscription_id, seq, percent, amount_xaf, due_date, status, proof_path, review_note';
   static const installmentReceipt = 'id, subscription_id, seq, proof_path, sent_at, decision, note, decided_at';
   static const subscriptionEvent = 'id, subscription_id, action, note, created_at';
-  static const school = 'id, name, short_name, timezone, status, logo_path, city, country, website, contact_email, phone, about, billing_period, price_xaf, installment_plan, currency';
+  static const school = 'id, name, short_name, timezone, status, logo_path, city, country, website, contact_email, phone, phone_secondary, address, about, billing_period, price_xaf, installment_plan, currency';
   static const stop = 'id, school_id, name, location, photo_path, active';
   static const semester = 'id, school_id, name, year, start_date, end_date';
   static const subscription =

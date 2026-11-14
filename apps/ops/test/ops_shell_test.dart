@@ -92,6 +92,16 @@ void main() {
       expect(find.text('If you are staff or a driver'), findsOneWidget);
     });
 
+    testWidgets('the profile shows the school with its logo badge, which opens its details', (tester) async {
+      await open(tester, auth: FakeAuth(signedInAs: 'u1'), profiles: {'u1': staff()}, trips: FakeTrips([]));
+      await tester.tap(find.byTooltip('Profile and settings'));
+      await settle(tester);
+      expect(find.byType(SchoolBadge), findsOneWidget, reason: 'the logo badge, not a plain chip');
+      await tester.tap(find.text('Test School'));
+      await settle(tester);
+      expect(find.text('The school has not added its details yet.'), findsOneWidget);
+    });
+
     testWidgets('the profile shows who is signed in and keeps the scanning and driving choices', (tester) async {
       await open(tester, auth: FakeAuth(signedInAs: 'u1'), profiles: {'u1': staff()}, trips: FakeTrips([]));
       await tester.tap(find.byTooltip('Profile and settings'));

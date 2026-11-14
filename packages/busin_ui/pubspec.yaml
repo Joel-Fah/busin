@@ -18,6 +18,9 @@ dependencies:
   path_drawing: ^1.0.1
   hugeicons: ^1.1.1
   intl: any
+  # Opens a school's email, phone numbers and website in the phone's own apps (the school sheet). The Flutter team's
+  # plugin; 6.3.2 is the version the legacy app already used.
+  url_launcher: 6.3.2
 
 dev_dependencies:
   flutter_test:

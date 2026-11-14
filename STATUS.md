@@ -48,7 +48,7 @@ Since then (PRs into `dev`, not merged): the school logo fits its box in its own
 
 Then (PRs into `dev`): the sign-in screen follows the theme, with the bus stop photo in light mode on the phone and the web (#472); the ops app's launch screen follows the theme too (#473, stacked on #472).
 
-Next round (PRs into `dev`, stacked in this order): the sign-in tip to use the school email (#476); search on the admin Subscriptions list (#477); a refused account is told it is not allowed instead of "try again" (#482); installments follow each student's start and close when fewer than two weeks per part are left (#478, migration `20261115190000_installments_from_start`, ADR 0022 point 8); tab badges in the student and ops apps (#479, migration `20261115200000_trips_realtime`, `20261115210000_school_second_phone`); an optional second school phone (#486, migration `20261115210000_school_second_phone`).
+Next round (PRs into `dev`, stacked in this order): the sign-in tip to use the school email (#476); search on the admin Subscriptions list (#477); a refused account is told it is not allowed instead of "try again" (#482); installments follow each student's start and close when fewer than two weeks per part are left (#478, migration `20261115190000_installments_from_start`, ADR 0022 point 8); tab badges in the student and ops apps (#479, migration `20261115200000_trips_realtime`, `20261115210000_school_second_phone`); an optional second school phone (#486, migration `20261115210000_school_second_phone`); the school sheet from the profile in both apps, and the ops logo (#487). The apps now read `phone_secondary` and `address`: the hosted migration must be applied before these app builds are released.
 
 What to test (local: `npm run backend:start`, `npm run seed:demo`, `npm run web`, `npm run dev:device`; rebuild both Flutter apps):
 - **Ops scan sounds:** a valid code, the same again, a screenshot older than a minute, a student without a subscription, no network and no list. Each sounds different, and music keeps playing. The switch is in the profile.
@@ -77,6 +77,7 @@ What to test (local: `npm run backend:start`, `npm run seed:demo`, `npm run web`
 - **Tab badges (student app):** on Profile, have the request approved from the portal: Subscription and Code get an orange dot; opening a tab clears its dot. With notifications on, a part paid or rejected marks Subscription and the bus near your stop marks My bus. The tab you are on never gets one.
 - **Tab badges (ops app):** on History, assign a trip to yourself from the portal (or have a colleague start a field trip with you): Trips gets a dot and its list refreshes.
 - **Second school phone (admin):** on the school profile, an optional second phone with its own country; saved as E.164, emptied it is cleared.
+- **School sheet (student and ops):** on the profile, the school shows as a logo badge (in ops too, which showed only a name chip); tapping it opens a sheet with the logo, about, address, email, phones and website. Email opens the mail app, phones the dialler, the website the browser.
 - **Admin lists on a phone width:** scroll a list until the tabs stick. They stay on one row and scroll sideways, with the current tab in view.
 
 ## Handoff: student web app (2026-11-13)

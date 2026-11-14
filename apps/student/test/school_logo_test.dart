@@ -1,4 +1,3 @@
-import 'package:busin_student/src/join/school_logo.dart';
 import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
