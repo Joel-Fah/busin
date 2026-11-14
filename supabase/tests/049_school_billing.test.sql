@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(39);
+select plan(41);
 
 -- School billing (ADR 0022): the school's choice, the student's preference, the price and period copied onto each
 -- request, monthly subscriptions that cover one month, and refusals until billing is set.
@@ -122,6 +122,15 @@ select isnt(private.subscription_on('a1000000-0000-4000-8000-000000000002', '100
 select is(private.subscription_on('a1000000-0000-4000-8000-000000000002', '10000000-0000-4000-8000-000000000001', (date_trunc('month', current_date) + interval '1 month')::date), null,
   'and not the day after it (the next month is still pending)');
 select isnt(private.active_subscription_id('a1000000-0000-4000-8000-000000000002', '10000000-0000-4000-8000-000000000001'), null, 'today counts for the boarding code');
+
+-- Revoking this month and giving it back is not blocked by next month's pending request.
+set local role authenticated;
+set local "request.jwt.claims" = '{"sub":"a3000000-0000-4000-8000-000000000001","role":"authenticated"}';
+select lives_ok($$select public.admin_revoke_subscription((select id from public.subscriptions where student_id = 'a1000000-0000-4000-8000-000000000002' and period_start = date_trunc('month', current_date)::date), 'Payment was reversed by the bank')$$,
+  'this month is revoked');
+select lives_ok($$select public.admin_reinstate_subscription((select id from public.subscriptions where student_id = 'a1000000-0000-4000-8000-000000000002' and period_start = date_trunc('month', current_date)::date), 'Paid again at the office')$$,
+  'and given back, although next month is pending');
+reset role;
 
 -- A month that has passed cannot be approved (a request left pending from last month).
 insert into public.subscriptions (id, school_id, student_id, semester_id, stop_id, status, proof_path, payment_mode, period_start)

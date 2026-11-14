@@ -199,6 +199,63 @@ revoke execute on function private.check_subscription_period() from public;
 create trigger subscriptions_period_open before update of status on public.subscriptions
   for each row execute function private.check_subscription_period();
 
+-- Giving back a revoked month is not blocked by a request for another month.
+create or replace function public.admin_reinstate_subscription(p_subscription_id uuid, p_note text default null)
+returns void
+language plpgsql security definer
+set search_path = ''
+as $$
+declare
+  v_actor uuid := (select auth.uid());
+  v_school uuid := private.my_school_id();
+  v_sub public.subscriptions;
+  v_note text;
+begin
+  if not private.is_admin() then
+    raise exception 'Admin access required' using errcode = '42501';
+  end if;
+  v_note := private.clean_reason(p_note, true);
+
+  select * into v_sub
+  from public.subscriptions
+  where id = p_subscription_id and school_id = v_school
+  for update;
+  if not found then
+    raise exception 'Subscription not found' using errcode = 'P0002';
+  end if;
+  if v_sub.status <> 'revoked' then
+    raise exception 'Only revoked subscriptions can be reinstated' using errcode = '55000';
+  end if;
+  if private.student_is_suspended(v_sub.student_id) then
+    raise exception 'account_suspended' using errcode = '55000';
+  end if;
+  -- One live subscription per student and period (the semester, or the month): a newer request has to be dealt with first.
+  if exists (
+    select 1 from public.subscriptions s
+    where s.student_id = v_sub.student_id and s.semester_id = v_sub.semester_id
+      and s.period_start is not distinct from v_sub.period_start
+      and s.id <> v_sub.id and s.status in ('pending', 'approved')
+  ) then
+    raise exception 'The student already has a live subscription for this semester' using errcode = '55000';
+  end if;
+  if exists (select 1 from public.semesters m where m.id = v_sub.semester_id and m.end_date < private.school_today(v_school)) then
+    raise exception 'semester_ended' using errcode = '55000';
+  end if;
+
+  update public.subscriptions
+  set status = 'approved',
+      review_note = v_note,
+      reviewed_by = v_actor,
+      reviewed_at = now()
+  where id = p_subscription_id;
+
+  perform private.write_audit(
+    v_school, v_actor, 'subscription.reinstated', 'subscription', p_subscription_id,
+    jsonb_build_object('student_id', v_sub.student_id)
+  );
+end;
+$$;
+
 -- ---------------------------------------------------------------- "covers today" reads the period
 -- A subscription covers a day when it is approved and the day is inside its month, or its semester when it has none.
 create or replace function private.active_subscription_id(p_student uuid, p_school uuid) returns uuid
