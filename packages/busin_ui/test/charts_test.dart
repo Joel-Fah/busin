@@ -44,4 +44,34 @@ void main() {
     expect(find.text('Late'), findsOneWidget, reason: 'every colour has its label');
     semantics.dispose();
   });
+
+  testWidgets('tapping a bar shows its values; tapping it again hides them; sliding moves the pick', (tester) async {
+    await tester.pumpWidget(app(const BusinBarChart(
+      bars: [
+        ChartBar(label: 'W1', segments: [3, 1]),
+        ChartBar(label: 'W2', segments: [5, 0]),
+      ],
+      colors: [Colors.green, Colors.orange],
+      seriesLabels: ['On time', 'Late'],
+      semanticLabel: 'Trips per week',
+    )));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('bar-readout')), findsNothing);
+
+    final chart = tester.getRect(find.byType(CustomPaint).last);
+    // The bars share the width right of the 30-wide axis: W1 on the left half, W2 on the right.
+    final w1 = Offset(chart.left + 30 + (chart.width - 30) * 0.25, chart.center.dy);
+    final w2 = Offset(chart.left + 30 + (chart.width - 30) * 0.75, chart.center.dy);
+    await tester.tapAt(w1);
+    await tester.pumpAndSettle();
+    expect(find.text('W1: 4 (On time 3, Late 1)'), findsOneWidget);
+
+    await tester.dragFrom(w1, w2 - w1);
+    await tester.pumpAndSettle();
+    expect(find.text('W2: 5 (On time 5)'), findsOneWidget, reason: 'a part at zero is left out');
+
+    await tester.tapAt(w2);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('bar-readout')), findsNothing);
+  });
 }

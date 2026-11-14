@@ -48,29 +48,104 @@ class ChartLegend extends StatelessWidget {
 }
 
 /// Stacked bars over time (for example trips on time and late, one bar per week). The whole chart is one image for a
-/// screen reader, described by [semanticLabel]; the numbers it shows are also given in text on the page.
-class BusinBarChart extends StatelessWidget {
-  const BusinBarChart({super.key, required this.bars, required this.colors, required this.semanticLabel, this.height = 168});
+/// screen reader, described by [semanticLabel]; the numbers it shows are also given in text on the page. Tapping a bar
+/// (or sliding across the bars) picks it: the others dim and a line above the chart gives its label, its total and, with
+/// [seriesLabels], each part ("On time 8, Late 2"). Tapping it again puts the chart back.
+class BusinBarChart extends StatefulWidget {
+  const BusinBarChart({super.key, required this.bars, required this.colors, required this.semanticLabel, this.seriesLabels, this.height = 168});
 
   final List<ChartBar> bars;
   final List<Color> colors;
   final String semanticLabel;
+
+  /// The name of each segment, in the order of [colors] (the legend's words), for the picked bar's line.
+  final List<String>? seriesLabels;
   final double height;
+
+  @override
+  State<BusinBarChart> createState() => _BusinBarChartState();
+}
+
+class _BusinBarChartState extends State<BusinBarChart> {
+  int? _picked;
+
+  @override
+  void didUpdateWidget(BusinBarChart old) {
+    super.didUpdateWidget(old);
+    if (_picked != null && _picked! >= widget.bars.length) _picked = null;
+  }
+
+  /// The bar under [dx], given the chart's [width] (the same slots the painter uses).
+  int? _barAt(double dx, double width) {
+    final bars = widget.bars.length;
+    if (bars == 0) return null;
+    final slot = (width - _axisWidth) / bars;
+    if (slot <= 0 || dx < _axisWidth) return null;
+    return ((dx - _axisWidth) / slot).floor().clamp(0, bars - 1);
+  }
+
+  void _pick(int? index, {bool toggle = false}) {
+    if (index == null) return;
+    setState(() => _picked = toggle && _picked == index ? null : index);
+  }
+
+  /// "Week of 2 Nov: 12 (On time 8, Late 2, Field trips 1, Not run 1)". Parts at zero are left out.
+  String _readout(ChartBar bar) {
+    final names = widget.seriesLabels;
+    final total = _plain(bar.total);
+    if (names == null || bar.segments.length < 2) return '${bar.label}: $total';
+    final parts = [
+      for (var s = 0; s < bar.segments.length && s < names.length; s++)
+        if (bar.segments[s] > 0) '${names[s]} ${_plain(bar.segments[s])}',
+    ];
+    return parts.isEmpty ? '${bar.label}: $total' : '${bar.label}: $total (${parts.join(', ')})';
+  }
 
   @override
   Widget build(BuildContext context) {
     final p = BusinPalette.of(context);
-    final style = Theme.of(context).textTheme.labelSmall?.copyWith(color: p.muted) ?? TextStyle(color: p.muted, fontSize: 11);
-    return Semantics(
-      label: semanticLabel,
-      image: true,
-      excludeSemantics: true,
-      child: _Grow(
-        builder: (t) => CustomPaint(
-          size: Size(double.infinity, height),
-          painter: _BarPainter(bars: bars, colors: colors, grid: p.line, label: style, progress: t),
+    final text = Theme.of(context).textTheme;
+    final style = text.labelSmall?.copyWith(color: p.muted) ?? TextStyle(color: p.muted, fontSize: 11);
+    final picked = _picked;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        AnimatedSize(
+          duration: BusinMotion.of(context, BusinMotion.fast),
+          alignment: Alignment.topCenter,
+          child: picked == null
+              ? const SizedBox(width: double.infinity)
+              : Padding(
+                  padding: const EdgeInsets.only(bottom: BusinSpace.x2),
+                  child: Semantics(
+                    liveRegion: true,
+                    child: Text(
+                      _readout(widget.bars[picked]),
+                      key: const ValueKey('bar-readout'),
+                      style: text.bodySmall?.copyWith(fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                ),
         ),
-      ),
+        Semantics(
+          label: widget.semanticLabel,
+          image: true,
+          excludeSemantics: true,
+          child: LayoutBuilder(
+            builder: (context, constraints) => GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTapUp: (d) => _pick(_barAt(d.localPosition.dx, constraints.maxWidth), toggle: true),
+              onHorizontalDragUpdate: (d) => _pick(_barAt(d.localPosition.dx, constraints.maxWidth)),
+              child: _Grow(
+                builder: (t) => CustomPaint(
+                  size: Size(double.infinity, widget.height),
+                  painter: _BarPainter(bars: widget.bars, colors: widget.colors, grid: p.line, label: style, progress: t, picked: picked),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -183,13 +258,16 @@ double _niceMax(double value) {
 String _plain(double v) => v == v.roundToDouble() ? v.toInt().toString() : v.toStringAsFixed(1);
 
 class _BarPainter extends CustomPainter {
-  _BarPainter({required this.bars, required this.colors, required this.grid, required this.label, required this.progress});
+  _BarPainter({required this.bars, required this.colors, required this.grid, required this.label, required this.progress, this.picked});
 
   final List<ChartBar> bars;
   final List<Color> colors;
   final Color grid;
   final TextStyle label;
   final double progress;
+
+  /// The bar picked by a tap: the others are drawn faded.
+  final int? picked;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -217,7 +295,9 @@ class _BarPainter extends CustomPainter {
         // Only the top of the stack is rounded.
         final isTop = bar.segments.skip(s + 1).every((v) => v <= 0);
         final r = isTop ? const Radius.circular(4) : Radius.zero;
-        canvas.drawRRect(RRect.fromRectAndCorners(rect, topLeft: r, topRight: r), Paint()..color = colors[s % colors.length]);
+        final colour = colors[s % colors.length];
+        final faded = picked != null && picked != i;
+        canvas.drawRRect(RRect.fromRectAndCorners(rect, topLeft: r, topRight: r), Paint()..color = faded ? colour.withValues(alpha: colour.a * 0.3) : colour);
         y -= h;
       }
       if (_showLabel(i, bars.length, chart.width)) {
@@ -227,7 +307,7 @@ class _BarPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_BarPainter old) => old.bars != bars || old.progress != progress || old.grid != grid || old.colors != colors;
+  bool shouldRepaint(_BarPainter old) => old.bars != bars || old.progress != progress || old.grid != grid || old.colors != colors || old.picked != picked;
 }
 
 class _LinePainter extends CustomPainter {

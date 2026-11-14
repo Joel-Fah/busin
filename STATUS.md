@@ -50,7 +50,7 @@ Then (PRs into `dev`): the sign-in screen follows the theme, with the bus stop p
 
 Next round (PRs into `dev`, stacked in this order): the sign-in tip to use the school email (#476); search on the admin Subscriptions list (#477); a refused account is told it is not allowed instead of "try again" (#482); installments follow each student's start and close when fewer than two weeks per part are left (#478, migration `20261115190000_installments_from_start`, ADR 0022 point 8); tab badges in the student and ops apps (#479, migration `20261115200000_trips_realtime`, `20261115210000_school_second_phone`); an optional second school phone (#486, migration `20261115210000_school_second_phone`); the school sheet from the profile in both apps, and the ops logo (#487); the offline banner shows as soon as the network drops (#490); the stop list is nearest first when the student has an area (#492).
 
-Local tools: `npm run seed:staff -- <staff email>` gives a staff account two weeks of trips with boardings, two today and some ahead (on demo bus DEMO-107; needs `npm run seed:demo`). The school E2E now backs up and restores the school's logo file (it used to delete the owner's local logo). The apps now read `phone_secondary` and `address`: the hosted migration must be applied before these app builds are released.
+Local tools: `npm run seed:staff -- <staff email>` gives a staff account eight varied weeks of trips (on time, late, missed, cancelled, field trips) with boardings, two today and some ahead (on demo bus DEMO-107; needs `npm run seed:demo`). The school E2E now backs up and restores the school's logo file (it used to delete the owner's local logo). The apps now read `phone_secondary` and `address`: the hosted migration must be applied before these app builds are released.
 
 What to test (local: `npm run backend:start`, `npm run seed:demo`, `npm run web`, `npm run dev:device`; rebuild both Flutter apps):
 - **Ops scan sounds:** a valid code, the same again, a screenshot older than a minute, a student without a subscription, no network and no list. Each sounds different, and music keeps playing. The switch is in the profile.
@@ -81,6 +81,8 @@ What to test (local: `npm run backend:start`, `npm run seed:demo`, `npm run web`
 - **Second school phone (admin):** on the school profile, an optional second phone with its own country; saved as E.164, emptied it is cleared.
 - **School sheet (student and ops):** on the profile, the school shows as a logo badge (in ops too, which showed only a name chip); tapping it opens a sheet with the logo, about, address, email, phones and website. Email opens the mail app, phones the dialler, the website the browser.
 - **Offline banner (student and ops):** with a screen open, turn on airplane mode: "No connection" appears within a second, the saved pass or today's trips still show; turning it off removes it.
+- **Ops Stats charts:** tap a bar (or slide across): the others fade and its values show above the chart; tap again to clear.
+- **Ops opening:** a cold start draws the logo once on the loading screen (a tap skips it), in light and dark.
 - **Admin lists on a phone width:** scroll a list until the tabs stick. They stay on one row and scroll sideways, with the current tab in view.
 
 ## Handoff: student web app (2026-11-13)
