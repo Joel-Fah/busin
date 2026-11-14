@@ -321,6 +321,10 @@ export const COMPONENT_NOTES: { name: string; note: string }[] = [
     note: "Both float with a margin all round and rounded corners, never docked to an edge. Danger actions (delete, suspend, sign out) always use the danger style, and a destructive choice asks first.",
   },
   { name: "Card", note: "A raised surface with the lg radius and the still thread 16px in. A number card puts a quiet label above a large extra bold figure." },
+  {
+    name: "Installment plan",
+    note: "The parts of a plan side by side, each as wide as its share, with its percent and, when a price is known, its amount. Shown where a school chooses its plan and on a subscription paid in parts.",
+  },
 ];
 
 export const NEVER = [

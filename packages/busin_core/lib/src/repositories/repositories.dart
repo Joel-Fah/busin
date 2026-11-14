@@ -1,5 +1,7 @@
 import '../enums.dart';
 import '../models/academic.dart';
+import '../models/billing.dart';
+import '../models/installment.dart';
 import 'dart:typed_data';
 
 import '../geo_point.dart';
@@ -49,6 +51,9 @@ abstract interface class ProfileRepository {
   /// The person's own profile as it changes on the server (an administrator changing the role, suspending the account).
   /// The first value is the profile as it is now.
   Stream<Profile> watchProfile(String userId);
+
+  /// Saves how the signed-in student prefers to pay (ADR 0022), or clears it with null. Students only.
+  Future<void> setPaymentPreference(PaymentMode? preference);
 }
 
 abstract interface class AcademicRepository {
@@ -72,6 +77,18 @@ abstract interface class StreaksRepository {
 
   /// The school's board for a semester, best streaks first, with the caller's own row always included.
   Future<List<LeaderboardEntry>> leaderboard(String semesterId, {int limit = 50});
+}
+
+/// The parts of a subscription paid in installments (ADR 0022). The student reads their own; writes go through functions.
+abstract interface class InstallmentsRepository {
+  /// The parts of these subscriptions, in order. Empty for subscriptions paid in full.
+  Future<List<Installment>> forSubscriptions(List<String> subscriptionIds);
+
+  /// Sends the proof for a later part, already uploaded at [proofPath] (`<school>/<student>/<file>`).
+  Future<void> submitProof({required String installmentId, required String proofPath});
+
+  /// Every receipt sent for these subscriptions' parts, with the school's decisions, oldest first.
+  Future<List<InstallmentReceipt>> receiptsFor(List<String> subscriptionIds);
 }
 
 /// The student's own area (ADR 0013). Nobody else reads it; the school only sees counts per zone.

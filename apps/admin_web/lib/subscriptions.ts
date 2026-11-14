@@ -59,6 +59,7 @@ export type ReviewErrorKey =
   | "live_exists"
   | "proof_required"
   | "semester_ended"
+  | "period_ended"
   | "account_suspended"
   | "generic";
 
@@ -66,7 +67,7 @@ export type ReviewErrorKey =
 export function reviewErrorKey(code: string | undefined, message?: string): ReviewErrorKey {
   switch (code) {
     case "55000":
-      return message === "semester_ended" ? "semester_ended" : message === "account_suspended" ? "account_suspended" : "already_reviewed";
+      return message === "semester_ended" || message === "period_ended" || message === "account_suspended" ? message : "already_reviewed";
     case "22023":
       return message === "proof_required" ? "proof_required" : "invalid";
     case "P0002":
@@ -97,8 +98,7 @@ export function revokeErrorKey(code: string | undefined, message?: string): Revi
 export function reinstateErrorKey(code: string | undefined, message?: string): ReviewErrorKey {
   switch (code) {
     case "55000":
-      if (message === "semester_ended") return "semester_ended";
-      if (message === "account_suspended") return "account_suspended";
+      if (message === "semester_ended" || message === "period_ended" || message === "account_suspended") return message;
       return message?.includes("already has a live") ? "live_exists" : "not_revoked";
     case "22023":
       return "invalid";
@@ -118,6 +118,7 @@ const REVIEW_ERRORS: readonly string[] = [
   "live_exists",
   "proof_required",
   "semester_ended",
+  "period_ended",
   "account_suspended",
   "generic",
 ];
@@ -129,17 +130,31 @@ export function isReviewErrorKey(value: string | undefined): value is ReviewErro
 export const EVENT_ACTIONS = ["requested", "approved", "rejected", "revoked", "reinstated"] as const;
 export type EventAction = (typeof EVENT_ACTIONS)[number];
 
-/** One operation on a subscription, as the history shows it. */
-export type SubscriptionOperation = { action: EventAction; at: string; actorName: string | null; byStudent: boolean; note: string | null };
+/** A step of a receipt sent for a part (ADR 0022): kept in the history next to the operations. */
+export type ReceiptAction = "partSent" | "partPaid" | "partRejected";
+
+/** One operation on a subscription, or a step of one of its receipts, as the history shows it. */
+export type SubscriptionOperation = {
+  action: EventAction | ReceiptAction;
+  at: string;
+  actorName: string | null;
+  byStudent: boolean;
+  note: string | null;
+  /** For a receipt: which part, and a short-lived link to the receipt. */
+  seq?: number;
+  proofUrl?: string | null;
+};
 
 /** The tone of an operation's chip. Words always come with it. */
-export function eventTone(action: EventAction): ChipTone {
+export function eventTone(action: EventAction | ReceiptAction): ChipTone {
   switch (action) {
     case "approved":
     case "reinstated":
+    case "partPaid":
       return "ok";
     case "rejected":
     case "revoked":
+    case "partRejected":
       return "bad";
     default:
       return "info";
@@ -176,6 +191,8 @@ export type SubscriptionFilters = {
   stop: string | null;
   /** Rows per page (one of PAGE_SIZES); left out means the default. */
   size?: number;
+  /** Only subscriptions with a later part to check or late (ADR 0022). */
+  payments?: boolean;
 };
 
 /** Reads the list's filters from its query string. Anything malformed means "no filter". */
@@ -184,8 +201,16 @@ export function parseSubscriptionFilters(query: {
   semester?: string | string[];
   stop?: string | string[];
   size?: string | string[];
+  payments?: string | string[];
 }): SubscriptionFilters {
-  return { status: parseStatusFilter(query.status), semester: uuidParam(query.semester), stop: uuidParam(query.stop), size: parsePageSize(query.size) };
+  const payments = (Array.isArray(query.payments) ? query.payments[0] : query.payments) === "1";
+  return {
+    status: parseStatusFilter(query.status),
+    semester: uuidParam(query.semester),
+    stop: uuidParam(query.stop),
+    size: parsePageSize(query.size),
+    ...(payments ? { payments: true } : {}),
+  };
 }
 
 /** The address of the list for these filters. The review queue is the plain address, so it carries no status. */
@@ -195,6 +220,7 @@ export function subscriptionsHref(filters: SubscriptionFilters, page = 1): strin
     semester: filters.semester,
     stop: filters.stop,
     size: sizeParam(filters.size),
+    payments: filters.payments ? "1" : null,
     page: page > 1 ? page : null,
   });
 }

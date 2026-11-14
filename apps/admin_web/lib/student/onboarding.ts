@@ -104,7 +104,8 @@ export async function saveSetup(_previous: SetupState, formData: FormData): Prom
   const { values, problems } = readDetails(formData);
   if (Object.keys(problems).length > 0) return { problems, error: null, values };
   if (!(await writeDetails(profile.id, values))) return { problems: {}, error: "failed", values };
-  redirect("/app/subscription");
+  // One more, optional step (ADR 0023): My area, offered once as an invitation; "Not now" goes on to the subscription.
+  redirect("/app/settings/area?intro=1");
 }
 
 /** The same details, changed later from the profile. */

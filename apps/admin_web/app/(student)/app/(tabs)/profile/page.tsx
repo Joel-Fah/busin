@@ -1,4 +1,4 @@
-import { Clock01Icon, Edit02Icon, FireIcon, Home01Icon, LegalDocument01Icon, Notification03Icon } from "@hugeicons/core-free-icons";
+import { Clock01Icon, Edit02Icon, FireIcon, Home01Icon, LegalDocument01Icon, Notification03Icon, Wallet01Icon } from "@hugeicons/core-free-icons";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -39,7 +39,12 @@ async function Profile({ searchParams }: { searchParams: SearchParams }) {
   const p = s.profile;
   const m = s.me;
   const supabase = await createClient();
-  const { data: extra } = await supabase.from("profiles").select("created_at, department_id, program_id").eq("id", student.userId).maybeSingle();
+  const [{ data: extra }, { data: school }] = await Promise.all([
+    supabase.from("profiles").select("created_at, department_id, program_id").eq("id", student.userId).maybeSingle(),
+    // Whether the school offers installments: then the student can keep a preferred way of paying (ADR 0022).
+    supabase.from("schools").select("billing_period, installment_plan").eq("id", student.schoolId).maybeSingle(),
+  ]);
+  const offersInstallments = school?.billing_period === "semester" && Boolean(school.installment_plan);
   const [department, program] = await Promise.all([
     extra?.department_id ? supabase.from("departments").select("name").eq("id", extra.department_id).maybeSingle() : { data: null },
     extra?.program_id ? supabase.from("programs").select("name").eq("id", extra.program_id).maybeSingle() : { data: null },
@@ -90,6 +95,7 @@ async function Profile({ searchParams }: { searchParams: SearchParams }) {
         <LinkRow href="/app/history" icon={Clock01Icon} title={m.links.history} body={m.links.historyBody} />
         <LinkRow href="/app/settings/notifications" icon={Notification03Icon} title={m.links.notifications} body={m.links.notificationsBody} />
         <LinkRow href="/app/settings/area" icon={Home01Icon} title={m.links.area} body={m.links.areaBody} />
+        {offersInstallments ? <LinkRow href="/app/settings/payment" icon={Wallet01Icon} title={m.links.payment} body={m.links.paymentBody} /> : null}
         <LinkRow href="/app/streaks" icon={FireIcon} title={m.links.streaks} body={m.links.streaksBody} />
         <LinkRow href="/app/legal" icon={LegalDocument01Icon} title={m.links.legal} body={m.links.legalBody} />
       </nav>
