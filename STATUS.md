@@ -39,8 +39,8 @@ Released: `dev` merged into `main` (milestone PR below), deployed by Vercel. App
 
 Owner, now:
 - **Set billing for each live school** in the portal (Billing): until it is set, students cannot ask for a subscription.
-- **Import places for each live school** (see `docs/guides/hosting.md`, `npm run places:import` with the hosted URL and
-  service role key in your own terminal).
+- Places: done for ICT University on 2026-11-14 (8,782 places, about 6 MB). Import again for each new school, and when a
+  school's stops move (`npm run places:import`, see `docs/guides/hosting.md`).
 - Re-upload the school logo where it is missing; set the second phone if wanted.
 - Install the new app builds (both apps read columns the migrations added). Run the test list below on the hosted setup.
 - Later: the Crashlytics Gradle plugin (#496), when a release build can run on a machine with enough memory; and the
