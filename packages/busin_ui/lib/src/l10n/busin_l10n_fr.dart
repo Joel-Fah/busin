@@ -1575,7 +1575,7 @@ class BusinL10nFr extends BusinL10n {
 
   @override
   String get opsSettingsSoundHint =>
-      'Un clic quand un étudiant est accepté, une alerte en cas de refus.';
+      'Un son différent pour accepté, déjà à bord, refusé et code suspect.';
 
   @override
   String get opsSettingsDriving => 'Mode chauffeur';

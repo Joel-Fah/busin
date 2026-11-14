@@ -36,6 +36,7 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 Planned with the owner: scan sounds (#430), My area offered after setup (#431), school billing in the backend (#432), installments (#433), the admin Billing page (#434), billing in the student app (#435) and in the web app (#436).
 
 - My area offered after setup (#431): done, PR into `dev` (ADR 0023). Phone and web: setup is followed once by My area with "Not now"; students who already set up and have no area get one card on the Subscription tab. Owner, device test: a new account goes setup, then My area; an existing account without an area sees the card once.
+- Scan sounds (#430): done, PR into `dev`. Five original sounds (`apps/ops/tool/make_sounds.py`), one per kind of result, on by default; `audioplayers` 6.8.1 added. Owner, device test: scan a valid code, the same code again, a screenshot older than a minute, a student without a subscription, and a code with the network off and no list; each should sound different, and music playing on the phone should keep playing.
 
 ## Handoff: student web app (2026-11-13)
 
