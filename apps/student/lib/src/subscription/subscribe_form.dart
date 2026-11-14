@@ -43,16 +43,15 @@ class _SubscribeFormState extends ConsumerState<SubscribeForm> {
   bool _busy = false;
   String? _error;
   DateTime? _month;
-  PaymentMode? _mode;
-  bool _modeMissing = false;
+  PaymentMode _mode = PaymentMode.full;
 
   @override
   void initState() {
     super.initState();
     _month = widget.month;
     final access = ref.read(accessProvider);
-    // The saved way of paying fills the choice in; without one the student chooses.
-    if (access is Allowed) _mode = access.profile.paymentPreference;
+    // The saved way of paying fills the choice in; without one it starts on In full, and the student may switch.
+    _mode = (access is Allowed ? access.profile.paymentPreference : null) ?? PaymentMode.full;
   }
 
   /// Whether the school offers installments for this request (semester billing with a plan).
@@ -89,10 +88,6 @@ class _SubscribeFormState extends ConsumerState<SubscribeForm> {
     final school = await ref.read(schoolProvider.future);
     final today = _today(school);
     final offers = _offersInstallments(school);
-    if (offers && _mode == null) {
-      setState(() => _modeMissing = true);
-      return;
-    }
     final monthly = school.billingPeriod == BillingPeriod.month;
     if (widget.semester.endDate.isBefore(calendarDay(today))) {
       ref.invalidate(subscriptionOverviewProvider);
@@ -105,7 +100,7 @@ class _SubscribeFormState extends ConsumerState<SubscribeForm> {
       _error = null;
     });
     try {
-      final mode = offers ? _mode! : PaymentMode.full;
+      final mode = offers ? _mode : PaymentMode.full;
       await ref.read(subscriptionServiceProvider).submit(
             profile: access.profile,
             semester: widget.semester,
@@ -115,8 +110,8 @@ class _SubscribeFormState extends ConsumerState<SubscribeForm> {
             month: monthly ? _month : null,
             refresh: false,
           );
-      // A first choice of how to pay may become the student's preference, if they want.
-      if (offers && access.profile.paymentPreference == null && mounted) await _offerPreference(mode);
+      // Choosing installments without a saved preference may become the preference, if they want. In full is the default.
+      if (offers && access.profile.paymentPreference == null && mode == PaymentMode.installments && mounted) await _offerPreference(mode);
       // The overview reloads and replaces this form with the pending card.
       widget.onSent?.call();
       ref.invalidate(subscriptionOverviewProvider);
@@ -235,24 +230,17 @@ class _SubscribeFormState extends ConsumerState<SubscribeForm> {
             ],
             onChanged: _busy
                 ? (_) {}
-                : (mode) => setState(() {
-                      _mode = mode;
-                      _modeMissing = false;
-                    }),
+                : (mode) {
+                    if (mode != null) setState(() => _mode = mode);
+                  },
           ),
-          if (_mode != null) ...[
-            const SizedBox(height: BusinSpace.x2),
-            Text(
-              _mode == PaymentMode.installments
-                  ? l10n.subscribeInstallmentsNote(school!.installmentPlan!.split(price).map((part) => money(context, part, currency)).join(', '))
-                  : l10n.subscribeFullNote(money(context, price, currency)),
-              style: text.bodySmall?.copyWith(color: palette.muted),
-            ),
-          ],
-          if (_modeMissing) ...[
-            const SizedBox(height: BusinSpace.x2),
-            Text(l10n.subscribePaymentRequired, style: text.bodySmall?.copyWith(color: palette.bad)),
-          ],
+          const SizedBox(height: BusinSpace.x2),
+          Text(
+            _mode == PaymentMode.installments
+                ? l10n.subscribeInstallmentsNote(school!.installmentPlan!.split(price).map((part) => money(context, part, currency)).join(', '))
+                : l10n.subscribeFullNote(money(context, price, currency)),
+            style: text.bodySmall?.copyWith(color: palette.muted),
+          ),
           const SizedBox(height: BusinSpace.x4),
         ],
         StaggeredIn(

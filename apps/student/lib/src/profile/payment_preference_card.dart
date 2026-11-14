@@ -74,13 +74,14 @@ class _PaymentPreferenceCardState extends ConsumerState<PaymentPreferenceCard> {
               const SizedBox(height: BusinSpace.x4),
               BusinSegmented<PaymentMode?>(
                 groupLabel: l10n.profilePaymentTitle,
-                selected: access.profile.paymentPreference,
+                // In full is the default while nothing is saved.
+                selected: access.profile.paymentPreference ?? PaymentMode.full,
                 segments: [
                   BusinSegment(value: PaymentMode.full, label: l10n.paymentFull),
                   BusinSegment(value: PaymentMode.installments, label: l10n.paymentInstallments),
                 ],
                 onChanged: (mode) {
-                  if (!_busy && mode != access.profile.paymentPreference) _set(mode);
+                  if (!_busy && mode != (access.profile.paymentPreference ?? PaymentMode.full)) _set(mode);
                 },
               ),
             ],

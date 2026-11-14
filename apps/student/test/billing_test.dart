@@ -141,21 +141,27 @@ void main() {
     expect(tester.widget<BusinButton>(find.widgetWithText(BusinButton, 'Send request')).onPressed, isNull);
   });
 
-  testWidgets('without a saved preference the student chooses, and is asked once whether to keep it', (tester) async {
+  testWidgets('without a saved preference it starts on In full, and sending in full asks nothing', (tester) async {
     final backend = FakeBackend(current: semester())..school = installmentsSchool;
     final profiles = FakeProfileRepository({'u1': profile()});
     await open(tester, backend, profiles: profiles, picker: FakeProofPicker(samplePhoto()));
     expect(find.text('30,000 XAF for the semester'), findsOneWidget);
-    expect(find.text('How you pay'), findsOneWidget);
-
+    expect(find.text('30,000 XAF with this request.'), findsOneWidget, reason: 'In full is chosen by default');
     await fillRequest(tester);
     await send(tester);
-    expect(find.text('Choose how you pay.'), findsOneWidget);
-    expect(backend.requests, isEmpty);
+    expect(backend.requests.single.paymentMode, PaymentMode.full);
+    expect(find.text('Pay this way next time?'), findsNothing);
+    expect(profiles.savedPreferences, isEmpty);
+  });
 
+  testWidgets('switching to installments without a preference offers to keep it', (tester) async {
+    final backend = FakeBackend(current: semester())..school = installmentsSchool;
+    final profiles = FakeProfileRepository({'u1': profile()});
+    await open(tester, backend, profiles: profiles, picker: FakeProofPicker(samplePhoto()));
     await tester.tap(find.text('In installments'));
     await settle(tester, 4);
     expect(find.textContaining('12,000 XAF, 9,000 XAF, 9,000 XAF'), findsOneWidget);
+    await fillRequest(tester);
     await send(tester);
     expect(backend.requests.single.paymentMode, PaymentMode.installments);
     expect(find.text('Pay this way next time?'), findsOneWidget);

@@ -124,7 +124,8 @@ export function SubscribeForm({
   const monthly = billing?.period === "month";
   const offers = billing?.period === "semester" && billing.plan !== null;
   const [month, setMonth] = useState<string | null>(initialMonth && months.includes(initialMonth) ? initialMonth : (months[0] ?? null));
-  const [mode, setMode] = useState<Mode | null>(preference);
+  // The saved way of paying, or In full: the student may switch.
+  const [mode, setMode] = useState<Mode>(preference ?? "full");
   const [asking, setAsking] = useState<Mode | null>(null);
   const money = (amount: number) => formatAmount(amount, locale, billing?.currency ?? "XAF");
   const monthName = (day: string) => new Intl.DateTimeFormat(locale, { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${day}T00:00:00Z`));
@@ -160,10 +161,6 @@ export function SubscribeForm({
 
   const submit = async () => {
     if (!stop || !proof || !billing) return;
-    if (offers && !mode) {
-      setProblem("payment");
-      return;
-    }
     if (!navigator.onLine) {
       setProblem("offline");
       return;
@@ -179,7 +176,7 @@ export function SubscribeForm({
       return;
     }
     // How the student pays and, for monthly billing, the month: the server works out the price and the dates.
-    const paying: Mode = offers && mode ? mode : "full";
+    const paying: Mode = offers ? mode : "full";
     const insert = await supabase.from("subscriptions").insert({
       school_id: schoolId,
       student_id: studentId,
@@ -194,8 +191,8 @@ export function SubscribeForm({
       setProblem(subscribeProblem(insert.error));
       return;
     }
-    // A first choice of how to pay may become the student's preference, if they want.
-    if (offers && preference === null) {
+    // Choosing installments without a saved preference may become the preference, if they want. In full is the default.
+    if (offers && preference === null && paying === "installments") {
       setAsking(paying);
       return;
     }
@@ -225,17 +222,12 @@ export function SubscribeForm({
               { value: "full", label: copy.paymentFull },
               { value: "installments", label: copy.paymentInstallments },
             ]}
-            onChange={(value) => {
-              setMode(value);
-              if (problem === "payment") setProblem(null);
-            }}
+            onChange={setMode}
             disabled={busy}
           />
-          {mode ? (
-            <p className="m-0 text-sm text-muted" data-testid="payment-note">
-              {mode === "installments" ? format(copy.installmentsNote, { parts: splitAmount(billing.price, billing.plan!).map(money).join(", ") }) : format(copy.fullNote, { amount: money(billing.price) })}
-            </p>
-          ) : null}
+          <p className="m-0 text-sm text-muted" data-testid="payment-note">
+            {mode === "installments" ? format(copy.installmentsNote, { parts: splitAmount(billing.price, billing.plan!).map(money).join(", ") }) : format(copy.fullNote, { amount: money(billing.price) })}
+          </p>
         </div>
       ) : null}
       <PickerField label={copy.stopLabel} value={stop?.name ?? null} placeholder={copy.stopHint} icon={Location01Icon} onClick={() => setPicking(true)} disabled={busy} />
