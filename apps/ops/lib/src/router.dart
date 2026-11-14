@@ -33,9 +33,11 @@ class Routes {
 }
 
 /// Where the access state sends someone who is at [location], or null to stay. Pure, so it is tested on its own.
-String? redirectFor(OpsAccess access, String location) {
+String? redirectFor(OpsAccess access, String location, {bool introDone = true}) {
   // The terms and privacy policy are readable by anyone, signed in or not.
   if (location.startsWith('/legal/')) return null;
+  // The opening drawing plays first, on the loading screen, whatever the session turns out to be.
+  if (!introDone) return location == Routes.loading ? null : Routes.loading;
   final target = switch (access) {
     OpsLoading() => Routes.loading,
     OpsSignedOut() => Routes.signIn,
@@ -52,12 +54,13 @@ String? redirectFor(OpsAccess access, String location) {
 final routerProvider = Provider<GoRouter>((ref) {
   final changes = ValueNotifier<int>(0);
   ref.listen(accessProvider, (_, _) => changes.value++);
+  ref.listen(introDoneProvider, (_, _) => changes.value++);
   ref.onDispose(changes.dispose);
 
   final router = GoRouter(
     initialLocation: Routes.loading,
     refreshListenable: changes,
-    redirect: (context, state) => redirectFor(ref.read(accessProvider), state.matchedLocation),
+    redirect: (context, state) => redirectFor(ref.read(accessProvider), state.matchedLocation, introDone: ref.read(introDoneProvider)),
     routes: [
       GoRoute(path: Routes.loading, builder: (_, _) => const LoadingScreen()),
       GoRoute(path: Routes.signIn, builder: (_, _) => const SignInScreen()),

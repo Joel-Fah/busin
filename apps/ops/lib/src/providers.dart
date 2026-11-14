@@ -47,6 +47,20 @@ final nowProvider = Provider<DateTime Function()>((ref) => DateTime.now);
 final schoolClockProvider = Provider<SchoolClock>((ref) => const SchoolClock());
 
 /// The signed-in user's id, or null. Everything that holds user data watches this, so it resets on sign-out.
+/// Whether the logo draws itself when the app opens. Tests switch it off.
+final introEnabledProvider = Provider<bool>((ref) => true);
+
+/// Whether the opening drawing has finished (or was skipped with a tap). It plays once per cold start; until then the
+/// router keeps the loading screen up, whatever the access state says.
+class IntroDone extends Notifier<bool> {
+  @override
+  bool build() => !ref.watch(introEnabledProvider);
+
+  void finish() => state = true;
+}
+
+final introDoneProvider = NotifierProvider<IntroDone, bool>(IntroDone.new);
+
 final authUserIdProvider = StreamProvider<String?>((ref) => ref.watch(authServiceProvider).userIdChanges);
 
 /// Where the copy that lets the app open offline is kept (secure storage).

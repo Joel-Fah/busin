@@ -7,16 +7,19 @@ import '../access.dart';
 import '../providers.dart';
 
 /// While the session and the profile load.
-class LoadingScreen extends StatelessWidget {
+class LoadingScreen extends ConsumerWidget {
   const LoadingScreen({super.key});
 
   /// The mark's width on the native splash (144 dp), so the hand-off from it shows no jump.
   static const markWidth = 144.0;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final dark = Theme.of(context).brightness == Brightness.dark;
     final ink = dark ? Colors.white : BusinRamps.seed;
+    // On a cold start the logo draws itself once (a tap skips it), where the native splash left it; then the finished
+    // mark stays with the spinner below while the session is read.
+    final introDone = ref.watch(introDoneProvider);
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
       child: Scaffold(
@@ -30,13 +33,16 @@ class LoadingScreen extends StatelessWidget {
                 key: const ValueKey('loading-mark'),
                 width: markWidth,
                 height: markWidth * 126 / 205,
-                child: FittedBox(child: BrandMark(color: ink, height: 100, semanticLabel: BusinL10n.of(context).opsAppName)),
+                child: introDone
+                    ? FittedBox(child: BrandMark(color: ink, height: 100, semanticLabel: BusinL10n.of(context).opsAppName))
+                    : BrandIntro(color: ink, width: markWidth, onDone: ref.read(introDoneProvider.notifier).finish),
               ),
             ),
-            Align(
-              alignment: const Alignment(0, 0.45),
-              child: SizedBox(width: 28, height: 28, child: CircularProgressIndicator(strokeWidth: 3, color: ink.withValues(alpha: 0.8))),
-            ),
+            if (introDone)
+              Align(
+                alignment: const Alignment(0, 0.45),
+                child: SizedBox(width: 28, height: 28, child: CircularProgressIndicator(strokeWidth: 3, color: ink.withValues(alpha: 0.8))),
+              ),
           ],
         ),
       ),

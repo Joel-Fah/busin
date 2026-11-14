@@ -1,13 +1,22 @@
+import 'package:busin_ops/src/access.dart';
+import 'package:busin_ops/src/providers.dart';
+import 'package:busin_ops/src/router.dart';
 import 'package:busin_ops/src/screens/access_screens.dart';
 import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-Widget host({required bool dark}) => MaterialApp(
-      theme: dark ? BusinTheme.dark() : BusinTheme.light(),
-      localizationsDelegates: businLocalizationsDelegates,
-      supportedLocales: businSupportedLocales,
-      home: const LoadingScreen(),
+import 'support.dart';
+
+Widget host({required bool dark, bool intro = false}) => ProviderScope(
+      overrides: [introEnabledProvider.overrideWithValue(intro)],
+      child: MaterialApp(
+        theme: dark ? BusinTheme.dark() : BusinTheme.light(),
+        localizationsDelegates: businLocalizationsDelegates,
+        supportedLocales: businSupportedLocales,
+        home: const LoadingScreen(),
+      ),
     );
 
 void main() {
@@ -27,4 +36,21 @@ void main() {
       expect(mark.center.dy, closeTo(screen.height / 2, 0.5), reason: 'in the middle, where the splash left it');
     });
   }
+
+  testWidgets('on a cold start the logo draws itself where the splash left it, then the mark and the spinner stay', (tester) async {
+    await tester.pumpWidget(host(dark: false, intro: true));
+    expect(find.byType(BrandIntro), findsOneWidget);
+    expect(find.byType(CircularProgressIndicator), findsNothing, reason: 'no spinner while it draws');
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pump();
+    expect(find.byType(BrandIntro), findsNothing);
+    expect(find.byType(BrandMark), findsOneWidget);
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+  });
+
+  test('the router waits on the loading screen until the drawing is over', () {
+    expect(redirectFor(OpsAllowed(staff()), Routes.loading, introDone: false), isNull);
+    expect(redirectFor(const OpsSignedOut(), Routes.loading, introDone: false), isNull);
+    expect(redirectFor(OpsAllowed(staff()), Routes.loading), Routes.today);
+  });
 }
