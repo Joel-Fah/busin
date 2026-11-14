@@ -49,7 +49,7 @@ export const instant = false;
 
 type SearchParams = Promise<{ done?: string | string[]; error?: string | string[] }>;
 
-const ERRORS: readonly SchoolSaveError[] = ["name", "shortName", "website", "contactEmail", "phone", "address", "city", "country", "about", "openDomains", "terms_first", "generic"];
+const ERRORS: readonly SchoolSaveError[] = ["name", "shortName", "website", "contactEmail", "phone", "phoneSecondary", "address", "city", "country", "about", "openDomains", "terms_first", "generic"];
 
 export default function SchoolPage({ searchParams }: { searchParams: SearchParams }) {
   return (
@@ -73,7 +73,7 @@ async function School({ searchParams }: { searchParams: SearchParams }) {
   const [{ data: school }, { data: domains }] = await Promise.all([
     supabase
       .from("schools")
-      .select("name, short_name, website, contact_email, phone, address, city, country, about, logo_path, accepts_open_signup, open_signup_domains, public_listing, allow_field_trips, terms_version, terms_accepted_at")
+      .select("name, short_name, website, contact_email, phone, phone_secondary, address, city, country, about, logo_path, accepts_open_signup, open_signup_domains, public_listing, allow_field_trips, terms_version, terms_accepted_at")
       .eq("id", admin.schoolId)
       .maybeSingle(),
     supabase.from("school_domains").select("domain").eq("school_id", admin.schoolId).order("domain").limit(20),
@@ -152,6 +152,15 @@ async function School({ searchParams }: { searchParams: SearchParams }) {
               defaultCountry={defaultPhoneCountry({ saved: school.phone, schoolCountry: school.country })}
               locale={locale}
               error={error === "phone" ? s.errors.phone : undefined}
+            />
+            <PhoneField
+              id="phone_secondary"
+              name="phone_secondary"
+              label={s.fields.phoneSecondary}
+              defaultValue={school.phone_secondary ?? ""}
+              defaultCountry={defaultPhoneCountry({ saved: school.phone_secondary, schoolPhone: school.phone, schoolCountry: school.country })}
+              locale={locale}
+              error={error === "phoneSecondary" ? s.errors.phoneSecondary : undefined}
             />
             <Input id="address" name="address" label={s.fields.address} icon={Location01Icon} maxLength={SCHOOL_LIMITS.address} defaultValue={school.address ?? ""} placeholder={s.placeholders.address} />
             <Input id="city" name="city" label={s.fields.city} icon={City03Icon} maxLength={SCHOOL_LIMITS.city} defaultValue={school.city ?? ""} placeholder={s.placeholders.city} />

@@ -2,6 +2,10 @@ begin;
 create extension if not exists pgtap with schema extensions;
 select plan(27);
 
+-- Independent of the local data: schools already in the database (the demo school, which an owner may have opened to
+-- any email or listed publicly while testing) neither accept open sign-up nor show publicly here. Rolled back at the end.
+update public.schools set accepts_open_signup = false, open_signup_domains = '{}', public_listing = false;
+
 insert into public.schools (id, name, accepts_open_signup, open_signup_domains) values
   ('10000000-0000-4000-8000-000000000001', 'School A', true, '{}'),
   ('10000000-0000-4000-8000-000000000002', 'School B', true, '{gmail.com}'),

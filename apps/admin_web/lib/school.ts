@@ -30,6 +30,8 @@ export type SchoolProfileInput = {
   website: string;
   contactEmail: string;
   phone: string;
+  /** An optional second number (the office and the transport desk, for example), E.164 like the first. */
+  phoneSecondary: string;
   address: string;
   city: string;
   country: string;
@@ -40,7 +42,7 @@ export type SchoolProfileInput = {
   publicListing: boolean;
 };
 
-export type SchoolField = "name" | "shortName" | "website" | "contactEmail" | "phone" | "address" | "city" | "country" | "about" | "openDomains";
+export type SchoolField = "name" | "shortName" | "website" | "contactEmail" | "phone" | "phoneSecondary" | "address" | "city" | "country" | "about" | "openDomains";
 
 const text = (form: { get(name: string): unknown }, key: string) => {
   const value = form.get(key);
@@ -56,6 +58,7 @@ export function parseSchoolForm(form: { get(name: string): unknown }): { ok: tru
     website: text(form, "website"),
     contactEmail: text(form, "contact_email").toLowerCase(),
     phone: text(form, "phone"),
+    phoneSecondary: text(form, "phone_secondary"),
     address: text(form, "address"),
     city: text(form, "city"),
     country: text(form, "country"),
@@ -76,6 +79,11 @@ export function parseSchoolForm(form: { get(name: string): unknown }): { ok: tru
     if (!phone.e164) return { ok: false, field: "phone" };
     value.phone = phone.e164;
   }
+  if (value.phoneSecondary) {
+    const phone = parsePhone(value.phoneSecondary, text(form, "phone_secondaryCountry") || "CM");
+    if (!phone.e164) return { ok: false, field: "phoneSecondary" };
+    value.phoneSecondary = phone.e164;
+  }
   if (value.address.length > SCHOOL_LIMITS.address) return { ok: false, field: "address" };
   if (value.city.length > SCHOOL_LIMITS.city) return { ok: false, field: "city" };
   if (value.country.length > SCHOOL_LIMITS.country) return { ok: false, field: "country" };
@@ -90,8 +98,8 @@ export type SchoolSaveError = SchoolField | "terms_first" | "generic";
 export function schoolSaveError(code: string | undefined, message = ""): SchoolSaveError {
   if (code === "55000") return "terms_first";
   if (code === "23514") {
-    const field = (["website", "contact_email", "phone", "address", "city", "country", "about", "short_name"] as const).find((column) => message.includes(`schools_${column}_check`));
-    const byColumn: Record<string, SchoolField> = { contact_email: "contactEmail", short_name: "shortName" };
+    const field = (["website", "contact_email", "phone_secondary", "phone", "address", "city", "country", "about", "short_name"] as const).find((column) => message.includes(`schools_${column}_check`));
+    const byColumn: Record<string, SchoolField> = { contact_email: "contactEmail", short_name: "shortName", phone_secondary: "phoneSecondary" };
     return field ? (byColumn[field] ?? (field as SchoolField)) : "generic";
   }
   if (code === "22023") return message.includes("domain") ? "openDomains" : "name";
