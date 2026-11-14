@@ -541,7 +541,7 @@
   "opsSettingsScanning": "Scan",
   "opsSettingsVibrate": "Vibrer à chaque scan",
   "opsSettingsSound": "Son à chaque scan",
-  "opsSettingsSoundHint": "Un clic quand un étudiant est accepté, une alerte en cas de refus.",
+  "opsSettingsSoundHint": "Un son différent pour accepté, déjà à bord, refusé et code suspect.",
   "opsSettingsDriving": "Mode chauffeur",
   "opsSettingsOfferShare": "Proposer de partager la position du bus quand je démarre un trajet",
   "opsSettingsOfferShareHint": "Vous pouvez toujours activer le partage depuis le trajet.",

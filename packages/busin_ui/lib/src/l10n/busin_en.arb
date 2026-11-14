@@ -738,7 +738,7 @@
   "opsSettingsScanning": "Scanning",
   "opsSettingsVibrate": "Vibrate on each scan",
   "opsSettingsSound": "Sound on each scan",
-  "opsSettingsSoundHint": "A click when a student is let on, an alert when refused.",
+  "opsSettingsSoundHint": "A different sound for let on, already on board, refused and suspect codes.",
   "opsSettingsDriving": "Driver mode",
   "opsSettingsOfferShare": "Offer to share the bus position when I start a trip",
   "opsSettingsOfferShareHint": "You can always turn sharing on from the trip.",
