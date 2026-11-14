@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../bus/bus_providers.dart';
+import '../nav/tab_badges.dart';
 import '../providers.dart';
 import '../qr/qr_providers.dart';
 import 'subscription_providers.dart';
@@ -97,6 +98,7 @@ class _SubscriptionLiveBinderState extends ConsumerState<SubscriptionLiveBinder>
 
     final l10n = BusinL10n.of(context);
     for (final change in changes) {
+      ref.read(tabBadgesProvider.notifier).mark(tabsForStatus(change.status));
       final (String? text, ToastTone tone) = switch (change.status) {
         SubscriptionStatus.approved => (change.isReinstatement ? l10n.liveReinstated : l10n.pushForegroundApproved, ToastTone.success),
         SubscriptionStatus.rejected => (l10n.pushForegroundRejected, ToastTone.warning),

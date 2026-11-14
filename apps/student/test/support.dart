@@ -375,6 +375,9 @@ Trip trip(String id, TripDirection direction) => Trip(
 
 /// The student's scans (newest first, as the server returns them) and the trips they were on.
 class FakeHistory implements ScansRepository, TripsRepository {
+  @override
+  Stream<String> watchCrewNews(String staffId) => const Stream.empty();
+
   FakeHistory({List<Scan>? scans, List<Trip>? trips})
       : scans = scans ?? [],
         trips = trips ?? [trip('trip1', TripDirection.inbound), trip('trip2', TripDirection.outbound)];

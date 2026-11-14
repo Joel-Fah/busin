@@ -21,7 +21,8 @@ class _StyleguideScreenState extends State<StyleguideScreen> {
     BusinDestination(label: 'Basics', icon: HugeIcons.strokeRoundedPaintBoard),
     BusinDestination(label: 'Parts', icon: HugeIcons.strokeRoundedLayers01),
     BusinDestination(label: 'Layout', icon: HugeIcons.strokeRoundedLayoutGrid),
-    BusinDestination(label: 'Motion', icon: HugeIcons.strokeRoundedPlay),
+    // A tab with news waiting shows its dot (cleared in the apps when the tab is opened).
+    BusinDestination(label: 'Motion', icon: HugeIcons.strokeRoundedPlay, badge: true),
   ];
 
   @override

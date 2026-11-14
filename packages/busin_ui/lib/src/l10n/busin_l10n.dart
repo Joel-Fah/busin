@@ -559,6 +559,12 @@ abstract class BusinL10n {
   /// **'This Google account is not allowed here. Sign in with your school account or the address your school invited.'**
   String get opsSignInNotAllowed;
 
+  /// No description provided for @navNew.
+  ///
+  /// In en, this message translates to:
+  /// **'new'**
+  String get navNew;
+
   /// No description provided for @signInWithGoogle.
   ///
   /// In en, this message translates to:

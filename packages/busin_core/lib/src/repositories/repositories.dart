@@ -209,6 +209,11 @@ abstract interface class TripsRepository {
 
   Future<Trip> getTrip(String tripId);
 
+  /// While listened to, the ids of trips that become news for [staffId]'s crew: a trip someone else created with them on
+  /// it, or a scheduled trip of theirs assigned or changed. Changes only; nothing is loaded. Their own start or end of a
+  /// trip is not news.
+  Stream<String> watchCrewNews(String staffId);
+
   /// The trips running right now at the caller's school, most recently started first. A school runs a
   /// handful at a time; the list is capped at [PageRequest.defaultLimit].
   Future<List<Trip>> listActive();
