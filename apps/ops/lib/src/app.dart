@@ -46,6 +46,13 @@ class OpsApp extends ConsumerWidget {
               ref.invalidate(schoolProvider);
               ref.invalidate(todayTripsProvider);
             }
+            // The network just went (airplane mode, out of coverage): read again now. With no network the reads answer from the
+            // saved copy at once, so the notice says so straight away instead of at the next read.
+            if (next.value == false && previous?.value == true) {
+              ref.invalidate(profileProvider);
+              ref.invalidate(schoolProvider);
+              ref.invalidate(todayTripsProvider);
+            }
           });
           return AccountWatcher(
             userId: ref.watch(authUserIdProvider).value,

@@ -403,6 +403,8 @@ List<Override> overridesFor({
   FakeSoundPlayer? sounds,
   Duration? gateTimeout = const Duration(seconds: 15),
   bool online = true,
+  /// The network as the system reports it, when a test changes it while the app is open (else [online], fixed).
+  Stream<bool>? connectivity,
 }) =>
     [
       livePositionsRepositoryProvider.overrideWithValue(live ?? FakeLive()),
@@ -414,7 +416,7 @@ List<Override> overridesFor({
       locationFeedProvider.overrideWithValue(positions ?? FakePositions()),
       scannerViewProvider.overrideWithValue(fakeCamera),
       scanSoundPlayerProvider.overrideWithValue(sounds ?? FakeSoundPlayer()),
-      connectivityProvider.overrideWith((ref) => Stream.value(online)),
+      connectivityProvider.overrideWith((ref) => connectivity ?? Stream.value(online)),
       authServiceProvider.overrideWithValue(auth),
       appConfigProvider.overrideWithValue(const AppConfig(supabaseUrl: 'http://127.0.0.1:54321', publishableKey: 'test', googleServerClientId: 'test', environment: 'test')),
       profileRepositoryProvider.overrideWithValue(profileRepository ?? FakeProfiles(profiles)),
