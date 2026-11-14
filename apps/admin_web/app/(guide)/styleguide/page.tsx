@@ -20,6 +20,10 @@ import {
 
 import { PlanParts } from "@/components/billing/PlanParts";
 import { BusStopScene } from "@/components/landing/BusStopScene";
+import { getMessages } from "@/lib/i18n/server";
+import { SchoolLogo } from "@/components/SchoolLogo";
+import { LanguageSwitch } from "@/components/LanguageSwitch";
+import { CountrySelect } from "@/components/ui/CountrySelect";
 import { PhoneField } from "@/components/ui/PhoneField";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { GoogleMark } from "@/components/ui/GoogleMark";
@@ -75,10 +79,11 @@ import {
   VOICE_PAIRS,
   VOICE_RULES,
   section,
+  RAMPS,
   type SectionId,
 } from "@/lib/styleguide/content";
 
-import { MenuDemo, MenuPlacementDemo, ModalDemo, SheetDemo, TabsDemo, ToastDemo } from "./Demos";
+import { MenuDemo, MenuPlacementDemo, ModalDemo, SheetDemo, TabsDemo, ToastDemo, UnsavedDemo } from "./Demos";
 import { ExportLinks } from "./ExportLinks";
 import { Pair, Section } from "./Section";
 import { SectionRail } from "./SectionRail";
@@ -145,6 +150,8 @@ export default function StyleguidePage() {
 
 async function Styleguide() {
   await requireAdmin();
+  // The guide's own words are in English; the demos follow the chosen language.
+  const { locale, t } = await getMessages();
 
   return (
     <div lang="en" className="relative mx-auto w-full min-w-0 max-w-5xl">
@@ -172,11 +179,13 @@ async function Styleguide() {
         </div>
       </header>
 
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
-        <p className="max-w-xl text-sm text-muted">{GUIDE.upkeep}</p>
-        <div className="flex flex-wrap items-center gap-3">
-          <ExportLinks />
-          <ThemeToggle labels={{ group: "Theme", system: "System", light: "Light", dark: "Dark" }} />
+      <p className="mt-6 max-w-xl text-sm text-muted">{GUIDE.upkeep}</p>
+      {/* The exports on the left; the language, then the theme at the very end, both as compact switches. */}
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+        <ExportLinks />
+        <div className="ml-auto flex items-center gap-2">
+          <LanguageSwitch locale={locale} t={t} compact />
+          <ThemeToggle labels={{ group: "Theme", system: "System", light: "Light", dark: "Dark" }} iconOnly />
         </div>
       </div>
 
@@ -237,6 +246,11 @@ async function Styleguide() {
         <p className="mb-3 text-sm text-muted">{COLOUR_STATE_NOTE}</p>
         <Swatches names={STATE_TOKENS.flatMap((n) => [n, `${n}-bg`])} light={light} dark={dark} />
         <h3 className="mt-8 mb-3 text-lg font-bold">Brand ramps</h3>
+        <p className="mb-3 max-w-2xl text-sm text-muted">
+          Every shade of the two brand colours, from 50 (palest) to 900 (deepest), taken from the apps. The tokens above are what screens use; a
+          ramp shade is for the few places that need a tint of the brand, such as the pale teal of an insight card or a chart series. Each is
+          also a Tailwind colour (bg-teal-50, text-orange-700).
+        </p>
         <Ramp name="teal" />
         <Ramp name="orange" />
         <h3 className="mt-8 mb-3 text-lg font-bold">Contrast (WCAG AA needs {AA_TEXT} for text)</h3>
@@ -390,30 +404,23 @@ async function Styleguide() {
       </Section>
 
       <Section {...sectionProps("imagery")}>
-        <h3 className="mb-3 text-lg font-bold">People illustrations</h3>
-        <p className="mb-4 max-w-2xl text-sm text-muted">{PEOPLE_STYLE.intro}</p>
-        <div className="grid gap-3 sm:grid-cols-[2fr_1fr]">
-          <figure className="relative m-0 aspect-[1600/791] overflow-hidden rounded-lg bg-surface-2">
-            <Image
-              src="/styleguide/references/people-scene.webp"
-              alt="Reference: students at a bus stop in front of a campus, drawn flat with a stippled grain, in mustard, terracotta, teal and greens"
-              fill
-              sizes="(min-width: 640px) 66vw, 100vw"
-              className="object-cover"
-            />
-          </figure>
-          <figure className="relative m-0 aspect-[900/604] overflow-hidden rounded-lg bg-white sm:aspect-auto">
-            <Image
-              src="/styleguide/references/people-character.webp"
-              alt="Reference: a student walking with a long swinging braid, hoop earrings, a mustard sweater, a pleated teal skirt and a striped tote"
-              fill
-              sizes="(min-width: 640px) 33vw, 100vw"
-              className="object-contain"
-            />
-          </figure>
+        <h3 className="mb-3 text-lg font-bold">The landing scene</h3>
+        <p className="mb-4 max-w-2xl text-sm text-muted">{LANDING_SCENE.intro}</p>
+        <div className="overflow-hidden rounded-lg bg-surface-2 pt-16">
+          <BusStopScene chips={landingCatalogues.en.hero.chips} />
         </div>
-        <p className="mt-2 text-xs text-muted">{PEOPLE_STYLE.referenceNote}</p>
         <ul className="m-0 mt-4 grid list-none gap-2 p-0 text-sm sm:grid-cols-2">
+          {LANDING_SCENE.rules.map((rule) => (
+            <li key={rule} className="rounded-md bg-surface-2 p-4">
+              {rule}
+            </li>
+          ))}
+        </ul>
+
+        {/* The people who stand in the scene: how they are drawn and their colours. */}
+        <h4 className="mt-6 mb-2 text-base font-bold">People in the scene</h4>
+        <p className="mb-4 max-w-2xl text-sm text-muted">{PEOPLE_STYLE.intro}</p>
+        <ul className="m-0 grid list-none gap-2 p-0 text-sm sm:grid-cols-2">
           {PEOPLE_STYLE.rules.map((rule) => (
             <li key={rule} className="rounded-md bg-surface-2 p-4">
               {rule}
@@ -429,19 +436,6 @@ async function Styleguide() {
             </div>
           ))}
         </div>
-
-        <h3 className="mt-8 mb-3 text-lg font-bold">The landing scene</h3>
-        <p className="mb-4 max-w-2xl text-sm text-muted">{LANDING_SCENE.intro}</p>
-        <div className="overflow-hidden rounded-lg bg-surface-2 pt-16">
-          <BusStopScene chips={landingCatalogues.en.hero.chips} />
-        </div>
-        <ul className="m-0 mt-4 grid list-none gap-2 p-0 text-sm sm:grid-cols-2">
-          {LANDING_SCENE.rules.map((rule) => (
-            <li key={rule} className="rounded-md bg-surface-2 p-4">
-              {rule}
-            </li>
-          ))}
-        </ul>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">3D objects</h3>
         <p className="mb-4 max-w-2xl text-sm text-muted">{ILLUSTRATION_NOTE}</p>
@@ -569,11 +563,46 @@ async function Styleguide() {
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Phone number</h3>
         <div className="grid max-w-3xl gap-4 sm:grid-cols-2">
-          <PhoneField id="guide-phone" name="guidePhone" label="Phone" hint="Choose the country, then type the number." defaultCountry="CM" locale="en" />
-          <PhoneField id="guide-phone-saved" name="guidePhoneSaved" label="A saved number" defaultValue="+33612345678" defaultCountry="CM" locale="en" />
-          <PhoneField id="guide-phone-error" name="guidePhoneError" label="With an error" defaultValue="12345" defaultCountry="CM" locale="en" error="This is not a phone number for the country chosen." />
+          <PhoneField id="guide-phone" name="guidePhone" label="Phone" hint="Choose the country, then type the number." defaultCountry="CM" locale={locale} />
+          <PhoneField id="guide-phone-saved" name="guidePhoneSaved" label="A saved number" defaultValue="+33612345678" defaultCountry="CM" locale={locale} />
+          <PhoneField id="guide-phone-error" name="guidePhoneError" label="With an error" defaultValue="12345" defaultCountry="CM" locale={locale} error="This is not a phone number for the country chosen." />
         </div>
         <p className="mt-3 max-w-2xl text-sm text-muted">{note("Phone number")}</p>
+
+        <h3 className="mt-8 mb-3 text-lg font-bold">Country</h3>
+        <div className="grid max-w-3xl gap-4 sm:grid-cols-2">
+          <CountrySelect id="guide-country" name="guideCountry" label="Country" locale={locale} />
+          <CountrySelect id="guide-country-saved" name="guideCountrySaved" label="A saved country" defaultValue="France" locale={locale} />
+        </div>
+        <p className="mt-3 max-w-2xl text-sm text-muted">{note("Country")}</p>
+
+        <h3 className="mt-8 mb-3 text-lg font-bold">School logo</h3>
+        <div className="flex flex-wrap items-end gap-6">
+          {(
+            [
+              ["/styleguide/logo-wide.svg", "Wide"],
+              ["/styleguide/logo-tall.svg", "Tall"],
+              ["/brand/cyan.svg", "Square"],
+              [null, "No logo"],
+            ] as const
+          ).map(([url, label]) => (
+            <figure key={label} className="m-0 flex flex-col items-start gap-2">
+              <SchoolLogo url={url} size="lg" className="shadow-soft" fallback={<span className="text-xl font-black text-seed">HU</span>} />
+              <figcaption className="text-xs font-semibold text-muted">{label}</figcaption>
+            </figure>
+          ))}
+        </div>
+        <p className="mt-3 text-xs text-muted">The same logos in the small plate of lists:</p>
+        <div className="mt-2 flex flex-wrap items-center gap-3">
+          <SchoolLogo url="/styleguide/logo-wide.svg" className="shadow-soft" fallback={null} />
+          <SchoolLogo url="/styleguide/logo-tall.svg" className="shadow-soft" fallback={null} />
+          <SchoolLogo url="/brand/cyan.svg" className="shadow-soft" fallback={null} />
+        </div>
+        <p className="mt-3 max-w-2xl text-sm text-muted">{note("School logo")}</p>
+
+        <h3 className="mt-8 mb-3 text-lg font-bold">Unsaved changes</h3>
+        <UnsavedDemo copy={t.school.unsaved} />
+        <p className="mt-3 max-w-2xl text-sm text-muted">{note("Unsaved changes")}</p>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Checkbox, radio and switch</h3>
         <div className="grid max-w-3xl gap-6 sm:grid-cols-3">
@@ -834,8 +863,10 @@ function Ramp({ name }: { name: "teal" | "orange" }) {
     <div className="mb-4 grid grid-cols-10 gap-1">
       {steps.map((step) => (
         <div key={step}>
-          <div className="h-14 rounded-xs" style={{ background: `var(--color-${name}-${step})` }} />
+          {/* The value itself: a CSS variable that no class uses is left out of the stylesheet, and would show nothing. */}
+          <div className="h-14 rounded-xs shadow-[inset_0_0_0_1px_var(--color-line)]" style={{ background: RAMPS[name][step] }} />
           <p className="mt-1 text-center text-[11px] font-semibold text-muted">{step}</p>
+          <p className="text-center font-mono text-[10px] text-muted">{RAMPS[name][step]}</p>
         </div>
       ))}
     </div>

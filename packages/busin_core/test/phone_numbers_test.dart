@@ -53,10 +53,10 @@ void main() {
     expect(PhoneNumbers.formatTyping('677123456', 'CM'), contains(' '));
   });
 
-  test('the field starts on the saved number, the school, the device, then the fallback', () {
+  test('the field starts on the saved number, the school (its number, then its country), then Cameroon', () {
     expect(PhoneNumbers.defaultCountry(saved: '+33612345678', schoolPhone: '+237677123456'), 'FR');
-    expect(PhoneNumbers.defaultCountry(schoolPhone: '+237677123456', deviceRegion: 'US'), 'CM');
-    expect(PhoneNumbers.defaultCountry(deviceRegion: 'ng'), 'NG');
-    expect(PhoneNumbers.defaultCountry(), 'CM');
+    expect(PhoneNumbers.defaultCountry(schoolPhone: '+237677123456', schoolCountry: 'NG'), 'CM');
+    expect(PhoneNumbers.defaultCountry(schoolCountry: 'ng'), 'NG');
+    expect(PhoneNumbers.defaultCountry(), 'CM', reason: 'never the device region');
   });
 }

@@ -16,6 +16,20 @@ import { registerGsap } from "./motion/gsap";
 export function LandingIntro() {
   const cover = useRef<HTMLDivElement>(null);
 
+  // Pictures on the landing are never dragged (Firefox ignores the CSS rule for it), nor given a long-press menu.
+  useEffect(() => {
+    const stop = (event: Event) => {
+      const target = event.target as Element | null;
+      if (target?.closest?.("[data-landing]") && target.closest("img, svg, picture")) event.preventDefault();
+    };
+    document.addEventListener("dragstart", stop);
+    document.addEventListener("contextmenu", stop);
+    return () => {
+      document.removeEventListener("dragstart", stop);
+      document.removeEventListener("contextmenu", stop);
+    };
+  }, []);
+
   useEffect(() => {
     const root = document.documentElement;
     const element = cover.current;

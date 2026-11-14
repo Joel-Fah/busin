@@ -30,6 +30,16 @@ class CountryFlag extends StatelessWidget {
   }
 }
 
+/// The two-letter code of a country named in English or French, or given as its code (a school's country), or null.
+String? phoneCountryCodeOf(String? nameOrCode) {
+  final value = (nameOrCode ?? '').trim().toLowerCase();
+  if (value.isEmpty) return null;
+  for (final c in phoneCountries) {
+    if (c.code.toLowerCase() == value || c.en.toLowerCase() == value || c.fr.toLowerCase() == value) return c.code;
+  }
+  return null;
+}
+
 PhoneCountry? _countryOf(String code) {
   for (final c in phoneCountries) {
     if (c.code == code) return c;

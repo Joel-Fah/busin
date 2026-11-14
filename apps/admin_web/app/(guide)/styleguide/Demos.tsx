@@ -144,3 +144,32 @@ export function ToastDemo() {
     </div>
   );
 }
+
+/** The dialog that stops a form's changes being lost by mistake (UnsavedChangesGuard), opened by hand here. */
+export function UnsavedDemo({ copy }: { copy: { title: string; body: string; stay: string; save: string; leave: string } }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Button variant="secondary" onClick={() => setOpen(true)}>
+        Leave a form with changes
+      </Button>
+      <Modal
+        open={open}
+        onClose={() => setOpen(false)}
+        title={copy.title}
+        description={copy.body}
+        actions={
+          <>
+            <Button variant="ghost" onClick={() => setOpen(false)}>
+              {copy.leave}
+            </Button>
+            <Button variant="secondary" onClick={() => setOpen(false)}>
+              {copy.stay}
+            </Button>
+            <Button onClick={() => setOpen(false)}>{copy.save}</Button>
+          </>
+        }
+      />
+    </>
+  );
+}

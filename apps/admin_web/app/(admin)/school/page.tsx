@@ -3,7 +3,6 @@ import {
   BlockGameIcon,
   Building03Icon,
   City03Icon,
-  Flag02Icon,
   Globe02Icon,
   Location01Icon,
   Mail01Icon,
@@ -11,7 +10,6 @@ import {
   TextIcon,
 } from "@hugeicons/core-free-icons";
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import Link from "next/link";
 import { Suspense } from "react";
 
@@ -26,9 +24,9 @@ import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { Switch } from "@/components/ui/Choice";
 import { Input } from "@/components/ui/Input";
+import { CountrySelect } from "@/components/ui/CountrySelect";
 import { PhoneField } from "@/components/ui/PhoneField";
 import { defaultPhoneCountry } from "@/lib/phone/phone";
-import { regionOf } from "@/lib/phone/server";
 import { ListSkeleton } from "@/components/ui/ListSkeleton";
 import { Notice } from "@/components/ui/Notice";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -151,13 +149,13 @@ async function School({ searchParams }: { searchParams: SearchParams }) {
               name="phone"
               label={s.fields.phone}
               defaultValue={school.phone ?? ""}
-              defaultCountry={defaultPhoneCountry({ saved: school.phone, region: regionOf((await headers()).get("accept-language")) })}
+              defaultCountry={defaultPhoneCountry({ saved: school.phone, schoolCountry: school.country })}
               locale={locale}
               error={error === "phone" ? s.errors.phone : undefined}
             />
             <Input id="address" name="address" label={s.fields.address} icon={Location01Icon} maxLength={SCHOOL_LIMITS.address} defaultValue={school.address ?? ""} placeholder={s.placeholders.address} />
             <Input id="city" name="city" label={s.fields.city} icon={City03Icon} maxLength={SCHOOL_LIMITS.city} defaultValue={school.city ?? ""} placeholder={s.placeholders.city} />
-            <Input id="country" name="country" label={s.fields.country} icon={Flag02Icon} maxLength={SCHOOL_LIMITS.country} defaultValue={school.country ?? ""} placeholder={s.placeholders.country} />
+            <CountrySelect id="country" name="country" label={s.fields.country} defaultValue={school.country} locale={locale} error={error === "country" ? s.errors.country : undefined} />
           </div>
           <Textarea id="about" name="about" label={s.fields.about} icon={TextIcon} maxLength={SCHOOL_LIMITS.about} rows={3} defaultValue={school.about ?? ""} placeholder={s.placeholders.about} hint={s.fields.aboutHint} />
         </Card>
