@@ -336,6 +336,11 @@ const en = {
   },
   area: {
     title: "My area",
+    introTitle: "One more thing: where do you live?",
+    notNow: "Not now",
+    offerTitle: "Add your area",
+    offerBody: "Say roughly where you live so your school can place stops near students. Rounded to about 500 metres, never tracked.",
+    offerAdd: "Add my area",
     intro: "Tell your school roughly where you live, so it can place stops and plan routes near students. It is rounded to about 500 metres, never tracked, and only you can see it. Your school only sees how many students live in each zone, and how far groups of at least five live from their stops.",
     rounded: "Rounded to about 500 metres. Only you can see it.",
     current: "Saved as {label}",
@@ -769,6 +774,11 @@ const fr: StudentCopy = {
   },
   area: {
     title: "Ma zone",
+    introTitle: "Une dernière chose : où habitez-vous ?",
+    notNow: "Plus tard",
+    offerTitle: "Ajoutez votre zone",
+    offerBody: "Indiquez à peu près où vous habitez pour que votre école place les arrêts près des étudiants. Arrondi à environ 500 mètres, jamais suivi.",
+    offerAdd: "Ajouter ma zone",
     intro: "Indiquez à votre école à peu près où vous habitez, pour qu'elle place les arrêts et prévoie les trajets près des étudiants. C'est arrondi à environ 500 mètres, jamais suivi, et vous seul pouvez le voir. Votre école ne voit que le nombre d'étudiants par zone, et la distance aux arrêts de groupes d'au moins cinq.",
     rounded: "Arrondie à environ 500 mètres. Vous seul pouvez la voir.",
     current: "Enregistrée sous {label}",

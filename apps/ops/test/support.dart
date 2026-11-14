@@ -11,6 +11,7 @@ import 'package:busin_ops/src/providers.dart';
 import 'package:busin_ops/src/queue/scan_queue.dart';
 import 'package:busin_ops/src/scan/scan_providers.dart';
 import 'package:busin_ops/src/scan/scanner_screen.dart';
+import 'package:busin_ops/src/scan/scan_sound.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 
@@ -352,6 +353,21 @@ class FakePositions implements LocationFeed {
   }
 }
 
+/// Records the scan sounds instead of playing them.
+class FakeSoundPlayer implements ScanSoundPlayer {
+  final played = <ScanSound>[];
+  var preloads = 0;
+
+  @override
+  Future<void> preload() async => preloads++;
+
+  @override
+  Future<void> play(ScanSound sound) async => played.add(sound);
+
+  @override
+  Future<void> dispose() async {}
+}
+
 /// The stand-in camera: tests call [feed] with what it "reads".
 late void Function(String code) feed;
 
@@ -374,6 +390,7 @@ List<Override> overridesFor({
   FakeSchools? schools,
   FakeBuses? buses,
   OpsSnapshotStore? snapshots,
+  FakeSoundPlayer? sounds,
   Duration? gateTimeout = const Duration(seconds: 15),
   bool online = true,
 }) =>
@@ -386,6 +403,7 @@ List<Override> overridesFor({
       stopsRepositoryProvider.overrideWithValue(FakeStops()),
       locationFeedProvider.overrideWithValue(positions ?? FakePositions()),
       scannerViewProvider.overrideWithValue(fakeCamera),
+      scanSoundPlayerProvider.overrideWithValue(sounds ?? FakeSoundPlayer()),
       connectivityProvider.overrideWith((ref) => Stream.value(online)),
       authServiceProvider.overrideWithValue(auth),
       profileRepositoryProvider.overrideWithValue(profileRepository ?? FakeProfiles(profiles)),

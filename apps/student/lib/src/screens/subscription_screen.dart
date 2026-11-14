@@ -10,6 +10,7 @@ import '../greeting.dart';
 import '../offline/offline_banner.dart';
 import '../providers.dart';
 import '../push/push_prompt_card.dart';
+import '../area/area_prompt_card.dart';
 import '../router.dart';
 import '../subscription/billing_choices.dart';
 import '../subscription/how_it_works_card.dart';
@@ -182,7 +183,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                   ),
                 ],
                 // The moment there is something to wait for is the moment to offer to tell them.
-                if (!showForm && subscription.status == SubscriptionStatus.pending) const PushPromptCard(),
+                if (!showForm && subscription.status == SubscriptionStatus.pending) const PushPromptCard() else const AreaPromptCard(),
                 // Everything that happened to this semester's requests: the latest open.
                 const RequestHistorySection(),
               ],
