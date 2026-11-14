@@ -213,6 +213,51 @@ test.describe("the school profile", () => {
   });
 });
 
+test.describe("leaving the school profile with changes not saved", () => {
+  test.beforeEach(async ({ context }) => {
+    await signInBrowser(context, admin);
+  });
+
+  const overview = (page: import("@playwright/test").Page) => page.getByRole("navigation", { name: "Main navigation" }).getByRole("link", { name: "Overview", exact: true });
+
+  test("asks first: going back keeps the changes, saving goes on to where the admin was going", async ({ page }) => {
+    await page.goto("/school");
+    await page.waitForLoadState("networkidle");
+    await page.getByLabel("Website").fill("https://saved-on-the-way.example");
+    await overview(page).click();
+    const dialog = page.getByRole("dialog", { name: "Save your changes?" });
+    await expect(dialog).toBeVisible();
+
+    await dialog.getByRole("button", { name: "Go back to the form" }).click();
+    await expect(dialog).toBeHidden();
+    await expect(page).toHaveURL(/\/school$/);
+    await expect(page.getByLabel("Website")).toHaveValue("https://saved-on-the-way.example");
+
+    await overview(page).click();
+    await page.getByRole("dialog", { name: "Save your changes?" }).getByRole("button", { name: "Save and continue" }).click();
+    await expect(page).toHaveURL(/127\.0\.0\.1:\d+\/$/);
+    const { data } = await serviceClient().from("schools").select("website").eq("id", SEED.schoolId).single();
+    expect(data?.website).toBe("https://saved-on-the-way.example");
+  });
+
+  test("leaving without saving drops the changes, and an unchanged form never asks", async ({ page }) => {
+    const { data: before } = await serviceClient().from("schools").select("website").eq("id", SEED.schoolId).single();
+    await page.goto("/school");
+    await page.waitForLoadState("networkidle");
+    await overview(page).click();
+    await expect(page).toHaveURL(/127\.0\.0\.1:\d+\/$/, { timeout: 15_000 });
+
+    await page.goto("/school");
+    await page.waitForLoadState("networkidle");
+    await page.getByLabel("Website").fill("https://never-saved.example");
+    await overview(page).click();
+    await page.getByRole("dialog", { name: "Save your changes?" }).getByRole("button", { name: "Leave without saving" }).click();
+    await expect(page).toHaveURL(/127\.0\.0\.1:\d+\/$/);
+    const { data: after } = await serviceClient().from("schools").select("website").eq("id", SEED.schoolId).single();
+    expect(after?.website).toBe(before?.website);
+  });
+});
+
 test("a student cannot open the school profile", async ({ page, context }) => {
   await signInBrowser(context, student);
   await page.goto("/school");
