@@ -547,6 +547,12 @@ abstract class BusinL10n {
   /// **'Sign in with your school Google account to subscribe, show your boarding code and follow your bus.'**
   String get signInSubtitle;
 
+  /// No description provided for @signInSchoolEmailTip.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip: if your school gave you an email address, sign in with it rather than a personal one.'**
+  String get signInSchoolEmailTip;
+
   /// No description provided for @signInWithGoogle.
   ///
   /// In en, this message translates to:

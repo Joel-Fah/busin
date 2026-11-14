@@ -69,6 +69,14 @@ void main() {
     expect(find.byType(BrandMark), findsOneWidget);
   });
 
+  testWidgets('advises signing in with the school email', (tester) async {
+    final container = containerFor();
+    addTearDown(container.dispose);
+    await tester.pumpWidget(host(container));
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.textContaining('if your school gave you an email address'), findsOneWidget);
+  });
+
   testWidgets('light mode: the bus stop photo, teal words on the light page, white mark', (tester) async {
     final container = containerFor();
     addTearDown(container.dispose);

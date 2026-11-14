@@ -267,6 +267,22 @@ class _Words extends StatelessWidget {
           const SizedBox(height: BusinSpace.x4),
         ],
         StaggeredIn(index: 2, child: _GoogleBanner(label: l10n.signInWithGoogle, busy: busy, onPressed: busy ? null : onSignIn)),
+        const SizedBox(height: BusinSpace.x5),
+        // Schools that keep sign-in to their own addresses refuse a personal account: say so before it happens.
+        StaggeredIn(
+          index: 3,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: HugeIcon(icon: HugeIcons.strokeRoundedInformationCircle, size: 18, color: ink.withValues(alpha: 0.75)),
+              ),
+              const SizedBox(width: BusinSpace.x2),
+              Expanded(child: Text(l10n.signInSchoolEmailTip, style: text.bodyMedium?.copyWith(color: ink.withValues(alpha: 0.75), height: 1.4))),
+            ],
+          ),
+        ),
       ],
     );
   }
