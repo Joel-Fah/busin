@@ -1113,7 +1113,34 @@
       }
     }
   },
-  "subscribeInstallmentsNote": "{parts}. The first with this request, the others by their dates.",
+  "installmentPartNow": "{amount} with this request",
+  "@installmentPartNow": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "installmentPartBy": "{amount} by {date}",
+  "@installmentPartBy": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "subscribeInstallmentsTooLate": "Paying in installments needs at least {days} days left in the semester, so this request is paid in full.",
+  "@subscribeInstallmentsTooLate": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "subscribeInstallmentsNote": "{parts}. The dates follow your own time on the bus, up to the end of the semester.",
   "@subscribeInstallmentsNote": {
     "placeholders": {
       "parts": {

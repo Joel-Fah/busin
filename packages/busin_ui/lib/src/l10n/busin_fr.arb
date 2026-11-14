@@ -675,7 +675,10 @@
       }
     }
   },
-  "subscribeInstallmentsNote": "{parts}. La première avec cette demande, les autres à leurs dates.",
+  "installmentPartNow": "{amount} avec cette demande",
+  "installmentPartBy": "{amount} au plus tard le {date}",
+  "subscribeInstallmentsTooLate": "Le paiement en plusieurs fois demande au moins {days} jours restants dans le semestre : cette demande se paie en une fois.",
+  "subscribeInstallmentsNote": "{parts}. Les dates suivent votre propre temps de bus, jusqu’à la fin du semestre.",
   "@subscribeInstallmentsNote": {
     "placeholders": {
       "parts": {

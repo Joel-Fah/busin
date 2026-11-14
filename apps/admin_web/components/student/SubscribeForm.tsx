@@ -10,7 +10,7 @@ import { Icon } from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { Notice } from "@/components/ui/Notice";
-import { formatAmount, splitAmount, type BillingPeriod, type InstallmentPlan } from "@/lib/billing";
+import { formatAmount, installmentDueDates, installmentsFit, minDaysFor, splitAmount, type BillingPeriod, type InstallmentPlan } from "@/lib/billing";
 import { format } from "@/lib/i18n/format";
 import type { StudentCopy } from "@/lib/i18n/student";
 import { prepareProof } from "@/lib/student/proof-image";
@@ -107,6 +107,9 @@ export function SubscribeForm({
   month: initialMonth = null,
   locale,
   area = null,
+  today,
+  semesterStart,
+  semesterEnd,
 }: {
   copy: StudentCopy["subscription"];
   semesterId: string;
@@ -124,15 +127,30 @@ export function SubscribeForm({
   locale: string;
   /** The student's area, rounded, to say how far each stop is; null when they have not given one. */
   area?: LatLng | null;
+  /** The school's day and the semester's dates (`YYYY-MM-DD`): installments are offered only while their parts fit. */
+  today: string;
+  semesterStart: string;
+  semesterEnd: string;
 }) {
   const router = useRouter();
   const monthly = billing?.period === "month";
-  const offers = billing?.period === "semester" && billing.plan !== null;
+  const plan = billing?.period === "semester" ? billing.plan : null;
+  // Installments only while the parts can be two weeks apart before the semester ends (ADR 0022); later, in full.
+  const offers = plan !== null && installmentsFit(plan, today, semesterStart, semesterEnd);
+  const tooLate = plan !== null && !offers;
   const [month, setMonth] = useState<string | null>(initialMonth && months.includes(initialMonth) ? initialMonth : (months[0] ?? null));
   // The saved way of paying, or In full: the student may switch.
   const [mode, setMode] = useState<Mode>(preference ?? "full");
   const [asking, setAsking] = useState<Mode | null>(null);
   const money = (amount: number) => formatAmount(amount, locale, billing?.currency ?? "XAF");
+  const shortDate = (iso: string) => new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${iso}T00:00:00Z`));
+  // Each part with its amount and when it is due, for a request sent today.
+  const schedule = (p: InstallmentPlan, price: number) => {
+    const dates = installmentDueDates(p, today, semesterStart, semesterEnd);
+    return splitAmount(price, p)
+      .map((amount, i) => (i === 0 ? format(copy.partNow, { amount: money(amount) }) : format(copy.partBy, { amount: money(amount), date: shortDate(dates[i]) })))
+      .join(", ");
+  };
   const monthName = (day: string) => new Intl.DateTimeFormat(locale, { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${day}T00:00:00Z`));
   const done = () => {
     router.replace("/app/subscription");
@@ -257,10 +275,11 @@ export function SubscribeForm({
             disabled={busy}
           />
           <p className="m-0 text-sm text-muted" data-testid="payment-note">
-            {mode === "installments" ? format(copy.installmentsNote, { parts: splitAmount(billing.price, billing.plan!).map(money).join(", ") }) : format(copy.fullNote, { amount: money(billing.price) })}
+            {mode === "installments" ? format(copy.installmentsNote, { parts: schedule(plan!, billing.price) }) : format(copy.fullNote, { amount: money(billing.price) })}
           </p>
         </div>
       ) : null}
+      {tooLate && billing ? <Notice tone="info">{format(copy.installmentsTooLate, { days: minDaysFor(plan!) })}</Notice> : null}
       <PickerField label={copy.stopLabel} value={stop?.name ?? null} placeholder={copy.stopHint} icon={Location01Icon} onClick={() => setPicking(true)} disabled={busy} />
       <div className="flex flex-col gap-2">
         <PickerField label={copy.proofLabel} value={proof ? copy.proofAdded : null} placeholder={copy.proofHint} icon={Camera01Icon} onClick={() => fileInput.current?.click()} disabled={busy} />

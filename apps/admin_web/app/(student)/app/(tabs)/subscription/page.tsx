@@ -161,6 +161,9 @@ async function Subscription({ searchParams }: { searchParams: SearchParams }) {
             months={months}
             month={askMonth}
             locale={locale}
+            today={today}
+            semesterStart={semester.start_date}
+            semesterEnd={semester.end_date}
           />
           {askMonth ? (
             <Link href="/app/subscription" className="self-center text-sm font-semibold text-fg">

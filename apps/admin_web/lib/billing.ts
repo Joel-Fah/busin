@@ -32,6 +32,37 @@ export function splitAmount(total: number, plan: InstallmentPlan): number[] {
 }
 
 /** An amount in whole units, as people write it in that language: "30,000 XAF", "30 000 XAF". */
+/** The fewest days apart two parts may be (ADR 0022). */
+export const MIN_DAYS_APART = 14;
+
+/** The fewest days of the semester, from the day a student asks, a plan needs: two weeks per part. */
+export function minDaysFor(plan: InstallmentPlan): number {
+  return MIN_DAYS_APART * planPercents(plan).length;
+}
+
+const dayMs = 86_400_000;
+const dayOf = (iso: string) => Date.parse(`${iso.slice(0, 10)}T00:00:00Z`);
+const isoOf = (ms: number) => new Date(ms).toISOString().slice(0, 10);
+
+/** The days a student asking on `today` has on the bus: from `today` (or the semester's first day, if later) to its last day, both included. Dates are `YYYY-MM-DD`. */
+export function daysLeft(today: string, semesterStart: string, semesterEnd: string): number {
+  const from = Math.max(dayOf(today), dayOf(semesterStart));
+  return Math.round((dayOf(semesterEnd) - from) / dayMs) + 1;
+}
+
+/** Whether a plan is offered to a student asking on `today`: its parts must fit two weeks apart before the semester ends. The server checks the same (`installments_too_late`). */
+export function installmentsFit(plan: InstallmentPlan, today: string, semesterStart: string, semesterEnd: string): boolean {
+  return daysLeft(today, semesterStart, semesterEnd) >= minDaysFor(plan);
+}
+
+/** When each part falls due for a request sent on `today`: part 1 that day, part k at (k - 1) / n of the student's own time to the semester's end. The server places them the same way. */
+export function installmentDueDates(plan: InstallmentPlan, today: string, semesterStart: string, semesterEnd: string): string[] {
+  const n = planPercents(plan).length;
+  const from = Math.max(dayOf(today), dayOf(semesterStart));
+  const days = Math.max(daysLeft(today, semesterStart, semesterEnd), 1);
+  return Array.from({ length: n }, (_, i) => (i === 0 ? today.slice(0, 10) : isoOf(from + Math.floor((i * days) / n) * dayMs)));
+}
+
 export function formatAmount(amount: number, locale: string, currency = "XAF"): string {
   return `${new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(amount)} ${currency}`;
 }

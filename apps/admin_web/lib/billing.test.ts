@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { billingSaveError, formatAmount, parseBillingForm, partsAttention, schoolBilling, splitAmount } from "./billing";
+import { billingSaveError, formatAmount, parseBillingForm, partsAttention, schoolBilling, splitAmount, daysLeft, installmentDueDates, installmentsFit, minDaysFor } from "./billing";
 
 function form(values: Record<string, string>): FormData {
   const data = new FormData();
@@ -53,5 +53,31 @@ describe("school billing", () => {
     expect(partsAttention([{ seq: 2, status: "due", due_date: "2026-11-14" }], today)).toEqual({ seq: 2, kind: "overdue" });
     expect(partsAttention([{ seq: 2, status: "rejected", due_date: "2026-11-01" }, { seq: 3, status: "submitted", due_date: "2026-12-20" }], today)).toEqual({ seq: 3, kind: "toCheck" });
     expect(partsAttention([{ seq: 1, status: "submitted", due_date: "2026-11-14" }], today), "part 1 is the request itself").toBeNull();
+  });
+});
+
+describe("installments follow the student's start", () => {
+  const start = "2026-09-01";
+  const end = "2026-12-29"; // 120 days
+
+  it("spreads a first-day request across the semester, like the server", () => {
+    expect(installmentDueDates("40-30-30", start, start, end)).toEqual(["2026-09-01", "2026-10-11", "2026-11-20"]);
+  });
+
+  it("spreads a late joiner's parts over their own time", () => {
+    expect(daysLeft("2026-11-20", start, end)).toBe(40);
+    expect(installmentDueDates("50-50", "2026-11-20", start, end)).toEqual(["2026-11-20", "2026-12-10"]);
+  });
+
+  it("counts from the semester's first day when asked before it", () => {
+    expect(installmentDueDates("50-50", "2026-08-20", start, end)).toEqual(["2026-08-20", "2026-10-31"]);
+  });
+
+  it("offers installments only while the parts can be two weeks apart", () => {
+    expect(minDaysFor("50-50")).toBe(28);
+    expect(minDaysFor("30-60-10")).toBe(42);
+    expect(installmentsFit("50-50", "2026-12-02", start, end)).toBe(true);
+    expect(installmentsFit("50-50", "2026-12-03", start, end)).toBe(false);
+    expect(installmentsFit("40-30-30", "2026-12-02", start, end)).toBe(false);
   });
 });

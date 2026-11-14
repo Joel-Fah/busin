@@ -177,7 +177,8 @@ void main() {
     await open(tester, backend, profiles: profiles, picker: FakeProofPicker(samplePhoto()));
     await tester.tap(find.text('In installments'));
     await settle(tester, 4);
-    expect(find.textContaining('12,000 XAF, 9,000 XAF, 9,000 XAF'), findsOneWidget);
+    // Each part with its date, spread over the student's own time from today to the semester's end.
+    expect(find.textContaining('12,000 XAF with this request, 9,000 XAF by '), findsOneWidget);
     await fillRequest(tester);
     await send(tester);
     expect(backend.requests.single.paymentMode, PaymentMode.installments);
@@ -187,6 +188,18 @@ void main() {
     expect(profiles.savedPreferences, [PaymentMode.installments]);
     BusinToast.dismiss();
     await settle(tester, 2);
+  });
+
+  testWidgets('too close to the end of the semester for the parts to be two weeks apart: in full only', (tester) async {
+    // A month left; the school's 40-30-30 needs 42 days.
+    final backend = FakeBackend(current: semester(end: '2026-12-15'))..school = installmentsSchool;
+    final profiles = FakeProfileRepository({'u1': Profile.fromJson({...profile().toJson(), 'payment_preference': 'installments'})});
+    await open(tester, backend, profiles: profiles, picker: FakeProofPicker(samplePhoto()));
+    expect(find.text('In installments'), findsNothing);
+    expect(find.text('Paying in installments needs at least 42 days left in the semester, so this request is paid in full.'), findsOneWidget);
+    await fillRequest(tester);
+    await send(tester);
+    expect(backend.requests.single.paymentMode, PaymentMode.full, reason: 'even with installments as the saved preference');
   });
 
   testWidgets('a saved preference is filled in, and nothing more is asked', (tester) async {

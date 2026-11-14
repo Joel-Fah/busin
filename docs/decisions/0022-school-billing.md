@@ -32,6 +32,12 @@ and some let students pay a semester in parts.
    proof for each, and an administrator marks each paid or rejected. The first part is enough to approve the
    subscription.
 
+8. **Parts follow the student's start** (amended 2026-11-14, the owner's call, #478). Students join during the semester
+   and all pay the same price. Part 1 is due the day of the request; part k at (k - 1) / n of the way from that day
+   (or the semester's first day, if they ask before it) to the semester's last day. Installments are offered only
+   while the parts can be at least two weeks apart: 14 days per part left in the semester (28 for two parts, 42 for
+   three); later the request is paid in full (`installments_too_late`). Requests made before keep their dates.
+
 ## Consequences
 - Every school must set billing once before its students can ask again; the live schools need this right after the
   migration.
