@@ -125,6 +125,14 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('tapping the school shows what its administrators wrote', (tester) async {
+      await openProfile(tester, FakeAuthService(signedInAs: 'u1'), FakeProfileRepository({'u1': profile()}));
+      await tester.tap(find.text('Test School'));
+      await tester.pumpAndSettle();
+      expect(find.text('Test School'), findsNWidgets(2), reason: 'the badge and the sheet');
+      expect(find.text('The school has not added its details yet.'), findsOneWidget);
+    });
+
     testWidgets('the history is inside the profile, opens as its own page and comes back', (tester) async {
       await openProfile(tester, FakeAuthService(signedInAs: 'u1'), FakeProfileRepository({'u1': profile()}));
       // Four tabs, and history is not one of them.

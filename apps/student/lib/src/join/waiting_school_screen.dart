@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 import '../auth/access.dart';
 import '../providers.dart';
 import 'join_providers.dart';
-import 'school_logo.dart';
 
 /// While a school checks a request to join it (ADR 0012). A pending account cannot get push messages, so the screen
 /// checks again whenever the app comes back to the front, and on demand. The student can choose another school.

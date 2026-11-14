@@ -416,6 +416,7 @@ List<Override> overridesFor({
       scanSoundPlayerProvider.overrideWithValue(sounds ?? FakeSoundPlayer()),
       connectivityProvider.overrideWith((ref) => Stream.value(online)),
       authServiceProvider.overrideWithValue(auth),
+      appConfigProvider.overrideWithValue(const AppConfig(supabaseUrl: 'http://127.0.0.1:54321', publishableKey: 'test', googleServerClientId: 'test', environment: 'test')),
       profileRepositoryProvider.overrideWithValue(profileRepository ?? FakeProfiles(profiles)),
       schoolRepositoryProvider.overrideWithValue(schools ?? FakeSchools()),
       opsSnapshotStoreProvider.overrideWithValue(snapshots ?? MemoryOpsSnapshotStore()),

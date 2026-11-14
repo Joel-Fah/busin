@@ -7,7 +7,6 @@ import '../area/area_providers.dart';
 import '../auth/access.dart';
 import '../greeting.dart';
 import '../join/join_providers.dart';
-import '../join/school_logo.dart';
 import '../profile/profile_form.dart';
 import '../providers.dart';
 

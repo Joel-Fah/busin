@@ -60,7 +60,13 @@ class OpsProfileScreen extends ConsumerWidget {
                             const SizedBox(height: BusinSpace.x2),
                             Wrap(spacing: BusinSpace.x2, runSpacing: BusinSpace.x2, children: [
                               StatusChip(label: profile.role == UserRole.admin ? l10n.roleAdmin : l10n.roleStaff, icon: HugeIcons.strokeRoundedUserShield01),
-                              if (school != null) StatusChip(label: school.name, icon: HugeIcons.strokeRoundedSchool),
+                              // The school's logo and name; tapping shows its address, email, phones and website.
+                              if (school != null)
+                                SchoolBadge(
+                                  school: school,
+                                  supabaseUrl: ref.watch(appConfigProvider).supabaseUrl,
+                                  onTap: () => showSchoolInfoSheet(context, school: school, supabaseUrl: ref.read(appConfigProvider).supabaseUrl),
+                                ),
                             ]),
                           ],
                         ),

@@ -1,4 +1,5 @@
-import 'package:busin_ui/busin_ui.dart';
+import '../tokens/palette.dart';
+import '../tokens/shape.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 

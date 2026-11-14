@@ -1,22 +1,26 @@
 import 'package:busin_core/busin_core.dart';
-import 'package:busin_ui/busin_ui.dart';
+import '../l10n/busin_l10n.dart';
+import '../tokens/palette.dart';
+import '../tokens/shape.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-/// The student's school as a small badge: its logo (or a building icon while there is none, or if it cannot load) and
-/// its name, in the same quiet style as the status chips beside it.
+/// A person's school as a small badge: its logo (or a building icon while there is none, or if it cannot load) and its
+/// name, in the same quiet style as the status chips beside it. With [onTap] it is a button (the profiles open the
+/// school's details).
 class SchoolBadge extends StatelessWidget {
-  const SchoolBadge({super.key, required this.school, required this.supabaseUrl});
+  const SchoolBadge({super.key, required this.school, required this.supabaseUrl, this.onTap});
 
   final School school;
   final String supabaseUrl;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final p = BusinPalette.of(context);
     final url = school.logoUrl(supabaseUrl);
     final fallback = HugeIcon(icon: HugeIcons.strokeRoundedBuilding03, size: 14, color: p.muted);
-    return DecoratedBox(
+    final badge = DecoratedBox(
       decoration: BoxDecoration(color: p.surface2, borderRadius: BorderRadius.circular(BusinRadius.xs)),
       child: Padding(
         padding: EdgeInsets.fromLTRB(url == null ? BusinSpace.x3 : BusinSpace.x1 + 1, BusinSpace.x1, BusinSpace.x3, BusinSpace.x1),
@@ -50,8 +54,21 @@ class SchoolBadge extends StatelessWidget {
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(color: p.muted, fontWeight: FontWeight.w700),
               ),
             ),
+            if (onTap != null) ...[
+              const SizedBox(width: 4),
+              HugeIcon(icon: HugeIcons.strokeRoundedArrowRight01, size: 14, color: p.muted),
+            ],
           ],
         ),
+      ),
+    );
+    if (onTap == null) return badge;
+    return Semantics(
+      button: true,
+      hint: BusinL10n.of(context).schoolDetailsHint,
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(borderRadius: BorderRadius.circular(BusinRadius.xs), onTap: onTap, child: badge),
       ),
     );
   }

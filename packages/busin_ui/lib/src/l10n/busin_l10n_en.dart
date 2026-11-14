@@ -258,6 +258,30 @@ class BusinL10nEn extends BusinL10n {
   String get navNew => 'new';
 
   @override
+  String get schoolDetailsHint => 'Shows the school\'s details';
+
+  @override
+  String get schoolAddress => 'Address';
+
+  @override
+  String get schoolEmail => 'Email';
+
+  @override
+  String get schoolPhone => 'Phone';
+
+  @override
+  String get schoolPhoneSecondary => 'Second phone';
+
+  @override
+  String get schoolWebsite => 'Website';
+
+  @override
+  String get schoolNoDetails => 'The school has not added its details yet.';
+
+  @override
+  String get schoolLinkFailed => 'No app on this phone can open this.';
+
+  @override
   String get signInWithGoogle => 'Continue with Google';
 
   @override

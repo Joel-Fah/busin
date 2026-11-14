@@ -565,6 +565,54 @@ abstract class BusinL10n {
   /// **'new'**
   String get navNew;
 
+  /// No description provided for @schoolDetailsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows the school\'s details'**
+  String get schoolDetailsHint;
+
+  /// No description provided for @schoolAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get schoolAddress;
+
+  /// No description provided for @schoolEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get schoolEmail;
+
+  /// No description provided for @schoolPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get schoolPhone;
+
+  /// No description provided for @schoolPhoneSecondary.
+  ///
+  /// In en, this message translates to:
+  /// **'Second phone'**
+  String get schoolPhoneSecondary;
+
+  /// No description provided for @schoolWebsite.
+  ///
+  /// In en, this message translates to:
+  /// **'Website'**
+  String get schoolWebsite;
+
+  /// No description provided for @schoolNoDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'The school has not added its details yet.'**
+  String get schoolNoDetails;
+
+  /// No description provided for @schoolLinkFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'No app on this phone can open this.'**
+  String get schoolLinkFailed;
+
   /// No description provided for @signInWithGoogle.
   ///
   /// In en, this message translates to:
