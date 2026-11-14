@@ -923,6 +923,13 @@ export const en = {
       allowedPlaceholder: 'gmail.com, yahoo.fr',
       allowedInvalid: 'One of these is not a valid domain, such as gmail.com. Click it to edit it.',
     },
+    unsaved: {
+      title: 'Save your changes?',
+      body: 'You changed the school profile but did not save it. If you leave now, these changes are lost.',
+      stay: 'Go back to the form',
+      save: 'Save and continue',
+      leave: 'Leave without saving',
+    },
     fieldTrips: {
       title: 'Trips started in the field',
       label: 'Let staff start a trip that was not scheduled',
@@ -2274,6 +2281,13 @@ export const fr: Messages = {
       allowedHint: "Saisissez un domaine puis une virgule, un espace ou Entrée. Laissez vide pour accepter toute adresse e-mail.",
       allowedPlaceholder: "gmail.com, yahoo.fr",
       allowedInvalid: "L'un d'eux n'est pas un domaine valide, comme gmail.com. Cliquez dessus pour le modifier.",
+    },
+    unsaved: {
+      title: 'Enregistrer vos modifications ?',
+      body: "Vous avez modifié le profil de l'école sans l'enregistrer. Si vous partez maintenant, ces modifications sont perdues.",
+      stay: 'Revenir au formulaire',
+      save: 'Enregistrer et continuer',
+      leave: 'Partir sans enregistrer',
     },
     fieldTrips: {
       title: "Trajets démarrés sur le terrain",

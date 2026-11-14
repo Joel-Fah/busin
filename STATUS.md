@@ -44,6 +44,8 @@ Merged into `dev` on 2026-11-14 (not on `main`, not on the hosted project):
 
 Next: the owner tests on `dev` (below), then the milestone PR `dev` to `main`, the hosted migrations (`20261115160000_school_billing`, `20261115170000_installments`, `20261115175000_installment_receipts`, `20261115180000_phone_e164`), the `send-push` redeploy, and setting billing for each live school right after the billing migration. Each needs the owner's go.
 
+Since then (PRs into `dev`, not merged): the school logo fits its box in its own proportions (#465, fixes an overflow after #460); leaving the school profile with unsaved changes asks first (#466, stacked on #465).
+
 What to test (local: `npm run backend:start`, `npm run seed:demo`, `npm run web`, `npm run dev:device`; rebuild both Flutter apps):
 - **Ops scan sounds:** a valid code, the same again, a screenshot older than a minute, a student without a subscription, no network and no list. Each sounds different, and music keeps playing. The switch is in the profile.
 - **Setup:** a new account is asked program, then faculty, then department, then My area once ("Not now" works). An existing account without an area sees the card on the Subscription tab once.
@@ -60,6 +62,7 @@ What to test (local: `npm run backend:start`, `npm run seed:demo`, `npm run web`
   - both receipts and each decision stay in the history (admin, phone, web), and the pushes arrive.
 - **Monthly billing:** ask for this month and next; the code works this month only; "Ask for next month" from a running month.
 - **Logos:** upload a wide and a tall logo. Neither is cropped in the portal, the landing page, the web join, setup and waiting pages, or the phone app.
+- **School profile guard:** change a field, then click any link (navigation, Academics card, Back to profile). The dialog offers Go back, Save and continue (saves, then goes where you clicked), or Leave without saving. Closing the tab warns too.
 - **Admin lists on a phone width:** scroll a list until the tabs stick. They stay on one row and scroll sideways, with the current tab in view.
 
 ## Handoff: student web app (2026-11-13)

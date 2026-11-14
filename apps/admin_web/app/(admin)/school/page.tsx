@@ -16,6 +16,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 import { FlashToast } from "@/components/FlashToast";
+import { UnsavedChangesGuard } from "@/components/UnsavedChangesGuard";
 import { LogoPicker } from "@/components/school/LogoPicker";
 import { OpenSignupFields } from "@/components/school/OpenSignupFields";
 import { Accordion } from "@/components/ui/Accordion";
@@ -116,7 +117,7 @@ async function School({ searchParams }: { searchParams: SearchParams }) {
         </Card>
       </Link>
 
-      <form action={saveSchoolProfile} className="flex flex-col gap-6">
+      <form id="school-profile" action={saveSchoolProfile} className="flex flex-col gap-6">
         <Card className="flex flex-col gap-5">
           <div>
             <h2 className="text-xl font-bold">{s.details.title}</h2>
@@ -189,6 +190,8 @@ async function School({ searchParams }: { searchParams: SearchParams }) {
           <Button type="submit">{s.save}</Button>
         </div>
       </form>
+      {/* The profile saves only with its button: leaving with changes asks first. */}
+      <UnsavedChangesGuard formId="school-profile" copy={s.unsaved} />
 
       <form action={saveFieldTrips}>
         <Card className="flex flex-col gap-4">
