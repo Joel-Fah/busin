@@ -2,10 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 	<dict>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>BusIn reads your location when you ask: once when you add your area (rounded to about 500 metres), and on My bus when you tap Show me, to show you next to your stop and the bus. It stays on your phone and is never tracked.</string>
-	<key>NSLocationDefaultAccuracyReduced</key>
-	<true/>
+		<key>NSLocationWhenInUseUsageDescription</key>
+		<string>BusIn reads your location when you ask: once when you add your area (rounded to about 500 metres), and on My bus when you tap Show me, to show you next to your stop and the bus. It stays on your phone and is never tracked.</string>
+		<key>NSLocationDefaultAccuracyReduced</key>
+		<true/>
 		<key>CADisableMinimumFrameDurationOnPhone</key>
 		<true/>
 		<key>NSCameraUsageDescription</key>

@@ -71,20 +71,24 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     final waiting = introDone && ref.watch(accessProvider) is AccessLoading;
     _watch(waiting);
     const markHeight = splashMarkWidth * 126 / 205;
+    // Themed like the native splash it follows: the white mark on the brand teal in dark mode, the teal mark on the
+    // light page in light mode.
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final ink = dark ? Colors.white : BusinRamps.seed;
     return Scaffold(
-      backgroundColor: BusinRamps.seed,
+      backgroundColor: dark ? BusinRamps.seed : palette.bg,
       body: Stack(
         children: [
-          const Positioned.fill(child: Grain(opacity: 1)),
+          Positioned.fill(child: Grain(opacity: dark ? 1 : 0.5)),
           // The mark stays at the exact centre, as on the native splash; the bar hangs below it.
           Center(
             child: introDone
                 ? Semantics(
                     label: l10n.loadingLabel,
-                    child: const BrandMark(color: Colors.white, height: markHeight),
+                    child: BrandMark(color: ink, height: markHeight),
                   )
                 : BrandIntro(
-                    color: Colors.white,
+                    color: ink,
                     width: splashMarkWidth,
                     onDone: ref.read(introDoneProvider.notifier).finish,
                   ),
@@ -98,7 +102,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                   width: 96,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(BusinRadius.xs),
-                    child: LinearProgressIndicator(minHeight: 4, color: palette.accent, backgroundColor: Colors.white24),
+                    child: LinearProgressIndicator(minHeight: 4, color: palette.accent, backgroundColor: ink.withValues(alpha: 0.15)),
                   ),
                 ),
               ),
@@ -117,9 +121,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(l10n.loadingSlowTitle, style: text.titleMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.w800), textAlign: TextAlign.center),
+                          Text(l10n.loadingSlowTitle, style: text.titleMedium?.copyWith(color: ink, fontWeight: FontWeight.w800), textAlign: TextAlign.center),
                           const SizedBox(height: BusinSpace.x2),
-                          Text(l10n.loadingSlowBody, style: text.bodyMedium?.copyWith(color: Colors.white.withValues(alpha: 0.85)), textAlign: TextAlign.center),
+                          Text(l10n.loadingSlowBody, style: text.bodyMedium?.copyWith(color: ink.withValues(alpha: 0.85)), textAlign: TextAlign.center),
                           const SizedBox(height: BusinSpace.x4),
                           BusinButton(label: l10n.actionRetry, variant: BusinButtonVariant.secondary, onPressed: _retry),
                         ],
