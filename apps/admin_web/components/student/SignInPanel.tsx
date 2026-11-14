@@ -123,12 +123,12 @@ export function SignInPanel({ copy, locale, initialError }: { copy: StudentCopy[
   return (
     <div className="flex flex-col gap-4">
       {message ? (
-        <p role="alert" className="m-0 rounded-md bg-[#3a1512]/80 px-4 py-3 text-sm font-semibold text-[#ffb4ab]">
+        <p role="alert" className="m-0 rounded-md bg-bad-bg px-4 py-3 text-sm font-semibold text-bad dark:bg-[#3a1512]/80 dark:text-[#ffb4ab]">
           {message}
         </p>
       ) : null}
       {busy ? (
-        <p role="status" className="m-0 text-sm font-semibold text-white/85">
+        <p role="status" className="m-0 text-sm font-semibold text-seed/85 dark:text-white/85">
           {copy.working}
         </p>
       ) : null}
@@ -144,13 +144,13 @@ export function SignInPanel({ copy, locale, initialError }: { copy: StudentCopy[
           </Button>
         </form>
       ) : null}
-      {mode === "loading" ? <div aria-hidden className="h-11 w-full max-w-[400px] animate-pulse rounded-sm bg-white/15" /> : null}
+      {mode === "loading" ? <div aria-hidden className="h-11 w-full max-w-[400px] animate-pulse rounded-sm bg-seed/10 dark:bg-white/15" /> : null}
       {/* Google's button can fail inside its own window (an address not yet allowed on the client, a blocked popup), where
           this page cannot see it: the redirect flow is always there as a way out. */}
       {mode !== "fallback" ? (
         <form action={signInWithGoogle}>
           <input type="hidden" name="from" value="app" />
-          <button type="submit" className="cursor-pointer border-0 bg-transparent p-0 font-sans text-sm font-semibold text-white/80 underline-offset-4 hover:text-white focus-visible:outline-3 focus-visible:outline-focus">
+          <button type="submit" className="cursor-pointer border-0 bg-transparent p-0 font-sans text-sm font-semibold text-seed/80 underline-offset-4 hover:text-seed dark:text-white/80 dark:hover:text-white focus-visible:outline-3 focus-visible:outline-focus">
             {copy.other}
           </button>
         </form>
