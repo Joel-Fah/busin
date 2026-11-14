@@ -50,9 +50,9 @@ test("pays in installments without a preference, keeps it, and sends the proof o
   await signInBrowser(context, student);
   await page.goto("/app/subscription");
   await expect(page.getByText("30,000 XAF for the semester")).toBeVisible();
+  // In full is the default; the student switches.
+  await expect(page.getByTestId("payment-note")).toHaveText("30,000 XAF with this request.");
   await fill(page);
-  await page.getByRole("button", { name: "Send request" }).click();
-  await expect(page.getByText("Choose how you pay.")).toBeVisible();
 
   await page.getByRole("radio", { name: "In installments" }).click();
   await expect(page.getByTestId("payment-note")).toContainText("12,000 XAF, 9,000 XAF, 9,000 XAF");

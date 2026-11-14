@@ -12,7 +12,8 @@ type Mode = "full" | "installments";
 /** How the student prefers to pay (ADR 0022), as the app's segmented choice. Saved at once. */
 export function PaymentPreference({ copy, labels, current }: { copy: StudentCopy["me"]["payment"]; labels: { full: string; installments: string; failed: string }; current: Mode | null }) {
   const toast = useToast();
-  const [value, setValue] = useState<Mode | null>(current);
+  // In full is the default while nothing is saved.
+  const [value, setValue] = useState<Mode>(current ?? "full");
   const [pending, start] = useTransition();
 
   const choose = (mode: Mode) => {
@@ -48,7 +49,6 @@ export function PaymentPreference({ copy, labels, current }: { copy: StudentCopy
           </button>
         ))}
       </div>
-      {value === null ? <p className="m-0 text-sm text-muted">{copy.none}</p> : null}
     </section>
   );
 }
