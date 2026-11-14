@@ -141,6 +141,8 @@ test.describe("the school profile", () => {
 
   test("a logo dropped on the zone lights it up and is saved; a wrong file is refused with its own message", async ({ page }) => {
     await page.goto("/school");
+    // The drop zone listens once the page has hydrated; synthetic drag events sent before are lost.
+    await page.waitForLoadState("networkidle");
     const zone = page.locator("[data-dropzone]");
     const dropFile = async (name: string, type: string, make: () => Promise<number[]>) => {
       const bytes = await page.evaluate(make);

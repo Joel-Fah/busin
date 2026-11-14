@@ -12,6 +12,7 @@ import { format } from "@/lib/i18n/format";
 import { getStudentCopy } from "@/lib/i18n/server";
 import { logoUrl } from "@/lib/school";
 import { firstName } from "@/lib/overview";
+import { phoneCountryFor } from "@/lib/phone/server";
 import { requireGate } from "@/lib/student/session";
 import { createClient } from "@/lib/supabase/server";
 
@@ -42,6 +43,7 @@ async function Setup() {
     departments: (departments.data ?? []).map((d) => ({ id: d.id, facultyId: d.faculty_id, name: d.name })),
     programs: programs.data ?? [],
   };
+  const phoneCountry = await phoneCountryFor(profile.school_id, profile.phone);
   const school = profile.schools?.name ?? "";
   const logo = logoUrl(profile.schools?.logo_path, supabaseConfig().url);
   const name = firstName(profile.full_name ?? "");
@@ -75,7 +77,8 @@ async function Setup() {
         copy={s.setup}
         fields={s.fields}
         academics={academics}
-        initial={{ fullName: profile.full_name ?? "", matricule: profile.matricule ?? "", phone: profile.phone ?? "", faculty: "", department: "", program: "" }}
+        initial={{ fullName: profile.full_name ?? "", matricule: profile.matricule ?? "", phone: profile.phone ?? "", phoneCountry, faculty: "", department: "", program: "" }}
+        locale={locale}
       />
     </GatePage>
   );

@@ -1,10 +1,11 @@
 "use client";
 
-import { BookOpen01Icon, Building03Icon, Call02Icon, IdIcon, Mortarboard01Icon, UserIcon } from "@hugeicons/core-free-icons";
+import { BookOpen01Icon, Building03Icon, IdIcon, Mortarboard01Icon, UserIcon } from "@hugeicons/core-free-icons";
 import { useActionState, useState } from "react";
 
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { PhoneField } from "@/components/ui/PhoneField";
 import { Notice } from "@/components/ui/Notice";
 import { Select } from "@/components/ui/Select";
 import type { StudentCopy } from "@/lib/i18n/student";
@@ -29,6 +30,7 @@ export function SetupForm({
   save = saveSetup,
   submitLabel,
   cancel,
+  locale,
 }: {
   copy: StudentCopy["setup"];
   fields: StudentCopy["fields"];
@@ -38,6 +40,7 @@ export function SetupForm({
   save?: (previous: SetupState, formData: FormData) => Promise<SetupState>;
   submitLabel?: string;
   cancel?: { href: string; label: string };
+  locale: "en" | "fr";
 }) {
   const [state, action, pending] = useActionState<SetupState, FormData>(save, { problems: {}, error: null, values: initial });
   const [faculty, setFaculty] = useState(state.values.faculty);
@@ -51,7 +54,7 @@ export function SetupForm({
       {state.error ? <Notice tone="bad">{copy.failed}</Notice> : null}
       <Input id="fullName" name="fullName" label={fields.fullName} hint={fields.fullNameHint} icon={UserIcon} defaultValue={state.values.fullName} error={problem("fullName")} autoComplete="name" required maxLength={80} />
       <Input id="matricule" name="matricule" label={fields.matricule} hint={fields.matriculeHint} icon={IdIcon} defaultValue={state.values.matricule} error={problem("matricule")} autoComplete="off" autoCapitalize="characters" required maxLength={32} />
-      <Input id="phone" name="phone" type="tel" label={fields.phone} hint={fields.phoneHint} icon={Call02Icon} defaultValue={state.values.phone} error={problem("phone")} autoComplete="tel" inputMode="tel" required />
+      <PhoneField id="phone" name="phone" label={fields.phone} hint={fields.phoneHint} defaultValue={state.values.phone} defaultCountry={state.values.phoneCountry} locale={locale} error={problem("phone")} required />
       {/* Program first, then faculty and its department (the owner's order for setup). */}
       {academics.programs.length > 0 ? (
         <Select

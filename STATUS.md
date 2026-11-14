@@ -33,6 +33,7 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 
 ## Handoff: phone numbers and logos (2026-11-14)
 
+- Web country and phone field (#454): done, PR into `dev`, stacked on #453. `PhoneField`: a flag and the dialling code open a searchable country list (EN/FR names, codes, dialling codes; 245 countries from `tools/make-countries.mjs`, flags as SVG files in `public/flags`), the number is written the country's way as typed, a pasted `+` number picks its country; country and number on one row, down to 320 px. Used in student setup, profile edit and the school profile; numbers shown with spaces on the student profile and the admin's person page; in the styleguide.
 - Phone numbers as E.164 (#453): done, PR into `dev` (ADR 0024). Migration `20261115180000_phone_e164` tidies existing numbers (international kept, bare Cameroonian ones get +237, the rest cleared: a student is asked again at setup) and checks the form on both columns. Both apps read typed numbers for a country and save E.164; the phone app's profile shows them with spaces. The country and phone fields come next (#454 web, #455 Flutter), then logos (#456). Owner: the hosted migration prints how many numbers it changed.
 ## Handoff: setup field order (2026-11-14)
 

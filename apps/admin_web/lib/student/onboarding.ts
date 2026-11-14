@@ -48,7 +48,7 @@ export async function checkAgain(): Promise<void> {
 export type SetupState = {
   problems: Partial<Record<"fullName" | "matricule" | "phone", FieldProblem>>;
   error: "failed" | null;
-  values: { fullName: string; matricule: string; phone: string; faculty: string; department: string; program: string };
+  values: { fullName: string; matricule: string; phone: string; phoneCountry: string; faculty: string; department: string; program: string };
 };
 
 /** Reads and checks the details form; null problems means it may be saved. */
@@ -61,12 +61,13 @@ function readDetails(formData: FormData): { values: SetupState["values"]; proble
     fullName: text("fullName"),
     matricule: text("matricule"),
     phone: text("phone"),
+    phoneCountry: text("phoneCountry"),
     faculty: text("faculty"),
     department: text("department"),
     program: text("program"),
   };
   // The country chosen in the phone field (ADR 0024); the field always sends one.
-  const country = text("phoneCountry") || "CM";
+  const country = values.phoneCountry || "CM";
   const problems: SetupState["problems"] = {};
   const name = checkFullName(values.fullName);
   const matricule = checkMatricule(values.matricule);
