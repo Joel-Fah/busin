@@ -30,14 +30,14 @@ test.afterAll(async () => {
   for (const user of [withArea, withoutArea]) if (user) await deleteUser(user);
 });
 
-test("the nearest stop is suggested with its distance, and nothing is chosen", async ({ page, context }) => {
+test("the stops are listed nearest first with their distance, the nearest marked, and nothing is chosen", async ({ page, context }) => {
   await signInBrowser(context, withArea);
   await page.goto("/app/subscription");
   await page.getByRole("button", { name: /Your stop/ }).click();
   const dialog = page.getByRole("dialog");
-  const suggested = dialog.getByRole("list", { name: "Suggested" });
-  await expect(suggested).toContainText("Shell Nsimeyong");
-  await expect(suggested).toContainText("Closest to your area");
+  const first = dialog.getByRole("list", { name: "Your stop" }).getByRole("listitem").first();
+  await expect(first).toContainText("Shell Nsimeyong");
+  await expect(first).toContainText("Closest to your area");
   await expect(dialog.getByText(/km from your area/).first()).toBeVisible();
   await dialog.getByRole("button", { name: "Close", exact: true }).click();
   await expect(page.getByRole("button", { name: /Your stop/ })).toContainText("Choose where you board");
@@ -49,6 +49,6 @@ test("without an area the list is as before, with a way to add one", async ({ pa
   await page.getByRole("button", { name: /Your stop/ }).click();
   const dialog = page.getByRole("dialog");
   await expect(dialog.getByText("Add your area to see which stop is closest")).toBeVisible();
-  await expect(dialog.getByText("Suggested")).toHaveCount(0);
+  await expect(dialog.getByText("Closest to your area")).toHaveCount(0);
   await expect(dialog.getByText(/km from your area/)).toHaveCount(0);
 });

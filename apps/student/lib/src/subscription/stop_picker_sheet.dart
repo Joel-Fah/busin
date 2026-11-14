@@ -37,12 +37,12 @@ class _StopPickerState extends State<_StopPicker> {
     final l10n = BusinL10n.of(context);
     final palette = BusinPalette.of(context);
     final needle = _query.trim().toLowerCase();
+    // Nearest first when the student gave their area; the nearest of all carries a "closest" chip (never chosen for them).
     final ranked = stopsWithDistance(widget.stops, widget.area);
-    // The nearest is suggested above the list while nothing is searched; it is not repeated below.
-    final closest = needle.isEmpty ? closestStop(ranked) : null;
+    final closest = closestStop(ranked);
     final shown = [
       for (final r in ranked)
-        if ((needle.isEmpty || r.stop.name.toLowerCase().contains(needle)) && r.stop.id != closest?.stop.id) r,
+        if (needle.isEmpty || r.stop.name.toLowerCase().contains(needle)) r,
     ];
     final km = NumberFormat('0.0', Localizations.localeOf(context).toLanguageTag());
     final text = Theme.of(context).textTheme;
@@ -78,11 +78,6 @@ class _StopPickerState extends State<_StopPicker> {
       );
     }
 
-    Widget heading(String label) => Padding(
-          padding: const EdgeInsets.fromLTRB(BusinSpace.x5, BusinSpace.x2, BusinSpace.x5, BusinSpace.x1),
-          child: Text(label, style: text.labelLarge?.copyWith(color: palette.muted)),
-        );
-
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
@@ -112,16 +107,11 @@ class _StopPickerState extends State<_StopPicker> {
                   ),
                 ),
               Expanded(
-                child: shown.isEmpty && closest == null
+                child: shown.isEmpty
                     ? Center(child: Text(l10n.subscribeStopNone, style: TextStyle(color: palette.muted)))
                     : ListView(
                         children: [
-                          if (closest != null) ...[
-                            heading(l10n.stopSuggested),
-                            tile(closest, suggested: true),
-                            heading(l10n.stopAll),
-                          ],
-                          for (final r in shown) tile(r),
+                          for (final r in shown) tile(r, suggested: r.stop.id == closest?.stop.id),
                         ],
                       ),
               ),

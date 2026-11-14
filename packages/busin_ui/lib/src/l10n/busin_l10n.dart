@@ -3655,18 +3655,6 @@ abstract class BusinL10n {
   /// **'Closest to your area'**
   String get stopClosest;
 
-  /// No description provided for @stopSuggested.
-  ///
-  /// In en, this message translates to:
-  /// **'Suggested'**
-  String get stopSuggested;
-
-  /// No description provided for @stopAll.
-  ///
-  /// In en, this message translates to:
-  /// **'All stops'**
-  String get stopAll;
-
   /// No description provided for @stopAddArea.
   ///
   /// In en, this message translates to:

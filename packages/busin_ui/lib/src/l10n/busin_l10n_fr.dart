@@ -2133,12 +2133,6 @@ class BusinL10nFr extends BusinL10n {
   String get stopClosest => 'Le plus proche de votre zone';
 
   @override
-  String get stopSuggested => 'Suggéré';
-
-  @override
-  String get stopAll => 'Tous les arrêts';
-
-  @override
   String get stopAddArea =>
       'Ajoutez votre zone pour voir l’arrêt le plus proche';
 }

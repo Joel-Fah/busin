@@ -48,7 +48,7 @@ Since then (PRs into `dev`, not merged): the school logo fits its box in its own
 
 Then (PRs into `dev`): the sign-in screen follows the theme, with the bus stop photo in light mode on the phone and the web (#472); the ops app's launch screen follows the theme too (#473, stacked on #472).
 
-Next round (PRs into `dev`, stacked in this order): the sign-in tip to use the school email (#476); search on the admin Subscriptions list (#477); a refused account is told it is not allowed instead of "try again" (#482); installments follow each student's start and close when fewer than two weeks per part are left (#478, migration `20261115190000_installments_from_start`, ADR 0022 point 8); tab badges in the student and ops apps (#479, migration `20261115200000_trips_realtime`, `20261115210000_school_second_phone`); an optional second school phone (#486, migration `20261115210000_school_second_phone`); the school sheet from the profile in both apps, and the ops logo (#487); the offline banner shows as soon as the network drops (#490). The apps now read `phone_secondary` and `address`: the hosted migration must be applied before these app builds are released.
+Next round (PRs into `dev`, stacked in this order): the sign-in tip to use the school email (#476); search on the admin Subscriptions list (#477); a refused account is told it is not allowed instead of "try again" (#482); installments follow each student's start and close when fewer than two weeks per part are left (#478, migration `20261115190000_installments_from_start`, ADR 0022 point 8); tab badges in the student and ops apps (#479, migration `20261115200000_trips_realtime`, `20261115210000_school_second_phone`); an optional second school phone (#486, migration `20261115210000_school_second_phone`); the school sheet from the profile in both apps, and the ops logo (#487); the offline banner shows as soon as the network drops (#490); the stop list is nearest first when the student has an area (#492). The apps now read `phone_secondary` and `address`: the hosted migration must be applied before these app builds are released.
 
 What to test (local: `npm run backend:start`, `npm run seed:demo`, `npm run web`, `npm run dev:device`; rebuild both Flutter apps):
 - **Ops scan sounds:** a valid code, the same again, a screenshot older than a minute, a student without a subscription, no network and no list. Each sounds different, and music keeps playing. The switch is in the profile.
@@ -59,7 +59,7 @@ What to test (local: `npm run backend:start`, `npm run seed:demo`, `npm run web`
   - the price shows, and In full is chosen by default;
   - switch to In installments and send, then "Pay this way next time?" saves the preference;
   - the profile shows it;
-  - the stop list says how far each stop is from your area, with the closest suggested and nothing chosen.
+  - the stop list is ordered nearest first from your area (the nearest marked, nothing chosen); without an area, the school's order.
 - **Installments:**
   - the admin approves, which pays part 1; the student sends part 2's proof;
   - the admin rejects it with a reason; the student sends another; the admin marks it paid;

@@ -7,7 +7,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'support.dart';
 
-// When subscribing, each stop says how far it is from the student's area and the nearest is suggested, never chosen.
+// When subscribing, the stops are listed nearest first from the student's area, each with its distance; the nearest is
+// pointed out, never chosen. Without an area the school's order stays.
 
 final near = Stop(id: 'near', schoolId: 's1', name: 'Bastos', location: GeoPoint(3.890, 11.510), active: true);
 final far = Stop(id: 'far', schoolId: 's1', name: 'Acacias', location: GeoPoint(3.830, 11.490), active: true);
@@ -40,15 +41,20 @@ Future<void> openPicker(WidgetTester tester, {StudentArea? area}) async {
 void main() {
   test('distances by road from the area, rounded to 0.1 km, and the nearest pointed out', () {
     final ranked = stopsWithDistance([far, near], GeoPoint(home.lat, home.lng));
-    expect(ranked.map((r) => r.stop.id), ['far', 'near'], reason: 'the school order is kept');
-    expect(ranked.last.km, closeTo(1.4, 0.05), reason: '1.1 km in a straight line, times 1.3');
+    expect(ranked.map((r) => r.stop.id), ['near', 'far'], reason: 'nearest first');
+    expect(ranked.first.km, closeTo(1.4, 0.05), reason: '1.1 km in a straight line, times 1.3');
+    expect(stopsWithDistance([far, near], null).map((r) => r.stop.id), ['far', 'near'], reason: "without an area, the school's order");
     expect(closestStop(ranked)!.stop.id, 'near');
     expect(closestStop(stopsWithDistance([far, near], null)), isNull);
   });
 
-  testWidgets('with an area, the nearest stop is suggested first and each says how far it is; nothing is chosen', (tester) async {
+  test("stops at the same distance keep the school's order", () {
+    final twin = Stop(id: 'twin', schoolId: 's1', name: 'Bastos 2', location: GeoPoint(3.890, 11.510), active: true);
+    expect(stopsWithDistance([far, twin, near], GeoPoint(home.lat, home.lng)).map((r) => r.stop.id), ['twin', 'near', 'far']);
+  });
+
+  testWidgets('with an area, the stops are listed nearest first, each says how far it is; nothing is chosen', (tester) async {
     await openPicker(tester, area: home);
-    expect(find.text('Suggested'), findsOneWidget);
     expect(find.text('Closest to your area'), findsOneWidget);
     expect(tester.getTopLeft(find.text('Bastos')).dy, lessThan(tester.getTopLeft(find.text('Acacias')).dy));
     expect(find.textContaining('km from your area'), findsNWidgets(2));
@@ -60,7 +66,8 @@ void main() {
 
   testWidgets('without an area, the list is as before with a way to add one', (tester) async {
     await openPicker(tester);
-    expect(find.text('Suggested'), findsNothing);
+    expect(find.text('Closest to your area'), findsNothing);
+    expect(tester.getTopLeft(find.text('Acacias')).dy, lessThan(tester.getTopLeft(find.text('Bastos')).dy), reason: "the school's order");
     expect(find.textContaining('km from your area'), findsNothing);
     expect(find.text('Add your area to see which stop is closest'), findsOneWidget);
   });
