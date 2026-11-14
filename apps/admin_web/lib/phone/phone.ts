@@ -1,3 +1,4 @@
+import { findCountry } from "./country";
 import { getCountryCallingCode, isSupportedCountry, parsePhoneNumberFromString, type CountryCode } from "libphonenumber-js/max";
 
 /**
@@ -53,9 +54,10 @@ export function callingCode(country: string): string | null {
 }
 
 /**
- * The country a phone field starts on, never one fixed in the code: the saved number's, else the school's own number's,
- * else the browser's region, else `fallback`.
+ * The country a phone field starts on: the saved number's, else the school's own number's, else the school's country
+ * (its name or code), else `fallback` (Cameroon). The browser's language region is not used: French (France) is a common
+ * setting in Cameroon and says nothing about where a person lives.
  */
-export function defaultPhoneCountry({ saved, schoolPhone, region, fallback = "CM" }: { saved?: string | null; schoolPhone?: string | null; region?: string | null; fallback?: string }): string {
-  return countryOfPhone(saved) ?? countryOfPhone(schoolPhone) ?? asCountry(region) ?? fallback;
+export function defaultPhoneCountry({ saved, schoolPhone, schoolCountry, fallback = "CM" }: { saved?: string | null; schoolPhone?: string | null; schoolCountry?: string | null; fallback?: string }): string {
+  return countryOfPhone(saved) ?? countryOfPhone(schoolPhone) ?? asCountry(findCountry(schoolCountry)?.code) ?? fallback;
 }

@@ -31,10 +31,11 @@ describe("phone numbers (ADR 0024)", () => {
     expect(callingCode("CM")).toBe("237");
   });
 
-  it("starts the field on the saved number, the school, the browser, then the fallback", () => {
+  it("starts the field on the saved number, the school (its number, then its country), then Cameroon", () => {
     expect(defaultPhoneCountry({ saved: "+33612345678", schoolPhone: "+237677123456" })).toBe("FR");
-    expect(defaultPhoneCountry({ schoolPhone: "+237677123456", region: "US" })).toBe("CM");
-    expect(defaultPhoneCountry({ region: "ng" })).toBe("NG");
+    expect(defaultPhoneCountry({ schoolPhone: "+237677123456", schoolCountry: "Nigeria" })).toBe("CM");
+    expect(defaultPhoneCountry({ schoolCountry: "Nigeria" })).toBe("NG");
+    expect(defaultPhoneCountry({ schoolCountry: "Cameroun" })).toBe("CM");
     expect(defaultPhoneCountry({})).toBe("CM");
   });
 });

@@ -9,14 +9,17 @@ import { SEED, createUser, deleteUser, serviceClient, signInBrowser, type TestUs
 const tag = randomBytes(3).toString("hex");
 let admin: TestUser;
 let before: string | null = null;
+let beforeCountry: string | null = null;
 
 test.beforeAll(async () => {
   admin = await createUser(`phone-admin-${tag}`, "admin");
-  before = (await serviceClient().from("schools").select("phone").eq("id", SEED.schoolId).single()).data?.phone ?? null;
+  const saved = (await serviceClient().from("schools").select("phone, country").eq("id", SEED.schoolId).single()).data;
+  before = saved?.phone ?? null;
+  beforeCountry = saved?.country ?? null;
 });
 
 test.afterAll(async () => {
-  await serviceClient().from("schools").update({ phone: before }).eq("id", SEED.schoolId);
+  await serviceClient().from("schools").update({ phone: before, country: beforeCountry }).eq("id", SEED.schoolId);
   if (admin) await deleteUser(admin);
 });
 
@@ -51,4 +54,16 @@ test("the country and the number stay on one row on a small phone", async ({ pag
   const country = await field.getByRole("button", { name: /^Country:/ }).boundingBox();
   const number = await page.getByLabel("Phone", { exact: true }).boundingBox();
   expect(Math.abs((country?.y ?? 0) - (number?.y ?? 1))).toBeLessThan(2);
+});
+
+test("the school's country is picked from the list by search and saved by its English name", async ({ page, context }) => {
+  await signInBrowser(context, admin);
+  await page.goto("/school");
+  await page.waitForLoadState("networkidle");
+  await page.getByTestId("country-field").getByRole("combobox").click();
+  await page.getByRole("searchbox", { name: "Search a country" }).fill("niger");
+  await page.getByRole("option", { name: /^Nigeria/ }).click();
+  await expect(page.getByTestId("country-field")).toContainText("Nigeria");
+  await page.getByRole("button", { name: /^Save/ }).first().click();
+  await expect.poll(async () => (await serviceClient().from("schools").select("country").eq("id", SEED.schoolId).single()).data?.country).toBe("Nigeria");
 });

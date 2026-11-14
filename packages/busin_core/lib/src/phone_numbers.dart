@@ -110,14 +110,15 @@ class PhoneNumbers {
     }
   }
 
-  /// The country a phone field starts on, never one fixed in the code: the saved number's, else the school's own
-  /// number's, else the device's region, else [fallback].
-  static String defaultCountry({String? saved, String? schoolPhone, String? deviceRegion, String fallback = 'CM'}) {
+  /// The country a phone field starts on: the saved number's, else the school's own number's, else the school's
+  /// country ([schoolCountry], two letters), else [fallback] (Cameroon). The device's region is not used: a phone set to
+  /// French (France) is common in Cameroon and says nothing about where the student lives.
+  static String defaultCountry({String? saved, String? schoolPhone, String? schoolCountry, String fallback = 'CM'}) {
     final fromSaved = countryOf(saved);
     if (fromSaved != null) return fromSaved;
     final fromSchool = countryOf(schoolPhone);
     if (fromSchool != null) return fromSchool;
-    if (deviceRegion != null && _iso(deviceRegion) != null) return deviceRegion.toUpperCase();
+    if (schoolCountry != null && _iso(schoolCountry) != null) return schoolCountry.toUpperCase();
     return fallback;
   }
 }

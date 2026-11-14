@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
 
+import '../join/join_providers.dart';
 import '../providers.dart';
+import '../subscription/subscription_providers.dart';
 import 'choice_sheet.dart';
 
 /// The student's own details as a form: name, student number, phone, and optionally program, faculty and department
@@ -35,7 +37,16 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
   String? _facultyId;
 
   /// The country a number without its code is read for (ADR 0024): the saved number's, else the phone's region.
-  late String _phoneCountry = PhoneNumbers.defaultCountry(saved: widget.profile.phone, deviceRegion: WidgetsBinding.instance.platformDispatcher.locale.countryCode);
+  /// The country the student picked in the phone field, if any; else the field follows the starting country below.
+  String? _pickedCountry;
+
+  /// The country a number is read for (ADR 0024): the picked one, else the saved number's, else the school's (its
+  /// number, then its country), else Cameroon. Never the phone's region (a French-set phone is common in Cameroon).
+  String get _phoneCountry {
+    if (_pickedCountry != null) return _pickedCountry!;
+    final school = ref.read(setupSchoolProvider).value ?? ref.read(schoolProvider).value;
+    return PhoneNumbers.defaultCountry(saved: widget.profile.phone, schoolPhone: school?.phone, schoolCountry: phoneCountryCodeOf(school?.country));
+  }
   String? _departmentId;
   String? _programId;
   bool _academicSeeded = false;
@@ -96,6 +107,9 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
 
   @override
   Widget build(BuildContext context) {
+    // The school's number and country decide where the phone field starts, until the student picks a country.
+    ref.watch(setupSchoolProvider);
+    ref.watch(schoolProvider);
     final l10n = BusinL10n.of(context);
     void changed(String _) {
       if (_tried) setState(() {});
@@ -143,7 +157,7 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
           hint: l10n.fieldPhoneHint,
           controller: _phone,
           country: _phoneCountry,
-          onCountryChanged: (code) => setState(() => _phoneCountry = code),
+          onCountryChanged: (code) => setState(() => _pickedCountry = code),
           enabled: !_saving,
           errorText: _message(l10n, ProfileValidation.phone(_phone.text, _phoneCountry)),
           onChanged: changed,
