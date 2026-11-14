@@ -2167,6 +2167,36 @@ abstract class BusinL10n {
   /// **'Your bus is a few minutes from your stop.'**
   String get pushForegroundBusNear;
 
+  /// No description provided for @areaIntroTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'One more thing: where do you live?'**
+  String get areaIntroTitle;
+
+  /// No description provided for @areaIntroSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get areaIntroSkip;
+
+  /// No description provided for @areaPromptTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your area'**
+  String get areaPromptTitle;
+
+  /// No description provided for @areaPromptBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Say roughly where you live so your school can place stops near students. Rounded to about 500 metres, never tracked.'**
+  String get areaPromptBody;
+
+  /// No description provided for @areaPromptAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add my area'**
+  String get areaPromptAdd;
+
   /// No description provided for @areaTitle.
   ///
   /// In en, this message translates to:
