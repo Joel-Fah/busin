@@ -1997,4 +1997,19 @@ class BusinL10nEn extends BusinL10n {
 
   @override
   String get pushForegroundInstallmentDue => 'A payment is due soon.';
+
+  @override
+  String receiptSent(String n) {
+    return 'Proof for part $n sent';
+  }
+
+  @override
+  String receiptPaid(String n) {
+    return 'Part $n paid';
+  }
+
+  @override
+  String receiptRejected(String n) {
+    return 'Proof for part $n not accepted';
+  }
 }

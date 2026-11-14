@@ -734,5 +734,29 @@
   },
   "pushForegroundInstallmentPaid": "Votre école a marqué un paiement comme reçu.",
   "pushForegroundInstallmentRejected": "Votre école n’a pas pu accepter une preuve de paiement.",
-  "pushForegroundInstallmentDue": "Un paiement arrive à échéance."
+  "pushForegroundInstallmentDue": "Un paiement arrive à échéance.",
+  "receiptSent": "Preuve de la tranche {n} envoyée",
+  "@receiptSent": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptPaid": "Tranche {n} payée",
+  "@receiptPaid": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptRejected": "Preuve de la tranche {n} refusée",
+  "@receiptRejected": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  }
 }

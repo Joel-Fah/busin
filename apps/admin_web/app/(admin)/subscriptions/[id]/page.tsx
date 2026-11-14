@@ -34,6 +34,7 @@ import {
   orderHistory,
   statusTone,
   type RequestHistory,
+  type SubscriptionOperation,
 } from "@/lib/subscriptions";
 
 import { approveSubscription, markInstallmentPaid, reinstateSubscription, rejectInstallment, rejectSubscription, revokeSubscription } from "../actions";
@@ -116,6 +117,38 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
         .order("created_at", { ascending: false })
         .limit(500)
     : { data: [] };
+  // Every receipt sent for a part stays in the history (ADR 0022), each with a short-lived link.
+  const { data: receipts } = siblingIds.length
+    ? await supabase
+        .from("installment_receipts")
+        .select("id, subscription_id, seq, proof_path, sent_at, decision, note, decided_at, decider:profiles!installment_receipts_decided_by_fkey(full_name)")
+        .in("subscription_id", siblingIds)
+        .order("sent_at")
+        .limit(200)
+    : { data: [] };
+  const receiptPaths = (receipts ?? []).flatMap((r) => (r.proof_path ? [r.proof_path] : []));
+  const { data: signedReceipts } = receiptPaths.length ? await supabase.storage.from("proofs").createSignedUrls(receiptPaths, 60) : { data: [] };
+  const receiptUrl = new Map((signedReceipts ?? []).flatMap((s) => (s.path && s.signedUrl ? [[s.path, s.signedUrl] as const] : [])));
+  const receiptOperations = (subscriptionId: string): SubscriptionOperation[] =>
+    (receipts ?? [])
+      .filter((r) => r.subscription_id === subscriptionId)
+      .flatMap((r) => [
+        ...(r.proof_path
+          ? [{ action: "partSent" as const, at: r.sent_at, actorName: null, byStudent: true, note: null, seq: r.seq, proofUrl: receiptUrl.get(r.proof_path) ?? null }]
+          : []),
+        ...(r.decision === "paid" || r.decision === "rejected"
+          ? [
+              {
+                action: r.decision === "paid" ? ("partPaid" as const) : ("partRejected" as const),
+                at: r.decided_at ?? r.sent_at,
+                actorName: r.decider?.full_name || null,
+                byStudent: false,
+                note: r.decision === "rejected" ? r.note : null,
+                seq: r.seq,
+              },
+            ]
+          : []),
+      ]);
   const history: RequestHistory[] = orderHistory(
     (siblings ?? []).map((s) => ({
       id: s.id,
@@ -130,7 +163,8 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
           actorName: e.actor?.full_name || null,
           byStudent: e.actor_id === row.student_id,
           note: e.note,
-        })),
+        }))
+        .concat(receiptOperations(s.id)),
     })),
   );
 
@@ -480,7 +514,7 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
                 {request.operations.map((op, i) => (
                   <li key={`${op.action}-${op.at}-${i}`} className="flex flex-col gap-1 border-l-2 border-line pl-4">
                     <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                      <Chip tone={eventTone(op.action)}>{t.subscriptions.detail.history.events[op.action]}</Chip>
+                      <Chip tone={eventTone(op.action)}>{format(t.subscriptions.detail.history.events[op.action], { n: op.seq ?? "" })}</Chip>
                       <span className="text-sm text-muted">
                         {dateTime(op.at)}
                         {op.byStudent
@@ -491,6 +525,12 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
                       </span>
                     </p>
                     {op.note ? <p className="text-sm">{op.note}</p> : null}
+                    {op.proofUrl ? (
+                      <a href={op.proofUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm font-semibold">
+                        <Icon icon={ArrowUpRight01Icon} size={16} />
+                        {t.subscriptions.detail.parts.proofOpen}
+                      </a>
+                    ) : null}
                   </li>
                 ))}
               </ol>

@@ -162,6 +162,18 @@ class SupabaseInstallmentsRepository implements InstallmentsRepository {
   Future<void> submitProof({required String installmentId, required String proofPath}) => guarded(() async {
         await _client.rpc<void>('submit_installment_proof', params: {'p_installment': installmentId, 'p_path': proofPath});
       });
+
+  @override
+  Future<List<InstallmentReceipt>> receiptsFor(List<String> subscriptionIds) => guarded(() async {
+        if (subscriptionIds.isEmpty) return const [];
+        final rows = await _client
+            .from('installment_receipts')
+            .select(Columns.installmentReceipt)
+            .inFilter('subscription_id', subscriptionIds)
+            .order('sent_at')
+            .limit(200);
+        return rows.map(InstallmentReceipt.fromJson).toList(growable: false);
+      });
 }
 
 class SupabaseAreaRepository implements AreaRepository {

@@ -3492,6 +3492,24 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'A payment is due soon.'**
   String get pushForegroundInstallmentDue;
+
+  /// No description provided for @receiptSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Proof for part {n} sent'**
+  String receiptSent(String n);
+
+  /// No description provided for @receiptPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Part {n} paid'**
+  String receiptPaid(String n);
+
+  /// No description provided for @receiptRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Proof for part {n} not accepted'**
+  String receiptRejected(String n);
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {

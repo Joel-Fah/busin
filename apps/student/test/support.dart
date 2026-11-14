@@ -1062,6 +1062,13 @@ class FakeInstallments implements InstallmentsRepository {
   final Map<String, List<Installment>> bySubscription;
   final List<({String installmentId, String proofPath})> sent = [];
 
+  /// Receipts kept for the history, as the database keeps them.
+  final List<InstallmentReceipt> receipts = [];
+
+  @override
+  Future<List<InstallmentReceipt>> receiptsFor(List<String> subscriptionIds) async =>
+      [for (final r in receipts) if (subscriptionIds.contains(r.subscriptionId)) r];
+
   @override
   Future<List<Installment>> forSubscriptions(List<String> subscriptionIds) async =>
       [for (final id in subscriptionIds) ...?bySubscription[id]];
@@ -1069,6 +1076,8 @@ class FakeInstallments implements InstallmentsRepository {
   @override
   Future<void> submitProof({required String installmentId, required String proofPath}) async {
     sent.add((installmentId: installmentId, proofPath: proofPath));
+    final part = bySubscription.values.expand((parts) => parts).firstWhere((p) => p.id == installmentId);
+    receipts.add(InstallmentReceipt(id: 'r${receipts.length + 1}', subscriptionId: part.subscriptionId, seq: part.seq, proofPath: proofPath, sentAt: DateTime.utc(2026, 11, 14, 10)));
     for (final entry in bySubscription.entries) {
       bySubscription[entry.key] = [
         for (final part in entry.value)

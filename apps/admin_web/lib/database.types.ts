@@ -141,6 +141,44 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"installment_receipts": {
+                  Row: {
+                    "decided_at": string | null,"decided_by": string | null,"decision": string | null,"id": string,"installment_id": string,"note": string | null,"proof_path": string | null,"school_id": string,"sent_at": string,"seq": number,"student_id": string,"subscription_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "decided_at"?: string | null,"decided_by"?: string | null,"decision"?: string | null,"id"?: string,"installment_id": string,"note"?: string | null,"proof_path"?: string | null,"school_id": string,"sent_at"?: string,"seq": number,"student_id": string,"subscription_id": string
+                  }
+                  Update: {
+                    "decided_at"?: string | null,"decided_by"?: string | null,"decision"?: string | null,"id"?: string,"installment_id"?: string,"note"?: string | null,"proof_path"?: string | null,"school_id"?: string,"sent_at"?: string,"seq"?: number,"student_id"?: string,"subscription_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "installment_receipts_decided_by_fkey"
+      columns: ["decided_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "installment_receipts_installment_id_fkey"
+      columns: ["installment_id"]
+isOneToOne: false
+      referencedRelation: "subscription_installments"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "installment_receipts_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "installment_receipts_subscription_id_school_id_fkey"
+      columns: ["subscription_id","school_id"]
+isOneToOne: false
+      referencedRelation: "subscriptions"
+      referencedColumns: ["id","school_id"]
+    }
+                  ]
                 },"interest_requests": {
                   Row: {
                     "created_at": string,"email": string,"id": string,"kind": string,"locale": string,"message": string | null,"name": string | null,"organisation": string | null

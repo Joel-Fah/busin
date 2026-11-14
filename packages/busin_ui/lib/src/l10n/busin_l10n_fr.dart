@@ -2030,4 +2030,19 @@ class BusinL10nFr extends BusinL10n {
 
   @override
   String get pushForegroundInstallmentDue => 'Un paiement arrive à échéance.';
+
+  @override
+  String receiptSent(String n) {
+    return 'Preuve de la tranche $n envoyée';
+  }
+
+  @override
+  String receiptPaid(String n) {
+    return 'Tranche $n payée';
+  }
+
+  @override
+  String receiptRejected(String n) {
+    return 'Preuve de la tranche $n refusée';
+  }
 }

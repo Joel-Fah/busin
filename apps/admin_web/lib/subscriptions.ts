@@ -130,17 +130,31 @@ export function isReviewErrorKey(value: string | undefined): value is ReviewErro
 export const EVENT_ACTIONS = ["requested", "approved", "rejected", "revoked", "reinstated"] as const;
 export type EventAction = (typeof EVENT_ACTIONS)[number];
 
-/** One operation on a subscription, as the history shows it. */
-export type SubscriptionOperation = { action: EventAction; at: string; actorName: string | null; byStudent: boolean; note: string | null };
+/** A step of a receipt sent for a part (ADR 0022): kept in the history next to the operations. */
+export type ReceiptAction = "partSent" | "partPaid" | "partRejected";
+
+/** One operation on a subscription, or a step of one of its receipts, as the history shows it. */
+export type SubscriptionOperation = {
+  action: EventAction | ReceiptAction;
+  at: string;
+  actorName: string | null;
+  byStudent: boolean;
+  note: string | null;
+  /** For a receipt: which part, and a short-lived link to the receipt. */
+  seq?: number;
+  proofUrl?: string | null;
+};
 
 /** The tone of an operation's chip. Words always come with it. */
-export function eventTone(action: EventAction): ChipTone {
+export function eventTone(action: EventAction | ReceiptAction): ChipTone {
   switch (action) {
     case "approved":
     case "reinstated":
+    case "partPaid":
       return "ok";
     case "rejected":
     case "revoked":
+    case "partRejected":
       return "bad";
     default:
       return "info";
