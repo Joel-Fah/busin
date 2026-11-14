@@ -31,6 +31,10 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: phone numbers and logos (2026-11-14)
+
+- Phone numbers as E.164 (#453): done, PR into `dev` (ADR 0024). Migration `20261115180000_phone_e164` tidies existing numbers (international kept, bare Cameroonian ones get +237, the rest cleared: a student is asked again at setup) and checks the form on both columns. Both apps read typed numbers for a country and save E.164; the phone app's profile shows them with spaces. The country and phone fields come next (#454 web, #455 Flutter), then logos (#456). Owner: the hosted migration prints how many numbers it changed.
+
 ## Handoff: student web app (2026-11-13)
 
 Live on main (release #415): the student web app at `/app` (ADR 0021) with sign-in, onboarding, subscription, boarding code, My bus, profile, offline and web push, plus the landing's "In your browser" card and the `/app` share card. Set up and verified: Firebase web app "BusIn Web" with its Web Push key; `NEXT_PUBLIC_FIREBASE_*` and `NEXT_PUBLIC_GOOGLE_CLIENT_ID` on Vercel (Production and Preview); Vercel on Node 24.x; `PUSH_WEB_BASE_URL` on the functions; hosted migration `20261115140000_web_push` applied and `send-push` redeployed.

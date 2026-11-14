@@ -20,7 +20,7 @@ insert into storage.objects (bucket_id, name) values
 -- the admin of school A
 set local role authenticated;
 set local "request.jwt.claims" = '{"sub":"a3000000-0000-4000-8000-000000000001","role":"authenticated"}';
-select lives_ok($$select public.admin_update_school_profile(' Hill University ', 'HU', 'https://hill.example', 'Info@Hill.example', '+237 600 00 00 00', '1 Main St', 'Yaounde', 'Cameroon', 'A school on a hill.', true, false)$$, 'an admin saves the profile');
+select lives_ok($$select public.admin_update_school_profile(' Hill University ', 'HU', 'https://hill.example', 'Info@Hill.example', '+237677123456', '1 Main St', 'Yaounde', 'Cameroon', 'A school on a hill.', true, false)$$, 'an admin saves the profile');
 select throws_ok($$select public.admin_update_school_profile('Hill University', null, 'http://hill.example', null, null, null, null, null, null, false, false)$$, '23514', null, 'a website must use https');
 select throws_ok($$select public.admin_update_school_profile('Hill University', null, null, 'not-an-email', null, null, null, null, null, false, false)$$, '23514', null, 'a contact email must look like one');
 select throws_ok($$select public.admin_update_school_profile('Hill University', null, null, null, null, null, null, null, repeat('x', 281), false, false)$$, '23514', null, 'the about text is 280 characters at most');

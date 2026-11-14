@@ -1,3 +1,5 @@
+import 'phone_numbers.dart';
+
 /// What a student may type about themselves, checked the same way in every app. The server is the final judge (these
 /// are for kind, early messages), and nothing here is trusted for access.
 enum ProfileFieldProblem { empty, tooShort, tooLong, invalid }
@@ -30,16 +32,12 @@ class ProfileValidation {
     return null;
   }
 
-  /// A phone number: 8 to 15 digits, with an optional leading plus; spaces, dots, dashes and brackets are ignored.
-  static ProfileFieldProblem? phone(String? value) {
-    final v = (value ?? '').trim();
-    if (v.isEmpty) return ProfileFieldProblem.empty;
-    if (!RegExp(r'^\+?[0-9 .\-()]+$').hasMatch(v)) return ProfileFieldProblem.invalid;
-    final digits = v.replaceAll(RegExp(r'[^0-9]'), '');
-    if (digits.length < 8) return ProfileFieldProblem.tooShort;
-    if (digits.length > 15) return ProfileFieldProblem.tooLong;
-    return null;
-  }
+  /// A real phone number for [country] (two letters; ADR 0024): empty, or not one that exists there, is refused.
+  static ProfileFieldProblem? phone(String? value, String country) => switch (PhoneNumbers.parse(value, country).problem) {
+        PhoneProblem.empty => ProfileFieldProblem.empty,
+        PhoneProblem.invalid => ProfileFieldProblem.invalid,
+        null => null,
+      };
 
   /// An optional free text (department, program): empty is fine.
   static ProfileFieldProblem? optionalText(String? value) {
@@ -48,10 +46,6 @@ class ProfileValidation {
     return v.length > textMax ? ProfileFieldProblem.tooLong : null;
   }
 
-  /// A phone number as it is stored: the plus and digits only.
-  static String normalizePhone(String value) {
-    final v = value.trim();
-    final digits = v.replaceAll(RegExp(r'[^0-9]'), '');
-    return v.startsWith('+') ? '+$digits' : digits;
-  }
+  /// A phone number as it is stored: E.164, for example `+237677123456` (ADR 0024). Empty when it cannot be read.
+  static String normalizePhone(String value, String country) => PhoneNumbers.parse(value, country).e164 ?? '';
 }

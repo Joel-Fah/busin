@@ -69,7 +69,7 @@ void main() {
       await open(tester, FakeAuthService(signedInAs: 'u1'), profiles);
       final fields = find.byType(TextField);
       await tester.enterText(fields.at(1), 'ICT2026-0457');
-      await tester.enterText(fields.at(2), '677123456');
+      await tester.enterText(fields.at(2), '+237 677 12 34 56');
       profiles.error = const Offline('x');
       await tester.tap(find.text('Save and continue'));
       await tester.pumpAndSettle();
@@ -108,7 +108,7 @@ void main() {
       expect(find.text('Test Person'), findsOneWidget);
       expect(find.text('u1@school.edu'), findsOneWidget);
       expect(find.text('ICT2026-0001'), findsOneWidget);
-      expect(find.text('677123456'), findsOneWidget);
+      expect(find.text(PhoneNumbers.display('+237677123456')), findsOneWidget, reason: 'shown with spaces (ADR 0024)');
       expect(find.text('Not set'), findsNWidgets(2), reason: 'department and program');
       handle.dispose();
     });

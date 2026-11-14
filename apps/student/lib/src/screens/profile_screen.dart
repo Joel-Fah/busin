@@ -1,3 +1,4 @@
+import 'package:busin_core/busin_core.dart';
 import 'package:busin_app/busin_app.dart';
 import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/material.dart';
@@ -135,7 +136,7 @@ class ProfileScreen extends ConsumerWidget {
             ),
             const SizedBox(height: BusinSpace.x2),
             row(HugeIcons.strokeRoundedIdVerified, l10n.fieldMatricule, profile.matricule),
-            row(HugeIcons.strokeRoundedSmartPhone01, l10n.fieldPhone, profile.phone),
+            row(HugeIcons.strokeRoundedSmartPhone01, l10n.fieldPhone, profile.phone == null ? null : PhoneNumbers.display(profile.phone!)),
             row(HugeIcons.strokeRoundedBuilding03, l10n.fieldDepartment, profile.department),
             row(HugeIcons.strokeRoundedMortarboard02, l10n.fieldProgram, profile.program),
           ],
