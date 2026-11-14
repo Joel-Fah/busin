@@ -12,6 +12,12 @@ export type SubscriptionRow = {
   proof_path: string | null;
   review_note: string | null;
   created_at: string;
+  /** School billing (ADR 0022): how it is paid, the month it covers (null: the whole semester), and its price. */
+  payment_mode?: string;
+  period_start?: string | null;
+  period_end?: string | null;
+  amount_xaf?: number | null;
+  installment_plan?: string | null;
 };
 
 export type SubscriptionEvent = { id: number; subscription_id: string; action: "requested" | "approved" | "rejected" | "revoked" | "reinstated"; note: string | null; created_at: string };
@@ -21,10 +27,41 @@ export function isLive(status: SubscriptionStatus): boolean {
   return status === "pending" || status === "approved";
 }
 
-/** What to show for a semester: a live request wins; otherwise the newest of the rest. The list arrives newest first. */
-export function subscriptionToShow(mine: SubscriptionRow[], semesterId: string): SubscriptionRow | null {
+/** A live request still counts while its month (or its semester) has not ended. `today` is the school's day, YYYY-MM-DD. */
+export function stillRunning(row: Pick<SubscriptionRow, "period_end">, today: string | null): boolean {
+  return today === null || !row.period_end || row.period_end >= today;
+}
+
+/** The pending and approved requests that have not ended, earliest month first (a whole-semester one first). */
+export function liveRequests(mine: SubscriptionRow[], today: string | null): SubscriptionRow[] {
+  return mine.filter((s) => isLive(s.status) && stillRunning(s, today)).sort((a, b) => (a.period_start ?? "").localeCompare(b.period_start ?? ""));
+}
+
+/**
+ * What to show for a semester: a live request wins (the earliest month first, with monthly billing); otherwise the newest
+ * of the rest. A monthly subscription whose month has ended no longer counts: nothing is shown, so the form offers the new
+ * month. The list arrives newest first.
+ */
+export function subscriptionToShow(mine: SubscriptionRow[], semesterId: string, today: string | null = null): SubscriptionRow | null {
   const inSemester = mine.filter((s) => s.semester_id === semesterId);
-  return inSemester.find((s) => isLive(s.status)) ?? inSemester[0] ?? null;
+  const live = liveRequests(inSemester, today);
+  if (live.length) return live[0];
+  const newest = inSemester[0] ?? null;
+  return newest && isLive(newest.status) ? null : newest;
+}
+
+/** The months a student may ask for (first days, YYYY-MM-01): this month and the next, overlapping the semester, not taken. */
+export function monthChoices(semester: { start_date: string; end_date: string }, today: string, live: Pick<SubscriptionRow, "period_start">[]): string[] {
+  const [year, month] = today.split("-").map(Number);
+  const first = (y: number, m: number) => new Date(Date.UTC(y, m - 1, 1)).toISOString().slice(0, 10);
+  const last = (y: number, m: number) => new Date(Date.UTC(y, m, 0)).toISOString().slice(0, 10);
+  return [
+    [year, month],
+    [month === 12 ? year + 1 : year, month === 12 ? 1 : month + 1],
+  ]
+    .filter(([y, m]) => first(y, m) <= semester.end_date && last(y, m) >= semester.start_date)
+    .map(([y, m]) => first(y, m))
+    .filter((m) => !live.some((s) => s.period_start?.slice(0, 7) === m.slice(0, 7)));
 }
 
 /** The semester's requests, latest first, each with what happened to it, latest first. */
@@ -64,7 +101,7 @@ export function proofPath(schoolId: string, studentId: string, randomHex: string
   return `${schoolId}/${studentId}/${randomHex}.${ext}`;
 }
 
-export type SubscribeProblem = "exists" | "ended" | "proof" | "unavailable" | "offline" | "type" | "tooLarge" | "failed";
+export type SubscribeProblem = "exists" | "ended" | "periodEnded" | "billing" | "payment" | "proof" | "unavailable" | "offline" | "type" | "tooLarge" | "failed";
 
 /**
  * What a refused request means for the student, from the database's answer (as the app's `failureFor`): its short
@@ -73,6 +110,10 @@ export type SubscribeProblem = "exists" | "ended" | "proof" | "unavailable" | "o
 export function subscribeProblem(error: { code?: string | null; message?: string | null }): SubscribeProblem {
   const message = error.message ?? "";
   if (message.includes("semester_ended")) return "ended";
+  if (message.includes("period_ended")) return "periodEnded";
+  if (message.includes("billing_not_set")) return "billing";
+  // The school changed its billing meanwhile: read the page again.
+  if (message.includes("installments_not_offered") || message.includes("month_required") || message.includes("month_not_allowed")) return "unavailable";
   if (message.includes("proof_required") || message.includes("proof_missing")) return "proof";
   if (error.code === "23503") return "unavailable";
   if (error.code === "23505" || error.code === "55000") return "exists";
