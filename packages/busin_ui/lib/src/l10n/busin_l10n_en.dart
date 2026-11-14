@@ -1208,6 +1208,22 @@ class BusinL10nEn extends BusinL10n {
       'Your bus is a few minutes from your stop.';
 
   @override
+  String get areaIntroTitle => 'One more thing: where do you live?';
+
+  @override
+  String get areaIntroSkip => 'Not now';
+
+  @override
+  String get areaPromptTitle => 'Add your area';
+
+  @override
+  String get areaPromptBody =>
+      'Say roughly where you live so your school can place stops near students. Rounded to about 500 metres, never tracked.';
+
+  @override
+  String get areaPromptAdd => 'Add my area';
+
+  @override
   String get areaTitle => 'My area';
 
   @override
@@ -1531,7 +1547,7 @@ class BusinL10nEn extends BusinL10n {
 
   @override
   String get opsSettingsSoundHint =>
-      'A click when a student is let on, an alert when refused.';
+      'A different sound for let on, already on board, refused and suspect codes.';
 
   @override
   String get opsSettingsDriving => 'Driver mode';
