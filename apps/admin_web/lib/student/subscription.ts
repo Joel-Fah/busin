@@ -64,14 +64,46 @@ export function monthChoices(semester: { start_date: string; end_date: string },
     .filter((m) => !live.some((s) => s.period_start?.slice(0, 7) === m.slice(0, 7)));
 }
 
-/** The semester's requests, latest first, each with what happened to it, latest first. */
-export function buildRequestHistory(subscriptions: SubscriptionRow[], events: SubscriptionEvent[]) {
+/** A receipt sent for a part of a subscription paid in installments, with the school's decision (ADR 0022). */
+export type ReceiptRow = {
+  id: string;
+  subscription_id: string;
+  seq: number;
+  proof_path: string | null;
+  sent_at: string;
+  decision: string | null;
+  note: string | null;
+  decided_at: string | null;
+};
+
+/** One line of a request's history: an operation on it, or a step of a receipt (sent, paid, not accepted). */
+export type HistoryItem = {
+  key: string;
+  action: SubscriptionEvent["action"] | "partSent" | "partPaid" | "partRejected";
+  at: string;
+  note: string | null;
+  seq?: number;
+  proofPath?: string | null;
+};
+
+/** The steps of a receipt: sent (when it has a proof; paid at the office has none), then the school's decision. */
+export function receiptItems(r: ReceiptRow): HistoryItem[] {
+  return [
+    ...(r.proof_path ? [{ key: `${r.id}-sent`, action: "partSent" as const, at: r.sent_at, note: null, seq: r.seq, proofPath: r.proof_path }] : []),
+    ...(r.decision === "paid" ? [{ key: `${r.id}-paid`, action: "partPaid" as const, at: r.decided_at ?? r.sent_at, note: null, seq: r.seq }] : []),
+    ...(r.decision === "rejected" ? [{ key: `${r.id}-rejected`, action: "partRejected" as const, at: r.decided_at ?? r.sent_at, note: r.note, seq: r.seq }] : []),
+  ];
+}
+
+/** The semester's requests, latest first, each with what happened to it (its operations and its receipts), latest first. */
+export function buildRequestHistory(subscriptions: SubscriptionRow[], events: SubscriptionEvent[], receipts: ReceiptRow[] = []) {
   const requests = [...subscriptions].sort((a, b) => b.created_at.localeCompare(a.created_at) || b.id.localeCompare(a.id));
   return requests.map((subscription) => ({
     subscription,
-    events: events
-      .filter((e) => e.subscription_id === subscription.id)
-      .sort((a, b) => b.created_at.localeCompare(a.created_at) || b.id - a.id),
+    events: [
+      ...events.filter((e) => e.subscription_id === subscription.id).map((e): HistoryItem => ({ key: `e${e.id}`, action: e.action, at: e.created_at, note: e.note })),
+      ...receipts.filter((r) => r.subscription_id === subscription.id).flatMap(receiptItems),
+    ].sort((a, b) => b.at.localeCompare(a.at) || b.key.localeCompare(a.key)),
   }));
 }
 

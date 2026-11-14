@@ -93,6 +93,8 @@ test("a request in installments: approving settles part 1, and a later part is m
   await expect(page.getByText("Part marked paid.")).toBeVisible();
   await expect(page.getByTestId("part-2")).toContainText("Paid");
   await expect(page.getByTestId("part-2").getByRole("button", { name: "Mark paid" })).toHaveCount(0);
+  // The payment stays in the subscription's history.
+  await expect(page.getByText("Part 2 paid")).toBeVisible();
 
   const { data } = await serviceClient().from("subscription_installments").select("seq, status").eq("subscription_id", subscriptionId).order("seq");
   expect(data).toEqual([

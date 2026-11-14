@@ -80,3 +80,48 @@ class Installment extends ValueObject {
   @override
   List<Object?> get props => [id, subscriptionId, seq, percent, amountXaf, dueDate, status, proofPath, reviewNote];
 }
+
+/// One receipt a student sent for a part, with the school's decision (ADR 0022). Every receipt is kept, so the
+/// subscription's history shows each payment. A part marked paid at the office has a receipt without a proof.
+class InstallmentReceipt extends ValueObject {
+  const InstallmentReceipt({
+    required this.id,
+    required this.subscriptionId,
+    required this.seq,
+    required this.sentAt,
+    this.proofPath,
+    this.decision,
+    this.note,
+    this.decidedAt,
+  });
+
+  factory InstallmentReceipt.fromJson(Map<String, dynamic> json) => InstallmentReceipt(
+        id: reqString(json, 'id'),
+        subscriptionId: reqString(json, 'subscription_id'),
+        seq: reqInt(json, 'seq'),
+        proofPath: optString(json, 'proof_path'),
+        sentAt: reqTimestamp(json, 'sent_at'),
+        // Only paid or rejected; anything else is read as not decided rather than guessed.
+        decision: switch (json['decision']) {
+          'paid' => InstallmentStatus.paid,
+          'rejected' => InstallmentStatus.rejected,
+          _ => null,
+        },
+        note: optString(json, 'note'),
+        decidedAt: optTimestamp(json, 'decided_at'),
+      );
+
+  final String id;
+  final String subscriptionId;
+  final int seq;
+  final String? proofPath;
+  final DateTime sentAt;
+
+  /// [InstallmentStatus.paid] or [InstallmentStatus.rejected]; null while the school has not decided.
+  final InstallmentStatus? decision;
+  final String? note;
+  final DateTime? decidedAt;
+
+  @override
+  List<Object?> get props => [id, subscriptionId, seq, proofPath, sentAt, decision, note, decidedAt];
+}

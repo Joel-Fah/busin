@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import '../providers.dart';
 import '../subscription/live_changes.dart';
 import '../subscription/installments_section.dart';
+import '../subscription/request_history.dart';
 import '../subscription/subscription_providers.dart';
 import 'push_routes.dart';
 
@@ -77,6 +78,7 @@ class _PushBinderState extends ConsumerState<PushBinder> {
     if (part != null) {
       final id = message.refId;
       if (id != null) ref.invalidate(installmentsProvider(id));
+      ref.invalidate(requestHistoryProvider);
       _show(part, message);
       return;
     }

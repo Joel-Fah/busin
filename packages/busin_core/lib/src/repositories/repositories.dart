@@ -86,6 +86,9 @@ abstract interface class InstallmentsRepository {
 
   /// Sends the proof for a later part, already uploaded at [proofPath] (`<school>/<student>/<file>`).
   Future<void> submitProof({required String installmentId, required String proofPath});
+
+  /// Every receipt sent for these subscriptions' parts, with the school's decisions, oldest first.
+  Future<List<InstallmentReceipt>> receiptsFor(List<String> subscriptionIds);
 }
 
 /// The student's own area (ADR 0013). Nobody else reads it; the school only sees counts per zone.

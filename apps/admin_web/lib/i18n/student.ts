@@ -192,6 +192,9 @@ const en = {
       rejected: "Your school declined it",
       revoked: "Your school ended it",
       reinstated: "Your school gave it back",
+      partSent: "Proof for part {n} sent",
+      partPaid: "Part {n} paid",
+      partRejected: "Proof for part {n} not accepted",
     },
     live: {
       approved: "Your subscription was approved.",
@@ -627,6 +630,9 @@ const fr: StudentCopy = {
       rejected: "Votre école l’a refusée",
       revoked: "Votre école y a mis fin",
       reinstated: "Votre école vous l’a rendue",
+      partSent: "Preuve de la tranche {n} envoyée",
+      partPaid: "Tranche {n} payée",
+      partRejected: "Preuve de la tranche {n} refusée",
     },
     live: {
       approved: "Votre abonnement a été approuvé.",

@@ -1054,5 +1054,29 @@
   },
   "pushForegroundInstallmentPaid": "Your school marked a payment as received.",
   "pushForegroundInstallmentRejected": "Your school could not accept a payment proof.",
-  "pushForegroundInstallmentDue": "A payment is due soon."
+  "pushForegroundInstallmentDue": "A payment is due soon.",
+  "receiptSent": "Proof for part {n} sent",
+  "@receiptSent": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptPaid": "Part {n} paid",
+  "@receiptPaid": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptRejected": "Proof for part {n} not accepted",
+  "@receiptRejected": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  }
 }

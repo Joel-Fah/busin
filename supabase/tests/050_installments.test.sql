@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(33);
+select plan(38);
 
 -- Installments (ADR 0022): the parts of a request paid in installments, who reads them, the student's proofs, the
 -- administrator's decisions, and the reminders.
@@ -95,16 +95,30 @@ select lives_ok($$select public.admin_review_installment((select id from public.
 select lives_ok($$select public.admin_review_installment((select id from public.subscription_installments where seq = 3), 'paid')$$, 'and part 3 too, paid at the office without a proof');
 select throws_ok($$select public.admin_review_installment((select id from public.subscription_installments where seq = 3), 'paid')$$, '55000', 'installment_not_open', 'a paid part stays paid');
 reset role;
-select is((select count(*)::int from public.audit_log where action like 'installment.%'), 3, 'each decision is audited');
-select results_eq($$select kind from private.notification_outbox where kind like 'installment_%' order by id$$,
+select is((select count(*)::int from public.audit_log where action like 'installment.%' and school_id = '10000000-0000-4000-8000-000000000001'), 3, 'each decision is audited');
+select results_eq($$select kind from private.notification_outbox where kind like 'installment_%' and school_id = '10000000-0000-4000-8000-000000000001' order by id$$,
   $$values ('installment_rejected'), ('installment_paid'), ('installment_paid')$$, 'and the student is told each time');
+
+-- ---------------------------------------------------------------- every receipt stays
+select results_eq($$select seq::int, decision, note, proof_path is not null from public.installment_receipts order by seq, sent_at$$,
+  $$values (2, 'rejected', 'The amount on the receipt is wrong', true), (2, 'paid', null, true), (3, 'paid', null, false)$$,
+  'both receipts of part 2 are kept with their decisions, and part 3 paid at the office has one without a proof');
+set local role authenticated;
+set local "request.jwt.claims" = '{"sub":"a1000000-0000-4000-8000-000000000001","role":"authenticated"}';
+select is((select count(*)::int from public.installment_receipts), 3, 'the student reads their receipts');
+select throws_ok($$delete from public.installment_receipts$$, '42501', null, 'and cannot remove one');
+set local "request.jwt.claims" = '{"sub":"a1000000-0000-4000-8000-000000000002","role":"authenticated"}';
+select is((select count(*)::int from public.installment_receipts), 0, 'another student reads none');
+set local "request.jwt.claims" = '{"sub":"b3000000-0000-4000-8000-000000000001","role":"authenticated"}';
+select is((select count(*)::int from public.installment_receipts), 0, 'nor does another school');
+reset role;
 
 -- ---------------------------------------------------------------- reminders
 update public.subscription_installments set status = 'due', due_date = current_date + 3, reminded_on = null where seq = 3;
 -- At 7 school time nothing; at 8 the reminder; later that day not again.
 select is(private.remind_installments(((current_date + time '07:30') at time zone 'Africa/Douala')), 0, 'not before 8 in the morning, school time');
 select is(private.remind_installments(((current_date + time '08:30') at time zone 'Africa/Douala')), 1, 'a part due in three days is reminded at 8');
-select is((select count(*)::int from private.notification_outbox where kind = 'installment_due'), 1, 'as an installment_due notification');
+select is((select count(*)::int from private.notification_outbox where kind = 'installment_due' and school_id = '10000000-0000-4000-8000-000000000001'), 1, 'as an installment_due notification');
 select is(private.remind_installments(((current_date + time '08:45') at time zone 'Africa/Douala')), 0, 'and only once that day');
 
 select * from finish();

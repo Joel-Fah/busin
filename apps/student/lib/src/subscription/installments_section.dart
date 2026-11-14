@@ -9,6 +9,7 @@ import '../providers.dart';
 import 'billing_choices.dart';
 import 'money.dart';
 import 'pick_proof.dart';
+import 'request_history.dart';
 import 'subscription_providers.dart';
 
 final installmentsRepositoryProvider = Provider<InstallmentsRepository>((ref) => ref.watch(repositoriesProvider).installments);
@@ -50,6 +51,8 @@ class _InstallmentsSectionState extends ConsumerState<InstallmentsSection> {
           );
       await ref.read(installmentsRepositoryProvider).submitProof(installmentId: part.id, proofPath: path);
       ref.invalidate(installmentsProvider(widget.subscription.id));
+      // The receipt joins the request's history.
+      ref.invalidate(requestHistoryProvider);
       if (mounted) BusinToast.show(context, l10n.partSent, tone: ToastTone.success);
     } on Offline {
       if (mounted) BusinToast.show(context, l10n.errorOffline, tone: ToastTone.error);

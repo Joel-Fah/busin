@@ -3,6 +3,7 @@ import 'package:busin_core/busin_core.dart';
 import 'package:busin_student/src/app.dart';
 import 'package:busin_student/src/push/push_routes.dart';
 import 'package:busin_student/src/subscription/billing_choices.dart';
+import 'package:busin_student/src/subscription/request_history.dart';
 import 'package:busin_student/src/subscription/subscription_providers.dart';
 import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/material.dart';
@@ -133,6 +134,22 @@ void main() {
     });
   });
 
+  test('every receipt of a part stays in the history, with its decision, the latest first', () {
+    final sub = subscription(status: SubscriptionStatus.approved);
+    final first = InstallmentReceipt(
+      id: 'r1', subscriptionId: 'sub1', seq: 2, proofPath: 'p/1.jpg', sentAt: DateTime.utc(2026, 11, 1),
+      decision: InstallmentStatus.rejected, note: 'Blurry', decidedAt: DateTime.utc(2026, 11, 2),
+    );
+    final second = InstallmentReceipt(
+      id: 'r2', subscriptionId: 'sub1', seq: 2, proofPath: 'p/2.jpg', sentAt: DateTime.utc(2026, 11, 3),
+      decision: InstallmentStatus.paid, decidedAt: DateTime.utc(2026, 11, 4),
+    );
+    final office = InstallmentReceipt(id: 'r3', subscriptionId: 'sub1', seq: 3, sentAt: DateTime.utc(2026, 11, 5), decision: InstallmentStatus.paid, decidedAt: DateTime.utc(2026, 11, 5));
+    final entries = buildRequestHistory([sub], const [], [first, second, office]).single.entries;
+    expect([for (final e in entries.cast<ReceiptEntry>()) '${e.receipt.id}:${e.step.name}'],
+        ['r3:paid', 'r2:paid', 'r2:sent', 'r1:rejected', 'r1:sent'], reason: 'paid at the office has no sent step');
+  });
+
   testWidgets('the price is shown, and a school without billing yet cannot be asked', (tester) async {
     final backend = FakeBackend(current: semester())..school = const School(id: 's1', name: 'Test School', timezone: 'Africa/Douala', isActive: true);
     await open(tester, backend, picker: FakeProofPicker(samplePhoto()));
@@ -224,6 +241,9 @@ void main() {
     await settle(tester);
     expect(installments.sent.single.installmentId, 'part2');
     expect(find.text('Proof sent, waiting for the school'), findsOneWidget);
+    // The receipt stays in the request's history.
+    await tester.scrollUntilVisible(find.text('Proof for part 2 sent'), 300, scrollable: find.byType(Scrollable).first);
+    expect(find.text('Proof for part 2 sent'), findsOneWidget);
     BusinToast.dismiss();
     await settle(tester, 2);
   });

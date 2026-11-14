@@ -9,6 +9,7 @@ class Columns {
   static const department = 'id, faculty_id, name, code';
   static const program = 'id, name';
   static const installment = 'id, subscription_id, seq, percent, amount_xaf, due_date, status, proof_path, review_note';
+  static const installmentReceipt = 'id, subscription_id, seq, proof_path, sent_at, decision, note, decided_at';
   static const subscriptionEvent = 'id, subscription_id, action, note, created_at';
   static const school = 'id, name, short_name, timezone, status, logo_path, city, country, website, contact_email, phone, about, billing_period, price_xaf, installment_plan, currency';
   static const stop = 'id, school_id, name, location, photo_path, active';

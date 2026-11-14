@@ -95,3 +95,20 @@ describe("monthly billing (ADR 0022)", () => {
     expect(subscribeProblem({ code: "23505", message: "already_requested" })).toBe("exists");
   });
 });
+
+describe("receipts in the history (ADR 0022)", () => {
+  it("keeps every receipt of a part with its decision, merged with the operations, the latest first", () => {
+    const sub = { ...row("a", "approved", "2026-11-01T08:00:00Z"), payment_mode: "installments" };
+    const history = buildRequestHistory(
+      [sub],
+      [{ id: 1, subscription_id: "a", action: "requested", note: null, created_at: "2026-11-01T08:00:00Z" }],
+      [
+        { id: "r1", subscription_id: "a", seq: 2, proof_path: "s/u/1.jpg", sent_at: "2026-11-02T08:00:00Z", decision: "rejected", note: "Blurry", decided_at: "2026-11-03T08:00:00Z" },
+        { id: "r2", subscription_id: "a", seq: 2, proof_path: "s/u/2.jpg", sent_at: "2026-11-04T08:00:00Z", decision: "paid", note: null, decided_at: "2026-11-05T08:00:00Z" },
+        { id: "r3", subscription_id: "a", seq: 3, proof_path: null, sent_at: "2026-11-06T08:00:00Z", decision: "paid", note: null, decided_at: "2026-11-06T08:00:00Z" },
+      ],
+    );
+    expect(history[0].events.map((e) => `${e.action}${e.seq ?? ""}`)).toEqual(["partPaid3", "partPaid2", "partSent2", "partRejected2", "partSent2", "requested"]);
+    expect(history[0].events.find((e) => e.action === "partRejected")?.note).toBe("Blurry");
+  });
+});

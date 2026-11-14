@@ -77,6 +77,10 @@ test("pays in installments without a preference, keeps it, and sends the proof o
   await expect(page.getByTestId("part-2")).toContainText("Proof sent, waiting for the school");
   const { data: part } = await db.from("subscription_installments").select("status, proof_path").eq("subscription_id", sub!.id).eq("seq", 2).single();
   expect(part?.status).toBe("submitted");
+  // The receipt stays in the request's history.
+  await expect(page.getByText("Proof for part 2 sent")).toBeVisible();
+  const { count } = await db.from("installment_receipts").select("id", { count: "exact", head: true }).eq("subscription_id", sub!.id);
+  expect(count).toBe(1);
 });
 
 test("the profile keeps how the student prefers to pay", async ({ page, context }) => {

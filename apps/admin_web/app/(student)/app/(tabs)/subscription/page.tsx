@@ -17,7 +17,7 @@ import { getStudentCopy } from "@/lib/i18n/server";
 import { firstName, greetingFor } from "@/lib/overview";
 import { requireStudent } from "@/lib/student/session";
 import { schoolBilling, type InstallmentRow } from "@/lib/billing";
-import { buildRequestHistory, isLive, liveRequests, monthChoices, subscriptionToShow, type SubscriptionEvent, type SubscriptionRow } from "@/lib/student/subscription";
+import { buildRequestHistory, isLive, liveRequests, monthChoices, subscriptionToShow, type ReceiptRow, type SubscriptionEvent, type SubscriptionRow } from "@/lib/student/subscription";
 import { createClient } from "@/lib/supabase/server";
 import { todayInZone } from "@/lib/zoned";
 
@@ -128,7 +128,15 @@ async function Subscription({ searchParams }: { searchParams: SearchParams }) {
   const semesterName = `${s.semesters[semester.name as keyof typeof s.semesters] ?? semester.name} ${semester.year}`;
   const art = showForm ? "ticket1" : { approved: "verified", pending: "waiting", rejected: "papers", revoked: "papers", expired: "semester" }[subscription!.status];
   const lines = [showForm ? format(c.heading, { semester: semesterName }) : semesterName, ...(upcoming ? [format(c.starts, { date: dayOf(semester.start_date) })] : [])];
-  const history = buildRequestHistory(ofSemester, (events?.data ?? []) as SubscriptionEvent[]);
+  // Every receipt sent for a part stays in its request's history, with a short-lived link to see it.
+  const inParts = ofSemester.filter((r) => r.payment_mode === "installments").map((r) => r.id);
+  const { data: receipts } = inParts.length
+    ? await supabase.from("installment_receipts").select("id, subscription_id, seq, proof_path, sent_at, decision, note, decided_at").in("subscription_id", inParts).order("sent_at").limit(200)
+    : { data: [] as ReceiptRow[] };
+  const receiptPaths = (receipts ?? []).flatMap((r) => (r.proof_path ? [r.proof_path] : []));
+  const { data: signed } = receiptPaths.length ? await supabase.storage.from("proofs").createSignedUrls(receiptPaths, 600) : { data: [] };
+  const receiptUrls = Object.fromEntries((signed ?? []).flatMap((s) => (s.path && s.signedUrl ? [[s.path, s.signedUrl]] : [])));
+  const history = buildRequestHistory(ofSemester, (events?.data ?? []) as SubscriptionEvent[], (receipts ?? []) as ReceiptRow[]);
   const known = Object.fromEntries(rows.map((r) => [r.id, r.status]));
 
   return (
@@ -192,7 +200,7 @@ async function Subscription({ searchParams }: { searchParams: SearchParams }) {
       <PushOptIn copy={s.push} locale={locale} compact />
       {/* My area, offered once to a student who never added it, when the notification offer is not showing (ADR 0023). */}
       <AreaOffer copy={s.area} />
-      <RequestHistory copy={c} history={history} dateOf={dateOf} timeOf={timeOf} />
+      <RequestHistory copy={c} history={history} dateOf={dateOf} timeOf={timeOf} receiptUrls={receiptUrls} />
     </main>
   );
 }
