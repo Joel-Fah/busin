@@ -1228,6 +1228,22 @@ class BusinL10nFr extends BusinL10n {
       'Votre bus est à quelques minutes de votre arrêt.';
 
   @override
+  String get areaIntroTitle => 'Une dernière chose : où habitez-vous ?';
+
+  @override
+  String get areaIntroSkip => 'Plus tard';
+
+  @override
+  String get areaPromptTitle => 'Ajoutez votre zone';
+
+  @override
+  String get areaPromptBody =>
+      'Indiquez à peu près où vous habitez pour que votre école place les arrêts près des étudiants. Arrondi à environ 500 mètres, jamais suivi.';
+
+  @override
+  String get areaPromptAdd => 'Ajouter ma zone';
+
+  @override
   String get areaTitle => 'Ma zone';
 
   @override
@@ -1559,7 +1575,7 @@ class BusinL10nFr extends BusinL10n {
 
   @override
   String get opsSettingsSoundHint =>
-      'Un clic quand un étudiant est accepté, une alerte en cas de refus.';
+      'Un son différent pour accepté, déjà à bord, refusé et code suspect.';
 
   @override
   String get opsSettingsDriving => 'Mode chauffeur';

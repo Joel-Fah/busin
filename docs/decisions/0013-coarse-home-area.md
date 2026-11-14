@@ -3,6 +3,7 @@
 Status: accepted, 2026-11-11 (the owner chose this in the ideas round). Narrows the rule "location only in the ops app"
 of the [busin-security skill](../../.claude/skills/busin-security/SKILL.md) for one case, and updates the privacy policy.
 Amended by [ADR 0016](0016-show-me-on-my-bus.md) (2026-11-11): the student app may also read a precise position on My bus, when the student asks, kept on the phone.
+Amended by [ADR 0023](0023-asking-for-my-area.md) (2026-11-14): My area is offered once after setup, and once to students without one; still optional.
 
 ## Context
 Schools want to place stops and plan routes where students live (phase 5). Today the student app never reads the

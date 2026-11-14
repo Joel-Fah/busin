@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 
+import { AreaOffer } from "@/components/student/AreaOffer";
 import { Banner } from "@/components/student/Banner";
 import { LiveSubscriptions } from "@/components/student/LiveSubscriptions";
 import { PushOptIn } from "@/components/student/PushOptIn";
@@ -202,6 +203,8 @@ async function Subscription({ searchParams }: { searchParams: SearchParams }) {
       ) : null}
       {/* Offered once to everyone, in any browser (on an iPhone it explains the Home Screen step); "Not now" is remembered. */}
       <PushOptIn copy={s.push} locale={locale} compact />
+      {/* My area, offered once to a student who never added it, when the notification offer is not showing (ADR 0023). */}
+      <AreaOffer copy={s.area} />
       <RequestHistory copy={c} history={history} dateOf={dateOf} timeOf={timeOf} receiptUrls={receiptUrls} />
     </main>
   );
