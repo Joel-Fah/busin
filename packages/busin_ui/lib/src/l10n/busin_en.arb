@@ -635,6 +635,11 @@
   "leaderboardRank": "Rank {rank}",
   "@leaderboardRank": {"placeholders": {"rank": {"type": "int"}}},
   "pushForegroundBusNear": "Your bus is a few minutes from your stop.",
+  "areaIntroTitle": "One more thing: where do you live?",
+  "areaIntroSkip": "Not now",
+  "areaPromptTitle": "Add your area",
+  "areaPromptBody": "Say roughly where you live so your school can place stops near students. Rounded to about 500 metres, never tracked.",
+  "areaPromptAdd": "Add my area",
   "areaTitle": "My area",
   "areaHint": "Roughly where you live, to help your school place stops. Optional.",
   "areaLaterHint": "Add it when you are home.",
@@ -738,7 +743,7 @@
   "opsSettingsScanning": "Scanning",
   "opsSettingsVibrate": "Vibrate on each scan",
   "opsSettingsSound": "Sound on each scan",
-  "opsSettingsSoundHint": "A click when a student is let on, an alert when refused.",
+  "opsSettingsSoundHint": "A different sound for let on, already on board, refused and suspect codes.",
   "opsSettingsDriving": "Driver mode",
   "opsSettingsOfferShare": "Offer to share the bus position when I start a trip",
   "opsSettingsOfferShareHint": "You can always turn sharing on from the trip.",
@@ -950,5 +955,140 @@
   "opsStatsTrendUp": "Better than the 4 weeks before",
   "opsStatsTrendDown": "Below the 4 weeks before",
   "opsStatsTrendSame": "Steady over the last 8 weeks",
-  "opsPushCrewAssigned": "You were added to a trip. It is in your trips."
+  "opsPushCrewAssigned": "You were added to a trip. It is in your trips.",
+  "subscribePriceSemester": "{price} for the semester",
+  "@subscribePriceSemester": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "subscribePriceMonth": "{price} a month",
+  "@subscribePriceMonth": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "subscribeBillingNotSet": "Your school is still setting up payments. You can ask for a subscription once it has.",
+  "subscribeMonthLabel": "Month",
+  "subscribePaymentLabel": "How you pay",
+  "paymentFull": "In full",
+  "paymentInstallments": "In installments",
+  "subscribeFullNote": "{amount} with this request.",
+  "@subscribeFullNote": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "subscribeInstallmentsNote": "{parts}. The first with this request, the others by their dates.",
+  "@subscribeInstallmentsNote": {
+    "placeholders": {
+      "parts": {
+        "type": "String"
+      }
+    }
+  },
+  "subscribePaymentRequired": "Choose how you pay.",
+  "subscribeErrorPeriodEnded": "That month has ended. Pull down to refresh and choose again.",
+  "preferenceSaveTitle": "Pay this way next time?",
+  "preferenceSaveBody": "BusIn can fill in “{mode}” for your next requests. You can change it in your profile.",
+  "@preferenceSaveBody": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "preferenceSave": "Save as my preference",
+  "preferenceNotNow": "Not now",
+  "preferenceSaved": "Saved as how you prefer to pay.",
+  "profilePaymentTitle": "How you prefer to pay",
+  "profilePaymentHint": "Filled in when you ask for a subscription.",
+  "partsTitle": "Installments",
+  "partLabel": "Part {n}",
+  "@partLabel": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "partDue": "Due {date}",
+  "@partDue": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "partStatusDue": "Not paid yet",
+  "partStatusSubmitted": "Proof sent, waiting for the school",
+  "partStatusPaid": "Paid",
+  "partStatusRejected": "Proof not accepted",
+  "partLate": "Late",
+  "partSendProof": "Send proof of payment",
+  "partSent": "Proof sent. Your school will check it.",
+  "nextMonthAsk": "Ask for {month}",
+  "@nextMonthAsk": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "nextMonthState": "{month}: {status}",
+  "@nextMonthState": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "pushForegroundInstallmentPaid": "Your school marked a payment as received.",
+  "pushForegroundInstallmentRejected": "Your school could not accept a payment proof.",
+  "pushForegroundInstallmentDue": "A payment is due soon.",
+  "receiptSent": "Proof for part {n} sent",
+  "@receiptSent": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptPaid": "Part {n} paid",
+  "@receiptPaid": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptRejected": "Proof for part {n} not accepted",
+  "@receiptRejected": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "stopDistance": "about {km} km from your area",
+  "@stopDistance": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "stopClosest": "Closest to your area",
+  "stopSuggested": "Suggested",
+  "stopAll": "All stops",
+  "stopAddArea": "Add your area to see which stop is closest"
 }

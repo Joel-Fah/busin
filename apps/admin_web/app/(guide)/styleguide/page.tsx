@@ -18,6 +18,7 @@ import {
   UserMultiple02Icon,
 } from "@hugeicons/core-free-icons";
 
+import { PlanParts } from "@/components/billing/PlanParts";
 import { BusStopScene } from "@/components/landing/BusStopScene";
 import { PhoneField } from "@/components/ui/PhoneField";
 import { Button, ButtonLink } from "@/components/ui/Button";
@@ -773,6 +774,12 @@ async function Styleguide() {
           </Card>
         </div>
         <p className="mt-4 max-w-2xl text-sm text-muted">{note("Card")}</p>
+
+        <h3 className="mt-8 mb-3 text-lg font-bold">Installment plan</h3>
+        <div className="max-w-md">
+          <PlanParts percents={[40, 30, 30]} amounts={["12,000 XAF", "9,000 XAF", "9,000 XAF"]} label="Installments: 40%, 30%, 30%" />
+        </div>
+        <p className="mt-3 max-w-2xl text-sm text-muted">{note("Installment plan")}</p>
       </Section>
 
       <Section {...sectionProps("rules")}>

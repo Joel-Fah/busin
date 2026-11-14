@@ -42,13 +42,25 @@ async function Code() {
   const supabase = await createClient();
   const today = todayInZone(student.schoolTimezone);
   const { data: semester } = await supabase.from("semesters").select("id, end_date").lte("start_date", today).gte("end_date", today).order("start_date", { ascending: false }).limit(1).maybeSingle();
-  const approved = semester
-    ? Boolean((await supabase.from("subscriptions").select("id").eq("student_id", student.userId).eq("semester_id", semester.id).eq("status", "approved").limit(1).maybeSingle()).data)
-    : false;
+  // An approved subscription that covers today: the whole semester, or (monthly billing, ADR 0022) this month.
+  const covering = semester
+    ? (
+        await supabase
+          .from("subscriptions")
+          .select("id, period_end")
+          .eq("student_id", student.userId)
+          .eq("semester_id", semester.id)
+          .eq("status", "approved")
+          .or(`period_end.is.null,and(period_start.lte.${today},period_end.gte.${today})`)
+          .limit(1)
+          .maybeSingle()
+      ).data
+    : null;
+  const approved = Boolean(covering);
 
   return (
     <StudentPage lang={locale} title={c.title} subtitle={c.hint}>
-      <BoardingCode copy={c} studentId={student.userId} name={student.fullName} matricule={student.matricule} timeZone={student.schoolTimezone} approved={approved} validUntil={semester?.end_date ?? null} locale={locale} />
+      <BoardingCode copy={c} studentId={student.userId} name={student.fullName} matricule={student.matricule} timeZone={student.schoolTimezone} approved={approved} validUntil={covering?.period_end ?? semester?.end_date ?? null} locale={locale} />
       {approved ? (
         <>
           <p className="m-0 flex items-start gap-3 rounded-md bg-surface-2 p-4 text-sm">

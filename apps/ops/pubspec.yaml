@@ -39,6 +39,8 @@ dependencies:
   # Location: the Android part of geolocator only (the main package clashes with connectivity_plus, see the student app).
   geolocator_android: ^5.2.1
   geolocator_platform_interface: ^4.4.1
+  # Scan sounds: short low-latency clips (Android SoundPool). 6.8.1 is the newest release at least two weeks old.
+  audioplayers: 6.8.1
 
 dev_dependencies:
   flutter_test:
@@ -48,6 +50,9 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  # The scan sounds, made by tool/make_sounds.py.
+  assets:
+    - assets/sounds/
 
 # Stand-in icons rendered from the BusIn wordmark on the brand orange (node tools/render-app-icons.mjs). Replace the PNGs
 # in assets/icon with the owner's own artwork and run: fvm dart run flutter_launcher_icons

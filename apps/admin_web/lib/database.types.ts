@@ -141,6 +141,44 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"installment_receipts": {
+                  Row: {
+                    "decided_at": string | null,"decided_by": string | null,"decision": string | null,"id": string,"installment_id": string,"note": string | null,"proof_path": string | null,"school_id": string,"sent_at": string,"seq": number,"student_id": string,"subscription_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "decided_at"?: string | null,"decided_by"?: string | null,"decision"?: string | null,"id"?: string,"installment_id": string,"note"?: string | null,"proof_path"?: string | null,"school_id": string,"sent_at"?: string,"seq": number,"student_id": string,"subscription_id": string
+                  }
+                  Update: {
+                    "decided_at"?: string | null,"decided_by"?: string | null,"decision"?: string | null,"id"?: string,"installment_id"?: string,"note"?: string | null,"proof_path"?: string | null,"school_id"?: string,"sent_at"?: string,"seq"?: number,"student_id"?: string,"subscription_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "installment_receipts_decided_by_fkey"
+      columns: ["decided_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "installment_receipts_installment_id_fkey"
+      columns: ["installment_id"]
+isOneToOne: false
+      referencedRelation: "subscription_installments"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "installment_receipts_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "installment_receipts_subscription_id_school_id_fkey"
+      columns: ["subscription_id","school_id"]
+isOneToOne: false
+      referencedRelation: "subscriptions"
+      referencedColumns: ["id","school_id"]
+    }
+                  ]
                 },"interest_requests": {
                   Row: {
                     "created_at": string,"email": string,"id": string,"kind": string,"locale": string,"message": string | null,"name": string | null,"organisation": string | null
@@ -229,14 +267,14 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "avatar_url": string | null,"created_at": string,"department": string | null,"department_id": string | null,"email": string,"full_name": string,"id": string,"join_decline_note": string | null,"join_declined_at": string | null,"join_declined_school": string | null,"join_requested_at": string | null,"matricule": string | null,"phone": string | null,"program": string | null,"program_id": string | null,"role": Database["public"]['Enums']["user_role"],"school_id": string | null,"status": Database["public"]['Enums']["account_status"],"streak_opt_in": boolean,"streak_opt_in_at": string | null,"updated_at": string
+                    "avatar_url": string | null,"created_at": string,"department": string | null,"department_id": string | null,"email": string,"full_name": string,"id": string,"join_decline_note": string | null,"join_declined_at": string | null,"join_declined_school": string | null,"join_requested_at": string | null,"matricule": string | null,"payment_preference": string | null,"phone": string | null,"program": string | null,"program_id": string | null,"role": Database["public"]['Enums']["user_role"],"school_id": string | null,"status": Database["public"]['Enums']["account_status"],"streak_opt_in": boolean,"streak_opt_in_at": string | null,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "avatar_url"?: string | null,"created_at"?: string,"department"?: string | null,"department_id"?: string | null,"email": string,"full_name"?: string,"id": string,"join_decline_note"?: string | null,"join_declined_at"?: string | null,"join_declined_school"?: string | null,"join_requested_at"?: string | null,"matricule"?: string | null,"phone"?: string | null,"program"?: string | null,"program_id"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"school_id"?: string | null,"status"?: Database["public"]['Enums']["account_status"],"streak_opt_in"?: boolean,"streak_opt_in_at"?: string | null,"updated_at"?: string
+                    "avatar_url"?: string | null,"created_at"?: string,"department"?: string | null,"department_id"?: string | null,"email": string,"full_name"?: string,"id": string,"join_decline_note"?: string | null,"join_declined_at"?: string | null,"join_declined_school"?: string | null,"join_requested_at"?: string | null,"matricule"?: string | null,"payment_preference"?: string | null,"phone"?: string | null,"program"?: string | null,"program_id"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"school_id"?: string | null,"status"?: Database["public"]['Enums']["account_status"],"streak_opt_in"?: boolean,"streak_opt_in_at"?: string | null,"updated_at"?: string
                   }
                   Update: {
-                    "avatar_url"?: string | null,"created_at"?: string,"department"?: string | null,"department_id"?: string | null,"email"?: string,"full_name"?: string,"id"?: string,"join_decline_note"?: string | null,"join_declined_at"?: string | null,"join_declined_school"?: string | null,"join_requested_at"?: string | null,"matricule"?: string | null,"phone"?: string | null,"program"?: string | null,"program_id"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"school_id"?: string | null,"status"?: Database["public"]['Enums']["account_status"],"streak_opt_in"?: boolean,"streak_opt_in_at"?: string | null,"updated_at"?: string
+                    "avatar_url"?: string | null,"created_at"?: string,"department"?: string | null,"department_id"?: string | null,"email"?: string,"full_name"?: string,"id"?: string,"join_decline_note"?: string | null,"join_declined_at"?: string | null,"join_declined_school"?: string | null,"join_requested_at"?: string | null,"matricule"?: string | null,"payment_preference"?: string | null,"phone"?: string | null,"program"?: string | null,"program_id"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"school_id"?: string | null,"status"?: Database["public"]['Enums']["account_status"],"streak_opt_in"?: boolean,"streak_opt_in_at"?: string | null,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -397,14 +435,14 @@ isOneToOne: false
                   ]
                 },"schools": {
                   Row: {
-                    "about": string | null,"accepts_open_signup": boolean,"address": string | null,"allow_field_trips": boolean,"campus_location": unknown,"campus_name": string | null,"city": string | null,"contact_email": string | null,"country": string | null,"created_at": string,"id": string,"logo_path": string | null,"name": string,"open_signup_domains": (string)[],"phone": string | null,"public_listing": boolean,"short_name": string | null,"status": string,"terms_accepted_at": string | null,"terms_accepted_by": string | null,"terms_version": string | null,"timezone": string,"website": string | null
+                    "about": string | null,"accepts_open_signup": boolean,"address": string | null,"allow_field_trips": boolean,"billing_period": string | null,"campus_location": unknown,"campus_name": string | null,"city": string | null,"contact_email": string | null,"country": string | null,"created_at": string,"currency": string,"id": string,"installment_plan": string | null,"logo_path": string | null,"name": string,"open_signup_domains": (string)[],"phone": string | null,"price_xaf": number | null,"public_listing": boolean,"short_name": string | null,"status": string,"terms_accepted_at": string | null,"terms_accepted_by": string | null,"terms_version": string | null,"timezone": string,"website": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "about"?: string | null,"accepts_open_signup"?: boolean,"address"?: string | null,"allow_field_trips"?: boolean,"campus_location"?: unknown,"campus_name"?: string | null,"city"?: string | null,"contact_email"?: string | null,"country"?: string | null,"created_at"?: string,"id"?: string,"logo_path"?: string | null,"name": string,"open_signup_domains"?: (string)[],"phone"?: string | null,"public_listing"?: boolean,"short_name"?: string | null,"status"?: string,"terms_accepted_at"?: string | null,"terms_accepted_by"?: string | null,"terms_version"?: string | null,"timezone"?: string,"website"?: string | null
+                    "about"?: string | null,"accepts_open_signup"?: boolean,"address"?: string | null,"allow_field_trips"?: boolean,"billing_period"?: string | null,"campus_location"?: unknown,"campus_name"?: string | null,"city"?: string | null,"contact_email"?: string | null,"country"?: string | null,"created_at"?: string,"currency"?: string,"id"?: string,"installment_plan"?: string | null,"logo_path"?: string | null,"name": string,"open_signup_domains"?: (string)[],"phone"?: string | null,"price_xaf"?: number | null,"public_listing"?: boolean,"short_name"?: string | null,"status"?: string,"terms_accepted_at"?: string | null,"terms_accepted_by"?: string | null,"terms_version"?: string | null,"timezone"?: string,"website"?: string | null
                   }
                   Update: {
-                    "about"?: string | null,"accepts_open_signup"?: boolean,"address"?: string | null,"allow_field_trips"?: boolean,"campus_location"?: unknown,"campus_name"?: string | null,"city"?: string | null,"contact_email"?: string | null,"country"?: string | null,"created_at"?: string,"id"?: string,"logo_path"?: string | null,"name"?: string,"open_signup_domains"?: (string)[],"phone"?: string | null,"public_listing"?: boolean,"short_name"?: string | null,"status"?: string,"terms_accepted_at"?: string | null,"terms_accepted_by"?: string | null,"terms_version"?: string | null,"timezone"?: string,"website"?: string | null
+                    "about"?: string | null,"accepts_open_signup"?: boolean,"address"?: string | null,"allow_field_trips"?: boolean,"billing_period"?: string | null,"campus_location"?: unknown,"campus_name"?: string | null,"city"?: string | null,"contact_email"?: string | null,"country"?: string | null,"created_at"?: string,"currency"?: string,"id"?: string,"installment_plan"?: string | null,"logo_path"?: string | null,"name"?: string,"open_signup_domains"?: (string)[],"phone"?: string | null,"price_xaf"?: number | null,"public_listing"?: boolean,"short_name"?: string | null,"status"?: string,"terms_accepted_at"?: string | null,"terms_accepted_by"?: string | null,"terms_version"?: string | null,"timezone"?: string,"website"?: string | null
                   }
                   Relationships: [
                     
@@ -545,16 +583,54 @@ isOneToOne: false
       referencedColumns: ["id","school_id"]
     }
                   ]
-                },"subscriptions": {
+                },"subscription_installments": {
                   Row: {
-                    "created_at": string,"id": string,"proof_path": string | null,"review_note": string | null,"reviewed_at": string | null,"reviewed_by": string | null,"school_id": string,"semester_id": string,"status": Database["public"]['Enums']["subscription_status"],"stop_id": string,"student_id": string,"updated_at": string
+                    "amount_xaf": number,"created_at": string,"due_date": string,"id": string,"percent": number,"proof_path": string | null,"reminded_on": string | null,"review_note": string | null,"reviewed_at": string | null,"reviewed_by": string | null,"school_id": string,"seq": number,"status": string,"student_id": string,"submitted_at": string | null,"subscription_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"id"?: string,"proof_path"?: string | null,"review_note"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"school_id": string,"semester_id": string,"status"?: Database["public"]['Enums']["subscription_status"],"stop_id": string,"student_id": string,"updated_at"?: string
+                    "amount_xaf": number,"created_at"?: string,"due_date": string,"id"?: string,"percent": number,"proof_path"?: string | null,"reminded_on"?: string | null,"review_note"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"school_id": string,"seq": number,"status"?: string,"student_id": string,"submitted_at"?: string | null,"subscription_id": string
                   }
                   Update: {
-                    "created_at"?: string,"id"?: string,"proof_path"?: string | null,"review_note"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"school_id"?: string,"semester_id"?: string,"status"?: Database["public"]['Enums']["subscription_status"],"stop_id"?: string,"student_id"?: string,"updated_at"?: string
+                    "amount_xaf"?: number,"created_at"?: string,"due_date"?: string,"id"?: string,"percent"?: number,"proof_path"?: string | null,"reminded_on"?: string | null,"review_note"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"school_id"?: string,"seq"?: number,"status"?: string,"student_id"?: string,"submitted_at"?: string | null,"subscription_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "subscription_installments_reviewed_by_fkey"
+      columns: ["reviewed_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "subscription_installments_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "subscription_installments_student_id_school_id_fkey"
+      columns: ["student_id","school_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id","school_id"]
+    },{
+      foreignKeyName: "subscription_installments_subscription_id_school_id_fkey"
+      columns: ["subscription_id","school_id"]
+isOneToOne: false
+      referencedRelation: "subscriptions"
+      referencedColumns: ["id","school_id"]
+    }
+                  ]
+                },"subscriptions": {
+                  Row: {
+                    "amount_xaf": number | null,"billing_period": string | null,"created_at": string,"id": string,"installment_plan": string | null,"payment_mode": string,"period_end": string | null,"period_start": string | null,"proof_path": string | null,"review_note": string | null,"reviewed_at": string | null,"reviewed_by": string | null,"school_id": string,"semester_id": string,"status": Database["public"]['Enums']["subscription_status"],"stop_id": string,"student_id": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount_xaf"?: number | null,"billing_period"?: string | null,"created_at"?: string,"id"?: string,"installment_plan"?: string | null,"payment_mode"?: string,"period_end"?: string | null,"period_start"?: string | null,"proof_path"?: string | null,"review_note"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"school_id": string,"semester_id": string,"status"?: Database["public"]['Enums']["subscription_status"],"stop_id": string,"student_id": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "amount_xaf"?: number | null,"billing_period"?: string | null,"created_at"?: string,"id"?: string,"installment_plan"?: string | null,"payment_mode"?: string,"period_end"?: string | null,"period_start"?: string | null,"proof_path"?: string | null,"review_note"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"school_id"?: string,"semester_id"?: string,"status"?: Database["public"]['Enums']["subscription_status"],"stop_id"?: string,"student_id"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -740,6 +816,9 @@ isOneToOne: false
 "admin_reinstate_subscription":
 { Args: { "p_note"?: string,"p_subscription_id": string }; Returns: undefined
                            },
+"admin_review_installment":
+{ Args: { "p_decision": string,"p_installment": string,"p_note"?: string }; Returns: undefined
+                           },
 "admin_review_subscription":
 { Args: { "p_decision": string,"p_note"?: string,"p_subscription_id": string }; Returns: undefined
                            },
@@ -753,6 +832,9 @@ isOneToOne: false
                            },
 "admin_save_route":
 { Args: { "p_stop_ids": (string)[] }; Returns: string
+                           },
+"admin_set_billing":
+{ Args: { "p_period": string,"p_plan"?: string,"p_price": number }; Returns: undefined
                            },
 "admin_set_campus":
 { Args: { "p_lat": number,"p_lng": number,"p_name": string }; Returns: undefined
@@ -929,6 +1011,9 @@ isOneToOne: false
 "set_notification_preferences":
 { Args: { "p_boarding_messages_on": boolean,"p_bus_near_minutes": number,"p_bus_near_on": boolean,"p_evening_on": boolean,"p_evening_time": string,"p_morning_on": boolean,"p_morning_time": string,"p_riding_days": number }; Returns: undefined
                            },
+"set_payment_preference":
+{ Args: { "p_preference": string }; Returns: undefined
+                           },
 "set_streak_opt_in":
 { Args: { "p_on": boolean }; Returns: undefined
                            },
@@ -942,6 +1027,9 @@ isOneToOne: false
                            },
 "start_trip":
 { Args: { "p_trip_id": string }; Returns: undefined
+                           },
+"submit_installment_proof":
+{ Args: { "p_installment": string,"p_path": string }; Returns: undefined
                            },
 "submit_interest":
 { Args: { "p_email": string,"p_kind": string,"p_locale"?: string,"p_message"?: string,"p_name"?: string,"p_organisation"?: string,"p_trap"?: string }; Returns: string

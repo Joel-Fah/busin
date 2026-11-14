@@ -1208,6 +1208,22 @@ class BusinL10nEn extends BusinL10n {
       'Your bus is a few minutes from your stop.';
 
   @override
+  String get areaIntroTitle => 'One more thing: where do you live?';
+
+  @override
+  String get areaIntroSkip => 'Not now';
+
+  @override
+  String get areaPromptTitle => 'Add your area';
+
+  @override
+  String get areaPromptBody =>
+      'Say roughly where you live so your school can place stops near students. Rounded to about 500 metres, never tracked.';
+
+  @override
+  String get areaPromptAdd => 'Add my area';
+
+  @override
   String get areaTitle => 'My area';
 
   @override
@@ -1531,7 +1547,7 @@ class BusinL10nEn extends BusinL10n {
 
   @override
   String get opsSettingsSoundHint =>
-      'A click when a student is let on, an alert when refused.';
+      'A different sound for let on, already on board, refused and suspect codes.';
 
   @override
   String get opsSettingsDriving => 'Driver mode';
@@ -1876,4 +1892,157 @@ class BusinL10nEn extends BusinL10n {
   @override
   String get opsPushCrewAssigned =>
       'You were added to a trip. It is in your trips.';
+
+  @override
+  String subscribePriceSemester(String price) {
+    return '$price for the semester';
+  }
+
+  @override
+  String subscribePriceMonth(String price) {
+    return '$price a month';
+  }
+
+  @override
+  String get subscribeBillingNotSet =>
+      'Your school is still setting up payments. You can ask for a subscription once it has.';
+
+  @override
+  String get subscribeMonthLabel => 'Month';
+
+  @override
+  String get subscribePaymentLabel => 'How you pay';
+
+  @override
+  String get paymentFull => 'In full';
+
+  @override
+  String get paymentInstallments => 'In installments';
+
+  @override
+  String subscribeFullNote(String amount) {
+    return '$amount with this request.';
+  }
+
+  @override
+  String subscribeInstallmentsNote(String parts) {
+    return '$parts. The first with this request, the others by their dates.';
+  }
+
+  @override
+  String get subscribePaymentRequired => 'Choose how you pay.';
+
+  @override
+  String get subscribeErrorPeriodEnded =>
+      'That month has ended. Pull down to refresh and choose again.';
+
+  @override
+  String get preferenceSaveTitle => 'Pay this way next time?';
+
+  @override
+  String preferenceSaveBody(String mode) {
+    return 'BusIn can fill in “$mode” for your next requests. You can change it in your profile.';
+  }
+
+  @override
+  String get preferenceSave => 'Save as my preference';
+
+  @override
+  String get preferenceNotNow => 'Not now';
+
+  @override
+  String get preferenceSaved => 'Saved as how you prefer to pay.';
+
+  @override
+  String get profilePaymentTitle => 'How you prefer to pay';
+
+  @override
+  String get profilePaymentHint => 'Filled in when you ask for a subscription.';
+
+  @override
+  String get partsTitle => 'Installments';
+
+  @override
+  String partLabel(String n) {
+    return 'Part $n';
+  }
+
+  @override
+  String partDue(String date) {
+    return 'Due $date';
+  }
+
+  @override
+  String get partStatusDue => 'Not paid yet';
+
+  @override
+  String get partStatusSubmitted => 'Proof sent, waiting for the school';
+
+  @override
+  String get partStatusPaid => 'Paid';
+
+  @override
+  String get partStatusRejected => 'Proof not accepted';
+
+  @override
+  String get partLate => 'Late';
+
+  @override
+  String get partSendProof => 'Send proof of payment';
+
+  @override
+  String get partSent => 'Proof sent. Your school will check it.';
+
+  @override
+  String nextMonthAsk(String month) {
+    return 'Ask for $month';
+  }
+
+  @override
+  String nextMonthState(String month, String status) {
+    return '$month: $status';
+  }
+
+  @override
+  String get pushForegroundInstallmentPaid =>
+      'Your school marked a payment as received.';
+
+  @override
+  String get pushForegroundInstallmentRejected =>
+      'Your school could not accept a payment proof.';
+
+  @override
+  String get pushForegroundInstallmentDue => 'A payment is due soon.';
+
+  @override
+  String receiptSent(String n) {
+    return 'Proof for part $n sent';
+  }
+
+  @override
+  String receiptPaid(String n) {
+    return 'Part $n paid';
+  }
+
+  @override
+  String receiptRejected(String n) {
+    return 'Proof for part $n not accepted';
+  }
+
+  @override
+  String stopDistance(String km) {
+    return 'about $km km from your area';
+  }
+
+  @override
+  String get stopClosest => 'Closest to your area';
+
+  @override
+  String get stopSuggested => 'Suggested';
+
+  @override
+  String get stopAll => 'All stops';
+
+  @override
+  String get stopAddArea => 'Add your area to see which stop is closest';
 }
