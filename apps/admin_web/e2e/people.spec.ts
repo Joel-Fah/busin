@@ -2,7 +2,7 @@ import { randomBytes } from "node:crypto";
 
 import { expect, test } from "@playwright/test";
 
-import { createUser, deleteUser, serviceClient, signInBrowser, type TestUser, chooseOption, setLanguage } from "./support";
+import { SEED, createUser, deleteUser, serviceClient, signInBrowser, type TestUser, chooseOption, setLanguage, userClient } from "./support";
 
 const tag = randomBytes(3).toString("hex");
 
@@ -11,6 +11,9 @@ let staff: TestUser;
 let promote: TestUser;
 let suspend: TestUser;
 let plainStudent: TestUser;
+let toStaff: TestUser;
+let asker: TestUser;
+let declined: TestUser;
 
 const nameOf = (label: string) => `E2E ${label}`;
 
@@ -20,12 +23,16 @@ test.beforeAll(async () => {
   promote = await createUser(`promote-${tag}`, "staff");
   suspend = await createUser(`suspend-${tag}`, "student");
   plainStudent = await createUser(`plain-${tag}`, "student");
+  toStaff = await createUser(`tostaff-${tag}`, "student");
+  asker = await createUser(`asker-${tag}`, "student");
+  declined = await createUser(`declined-${tag}`, "student");
 });
 
 test.afterAll(async () => {
   // Audit rows point at the acting admin, so they go before the users do.
   await serviceClient().from("audit_log").delete().eq("actor_id", admin?.id ?? "");
-  for (const user of [admin, staff, promote, suspend, plainStudent]) {
+  await serviceClient().from("audit_log").delete().in("actor_id", [asker?.id, declined?.id].filter(Boolean) as string[]);
+  for (const user of [admin, staff, promote, suspend, plainStudent, toStaff, asker, declined]) {
     if (user) await deleteUser(user);
   }
 });
@@ -82,9 +89,12 @@ test.describe("administrator managing people", () => {
     await page.getByRole("button", { name: "Search" }).click();
     await page.getByRole("row").filter({ hasText: nameOf(`promote-${tag}`) }).getByRole("link").first().click();
 
-    // Staff and administrator are swapped here; a student is not offered a role at all (see the next test).
+    // Changing asks first, saying what it means.
     await chooseOption(page, "New role", "Administrator");
     await page.getByRole("button", { name: "Change role" }).click();
+    const confirm = page.getByRole("dialog", { name: "Change this role?" });
+    await expect(confirm).toContainText("Their access changes as soon as you confirm.");
+    await confirm.getByRole("button", { name: "Change role" }).click();
     await expect(page.getByRole("status")).toContainText("Role changed.");
 
     const db = serviceClient();
@@ -100,14 +110,58 @@ test.describe("administrator managing people", () => {
     expect(entries?.[0].details).toMatchObject({ from: "staff", to: "admin" });
   });
 
-  test("a student has no role to change, and a suspended person can only be restored", async ({ page }) => {
-    // A student keeps the student role: no role form, and the page says why.
-    await page.goto("/people");
-    await page.getByRole("searchbox").fill(`plain-${tag}`);
-    await page.getByRole("button", { name: "Search" }).click();
-    await page.getByRole("row").filter({ hasText: nameOf(`plain-${tag}`) }).getByRole("link").first().click();
-    await expect(page.getByText("Students keep the student role.")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Change role" })).toHaveCount(0);
+  test("a student can be made staff after confirming, and staff made a student again (ADR 0026)", async ({ page }) => {
+    await page.goto(`/people/${toStaff.id}`);
+    await chooseOption(page, "New role", "Staff");
+    await page.getByRole("button", { name: "Change role" }).click();
+    const confirm = page.getByRole("dialog", { name: "Change this role?" });
+    await expect(confirm).toContainText("They will use the ops app as staff");
+    await confirm.getByRole("button", { name: "Change role" }).click();
+    await expect(page.getByRole("status")).toContainText("Role changed.");
+    const db = serviceClient();
+    expect((await db.from("profiles").select("role").eq("id", toStaff.id).single()).data?.role).toBe("staff");
+
+    // A fresh page, so the first change's message is not mistaken for the second's.
+    await page.goto(`/people/${toStaff.id}`);
+    await chooseOption(page, "New role", "Student");
+    await page.getByRole("button", { name: "Change role" }).click();
+    await expect(page.getByRole("dialog", { name: "Change this role?" })).toContainText("They will use the student app");
+    await page.getByRole("dialog").getByRole("button", { name: "Change role" }).click();
+    await expect.poll(async () => (await db.from("profiles").select("role").eq("id", toStaff.id).single()).data?.role).toBe("student");
+  });
+
+  test("a staff request from the ops app is approved on the To verify tab", async ({ page }) => {
+    const { error } = await (await userClient(asker)).rpc("request_staff_access", { p_school_id: SEED.schoolId });
+    if (error) throw new Error(error.message);
+    await page.goto("/people?role=verify");
+    const section = page.getByRole("region", { name: "Staff access requests" });
+    const row = section.getByRole("row").filter({ hasText: nameOf(`asker-${tag}`) });
+    await expect(row).toContainText("Student of your school");
+    await row.getByRole("button", { name: "Approve as staff" }).click();
+    await expect(page.getByRole("status")).toContainText("Staff access granted.");
+    const { data } = await serviceClient().from("profiles").select("role, status").eq("id", asker.id).single();
+    expect(data).toEqual({ role: "staff", status: "verified" });
+  });
+
+  test("a declined staff request leaves the account as it was, with the note for the person", async ({ page }) => {
+    const client = await userClient(declined);
+    const { error } = await client.rpc("request_staff_access", { p_school_id: SEED.schoolId });
+    if (error) throw new Error(error.message);
+    await page.goto("/people?role=verify");
+    const row = page.getByRole("region", { name: "Staff access requests" }).getByRole("row").filter({ hasText: nameOf(`declined-${tag}`) });
+    await row.getByRole("button", { name: "Decline" }).click();
+    const dialog = page.getByRole("dialog", { name: "Decline this staff request?" });
+    await dialog.getByLabel("Reason (optional)").fill("We do not know you as a member of our staff.");
+    await dialog.getByRole("button", { name: "Decline the request" }).click();
+    await expect(page.getByRole("status")).toContainText("Staff request declined.");
+    const { data } = await serviceClient().from("profiles").select("role, status").eq("id", declined.id).single();
+    expect(data).toEqual({ role: "student", status: "verified" });
+    const mine = await client.rpc("my_staff_request");
+    expect(mine.data?.[0]?.decline_note).toBe("We do not know you as a member of our staff.");
+  });
+
+  test("a suspended person can only be restored", async ({ page }) => {
+    await page.goto(`/people/${plainStudent.id}`);
 
     // Suspended: frozen. Only Restore is left, with the reason.
     const db = serviceClient();

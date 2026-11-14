@@ -101,6 +101,10 @@ export type PeopleErrorKey =
   | "invalid_transition"
   | "reason_too_short"
   | "reason_too_long"
+  | "live_subscription"
+  | "active_trip"
+  | "upcoming_trips"
+  | "no_request"
   | "generic";
 
 /**
@@ -109,7 +113,12 @@ export type PeopleErrorKey =
  */
 export function peopleErrorKey(code: string | undefined, message?: string): PeopleErrorKey {
   if (code === "22023" && (message === "reason_too_short" || message === "reason_too_long" || message === "role_family")) return message;
-  if (code === "55000" && (message === "account_not_active" || message === "last_admin" || message === "invalid_transition")) return message;
+  if (
+    code === "55000" &&
+    (message === "account_not_active" || message === "last_admin" || message === "invalid_transition" || message === "live_subscription" || message === "active_trip" || message === "upcoming_trips")
+  )
+    return message;
+  if (code === "P0002" && message === "no_request") return message;
   switch (code) {
     case "42501":
       return "self";
@@ -125,14 +134,29 @@ export function peopleErrorKey(code: string | undefined, message?: string): Peop
 export function isPeopleErrorKey(value: string | undefined): value is PeopleErrorKey {
   return (
     typeof value === "string" &&
-    ["self", "invalid", "not_found", "role_family", "account_not_active", "last_admin", "invalid_transition", "reason_too_short", "reason_too_long", "generic"].includes(value)
+    [
+      "self",
+      "invalid",
+      "not_found",
+      "role_family",
+      "account_not_active",
+      "last_admin",
+      "invalid_transition",
+      "reason_too_short",
+      "reason_too_long",
+      "live_subscription",
+      "active_trip",
+      "upcoming_trips",
+      "no_request",
+      "generic",
+    ].includes(value)
   );
 }
 
-export type PeopleDone = "role" | "suspended" | "restored" | "verified" | "declined" | "withdrawn";
+export type PeopleDone = "role" | "suspended" | "restored" | "verified" | "declined" | "withdrawn" | "staffApproved" | "staffDeclined";
 
 export function isPeopleDone(value: string | undefined): value is PeopleDone {
-  return value === "role" || value === "suspended" || value === "restored" || value === "verified" || value === "declined" || value === "withdrawn";
+  return ["role", "suspended", "restored", "verified", "declined", "withdrawn", "staffApproved", "staffDeclined"].includes(value ?? "");
 }
 
 /** The longest reason an admin can give when declining a request to join (the database keeps the same limit). */

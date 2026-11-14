@@ -613,6 +613,72 @@ abstract class BusinL10n {
   /// **'No app on this phone can open this.'**
   String get schoolLinkFailed;
 
+  /// No description provided for @opsStaffAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask for staff access'**
+  String get opsStaffAsk;
+
+  /// No description provided for @opsStaffChooseSchool.
+  ///
+  /// In en, this message translates to:
+  /// **'Which school do you work for?'**
+  String get opsStaffChooseSchool;
+
+  /// No description provided for @opsStaffChooseHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Its administrators decide. You can withdraw the request at any time.'**
+  String get opsStaffChooseHint;
+
+  /// No description provided for @opsStaffWithdraw.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw the request'**
+  String get opsStaffWithdraw;
+
+  /// No description provided for @opsStaffAskAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask again'**
+  String get opsStaffAskAgain;
+
+  /// No description provided for @opsStaffSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Request sent'**
+  String get opsStaffSent;
+
+  /// No description provided for @opsStaffTooSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Wait a few seconds before asking again.'**
+  String get opsStaffTooSoon;
+
+  /// No description provided for @opsStaffNoSchools.
+  ///
+  /// In en, this message translates to:
+  /// **'No school is available to ask right now.'**
+  String get opsStaffNoSchools;
+
+  /// No description provided for @opsStaffWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Your request is with {school}. Its administrators will review it, and the app opens as soon as they approve.'**
+  String opsStaffWaiting(String school);
+
+  /// No description provided for @opsStaffDeclined.
+  ///
+  /// In en, this message translates to:
+  /// **'{school} declined your request.'**
+  String opsStaffDeclined(String school);
+
+  /// No description provided for @opsStaffDeclinedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Their note: {note}'**
+  String opsStaffDeclinedNote(String note);
+
   /// No description provided for @signInWithGoogle.
   ///
   /// In en, this message translates to:
@@ -2494,7 +2560,7 @@ abstract class BusinL10n {
   /// No description provided for @opsNotStaffBody.
   ///
   /// In en, this message translates to:
-  /// **'Students use the BusIn app to show their boarding code. If you should have staff access, ask your school\'s administrator.'**
+  /// **'Students use the BusIn app to show their boarding code. If you work for a school, ask it for staff access below.'**
   String get opsNotStaffBody;
 
   /// No description provided for @opsProblemTitle.

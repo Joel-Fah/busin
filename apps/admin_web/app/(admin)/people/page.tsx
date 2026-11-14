@@ -38,7 +38,7 @@ import {
 } from "@/lib/people";
 import { createClient } from "@/lib/supabase/server";
 
-import { cancelInvite, declineMember, verifyMember } from "./actions";
+import { approveStaffRequest, cancelInvite, declineMember, declineStaffRequest, verifyMember } from "./actions";
 
 export const metadata: Metadata = { title: "People" };
 
@@ -115,9 +115,11 @@ async function PeopleList({ searchParams }: { searchParams: SearchParams }) {
   if (q) toVerify = toVerify.or(searchFilter(q));
 
   // Counts only, no rows: one per role for the numbers on the tabs, following the search.
-  const [listed, verifyCount, invitedTotal, invites, ...counted] = await Promise.all([
+  const [listed, verifyCount, staffAsked, invitedTotal, invites, ...counted] = await Promise.all([
     request,
     toVerify,
+    // Staff access requests (ADR 0026): the requester may not belong to the school yet, so they come from a function.
+    supabase.rpc("admin_staff_requests"),
     invitedCount,
     inviting ? invitedRows : Promise.resolve({ data: [] as { email: string; role: "student" | "staff" | "admin"; expires_at: string }[] }),
     ...ROLES.map((r) => {
@@ -126,7 +128,13 @@ async function PeopleList({ searchParams }: { searchParams: SearchParams }) {
       return counting;
     }),
   ]);
-  const counts = roleTabCounts(Object.fromEntries(ROLES.map((r, index) => [r, counted[index].count])), verifyCount.count, invitedTotal.count);
+  const plainQ = q.toLowerCase();
+  const staffRequests = (staffAsked.data ?? []).filter((r) => !plainQ || `${r.full_name} ${r.email}`.toLowerCase().includes(plainQ));
+  const counts = roleTabCounts(
+    Object.fromEntries(ROLES.map((r, index) => [r, counted[index].count])),
+    (verifyCount.count ?? 0) + staffRequests.length,
+    invitedTotal.count,
+  );
 
   // A page past the last one is not a failure: the database answers "range not satisfiable" and there is nothing there.
   const { data, count } = listed;
@@ -193,6 +201,66 @@ async function PeopleList({ searchParams }: { searchParams: SearchParams }) {
 
       {done ? <FlashToast message={t.people.done[done]} /> : null}
       {errorKey ? <Notice tone="bad">{t.people.errors[errorKey]}</Notice> : null}
+      {verifying && staffRequests.length > 0 ? (
+        <section className="flex flex-col gap-3" aria-labelledby="staff-requests">
+          <h2 id="staff-requests" className="text-xl font-bold">
+            {t.people.staffRequests.title}
+          </h2>
+          <p className="max-w-2xl text-sm text-muted">{t.people.staffRequests.intro}</p>
+          <TableCard>
+            <DataTable minWidth="40rem">
+              <Head>
+                <Th>{t.people.columns.person}</Th>
+                <Th>{t.people.columns.asked}</Th>
+                <Th>{t.people.columns.actions}</Th>
+              </Head>
+              <tbody>
+                {staffRequests.map((r) => (
+                  <Tr key={r.id}>
+                    <Td>
+                      <div className="flex items-center gap-3">
+                        <Avatar name={r.full_name || r.email} url={null} size={40} />
+                        <div className="min-w-0">
+                          {r.student_here ? (
+                            <Link href={`/people/${r.id}`} className="font-semibold text-fg no-underline hover:text-link">
+                              {r.full_name || r.email}
+                            </Link>
+                          ) : (
+                            <span className="font-semibold">{r.full_name || r.email}</span>
+                          )}
+                          <p className="text-xs break-all text-muted">{r.email}</p>
+                          <span className="mt-1 flex flex-wrap gap-1.5">
+                            <Chip tone={r.student_here ? "info" : "neutral"}>{r.student_here ? t.people.staffRequests.studentHere : t.people.staffRequests.newAccount}</Chip>
+                            {r.live_subscription ? <Chip tone="warn">{t.people.staffRequests.liveSubscription}</Chip> : null}
+                          </span>
+                        </div>
+                      </div>
+                    </Td>
+                    <Td className="text-muted">{formatDate(r.requested_at, locale, admin.schoolTimezone)}</Td>
+                    <Td>
+                      {r.live_subscription ? <p className="m-0 mb-2 text-xs text-muted">{t.people.staffRequests.liveHint}</p> : null}
+                      <JoinRequestActions
+                        id={r.id}
+                        copy={{
+                          ...t.people.verify,
+                          verify: t.people.staffRequests.approve,
+                          declineTitle: t.people.staffRequests.declineTitle,
+                          declineBody: t.people.staffRequests.declineBody,
+                          reasonPlaceholder: t.people.staffRequests.reasonPlaceholder,
+                          reasonHint: t.people.staffRequests.reasonHint,
+                          presets: t.people.staffRequests.presets,
+                        }}
+                        verify={approveStaffRequest}
+                        decline={declineStaffRequest}
+                      />
+                    </Td>
+                  </Tr>
+                ))}
+              </tbody>
+            </DataTable>
+          </TableCard>
+        </section>
+      ) : null}
       {verifying ? <p className="max-w-2xl text-sm text-muted">{t.people.verify.intro}</p> : null}
       {inviting ? <p className="max-w-2xl text-sm text-muted">{t.people.invite.tabIntro}</p> : null}
 
@@ -240,7 +308,10 @@ async function PeopleList({ searchParams }: { searchParams: SearchParams }) {
       ) : error ? (
         <Notice tone="bad">{t.people.loadError}</Notice>
       ) : rows.length === 0 ? (
-        <EmptyState illustration={verifying ? "/illustrations/verified.webp" : "/illustrations/staff.webp"} title={verifying && !q ? t.people.verify.empty : t.people.empty} />
+        // Staff requests shown above: the join list being empty is not "no one is waiting".
+        verifying && staffRequests.length > 0 ? null : (
+          <EmptyState illustration={verifying ? "/illustrations/verified.webp" : "/illustrations/staff.webp"} title={verifying && !q ? t.people.verify.empty : t.people.empty} />
+        )
       ) : (
         <>
           <TableCard>

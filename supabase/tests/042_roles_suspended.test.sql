@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(28);
+select plan(29);
 
 insert into public.schools (id, name) values ('10000000-0000-4000-8000-000000000001', 'School A');
 insert into public.school_domains (domain, school_id) values ('a.edu', '10000000-0000-4000-8000-000000000001');
@@ -28,12 +28,13 @@ insert into public.trips (id, school_id, bus_id, direction, scheduled_start) val
 set local role authenticated;
 set local "request.jwt.claims" = '{"sub":"a3000000-0000-4000-8000-000000000001","role":"authenticated"}';
 
--- ---------------------------------------------------------------- roles: staff and administrator are one family, students another
+-- ---------------------------------------------------------------- roles: student and staff switch (ADR 0026), never student and administrator
 select lives_ok($$select public.admin_set_user_role('a2000000-0000-4000-8000-000000000001', 'admin')$$, 'staff can become an administrator');
 select lives_ok($$select public.admin_set_user_role('a2000000-0000-4000-8000-000000000001', 'staff')$$, 'and back');
-select throws_ok($$select public.admin_set_user_role('a1000000-0000-4000-8000-000000000001', 'staff')$$, '22023', 'role_family', 'a student cannot become staff');
+select throws_ok($$select public.admin_set_user_role('a1000000-0000-4000-8000-000000000001', 'staff')$$, '55000', 'live_subscription', 'a student with a live subscription does not become staff');
 select throws_ok($$select public.admin_set_user_role('a1000000-0000-4000-8000-000000000001', 'admin')$$, '22023', 'role_family', 'nor an administrator');
-select throws_ok($$select public.admin_set_user_role('a2000000-0000-4000-8000-000000000001', 'student')$$, '22023', 'role_family', 'staff cannot become a student');
+select lives_ok($$select public.admin_set_user_role('a2000000-0000-4000-8000-000000000001', 'student')$$, 'staff without trips can become a student');
+select lives_ok($$select public.admin_set_user_role('a2000000-0000-4000-8000-000000000001', 'staff')$$, 'and staff again');
 select throws_ok($$select public.admin_set_user_role('a3000000-0000-4000-8000-000000000002', 'student')$$, '22023', 'role_family', 'nor an administrator');
 select lives_ok($$select public.admin_set_user_role('a1000000-0000-4000-8000-000000000001', 'student')$$, 'a student staying a student is no change and no problem');
 
