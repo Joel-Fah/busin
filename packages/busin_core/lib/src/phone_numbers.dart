@@ -85,6 +85,19 @@ class PhoneNumbers {
     }
   }
 
+  /// A number written with its `+` and code (pasted, or a saved E.164) split into its country and its national digits,
+  /// even before it is complete. Null when no country can be told from it.
+  static ({String country, String national})? splitInternational(String text) {
+    final value = text.trim();
+    if (!value.startsWith('+')) return null;
+    try {
+      final number = pn.PhoneNumber.parse(value);
+      return (country: number.isoCode.name, national: number.nsn);
+    } on pn.PhoneNumberException {
+      return null;
+    }
+  }
+
   /// [national] digits as the country writes them while they are typed (`6 77 12 34 56`).
   static String formatTyping(String national, String country) {
     final digits = national.replaceAll(RegExp(r'[^0-9]'), '');

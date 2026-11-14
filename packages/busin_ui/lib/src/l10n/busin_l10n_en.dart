@@ -152,7 +152,8 @@ class BusinL10nEn extends BusinL10n {
   String get fieldPhone => 'Phone number';
 
   @override
-  String get fieldPhoneHint => 'For example 677 12 34 56';
+  String get fieldPhoneHint =>
+      'Choose your country, then type your number. No need for the country code.';
 
   @override
   String get fieldDepartment => 'Department';
@@ -1208,22 +1209,6 @@ class BusinL10nEn extends BusinL10n {
       'Your bus is a few minutes from your stop.';
 
   @override
-  String get areaIntroTitle => 'One more thing: where do you live?';
-
-  @override
-  String get areaIntroSkip => 'Not now';
-
-  @override
-  String get areaPromptTitle => 'Add your area';
-
-  @override
-  String get areaPromptBody =>
-      'Say roughly where you live so your school can place stops near students. Rounded to about 500 metres, never tracked.';
-
-  @override
-  String get areaPromptAdd => 'Add my area';
-
-  @override
   String get areaTitle => 'My area';
 
   @override
@@ -1892,6 +1877,31 @@ class BusinL10nEn extends BusinL10n {
   @override
   String get opsPushCrewAssigned =>
       'You were added to a trip. It is in your trips.';
+
+  @override
+  String get phoneCountry => 'Country';
+
+  @override
+  String get phoneSearch => 'Search a country';
+
+  @override
+  String get phoneNoMatch => 'No country matches.';
+
+  @override
+  String get areaIntroTitle => 'One more thing: where do you live?';
+
+  @override
+  String get areaIntroSkip => 'Not now';
+
+  @override
+  String get areaPromptTitle => 'Add your area';
+
+  @override
+  String get areaPromptBody =>
+      'Say roughly where you live so your school can place stops near students. Rounded to about 500 metres, never tracked.';
+
+  @override
+  String get areaPromptAdd => 'Add my area';
 
   @override
   String subscribePriceSemester(String price) {

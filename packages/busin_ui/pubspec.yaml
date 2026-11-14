@@ -32,6 +32,8 @@ flutter:
     - assets/brand/
     - assets/photos/
     - assets/textures/
+    # Country flags for the phone field (country-flag-icons, MIT), the same files as the web: tools/make-countries.mjs.
+    - assets/flags/
   # Plus Jakarta Sans, the same typeface as the admin portal (SIL Open Font Licence, see assets/fonts/OFL.txt).
   fonts:
     - family: PlusJakartaSans

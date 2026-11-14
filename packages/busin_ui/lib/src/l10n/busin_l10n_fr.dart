@@ -153,7 +153,8 @@ class BusinL10nFr extends BusinL10n {
   String get fieldPhone => 'Numéro de téléphone';
 
   @override
-  String get fieldPhoneHint => 'Par exemple 677 12 34 56';
+  String get fieldPhoneHint =>
+      'Choisissez votre pays, puis saisissez votre numéro. Pas besoin de l’indicatif.';
 
   @override
   String get fieldDepartment => 'Département';
@@ -1228,22 +1229,6 @@ class BusinL10nFr extends BusinL10n {
       'Votre bus est à quelques minutes de votre arrêt.';
 
   @override
-  String get areaIntroTitle => 'Une dernière chose : où habitez-vous ?';
-
-  @override
-  String get areaIntroSkip => 'Plus tard';
-
-  @override
-  String get areaPromptTitle => 'Ajoutez votre zone';
-
-  @override
-  String get areaPromptBody =>
-      'Indiquez à peu près où vous habitez pour que votre école place les arrêts près des étudiants. Arrondi à environ 500 mètres, jamais suivi.';
-
-  @override
-  String get areaPromptAdd => 'Ajouter ma zone';
-
-  @override
   String get areaTitle => 'Ma zone';
 
   @override
@@ -1925,6 +1910,31 @@ class BusinL10nFr extends BusinL10n {
   @override
   String get opsPushCrewAssigned =>
       'Vous avez été ajouté à un trajet. Il est dans vos trajets.';
+
+  @override
+  String get phoneCountry => 'Pays';
+
+  @override
+  String get phoneSearch => 'Rechercher un pays';
+
+  @override
+  String get phoneNoMatch => 'Aucun pays ne correspond.';
+
+  @override
+  String get areaIntroTitle => 'Une dernière chose : où habitez-vous ?';
+
+  @override
+  String get areaIntroSkip => 'Plus tard';
+
+  @override
+  String get areaPromptTitle => 'Ajoutez votre zone';
+
+  @override
+  String get areaPromptBody =>
+      'Indiquez à peu près où vous habitez pour que votre école place les arrêts près des étudiants. Arrondi à environ 500 mètres, jamais suivi.';
+
+  @override
+  String get areaPromptAdd => 'Ajouter ma zone';
 
   @override
   String subscribePriceSemester(String price) {

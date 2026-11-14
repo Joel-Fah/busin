@@ -2,7 +2,7 @@
 // two-letter code, the dialling code and the name in English and French. Codes and dialling codes come from the
 // libphonenumber metadata, names from the platform's Intl (CLDR). Run after updating libphonenumber-js:
 //   node tools/make-countries.mjs
-// It also copies their flags (country-flag-icons, MIT) to apps/admin_web/public/flags.
+// It also copies their flags (country-flag-icons, MIT) to apps/admin_web/public/flags and packages/busin_ui/assets/flags.
 import { copyFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
@@ -31,13 +31,14 @@ const dart = `// ${header}\n\n/// A country for the phone field: two-letter code
 writeFileSync(path.join(root, 'packages/busin_ui/lib/src/phone/countries.dart'), dart);
 // The flags, as small SVG files served from the portal (emoji flags are not allowed here): only those in the list.
 const flags = path.join(path.dirname(require.resolve('country-flag-icons/package.json')), '3x2');
-const out = path.join(root, 'apps/admin_web/public/flags');
-mkdirSync(out, { recursive: true });
+// The same files on the web (public/flags) and in the Flutter apps (busin_ui assets), so both show the same flags.
+const outs = [path.join(root, 'apps/admin_web/public/flags'), path.join(root, 'packages/busin_ui/assets/flags')];
+for (const out of outs) mkdirSync(out, { recursive: true });
 let copied = 0;
 for (const { code } of countries) {
   const file = path.join(flags, `${code}.svg`);
   if (existsSync(file)) {
-    copyFileSync(file, path.join(out, `${code}.svg`));
+    for (const out of outs) copyFileSync(file, path.join(out, `${code}.svg`));
     copied++;
   }
 }

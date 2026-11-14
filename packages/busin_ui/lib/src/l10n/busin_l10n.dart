@@ -370,7 +370,7 @@ abstract class BusinL10n {
   /// No description provided for @fieldPhoneHint.
   ///
   /// In en, this message translates to:
-  /// **'For example 677 12 34 56'**
+  /// **'Choose your country, then type your number. No need for the country code.'**
   String get fieldPhoneHint;
 
   /// No description provided for @fieldDepartment.
@@ -2167,36 +2167,6 @@ abstract class BusinL10n {
   /// **'Your bus is a few minutes from your stop.'**
   String get pushForegroundBusNear;
 
-  /// No description provided for @areaIntroTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'One more thing: where do you live?'**
-  String get areaIntroTitle;
-
-  /// No description provided for @areaIntroSkip.
-  ///
-  /// In en, this message translates to:
-  /// **'Not now'**
-  String get areaIntroSkip;
-
-  /// No description provided for @areaPromptTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Add your area'**
-  String get areaPromptTitle;
-
-  /// No description provided for @areaPromptBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Say roughly where you live so your school can place stops near students. Rounded to about 500 metres, never tracked.'**
-  String get areaPromptBody;
-
-  /// No description provided for @areaPromptAdd.
-  ///
-  /// In en, this message translates to:
-  /// **'Add my area'**
-  String get areaPromptAdd;
-
   /// No description provided for @areaTitle.
   ///
   /// In en, this message translates to:
@@ -3324,6 +3294,54 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'You were added to a trip. It is in your trips.'**
   String get opsPushCrewAssigned;
+
+  /// No description provided for @phoneCountry.
+  ///
+  /// In en, this message translates to:
+  /// **'Country'**
+  String get phoneCountry;
+
+  /// No description provided for @phoneSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search a country'**
+  String get phoneSearch;
+
+  /// No description provided for @phoneNoMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No country matches.'**
+  String get phoneNoMatch;
+
+  /// No description provided for @areaIntroTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'One more thing: where do you live?'**
+  String get areaIntroTitle;
+
+  /// No description provided for @areaIntroSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get areaIntroSkip;
+
+  /// No description provided for @areaPromptTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your area'**
+  String get areaPromptTitle;
+
+  /// No description provided for @areaPromptBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Say roughly where you live so your school can place stops near students. Rounded to about 500 metres, never tracked.'**
+  String get areaPromptBody;
+
+  /// No description provided for @areaPromptAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add my area'**
+  String get areaPromptAdd;
 
   /// No description provided for @subscribePriceSemester.
   ///

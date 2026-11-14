@@ -42,6 +42,12 @@ void main() {
     expect(PhoneNumbers.callingCode('CM'), '237');
   });
 
+  test('a pasted full number gives its country and national digits', () {
+    expect(PhoneNumbers.splitInternational('+44 7400 123456'), (country: 'GB', national: '7400123456'));
+    expect(PhoneNumbers.splitInternational('+237677123456'), (country: 'CM', national: '677123456'));
+    expect(PhoneNumbers.splitInternational('677123456'), isNull);
+  });
+
   test('typing is formatted the way the country writes it', () {
     expect(PhoneNumbers.formatTyping('677123456', 'CM').replaceAll(' ', ''), '677123456');
     expect(PhoneNumbers.formatTyping('677123456', 'CM'), contains(' '));
