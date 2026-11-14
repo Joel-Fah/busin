@@ -14,11 +14,12 @@ const SIZES = {
  */
 export function SchoolLogo({ url, size = "sm", fallback, className = "" }: { url: string | null | undefined; size?: keyof typeof SIZES; fallback: ReactNode; className?: string }) {
   return (
-    <span className={`inline-grid shrink-0 place-items-center bg-white ${SIZES[size]} ${className}`} data-testid="school-logo">
+    // A flex box of fixed height: the logo's max height resolves against it, so a 512 px file shrinks to fit, in proportion.
+    <span className={`inline-flex shrink-0 items-center justify-center overflow-hidden bg-white ${SIZES[size]} ${className}`} data-testid="school-logo">
       {url ? (
         // A public logo file (a Supabase host or a local preview); already small.
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={url} alt="" className="max-h-full max-w-full object-contain" />
+        <img src={url} alt="" className="block h-auto max-h-full w-auto max-w-full object-contain" />
       ) : (
         fallback
       )}
