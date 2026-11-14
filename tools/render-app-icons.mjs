@@ -31,6 +31,8 @@ const apps = {
     // The native splash: the wordmark at 144 dp (576 px at 4x) in the middle of a 288 dp canvas, which is what Android 12
     // draws its splash icon in. The app's opening animation draws the same mark at the same 144 dp, so the hand-off is seamless.
     ["../splash/wordmark.png", { background: "transparent", colour: WHITE, width: 576, canvas: 1152 }],
+    // The same in deep teal, for the light-theme splash (the page's light background).
+    ["../splash/wordmark-teal.png", { background: "transparent", colour: SEED, width: 576, canvas: 1152 }],
   ],
   // The ops app: the same mark on the brand orange, so staff tell the two apps apart at a glance.
   ops: [
