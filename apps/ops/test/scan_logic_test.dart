@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:busin_core/busin_core.dart';
@@ -5,6 +6,7 @@ import 'package:busin_ops/src/keys/roster.dart';
 import 'package:busin_ops/src/queue/scan_queue.dart';
 import 'package:busin_ops/src/queue/scan_sync.dart';
 import 'package:busin_ops/src/scan/scan_decision.dart';
+import 'package:busin_ops/src/scan/scan_sound.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -68,6 +70,36 @@ QueuedScan queued(String id, {int minutes = 0, String student = ada}) =>
     QueuedScan(clientId: id, tripId: 't1', code: 'busin2.x', studentId: student, scannedAt: now.add(Duration(minutes: minutes)));
 
 void main() {
+  group('the sound for each result', () {
+    test('the phone\'s own decisions', () {
+      final ada1 = rider(ada, 1);
+      expect(soundForDecision(Admit(ada1)), ScanSound.admit);
+      expect(soundForDecision(AlreadyOnBoard(ada1)), ScanSound.again);
+      expect(soundForDecision(const Refuse(RefusalKind.invalid)), ScanSound.suspect, reason: 'fake or tampered');
+      expect(soundForDecision(const Refuse(RefusalKind.expired)), ScanSound.suspect, reason: 'an old code is likely a screenshot');
+      expect(soundForDecision(const Refuse(RefusalKind.notOnList)), ScanSound.refused);
+      expect(soundForDecision(const Refuse(RefusalKind.noKeys)), ScanSound.error);
+      expect(soundForDecision(const AskServer()), isNull, reason: 'the server\'s answer gets the sound');
+    });
+
+    test('the server\'s answers', () {
+      const student = StudentSummary(fullName: 'Ada', matricule: 'M1');
+      expect(soundForOutcome(const ScanAccepted(student: student, duplicate: false)), ScanSound.admit);
+      expect(soundForOutcome(const ScanAccepted(student: student, duplicate: true)), ScanSound.again);
+      expect(soundForOutcome(const ScanRefused(ScanFailure.invalidCode)), ScanSound.suspect);
+      expect(soundForOutcome(const ScanRefused(ScanFailure.expiredCode)), ScanSound.suspect);
+      for (final reason in [ScanFailure.studentNotFound, ScanFailure.accountNotVerified, ScanFailure.noActiveSubscription]) {
+        expect(soundForOutcome(ScanRefused(reason)), ScanSound.refused, reason: reason.name);
+      }
+    });
+
+    test('every sound has its file', () {
+      for (final sound in ScanSound.values) {
+        expect(File('assets/${sound.asset}').existsSync(), isTrue, reason: sound.asset);
+      }
+    });
+  });
+
   group('the decision at the door, offline', () {
     test('a current code of a rider on today\'s list is let on', () {
       final decision = decide(codeOf(ada, 1), list: roster());

@@ -115,7 +115,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: Routes.start, builder: (_, _) => const LandingScreen()),
       GoRoute(path: Routes.history, builder: (_, _) => const HistoryPage()),
       GoRoute(path: Routes.notifications, builder: (_, _) => const NotificationsScreen()),
-      GoRoute(path: Routes.area, builder: (_, _) => const MyAreaScreen()),
+      GoRoute(path: Routes.area, builder: (_, state) => MyAreaScreen(intro: state.uri.queryParameters['intro'] == '1')),
       GoRoute(
         path: '${Routes.legal}/:doc',
         builder: (_, state) {
