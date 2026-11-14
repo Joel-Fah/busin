@@ -18,6 +18,9 @@ dependencies:
   path_drawing: ^1.0.1
   hugeicons: ^1.1.1
   intl: any
+  # Opens a school's email, phone numbers and website in the phone's own apps (the school sheet). The Flutter team's
+  # plugin; 6.3.2 is the version the legacy app already used.
+  url_launcher: 6.3.2
 
 dev_dependencies:
   flutter_test:
@@ -32,6 +35,8 @@ flutter:
     - assets/brand/
     - assets/photos/
     - assets/textures/
+    # Country flags for the phone field (country-flag-icons, MIT), the same files as the web: tools/make-countries.mjs.
+    - assets/flags/
   # Plus Jakarta Sans, the same typeface as the admin portal (SIL Open Font Licence, see assets/fonts/OFL.txt).
   fonts:
     - family: PlusJakartaSans

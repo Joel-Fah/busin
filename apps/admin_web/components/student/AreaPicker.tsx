@@ -13,6 +13,7 @@ import { useToast } from "@/components/ui/Toast";
 import { format } from "@/lib/i18n/format";
 import type { StudentCopy } from "@/lib/i18n/student";
 import { roundCoordinate } from "@/lib/student/area";
+import { markAreaOffered } from "@/lib/student/area-offer";
 import { browserClient } from "@/lib/supabase/browser";
 import { Contour } from "@/components/ui/Contour";
 
@@ -24,7 +25,7 @@ type Chosen = { lat: number; lng: number; label: string; source: "device" | "sea
  * location, rounded here before it is sent. A browser cannot ask for an approximate position only, so the rounding is
  * done before saving. The student names it and saves; they can remove it.
  */
-export function AreaPicker({ copy, current }: { copy: StudentCopy["area"]; current: string | null }) {
+export function AreaPicker({ copy, current, next = null }: { copy: StudentCopy["area"]; current: string | null; next?: string | null }) {
   const router = useRouter();
   const toast = useToast();
   const [query, setQuery] = useState("");
@@ -34,6 +35,11 @@ export function AreaPicker({ copy, current }: { copy: StudentCopy["area"]; curre
   const [asking, setAsking] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  // Shown as the invitation after setup: offered once is enough, here or as a card.
+  useEffect(() => {
+    if (next) markAreaOffered();
+  }, [next]);
 
   useEffect(() => {
     const q = query.trim();
@@ -75,6 +81,10 @@ export function AreaPicker({ copy, current }: { copy: StudentCopy["area"]; curre
       return;
     }
     toast(copy.saved, { tone: "ok" });
+    if (next) {
+      router.replace(next);
+      return;
+    }
     setChosen(null);
     setQuery("");
     setPlaces(null);

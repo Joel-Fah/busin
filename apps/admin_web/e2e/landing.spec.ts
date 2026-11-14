@@ -25,7 +25,9 @@ test.describe("the landing page", () => {
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /^https?:\/\/[^/]+\/?$/);
 
     const robots = await (await request.get("/robots.txt")).text();
-    expect(robots).toContain("Disallow: /login");
+    // Everything is closed but the public pages (the portal and sign-in included).
+    expect(robots).toMatch(/^Disallow: \/$/m);
+    expect(robots).toContain("Allow: /landing");
     expect(robots).toContain("Sitemap:");
     const sitemap = await (await request.get("/sitemap.xml")).text();
     expect(sitemap).toContain("<loc>");
@@ -186,3 +188,17 @@ test.describe("signed in", () => {
     await expect(page.getByRole("navigation").getByRole("link", { name: "Subscriptions" })).toBeVisible();
   });
 });
+
+test("the landing's pictures are never selected, dragged or long-pressed", async ({ page }) => {
+  await page.goto("/");
+  const image = page.locator("[data-landing] img").first();
+  await expect(image).toBeVisible();
+  const style = await image.evaluate((el) => {
+    const css = getComputedStyle(el);
+    return { select: css.userSelect, callout: (css as unknown as Record<string, string>).webkitTouchCallout ?? "none" };
+  });
+  expect(style.select).toBe("none");
+  const dragged = await image.evaluate((el) => !el.dispatchEvent(new DragEvent("dragstart", { bubbles: true, cancelable: true })));
+  expect(dragged, "the drag is stopped").toBe(true);
+});
+

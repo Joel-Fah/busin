@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'dart:typed_data';
 
@@ -38,6 +39,11 @@ class SupabaseProfileRepository implements ProfileRepository {
         final changes = Profile.editableJson(fullName: fullName, phone: phone, matricule: matricule, academic: academic);
         final row = await _client.from('profiles').update(changes).eq('id', userId).select(Columns.profile).single();
         return Profile.fromJson(row);
+      });
+
+  @override
+  Future<void> setPaymentPreference(PaymentMode? preference) => guarded(() async {
+        await _client.rpc<void>('set_payment_preference', params: {'p_preference': preference?.name});
       });
 
   @override
@@ -133,6 +139,41 @@ class SupabaseStreaksRepository implements StreaksRepository {
   Future<List<LeaderboardEntry>> leaderboard(String semesterId, {int limit = 50}) => guarded(() async {
         final rows = await _client.rpc<List<dynamic>>('school_leaderboard', params: {'p_semester_id': semesterId, 'p_limit': limit});
         return rows.cast<Map<String, dynamic>>().map(LeaderboardEntry.fromJson).toList(growable: false);
+      });
+}
+
+class SupabaseInstallmentsRepository implements InstallmentsRepository {
+  SupabaseInstallmentsRepository(this._client);
+  final SupabaseClient _client;
+
+  @override
+  Future<List<Installment>> forSubscriptions(List<String> subscriptionIds) => guarded(() async {
+        if (subscriptionIds.isEmpty) return const [];
+        final rows = await _client
+            .from('subscription_installments')
+            .select(Columns.installment)
+            .inFilter('subscription_id', subscriptionIds)
+            .order('subscription_id')
+            .order('seq')
+            .limit(100);
+        return rows.map(Installment.fromJson).toList(growable: false);
+      });
+
+  @override
+  Future<void> submitProof({required String installmentId, required String proofPath}) => guarded(() async {
+        await _client.rpc<void>('submit_installment_proof', params: {'p_installment': installmentId, 'p_path': proofPath});
+      });
+
+  @override
+  Future<List<InstallmentReceipt>> receiptsFor(List<String> subscriptionIds) => guarded(() async {
+        if (subscriptionIds.isEmpty) return const [];
+        final rows = await _client
+            .from('installment_receipts')
+            .select(Columns.installmentReceipt)
+            .inFilter('subscription_id', subscriptionIds)
+            .order('sent_at')
+            .limit(200);
+        return rows.map(InstallmentReceipt.fromJson).toList(growable: false);
       });
 }
 
@@ -366,6 +407,46 @@ class SupabaseQrRepository implements QrRepository {
 class SupabaseTripsRepository implements TripsRepository {
   SupabaseTripsRepository(this._client);
   final SupabaseClient _client;
+
+  @override
+  Stream<String> watchCrewNews(String staffId) {
+    RealtimeChannel? channel;
+    late final StreamController<String> controller;
+    controller = StreamController<String>(
+      onListen: () {
+        void heard(PostgresChangePayload payload) {
+          final row = payload.newRecord;
+          final id = row['id'];
+          if (id is! String) return;
+          final news = switch (payload.eventType) {
+            PostgresChangeEvent.insert => row['started_by'] != staffId,
+            PostgresChangeEvent.update => row['status'] == 'scheduled',
+            _ => false,
+          };
+          if (news) controller.add(id);
+        }
+
+        // One channel, two filters: as the driver and as the assistant. Row Level Security applies to Realtime too.
+        var c = _client.channel('crew-news-$staffId');
+        for (final column in const ['driver_id', 'assistant_id']) {
+          c = c.onPostgresChanges(
+            event: PostgresChangeEvent.all,
+            schema: 'public',
+            table: 'trips',
+            filter: PostgresChangeFilter(type: PostgresChangeFilterType.eq, column: column, value: staffId),
+            callback: heard,
+          );
+        }
+        channel = c..subscribe();
+      },
+      onCancel: () async {
+        final c = channel;
+        channel = null;
+        if (c != null) await _client.removeChannel(c);
+      },
+    );
+    return controller.stream;
+  }
 
   @override
   Future<List<Trip>> listForCrew(

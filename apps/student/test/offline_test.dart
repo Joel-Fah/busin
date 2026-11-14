@@ -237,6 +237,28 @@ void main() {
       expect(phone.secrets.data, isEmpty, reason: 'the refused pass loses the secret kept on the phone');
     });
 
+    testWidgets('airplane mode on an open screen shows the notice at once, from the saved copy', (tester) async {
+      final phone = await usedOnline(tester);
+      final profiles = students();
+      final backend = approvedBackend();
+      final network = StreamController<bool>.broadcast();
+      addTearDown(network.close);
+      await launch(tester, phone, profiles: profiles, backend: backend, connectivity: network.stream);
+      network.add(true);
+      await tester.pump();
+      expect(find.text('No connection'), findsNothing);
+
+      // Airplane mode: the server is out of reach, and the phone says the network is gone.
+      profiles.error = const Offline('x');
+      backend.readError = const Offline('x');
+      network.add(false);
+      for (var i = 0; i < 4; i++) {
+        await tester.pump(const Duration(milliseconds: 200));
+      }
+      expect(find.text('No connection'), findsOneWidget, reason: 'without waiting for the next read');
+      expect(find.text('Boarding code'), findsOneWidget, reason: 'the saved pass still shows');
+    });
+
     testWidgets('while everything is fresh there is no notice', (tester) async {
       await usedOnline(tester);
       expect(find.text('No connection'), findsNothing);

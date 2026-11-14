@@ -20,6 +20,12 @@ function laterChosen(): boolean {
   }
 }
 
+/** Whether the compact offer would show in this browser now, so other offers can wait their turn. */
+export function pushOfferShowing(): boolean {
+  const state = pushState();
+  return state !== "unconfigured" && state !== "on" && !laterChosen();
+}
+
 /**
  * The offer to turn on notifications, as the app's card: shown where waiting for something makes it useful (a pending
  * request, the notification settings). The browser's question comes only after the student taps. Hidden where push is

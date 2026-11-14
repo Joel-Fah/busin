@@ -92,6 +92,16 @@ void main() {
       expect(find.text('If you are staff or a driver'), findsOneWidget);
     });
 
+    testWidgets('the profile shows the school with its logo badge, which opens its details', (tester) async {
+      await open(tester, auth: FakeAuth(signedInAs: 'u1'), profiles: {'u1': staff()}, trips: FakeTrips([]));
+      await tester.tap(find.byTooltip('Profile and settings'));
+      await settle(tester);
+      expect(find.byType(SchoolBadge), findsOneWidget, reason: 'the logo badge, not a plain chip');
+      await tester.tap(find.text('Test School'));
+      await settle(tester);
+      expect(find.text('The school has not added its details yet.'), findsOneWidget);
+    });
+
     testWidgets('the profile shows who is signed in and keeps the scanning and driving choices', (tester) async {
       await open(tester, auth: FakeAuth(signedInAs: 'u1'), profiles: {'u1': staff()}, trips: FakeTrips([]));
       await tester.tap(find.byTooltip('Profile and settings'));
@@ -105,6 +115,12 @@ void main() {
       await tester.tap(find.text('Vibrate on each scan'));
       await settle(tester);
       expect(container.read(opsSettingsProvider).vibrate, isFalse);
+
+      expect(container.read(opsSettingsProvider).sound, isTrue, reason: 'scan sounds are on unless turned off');
+      await tester.scrollUntilVisible(find.text('Sound on each scan'), 200, scrollable: find.byType(Scrollable).first);
+      await tester.tap(find.text('Sound on each scan'));
+      await settle(tester);
+      expect(container.read(opsSettingsProvider).sound, isFalse);
 
       await tester.scrollUntilVisible(find.text('Offer to share the bus position when I start a trip'), 200, scrollable: find.byType(Scrollable).first);
       await tester.tap(find.text('Offer to share the bus position when I start a trip'));

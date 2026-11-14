@@ -11,6 +11,7 @@ import 'package:busin_ops/src/providers.dart';
 import 'package:busin_ops/src/queue/scan_queue.dart';
 import 'package:busin_ops/src/scan/scan_providers.dart';
 import 'package:busin_ops/src/scan/scanner_screen.dart';
+import 'package:busin_ops/src/scan/scan_sound.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 
@@ -92,6 +93,9 @@ class FakeProfiles implements ProfileRepository {
   }
 
   @override
+  Future<void> setPaymentPreference(PaymentMode? preference) => throw UnimplementedError('staff have no payment preference');
+
+  @override
   Stream<Profile> watchProfile(String userId) => Stream.multi((controller) {
         // As the real stream: the profile as it is now first, then the changes.
         final now = byId[userId];
@@ -113,6 +117,16 @@ class FakeSchools implements SchoolRepository {
 
 class FakeTrips implements TripsRepository {
   FakeTrips(this.trips);
+
+  /// Trips that become news for the crew, as the live feed delivers them.
+  final crewNews = StreamController<String>.broadcast();
+  int crewListeners = 0;
+
+  @override
+  Stream<String> watchCrewNews(String staffId) {
+    crewListeners++;
+    return crewNews.stream;
+  }
 
   final List<Trip> trips;
   final List<String> started = [];
@@ -349,6 +363,21 @@ class FakePositions implements LocationFeed {
   }
 }
 
+/// Records the scan sounds instead of playing them.
+class FakeSoundPlayer implements ScanSoundPlayer {
+  final played = <ScanSound>[];
+  var preloads = 0;
+
+  @override
+  Future<void> preload() async => preloads++;
+
+  @override
+  Future<void> play(ScanSound sound) async => played.add(sound);
+
+  @override
+  Future<void> dispose() async {}
+}
+
 /// The stand-in camera: tests call [feed] with what it "reads".
 late void Function(String code) feed;
 
@@ -371,8 +400,11 @@ List<Override> overridesFor({
   FakeSchools? schools,
   FakeBuses? buses,
   OpsSnapshotStore? snapshots,
+  FakeSoundPlayer? sounds,
   Duration? gateTimeout = const Duration(seconds: 15),
   bool online = true,
+  /// The network as the system reports it, when a test changes it while the app is open (else [online], fixed).
+  Stream<bool>? connectivity,
 }) =>
     [
       livePositionsRepositoryProvider.overrideWithValue(live ?? FakeLive()),
@@ -383,8 +415,11 @@ List<Override> overridesFor({
       stopsRepositoryProvider.overrideWithValue(FakeStops()),
       locationFeedProvider.overrideWithValue(positions ?? FakePositions()),
       scannerViewProvider.overrideWithValue(fakeCamera),
-      connectivityProvider.overrideWith((ref) => Stream.value(online)),
+      scanSoundPlayerProvider.overrideWithValue(sounds ?? FakeSoundPlayer()),
+      connectivityProvider.overrideWith((ref) => connectivity ?? Stream.value(online)),
       authServiceProvider.overrideWithValue(auth),
+      introEnabledProvider.overrideWithValue(false),
+      appConfigProvider.overrideWithValue(const AppConfig(supabaseUrl: 'http://127.0.0.1:54321', publishableKey: 'test', googleServerClientId: 'test', environment: 'test')),
       profileRepositoryProvider.overrideWithValue(profileRepository ?? FakeProfiles(profiles)),
       schoolRepositoryProvider.overrideWithValue(schools ?? FakeSchools()),
       opsSnapshotStoreProvider.overrideWithValue(snapshots ?? MemoryOpsSnapshotStore()),

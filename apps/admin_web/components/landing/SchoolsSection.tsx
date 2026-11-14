@@ -1,5 +1,6 @@
 import { Add01Icon, School01Icon, Tick02Icon } from "@hugeicons/core-free-icons";
 
+import { SchoolLogo } from "@/components/SchoolLogo";
 import { Contour } from "@/components/ui/Contour";
 import { Icon } from "@/components/ui/Icon";
 import type { LandingCopy } from "@/lib/i18n/landing";
@@ -45,14 +46,7 @@ export function SchoolsSection({ copy, schools }: { copy: LandingCopy["schools"]
               className={`relative flex flex-col justify-between gap-6 rounded-xl bg-seed p-6 text-white [--thread-color:rgb(255_255_255/0.22)] dark:bg-teal-900 ${i === 0 ? "col-span-2 sm:row-span-2" : ""}`}
             >
               <Contour radius={36} inset={10} />
-              <span className="relative grid size-16 place-items-center rounded-md bg-white text-lg font-black tracking-tight text-seed">
-                {school.logo ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- the school's public logo file, already 512 px WebP
-                  <img src={school.logo} alt="" width={64} height={64} className="size-12 object-contain" />
-                ) : (
-                  school.initials
-                )}
-              </span>
+              <SchoolLogo url={school.logo} size="md" className="relative text-lg font-black tracking-tight text-seed" fallback={school.initials} />
               <span className="relative flex flex-col gap-2">
                 <span className={`font-extrabold tracking-tight ${i === 0 ? "text-2xl" : "text-lg"}`}>{school.name}</span>
                 {school.city ? <span className="-mt-1 text-sm text-white/70">{school.city}</span> : null}

@@ -151,6 +151,8 @@ class _StatsBody extends StatelessWidget {
               ]),
           ],
           colors: [p.ok, p.warn, p.info, p.muted],
+          // Tapping a week says what its bar is made of, in the legend's words.
+          seriesLabels: [l10n.opsStatsLegendOnTime, l10n.opsStatsLegendLate, l10n.opsStatsLegendField, l10n.opsStatsLegendNotRun],
           semanticLabel: l10n.opsStatsTripsSummary(summary.trips, summary.onTime, summary.late, summary.fieldTrips, notRun),
         ),
         const SizedBox(height: BusinSpace.x3),

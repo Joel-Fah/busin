@@ -1,5 +1,6 @@
 import { QrCodeIcon } from "@hugeicons/core-free-icons";
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 import { Icon } from "@/components/ui/Icon";
 import { Chip } from "@/components/ui/Chip";
@@ -22,6 +23,7 @@ export function StatusCard({
   sentOn,
   proofUrl,
   requestAgainHref,
+  parts = null,
 }: {
   copy: StudentCopy["subscription"];
   subscription: SubscriptionRow;
@@ -29,6 +31,8 @@ export function StatusCard({
   sentOn: string;
   proofUrl: string | null;
   requestAgainHref: string | null;
+  /** Paid in installments (ADR 0022): the parts, shown under the stop. */
+  parts?: ReactNode;
 }) {
   const status = subscription.status;
   const title = { pending: copy.pendingTitle, approved: copy.approvedTitle, rejected: copy.rejectedTitle, revoked: copy.revokedTitle, expired: copy.expiredTitle }[status];
@@ -79,6 +83,7 @@ export function StatusCard({
           <p className="m-0 max-w-40 text-xs text-muted">{copy.proofUnavailable}</p>
         ) : null}
       </div>
+      {parts}
       {status === "approved" ? (
         <Link href="/app/code" className="inline-flex h-14 items-center justify-center gap-2 rounded-sm bg-accent px-5 font-semibold text-on-accent no-underline focus-visible:outline-3 focus-visible:outline-focus">
           <Icon icon={QrCodeIcon} size={20} />

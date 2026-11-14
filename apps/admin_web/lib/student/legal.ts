@@ -10,7 +10,7 @@ export type LegalDocument = { highlights: string[]; sections: LegalSection[] };
 export type LegalDoc = "terms" | "privacy" | "acceptable-use";
 
 /** When the texts were last changed. */
-export const LEGAL_UPDATED = "2026-11-11";
+export const LEGAL_UPDATED = "2026-11-14";
 
 const termsEn: LegalDocument = {
   highlights: [
@@ -120,6 +120,7 @@ const privacyEn: LegalDocument = {
       'A device token, if you allow notifications, so that we can send them, and which notifications you chose.',
       'Your streak, only if you turn streaks on.',
       'Your area, only if you add one in My area: a spot rounded to about 500 metres and its name, never your exact address.',
+      'If the phone app crashes, a crash report: what went wrong in the app, the phone model and system version, the app version and whether you are a student or staff. Never your name, email, code or location. Only from the apps you install, not the web app.',
     ]},
     { title: 'Why we keep it', bullets: [
       'To let your school review your request and decide.',
@@ -140,7 +141,7 @@ const privacyEn: LegalDocument = {
       'So the door works without a signal, a staff phone keeps, for that day only, the list of today\'s riders with those same details and a key valid for that day. It is deleted when the staff member signs out, and replaced the next day.',
       'Other students see nothing about you. If you turn streaks on, students of your school see your first name, the initial of your last name, your picture and your streak on the board; turn streaks off to leave it.',
       'No school sees another school\'s data.',
-      'We do not sell your data or share it with advertisers. We use service providers to run the app (hosting, sign-in, notifications) under the same duty of care.',
+      'We do not sell your data or share it with advertisers. We use service providers to run the app (hosting, sign-in, notifications, crash reports) under the same duty of care.',
     ]},
     { title: 'If you are staff or a driver', bullets: [
       'The scans you make are recorded with your account, the time and the nearest stop.',
@@ -185,6 +186,7 @@ const privacyFr: LegalDocument = {
       'Un jeton d\'appareil, si vous autorisez les notifications, pour pouvoir les envoyer, et les notifications que vous avez choisies.',
       'Votre série, seulement si vous activez les séries.',
       'Votre zone, seulement si vous en ajoutez une dans Ma zone : un point arrondi à environ 500 mètres et son nom, jamais votre adresse exacte.',
+      'Si l\'application mobile plante, un rapport de plantage : ce qui s\'est mal passé dans l\'application, le modèle et la version du téléphone, la version de l\'application et si vous êtes étudiant ou membre du personnel. Jamais votre nom, votre e-mail, votre code ni votre position. Seulement depuis les applications installées, pas l\'application web.',
     ]},
     { title: 'Pourquoi nous le gardons', bullets: [
       'Pour que votre école examine votre demande et décide.',
@@ -205,7 +207,7 @@ const privacyFr: LegalDocument = {
       'Pour que la porte fonctionne sans réseau, un téléphone du personnel garde, pour la journée seulement, la liste des voyageurs du jour avec ces mêmes informations et une clé valable ce jour-là. Elle est effacée à la déconnexion et remplacée le lendemain.',
       'Les autres étudiants ne voient rien de vous. Si vous activez les séries, les étudiants de votre école voient votre prénom, l\'initiale de votre nom, votre photo et votre série sur le tableau ; désactivez les séries pour le quitter.',
       'Aucune école ne voit les données d\'une autre.',
-      'Nous ne vendons pas vos données et ne les partageons pas avec des annonceurs. Nous faisons appel à des prestataires pour faire fonctionner l\'application (hébergement, connexion, notifications), soumis au même devoir de précaution.',
+      'Nous ne vendons pas vos données et ne les partageons pas avec des annonceurs. Nous faisons appel à des prestataires pour faire fonctionner l\'application (hébergement, connexion, notifications, rapports de plantage), soumis au même devoir de précaution.',
     ]},
     { title: 'Si vous êtes membre du personnel ou chauffeur', bullets: [
       'Les scans que vous faites sont enregistrés avec votre compte, l\'heure et l\'arrêt le plus proche.',

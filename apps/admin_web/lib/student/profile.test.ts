@@ -22,16 +22,16 @@ describe("what a student types about themselves", () => {
   });
 
   it("needs a phone number of 8 to 15 digits", () => {
-    expect(checkPhone("")).toBe("empty");
-    expect(checkPhone("677 12 34 5a")).toBe("invalid");
-    expect(checkPhone("677 12")).toBe("tooShort");
-    expect(checkPhone("+1234567890123456")).toBe("tooLong");
-    expect(checkPhone("677 12 34 56")).toBeNull();
-    expect(checkPhone("+237 (677) 12-34.56")).toBeNull();
+    expect(checkPhone("", "CM")).toBe("empty");
+    expect(checkPhone("677 12 34 5a", "CM")).toBe("invalid");
+    expect(checkPhone("677 12", "CM")).toBe("invalid");
+    expect(checkPhone("+1234567890123456", "CM")).toBe("invalid");
+    expect(checkPhone("677 12 34 56", "CM")).toBeNull();
+    expect(checkPhone("+237 (677) 12-34.56", "CM")).toBeNull();
   });
 
   it("stores a phone number as the plus and digits only", () => {
-    expect(normalizePhone(" +237 677-12.34 56 ")).toBe("+237677123456");
-    expect(normalizePhone("677 12 34 56")).toBe("677123456");
+    expect(normalizePhone(" +237 677-12.34 56 ", "CM")).toBe("+237677123456");
+    expect(normalizePhone("677 12 34 56", "CM")).toBe("+237677123456");
   });
 });

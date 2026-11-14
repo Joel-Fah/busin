@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:busin_core/busin_core.dart';
 import 'package:busin_ops/src/app.dart';
 import 'package:busin_ops/src/offline/ops_snapshot.dart';
@@ -22,7 +24,7 @@ void main() {
         buses: FakeBuses(),
       );
 
-  Future<void> open(WidgetTester tester, MemoryOpsSnapshotStore store, ({FakeProfiles profiles, FakeTrips trips, FakeSchools schools, FakeBuses buses}) b, {Duration? gateTimeout = const Duration(seconds: 15)}) async {
+  Future<void> open(WidgetTester tester, MemoryOpsSnapshotStore store, ({FakeProfiles profiles, FakeTrips trips, FakeSchools schools, FakeBuses buses}) b, {Duration? gateTimeout = const Duration(seconds: 15), Stream<bool>? connectivity}) async {
     tester.view.physicalSize = const Size(800, 1800);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -37,6 +39,7 @@ void main() {
         buses: b.buses,
         snapshots: store,
         gateTimeout: gateTimeout,
+        connectivity: connectivity,
       ),
       child: const OpsApp(),
     ));
@@ -63,6 +66,23 @@ void main() {
     expect(find.text("Today's trips"), findsOneWidget, reason: 'the app opens');
     expect(find.text('Bus B1'), findsOneWidget, reason: 'with the trip and its bus from the copy');
     expect(find.text('No connection'), findsOneWidget, reason: 'and says it is the saved copy');
+  });
+
+  testWidgets('airplane mode on an open screen shows the notice at once, from the saved copy', (tester) async {
+    final store = MemoryOpsSnapshotStore();
+    final b = backend();
+    final network = StreamController<bool>.broadcast();
+    addTearDown(network.close);
+    await open(tester, store, b, connectivity: network.stream);
+    network.add(true);
+    await tester.pump();
+    expect(find.text('No connection'), findsNothing);
+
+    goOffline(b);
+    network.add(false);
+    await settle(tester, 4);
+    expect(find.text('No connection'), findsOneWidget, reason: 'without waiting for the next read');
+    expect(find.text('Bus B1'), findsOneWidget, reason: "today's trip still shows, from the copy");
   });
 
   testWidgets('without a copy and without a connection, it stops waiting and says what is wrong', (tester) async {

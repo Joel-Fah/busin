@@ -14,6 +14,7 @@ import { FlashToast } from "@/components/FlashToast";
 import { Notice } from "@/components/ui/Notice";
 import { Select } from "@/components/ui/Select";
 
+import { displayPhone } from "@/lib/phone/phone";
 import { requireAdmin } from "@/lib/auth";
 import { getMessages } from "@/lib/i18n/server";
 import { isUuid } from "@/lib/ids";
@@ -91,7 +92,7 @@ async function PersonDetail({ params, searchParams }: { params: Params; searchPa
           <dl className="m-0 grid gap-5 sm:grid-cols-2">
             {[
               [d.email, person.email, true],
-              [d.phone, person.phone || "-", false],
+              [d.phone, person.phone ? displayPhone(person.phone) : "-", false],
               [d.matricule, person.matricule || "-", false],
               [d.department, person.department || "-", false],
               [d.program, person.program || "-", false],

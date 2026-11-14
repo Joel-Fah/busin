@@ -3,11 +3,9 @@ import {
   BlockGameIcon,
   Building03Icon,
   City03Icon,
-  Flag02Icon,
   Globe02Icon,
   Location01Icon,
   Mail01Icon,
-  SmartPhone01Icon,
   Tag01Icon,
   TextIcon,
 } from "@hugeicons/core-free-icons";
@@ -16,6 +14,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 import { FlashToast } from "@/components/FlashToast";
+import { UnsavedChangesGuard } from "@/components/UnsavedChangesGuard";
 import { LogoPicker } from "@/components/school/LogoPicker";
 import { OpenSignupFields } from "@/components/school/OpenSignupFields";
 import { Accordion } from "@/components/ui/Accordion";
@@ -25,6 +24,9 @@ import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { Switch } from "@/components/ui/Choice";
 import { Input } from "@/components/ui/Input";
+import { CountrySelect } from "@/components/ui/CountrySelect";
+import { PhoneField } from "@/components/ui/PhoneField";
+import { defaultPhoneCountry } from "@/lib/phone/phone";
 import { ListSkeleton } from "@/components/ui/ListSkeleton";
 import { Notice } from "@/components/ui/Notice";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -47,7 +49,7 @@ export const instant = false;
 
 type SearchParams = Promise<{ done?: string | string[]; error?: string | string[] }>;
 
-const ERRORS: readonly SchoolSaveError[] = ["name", "shortName", "website", "contactEmail", "phone", "address", "city", "country", "about", "openDomains", "terms_first", "generic"];
+const ERRORS: readonly SchoolSaveError[] = ["name", "shortName", "website", "contactEmail", "phone", "phoneSecondary", "address", "city", "country", "about", "openDomains", "terms_first", "generic"];
 
 export default function SchoolPage({ searchParams }: { searchParams: SearchParams }) {
   return (
@@ -71,7 +73,7 @@ async function School({ searchParams }: { searchParams: SearchParams }) {
   const [{ data: school }, { data: domains }] = await Promise.all([
     supabase
       .from("schools")
-      .select("name, short_name, website, contact_email, phone, address, city, country, about, logo_path, accepts_open_signup, open_signup_domains, public_listing, allow_field_trips, terms_version, terms_accepted_at")
+      .select("name, short_name, website, contact_email, phone, phone_secondary, address, city, country, about, logo_path, accepts_open_signup, open_signup_domains, public_listing, allow_field_trips, terms_version, terms_accepted_at")
       .eq("id", admin.schoolId)
       .maybeSingle(),
     supabase.from("school_domains").select("domain").eq("school_id", admin.schoolId).order("domain").limit(20),
@@ -113,7 +115,7 @@ async function School({ searchParams }: { searchParams: SearchParams }) {
         </Card>
       </Link>
 
-      <form action={saveSchoolProfile} className="flex flex-col gap-6">
+      <form id="school-profile" action={saveSchoolProfile} className="flex flex-col gap-6">
         <Card className="flex flex-col gap-5">
           <div>
             <h2 className="text-xl font-bold">{s.details.title}</h2>
@@ -142,10 +144,27 @@ async function School({ searchParams }: { searchParams: SearchParams }) {
               defaultValue={school.contact_email ?? ""}
               placeholder={s.placeholders.contactEmail}
             />
-            <Input id="phone" name="phone" type="tel" label={s.fields.phone} icon={SmartPhone01Icon} maxLength={SCHOOL_LIMITS.phone} defaultValue={school.phone ?? ""} placeholder={s.placeholders.phone} />
+            <PhoneField
+              id="phone"
+              name="phone"
+              label={s.fields.phone}
+              defaultValue={school.phone ?? ""}
+              defaultCountry={defaultPhoneCountry({ saved: school.phone, schoolCountry: school.country })}
+              locale={locale}
+              error={error === "phone" ? s.errors.phone : undefined}
+            />
+            <PhoneField
+              id="phone_secondary"
+              name="phone_secondary"
+              label={s.fields.phoneSecondary}
+              defaultValue={school.phone_secondary ?? ""}
+              defaultCountry={defaultPhoneCountry({ saved: school.phone_secondary, schoolPhone: school.phone, schoolCountry: school.country })}
+              locale={locale}
+              error={error === "phoneSecondary" ? s.errors.phoneSecondary : undefined}
+            />
             <Input id="address" name="address" label={s.fields.address} icon={Location01Icon} maxLength={SCHOOL_LIMITS.address} defaultValue={school.address ?? ""} placeholder={s.placeholders.address} />
             <Input id="city" name="city" label={s.fields.city} icon={City03Icon} maxLength={SCHOOL_LIMITS.city} defaultValue={school.city ?? ""} placeholder={s.placeholders.city} />
-            <Input id="country" name="country" label={s.fields.country} icon={Flag02Icon} maxLength={SCHOOL_LIMITS.country} defaultValue={school.country ?? ""} placeholder={s.placeholders.country} />
+            <CountrySelect id="country" name="country" label={s.fields.country} defaultValue={school.country} locale={locale} error={error === "country" ? s.errors.country : undefined} />
           </div>
           <Textarea id="about" name="about" label={s.fields.about} icon={TextIcon} maxLength={SCHOOL_LIMITS.about} rows={3} defaultValue={school.about ?? ""} placeholder={s.placeholders.about} hint={s.fields.aboutHint} />
         </Card>
@@ -178,6 +197,8 @@ async function School({ searchParams }: { searchParams: SearchParams }) {
           <Button type="submit">{s.save}</Button>
         </div>
       </form>
+      {/* The profile saves only with its button: leaving with changes asks first. */}
+      <UnsavedChangesGuard formId="school-profile" copy={s.unsaved} />
 
       <form action={saveFieldTrips}>
         <Card className="flex flex-col gap-4">

@@ -97,7 +97,7 @@ async function Overview({ searchParams }: { searchParams: SearchParams }) {
 
   // Counts, one small aggregate and a few capped lists: nothing here downloads a table. Row Level Security
   // limits every query to this school.
-  const [students, activeTrips, scansToday, daily, busesTotal, busesInService, stops, semester, todaysTrips, waiting, staff, tripsTotal, semestersOpen, ...byStatus] =
+  const [students, activeTrips, scansToday, daily, busesTotal, busesInService, stops, semester, todaysTrips, waiting, staff, tripsTotal, semestersOpen, billing, payments, ...byStatus] =
     await Promise.all([
       supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "student"),
       supabase.from("trips").select("id", { count: "exact", head: true }).eq("status", "active"),
@@ -125,6 +125,14 @@ async function Overview({ searchParams }: { searchParams: SearchParams }) {
       supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "staff").eq("status", "verified"),
       supabase.from("trips").select("id", { count: "exact", head: true }),
       supabase.from("semesters").select("id", { count: "exact", head: true }).gte("end_date", todayIso),
+      // Billing (ADR 0022): whether it is set, and how many later parts of running subscriptions wait for a check or are late.
+      supabase.from("schools").select("billing_period").eq("id", admin.schoolId).maybeSingle(),
+      supabase
+        .from("subscription_installments")
+        .select("id, subscription:subscriptions!subscription_installments_subscription_id_school_id_fkey!inner(status)", { count: "exact", head: true })
+        .gt("seq", 1)
+        .eq("subscription.status", "approved")
+        .or(`status.eq.submitted,and(status.in.(due,rejected),due_date.lte.${todayIso})`),
       ...STATUSES.map((status) => supabase.from("subscriptions").select("id", { count: "exact", head: true }).eq("status", status)),
     ]);
 
@@ -212,13 +220,17 @@ async function Overview({ searchParams }: { searchParams: SearchParams }) {
     { key: "boardings", href: "/scans", icon: ReceiptTextIcon, value: String(scansToday.count ?? 0), label: t.overview.scansToday },
     { key: "tripsToday", href: "/trips", icon: Calendar02Icon, value: String(todaysTrips.count ?? 0), label: tiles.welcome.tripsToday },
   ].slice(0, 4);
-  const setup = setupSteps({
-    semesters: semestersOpen.count ?? 0,
-    stops: stops.count ?? 0,
-    buses: busesTotal.count ?? 0,
-    staff: staff.count ?? 0,
-    trips: tripsTotal.count ?? 0,
-  });
+  const billingSet = Boolean(billing.data?.billing_period);
+  const setup = setupSteps(
+    {
+      semesters: semestersOpen.count ?? 0,
+      stops: stops.count ?? 0,
+      buses: busesTotal.count ?? 0,
+      staff: staff.count ?? 0,
+      trips: tripsTotal.count ?? 0,
+    },
+    billingSet,
+  );
   const longDate = new Intl.DateTimeFormat(locale, { dateStyle: "full", timeZone: admin.schoolTimezone }).format(now);
 
   return (
@@ -242,7 +254,7 @@ async function Overview({ searchParams }: { searchParams: SearchParams }) {
         <Notice tone="bad">{t.overview.loadError}</Notice>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label={t.overview.title}>
-          <QuickActions t={t} pending={counts.pending} />
+          <QuickActions t={t} pending={counts.pending} billingSet={billingSet} payments={payments.count ?? 0} />
           {setup ? <GettingStarted steps={setup} t={t} /> : null}
 
           {figures.map((figure) => {

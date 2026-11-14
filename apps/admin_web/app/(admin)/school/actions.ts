@@ -21,6 +21,7 @@ export async function saveSchoolProfile(formData: FormData): Promise<void> {
     p_website: v.website,
     p_contact_email: v.contactEmail,
     p_phone: v.phone,
+    p_phone_secondary: v.phoneSecondary,
     p_address: v.address,
     p_city: v.city,
     p_country: v.country,
@@ -33,7 +34,15 @@ export async function saveSchoolProfile(formData: FormData): Promise<void> {
 
   revalidatePath("/school");
   revalidatePath("/landing");
+  // Saved on the way out (the unsaved-changes dialog): go on to where the admin was going, on this site only.
+  const next = formData.get("next");
+  if (typeof next === "string" && isLocalPath(next)) redirect(next);
   redirect("/school?done=saved");
+}
+
+/** A path on this site (`/people`), never another site (`//evil.example`, `https://...`). */
+function isLocalPath(value: string): boolean {
+  return /^\/(?![/\\])[^\s]*$/.test(value);
 }
 
 /** Turns on or off that staff can start a trip from the ops app when none was scheduled (ADR 0020). */

@@ -14,8 +14,13 @@ enum _Step { overview, ask, name, search }
 
 /// My area (ADR 0013): the student says roughly where they live, by one approximate reading at home or by searching a
 /// place. What is stored is rounded to about 500 m by the server; the student can change or remove it at any time.
+///
+/// With [intro], it is the one-time invitation right after setup (ADR 0023): a short welcome on top, and "Not now"
+/// instead of a back arrow. Either way the student then goes on to the subscription tab.
 class MyAreaScreen extends ConsumerStatefulWidget {
-  const MyAreaScreen({super.key});
+  const MyAreaScreen({super.key, this.intro = false});
+
+  final bool intro;
 
   @override
   ConsumerState<MyAreaScreen> createState() => _MyAreaScreenState();
@@ -31,6 +36,22 @@ class _MyAreaScreenState extends ConsumerState<MyAreaScreen> {
   bool _searching = false;
   bool _busy = false;
   String? _searchError;
+
+  @override
+  void initState() {
+    super.initState();
+    // Seen once is enough: it is not offered again, here or as a card.
+    if (widget.intro) ref.read(markAreaOfferedProvider)();
+  }
+
+  /// Where the student goes when done or not now: back where they came from, or on with the app after setup.
+  void _leave() {
+    if (widget.intro) {
+      context.go(Routes.subscription);
+    } else {
+      context.canPop() ? context.pop() : context.go(Routes.profile);
+    }
+  }
 
   @override
   void dispose() {
@@ -112,6 +133,10 @@ class _MyAreaScreenState extends ConsumerState<MyAreaScreen> {
       _reading = null;
       _query.clear();
       _results = null;
+      if (widget.intro) {
+        _leave();
+        return;
+      }
       _go(_Step.overview);
     } on Invalid {
       if (mounted) BusinToast.show(context, _l10n.areaTooFar, tone: ToastTone.warning);
@@ -140,7 +165,7 @@ class _MyAreaScreenState extends ConsumerState<MyAreaScreen> {
   Future<void> _later() async {
     await ref.read(setAreaLaterProvider)(true);
     if (!mounted) return;
-    context.canPop() ? context.pop() : context.go(Routes.profile);
+    _leave();
   }
 
   @override
@@ -150,7 +175,9 @@ class _MyAreaScreenState extends ConsumerState<MyAreaScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.areaTitle),
-        leading: BackButton(onPressed: () => context.canPop() ? context.pop() : context.go(Routes.profile)),
+        automaticallyImplyLeading: !widget.intro,
+        leading: widget.intro ? null : BackButton(onPressed: _leave),
+        actions: [if (widget.intro) TextButton(onPressed: _leave, child: Text(l10n.areaIntroSkip))],
       ),
       body: SafeArea(
         child: ContentColumn(
@@ -215,6 +242,10 @@ class _MyAreaScreenState extends ConsumerState<MyAreaScreen> {
     final p = BusinPalette.of(context);
     final text = Theme.of(context).textTheme;
     return [
+      if (widget.intro) ...[
+        Text(l10n.areaIntroTitle, style: text.headlineSmall),
+        const SizedBox(height: BusinSpace.x2),
+      ],
       Text(l10n.areaIntro, style: text.bodyMedium?.copyWith(color: p.muted)),
       const SizedBox(height: BusinSpace.x5),
       Text(l10n.areaAtHome, style: text.titleLarge),

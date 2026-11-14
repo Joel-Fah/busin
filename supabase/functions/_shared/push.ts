@@ -3,7 +3,30 @@
 // Design: docs/decisions/0010-push-notifications.md.
 
 export type Locale = "en" | "fr";
-export type Kind = "subscription_approved" | "subscription_rejected" | "subscription_revoked" | "subscription_restored" | "school_notice" | "bus_near_stop" | "crew_assigned";
+export type Kind =
+  | "subscription_approved"
+  | "subscription_rejected"
+  | "subscription_revoked"
+  | "subscription_restored"
+  | "school_notice"
+  | "bus_near_stop"
+  | "crew_assigned"
+  | "installment_paid"
+  | "installment_rejected"
+  | "installment_due";
+
+const KINDS: readonly Kind[] = [
+  "subscription_approved",
+  "subscription_rejected",
+  "subscription_revoked",
+  "subscription_restored",
+  "school_notice",
+  "bus_near_stop",
+  "crew_assigned",
+  "installment_paid",
+  "installment_rejected",
+  "installment_due",
+];
 
 /** One claimed notification, as claim_notifications returns it. */
 export type Claimed = {
@@ -49,10 +72,23 @@ const TEXT: Record<Kind, Record<Locale, { title: string; body: string }>> = {
     en: { title: "You were added to a trip", body: "A colleague started a trip with you on board. Open BusIn Ops to see it." },
     fr: { title: "Vous avez été ajouté à un trajet", body: "Un collègue a démarré un trajet avec vous à bord. Ouvrez BusIn Ops pour le voir." },
   },
+  // Installments (ADR 0022). No amount or part number in the text: the app shows them.
+  installment_paid: {
+    en: { title: "Payment received", body: "Your school marked a part of your subscription as paid. Open BusIn to see what is left." },
+    fr: { title: "Paiement reçu", body: "Votre école a marqué une tranche de votre abonnement comme payée. Ouvrez BusIn pour voir ce qui reste." },
+  },
+  installment_rejected: {
+    en: { title: "Payment proof not accepted", body: "Your school could not accept a payment proof. Open BusIn to see why and send it again." },
+    fr: { title: "Preuve de paiement refusée", body: "Votre école n’a pas pu accepter une preuve de paiement. Ouvrez BusIn pour savoir pourquoi et la renvoyer." },
+  },
+  installment_due: {
+    en: { title: "A payment is due soon", body: "A part of your bus subscription is due soon. Open BusIn to send your proof." },
+    fr: { title: "Un paiement arrive à échéance", body: "Une tranche de votre abonnement au bus arrive bientôt à échéance. Ouvrez BusIn pour envoyer votre preuve." },
+  },
 };
 
 export function isKind(value: string): value is Kind {
-  return value === "subscription_approved" || value === "subscription_rejected" || value === "subscription_revoked" || value === "subscription_restored" || value === "school_notice" || value === "bus_near_stop" || value === "crew_assigned";
+  return (KINDS as readonly string[]).includes(value);
 }
 
 export function asLocale(value: string): Locale {

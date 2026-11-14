@@ -34,7 +34,9 @@ values
 
 -- Where the route ends, and the route itself (ADR 0017).
 update public.schools
-set campus_location = extensions.st_point(11.51669, 3.95293)::extensions.geography, campus_name = 'ICT-U Campus'
+set campus_location = extensions.st_point(11.51669, 3.95293)::extensions.geography, campus_name = 'ICT-U Campus',
+  -- Billing (ADR 0022): per semester, in installments if the student wants.
+  billing_period = 'semester', price_xaf = 30000, installment_plan = '40-30-30'
 where id = '00000000-0000-4000-8000-000000000001';
 insert into public.routes (id, school_id, name)
 values ('00000000-0000-4000-8000-000000000041', '00000000-0000-4000-8000-000000000001', 'Main route');

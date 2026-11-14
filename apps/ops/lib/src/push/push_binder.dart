@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../nav/tab_badges.dart';
 import '../providers.dart';
 import '../router.dart';
 import '../trips/trip_providers.dart';
@@ -85,6 +86,7 @@ class _OpsPushBinderState extends ConsumerState<OpsPushBinder> {
   void _arrived(PushMessage message) {
     if (!mounted || message.kind != 'crew_assigned') return;
     ref.invalidate(todayTripsProvider);
+    ref.read(tabBadgesProvider.notifier).mark(const [OpsTabs.trips]);
     BusinToast.show(context, BusinL10n.of(context).opsPushCrewAssigned, tone: ToastTone.info);
   }
 

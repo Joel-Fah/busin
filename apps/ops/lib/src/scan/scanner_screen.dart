@@ -18,6 +18,7 @@ import '../router.dart';
 import '../trips/trip_providers.dart';
 import 'scan_decision.dart';
 import 'scan_providers.dart';
+import 'scan_sound.dart';
 
 /// The camera, given the function to call with each code it reads. A provider, so tests use a stand-in.
 typedef ScannerView = Widget Function(BuildContext context, void Function(String code) onCode);
@@ -105,6 +106,8 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => _startLocation());
+    // Loaded now so the first scan's sound plays at once.
+    if (ref.read(opsSettingsProvider).sound) unawaited(ref.read(scanSoundPlayerProvider).preload());
   }
 
   @override
@@ -162,16 +165,15 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
     };
 
     final decision = decideScan(code: code, now: now, roster: roster, schoolDate: schoolDate, boarded: boarded, online: online);
+    final sound = soundForDecision(decision);
+    if (sound != null) _feedback(sound);
     switch (decision) {
       case Admit(:final rider):
         await _queue(code, rider.studentId, now);
-        _feedback(good: true);
         _show(_Good(name: rider.fullName, avatarUrl: rider.avatarUrl, matricule: rider.matricule));
       case AlreadyOnBoard(:final rider):
-        _feedback(good: true, again: true);
         _show(_Good(name: rider.fullName, avatarUrl: rider.avatarUrl, matricule: rider.matricule, again: true));
       case Refuse(:final kind):
-        _feedback(good: false);
         _show(_Bad(switch (kind) {
           RefusalKind.invalid => l10n.opsResultInvalid,
           RefusalKind.expired => l10n.opsResultExpired,
@@ -224,15 +226,14 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
             accuracyMeters: where.accuracy,
           );
       if (!mounted) return;
+      _feedback(soundForOutcome(outcome));
       switch (outcome) {
         case ScanAccepted(:final student, :final duplicate):
           final parsed = QrCodeVerifier.parse(code);
           if (parsed != null && !duplicate) await _queue(code, parsed.studentId, now, accepted: true);
           ref.invalidate(manifestProvider(widget.tripId));
-          _feedback(good: true, again: duplicate);
           _show(_Good(name: student.fullName, avatarUrl: student.avatarUrl, matricule: student.matricule, again: duplicate));
         case ScanRefused(:final reason):
-          _feedback(good: false);
           _show(_Bad(switch (reason) {
             ScanFailure.invalidCode => l10n.opsResultInvalid,
             ScanFailure.expiredCode => l10n.opsResultExpired,
@@ -242,25 +243,30 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
           }));
       }
     } on Offline {
-      if (mounted) _show(_Bad(l10n.opsResultNoKeys));
+      if (!mounted) return;
+      _feedback(ScanSound.error);
+      _show(_Bad(l10n.opsResultNoKeys));
     } catch (_) {
-      if (mounted) _show(_Bad(l10n.errorGeneric));
+      if (!mounted) return;
+      _feedback(ScanSound.error);
+      _show(_Bad(l10n.errorGeneric));
     }
   }
 
   /// A buzz and a sound for each result, as the staff member chose in their profile.
-  void _feedback({required bool good, bool again = false}) {
+  void _feedback(ScanSound sound) {
     final settings = ref.read(opsSettingsProvider);
     if (settings.vibrate) {
-      if (!good) {
-        unawaited(HapticFeedback.vibrate());
-      } else if (again) {
-        BusinHaptics.light();
-      } else {
-        BusinHaptics.medium();
+      switch (sound) {
+        case ScanSound.admit:
+          BusinHaptics.medium();
+        case ScanSound.again:
+          BusinHaptics.light();
+        case ScanSound.refused || ScanSound.suspect || ScanSound.error:
+          unawaited(HapticFeedback.vibrate());
       }
     }
-    if (settings.sound) unawaited(SystemSound.play(good ? SystemSoundType.click : SystemSoundType.alert));
+    if (settings.sound) unawaited(ref.read(scanSoundPlayerProvider).play(sound));
   }
 
   @override

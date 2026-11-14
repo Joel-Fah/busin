@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { checkLogoFile, contentBox, fitInSquare, MAX_SOURCE_BYTES } from "./logo-image";
+import { checkLogoFile, contentBox, fitWithin, MAX_SOURCE_BYTES } from "./logo-image";
 
 /** An image of `width` x `height` pixels, all `background`, with a solid `ink` block at `box`. */
 function image(width: number, height: number, background: [number, number, number, number], box: { x: number; y: number; w: number; h: number }) {
@@ -52,19 +52,14 @@ describe("contentBox", () => {
   });
 });
 
-describe("fitInSquare", () => {
-  it("centres a wide logo and keeps its proportions inside the padding", () => {
-    const box = fitInSquare({ width: 200, height: 100 }, 512, 0.06);
-    expect(box.width / box.height).toBeCloseTo(2);
-    expect(box.width).toBeCloseTo(512 * 0.88);
-    expect(box.x).toBeCloseTo((512 - box.width) / 2);
-    expect(box.y).toBeCloseTo((512 - box.height) / 2);
+describe("fitWithin", () => {
+  it("keeps a logo's own proportions, its longest side 512", () => {
+    expect(fitWithin({ width: 900, height: 300 }, 512)).toEqual({ width: 512, height: 171 });
+    expect(fitWithin({ width: 300, height: 900 }, 512)).toEqual({ width: 171, height: 512 });
+    expect(fitWithin({ width: 200, height: 200 }, 512)).toEqual({ width: 512, height: 512 });
   });
 
-  it("scales a tall logo by its height and a small one up to fill", () => {
-    const tall = fitInSquare({ width: 50, height: 200 }, 512, 0.06);
-    expect(tall.height).toBeCloseTo(512 * 0.88);
-    const small = fitInSquare({ width: 10, height: 10 }, 512, 0.06);
-    expect(small.width).toBeCloseTo(512 * 0.88);
+  it("never makes a side vanish", () => {
+    expect(fitWithin({ width: 5000, height: 2 }, 512)).toEqual({ width: 512, height: 1 });
   });
 });

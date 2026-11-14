@@ -10,8 +10,11 @@ import '../greeting.dart';
 import '../offline/offline_banner.dart';
 import '../providers.dart';
 import '../push/push_prompt_card.dart';
+import '../area/area_prompt_card.dart';
 import '../router.dart';
+import '../subscription/billing_choices.dart';
 import '../subscription/how_it_works_card.dart';
+import '../subscription/money.dart';
 import '../subscription/subscribe_form.dart';
 import '../subscription/request_history.dart';
 import '../subscription/subscription_providers.dart';
@@ -29,6 +32,9 @@ class SubscriptionScreen extends ConsumerStatefulWidget {
 class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
   /// After a rejection the student can ask for the form again without leaving the page.
   bool _requestAgain = false;
+
+  /// With monthly billing: the next month the student chose to ask for from the current month's card.
+  DateTime? _askMonth;
 
   Future<void> _refresh() async {
     ref.invalidate(subscriptionOverviewProvider);
@@ -96,7 +102,17 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
             }
 
             final subscription = data.subscription;
-            final showForm = subscription == null || (_requestAgain && !subscription.isLive);
+            final showForm = subscription == null || (_requestAgain && !subscription.isLive) || _askMonth != null;
+            // With monthly billing, the month after a running one can be asked for from here (ADR 0022).
+            final school = ref.watch(schoolProvider).value;
+            final next = data.next;
+            final nextMonth = school?.billingPeriod != BillingPeriod.month || subscription == null || !subscription.isLive || next != null || data.fromSavedCopy
+                ? null
+                : monthChoices(
+                    semester: semester,
+                    today: ref.read(schoolClockProvider).today(school!.timezone, now: ref.read(nowProvider)()),
+                    live: data.live,
+                  ).where((m) => subscription.periodStart != null && m.isAfter(subscription.periodStart!)).firstOrNull;
             final name = l10n.semester(semester.name, semester.year);
             final material = MaterialLocalizations.of(context);
 
@@ -129,9 +145,19 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                   ),
                   const SizedBox(height: BusinSpace.x4),
                 ],
-                if (showForm)
-                  SubscribeForm(semester: semester, offline: data.fromSavedCopy)
-                else
+                if (showForm) ...[
+                  SubscribeForm(
+                    semester: semester,
+                    offline: data.fromSavedCopy,
+                    live: data.live,
+                    month: _askMonth,
+                    onSent: () => setState(() {
+                      _askMonth = null;
+                      _requestAgain = false;
+                    }),
+                  ),
+                  if (_askMonth != null) Center(child: TextButton(onPressed: () => setState(() => _askMonth = null), child: Text(l10n.actionCancel))),
+                ] else
                   SubscriptionStatusCard(
                     subscription: subscription,
                     stopName: data.stop?.name ?? '',
@@ -139,8 +165,25 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                     // Asking again needs the server.
                     onRequestAgain: data.fromSavedCopy ? null : () => setState(() => _requestAgain = true),
                   ),
+                if (!showForm && next?.periodStart != null) ...[
+                  const SizedBox(height: BusinSpace.x3),
+                  Text(
+                    l10n.nextMonthState(monthName(context, next!.periodStart!), l10n.subscriptionStatus(next.status)),
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ],
+                if (!showForm && nextMonth != null) ...[
+                  const SizedBox(height: BusinSpace.x3),
+                  BusinButton(
+                    label: l10n.nextMonthAsk(monthName(context, nextMonth)),
+                    variant: BusinButtonVariant.secondary,
+                    icon: HugeIcons.strokeRoundedCalendar03,
+                    expand: true,
+                    onPressed: () => setState(() => _askMonth = nextMonth),
+                  ),
+                ],
                 // The moment there is something to wait for is the moment to offer to tell them.
-                if (!showForm && subscription.status == SubscriptionStatus.pending) const PushPromptCard(),
+                if (!showForm && subscription.status == SubscriptionStatus.pending) const PushPromptCard() else const AreaPromptCard(),
                 // Everything that happened to this semester's requests: the latest open.
                 const RequestHistorySection(),
               ],

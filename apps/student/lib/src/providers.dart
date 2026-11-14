@@ -23,6 +23,9 @@ final secretStoreProvider = Provider<SecretStore>((ref) => SecureSecretStore());
 /// Firebase Cloud Messaging, or a stand-in that does nothing when this build has no Firebase configuration.
 final pushServiceProvider = Provider<PushService>((ref) => const NoPushService());
 
+/// Crash reporting (ADR 0025). Replaced at start-up in release builds; nothing is sent otherwise.
+final crashReporterProvider = Provider<CrashReporter>((ref) => const NoCrashReporter());
+
 final deviceTokensRepositoryProvider = Provider<DeviceTokensRepository>((ref) => ref.watch(repositoriesProvider).deviceTokens);
 
 /// The language notifications should come in: the one chosen on the profile, else the phone's.

@@ -3,6 +3,8 @@ create extension if not exists pgtap with schema extensions;
 select plan(27);
 
 insert into public.schools (id, name) values ('10000000-0000-4000-8000-000000000001', 'School A');
+-- Students can only ask once their school has set billing (ADR 0022).
+update public.schools set billing_period = 'semester', price_xaf = 30000;
 insert into public.school_domains (domain, school_id) values ('a.edu', '10000000-0000-4000-8000-000000000001');
 insert into auth.users (id, email, raw_app_meta_data) values
   ('a1000000-0000-4000-8000-000000000001', 'stu1@a.edu', '{"provider":"google"}'),

@@ -6,8 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../nav/tab_badges.dart';
 import '../providers.dart';
 import '../subscription/live_changes.dart';
+import '../subscription/installments_section.dart';
+import '../subscription/request_history.dart';
 import '../subscription/subscription_providers.dart';
 import 'push_routes.dart';
 
@@ -60,12 +63,27 @@ class _PushBinderState extends ConsumerState<PushBinder> {
 
   void _arrived(PushMessage message) {
     if (!mounted) return;
+    ref.read(tabBadgesProvider.notifier).mark(tabsForPush(message.kind));
     final l10n = BusinL10n.of(context);
     if (message.kind == 'bus_near_stop') {
       _show(l10n.pushForegroundBusNear, message);
       return;
     }
     ref.invalidate(subscriptionOverviewProvider);
+    // A part of a subscription paid in installments: said as it comes, and the parts are read again.
+    final part = switch (message.kind) {
+      'installment_paid' => l10n.pushForegroundInstallmentPaid,
+      'installment_rejected' => l10n.pushForegroundInstallmentRejected,
+      'installment_due' => l10n.pushForegroundInstallmentDue,
+      _ => null,
+    };
+    if (part != null) {
+      final id = message.refId;
+      if (id != null) ref.invalidate(installmentsProvider(id));
+      ref.invalidate(requestHistoryProvider);
+      _show(part, message);
+      return;
+    }
     final text = switch (message.kind) {
       'subscription_approved' => l10n.pushForegroundApproved,
       'subscription_rejected' => l10n.pushForegroundRejected,

@@ -6,36 +6,79 @@ import 'package:hugeicons/hugeicons.dart';
 
 import '../auth/access.dart';
 import '../providers.dart';
+import 'installments_section.dart';
 import 'subscription_providers.dart';
+import 'subscription_status_card.dart';
+
+/// One line of a request's history: an operation on the subscription, or a step of a receipt for a part (ADR 0022).
+sealed class HistoryEntry {
+  const HistoryEntry();
+  DateTime get at;
+}
+
+class EventEntry extends HistoryEntry {
+  const EventEntry(this.event);
+  final SubscriptionEvent event;
+  @override
+  DateTime get at => event.createdAt;
+}
+
+enum ReceiptStep { sent, paid, rejected }
+
+class ReceiptEntry extends HistoryEntry {
+  const ReceiptEntry(this.receipt, this.step);
+  final InstallmentReceipt receipt;
+  final ReceiptStep step;
+  @override
+  DateTime get at => step == ReceiptStep.sent ? receipt.sentAt : (receipt.decidedAt ?? receipt.sentAt);
+}
 
 /// One request of the semester with everything that happened to it, the latest operation first.
 class RequestRecord {
-  const RequestRecord({required this.subscription, required this.events});
+  const RequestRecord({required this.subscription, required this.events, this.entries = const []});
 
   final Subscription subscription;
   final List<SubscriptionEvent> events;
+
+  /// [events] and the receipts of its parts together, the latest first: what the history shows.
+  final List<HistoryEntry> entries;
 }
 
+/// The steps of a receipt: sent (when it has a proof), then the school's decision.
+List<ReceiptEntry> receiptSteps(InstallmentReceipt r) => [
+      if (r.proofPath != null) ReceiptEntry(r, ReceiptStep.sent),
+      if (r.decision == InstallmentStatus.paid) ReceiptEntry(r, ReceiptStep.paid),
+      if (r.decision == InstallmentStatus.rejected) ReceiptEntry(r, ReceiptStep.rejected),
+    ];
+
 /// The student's requests with their operations: the latest request first, and inside each the latest operation first.
-/// A request with no recorded operation (none should exist) simply has an empty list.
-List<RequestRecord> buildRequestHistory(List<Subscription> subscriptions, List<SubscriptionEvent> events) {
+/// Every receipt sent for a part stays in its request's history. A request with no recorded operation (none should
+/// exist) simply has an empty list.
+List<RequestRecord> buildRequestHistory(List<Subscription> subscriptions, List<SubscriptionEvent> events, [List<InstallmentReceipt> receipts = const []]) {
   final requests = [...subscriptions]..sort((a, b) {
       final byDate = b.createdAt.compareTo(a.createdAt);
       return byDate != 0 ? byDate : b.id.compareTo(a.id);
     });
   return [
     for (final s in requests)
-      RequestRecord(
-        subscription: s,
-        events: [
-          for (final e in events)
-            if (e.subscriptionId == s.id) e,
-        ]..sort((a, b) {
-            final byDate = b.createdAt.compareTo(a.createdAt);
-            return byDate != 0 ? byDate : b.id.compareTo(a.id);
-          }),
-      ),
+      _record(s, events, receipts),
   ];
+}
+
+RequestRecord _record(Subscription s, List<SubscriptionEvent> events, List<InstallmentReceipt> receipts) {
+  final own = [
+    for (final e in events)
+      if (e.subscriptionId == s.id) e,
+  ]..sort((a, b) {
+      final byDate = b.createdAt.compareTo(a.createdAt);
+      return byDate != 0 ? byDate : b.id.compareTo(a.id);
+    });
+  final entries = <HistoryEntry>[
+    for (final e in own) EventEntry(e),
+    for (final r in receipts)
+      if (r.subscriptionId == s.id) ...receiptSteps(r),
+  ]..sort((a, b) => b.at.compareTo(a.at));
+  return RequestRecord(subscription: s, events: own, entries: entries);
 }
 
 /// The shown semester's requests, with their operations. It follows the overview: when that is read again (a request
@@ -51,7 +94,10 @@ final requestHistoryProvider = FutureProvider.autoDispose<List<RequestRecord>>((
   final ofSemester = all.where((s) => s.semesterId == semester.id).toList();
   if (ofSemester.isEmpty) return const [];
   final events = await repository.eventsFor([for (final s in ofSemester) s.id]);
-  return buildRequestHistory(ofSemester, events);
+  // The receipts of parts, only when a request is paid in installments.
+  final inParts = [for (final s in ofSemester) if (s.paymentMode == PaymentMode.installments) s.id];
+  final receipts = inParts.isEmpty ? const <InstallmentReceipt>[] : await ref.watch(installmentsRepositoryProvider).receiptsFor(inParts);
+  return buildRequestHistory(ofSemester, events, receipts);
 }, retry: noAutomaticRetry);
 
 /// "Your requests this semester": an accordion for each request, the latest open, with what happened to it inside. It
@@ -102,27 +148,39 @@ class RequestHistorySection extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    for (final event in records[i].events)
+                    for (final entry in records[i].entries.isEmpty ? [for (final e in records[i].events) EventEntry(e)] : records[i].entries)
                       Padding(
                         padding: const EdgeInsets.only(bottom: BusinSpace.x3),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            HugeIcon(icon: look(event.action).$2, size: 22, color: look(event.action).$3),
-                            const SizedBox(width: BusinSpace.x3),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(look(event.action).$1, style: text.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
-                                  Text(when(event.createdAt), style: text.bodySmall?.copyWith(color: p.muted)),
-                                  if (event.note != null && event.note!.trim().isNotEmpty)
-                                    Padding(padding: const EdgeInsets.only(top: BusinSpace.x1), child: Text(event.note!, style: text.bodyMedium)),
-                                ],
+                        child: Builder(builder: (context) {
+                          final (label, icon, color, note, proof) = switch (entry) {
+                            EventEntry(:final event) => (look(event.action).$1, look(event.action).$2, look(event.action).$3, event.note, null),
+                            ReceiptEntry(:final receipt, step: ReceiptStep.sent) =>
+                              (l10n.receiptSent('${receipt.seq}'), HugeIcons.strokeRoundedReceiptText, p.info, null, receipt.proofPath),
+                            ReceiptEntry(:final receipt, step: ReceiptStep.paid) =>
+                              (l10n.receiptPaid('${receipt.seq}'), HugeIcons.strokeRoundedCheckmarkCircle02, p.ok, null, null),
+                            ReceiptEntry(:final receipt, step: ReceiptStep.rejected) =>
+                              (l10n.receiptRejected('${receipt.seq}'), HugeIcons.strokeRoundedCancelCircle, p.bad, receipt.note, null),
+                          };
+                          return Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              HugeIcon(icon: icon, size: 22, color: color),
+                              const SizedBox(width: BusinSpace.x3),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(label, style: text.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
+                                    Text(when(entry.at), style: text.bodySmall?.copyWith(color: p.muted)),
+                                    if (note != null && note.trim().isNotEmpty)
+                                      Padding(padding: const EdgeInsets.only(top: BusinSpace.x1), child: Text(note, style: text.bodyMedium)),
+                                    if (proof != null) Padding(padding: const EdgeInsets.only(top: BusinSpace.x2), child: StoredProofPreview(path: proof)),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
+                            ],
+                          );
+                        }),
                       ),
                   ],
                 ),

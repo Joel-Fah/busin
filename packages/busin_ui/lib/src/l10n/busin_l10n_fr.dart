@@ -153,7 +153,8 @@ class BusinL10nFr extends BusinL10n {
   String get fieldPhone => 'Numéro de téléphone';
 
   @override
-  String get fieldPhoneHint => 'Par exemple 677 12 34 56';
+  String get fieldPhoneHint =>
+      'Choisissez votre pays, puis saisissez votre numéro. Pas besoin de l’indicatif.';
 
   @override
   String get fieldDepartment => 'Département';
@@ -246,6 +247,43 @@ class BusinL10nFr extends BusinL10n {
   @override
   String get signInSubtitle =>
       'Connectez-vous avec votre compte Google de l’école pour vous abonner, présenter votre code d’embarquement et suivre votre bus.';
+
+  @override
+  String get signInSchoolEmailTip =>
+      'Astuce : si votre école vous a donné une adresse e-mail, connectez-vous avec elle plutôt qu’avec une adresse personnelle.';
+
+  @override
+  String get opsSignInNotAllowed =>
+      'Ce compte Google n’est pas autorisé ici. Connectez-vous avec votre compte de l’école ou l’adresse que votre école a invitée.';
+
+  @override
+  String get navNew => 'nouveau';
+
+  @override
+  String get schoolDetailsHint => 'Affiche les informations de l’école';
+
+  @override
+  String get schoolAddress => 'Adresse';
+
+  @override
+  String get schoolEmail => 'E-mail';
+
+  @override
+  String get schoolPhone => 'Téléphone';
+
+  @override
+  String get schoolPhoneSecondary => 'Second téléphone';
+
+  @override
+  String get schoolWebsite => 'Site web';
+
+  @override
+  String get schoolNoDetails =>
+      'L’école n’a pas encore ajouté ses informations.';
+
+  @override
+  String get schoolLinkFailed =>
+      'Aucune application de ce téléphone ne peut ouvrir ceci.';
 
   @override
   String get signInWithGoogle => 'Continuer avec Google';
@@ -1559,7 +1597,7 @@ class BusinL10nFr extends BusinL10n {
 
   @override
   String get opsSettingsSoundHint =>
-      'Un clic quand un étudiant est accepté, une alerte en cas de refus.';
+      'Un son différent pour accepté, déjà à bord, refusé et code suspect.';
 
   @override
   String get opsSettingsDriving => 'Mode chauffeur';
@@ -1909,4 +1947,192 @@ class BusinL10nFr extends BusinL10n {
   @override
   String get opsPushCrewAssigned =>
       'Vous avez été ajouté à un trajet. Il est dans vos trajets.';
+
+  @override
+  String get phoneCountry => 'Pays';
+
+  @override
+  String get phoneSearch => 'Rechercher un pays';
+
+  @override
+  String get phoneNoMatch => 'Aucun pays ne correspond.';
+
+  @override
+  String get areaIntroTitle => 'Une dernière chose : où habitez-vous ?';
+
+  @override
+  String get areaIntroSkip => 'Plus tard';
+
+  @override
+  String get areaPromptTitle => 'Ajoutez votre zone';
+
+  @override
+  String get areaPromptBody =>
+      'Indiquez à peu près où vous habitez pour que votre école place les arrêts près des étudiants. Arrondi à environ 500 mètres, jamais suivi.';
+
+  @override
+  String get areaPromptAdd => 'Ajouter ma zone';
+
+  @override
+  String subscribePriceSemester(String price) {
+    return '$price pour le semestre';
+  }
+
+  @override
+  String subscribePriceMonth(String price) {
+    return '$price par mois';
+  }
+
+  @override
+  String get subscribeBillingNotSet =>
+      'Votre école configure encore les paiements. Vous pourrez demander un abonnement dès que ce sera fait.';
+
+  @override
+  String get subscribeMonthLabel => 'Mois';
+
+  @override
+  String get subscribePaymentLabel => 'Comment vous payez';
+
+  @override
+  String get paymentFull => 'En une fois';
+
+  @override
+  String get paymentInstallments => 'En plusieurs fois';
+
+  @override
+  String subscribeFullNote(String amount) {
+    return '$amount avec cette demande.';
+  }
+
+  @override
+  String installmentPartNow(String amount) {
+    return '$amount avec cette demande';
+  }
+
+  @override
+  String installmentPartBy(String amount, String date) {
+    return '$amount au plus tard le $date';
+  }
+
+  @override
+  String subscribeInstallmentsTooLate(int days) {
+    return 'Le paiement en plusieurs fois demande au moins $days jours restants dans le semestre : cette demande se paie en une fois.';
+  }
+
+  @override
+  String subscribeInstallmentsNote(String parts) {
+    return '$parts. Les dates suivent votre propre temps de bus, jusqu’à la fin du semestre.';
+  }
+
+  @override
+  String get subscribePaymentRequired => 'Choisissez comment vous payez.';
+
+  @override
+  String get subscribeErrorPeriodEnded =>
+      'Ce mois est terminé. Tirez vers le bas pour actualiser et choisissez à nouveau.';
+
+  @override
+  String get preferenceSaveTitle => 'Payer ainsi la prochaine fois ?';
+
+  @override
+  String preferenceSaveBody(String mode) {
+    return 'BusIn peut remplir « $mode » pour vos prochaines demandes. Vous pouvez le changer dans votre profil.';
+  }
+
+  @override
+  String get preferenceSave => 'Enregistrer comme préférence';
+
+  @override
+  String get preferenceNotNow => 'Plus tard';
+
+  @override
+  String get preferenceSaved => 'Enregistré comme votre façon de payer.';
+
+  @override
+  String get profilePaymentTitle => 'Comment vous préférez payer';
+
+  @override
+  String get profilePaymentHint => 'Rempli quand vous demandez un abonnement.';
+
+  @override
+  String get partsTitle => 'Tranches';
+
+  @override
+  String partLabel(String n) {
+    return 'Tranche $n';
+  }
+
+  @override
+  String partDue(String date) {
+    return 'À payer le $date';
+  }
+
+  @override
+  String get partStatusDue => 'Pas encore payée';
+
+  @override
+  String get partStatusSubmitted => 'Preuve envoyée, en attente de l’école';
+
+  @override
+  String get partStatusPaid => 'Payée';
+
+  @override
+  String get partStatusRejected => 'Preuve refusée';
+
+  @override
+  String get partLate => 'En retard';
+
+  @override
+  String get partSendProof => 'Envoyer la preuve de paiement';
+
+  @override
+  String get partSent => 'Preuve envoyée. Votre école va la vérifier.';
+
+  @override
+  String nextMonthAsk(String month) {
+    return 'Demander $month';
+  }
+
+  @override
+  String nextMonthState(String month, String status) {
+    return '$month : $status';
+  }
+
+  @override
+  String get pushForegroundInstallmentPaid =>
+      'Votre école a marqué un paiement comme reçu.';
+
+  @override
+  String get pushForegroundInstallmentRejected =>
+      'Votre école n’a pas pu accepter une preuve de paiement.';
+
+  @override
+  String get pushForegroundInstallmentDue => 'Un paiement arrive à échéance.';
+
+  @override
+  String receiptSent(String n) {
+    return 'Preuve de la tranche $n envoyée';
+  }
+
+  @override
+  String receiptPaid(String n) {
+    return 'Tranche $n payée';
+  }
+
+  @override
+  String receiptRejected(String n) {
+    return 'Preuve de la tranche $n refusée';
+  }
+
+  @override
+  String stopDistance(String km) {
+    return 'à environ $km km de votre zone';
+  }
+
+  @override
+  String get stopClosest => 'Le plus proche de votre zone';
+
+  @override
+  String get stopAddArea =>
+      'Ajoutez votre zone pour voir l’arrêt le plus proche';
 }

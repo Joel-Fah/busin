@@ -2,6 +2,7 @@ import { School01Icon } from "@hugeicons/core-free-icons";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
+import { SchoolLogo } from "@/components/SchoolLogo";
 import { GatePage } from "@/components/student/GatePage";
 import { SetupForm, type Academics } from "@/components/student/SetupForm";
 import { SignOutForm } from "@/components/student/SignOutForm";
@@ -12,6 +13,7 @@ import { format } from "@/lib/i18n/format";
 import { getStudentCopy } from "@/lib/i18n/server";
 import { logoUrl } from "@/lib/school";
 import { firstName } from "@/lib/overview";
+import { phoneCountryFor } from "@/lib/phone/server";
 import { requireGate } from "@/lib/student/session";
 import { createClient } from "@/lib/supabase/server";
 
@@ -42,6 +44,7 @@ async function Setup() {
     departments: (departments.data ?? []).map((d) => ({ id: d.id, facultyId: d.faculty_id, name: d.name })),
     programs: programs.data ?? [],
   };
+  const phoneCountry = await phoneCountryFor(profile.school_id, profile.phone);
   const school = profile.schools?.name ?? "";
   const logo = logoUrl(profile.schools?.logo_path, supabaseConfig().url);
   const name = firstName(profile.full_name ?? "");
@@ -50,14 +53,7 @@ async function Setup() {
     <GatePage lang={locale} title={name ? format(s.setup.welcome, { name }) : s.setup.body} intro={name ? s.setup.body : undefined}>
       <Card className="flex flex-col gap-3 p-5">
         <div className="flex items-center gap-4">
-          <span className="grid size-12 shrink-0 place-items-center overflow-hidden rounded-sm bg-white">
-            {logo ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={logo} alt="" className="size-full object-contain" />
-            ) : (
-              <Icon icon={School01Icon} size={22} className="text-brand" />
-            )}
-          </span>
+          <SchoolLogo url={logo} fallback={<Icon icon={School01Icon} size={22} className="text-brand" />} />
           <div className="min-w-0">
             <p className="m-0 font-bold">{format(s.setup.joiningTitle, { school })}</p>
             <p className="m-0 text-sm text-muted">{s.setup.joiningBody}</p>
@@ -75,7 +71,8 @@ async function Setup() {
         copy={s.setup}
         fields={s.fields}
         academics={academics}
-        initial={{ fullName: profile.full_name ?? "", matricule: profile.matricule ?? "", phone: profile.phone ?? "", faculty: "", department: "", program: "" }}
+        initial={{ fullName: profile.full_name ?? "", matricule: profile.matricule ?? "", phone: profile.phone ?? "", phoneCountry, faculty: "", department: "", program: "" }}
+        locale={locale}
       />
     </GatePage>
   );

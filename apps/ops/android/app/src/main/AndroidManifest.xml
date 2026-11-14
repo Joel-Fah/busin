@@ -16,6 +16,8 @@
         android:label="BusIn Ops"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <!-- Crash reports stay off until a release build turns them on (ADR 0025): a debug run never sends any. -->
+        <meta-data android:name="firebase_crashlytics_collection_enabled" android:value="false" />
         <!-- Notifications from the server name this channel (see MainActivity). -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
@@ -64,6 +66,19 @@
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
+        </intent>
+        <!-- The school sheet opens the school's email, phone numbers and website in the phone's own apps. -->
+        <intent>
+            <action android:name="android.intent.action.SENDTO"/>
+            <data android:scheme="mailto"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.DIAL"/>
+            <data android:scheme="tel"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="https"/>
         </intent>
     </queries>
 </manifest>

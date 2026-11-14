@@ -56,6 +56,12 @@ DateTime reqDate(Map<String, dynamic> json, String key) {
   return _bad(key, 'a date (YYYY-MM-DD)', v);
 }
 
+/// A date-only value that may be absent.
+DateTime? optDate(Map<String, dynamic> json, String key) => json[key] == null ? null : reqDate(json, key);
+
+/// An integer that may be absent.
+int? optInt(Map<String, dynamic> json, String key) => json[key] == null ? null : reqInt(json, key);
+
 /// Formats a date-only value for the API.
 String formatDate(DateTime date) {
   final d = date.toUtc();

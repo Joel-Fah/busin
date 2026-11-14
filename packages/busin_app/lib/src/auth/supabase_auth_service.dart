@@ -4,6 +4,16 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'auth_service.dart';
 
+/// What a refusal from Supabase means for the person. The sign-up trigger refuses an account no school allows (a
+/// domain without a school, no invite); Supabase reports that as a server error, "Database error saving new user", which
+/// would otherwise look like the server being out of reach. Any other answer from the server is a refusal too; only a
+/// failed or retryable fetch means it could not be reached.
+SignInFailure signInFailureFor(AuthException error) {
+  if (error.message.contains('Database error saving new user')) return SignInFailure.notAllowed;
+  if (error is AuthRetryableFetchException) return SignInFailure.failed;
+  return SignInFailure.notAllowed;
+}
+
 /// Google sign-in on the device, then `signInWithIdToken` so Supabase verifies the token itself.
 /// The server decides who may have an account (the sign-up trigger checks the school's email domains);
 /// the app only reports what happened.
@@ -46,13 +56,9 @@ class SupabaseAuthService implements AuthService {
 
     try {
       await _client.auth.signInWithIdToken(provider: OAuthProvider.google, idToken: idToken);
-    } on AuthRetryableFetchException catch (e) {
-      _debug('Supabase could not be reached: ${e.message}');
-      throw const SignInException(SignInFailure.failed);
     } on AuthException catch (e) {
-      _debug('Supabase refused the sign-in: status ${e.statusCode} ${e.message}');
-      // The network worked and the server said no: the account is not allowed.
-      throw const SignInException(SignInFailure.notAllowed);
+      _debug('Supabase did not sign in: status ${e.statusCode} ${e.message}');
+      throw SignInException(signInFailureFor(e));
     }
     await _refreshPicture();
   }

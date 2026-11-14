@@ -7,10 +7,10 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'support.dart';
 
-Widget host(ProviderContainer container) => UncontrolledProviderScope(
+Widget host(ProviderContainer container, {bool dark = false}) => UncontrolledProviderScope(
       container: container,
       child: MaterialApp(
-        theme: BusinTheme.light(),
+        theme: dark ? BusinTheme.dark() : BusinTheme.light(),
         localizationsDelegates: businLocalizationsDelegates,
         supportedLocales: businSupportedLocales,
         home: const SignInScreen(),
@@ -68,6 +68,39 @@ void main() {
     expect(find.byKey(const ValueKey('logo-handoff')), findsNothing);
     expect(find.byType(BrandMark), findsOneWidget);
   });
+
+  testWidgets('advises signing in with the school email', (tester) async {
+    final container = containerFor();
+    addTearDown(container.dispose);
+    await tester.pumpWidget(host(container));
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.textContaining('if your school gave you an email address'), findsOneWidget);
+  });
+
+  testWidgets('light mode: the bus stop photo, teal words on the light page, white mark', (tester) async {
+    final container = containerFor();
+    addTearDown(container.dispose);
+    await tester.pumpWidget(host(container));
+    await tester.pump();
+    expect(photoOf(tester), contains('bus-stop.webp'));
+    expect(tester.widget<BrandMark>(find.byType(BrandMark)).color, Colors.white, reason: 'the mark stays white');
+    expect(tester.widget<Scaffold>(find.byType(Scaffold)).backgroundColor, BusinPalette.light.bg);
+  });
+
+  testWidgets('dark mode: the night bus photo, white words on the brand teal', (tester) async {
+    final container = containerFor();
+    addTearDown(container.dispose);
+    await tester.pumpWidget(host(container, dark: true));
+    await tester.pump();
+    expect(photoOf(tester), contains('night-bus.webp'));
+    expect(tester.widget<BrandMark>(find.byType(BrandMark)).color, Colors.white);
+    expect(tester.widget<Scaffold>(find.byType(Scaffold)).backgroundColor, BusinRamps.seed);
+  });
+}
+
+String photoOf(WidgetTester tester) {
+  final image = tester.widget<Image>(find.byType(Image).first).image as AssetImage;
+  return image.assetName;
 }
 
 const splashWidth = 144.0;

@@ -195,10 +195,13 @@ for (const [label, who] of [
 ] as const) {
   test(`${label} cannot open the people pages`, async ({ page, context }) => {
     await signInBrowser(context, who());
-    await page.goto("/people");
-    await expect(page).toHaveURL(/\/no-access$/);
-    await page.goto(`/people/${admin.id}`);
-    await expect(page).toHaveURL(/\/no-access$/);
+    // Staff are shown the no-access page; a student is sent to their own app instead (ADR 0021).
+    const away = label === "a student" ? /\/app\// : /\/no-access$/;
+    for (const path of ["/people", `/people/${admin.id}`]) {
+      // The student app may still be moving on from the last page; a navigation it cuts short is fine.
+      await page.goto(path).catch(() => undefined);
+      await expect(page).toHaveURL(away);
+    }
   });
 }
 

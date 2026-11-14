@@ -28,6 +28,9 @@ final tripsRepositoryProvider = Provider<TripsRepository>((ref) => ref.watch(rep
 /// Firebase Cloud Messaging, or a stand-in that does nothing when this build has no Firebase configuration.
 final pushServiceProvider = Provider<PushService>((ref) => const NoPushService());
 
+/// Crash reporting (ADR 0025). Replaced at start-up in release builds; nothing is sent otherwise.
+final crashReporterProvider = Provider<CrashReporter>((ref) => const NoCrashReporter());
+
 final deviceTokensRepositoryProvider = Provider<DeviceTokensRepository>((ref) => ref.watch(repositoriesProvider).deviceTokens);
 
 /// Keeps this phone's token on the server (crew_assigned notifications), in the language the app shows.
@@ -47,6 +50,20 @@ final nowProvider = Provider<DateTime Function()>((ref) => DateTime.now);
 final schoolClockProvider = Provider<SchoolClock>((ref) => const SchoolClock());
 
 /// The signed-in user's id, or null. Everything that holds user data watches this, so it resets on sign-out.
+/// Whether the logo draws itself when the app opens. Tests switch it off.
+final introEnabledProvider = Provider<bool>((ref) => true);
+
+/// Whether the opening drawing has finished (or was skipped with a tap). It plays once per cold start; until then the
+/// router keeps the loading screen up, whatever the access state says.
+class IntroDone extends Notifier<bool> {
+  @override
+  bool build() => !ref.watch(introEnabledProvider);
+
+  void finish() => state = true;
+}
+
+final introDoneProvider = NotifierProvider<IntroDone, bool>(IntroDone.new);
+
 final authUserIdProvider = StreamProvider<String?>((ref) => ref.watch(authServiceProvider).userIdChanges);
 
 /// Where the copy that lets the app open offline is kept (secure storage).

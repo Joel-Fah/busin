@@ -66,6 +66,10 @@ The apps carry the same language as the portal, ported natively into `packages/b
 The PWA at `/app` (ADR 0021) uses the portal's components and tokens with the phone layout of the student app (a
 640 px column, a floating tab bar). Its icon is the teal mark on white, to tell it apart from the installed app.
 
+## Phone numbers
+
+Every phone field is the country and phone field (`BusinPhoneField` in `busin_ui`, `PhoneField` in the portal): the country (flag and dialling code, opening a searchable list) and the number on one row, the number written the country's way as it is typed. Numbers are saved as E.164 (`+237677123456`, digits only) and shown in international form with spaces (`PhoneNumbers.display`, `displayPhone`). The starting country is the saved number's, else the school's, else the device's region. Flags are SVG files, never emoji. See ADR 0024.
+
 ## Localization
 
 All user-facing strings go through localization (EN and FR). Shared strings live in `busin_ui` (`BusinL10n`); a screen's own strings live in its app. Student-facing wording will be friendlier than the admin's.

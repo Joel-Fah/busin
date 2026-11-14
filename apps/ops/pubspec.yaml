@@ -39,15 +39,21 @@ dependencies:
   # Location: the Android part of geolocator only (the main package clashes with connectivity_plus, see the student app).
   geolocator_android: ^5.2.1
   geolocator_platform_interface: ^4.4.1
+  # Scan sounds: short low-latency clips (Android SoundPool). 6.8.1 is the newest release at least two weeks old.
+  audioplayers: 6.8.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_launcher_icons: ^0.14.4
   flutter_lints: ^6.0.0
+  flutter_native_splash: ^2.4.6
 
 flutter:
   uses-material-design: true
+  # The scan sounds, made by tool/make_sounds.py.
+  assets:
+    - assets/sounds/
 
 # Stand-in icons rendered from the BusIn wordmark on the brand orange (node tools/render-app-icons.mjs). Replace the PNGs
 # in assets/icon with the owner's own artwork and run: fvm dart run flutter_launcher_icons
@@ -58,3 +64,20 @@ flutter_launcher_icons:
   adaptive_icon_background: "#F5951F"
   adaptive_icon_foreground: assets/icon/icon_foreground.png
   adaptive_icon_monochrome: assets/icon/icon_monochrome.png
+
+# The native splash, themed like the phone (as the student app's): in light mode the teal wordmark at 144 dp on the app's
+# light background, in dark mode the white wordmark on the brand teal. The loading screen after it draws the same mark at
+# the same size and place on the same colours, so there is no jump. Regenerate with:
+#   node tools/render-app-icons.mjs && fvm dart run flutter_native_splash:create
+flutter_native_splash:
+  color: "#F4F8F8"
+  image: assets/splash/wordmark-teal.png
+  color_dark: "#002A33"
+  image_dark: assets/splash/wordmark.png
+  ios: false
+  web: false
+  android_12:
+    color: "#F4F8F8"
+    image: assets/splash/wordmark-teal.png
+    color_dark: "#002A33"
+    image_dark: assets/splash/wordmark.png

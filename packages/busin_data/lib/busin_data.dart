@@ -22,6 +22,7 @@ class SupabaseRepositories {
         joining = SupabaseJoinRepository(client),
         streaks = SupabaseStreaksRepository(client),
         areas = SupabaseAreaRepository(client),
+        installments = SupabaseInstallmentsRepository(client),
         notificationPreferences = SupabaseNotificationPreferencesRepository(client),
         stops = SupabaseStopsRepository(client),
         semesters = SupabaseSemestersRepository(client),
@@ -40,6 +41,7 @@ class SupabaseRepositories {
   final JoinRepository joining;
   final StreaksRepository streaks;
   final AreaRepository areas;
+  final InstallmentsRepository installments;
   final NotificationPreferencesRepository notificationPreferences;
   final StopsRepository stops;
   final SemestersRepository semesters;

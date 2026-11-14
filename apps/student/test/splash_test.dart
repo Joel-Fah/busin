@@ -20,10 +20,10 @@ ProviderContainer containerFor({bool introEnabled = true, FakeAuthService? auth,
       profileRepositoryProvider.overrideWithValue(profiles ?? FakeProfileRepository({})),
     ]);
 
-Widget host(ProviderContainer container) => UncontrolledProviderScope(
+Widget host(ProviderContainer container, {ThemeData? theme}) => UncontrolledProviderScope(
       container: container,
       child: MaterialApp(
-        theme: BusinTheme.light(),
+        theme: theme ?? BusinTheme.light(),
         localizationsDelegates: businLocalizationsDelegates,
         supportedLocales: businSupportedLocales,
         home: const SplashScreen(),
@@ -31,6 +31,21 @@ Widget host(ProviderContainer container) => UncontrolledProviderScope(
     );
 
 void main() {
+  testWidgets('the splash follows the theme: the teal mark on the light page, the white mark on the brand teal', (tester) async {
+    for (final (theme, background, ink) in [
+      (BusinTheme.light(), BusinPalette.light.bg, BusinRamps.seed),
+      (BusinTheme.dark(), BusinRamps.seed, Colors.white),
+    ]) {
+      final container = containerFor(introEnabled: false);
+      addTearDown(container.dispose);
+      await tester.pumpWidget(host(container, theme: theme));
+      // A theme change eases in: let it finish.
+      await tester.pump(const Duration(seconds: 1));
+      expect(tester.widget<Scaffold>(find.byType(Scaffold)).backgroundColor, background);
+      expect(tester.widget<BrandMark>(find.byType(BrandMark)).color, ink);
+    }
+  });
+
   testWidgets('the logo draws once, then the finished mark and a progress bar stay', (tester) async {
     final container = containerFor();
     addTearDown(container.dispose);

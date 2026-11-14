@@ -6,8 +6,6 @@
 export const LOGO_TYPES = ["image/png", "image/jpeg", "image/webp"] as const;
 /** The largest file read from the computer. It is shrunk to a small WebP before it is sent. */
 export const MAX_SOURCE_BYTES = 10 * 1024 * 1024;
-/** Space kept around the logo inside the square, as a share of its side. */
-export const LOGO_PADDING = 0.06;
 
 export type LogoProblem = "type" | "big" | "unreadable";
 
@@ -61,11 +59,12 @@ export function contentBox(data: Uint8ClampedArray, width: number, height: numbe
   return { x: minX, y: minY, width: maxX - minX + 1, height: maxY - minY + 1 };
 }
 
-/** Where to draw `source` on a square of `size` so it fits, centred, with `padding` of the side kept free around it. */
-export function fitInSquare(source: { width: number; height: number }, size: number, padding = LOGO_PADDING): Box {
-  const room = size * (1 - 2 * padding);
-  const scale = Math.min(room / source.width, room / source.height);
-  const width = source.width * scale;
-  const height = source.height * scale;
-  return { x: (size - width) / 2, y: (size - height) / 2, width, height };
+/**
+ * The size a logo is stored at: its own proportions (a school's logo is its property: never cropped, stretched or padded
+ * to a square), its longest side `longest` pixels, at least 1 pixel each way.
+ */
+export function fitWithin(source: { width: number; height: number }, longest: number): { width: number; height: number } {
+  const scale = longest / Math.max(source.width, source.height);
+  return { width: Math.max(1, Math.round(source.width * scale)), height: Math.max(1, Math.round(source.height * scale)) };
 }
+

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
 
 import { Chip, type ChipTone } from "./Chip";
 import { useSlidingIndicator } from "./useSlidingIndicator";
@@ -32,6 +33,24 @@ type Props = {
  */
 export function Tabs({ label, items, active, onSelect }: Props) {
   const { rowRef, indicatorRef } = useSlidingIndicator<HTMLElement>('[data-tab][aria-current="page"]', active);
+
+  // When the row scrolls sideways (stuck at the top on a narrow screen), the current tab is brought into view. Only the
+  // row moves, never the page.
+  useEffect(() => {
+    const row = rowRef.current;
+    if (!row) return;
+    const show = () => {
+      const tab = row.querySelector<HTMLElement>('[data-tab][aria-current="page"]');
+      if (!tab || row.scrollWidth <= row.clientWidth) return;
+      const left = tab.offsetLeft - row.clientWidth / 2 + tab.offsetWidth / 2;
+      row.scrollTo({ left: Math.max(0, left), behavior: "instant" });
+    };
+    show();
+    // Sticking to the top changes the row's size: check again then.
+    const observer = new ResizeObserver(show);
+    observer.observe(row);
+    return () => observer.disconnect();
+  }, [active, rowRef]);
 
   return (
     <nav ref={rowRef} aria-label={label} className="relative inline-flex max-w-full flex-wrap gap-1 self-start rounded-md bg-surface-2 p-1">

@@ -415,3 +415,17 @@ html[data-intro] [data-hero-mark] {
 html[data-intro-played] [data-hero-mark] {
   animation: none;
 }
+
+/*
+  The landing's illustrations, stickers, scenes and screens are pictures to look at, not things to pick up: they are never
+  selected, dragged, or given the long-press menu on a phone (the drag itself is also stopped in LandingIntro, for
+  Firefox).
+*/
+[data-landing] img,
+[data-landing] svg,
+[data-landing] picture {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
+}

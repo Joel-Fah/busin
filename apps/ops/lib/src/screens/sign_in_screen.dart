@@ -42,7 +42,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     final failure = switch (_failure) {
       null => null,
       SignInFailure.cancelled => l10n.signInCancelled,
-      SignInFailure.notAllowed => l10n.signInNotAllowed,
+      // Staff join by invitation: the refusal says so.
+      SignInFailure.notAllowed => l10n.opsSignInNotAllowed,
       SignInFailure.failed => l10n.signInFailed,
     };
     return Scaffold(

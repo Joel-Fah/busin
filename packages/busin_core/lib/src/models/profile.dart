@@ -1,6 +1,7 @@
 import '../enums.dart';
 import '../json.dart';
 import 'academic.dart';
+import 'billing.dart';
 import '../value_object.dart';
 
 /// A signed-in person. The role and status are set by the server; the app only reads them.
@@ -22,6 +23,7 @@ class Profile extends ValueObject {
     this.departmentId,
     this.programId,
     this.streakOptIn = false,
+    this.paymentPreference,
   });
 
   factory Profile.fromJson(Map<String, dynamic> json) => Profile(
@@ -39,6 +41,7 @@ class Profile extends ValueObject {
         departmentId: optString(json, 'department_id'),
         programId: optString(json, 'program_id'),
         streakOptIn: json['streak_opt_in'] == true,
+        paymentPreference: PaymentMode.tryParse(json['payment_preference']),
         createdAt: reqTimestamp(json, 'created_at'),
         updatedAt: reqTimestamp(json, 'updated_at'),
       );
@@ -65,6 +68,9 @@ class Profile extends ValueObject {
 
   /// Whether the student keeps a streak (and so appears on the school's leaderboard).
   final bool streakOptIn;
+
+  /// How the student prefers to pay (ADR 0022), used to fill in a request. Null until they choose.
+  final PaymentMode? paymentPreference;
 
   bool get isVerified => status == AccountStatus.verified;
 
@@ -102,6 +108,8 @@ class Profile extends ValueObject {
         'program_id': programId,
         'created_at': createdAt.toUtc().toIso8601String(),
         'updated_at': updatedAt.toUtc().toIso8601String(),
+        'streak_opt_in': streakOptIn,
+        'payment_preference': paymentPreference?.name,
       };
 
   /// The only fields a user may change on their own profile.
@@ -137,5 +145,6 @@ class Profile extends ValueObject {
         programId,
         createdAt,
         updatedAt,
+        paymentPreference,
       ];
 }

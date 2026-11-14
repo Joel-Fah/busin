@@ -58,7 +58,7 @@ async function AdminShell({ children }: { children: React.ReactNode }) {
           { label: t.nav.groupDaily, keys: ["subscriptions", "trips", "scans"] },
           { label: t.nav.groupGeneral, keys: ["overview", "people", "insights"] },
         ]}
-        profile={{ name: admin.fullName || admin.email, avatarUrl: admin.avatarUrl, href: "/profile", also: ["/stops", "/buses", "/semesters", "/academics", "/school"] }}
+        profile={{ name: admin.fullName || admin.email, avatarUrl: admin.avatarUrl, href: "/profile", also: ["/stops", "/buses", "/semesters", "/academics", "/school", "/billing"] }}
         text={t.nav}
         counts={await waitingCounts()}
       />

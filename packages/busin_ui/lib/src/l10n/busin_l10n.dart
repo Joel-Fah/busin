@@ -370,7 +370,7 @@ abstract class BusinL10n {
   /// No description provided for @fieldPhoneHint.
   ///
   /// In en, this message translates to:
-  /// **'For example 677 12 34 56'**
+  /// **'Choose your country, then type your number. No need for the country code.'**
   String get fieldPhoneHint;
 
   /// No description provided for @fieldDepartment.
@@ -546,6 +546,72 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'Sign in with your school Google account to subscribe, show your boarding code and follow your bus.'**
   String get signInSubtitle;
+
+  /// No description provided for @signInSchoolEmailTip.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip: if your school gave you an email address, sign in with it rather than a personal one.'**
+  String get signInSchoolEmailTip;
+
+  /// No description provided for @opsSignInNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'This Google account is not allowed here. Sign in with your school account or the address your school invited.'**
+  String get opsSignInNotAllowed;
+
+  /// No description provided for @navNew.
+  ///
+  /// In en, this message translates to:
+  /// **'new'**
+  String get navNew;
+
+  /// No description provided for @schoolDetailsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows the school\'s details'**
+  String get schoolDetailsHint;
+
+  /// No description provided for @schoolAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get schoolAddress;
+
+  /// No description provided for @schoolEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get schoolEmail;
+
+  /// No description provided for @schoolPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get schoolPhone;
+
+  /// No description provided for @schoolPhoneSecondary.
+  ///
+  /// In en, this message translates to:
+  /// **'Second phone'**
+  String get schoolPhoneSecondary;
+
+  /// No description provided for @schoolWebsite.
+  ///
+  /// In en, this message translates to:
+  /// **'Website'**
+  String get schoolWebsite;
+
+  /// No description provided for @schoolNoDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'The school has not added its details yet.'**
+  String get schoolNoDetails;
+
+  /// No description provided for @schoolLinkFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'No app on this phone can open this.'**
+  String get schoolLinkFailed;
 
   /// No description provided for @signInWithGoogle.
   ///
@@ -2722,7 +2788,7 @@ abstract class BusinL10n {
   /// No description provided for @opsSettingsSoundHint.
   ///
   /// In en, this message translates to:
-  /// **'A click when a student is let on, an alert when refused.'**
+  /// **'A different sound for let on, already on board, refused and suspect codes.'**
   String get opsSettingsSoundHint;
 
   /// No description provided for @opsSettingsDriving.
@@ -3294,6 +3360,306 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'You were added to a trip. It is in your trips.'**
   String get opsPushCrewAssigned;
+
+  /// No description provided for @phoneCountry.
+  ///
+  /// In en, this message translates to:
+  /// **'Country'**
+  String get phoneCountry;
+
+  /// No description provided for @phoneSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search a country'**
+  String get phoneSearch;
+
+  /// No description provided for @phoneNoMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No country matches.'**
+  String get phoneNoMatch;
+
+  /// No description provided for @areaIntroTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'One more thing: where do you live?'**
+  String get areaIntroTitle;
+
+  /// No description provided for @areaIntroSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get areaIntroSkip;
+
+  /// No description provided for @areaPromptTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your area'**
+  String get areaPromptTitle;
+
+  /// No description provided for @areaPromptBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Say roughly where you live so your school can place stops near students. Rounded to about 500 metres, never tracked.'**
+  String get areaPromptBody;
+
+  /// No description provided for @areaPromptAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add my area'**
+  String get areaPromptAdd;
+
+  /// No description provided for @subscribePriceSemester.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} for the semester'**
+  String subscribePriceSemester(String price);
+
+  /// No description provided for @subscribePriceMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} a month'**
+  String subscribePriceMonth(String price);
+
+  /// No description provided for @subscribeBillingNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school is still setting up payments. You can ask for a subscription once it has.'**
+  String get subscribeBillingNotSet;
+
+  /// No description provided for @subscribeMonthLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get subscribeMonthLabel;
+
+  /// No description provided for @subscribePaymentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'How you pay'**
+  String get subscribePaymentLabel;
+
+  /// No description provided for @paymentFull.
+  ///
+  /// In en, this message translates to:
+  /// **'In full'**
+  String get paymentFull;
+
+  /// No description provided for @paymentInstallments.
+  ///
+  /// In en, this message translates to:
+  /// **'In installments'**
+  String get paymentInstallments;
+
+  /// No description provided for @subscribeFullNote.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} with this request.'**
+  String subscribeFullNote(String amount);
+
+  /// No description provided for @installmentPartNow.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} with this request'**
+  String installmentPartNow(String amount);
+
+  /// No description provided for @installmentPartBy.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} by {date}'**
+  String installmentPartBy(String amount, String date);
+
+  /// No description provided for @subscribeInstallmentsTooLate.
+  ///
+  /// In en, this message translates to:
+  /// **'Paying in installments needs at least {days} days left in the semester, so this request is paid in full.'**
+  String subscribeInstallmentsTooLate(int days);
+
+  /// No description provided for @subscribeInstallmentsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'{parts}. The dates follow your own time on the bus, up to the end of the semester.'**
+  String subscribeInstallmentsNote(String parts);
+
+  /// No description provided for @subscribePaymentRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose how you pay.'**
+  String get subscribePaymentRequired;
+
+  /// No description provided for @subscribeErrorPeriodEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'That month has ended. Pull down to refresh and choose again.'**
+  String get subscribeErrorPeriodEnded;
+
+  /// No description provided for @preferenceSaveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay this way next time?'**
+  String get preferenceSaveTitle;
+
+  /// No description provided for @preferenceSaveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'BusIn can fill in “{mode}” for your next requests. You can change it in your profile.'**
+  String preferenceSaveBody(String mode);
+
+  /// No description provided for @preferenceSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as my preference'**
+  String get preferenceSave;
+
+  /// No description provided for @preferenceNotNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get preferenceNotNow;
+
+  /// No description provided for @preferenceSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved as how you prefer to pay.'**
+  String get preferenceSaved;
+
+  /// No description provided for @profilePaymentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How you prefer to pay'**
+  String get profilePaymentTitle;
+
+  /// No description provided for @profilePaymentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Filled in when you ask for a subscription.'**
+  String get profilePaymentHint;
+
+  /// No description provided for @partsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Installments'**
+  String get partsTitle;
+
+  /// No description provided for @partLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Part {n}'**
+  String partLabel(String n);
+
+  /// No description provided for @partDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Due {date}'**
+  String partDue(String date);
+
+  /// No description provided for @partStatusDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Not paid yet'**
+  String get partStatusDue;
+
+  /// No description provided for @partStatusSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Proof sent, waiting for the school'**
+  String get partStatusSubmitted;
+
+  /// No description provided for @partStatusPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get partStatusPaid;
+
+  /// No description provided for @partStatusRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Proof not accepted'**
+  String get partStatusRejected;
+
+  /// No description provided for @partLate.
+  ///
+  /// In en, this message translates to:
+  /// **'Late'**
+  String get partLate;
+
+  /// No description provided for @partSendProof.
+  ///
+  /// In en, this message translates to:
+  /// **'Send proof of payment'**
+  String get partSendProof;
+
+  /// No description provided for @partSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Proof sent. Your school will check it.'**
+  String get partSent;
+
+  /// No description provided for @nextMonthAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask for {month}'**
+  String nextMonthAsk(String month);
+
+  /// No description provided for @nextMonthState.
+  ///
+  /// In en, this message translates to:
+  /// **'{month}: {status}'**
+  String nextMonthState(String month, String status);
+
+  /// No description provided for @pushForegroundInstallmentPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school marked a payment as received.'**
+  String get pushForegroundInstallmentPaid;
+
+  /// No description provided for @pushForegroundInstallmentRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school could not accept a payment proof.'**
+  String get pushForegroundInstallmentRejected;
+
+  /// No description provided for @pushForegroundInstallmentDue.
+  ///
+  /// In en, this message translates to:
+  /// **'A payment is due soon.'**
+  String get pushForegroundInstallmentDue;
+
+  /// No description provided for @receiptSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Proof for part {n} sent'**
+  String receiptSent(String n);
+
+  /// No description provided for @receiptPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Part {n} paid'**
+  String receiptPaid(String n);
+
+  /// No description provided for @receiptRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Proof for part {n} not accepted'**
+  String receiptRejected(String n);
+
+  /// No description provided for @stopDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'about {km} km from your area'**
+  String stopDistance(String km);
+
+  /// No description provided for @stopClosest.
+  ///
+  /// In en, this message translates to:
+  /// **'Closest to your area'**
+  String get stopClosest;
+
+  /// No description provided for @stopAddArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your area to see which stop is closest'**
+  String get stopAddArea;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {

@@ -46,7 +46,10 @@ test("edits the details and sees them saved", async ({ page, context }) => {
   await page.getByLabel("Phone number").fill("+237 699 00 11 22");
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page).toHaveURL(/\/app\/profile\?saved=1$/);
-  await expect(page.getByText("+237699001122")).toBeVisible();
+  // Shown with spaces, stored as E.164 (ADR 0024).
+  await expect(page.getByText("+237 6 99 00 11 22")).toBeVisible();
+  const { data } = await serviceClient().from("profiles").select("phone").eq("id", student.id).single();
+  expect(data?.phone).toBe("+237699001122");
 });
 
 test("lists boardings by day, with this week's count", async ({ page, context }) => {

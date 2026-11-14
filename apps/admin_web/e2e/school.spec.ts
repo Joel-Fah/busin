@@ -4,13 +4,15 @@ import { expect, test } from "@playwright/test";
 
 import type { Database } from "../lib/database.types";
 
-import { SEED, createUser, deleteUser, serviceClient, signInBrowser, type TestUser } from "./support";
+import { SEED, createUser, deleteUser, localKeys, serviceClient, signInBrowser, type TestUser } from "./support";
 
 const tag = randomBytes(3).toString("hex");
 let admin: TestUser;
 let student: TestUser;
 type Saved = Database["public"]["Tables"]["schools"]["Update"];
 let before: Saved;
+// The school's own logo file: uploading a test logo deletes the previous file, so it is kept here and put back.
+let logoFile: Blob | null = null;
 
 const COLUMNS = "open_signup_domains, name, short_name, website, contact_email, phone, address, city, country, about, logo_path, accepts_open_signup, public_listing, terms_version, terms_accepted_at, terms_accepted_by";
 
@@ -19,6 +21,7 @@ test.beforeAll(async () => {
   student = await createUser(`school-student-${tag}`, "student");
   const { data } = await serviceClient().from("schools").select(COLUMNS).eq("id", SEED.schoolId).single();
   before = data as Saved;
+  if (before.logo_path) logoFile = (await serviceClient().storage.from("school-logos").download(before.logo_path)).data;
   // Start from a school that has not accepted the terms.
   await serviceClient().from("schools").update({ public_listing: false, terms_accepted_at: null, terms_version: null, terms_accepted_by: null }).eq("id", SEED.schoolId);
 });
@@ -26,6 +29,10 @@ test.beforeAll(async () => {
 test.afterAll(async () => {
   const { data } = await serviceClient().from("schools").select("logo_path").eq("id", SEED.schoolId).single();
   if (data?.logo_path && data.logo_path !== before.logo_path) await serviceClient().storage.from("school-logos").remove([data.logo_path]);
+  // The original logo file comes back where it was, so the school (and the owner's local data) keeps its logo.
+  if (before.logo_path && logoFile) {
+    await serviceClient().storage.from("school-logos").upload(before.logo_path, logoFile, { contentType: logoFile.type || "image/webp", upsert: true });
+  }
   await serviceClient().from("schools").update(before).eq("id", SEED.schoolId);
   for (const user of [admin, student]) if (user) await deleteUser(user);
 });
@@ -132,6 +139,23 @@ test.describe("the school profile", () => {
     await expect(page.getByText("Logo saved.")).toBeVisible();
     const { data } = await serviceClient().from("schools").select("logo_path").eq("id", SEED.schoolId).single();
     expect(data?.logo_path).toMatch(new RegExp(`^${SEED.schoolId}/logo-\\d+\\.webp$`));
+    // Stored in its own shape (3:2 here), its longest side 512: never padded to a square.
+    const stored = `${localKeys().url}/storage/v1/object/public/school-logos/${data!.logo_path}`;
+    const size = await page.evaluate(async (src) => {
+      const image = new Image();
+      image.src = src;
+      await image.decode();
+      return { width: image.naturalWidth, height: image.naturalHeight };
+    }, stored);
+    expect(size).toEqual({ width: 512, height: 341 });
+    // Shown smaller, in its own proportions, inside its box: never at its file size, never stretched.
+    const box = (await page.getByTestId("logo-preview").boundingBox())!;
+    const shown = (await page.getByTestId("logo-preview").locator("img").boundingBox())!;
+    expect(shown.x).toBeGreaterThanOrEqual(box.x);
+    expect(shown.y).toBeGreaterThanOrEqual(box.y);
+    expect(shown.x + shown.width).toBeLessThanOrEqual(box.x + box.width + 0.5);
+    expect(shown.y + shown.height).toBeLessThanOrEqual(box.y + box.height + 0.5);
+    expect(shown.width / shown.height).toBeCloseTo(512 / 341, 1);
 
     await page.getByRole("button", { name: "Remove", exact: true }).click();
     await expect(page.getByText("Logo removed.")).toBeVisible();
@@ -141,6 +165,8 @@ test.describe("the school profile", () => {
 
   test("a logo dropped on the zone lights it up and is saved; a wrong file is refused with its own message", async ({ page }) => {
     await page.goto("/school");
+    // The drop zone listens once the page has hydrated; synthetic drag events sent before are lost.
+    await page.waitForLoadState("networkidle");
     const zone = page.locator("[data-dropzone]");
     const dropFile = async (name: string, type: string, make: () => Promise<number[]>) => {
       const bytes = await page.evaluate(make);
@@ -191,6 +217,51 @@ test.describe("the school profile", () => {
     await expect(page.getByText("Logo saved.")).toBeVisible();
     const { data } = await serviceClient().from("schools").select("logo_path").eq("id", SEED.schoolId).single();
     expect(data?.logo_path).toMatch(new RegExp(`^${SEED.schoolId}/logo-\\d+\\.webp$`));
+  });
+});
+
+test.describe("leaving the school profile with changes not saved", () => {
+  test.beforeEach(async ({ context }) => {
+    await signInBrowser(context, admin);
+  });
+
+  const overview = (page: import("@playwright/test").Page) => page.getByRole("navigation", { name: "Main navigation" }).getByRole("link", { name: "Overview", exact: true });
+
+  test("asks first: going back keeps the changes, saving goes on to where the admin was going", async ({ page }) => {
+    await page.goto("/school");
+    await page.waitForLoadState("networkidle");
+    await page.getByLabel("Website").fill("https://saved-on-the-way.example");
+    await overview(page).click();
+    const dialog = page.getByRole("dialog", { name: "Save your changes?" });
+    await expect(dialog).toBeVisible();
+
+    await dialog.getByRole("button", { name: "Go back to the form" }).click();
+    await expect(dialog).toBeHidden();
+    await expect(page).toHaveURL(/\/school$/);
+    await expect(page.getByLabel("Website")).toHaveValue("https://saved-on-the-way.example");
+
+    await overview(page).click();
+    await page.getByRole("dialog", { name: "Save your changes?" }).getByRole("button", { name: "Save and continue" }).click();
+    await expect(page).toHaveURL(/127\.0\.0\.1:\d+\/$/);
+    const { data } = await serviceClient().from("schools").select("website").eq("id", SEED.schoolId).single();
+    expect(data?.website).toBe("https://saved-on-the-way.example");
+  });
+
+  test("leaving without saving drops the changes, and an unchanged form never asks", async ({ page }) => {
+    const { data: before } = await serviceClient().from("schools").select("website").eq("id", SEED.schoolId).single();
+    await page.goto("/school");
+    await page.waitForLoadState("networkidle");
+    await overview(page).click();
+    await expect(page).toHaveURL(/127\.0\.0\.1:\d+\/$/, { timeout: 15_000 });
+
+    await page.goto("/school");
+    await page.waitForLoadState("networkidle");
+    await page.getByLabel("Website").fill("https://never-saved.example");
+    await overview(page).click();
+    await page.getByRole("dialog", { name: "Save your changes?" }).getByRole("button", { name: "Leave without saving" }).click();
+    await expect(page).toHaveURL(/127\.0\.0\.1:\d+\/$/);
+    const { data: after } = await serviceClient().from("schools").select("website").eq("id", SEED.schoolId).single();
+    expect(after?.website).toBe(before?.website);
   });
 });
 

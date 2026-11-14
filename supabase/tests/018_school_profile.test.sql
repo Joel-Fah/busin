@@ -1,6 +1,10 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(20);
+select plan(24);
+
+-- Independent of the local data: schools already in the database (the demo school, which an owner may have opened to
+-- any email or listed publicly while testing) neither accept open sign-up nor show publicly here. Rolled back at the end.
+update public.schools set accepts_open_signup = false, open_signup_domains = '{}', public_listing = false;
 
 insert into public.schools (id, name) values
   ('10000000-0000-4000-8000-000000000001', 'School A'),
@@ -20,7 +24,7 @@ insert into storage.objects (bucket_id, name) values
 -- the admin of school A
 set local role authenticated;
 set local "request.jwt.claims" = '{"sub":"a3000000-0000-4000-8000-000000000001","role":"authenticated"}';
-select lives_ok($$select public.admin_update_school_profile(' Hill University ', 'HU', 'https://hill.example', 'Info@Hill.example', '+237 600 00 00 00', '1 Main St', 'Yaounde', 'Cameroon', 'A school on a hill.', true, false)$$, 'an admin saves the profile');
+select lives_ok($$select public.admin_update_school_profile(' Hill University ', 'HU', 'https://hill.example', 'Info@Hill.example', '+237677123456', '1 Main St', 'Yaounde', 'Cameroon', 'A school on a hill.', true, false)$$, 'an admin saves the profile');
 select throws_ok($$select public.admin_update_school_profile('Hill University', null, 'http://hill.example', null, null, null, null, null, null, false, false)$$, '23514', null, 'a website must use https');
 select throws_ok($$select public.admin_update_school_profile('Hill University', null, null, 'not-an-email', null, null, null, null, null, false, false)$$, '23514', null, 'a contact email must look like one');
 select throws_ok($$select public.admin_update_school_profile('Hill University', null, null, null, null, null, null, null, repeat('x', 281), false, false)$$, '23514', null, 'the about text is 280 characters at most');
@@ -45,6 +49,16 @@ select is((select name from public.schools where id = '10000000-0000-4000-8000-0
 set local role authenticated;
 set local "request.jwt.claims" = '{"sub":"a1000000-0000-4000-8000-000000000001","role":"authenticated"}';
 select throws_ok($$select public.admin_accept_school_terms('2026-11')$$, '42501', 'Admin access required', 'a student cannot accept terms');
+reset role;
+
+-- a second phone number, optional, checked like the first
+set local role authenticated;
+set local "request.jwt.claims" = '{"sub":"a3000000-0000-4000-8000-000000000001","role":"authenticated"}';
+select lives_ok($$select public.admin_update_school_profile('Hill University', 'HU', null, null, '+237677123456', null, 'Yaounde', null, null, true, true, '{}', '+237699000111')$$, 'an admin saves a second phone number');
+select throws_ok($$select public.admin_update_school_profile('Hill University', 'HU', null, null, null, null, 'Yaounde', null, null, true, true, '{}', '699 00 01 11')$$, '23514', null, 'which must be E.164 too');
+select lives_ok($$select public.admin_update_school_profile('Hill University', 'HU', null, null, null, null, 'Yaounde', null, null, true, true)$$, 'and stays optional (left out, it is cleared)');
+set local "request.jwt.claims" = '{"sub":"a1000000-0000-4000-8000-000000000001","role":"authenticated"}';
+select is((select phone_secondary from public.schools where id = '10000000-0000-4000-8000-000000000001'), null, 'a student of the school reads it with the school');
 reset role;
 
 -- anyone sees only listed schools, and only public fields

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { SetupForm, type Academics } from "@/components/student/SetupForm";
+import { phoneCountryFor } from "@/lib/phone/server";
 import { StudentPage } from "@/components/student/StudentPage";
 import { getStudentCopy } from "@/lib/i18n/server";
 import { saveProfile } from "@/lib/student/onboarding";
@@ -46,10 +47,12 @@ async function EditProfile() {
         save={saveProfile}
         submitLabel={s.me.save}
         cancel={{ href: "/app/profile", label: s.me.cancel }}
+        locale={locale}
         initial={{
           fullName: student.fullName,
           matricule: student.matricule ?? "",
           phone: student.phone ?? "",
+          phoneCountry: await phoneCountryFor(student.schoolId, student.phone),
           faculty: department?.facultyId ?? "",
           department: department?.id ?? "",
           program: own.data?.program_id ?? "",

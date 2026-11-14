@@ -45,3 +45,16 @@ export async function setStreaks(formData: FormData): Promise<void> {
   await supabase.rpc("set_streak_opt_in", { p_on: formData.get("on") === "true" });
   revalidatePath("/app/streaks");
 }
+
+/** How the student prefers to pay (ADR 0022), or null to forget it. Used after a request and from the profile. */
+export async function setPaymentPreference(mode: "full" | "installments" | null): Promise<boolean> {
+  await requireStudent();
+  if (mode !== null && mode !== "full" && mode !== "installments") return false;
+  const supabase = await createClient();
+  // The generated types do not mark function arguments as nullable; the function takes null to mean "not chosen".
+  const { error } = await supabase.rpc("set_payment_preference", { p_preference: mode as string });
+  revalidatePath("/app/profile");
+  revalidatePath("/app/subscription");
+  revalidatePath("/app/settings/payment");
+  return !error;
+}

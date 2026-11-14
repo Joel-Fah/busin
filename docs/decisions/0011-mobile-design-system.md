@@ -17,7 +17,7 @@ Port the language, not the code. The tokens and rules are identical; the compone
 | Floating navigation | glass bar, elastic indicator | `FloatingNavBar`: glass with a backdrop blur, the same thread, an elastic two-edge highlight (`indicatorEdges`), a selection haptic, and it hides while the keyboard is open. It adds the system safe-area inset the portal does not need |
 | Wide screens | the bar widens | `BusinNavRail`: a slim floating rail with the same highlight running vertically |
 | Cards, buttons, chips, empty states, skeletons, sheets | `Card`, `Button`, `Chip`, `EmptyState`, `Skeleton`, `SideSheet` | `BusinCard`, `BusinButton` (squeeze 0.98, light haptic, thread), `StatusChip` (always with an icon), `EmptyState` (framed, with a 3D illustration), `Skeleton` (shimmer 1.6 s), `showBusinSheet` |
-| Imagery | thiings.co 3D set, wordmark | The same WebP set and the wordmark SVG bundled in `busin_ui/assets`; a night-bus photo for the sign-in screen |
+| Imagery | thiings.co 3D set, wordmark | The same WebP set and the wordmark SVG bundled in `busin_ui/assets`; the sign-in photos: the night bus (dark mode) and the bus stop seen from above (light mode, Pexels 21576182) |
 
 ### Responsive rules
 Layouts are chosen by width, never by device name (`BusinLayout`): compact under 600 dp (one column, floating bar), medium 600 to 839 (one column capped at 640, floating bar), expanded from 840 (a rail and room for two panes). `AdaptiveScaffold` picks the navigation and tells screens how much bottom room the bar takes (`BusinScope.bottomInset`); `ContentColumn` caps a reading column; `SplitView` shows two panes side by side when the area is wide enough. Every screen is tested at 360x640, 412x915, 800x1280 and 1280x800 and at 160% text.

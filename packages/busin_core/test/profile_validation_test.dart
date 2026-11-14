@@ -29,22 +29,22 @@ void main() {
   });
 
   group('phone', () {
-    test('accepts local and international numbers', () {
-      for (final ok in ['677 12 34 56', '+237 677-123-456', '(237) 677 123 456', '0677123456']) {
-        expect(ProfileValidation.phone(ok), isNull, reason: ok);
+    test('accepts a real number typed with or without its country code (ADR 0024)', () {
+      for (final ok in ['677 12 34 56', '+237 677-123-456', '0677123456', '+33 6 12 34 56 78']) {
+        expect(ProfileValidation.phone(ok, 'CM'), isNull, reason: ok);
       }
     });
 
-    test('refuses letters, short and very long numbers', () {
-      expect(ProfileValidation.phone(''), ProfileFieldProblem.empty);
-      expect(ProfileValidation.phone('call me'), ProfileFieldProblem.invalid);
-      expect(ProfileValidation.phone('12345'), ProfileFieldProblem.tooShort);
-      expect(ProfileValidation.phone('1' * 16), ProfileFieldProblem.tooLong);
+    test('refuses empty, letters and numbers that do not exist', () {
+      expect(ProfileValidation.phone('', 'CM'), ProfileFieldProblem.empty);
+      expect(ProfileValidation.phone('call me', 'CM'), ProfileFieldProblem.invalid);
+      expect(ProfileValidation.phone('12345', 'CM'), ProfileFieldProblem.invalid);
+      expect(ProfileValidation.phone('1' * 16, 'CM'), ProfileFieldProblem.invalid);
     });
 
-    test('is stored as digits with an optional plus', () {
-      expect(ProfileValidation.normalizePhone('+237 677-123-456'), '+237677123456');
-      expect(ProfileValidation.normalizePhone('677 12 34 56'), '677123456');
+    test('is stored as E.164', () {
+      expect(ProfileValidation.normalizePhone('+237 677-123-456', 'CM'), '+237677123456');
+      expect(ProfileValidation.normalizePhone('677 12 34 56', 'CM'), '+237677123456');
     });
   });
 

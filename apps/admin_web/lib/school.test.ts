@@ -4,7 +4,7 @@ import { initialsOf } from "./landing/schools";
 import { isValidDomain, isWebp, logoUrl, normalizeDomain, parseSchoolForm, schoolSaveError } from "./school";
 
 const form = (values: Record<string, string>) => ({ get: (name: string) => values[name] ?? null });
-const valid = { name: "  Hill   University ", short_name: "HU", website: "https://hill.example", contact_email: "Info@Hill.example", phone: "+237 6 00 00 00 00", city: "Yaounde" };
+const valid = { name: "  Hill   University ", short_name: "HU", website: "https://hill.example", contact_email: "Info@Hill.example", phone: "+237 6 77 12 34 56", city: "Yaounde" };
 
 describe("school profile form", () => {
   it("reads and tidies the fields, and the switches", () => {
@@ -15,6 +15,13 @@ describe("school profile form", () => {
     expect(parsed.value.contactEmail).toBe("info@hill.example");
     expect(parsed.value.acceptsOpenSignup).toBe(true);
     expect(parsed.value.publicListing).toBe(false);
+    expect(parsed.value.phone, "stored as E.164 (ADR 0024)").toBe("+237677123456");
+    expect(parsed.value.phoneSecondary, "optional").toBe("");
+  });
+
+  it("reads an optional second phone for its own country, as E.164", () => {
+    const parsed = parseSchoolForm(form({ ...valid, phone_secondary: "6 99 00 01 11", phone_secondaryCountry: "CM" }));
+    expect(parsed.ok && parsed.value.phoneSecondary).toBe("+237699000111");
   });
 
   it("names the field that is wrong", () => {
@@ -22,6 +29,7 @@ describe("school profile form", () => {
     expect(parseSchoolForm(form({ ...valid, website: "http://hill.example" }))).toEqual({ ok: false, field: "website" });
     expect(parseSchoolForm(form({ ...valid, contact_email: "nope" }))).toEqual({ ok: false, field: "contactEmail" });
     expect(parseSchoolForm(form({ ...valid, phone: "call me" }))).toEqual({ ok: false, field: "phone" });
+    expect(parseSchoolForm(form({ ...valid, phone_secondary: "call me" }))).toEqual({ ok: false, field: "phoneSecondary" });
     expect(parseSchoolForm(form({ ...valid, about: "x".repeat(281) }))).toEqual({ ok: false, field: "about" });
     expect(parseSchoolForm(form({ ...valid, short_name: "x".repeat(21) }))).toEqual({ ok: false, field: "shortName" });
   });

@@ -31,6 +31,77 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: release of 2026-11-14 (on `main`)
+
+Released: `dev` merged into `main` (milestone PR below), deployed by Vercel. Applied to the hosted project before the merge
+(owner approved): the seven migrations `20261115160000_school_billing` to `20261115210000_school_second_phone`, and the
+`send-push` function redeployed.
+
+Owner, now:
+- **Set billing for each live school** in the portal (Billing): until it is set, students cannot ask for a subscription.
+- **Import places for each live school** (see `docs/guides/hosting.md`, `npm run places:import` with the hosted URL and
+  service role key in your own terminal).
+- Re-upload the school logo where it is missing; set the second phone if wanted.
+- Install the new app builds (both apps read columns the migrations added). Run the test list below on the hosted setup.
+- Later: the Crashlytics Gradle plugin (#496), when a release build can run on a machine with enough memory; and the
+  choice of 10 or 15 seconds for the web boarding code.
+
+## Handoff: 2026-11-14 round (all merged into `dev`)
+
+Merged into `dev` on 2026-11-14 (not on `main`, not on the hosted project):
+- **Ops:** scan sounds (#437).
+- **My area:** offered after setup (#438, ADR 0023); closest stop suggested when subscribing (#452).
+- **School billing (ADR 0022):** backend (#439), installments (#440), the admin Billing page (#442), the student app (#443) and web app (#444); In full by default (#450); every installment receipt kept in the history (#451).
+- **Setup:** asks program, then faculty, then department (#446).
+- **Phone numbers (ADR 0024):** stored as E.164 (#457), with the country and phone field on the web (#458) and in Flutter (#459).
+- **School logos:** keep their own shape (#460).
+- **Admin:** stuck filter tabs stay on one row (#462).
+
+Next: the owner tests on `dev` (below), then the milestone PR `dev` to `main`, the hosted migrations (`20261115160000_school_billing`, `20261115170000_installments`, `20261115175000_installment_receipts`, `20261115180000_phone_e164`, then `20261115190000_installments_from_start`, `20261115200000_trips_realtime`, `20261115210000_school_second_phone`), the `send-push` redeploy, and setting billing for each live school right after the billing migration. Each needs the owner's go.
+
+Since then (PRs into `dev`, not merged): the school logo fits its box in its own proportions (#465, fixes an overflow after #460); leaving the school profile with unsaved changes asks first (#466, stacked on #465).
+
+Then (PRs into `dev`): the sign-in screen follows the theme, with the bus stop photo in light mode on the phone and the web (#472); the ops app's launch screen follows the theme too (#473, stacked on #472).
+
+Next round (PRs into `dev`, stacked in this order): the sign-in tip to use the school email (#476); search on the admin Subscriptions list (#477); a refused account is told it is not allowed instead of "try again" (#482); installments follow each student's start and close when fewer than two weeks per part are left (#478, migration `20261115190000_installments_from_start`, ADR 0022 point 8); tab badges in the student and ops apps (#479, migration `20261115200000_trips_realtime`, `20261115210000_school_second_phone`); an optional second school phone (#486, migration `20261115210000_school_second_phone`); the school sheet from the profile in both apps, and the ops logo (#487); the offline banner shows as soon as the network drops (#490); the stop list is nearest first when the student has an area (#492); crash reports with Firebase Crashlytics in both phone apps, release builds only, no personal data (#494, ADR 0025; switched on in the Firebase project with one test report per app on 2026-11-14).
+
+Local tools: `npm run seed:staff -- <staff email>` gives a staff account eight varied weeks of trips (on time, late, missed, cancelled, field trips) with boardings, two today and some ahead (on demo bus DEMO-107; needs `npm run seed:demo`). The school E2E now backs up and restores the school's logo file (it used to delete the owner's local logo). The apps now read `phone_secondary` and `address`: the hosted migration must be applied before these app builds are released.
+
+What to test (local: `npm run backend:start`, `npm run seed:demo`, `npm run web`, `npm run dev:device`; rebuild both Flutter apps):
+- **Ops scan sounds:** a valid code, the same again, a screenshot older than a minute, a student without a subscription, no network and no list. Each sounds different, and music keeps playing. The switch is in the profile.
+- **Setup:** a new account is asked program, then faculty, then department, then My area once ("Not now" works). An existing account without an area sees the card on the Subscription tab once.
+- **Phone field (phone app and web):** country by search (English and French), a Cameroonian and a foreign number formatted as typed, a pasted `+33...` switching the country, one row at large text. Saved numbers show with spaces. Also on the school profile in the portal.
+- **Billing, admin:** with billing cleared, the overview asks for it first and students are refused. Set per semester with 40-30-30, then per month, and check the preview.
+- **Billing, student (phone and web):**
+  - the price shows, and In full is chosen by default;
+  - switch to In installments and send, then "Pay this way next time?" saves the preference;
+  - the profile shows it;
+  - the stop list is ordered nearest first from your area (the nearest marked, nothing chosen); without an area, the school's order.
+- **Installments:**
+  - the admin approves, which pays part 1; the student sends part 2's proof;
+  - the admin rejects it with a reason; the student sends another; the admin marks it paid;
+  - both receipts and each decision stay in the history (admin, phone, web), and the pushes arrive.
+- **Monthly billing:** ask for this month and next; the code works this month only; "Ask for next month" from a running month.
+- **Logos:** upload a wide and a tall logo. Neither is cropped in the portal, the landing page, the web join, setup and waiting pages, or the phone app.
+- **School profile guard:** change a field, then click any link (navigation, Academics card, Back to profile). The dialog offers Go back, Save and continue (saves, then goes where you clicked), or Leave without saving. Closing the tab warns too.
+- **Student app splash:** open the app with the phone in light mode, then dark mode. The launch screen and the logo drawing match: teal logo on the light background, or white logo on the brand teal, with no jump between them.
+- **Sign-in (phone and web app):** signed out, in light mode the bus stop photo with teal words and a white logo (it turns from teal to white as it travels from the splash); in dark mode the night bus as before.
+- **Ops launch screen:** open the ops app in light mode (teal logo on the light background), then dark mode (white logo on teal). The loading screen after it keeps the logo in the same place.
+- **Sign-in tip:** under the Google button, a short tip to use the school email (phone and web, EN and FR).
+- **Subscriptions search (admin):** search a student by name, email or matricule; the tabs' numbers follow, the semester, stop and payments filters stay, and Clear search brings everything back.
+- **Ops sign-in with a personal account:** says it is not allowed and to use the school account or the invited address. To sign in to ops with a non-school address, invite it first from People > Invite.
+- **Installments from the student's start:** on the form (phone and web), In installments shows each part's amount and date, spread from today to the semester's end. With fewer than 28 days left (two parts) or 42 (three), only In full is offered, with a note. The admin Billing page explains it.
+- **Tab badges (student app):** on Profile, have the request approved from the portal: Subscription and Code get an orange dot; opening a tab clears its dot. With notifications on, a part paid or rejected marks Subscription and the bus near your stop marks My bus. The tab you are on never gets one.
+- **Tab badges (ops app):** on History, assign a trip to yourself from the portal (or have a colleague start a field trip with you): Trips gets a dot and its list refreshes.
+- **Second school phone (admin):** on the school profile, an optional second phone with its own country; saved as E.164, emptied it is cleared.
+- **School sheet (student and ops):** on the profile, the school shows as a logo badge (in ops too, which showed only a name chip); tapping it opens a sheet with the logo, about, address, email, phones and website. Email opens the mail app, phones the dialler, the website the browser.
+- **Offline banner (student and ops):** with a screen open, turn on airplane mode: "No connection" appears within a second, the saved pass or today's trips still show; turning it off removes it.
+- **Ops Stats charts:** tap a bar (or slide across): the others fade and its values show above the chart; tap again to clear.
+- **Ops opening:** a cold start draws the logo once on the loading screen (a tap skips it), in light and dark.
+- **Crash reports:** in the Firebase console (project busin-28e6a), Crashlytics lists BusIn Student and BusIn Ops, each with one test report ("Crashlytics test report from the ... app"). Normal builds send nothing more unless something really breaks; debug runs never send.
+- **Privacy text:** the privacy policy (apps and web) mentions crash reports, dated 14 November 2026.
+- **Admin lists on a phone width:** scroll a list until the tabs stick. They stay on one row and scroll sideways, with the current tab in view.
+
 ## Handoff: student web app (2026-11-13)
 
 Live on main (release #415): the student web app at `/app` (ADR 0021) with sign-in, onboarding, subscription, boarding code, My bus, profile, offline and web push, plus the landing's "In your browser" card and the `/app` share card. Set up and verified: Firebase web app "BusIn Web" with its Web Push key; `NEXT_PUBLIC_FIREBASE_*` and `NEXT_PUBLIC_GOOGLE_CLIENT_ID` on Vercel (Production and Preview); Vercel on Node 24.x; `PUSH_WEB_BASE_URL` on the functions; hosted migration `20261115140000_web_push` applied and `send-push` redeployed.

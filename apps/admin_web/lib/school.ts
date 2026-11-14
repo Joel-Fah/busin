@@ -1,3 +1,4 @@
+import { parsePhone } from "@/lib/phone/phone";
 /** Pure helpers for the school profile page. Kept separate so they are unit tested. */
 
 /** The version of the terms for schools in lib/legal/school-terms.ts. A new version asks the school to accept again. */
@@ -7,6 +8,7 @@ export const SCHOOL_LIMITS = { name: 120, shortName: 20, website: 200, email: 25
 
 /** The largest logo the server accepts, after the browser has shrunk it to 512 px. */
 export const MAX_LOGO_BYTES = 1024 * 1024;
+/** The longest side of a stored logo, in pixels. The logo keeps its own proportions. */
 export const LOGO_SIZE = 512;
 
 /** At most this many domains may be allowed to ask to join. */
@@ -28,6 +30,8 @@ export type SchoolProfileInput = {
   website: string;
   contactEmail: string;
   phone: string;
+  /** An optional second number (the office and the transport desk, for example), E.164 like the first. */
+  phoneSecondary: string;
   address: string;
   city: string;
   country: string;
@@ -38,7 +42,7 @@ export type SchoolProfileInput = {
   publicListing: boolean;
 };
 
-export type SchoolField = "name" | "shortName" | "website" | "contactEmail" | "phone" | "address" | "city" | "country" | "about" | "openDomains";
+export type SchoolField = "name" | "shortName" | "website" | "contactEmail" | "phone" | "phoneSecondary" | "address" | "city" | "country" | "about" | "openDomains";
 
 const text = (form: { get(name: string): unknown }, key: string) => {
   const value = form.get(key);
@@ -54,6 +58,7 @@ export function parseSchoolForm(form: { get(name: string): unknown }): { ok: tru
     website: text(form, "website"),
     contactEmail: text(form, "contact_email").toLowerCase(),
     phone: text(form, "phone"),
+    phoneSecondary: text(form, "phone_secondary"),
     address: text(form, "address"),
     city: text(form, "city"),
     country: text(form, "country"),
@@ -68,7 +73,17 @@ export function parseSchoolForm(form: { get(name: string): unknown }): { ok: tru
   if (value.contactEmail && (value.contactEmail.length > SCHOOL_LIMITS.email || !/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(value.contactEmail))) {
     return { ok: false, field: "contactEmail" };
   }
-  if (value.phone && (value.phone.length < 4 || value.phone.length > SCHOOL_LIMITS.phone || !/^[0-9 +()./-]+$/.test(value.phone))) return { ok: false, field: "phone" };
+  // The school's number in its stored form, E.164 (ADR 0024), read for the country chosen in the field.
+  if (value.phone) {
+    const phone = parsePhone(value.phone, text(form, "phoneCountry") || "CM");
+    if (!phone.e164) return { ok: false, field: "phone" };
+    value.phone = phone.e164;
+  }
+  if (value.phoneSecondary) {
+    const phone = parsePhone(value.phoneSecondary, text(form, "phone_secondaryCountry") || "CM");
+    if (!phone.e164) return { ok: false, field: "phoneSecondary" };
+    value.phoneSecondary = phone.e164;
+  }
   if (value.address.length > SCHOOL_LIMITS.address) return { ok: false, field: "address" };
   if (value.city.length > SCHOOL_LIMITS.city) return { ok: false, field: "city" };
   if (value.country.length > SCHOOL_LIMITS.country) return { ok: false, field: "country" };
@@ -83,8 +98,8 @@ export type SchoolSaveError = SchoolField | "terms_first" | "generic";
 export function schoolSaveError(code: string | undefined, message = ""): SchoolSaveError {
   if (code === "55000") return "terms_first";
   if (code === "23514") {
-    const field = (["website", "contact_email", "phone", "address", "city", "country", "about", "short_name"] as const).find((column) => message.includes(`schools_${column}_check`));
-    const byColumn: Record<string, SchoolField> = { contact_email: "contactEmail", short_name: "shortName" };
+    const field = (["website", "contact_email", "phone_secondary", "phone", "address", "city", "country", "about", "short_name"] as const).find((column) => message.includes(`schools_${column}_check`));
+    const byColumn: Record<string, SchoolField> = { contact_email: "contactEmail", short_name: "shortName", phone_secondary: "phoneSecondary" };
     return field ? (byColumn[field] ?? (field as SchoolField)) : "generic";
   }
   if (code === "22023") return message.includes("domain") ? "openDomains" : "name";

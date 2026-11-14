@@ -3,12 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// The staff member's choices for this phone. Harmless, so kept in plain preferences (never anything secret).
 class OpsSettings {
-  const OpsSettings({this.vibrate = true, this.sound = false, this.offerShare = true});
+  const OpsSettings({this.vibrate = true, this.sound = true, this.offerShare = true});
 
   /// A buzz on each scan result.
   final bool vibrate;
 
-  /// A short sound on each scan result.
+  /// A short sound on each scan result, different for each kind of result. On unless turned off.
   final bool sound;
 
   /// Offer to share the bus position right after starting a trip the staff member shares.
@@ -28,7 +28,7 @@ class OpsSettingsNotifier extends Notifier<OpsSettings> {
     final prefs = ref.read(appPreferencesProvider);
     return OpsSettings(
       vibrate: prefs?.getBool(_vibrateKey) ?? true,
-      sound: prefs?.getBool(_soundKey) ?? false,
+      sound: prefs?.getBool(_soundKey) ?? true,
       offerShare: prefs?.getBool(_offerShareKey) ?? true,
     );
   }

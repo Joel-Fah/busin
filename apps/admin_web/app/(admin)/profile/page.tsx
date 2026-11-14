@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { Building03Icon, Bus01Icon, Calendar02Icon, FlagTriangleRightIcon } from "@hugeicons/core-free-icons";
+import { Building03Icon, Bus01Icon, Calendar02Icon, Coins01Icon, FlagTriangleRightIcon } from "@hugeicons/core-free-icons";
 
 import { LanguageSwitch } from "@/components/LanguageSwitch";
 import { SignOutButton } from "@/components/SignOutButton";
@@ -42,13 +42,14 @@ async function Profile() {
           </h2>
           <p className="text-sm text-muted">{t.profile.setup.hint}</p>
         </div>
-        <ul className="m-0 grid list-none gap-4 p-0 sm:grid-cols-2 xl:grid-cols-4">
+        <ul className="m-0 grid list-none gap-4 p-0 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
           {(
             [
               ["/stops", FlagTriangleRightIcon, t.profile.setup.stops],
               ["/buses", Bus01Icon, t.profile.setup.buses],
               ["/semesters", Calendar02Icon, t.profile.setup.semesters],
               ["/school", Building03Icon, t.profile.setup.school],
+              ["/billing", Coins01Icon, t.profile.setup.billing],
             ] as const
           ).map(([href, icon, text]) => (
             <li key={href}>

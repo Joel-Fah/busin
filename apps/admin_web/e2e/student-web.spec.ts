@@ -42,7 +42,26 @@ test("a signed-out visitor to the app is sent to its own sign-in page", async ({
   await expect(page).toHaveURL(/\/app\/sign-in$/);
   await expect(page.getByRole("heading", { name: "Hop on. BusIn handles the rest." })).toBeVisible();
   await expect(page.getByRole("button", { name: "Continue with Google" })).toBeVisible();
+  await expect(page.getByText("Tip: if your school gave you an email address, sign in with it rather than a personal one.")).toBeVisible();
 });
+
+for (const scheme of ["light", "dark"] as const) {
+  test(`the sign-in page in ${scheme} mode shows its own photo and fetches only that one`, async ({ page, context }) => {
+    await context.addInitScript(() => window.localStorage.setItem("busin-welcomed", "1"));
+    await page.emulateMedia({ colorScheme: scheme });
+    const fetched: string[] = [];
+    page.on("request", (request) => {
+      if (/(bus-stop|night-bus)\.webp/.test(request.url())) fetched.push(request.url());
+    });
+    await page.goto("/app/sign-in");
+    const shown = page.getByTestId(scheme === "light" ? "photo-light" : "photo-dark");
+    const other = page.getByTestId(scheme === "light" ? "photo-dark" : "photo-light");
+    await expect(shown).toBeVisible();
+    await expect(other).toBeHidden();
+    await expect.poll(() => fetched.length).toBeGreaterThan(0);
+    expect(fetched.every((url) => url.includes(scheme === "light" ? "bus-stop" : "night-bus"))).toBe(true);
+  });
+}
 
 test("an error from Google comes back to the app's sign-in page in the student's words", async ({ page, context }) => {
   await context.addInitScript(() => window.localStorage.setItem("busin-welcomed", "1"));
