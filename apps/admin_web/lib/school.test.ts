@@ -4,7 +4,7 @@ import { initialsOf } from "./landing/schools";
 import { isValidDomain, isWebp, logoUrl, normalizeDomain, parseSchoolForm, schoolSaveError } from "./school";
 
 const form = (values: Record<string, string>) => ({ get: (name: string) => values[name] ?? null });
-const valid = { name: "  Hill   University ", short_name: "HU", website: "https://hill.example", contact_email: "Info@Hill.example", phone: "+237 6 00 00 00 00", city: "Yaounde" };
+const valid = { name: "  Hill   University ", short_name: "HU", website: "https://hill.example", contact_email: "Info@Hill.example", phone: "+237 6 77 12 34 56", city: "Yaounde" };
 
 describe("school profile form", () => {
   it("reads and tidies the fields, and the switches", () => {
@@ -15,6 +15,7 @@ describe("school profile form", () => {
     expect(parsed.value.contactEmail).toBe("info@hill.example");
     expect(parsed.value.acceptsOpenSignup).toBe(true);
     expect(parsed.value.publicListing).toBe(false);
+    expect(parsed.value.phone, "stored as E.164 (ADR 0024)").toBe("+237677123456");
   });
 
   it("names the field that is wrong", () => {

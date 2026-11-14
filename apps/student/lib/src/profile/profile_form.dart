@@ -7,7 +7,7 @@ import 'package:hugeicons/hugeicons.dart';
 import '../providers.dart';
 import 'choice_sheet.dart';
 
-/// The student's own details as a form: name, student number, phone, and optionally faculty, department and program
+/// The student's own details as a form: name, student number, phone, and optionally program, faculty and department
 /// (picked from the lists the school set up). Used on
 /// the first-login setup page and in the profile's edit sheet. It checks what it can on the phone (kindly, after the
 /// first try), saves through the repository (the server decides what is accepted) and then reloads the profile.
@@ -27,8 +27,15 @@ class ProfileForm extends ConsumerStatefulWidget {
 class _ProfileFormState extends ConsumerState<ProfileForm> {
   late final _name = TextEditingController(text: widget.profile.fullName);
   late final _matricule = TextEditingController(text: widget.profile.matricule ?? '');
-  late final _phone = TextEditingController(text: widget.profile.phone ?? '');
+  // A saved number (E.164) shows its national part, written the country's way; its country goes on the button.
+  late final _savedPhone = widget.profile.phone == null ? null : PhoneNumbers.splitInternational(widget.profile.phone!);
+  late final _phone = TextEditingController(
+    text: _savedPhone == null ? (widget.profile.phone ?? '') : PhoneNumbers.formatTyping(_savedPhone.national, _savedPhone.country),
+  );
   String? _facultyId;
+
+  /// The country a number without its code is read for (ADR 0024): the saved number's, else the phone's region.
+  late String _phoneCountry = PhoneNumbers.defaultCountry(saved: widget.profile.phone, deviceRegion: WidgetsBinding.instance.platformDispatcher.locale.countryCode);
   String? _departmentId;
   String? _programId;
   bool _academicSeeded = false;
@@ -57,7 +64,7 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
   bool get _valid =>
       ProfileValidation.fullName(_name.text) == null &&
       ProfileValidation.matricule(_matricule.text) == null &&
-      ProfileValidation.phone(_phone.text) == null;
+      ProfileValidation.phone(_phone.text, _phoneCountry) == null;
 
   Future<void> _save() async {
     setState(() {
@@ -71,7 +78,7 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
             widget.profile.id,
             fullName: _name.text.trim(),
             matricule: _matricule.text.trim(),
-            phone: ProfileValidation.normalizePhone(_phone.text),
+            phone: ProfileValidation.normalizePhone(_phone.text, _phoneCountry),
             // Only when the school has lists to choose from; otherwise whatever was saved stays as it is.
             academic: ref.read(academicUnitsProvider).value?.isEmpty ?? true ? null : AcademicChoice(departmentId: _departmentId, programId: _programId),
           );
@@ -130,19 +137,39 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
           onChanged: changed,
         ),
         const SizedBox(height: BusinSpace.x4),
-        BusinTextField(
+        // The country and the number on one row (ADR 0024); the number is saved as E.164.
+        BusinPhoneField(
           label: l10n.fieldPhone,
           hint: l10n.fieldPhoneHint,
-          icon: HugeIcons.strokeRoundedSmartPhone01,
           controller: _phone,
+          country: _phoneCountry,
+          onCountryChanged: (code) => setState(() => _phoneCountry = code),
           enabled: !_saving,
-          textInputAction: TextInputAction.done,
-          keyboardType: TextInputType.phone,
-          errorText: _message(l10n, ProfileValidation.phone(_phone.text)),
+          errorText: _message(l10n, ProfileValidation.phone(_phone.text, _phoneCountry)),
           onChanged: changed,
         ),
         const SizedBox(height: BusinSpace.x4),
         if (!units.isEmpty) ...[
+          // Program first, then faculty and its department (the owner's order for setup).
+          const SizedBox(height: BusinSpace.x4),
+          FieldTile(
+            label: l10n.fieldProgram,
+            icon: HugeIcons.strokeRoundedMortarboard02,
+            placeholder: l10n.fieldProgramHint,
+            value: units.program(_programId)?.name,
+            onTap: _saving
+                ? null
+                : () async {
+                    final result = await showChoiceSheet(
+                      context,
+                      title: l10n.fieldProgram,
+                      choices: [for (final x in units.programs) Choice(id: x.id, title: x.name)],
+                      selectedId: _programId,
+                      clearLabel: l10n.choiceNone,
+                    );
+                    if (result != null) setState(() => _programId = result.id);
+                  },
+          ),
           const SizedBox(height: BusinSpace.x4),
           FieldTile(
             label: l10n.fieldFaculty,
@@ -184,25 +211,6 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
                       clearLabel: l10n.choiceNone,
                     );
                     if (result != null) setState(() => _departmentId = result.id);
-                  },
-          ),
-          const SizedBox(height: BusinSpace.x4),
-          FieldTile(
-            label: l10n.fieldProgram,
-            icon: HugeIcons.strokeRoundedMortarboard02,
-            placeholder: l10n.fieldProgramHint,
-            value: units.program(_programId)?.name,
-            onTap: _saving
-                ? null
-                : () async {
-                    final result = await showChoiceSheet(
-                      context,
-                      title: l10n.fieldProgram,
-                      choices: [for (final x in units.programs) Choice(id: x.id, title: x.name)],
-                      selectedId: _programId,
-                      clearLabel: l10n.choiceNone,
-                    );
-                    if (result != null) setState(() => _programId = result.id);
                   },
           ),
         ],

@@ -41,6 +41,11 @@ class SupabaseProfileRepository implements ProfileRepository {
       });
 
   @override
+  Future<void> setPaymentPreference(PaymentMode? preference) => guarded(() async {
+        await _client.rpc<void>('set_payment_preference', params: {'p_preference': preference?.name});
+      });
+
+  @override
   Stream<Profile> watchProfile(String userId) {
     // Filtered to the person's own row on the server, which only lets them read their own.
     return _client
@@ -133,6 +138,41 @@ class SupabaseStreaksRepository implements StreaksRepository {
   Future<List<LeaderboardEntry>> leaderboard(String semesterId, {int limit = 50}) => guarded(() async {
         final rows = await _client.rpc<List<dynamic>>('school_leaderboard', params: {'p_semester_id': semesterId, 'p_limit': limit});
         return rows.cast<Map<String, dynamic>>().map(LeaderboardEntry.fromJson).toList(growable: false);
+      });
+}
+
+class SupabaseInstallmentsRepository implements InstallmentsRepository {
+  SupabaseInstallmentsRepository(this._client);
+  final SupabaseClient _client;
+
+  @override
+  Future<List<Installment>> forSubscriptions(List<String> subscriptionIds) => guarded(() async {
+        if (subscriptionIds.isEmpty) return const [];
+        final rows = await _client
+            .from('subscription_installments')
+            .select(Columns.installment)
+            .inFilter('subscription_id', subscriptionIds)
+            .order('subscription_id')
+            .order('seq')
+            .limit(100);
+        return rows.map(Installment.fromJson).toList(growable: false);
+      });
+
+  @override
+  Future<void> submitProof({required String installmentId, required String proofPath}) => guarded(() async {
+        await _client.rpc<void>('submit_installment_proof', params: {'p_installment': installmentId, 'p_path': proofPath});
+      });
+
+  @override
+  Future<List<InstallmentReceipt>> receiptsFor(List<String> subscriptionIds) => guarded(() async {
+        if (subscriptionIds.isEmpty) return const [];
+        final rows = await _client
+            .from('installment_receipts')
+            .select(Columns.installmentReceipt)
+            .inFilter('subscription_id', subscriptionIds)
+            .order('sent_at')
+            .limit(200);
+        return rows.map(InstallmentReceipt.fromJson).toList(growable: false);
       });
 }
 

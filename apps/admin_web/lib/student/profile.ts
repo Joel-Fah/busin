@@ -1,3 +1,5 @@
+import { parsePhone } from "@/lib/phone/phone";
+
 /**
  * What a student may type about themselves, checked the same way as the apps (`profile_validation.dart`). The server is
  * the final judge; these give early, kind messages and are never trusted for access.
@@ -27,20 +29,12 @@ export function checkMatricule(value: string | null | undefined): FieldProblem |
   return null;
 }
 
-/** 8 to 15 digits, with an optional leading plus; spaces, dots, dashes and brackets are ignored. */
-export function checkPhone(value: string | null | undefined): FieldProblem | null {
-  const v = (value ?? "").trim();
-  if (!v) return "empty";
-  if (!/^\+?[0-9 .\-()]+$/.test(v)) return "invalid";
-  const digits = v.replace(/[^0-9]/g, "");
-  if (digits.length < 8) return "tooShort";
-  if (digits.length > 15) return "tooLong";
-  return null;
+/** A real phone number for `country` (ADR 0024): empty, or not one that exists there, is refused. */
+export function checkPhone(value: string | null | undefined, country: string): FieldProblem | null {
+  return parsePhone(value, country).problem;
 }
 
-/** A phone number as it is stored: the plus and digits only. */
-export function normalizePhone(value: string): string {
-  const v = value.trim();
-  const digits = v.replace(/[^0-9]/g, "");
-  return v.startsWith("+") ? `+${digits}` : digits;
+/** A phone number as it is stored: E.164, for example `+237677123456`. Empty when it cannot be read. */
+export function normalizePhone(value: string, country: string): string {
+  return parsePhone(value, country).e164 ?? "";
 }

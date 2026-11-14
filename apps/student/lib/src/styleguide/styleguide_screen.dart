@@ -1,3 +1,4 @@
+import 'package:busin_core/busin_core.dart';
 import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -286,6 +287,11 @@ class _Parts extends StatelessWidget {
         FieldTile(label: 'Your stop', icon: HugeIcons.strokeRoundedFlag02, placeholder: 'Choose where you board', onTap: () {}),
         const SizedBox(height: BusinSpace.x3),
         FieldTile(label: 'Payment proof', icon: HugeIcons.strokeRoundedReceiptText, placeholder: 'Add a photo', value: 'Photo added', onTap: () {}),
+        const _Title(
+          'Phone number',
+          note: 'Country and number on one row (ADR 0024): the flag and dialling code open a searchable list; the number is written the country way as it is typed; a pasted + number picks its country. Saved as E.164, shown with spaces. Flags are SVG files, never emoji.',
+        ),
+        const _PhoneDemo(),
         const _Title('Notices', note: 'Tone, an icon and words together.'),
         const Notice(tone: StatusTone.bad, title: 'Your school\'s reason:', child: Text('The receipt is unreadable.')),
         const SizedBox(height: BusinSpace.x3),
@@ -466,6 +472,44 @@ class _SegmentedDemoState extends State<_SegmentedDemo> {
         BusinSegment(value: 'system', label: 'System', icon: HugeIcons.strokeRoundedSmartPhone01),
         BusinSegment(value: 'light', label: 'Light', icon: HugeIcons.strokeRoundedSun03),
         BusinSegment(value: 'dark', label: 'Dark', icon: HugeIcons.strokeRoundedMoon02),
+      ],
+    );
+  }
+}
+
+class _PhoneDemo extends StatefulWidget {
+  const _PhoneDemo();
+
+  @override
+  State<_PhoneDemo> createState() => _PhoneDemoState();
+}
+
+class _PhoneDemoState extends State<_PhoneDemo> {
+  final _controller = TextEditingController();
+  String _country = 'CM';
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final e164 = PhoneNumbers.parse(_controller.text, _country).e164;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        BusinPhoneField(
+          label: 'Phone',
+          hint: 'Type a number',
+          controller: _controller,
+          country: _country,
+          onCountryChanged: (code) => setState(() => _country = code),
+          onChanged: (_) => setState(() {}),
+        ),
+        const SizedBox(height: BusinSpace.x2),
+        Text('Saved as: ${e164 ?? '-'}', style: Theme.of(context).textTheme.bodySmall),
       ],
     );
   }

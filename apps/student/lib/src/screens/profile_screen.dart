@@ -1,3 +1,4 @@
+import 'package:busin_core/busin_core.dart';
 import 'package:busin_app/busin_app.dart';
 import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:hugeicons/hugeicons.dart';
 import '../area/area_providers.dart';
 import '../auth/access.dart';
 import '../legal/legal_screen.dart';
+import '../profile/payment_preference_card.dart';
 import '../profile/profile_form.dart';
 import '../profile/school_badge.dart';
 import '../providers.dart';
@@ -135,7 +137,7 @@ class ProfileScreen extends ConsumerWidget {
             ),
             const SizedBox(height: BusinSpace.x2),
             row(HugeIcons.strokeRoundedIdVerified, l10n.fieldMatricule, profile.matricule),
-            row(HugeIcons.strokeRoundedSmartPhone01, l10n.fieldPhone, profile.phone),
+            row(HugeIcons.strokeRoundedSmartPhone01, l10n.fieldPhone, profile.phone == null ? null : PhoneNumbers.display(profile.phone!)),
             row(HugeIcons.strokeRoundedBuilding03, l10n.fieldDepartment, profile.department),
             row(HugeIcons.strokeRoundedMortarboard02, l10n.fieldProgram, profile.program),
           ],
@@ -374,7 +376,7 @@ class ProfileScreen extends ConsumerWidget {
                   padding: side,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [details, const SizedBox(height: BusinSpace.x4), history, const SizedBox(height: BusinSpace.x4), notifications, const SizedBox(height: BusinSpace.x4), area, const SizedBox(height: BusinSpace.x4), streaks, const SizedBox(height: BusinSpace.x4), appearance, const SizedBox(height: BusinSpace.x4), legal],
+                    children: [details, const SizedBox(height: BusinSpace.x4), history, const SizedBox(height: BusinSpace.x4), notifications, const SizedBox(height: BusinSpace.x4), area, const PaymentPreferenceCard(), const SizedBox(height: BusinSpace.x4), streaks, const SizedBox(height: BusinSpace.x4), appearance, const SizedBox(height: BusinSpace.x4), legal],
                   ),
                 ),
               ),
@@ -397,6 +399,7 @@ class ProfileScreen extends ConsumerWidget {
           notifications,
           const SizedBox(height: BusinSpace.x4),
           area,
+          const PaymentPreferenceCard(),
           const SizedBox(height: BusinSpace.x4),
           streaks,
           const SizedBox(height: BusinSpace.x4),
