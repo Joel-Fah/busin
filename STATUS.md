@@ -31,6 +31,21 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: release of 2026-11-14 (on `main`)
+
+Released: `dev` merged into `main` (milestone PR below), deployed by Vercel. Applied to the hosted project before the merge
+(owner approved): the seven migrations `20261115160000_school_billing` to `20261115210000_school_second_phone`, and the
+`send-push` function redeployed.
+
+Owner, now:
+- **Set billing for each live school** in the portal (Billing): until it is set, students cannot ask for a subscription.
+- **Import places for each live school** (see `docs/guides/hosting.md`, `npm run places:import` with the hosted URL and
+  service role key in your own terminal).
+- Re-upload the school logo where it is missing; set the second phone if wanted.
+- Install the new app builds (both apps read columns the migrations added). Run the test list below on the hosted setup.
+- Later: the Crashlytics Gradle plugin (#496), when a release build can run on a machine with enough memory; and the
+  choice of 10 or 15 seconds for the web boarding code.
+
 ## Handoff: 2026-11-14 round (all merged into `dev`)
 
 Merged into `dev` on 2026-11-14 (not on `main`, not on the hosted project):
