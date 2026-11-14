@@ -8,6 +8,7 @@ export 'src/auth/auth_service.dart';
 export 'src/auth/secure_session_storage.dart';
 export 'src/auth/supabase_auth_service.dart';
 export 'src/config/app_config.dart';
+export 'src/crash/crash_reports.dart';
 export 'src/legal/legal_documents.dart';
 export 'src/nav/tab_badges.dart';
 export 'src/offline/offline_providers.dart';

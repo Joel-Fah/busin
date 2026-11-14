@@ -29,6 +29,12 @@ class OpsApp extends ConsumerWidget {
       builder: (context, child) => Consumer(
         builder: (context, ref, _) {
           ref.listen<OpsAccess>(accessProvider, (previous, next) {
+            // Crash reports carry the role only (ADR 0025): staff or admin, never who.
+            if (next is OpsAllowed && previous is! OpsAllowed) {
+              unawaited(ref.read(crashReporterProvider).setRole(next.isAdmin ? 'admin' : 'staff'));
+            } else if (previous is OpsAllowed && next is OpsSignedOut) {
+              unawaited(ref.read(crashReporterProvider).setRole(null));
+            }
             // Access lost: the day keys (what checks codes offline) are no longer this phone's to keep. Position
             // sharing and the scan sync stop by themselves, since they only run for an allowed person.
             if (previous is OpsAllowed && next is! OpsAllowed) {

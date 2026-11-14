@@ -22,6 +22,8 @@ dependencies:
   # Push notifications (the same versions the student app has used).
   firebase_core: ^5.1.0
   firebase_messaging: ^17.0.1
+  # Crash reports from release builds (ADR 0025). 6.0.1 is the release that goes with firebase_core 5.1.0.
+  firebase_crashlytics: ^6.0.1
   timezone: ^0.11.0
 
 dev_dependencies:

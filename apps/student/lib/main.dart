@@ -32,6 +32,8 @@ Future<void> main() async {
   final client = Supabase.instance.client;
   // Without Firebase configured this is a stand-in that does nothing, and the app works the same otherwise.
   final push = await FirebasePushService.tryCreate();
+  // Crash reports (ADR 0025): release builds only, no personal data. Nothing without Firebase or in a debug build.
+  final crashes = await startCrashReports(app: 'student', role: 'student');
   // Read before the first frame, so the chosen theme and language are there from the start (no flash of the other one).
   final preferences = await SharedPreferences.getInstance();
 
@@ -43,6 +45,7 @@ Future<void> main() async {
         appConfigProvider.overrideWithValue(config),
         supabaseClientProvider.overrideWithValue(client),
         pushServiceProvider.overrideWithValue(push),
+        crashReporterProvider.overrideWithValue(crashes),
         authServiceProvider.overrideWithValue(SupabaseAuthService(client, googleServerClientId: config.googleServerClientId)),
       ],
       child: const StudentApp(),
