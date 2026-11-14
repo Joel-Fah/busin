@@ -11,6 +11,8 @@ let admin: TestUser;
 let student: TestUser;
 type Saved = Database["public"]["Tables"]["schools"]["Update"];
 let before: Saved;
+// The school's own logo file: uploading a test logo deletes the previous file, so it is kept here and put back.
+let logoFile: Blob | null = null;
 
 const COLUMNS = "open_signup_domains, name, short_name, website, contact_email, phone, address, city, country, about, logo_path, accepts_open_signup, public_listing, terms_version, terms_accepted_at, terms_accepted_by";
 
@@ -19,6 +21,7 @@ test.beforeAll(async () => {
   student = await createUser(`school-student-${tag}`, "student");
   const { data } = await serviceClient().from("schools").select(COLUMNS).eq("id", SEED.schoolId).single();
   before = data as Saved;
+  if (before.logo_path) logoFile = (await serviceClient().storage.from("school-logos").download(before.logo_path)).data;
   // Start from a school that has not accepted the terms.
   await serviceClient().from("schools").update({ public_listing: false, terms_accepted_at: null, terms_version: null, terms_accepted_by: null }).eq("id", SEED.schoolId);
 });
@@ -26,6 +29,10 @@ test.beforeAll(async () => {
 test.afterAll(async () => {
   const { data } = await serviceClient().from("schools").select("logo_path").eq("id", SEED.schoolId).single();
   if (data?.logo_path && data.logo_path !== before.logo_path) await serviceClient().storage.from("school-logos").remove([data.logo_path]);
+  // The original logo file comes back where it was, so the school (and the owner's local data) keeps its logo.
+  if (before.logo_path && logoFile) {
+    await serviceClient().storage.from("school-logos").upload(before.logo_path, logoFile, { contentType: logoFile.type || "image/webp", upsert: true });
+  }
   await serviceClient().from("schools").update(before).eq("id", SEED.schoolId);
   for (const user of [admin, student]) if (user) await deleteUser(user);
 });

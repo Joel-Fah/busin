@@ -121,7 +121,8 @@ describe("the closest stop", () => {
   ];
   it("says how far each stop is by road from the area, nearest first, and points out the nearest", () => {
     const ranked = stopsWithDistance(stops, { lat: 3.88, lng: 11.51 });
-    expect(ranked.map((r) => r.stop.id)).toEqual(["near", "far", "unknown"], "a stop without a position goes last");
+    // A stop without a position goes last.
+    expect(ranked.map((r) => r.stop.id)).toEqual(["near", "far", "unknown"]);
     expect(ranked[0].km).toBeCloseTo(1.4, 1);
     expect(ranked[2].km).toBeNull();
     expect(closestStop(ranked)?.stop.id).toBe("near");
