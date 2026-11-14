@@ -63,6 +63,10 @@ test("a verified student gives the details the school needs before the tabs", as
   await page.goto("/app/code");
   await expect(page).toHaveURL(/\/app\/setup$/);
   await expect(page.getByText(`You are joining ${schoolName}`)).toBeVisible();
+  // The school's lists come in the order program, faculty, department.
+  const top = async (label: string) => (await page.getByText(label, { exact: true }).first().boundingBox())!.y;
+  expect(await top("Program")).toBeLessThan(await top("Faculty"));
+  expect(await top("Faculty")).toBeLessThan(await top("Department"));
 
   await page.getByLabel("Full name").fill("A");
   await page.getByLabel("Student number").fill("");

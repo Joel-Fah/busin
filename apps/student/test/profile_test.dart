@@ -35,6 +35,16 @@ void main() {
       expect(find.text('Subscription'), findsNothing, reason: 'no tabs yet');
     });
 
+    testWidgets('the school lists come in the order program, faculty, department', (tester) async {
+      final profiles = FakeProfileRepository({'u1': profile(complete: false)});
+      await open(tester, FakeAuthService(signedInAs: 'u1'), profiles);
+      final program = tester.getTopLeft(find.text('Program')).dy;
+      final faculty = tester.getTopLeft(find.text('Faculty')).dy;
+      final department = tester.getTopLeft(find.text('Department')).dy;
+      expect(program, lessThan(faculty));
+      expect(faculty, lessThan(department));
+    });
+
     testWidgets('empty required fields are explained and nothing is sent', (tester) async {
       final profiles = FakeProfileRepository({'u1': profile(complete: false)});
       await open(tester, FakeAuthService(signedInAs: 'u1'), profiles);

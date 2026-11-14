@@ -31,6 +31,9 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: setup field order (2026-11-14)
+
+- Student setup asks program, then faculty, then department (#445), on the phone and the web; profile edit uses the same forms. PR into `dev`. Owner, device test: a new account's setup shows that order.
 ## Handoff: billing round (2026-11-14)
 
 Planned with the owner: scan sounds (#430), My area offered after setup (#431), school billing in the backend (#432), installments (#433), the admin Billing page (#434), billing in the student app (#435) and in the web app (#436).
