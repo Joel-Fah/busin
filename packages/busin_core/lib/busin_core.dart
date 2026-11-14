@@ -10,6 +10,7 @@ library;
 export 'src/enums.dart';
 export 'src/geo_point.dart';
 export 'src/models/academic.dart';
+export 'src/models/billing.dart';
 export 'src/models/bus.dart';
 export 'src/models/joining.dart';
 export 'src/models/field_trip.dart';

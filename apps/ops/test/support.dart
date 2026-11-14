@@ -93,6 +93,9 @@ class FakeProfiles implements ProfileRepository {
   }
 
   @override
+  Future<void> setPaymentPreference(PaymentMode? preference) => throw UnimplementedError('staff have no payment preference');
+
+  @override
   Stream<Profile> watchProfile(String userId) => Stream.multi((controller) {
         // As the real stream: the profile as it is now first, then the changes.
         final now = byId[userId];
