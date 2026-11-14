@@ -13,6 +13,8 @@
         android:label="BusIn"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <!-- Crash reports stay off until a release build turns them on (ADR 0025): a debug run never sends any. -->
+        <meta-data android:name="firebase_crashlytics_collection_enabled" android:value="false" />
         <!-- Notifications from the server name this channel (see MainActivity). -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"

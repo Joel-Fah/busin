@@ -28,6 +28,9 @@ final tripsRepositoryProvider = Provider<TripsRepository>((ref) => ref.watch(rep
 /// Firebase Cloud Messaging, or a stand-in that does nothing when this build has no Firebase configuration.
 final pushServiceProvider = Provider<PushService>((ref) => const NoPushService());
 
+/// Crash reporting (ADR 0025). Replaced at start-up in release builds; nothing is sent otherwise.
+final crashReporterProvider = Provider<CrashReporter>((ref) => const NoCrashReporter());
+
 final deviceTokensRepositoryProvider = Provider<DeviceTokensRepository>((ref) => ref.watch(repositoriesProvider).deviceTokens);
 
 /// Keeps this phone's token on the server (crew_assigned notifications), in the language the app shows.
