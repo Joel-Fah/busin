@@ -19,6 +19,14 @@ void refreshFromServer(WidgetRef ref) {
   ref.invalidate(canFollowBusesProvider);
 }
 
+/// Reads the main screens again when the network is lost. With no network each answers from its saved copy at once (see
+/// `serverOrSaved`), which raises the offline banner straight away.
+void showSavedCopy(WidgetRef ref) {
+  ref.invalidate(profileProvider);
+  ref.invalidate(schoolProvider);
+  ref.invalidate(subscriptionOverviewProvider);
+}
+
 /// Asks the server again when the network comes back, and when the app comes back from the background (not on a focus
 /// blip), but only while something on screen is a saved copy. Mounted once, inside the signed-in frame.
 class OfflineBinder extends ConsumerStatefulWidget {
@@ -57,6 +65,9 @@ class _OfflineBinderState extends ConsumerState<OfflineBinder> with WidgetsBindi
     ref.listen(connectivityProvider, (previous, next) {
       final wasOnline = previous?.value ?? false;
       if (next.value == true && !wasOnline && _showingSavedCopy) refreshFromServer(ref);
+      // The network just went (airplane mode, out of coverage): read the main screens again. With no network they answer
+      // from the saved copy at once, so the banner says so now instead of at the next read.
+      if (next.value == false && previous?.value == true) showSavedCopy(ref);
     });
     return widget.child;
   }
