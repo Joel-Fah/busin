@@ -202,6 +202,28 @@ test.describe("administrator reviewing", () => {
     await expect(page.getByRole("row").filter({ hasText: `E2E view-${tag}` })).toHaveCount(1);
   });
 
+  test("searches by student name, keeping the other filters, and the tab numbers follow", async ({ page }) => {
+    await page.goto(`/subscriptions?stop=${stopId}`);
+    const search = page.getByRole("searchbox", { name: "Search by name, email or matricule" });
+    // The request that stays pending through this file (the others get approved or rejected).
+    await search.fill(`view-${tag}`);
+    await page.getByRole("button", { name: "Search", exact: true }).click();
+    await expect(page).toHaveURL(new RegExp(`q=view-${tag}`));
+    await expect(page).toHaveURL(new RegExp(`stop=${stopId}`));
+    await expect(page.getByRole("row").filter({ hasText: nameOf(`view-${tag}`) })).toBeVisible();
+    await expect(page.getByRole("row").filter({ hasText: nameOf(`noproof-${tag}`) })).toHaveCount(0);
+    const tabs = page.getByRole("navigation", { name: "Filter by status" });
+    await expect(tabs.getByRole("link", { name: /To review/ })).toContainText("1");
+
+    // Nobody matches: the friendly empty state, then clearing the search brings the rows back.
+    await search.fill(`nobody-${tag}`);
+    await page.getByRole("button", { name: "Search", exact: true }).click();
+    await expect(page.getByText("Try removing a filter above the table.")).toBeVisible();
+    await page.getByRole("link", { name: "Clear search" }).click();
+    await expect(page).not.toHaveURL(/q=/);
+    await expect(page.getByRole("row").filter({ hasText: nameOf(`view-${tag}`) })).toBeVisible();
+  });
+
   test("the tab numbers follow the filters", async ({ page }) => {
     await page.goto(`/subscriptions?stop=${emptyStopId}`);
     const tabs = page.getByRole("navigation", { name: "Filter by status" });

@@ -3,6 +3,7 @@
 import type { ChipTone } from "@/components/ui/Chip";
 
 import { listHref, uuidParam } from "./filters";
+import { parseSearch } from "./people";
 import { first, parsePageSize, sizeParam } from "./pagination";
 
 // Shared helpers live in their own modules; they are re-exported so existing imports keep working.
@@ -193,6 +194,8 @@ export type SubscriptionFilters = {
   size?: number;
   /** Only subscriptions with a later part to check or late (ADR 0022). */
   payments?: boolean;
+  /** The student's name, email or matricule contains this (cleaned by parseSearch); empty means no search. */
+  q?: string;
 };
 
 /** Reads the list's filters from its query string. Anything malformed means "no filter". */
@@ -202,14 +205,17 @@ export function parseSubscriptionFilters(query: {
   stop?: string | string[];
   size?: string | string[];
   payments?: string | string[];
+  q?: string | string[];
 }): SubscriptionFilters {
   const payments = (Array.isArray(query.payments) ? query.payments[0] : query.payments) === "1";
+  const q = parseSearch(query.q);
   return {
     status: parseStatusFilter(query.status),
     semester: uuidParam(query.semester),
     stop: uuidParam(query.stop),
     size: parsePageSize(query.size),
     ...(payments ? { payments: true } : {}),
+    ...(q ? { q } : {}),
   };
 }
 
@@ -221,6 +227,7 @@ export function subscriptionsHref(filters: SubscriptionFilters, page = 1): strin
     stop: filters.stop,
     size: sizeParam(filters.size),
     payments: filters.payments ? "1" : null,
+    q: filters.q || null,
     page: page > 1 ? page : null,
   });
 }
