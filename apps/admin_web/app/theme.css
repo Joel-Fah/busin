@@ -420,8 +420,29 @@ dialog,
 }
 
 .sticky-toolbar[data-stuck='true'] > nav:only-child > [data-tab] {
-  flex: 1 1 0;
+  flex: 1 0 auto;
   justify-content: center;
+}
+
+/*
+  Stuck, the tabs stay on one row: when they do not fit (a phone, a long list of filters) the row scrolls sideways
+  instead of wrapping onto a second line, and the current tab is brought into view (Tabs).
+*/
+.sticky-toolbar[data-stuck='true'] > nav {
+  flex-wrap: nowrap;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.sticky-toolbar[data-stuck='true'] > nav::-webkit-scrollbar {
+  display: none;
+}
+
+.sticky-toolbar[data-stuck='true'] > nav > [data-tab] {
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 @media (min-width: 64rem) {

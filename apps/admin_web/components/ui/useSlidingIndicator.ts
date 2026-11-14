@@ -30,7 +30,10 @@ export function useSlidingIndicator<Row extends HTMLElement = HTMLDivElement>(ac
       if (!item) return null;
       const rowBox = rowEl.getBoundingClientRect();
       const box = item.getBoundingClientRect();
-      return { left: box.left - rowBox.left, right: box.right - rowBox.left, top: box.top - rowBox.top, height: box.height };
+      // In the row's own coordinates: a row that scrolls sideways (stuck tabs) carries the highlight along with it.
+      const x = rowEl.scrollLeft;
+      const y = rowEl.scrollTop;
+      return { left: box.left - rowBox.left + x, right: box.right - rowBox.left + x, top: box.top - rowBox.top + y, height: box.height };
     };
 
     const draw = (left: number, right: number) => {

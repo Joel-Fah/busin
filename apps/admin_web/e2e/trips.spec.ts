@@ -445,9 +445,12 @@ for (const [label, who] of [
 ] as const) {
   test(`${label} cannot open the trips pages`, async ({ page, context }) => {
     await signInBrowser(context, who());
+    // Staff are shown the no-access page; a student is sent to their own app instead (ADR 0021).
+    const away = label === "a student" ? /\/app\// : /\/no-access$/;
     for (const path of ["/trips", "/trips/new", `/trips/${scheduledId}`]) {
-      await page.goto(path);
-      await expect(page).toHaveURL(/\/no-access$/);
+      // The student app may still be moving on from the last page; a navigation it cuts short is fine.
+      await page.goto(path).catch(() => undefined);
+      await expect(page).toHaveURL(away);
     }
   });
 }
@@ -480,5 +483,36 @@ test.describe("the sticky bar on a tabs-only page", () => {
     await page.mouse.wheel(0, -3000);
     await expect(bar).toHaveAttribute("data-stuck", "false");
     await expect.poll(async () => (await tabs.boundingBox())!.width).toBeLessThan(900);
+  });
+});
+
+test.describe("the sticky tabs on a phone", () => {
+  test("stay on one row when stuck: they scroll sideways, with the current tab in view", async ({ page, context }) => {
+    await signInBrowser(context, admin);
+    await page.setViewportSize({ width: 390, height: 640 });
+    await page.goto("/subscriptions?status=revoked");
+    const bar = page.locator(".sticky-toolbar");
+    const tabs = page.getByRole("navigation", { name: "Filter by status" });
+    // Enough rows to scroll: the bar sticks once the page moves past it.
+    await page.evaluate(() => document.body.style.setProperty("min-height", "3000px"));
+    await page.mouse.wheel(0, 600);
+    await expect(bar).toHaveAttribute("data-stuck", "true");
+
+    await expect
+      .poll(async () => {
+        const tops = await tabs.locator("[data-tab]").evaluateAll((els) => els.map((el) => Math.round(el.getBoundingClientRect().top)));
+        return new Set(tops).size;
+      })
+      .toBe(1);
+    const row = await tabs.evaluate((el) => ({ scroll: el.scrollWidth, width: el.clientWidth }));
+    expect(row.scroll).toBeGreaterThan(row.width);
+    // The row brings the current tab into view once it has settled after sticking.
+    await expect
+      .poll(async () => {
+        const current = (await tabs.locator('[aria-current="page"]').boundingBox())!;
+        const box = (await tabs.boundingBox())!;
+        return current.x >= box.x - 1 && current.x + current.width <= box.x + box.width + 1;
+      })
+      .toBe(true);
   });
 });
