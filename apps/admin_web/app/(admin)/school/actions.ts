@@ -21,6 +21,7 @@ export async function saveSchoolProfile(formData: FormData): Promise<void> {
     p_website: v.website,
     p_contact_email: v.contactEmail,
     p_phone: v.phone,
+    p_phone_secondary: v.phoneSecondary,
     p_address: v.address,
     p_city: v.city,
     p_country: v.country,
