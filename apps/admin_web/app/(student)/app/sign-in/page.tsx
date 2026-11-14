@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { InformationCircleIcon } from "@hugeicons/core-free-icons";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 import { BrandMark } from "@/components/brand/BrandMark";
 import { SignInPanel } from "@/components/student/SignInPanel";
+import { Icon } from "@/components/ui/Icon";
 import { getStudentCopy } from "@/lib/i18n/server";
 import { getStudentProfile } from "@/lib/student/session";
 
@@ -55,6 +57,11 @@ async function SignIn({ searchParams }: { searchParams: SearchParams }) {
         <div className="mt-4">
           <SignInPanel copy={s.signIn} locale={locale} initialError={key ? s.signIn[key] : null} />
         </div>
+        {/* Schools that keep sign-in to their own addresses refuse a personal account: say so before it happens. */}
+        <p className="m-0 mt-2 flex gap-2 text-sm leading-relaxed text-seed/75 dark:text-white/75">
+          <Icon icon={InformationCircleIcon} size={18} className="mt-0.5 shrink-0" />
+          <span>{s.signIn.tip}</span>
+        </p>
       </div>
     </main>
   );

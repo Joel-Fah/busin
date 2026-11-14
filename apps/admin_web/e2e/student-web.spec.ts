@@ -42,6 +42,7 @@ test("a signed-out visitor to the app is sent to its own sign-in page", async ({
   await expect(page).toHaveURL(/\/app\/sign-in$/);
   await expect(page.getByRole("heading", { name: "Hop on. BusIn handles the rest." })).toBeVisible();
   await expect(page.getByRole("button", { name: "Continue with Google" })).toBeVisible();
+  await expect(page.getByText("Tip: if your school gave you an email address, sign in with it rather than a personal one.")).toBeVisible();
 });
 
 for (const scheme of ["light", "dark"] as const) {

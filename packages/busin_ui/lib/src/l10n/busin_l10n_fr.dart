@@ -249,6 +249,10 @@ class BusinL10nFr extends BusinL10n {
       'Connectez-vous avec votre compte Google de l’école pour vous abonner, présenter votre code d’embarquement et suivre votre bus.';
 
   @override
+  String get signInSchoolEmailTip =>
+      'Astuce : si votre école vous a donné une adresse e-mail, connectez-vous avec elle plutôt qu’avec une adresse personnelle.';
+
+  @override
   String get signInWithGoogle => 'Continuer avec Google';
 
   @override

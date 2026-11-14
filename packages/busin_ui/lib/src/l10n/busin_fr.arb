@@ -75,6 +75,7 @@
   "appName": "BusIn",
   "signInTitle": "Montez à bord. BusIn s’occupe du reste.",
   "signInSubtitle": "Connectez-vous avec votre compte Google de l’école pour vous abonner, présenter votre code d’embarquement et suivre votre bus.",
+  "signInSchoolEmailTip": "Astuce : si votre école vous a donné une adresse e-mail, connectez-vous avec elle plutôt qu’avec une adresse personnelle.",
   "signInWithGoogle": "Continuer avec Google",
   "signInCancelled": "La connexion a été annulée.",
   "signInFailed": "La connexion n’a pas fonctionné. Réessayez.",
