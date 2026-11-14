@@ -2,6 +2,7 @@ import { School01Icon } from "@hugeicons/core-free-icons";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
+import { SchoolLogo } from "@/components/SchoolLogo";
 import { GatePage } from "@/components/student/GatePage";
 import { SetupForm, type Academics } from "@/components/student/SetupForm";
 import { SignOutForm } from "@/components/student/SignOutForm";
@@ -50,14 +51,7 @@ async function Setup() {
     <GatePage lang={locale} title={name ? format(s.setup.welcome, { name }) : s.setup.body} intro={name ? s.setup.body : undefined}>
       <Card className="flex flex-col gap-3 p-5">
         <div className="flex items-center gap-4">
-          <span className="grid size-12 shrink-0 place-items-center overflow-hidden rounded-sm bg-white">
-            {logo ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={logo} alt="" className="size-full object-contain" />
-            ) : (
-              <Icon icon={School01Icon} size={22} className="text-brand" />
-            )}
-          </span>
+          <SchoolLogo url={logo} fallback={<Icon icon={School01Icon} size={22} className="text-brand" />} />
           <div className="min-w-0">
             <p className="m-0 font-bold">{format(s.setup.joiningTitle, { school })}</p>
             <p className="m-0 text-sm text-muted">{s.setup.joiningBody}</p>

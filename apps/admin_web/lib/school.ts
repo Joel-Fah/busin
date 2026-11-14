@@ -7,6 +7,7 @@ export const SCHOOL_LIMITS = { name: 120, shortName: 20, website: 200, email: 25
 
 /** The largest logo the server accepts, after the browser has shrunk it to 512 px. */
 export const MAX_LOGO_BYTES = 1024 * 1024;
+/** The longest side of a stored logo, in pixels. The logo keeps its own proportions. */
 export const LOGO_SIZE = 512;
 
 /** At most this many domains may be allowed to ask to join. */

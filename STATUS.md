@@ -31,6 +31,10 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: school logos (2026-11-14)
+
+- Logos keep their shape (#456): done, PR into `dev`. The upload keeps the logo's own proportions (longest side 512, only the empty margin cut, no square padding); every display is a white plate of fixed height that lets a wide logo be up to two and a half times as wide, the logo centred and never cut: portal picker preview, landing school wall, web join list, setup and waiting pages (shared `SchoolLogo`), Flutter `SchoolLogo` and the profile badge. Owner: logos uploaded before stay padded squares until each school uploads its logo again.
+
 ## Handoff: student web app (2026-11-13)
 
 Live on main (release #415): the student web app at `/app` (ADR 0021) with sign-in, onboarding, subscription, boarding code, My bus, profile, offline and web push, plus the landing's "In your browser" card and the `/app` share card. Set up and verified: Firebase web app "BusIn Web" with its Web Push key; `NEXT_PUBLIC_FIREBASE_*` and `NEXT_PUBLIC_GOOGLE_CLIENT_ID` on Vercel (Production and Preview); Vercel on Node 24.x; `PUSH_WEB_BASE_URL` on the functions; hosted migration `20261115140000_web_push` applied and `send-push` redeployed.

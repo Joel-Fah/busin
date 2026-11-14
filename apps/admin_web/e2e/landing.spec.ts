@@ -25,7 +25,9 @@ test.describe("the landing page", () => {
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /^https?:\/\/[^/]+\/?$/);
 
     const robots = await (await request.get("/robots.txt")).text();
-    expect(robots).toContain("Disallow: /login");
+    // Everything is closed but the public pages (the portal and sign-in included).
+    expect(robots).toMatch(/^Disallow: \/$/m);
+    expect(robots).toContain("Allow: /landing");
     expect(robots).toContain("Sitemap:");
     const sitemap = await (await request.get("/sitemap.xml")).text();
     expect(sitemap).toContain("<loc>");

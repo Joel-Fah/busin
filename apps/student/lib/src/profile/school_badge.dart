@@ -26,19 +26,20 @@ class SchoolBadge extends StatelessWidget {
             if (url == null)
               fallback
             else
-              ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: Container(
-                  width: 20,
-                  height: 20,
-                  color: Colors.white,
+              // The logo keeps its shape: 20 high, up to 50 wide, on a white plate (never cropped).
+              Container(
+                constraints: const BoxConstraints(minWidth: 20, maxWidth: 50, minHeight: 20, maxHeight: 20),
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4)),
+                padding: const EdgeInsets.all(2),
+                child: Center(
+                  widthFactor: 1,
+                  heightFactor: 1,
                   child: Image.network(
                     url,
-                    width: 20,
-                    height: 20,
+                    height: 16,
                     fit: BoxFit.contain,
                     semanticLabel: '',
-                    errorBuilder: (_, _, _) => Center(child: fallback),
+                    errorBuilder: (_, _, _) => fallback,
                   ),
                 ),
               ),
