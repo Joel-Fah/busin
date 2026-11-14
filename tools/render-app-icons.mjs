@@ -39,6 +39,9 @@ const apps = {
     ["icon.png", { background: "#F5951F", colour: SEED, width: 700 }],
     ["icon_foreground.png", { background: "transparent", colour: SEED, width: 560 }],
     ["icon_monochrome.png", { background: "transparent", colour: "#000000", width: 560 }],
+    // The native splash, as the student app's (themed like the phone; the loading screen draws the same mark).
+    ["../splash/wordmark.png", { background: "transparent", colour: WHITE, width: 576, canvas: 1152 }],
+    ["../splash/wordmark-teal.png", { background: "transparent", colour: SEED, width: 576, canvas: 1152 }],
   ],
 };
 
