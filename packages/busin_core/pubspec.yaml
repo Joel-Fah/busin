@@ -9,6 +9,8 @@ environment:
 
 dependencies:
   crypto: ^3.0.8
+  # Phone numbers (ADR 0024): parsing, validity per country and formatting, pure Dart. Newest release at least two weeks old.
+  phone_numbers_parser: 9.0.28
 
 dev_dependencies:
   lints: ^6.1.0

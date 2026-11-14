@@ -40,7 +40,7 @@ Profile profile({
       email: '$id@school.edu',
       fullName: 'Test Person',
       matricule: complete ? 'ICT2026-0001' : null,
-      phone: complete ? '677123456' : null,
+      phone: complete ? '+237677123456' : null,
       departmentId: departmentId,
       programId: programId,
       role: role,

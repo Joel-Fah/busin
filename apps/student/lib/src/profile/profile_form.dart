@@ -29,6 +29,9 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
   late final _matricule = TextEditingController(text: widget.profile.matricule ?? '');
   late final _phone = TextEditingController(text: widget.profile.phone ?? '');
   String? _facultyId;
+
+  /// The country a number without its code is read for (ADR 0024): the saved number's, else the phone's region.
+  late final String _phoneCountry = PhoneNumbers.defaultCountry(saved: widget.profile.phone, deviceRegion: WidgetsBinding.instance.platformDispatcher.locale.countryCode);
   String? _departmentId;
   String? _programId;
   bool _academicSeeded = false;
@@ -57,7 +60,7 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
   bool get _valid =>
       ProfileValidation.fullName(_name.text) == null &&
       ProfileValidation.matricule(_matricule.text) == null &&
-      ProfileValidation.phone(_phone.text) == null;
+      ProfileValidation.phone(_phone.text, _phoneCountry) == null;
 
   Future<void> _save() async {
     setState(() {
@@ -71,7 +74,7 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
             widget.profile.id,
             fullName: _name.text.trim(),
             matricule: _matricule.text.trim(),
-            phone: ProfileValidation.normalizePhone(_phone.text),
+            phone: ProfileValidation.normalizePhone(_phone.text, _phoneCountry),
             // Only when the school has lists to choose from; otherwise whatever was saved stays as it is.
             academic: ref.read(academicUnitsProvider).value?.isEmpty ?? true ? null : AcademicChoice(departmentId: _departmentId, programId: _programId),
           );
@@ -138,7 +141,7 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
           enabled: !_saving,
           textInputAction: TextInputAction.done,
           keyboardType: TextInputType.phone,
-          errorText: _message(l10n, ProfileValidation.phone(_phone.text)),
+          errorText: _message(l10n, ProfileValidation.phone(_phone.text, _phoneCountry)),
           onChanged: changed,
         ),
         const SizedBox(height: BusinSpace.x4),

@@ -65,10 +65,13 @@ function readDetails(formData: FormData): { values: SetupState["values"]; proble
     department: text("department"),
     program: text("program"),
   };
+  // The country chosen in the phone field (ADR 0024); the field always sends one.
+  const country = text("phoneCountry") || "CM";
   const problems: SetupState["problems"] = {};
   const name = checkFullName(values.fullName);
   const matricule = checkMatricule(values.matricule);
-  const phone = checkPhone(values.phone);
+  const phone = checkPhone(values.phone, country);
+  if (!phone) values.phone = normalizePhone(values.phone, country);
   if (name) problems.fullName = name;
   if (matricule) problems.matricule = matricule;
   if (phone) problems.phone = phone;
@@ -83,7 +86,8 @@ async function writeDetails(profileId: string, values: SetupState["values"]): Pr
     .update({
       full_name: values.fullName.trim(),
       matricule: values.matricule.trim(),
-      phone: normalizePhone(values.phone),
+      // Already in its stored form (E.164), read above.
+      phone: values.phone,
       department_id: UUID.test(values.department) ? values.department : null,
       program_id: UUID.test(values.program) ? values.program : null,
     })

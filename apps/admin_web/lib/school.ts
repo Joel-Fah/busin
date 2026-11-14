@@ -1,3 +1,4 @@
+import { parsePhone } from "@/lib/phone/phone";
 /** Pure helpers for the school profile page. Kept separate so they are unit tested. */
 
 /** The version of the terms for schools in lib/legal/school-terms.ts. A new version asks the school to accept again. */
@@ -68,7 +69,12 @@ export function parseSchoolForm(form: { get(name: string): unknown }): { ok: tru
   if (value.contactEmail && (value.contactEmail.length > SCHOOL_LIMITS.email || !/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(value.contactEmail))) {
     return { ok: false, field: "contactEmail" };
   }
-  if (value.phone && (value.phone.length < 4 || value.phone.length > SCHOOL_LIMITS.phone || !/^[0-9 +()./-]+$/.test(value.phone))) return { ok: false, field: "phone" };
+  // The school's number in its stored form, E.164 (ADR 0024), read for the country chosen in the field.
+  if (value.phone) {
+    const phone = parsePhone(value.phone, text(form, "phoneCountry") || "CM");
+    if (!phone.e164) return { ok: false, field: "phone" };
+    value.phone = phone.e164;
+  }
   if (value.address.length > SCHOOL_LIMITS.address) return { ok: false, field: "address" };
   if (value.city.length > SCHOOL_LIMITS.city) return { ok: false, field: "city" };
   if (value.country.length > SCHOOL_LIMITS.country) return { ok: false, field: "country" };

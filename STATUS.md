@@ -31,6 +31,9 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: phone numbers and logos (2026-11-14)
+
+- Phone numbers as E.164 (#453): done, PR into `dev` (ADR 0024). Migration `20261115180000_phone_e164` tidies existing numbers (international kept, bare Cameroonian ones get +237, the rest cleared: a student is asked again at setup) and checks the form on both columns. Both apps read typed numbers for a country and save E.164; the phone app's profile shows them with spaces. The country and phone fields come next (#454 web, #455 Flutter), then logos (#456). Owner: the hosted migration prints how many numbers it changed.
 ## Handoff: setup field order (2026-11-14)
 
 - Student setup asks program, then faculty, then department (#445), on the phone and the web; profile edit uses the same forms. PR into `dev`. Owner, device test: a new account's setup shows that order.

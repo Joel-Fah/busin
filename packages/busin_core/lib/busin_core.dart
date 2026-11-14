@@ -29,6 +29,7 @@ export 'src/models/student_area.dart';
 export 'src/models/subscription.dart';
 export 'src/models/subscription_event.dart';
 export 'src/models/trip.dart';
+export 'src/phone_numbers.dart';
 export 'src/profile_validation.dart';
 export 'src/qr_code.dart';
 export 'src/models/rider_key.dart';
