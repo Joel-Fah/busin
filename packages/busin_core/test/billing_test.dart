@@ -72,6 +72,25 @@ void main() {
     });
   });
 
+  test('an installment says when the student can send a proof and when it is late', () {
+    final part = Installment.fromJson({
+      'id': 'i2',
+      'subscription_id': 'sub1',
+      'seq': 2,
+      'percent': 30,
+      'amount_xaf': 9000,
+      'due_date': '2026-12-01',
+      'status': 'due',
+    });
+    expect(part.open, isTrue);
+    expect(part.overdue(DateTime.utc(2026, 11, 30)), isFalse);
+    expect(part.overdue(DateTime.utc(2026, 12, 1)), isTrue);
+    expect(Installment.fromJson(part.toJson()), part);
+    final first = Installment.fromJson({...part.toJson(), 'seq': 1, 'status': 'submitted'});
+    expect(first.open, isFalse, reason: 'part 1 goes with the request');
+    expect(Installment.fromJson({...part.toJson(), 'status': 'paid'}).overdue(DateTime.utc(2027, 1, 1)), isFalse);
+  });
+
   test('a profile keeps its payment preference', () {
     final json = {
       'id': 'u1',

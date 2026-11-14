@@ -141,6 +141,29 @@ class SupabaseStreaksRepository implements StreaksRepository {
       });
 }
 
+class SupabaseInstallmentsRepository implements InstallmentsRepository {
+  SupabaseInstallmentsRepository(this._client);
+  final SupabaseClient _client;
+
+  @override
+  Future<List<Installment>> forSubscriptions(List<String> subscriptionIds) => guarded(() async {
+        if (subscriptionIds.isEmpty) return const [];
+        final rows = await _client
+            .from('subscription_installments')
+            .select(Columns.installment)
+            .inFilter('subscription_id', subscriptionIds)
+            .order('subscription_id')
+            .order('seq')
+            .limit(100);
+        return rows.map(Installment.fromJson).toList(growable: false);
+      });
+
+  @override
+  Future<void> submitProof({required String installmentId, required String proofPath}) => guarded(() async {
+        await _client.rpc<void>('submit_installment_proof', params: {'p_installment': installmentId, 'p_path': proofPath});
+      });
+}
+
 class SupabaseAreaRepository implements AreaRepository {
   SupabaseAreaRepository(this._client);
   final SupabaseClient _client;

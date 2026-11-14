@@ -1,6 +1,7 @@
 import '../enums.dart';
 import '../models/academic.dart';
 import '../models/billing.dart';
+import '../models/installment.dart';
 import 'dart:typed_data';
 
 import '../geo_point.dart';
@@ -76,6 +77,15 @@ abstract interface class StreaksRepository {
 
   /// The school's board for a semester, best streaks first, with the caller's own row always included.
   Future<List<LeaderboardEntry>> leaderboard(String semesterId, {int limit = 50});
+}
+
+/// The parts of a subscription paid in installments (ADR 0022). The student reads their own; writes go through functions.
+abstract interface class InstallmentsRepository {
+  /// The parts of these subscriptions, in order. Empty for subscriptions paid in full.
+  Future<List<Installment>> forSubscriptions(List<String> subscriptionIds);
+
+  /// Sends the proof for a later part, already uploaded at [proofPath] (`<school>/<student>/<file>`).
+  Future<void> submitProof({required String installmentId, required String proofPath});
 }
 
 /// The student's own area (ADR 0013). Nobody else reads it; the school only sees counts per zone.
