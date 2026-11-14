@@ -790,7 +790,5 @@
     }
   },
   "stopClosest": "Le plus proche de votre zone",
-  "stopSuggested": "Suggéré",
-  "stopAll": "Tous les arrêts",
   "stopAddArea": "Ajoutez votre zone pour voir l’arrêt le plus proche"
 }

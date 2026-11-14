@@ -166,11 +166,11 @@ export function SubscribeForm({
 
   useEffect(() => () => (proof ? URL.revokeObjectURL(proof.url) : undefined), [proof]);
 
-  // The nearest stop is suggested above the list while nothing is searched; it is never chosen for the student.
+  // Nearest first when the student gave their area; the nearest carries a "closest" chip and is never chosen for them.
   const ranked = useMemo(() => stopsWithDistance(stops, area), [stops, area]);
   const q = plain(query.trim());
-  const closest = q ? null : closestStop(ranked);
-  const shown = ranked.filter((r) => (!q || plain(r.stop.name).includes(q)) && r.stop.id !== closest?.stop.id);
+  const closest = closestStop(ranked);
+  const shown = ranked.filter((r) => !q || plain(r.stop.name).includes(q));
   const km = (value: number) => new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(value);
 
   const choosePhoto = async (file: File | undefined) => {
@@ -347,21 +347,12 @@ export function SubscribeForm({
               {copy.stopAddArea}
             </a>
           ) : null}
-          {shown.length === 0 && !closest ? (
+          {shown.length === 0 ? (
             <p className="m-0 text-sm text-muted">{copy.stopNone}</p>
           ) : (
             <div className="flex max-h-[50dvh] flex-col gap-1 overflow-y-auto">
-              {closest ? (
-                <>
-                  <p className="m-0 px-3 pt-1 text-sm font-semibold text-muted">{copy.stopSuggested}</p>
-                  <ul className="m-0 grid list-none gap-1 p-0" aria-label={copy.stopSuggested}>
-                    {stopRow(closest, true)}
-                  </ul>
-                  <p className="m-0 px-3 pt-2 text-sm font-semibold text-muted">{copy.stopAll}</p>
-                </>
-              ) : null}
               <ul className="m-0 grid list-none gap-1 p-0" aria-label={copy.stopLabel}>
-                {shown.map((r) => stopRow(r, false))}
+                {shown.map((r) => stopRow(r, r.stop.id === closest?.stop.id))}
               </ul>
             </div>
           )}

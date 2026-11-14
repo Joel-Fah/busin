@@ -169,10 +169,14 @@ export type RankedStop<S> = { stop: S; km: number | null };
 
 /**
  * Each stop with how far it is from the student's area (ADR 0013, rounded to about 500 m by the server): the straight
- * line times the road factor 1.3, as for Show me. The school's order is kept; the nearest is only pointed out.
+ * line times the road factor 1.3, as for Show me. With an area the list is nearest first (ties, and stops without a
+ * position at the end, keep the school's order); without one the school's order stays. The nearest is only pointed out.
  */
 export function stopsWithDistance<S extends { position: LatLng | null }>(stops: S[], area: LatLng | null): RankedStop<S>[] {
-  return stops.map((stop) => ({ stop, km: area && stop.position ? Math.round((distanceMeters(area, stop.position) * ROAD_FACTOR) / 100) / 10 : null }));
+  const ranked = stops.map((stop) => ({ stop, km: area && stop.position ? Math.round((distanceMeters(area, stop.position) * ROAD_FACTOR) / 100) / 10 : null }));
+  if (!area) return ranked;
+  // Array.prototype.sort is stable: equal distances keep the school's order.
+  return ranked.sort((a, b) => (a.km ?? Number.POSITIVE_INFINITY) - (b.km ?? Number.POSITIVE_INFINITY));
 }
 
 /** The nearest stop, to suggest. Null without an area. */

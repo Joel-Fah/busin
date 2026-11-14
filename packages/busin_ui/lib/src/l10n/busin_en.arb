@@ -1252,7 +1252,5 @@
     }
   },
   "stopClosest": "Closest to your area",
-  "stopSuggested": "Suggested",
-  "stopAll": "All stops",
   "stopAddArea": "Add your area to see which stop is closest"
 }
