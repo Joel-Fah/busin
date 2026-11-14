@@ -3,6 +3,7 @@ import 'package:busin_core/busin_core.dart';
 import 'package:flutter/painting.dart' show ImageProvider, NetworkImage;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../area/area_providers.dart';
 import '../auth/access.dart';
 import '../providers.dart';
 import 'proof_picker.dart';
@@ -167,6 +168,8 @@ SubscribeFailure failureFor(Object error) => switch (error) {
 /// subscription (that is what they need at the door), otherwise on the subscription tab. Any trouble reading it falls back
 /// to the subscription tab, which explains and can retry.
 final landingPathProvider = FutureProvider.autoDispose<String>((ref) async {
+  // Right after setup, My area is offered once (ADR 0023); a new student has no pass to show yet.
+  if (ref.watch(areaIntroPendingProvider)) return '/area?intro=1';
   try {
     final overview = await ref.watch(subscriptionOverviewProvider.future);
     final school = await ref.watch(schoolProvider.future);
