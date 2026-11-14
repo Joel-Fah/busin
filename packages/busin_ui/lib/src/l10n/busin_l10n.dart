@@ -3324,6 +3324,204 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'You were added to a trip. It is in your trips.'**
   String get opsPushCrewAssigned;
+
+  /// No description provided for @subscribePriceSemester.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} for the semester'**
+  String subscribePriceSemester(String price);
+
+  /// No description provided for @subscribePriceMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} a month'**
+  String subscribePriceMonth(String price);
+
+  /// No description provided for @subscribeBillingNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school is still setting up payments. You can ask for a subscription once it has.'**
+  String get subscribeBillingNotSet;
+
+  /// No description provided for @subscribeMonthLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get subscribeMonthLabel;
+
+  /// No description provided for @subscribePaymentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'How you pay'**
+  String get subscribePaymentLabel;
+
+  /// No description provided for @paymentFull.
+  ///
+  /// In en, this message translates to:
+  /// **'In full'**
+  String get paymentFull;
+
+  /// No description provided for @paymentInstallments.
+  ///
+  /// In en, this message translates to:
+  /// **'In installments'**
+  String get paymentInstallments;
+
+  /// No description provided for @subscribeFullNote.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} with this request.'**
+  String subscribeFullNote(String amount);
+
+  /// No description provided for @subscribeInstallmentsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'{parts}. The first with this request, the others by their dates.'**
+  String subscribeInstallmentsNote(String parts);
+
+  /// No description provided for @subscribePaymentRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose how you pay.'**
+  String get subscribePaymentRequired;
+
+  /// No description provided for @subscribeErrorPeriodEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'That month has ended. Pull down to refresh and choose again.'**
+  String get subscribeErrorPeriodEnded;
+
+  /// No description provided for @preferenceSaveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay this way next time?'**
+  String get preferenceSaveTitle;
+
+  /// No description provided for @preferenceSaveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'BusIn can fill in “{mode}” for your next requests. You can change it in your profile.'**
+  String preferenceSaveBody(String mode);
+
+  /// No description provided for @preferenceSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as my preference'**
+  String get preferenceSave;
+
+  /// No description provided for @preferenceNotNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get preferenceNotNow;
+
+  /// No description provided for @preferenceSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved as how you prefer to pay.'**
+  String get preferenceSaved;
+
+  /// No description provided for @profilePaymentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How you prefer to pay'**
+  String get profilePaymentTitle;
+
+  /// No description provided for @profilePaymentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Filled in when you ask for a subscription.'**
+  String get profilePaymentHint;
+
+  /// No description provided for @partsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Installments'**
+  String get partsTitle;
+
+  /// No description provided for @partLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Part {n}'**
+  String partLabel(String n);
+
+  /// No description provided for @partDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Due {date}'**
+  String partDue(String date);
+
+  /// No description provided for @partStatusDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Not paid yet'**
+  String get partStatusDue;
+
+  /// No description provided for @partStatusSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Proof sent, waiting for the school'**
+  String get partStatusSubmitted;
+
+  /// No description provided for @partStatusPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get partStatusPaid;
+
+  /// No description provided for @partStatusRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Proof not accepted'**
+  String get partStatusRejected;
+
+  /// No description provided for @partLate.
+  ///
+  /// In en, this message translates to:
+  /// **'Late'**
+  String get partLate;
+
+  /// No description provided for @partSendProof.
+  ///
+  /// In en, this message translates to:
+  /// **'Send proof of payment'**
+  String get partSendProof;
+
+  /// No description provided for @partSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Proof sent. Your school will check it.'**
+  String get partSent;
+
+  /// No description provided for @nextMonthAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask for {month}'**
+  String nextMonthAsk(String month);
+
+  /// No description provided for @nextMonthState.
+  ///
+  /// In en, this message translates to:
+  /// **'{month}: {status}'**
+  String nextMonthState(String month, String status);
+
+  /// No description provided for @pushForegroundInstallmentPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school marked a payment as received.'**
+  String get pushForegroundInstallmentPaid;
+
+  /// No description provided for @pushForegroundInstallmentRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school could not accept a payment proof.'**
+  String get pushForegroundInstallmentRejected;
+
+  /// No description provided for @pushForegroundInstallmentDue.
+  ///
+  /// In en, this message translates to:
+  /// **'A payment is due soon.'**
+  String get pushForegroundInstallmentDue;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {

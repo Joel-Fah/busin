@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
 
+import 'installments_section.dart';
 import 'proof_thumbnail.dart';
 import 'subscription_providers.dart';
 
@@ -116,6 +117,11 @@ class SubscriptionStatusCard extends ConsumerWidget {
           if (subscription.proofPath != null) ...[
             const SizedBox(height: BusinSpace.x4),
             _ProofPreview(path: subscription.proofPath!),
+          ],
+          // Paid in installments: each part, and a way to send the proof of the next one (ADR 0022).
+          if (subscription.paymentMode == PaymentMode.installments) ...[
+            const SizedBox(height: BusinSpace.x5),
+            InstallmentsSection(subscription: subscription),
           ],
           if (status == SubscriptionStatus.approved && onShowCode != null) ...[
             const SizedBox(height: BusinSpace.x5),

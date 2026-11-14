@@ -1892,4 +1892,125 @@ class BusinL10nEn extends BusinL10n {
   @override
   String get opsPushCrewAssigned =>
       'You were added to a trip. It is in your trips.';
+
+  @override
+  String subscribePriceSemester(String price) {
+    return '$price for the semester';
+  }
+
+  @override
+  String subscribePriceMonth(String price) {
+    return '$price a month';
+  }
+
+  @override
+  String get subscribeBillingNotSet =>
+      'Your school is still setting up payments. You can ask for a subscription once it has.';
+
+  @override
+  String get subscribeMonthLabel => 'Month';
+
+  @override
+  String get subscribePaymentLabel => 'How you pay';
+
+  @override
+  String get paymentFull => 'In full';
+
+  @override
+  String get paymentInstallments => 'In installments';
+
+  @override
+  String subscribeFullNote(String amount) {
+    return '$amount with this request.';
+  }
+
+  @override
+  String subscribeInstallmentsNote(String parts) {
+    return '$parts. The first with this request, the others by their dates.';
+  }
+
+  @override
+  String get subscribePaymentRequired => 'Choose how you pay.';
+
+  @override
+  String get subscribeErrorPeriodEnded =>
+      'That month has ended. Pull down to refresh and choose again.';
+
+  @override
+  String get preferenceSaveTitle => 'Pay this way next time?';
+
+  @override
+  String preferenceSaveBody(String mode) {
+    return 'BusIn can fill in “$mode” for your next requests. You can change it in your profile.';
+  }
+
+  @override
+  String get preferenceSave => 'Save as my preference';
+
+  @override
+  String get preferenceNotNow => 'Not now';
+
+  @override
+  String get preferenceSaved => 'Saved as how you prefer to pay.';
+
+  @override
+  String get profilePaymentTitle => 'How you prefer to pay';
+
+  @override
+  String get profilePaymentHint => 'Filled in when you ask for a subscription.';
+
+  @override
+  String get partsTitle => 'Installments';
+
+  @override
+  String partLabel(String n) {
+    return 'Part $n';
+  }
+
+  @override
+  String partDue(String date) {
+    return 'Due $date';
+  }
+
+  @override
+  String get partStatusDue => 'Not paid yet';
+
+  @override
+  String get partStatusSubmitted => 'Proof sent, waiting for the school';
+
+  @override
+  String get partStatusPaid => 'Paid';
+
+  @override
+  String get partStatusRejected => 'Proof not accepted';
+
+  @override
+  String get partLate => 'Late';
+
+  @override
+  String get partSendProof => 'Send proof of payment';
+
+  @override
+  String get partSent => 'Proof sent. Your school will check it.';
+
+  @override
+  String nextMonthAsk(String month) {
+    return 'Ask for $month';
+  }
+
+  @override
+  String nextMonthState(String month, String status) {
+    return '$month: $status';
+  }
+
+  @override
+  String get pushForegroundInstallmentPaid =>
+      'Your school marked a payment as received.';
+
+  @override
+  String get pushForegroundInstallmentRejected =>
+      'Your school could not accept a payment proof.';
+
+  @override
+  String get pushForegroundInstallmentDue => 'A payment is due soon.';
 }
