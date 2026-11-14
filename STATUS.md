@@ -31,6 +31,12 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: billing round (2026-11-14)
+
+Planned with the owner: scan sounds (#430), My area offered after setup (#431), school billing in the backend (#432), installments (#433), the admin Billing page (#434), billing in the student app (#435) and in the web app (#436).
+
+- Scan sounds (#430): done, PR into `dev`. Five original sounds (`apps/ops/tool/make_sounds.py`), one per kind of result, on by default; `audioplayers` 6.8.1 added. Owner, device test: scan a valid code, the same code again, a screenshot older than a minute, a student without a subscription, and a code with the network off and no list; each should sound different, and music playing on the phone should keep playing.
+
 ## Handoff: student web app (2026-11-13)
 
 Live on main (release #415): the student web app at `/app` (ADR 0021) with sign-in, onboarding, subscription, boarding code, My bus, profile, offline and web push, plus the landing's "In your browser" card and the `/app` share card. Set up and verified: Firebase web app "BusIn Web" with its Web Push key; `NEXT_PUBLIC_FIREBASE_*` and `NEXT_PUBLIC_GOOGLE_CLIENT_ID` on Vercel (Production and Preview); Vercel on Node 24.x; `PUSH_WEB_BASE_URL` on the functions; hosted migration `20261115140000_web_push` applied and `send-push` redeployed.

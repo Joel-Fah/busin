@@ -2722,7 +2722,7 @@ abstract class BusinL10n {
   /// No description provided for @opsSettingsSoundHint.
   ///
   /// In en, this message translates to:
-  /// **'A click when a student is let on, an alert when refused.'**
+  /// **'A different sound for let on, already on board, refused and suspect codes.'**
   String get opsSettingsSoundHint;
 
   /// No description provided for @opsSettingsDriving.

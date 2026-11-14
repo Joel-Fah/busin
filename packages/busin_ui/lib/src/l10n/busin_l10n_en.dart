@@ -1531,7 +1531,7 @@ class BusinL10nEn extends BusinL10n {
 
   @override
   String get opsSettingsSoundHint =>
-      'A click when a student is let on, an alert when refused.';
+      'A different sound for let on, already on board, refused and suspect codes.';
 
   @override
   String get opsSettingsDriving => 'Driver mode';

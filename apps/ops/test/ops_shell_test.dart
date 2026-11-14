@@ -106,6 +106,12 @@ void main() {
       await settle(tester);
       expect(container.read(opsSettingsProvider).vibrate, isFalse);
 
+      expect(container.read(opsSettingsProvider).sound, isTrue, reason: 'scan sounds are on unless turned off');
+      await tester.scrollUntilVisible(find.text('Sound on each scan'), 200, scrollable: find.byType(Scrollable).first);
+      await tester.tap(find.text('Sound on each scan'));
+      await settle(tester);
+      expect(container.read(opsSettingsProvider).sound, isFalse);
+
       await tester.scrollUntilVisible(find.text('Offer to share the bus position when I start a trip'), 200, scrollable: find.byType(Scrollable).first);
       await tester.tap(find.text('Offer to share the bus position when I start a trip'));
       await settle(tester);
