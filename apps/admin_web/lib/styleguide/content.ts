@@ -320,6 +320,10 @@ export const COMPONENT_NOTES: { name: string; note: string }[] = [
     name: "Side sheet and modal",
     note: "Both float with a margin all round and rounded corners, never docked to an edge. Danger actions (delete, suspend, sign out) always use the danger style, and a destructive choice asks first.",
   },
+  {
+    name: "Phone number",
+    note: "Country and number always on one row (ADR 0024): a flag and the dialling code open a searchable list (names in English and French, codes, dialling codes), and the number is written the country's way as it is typed. Pasting a number with + picks its country. Saved as E.164 (+237677123456, digits only), shown in international form with spaces. The starting country is the saved number's, else the school's, else the browser's region. Flags are SVG files, never emoji.",
+  },
   { name: "Card", note: "A raised surface with the lg radius and the still thread 16px in. A number card puts a quiet label above a large extra bold figure." },
 ];
 

@@ -13,6 +13,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { displayPhone } from "@/lib/phone/phone";
 import { format } from "@/lib/i18n/format";
 import { getStudentCopy } from "@/lib/i18n/server";
 import { requireStudent } from "@/lib/student/session";
@@ -47,7 +48,7 @@ async function Profile({ searchParams }: { searchParams: SearchParams }) {
   const { saved } = await searchParams;
   const rows: [string, string | null | undefined][] = [
     [s.fields.matricule, student.matricule],
-    [s.fields.phone, student.phone],
+    [s.fields.phone, student.phone ? displayPhone(student.phone) : null],
     [s.fields.department, department.data?.name],
     [s.fields.program, program.data?.name],
   ];
