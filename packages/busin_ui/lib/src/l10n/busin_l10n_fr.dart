@@ -253,6 +253,10 @@ class BusinL10nFr extends BusinL10n {
       'Astuce : si votre école vous a donné une adresse e-mail, connectez-vous avec elle plutôt qu’avec une adresse personnelle.';
 
   @override
+  String get opsSignInNotAllowed =>
+      'Ce compte Google n’est pas autorisé ici. Connectez-vous avec votre compte de l’école ou l’adresse que votre école a invitée.';
+
+  @override
   String get signInWithGoogle => 'Continuer avec Google';
 
   @override

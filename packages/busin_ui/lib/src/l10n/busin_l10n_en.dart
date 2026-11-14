@@ -251,6 +251,10 @@ class BusinL10nEn extends BusinL10n {
       'Tip: if your school gave you an email address, sign in with it rather than a personal one.';
 
   @override
+  String get opsSignInNotAllowed =>
+      'This Google account is not allowed here. Sign in with your school account or the address your school invited.';
+
+  @override
   String get signInWithGoogle => 'Continue with Google';
 
   @override
