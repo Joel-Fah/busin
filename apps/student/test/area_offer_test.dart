@@ -44,7 +44,7 @@ void main() {
     await open(tester, profiles: profiles, prefs: prefs);
     final fields = find.byType(TextField);
     await tester.enterText(fields.at(1), 'ICT2026-0457');
-    await tester.enterText(fields.at(2), '677123456');
+    await tester.enterText(fields.at(2), '+237 677 12 34 56');
     await tester.tap(find.text('Save and continue'));
     await settle(tester);
 
