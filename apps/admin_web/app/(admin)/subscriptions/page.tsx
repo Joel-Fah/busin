@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
+import { Search01Icon } from "@hugeicons/core-free-icons";
 import Link from "next/link";
 import { Suspense } from "react";
 
 import { Avatar } from "@/components/ui/Avatar";
+import { Button, ButtonLink } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
 import { ColumnFilter } from "@/components/ui/ColumnFilter";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { FilterChips, type FilterChip } from "@/components/ui/FilterChips";
+import { Input } from "@/components/ui/Input";
 import { ListSkeleton } from "@/components/ui/ListSkeleton";
 import { Notice } from "@/components/ui/Notice";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -19,7 +22,8 @@ import { partsAttention } from "@/lib/billing";
 import { chipText, filterText } from "@/lib/filter-text";
 import { format, type Locale } from "@/lib/i18n/messages";
 import { getMessages } from "@/lib/i18n/server";
-import { PAGE_SIZES, lastPage } from "@/lib/pagination";
+import { PAGE_SIZES, lastPage, sizeParam } from "@/lib/pagination";
+import { searchFilter } from "@/lib/people";
 import { createClient } from "@/lib/supabase/server";
 import {
   FILTERS,
@@ -44,6 +48,7 @@ type SearchParams = Promise<{
   semester?: string | string[];
   stop?: string | string[];
   page?: string | string[];
+  q?: string | string[];
 }>;
 
 export default function SubscriptionsPage({ searchParams }: { searchParams: SearchParams }) {
@@ -78,16 +83,20 @@ async function SubscriptionsList({ searchParams }: { searchParams: SearchParams 
     if (filters.semester) next = next.eq("semester_id", filters.semester);
     if (filters.stop) next = next.eq("stop_id", filters.stop);
     if (filters.payments) next = next.gt("parts.seq", 1).or(`status.eq.submitted,and(status.in.(due,rejected),due_date.lte.${todayIso})`, { referencedTable: "parts" });
+    // The search keeps the subscriptions whose student matches, through the student joined below.
+    if (filters.q) next = next.or(searchFilter(filters.q), { referencedTable: "student" });
     return next;
   };
   const parts = filters.payments ? "parts:subscription_installments!inner(seq, status, due_date)" : "parts:subscription_installments(seq, status, due_date)";
+  const studentJoin = filters.q ? ("student:profiles!subscriptions_student_id_school_id_fkey!inner" as const) : ("student:profiles!subscriptions_student_id_school_id_fkey" as const);
+  const countColumns = ["id", ...(filters.payments ? [parts] : []), ...(filters.q ? [`${studentJoin}(id)`] : [])].join(", ");
 
   let request = narrow(
     supabase
       .from("subscriptions")
       .select(
         `id, status, created_at, period_start, ${parts},
-         student:profiles!subscriptions_student_id_school_id_fkey(full_name, email, matricule),
+         ${studentJoin}(full_name, email, matricule),
          semester:semesters!subscriptions_semester_id_school_id_fkey(name, year),
          stop:stops!subscriptions_stop_id_school_id_fkey(name)`,
         { count: "exact" },
@@ -103,7 +112,7 @@ async function SubscriptionsList({ searchParams }: { searchParams: SearchParams 
     request,
     supabase.from("semesters").select("id, name, year").order("start_date", { ascending: false }).limit(100),
     supabase.from("stops").select("id, name").order("name", { ascending: true }).limit(500),
-    ...STATUSES.map((s) => narrow(supabase.from("subscriptions").select(filters.payments ? `id, ${parts}` : "id", { count: "exact", head: true }).eq("status", s))),
+    ...STATUSES.map((s) => narrow(supabase.from("subscriptions").select(countColumns, { count: "exact", head: true }).eq("status", s))),
   ]);
 
   // A page past the last one is not a failure: the database answers "range not satisfiable" and there is simply nothing there.
@@ -140,7 +149,7 @@ async function SubscriptionsList({ searchParams }: { searchParams: SearchParams 
     ...(filters.payments ? [{ label: t.subscriptions.payments, value: t.subscriptions.paymentsOn, href: without({ payments: false }) }] : []),
   ];
   const monthOf = (day: string) => new Intl.DateTimeFormat(locale, { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${day}T00:00:00Z`));
-  const anyFilter = chips.length > 0;
+  const anyFilter = chips.length > 0 || Boolean(filters.q);
 
   return (
     <>
@@ -158,6 +167,34 @@ async function SubscriptionsList({ searchParams }: { searchParams: SearchParams 
       />
 
       <StickyToolbar>
+        <form method="get" action="/subscriptions" role="search" className="flex w-full max-w-2xl flex-wrap items-end gap-3">
+          {status !== "pending" ? <input type="hidden" name="status" value={status} /> : null}
+          {filters.semester ? <input type="hidden" name="semester" value={filters.semester} /> : null}
+          {filters.stop ? <input type="hidden" name="stop" value={filters.stop} /> : null}
+          {filters.payments ? <input type="hidden" name="payments" value="1" /> : null}
+          {sizeParam(filters.size) ? <input type="hidden" name="size" value={filters.size} /> : null}
+          <Input
+            id="q"
+            name="q"
+            type="search"
+            label={t.people.search.label}
+            icon={Search01Icon}
+            defaultValue={filters.q ?? ""}
+            placeholder={t.people.search.placeholder}
+            maxLength={64}
+            autoComplete="off"
+            className="min-w-64 flex-1"
+          />
+          <Button type="submit" variant="secondary">
+            {t.people.search.button}
+          </Button>
+          {filters.q ? (
+            <ButtonLink variant="ghost" href={without({ q: "" })}>
+              {t.people.search.clear}
+            </ButtonLink>
+          ) : null}
+        </form>
+
         <Tabs label={t.subscriptions.filtersLabel} items={tabs} active={status} />
       </StickyToolbar>
 

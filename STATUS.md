@@ -48,7 +48,7 @@ Since then (PRs into `dev`, not merged): the school logo fits its box in its own
 
 Then (PRs into `dev`): the sign-in screen follows the theme, with the bus stop photo in light mode on the phone and the web (#472); the ops app's launch screen follows the theme too (#473, stacked on #472).
 
-Next round (PRs into `dev`, stacked in this order): the sign-in tip to use the school email (#476).
+Next round (PRs into `dev`, stacked in this order): the sign-in tip to use the school email (#476); search on the admin Subscriptions list (#477).
 
 What to test (local: `npm run backend:start`, `npm run seed:demo`, `npm run web`, `npm run dev:device`; rebuild both Flutter apps):
 - **Ops scan sounds:** a valid code, the same again, a screenshot older than a minute, a student without a subscription, no network and no list. Each sounds different, and music keeps playing. The switch is in the profile.
@@ -71,6 +71,7 @@ What to test (local: `npm run backend:start`, `npm run seed:demo`, `npm run web`
 - **Sign-in (phone and web app):** signed out, in light mode the bus stop photo with teal words and a white logo (it turns from teal to white as it travels from the splash); in dark mode the night bus as before.
 - **Ops launch screen:** open the ops app in light mode (teal logo on the light background), then dark mode (white logo on teal). The loading screen after it keeps the logo in the same place.
 - **Sign-in tip:** under the Google button, a short tip to use the school email (phone and web, EN and FR).
+- **Subscriptions search (admin):** search a student by name, email or matricule; the tabs' numbers follow, the semester, stop and payments filters stay, and Clear search brings everything back.
 - **Admin lists on a phone width:** scroll a list until the tabs stick. They stay on one row and scroll sideways, with the current tab in view.
 
 ## Handoff: student web app (2026-11-13)
