@@ -23,7 +23,7 @@ export function GettingStarted({ steps, t }: { steps: SetupStep[]; t: Messages }
         <p className="text-sm font-semibold text-muted">{format(g.progress, { done, total: steps.length })}</p>
       </div>
       <p className="mt-1 max-w-2xl text-sm text-muted">{g.intro}</p>
-      <ol className="m-0 mt-5 grid list-none gap-2 p-0 sm:grid-cols-2 xl:grid-cols-5">
+      <ol className="m-0 mt-5 grid list-none gap-2 p-0 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         {steps.map((step, index) => (
           <li key={step.key}>
             <Link
