@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildRequestHistory, liveRequests, monthChoices, proofPath, sniffImageType, stageOf, stillRunning, subscribeProblem, subscriptionToShow, uploadProblem, type SubscriptionRow } from "./subscription";
+import { buildRequestHistory, closestStop, liveRequests, monthChoices, proofPath, stopsWithDistance, sniffImageType, stageOf, stillRunning, subscribeProblem, subscriptionToShow, uploadProblem, type SubscriptionRow } from "./subscription";
 
 const row = (id: string, status: SubscriptionRow["status"], created_at: string, semester_id = "sem"): SubscriptionRow => ({
   id,
@@ -110,5 +110,23 @@ describe("receipts in the history (ADR 0022)", () => {
     );
     expect(history[0].events.map((e) => `${e.action}${e.seq ?? ""}`)).toEqual(["partPaid3", "partPaid2", "partSent2", "partRejected2", "partSent2", "requested"]);
     expect(history[0].events.find((e) => e.action === "partRejected")?.note).toBe("Blurry");
+  });
+});
+
+describe("the closest stop", () => {
+  const stops = [
+    { id: "far", position: { lat: 3.83, lng: 11.49 } },
+    { id: "near", position: { lat: 3.89, lng: 11.51 } },
+    { id: "unknown", position: null },
+  ];
+  it("says how far each stop is by road from the area, and points out the nearest without reordering", () => {
+    const ranked = stopsWithDistance(stops, { lat: 3.88, lng: 11.51 });
+    expect(ranked.map((r) => r.stop.id)).toEqual(["far", "near", "unknown"]);
+    expect(ranked[1].km).toBeCloseTo(1.4, 1);
+    expect(ranked[2].km).toBeNull();
+    expect(closestStop(ranked)?.stop.id).toBe("near");
+  });
+  it("suggests nothing without an area", () => {
+    expect(closestStop(stopsWithDistance(stops, null))).toBeNull();
   });
 });

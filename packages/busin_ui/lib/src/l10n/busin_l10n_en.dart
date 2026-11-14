@@ -2028,4 +2028,21 @@ class BusinL10nEn extends BusinL10n {
   String receiptRejected(String n) {
     return 'Proof for part $n not accepted';
   }
+
+  @override
+  String stopDistance(String km) {
+    return 'about $km km from your area';
+  }
+
+  @override
+  String get stopClosest => 'Closest to your area';
+
+  @override
+  String get stopSuggested => 'Suggested';
+
+  @override
+  String get stopAll => 'All stops';
+
+  @override
+  String get stopAddArea => 'Add your area to see which stop is closest';
 }

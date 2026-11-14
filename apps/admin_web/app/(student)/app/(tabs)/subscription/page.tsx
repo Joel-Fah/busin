@@ -17,6 +17,7 @@ import { getStudentCopy } from "@/lib/i18n/server";
 import { firstName, greetingFor } from "@/lib/overview";
 import { requireStudent } from "@/lib/student/session";
 import { schoolBilling, type InstallmentRow } from "@/lib/billing";
+import { parsePoint } from "@/lib/geo";
 import { buildRequestHistory, isLive, liveRequests, monthChoices, subscriptionToShow, type ReceiptRow, type SubscriptionEvent, type SubscriptionRow } from "@/lib/student/subscription";
 import { createClient } from "@/lib/supabase/server";
 import { todayInZone } from "@/lib/zoned";
@@ -118,8 +119,11 @@ async function Subscription({ searchParams }: { searchParams: SearchParams }) {
     subscription && !showForm ? supabase.from("stops").select("name").eq("id", subscription.stop_id).maybeSingle() : null,
     ofSemester.length ? supabase.from("subscription_events").select("id, subscription_id, action, note, created_at").in("subscription_id", ofSemester.map((r) => r.id)).order("created_at").limit(200) : null,
     subscription?.proof_path && !showForm ? supabase.storage.from("proofs").createSignedUrl(subscription.proof_path, 600) : null,
-    showForm ? supabase.from("stops").select("id, name").eq("active", true).order("name").limit(500) : null,
+    showForm ? supabase.from("stops").select("id, name, location").eq("active", true).order("name").limit(500) : null,
   ]);
+  // The student's area (rounded to about 500 m), only while the form shows: each stop then says how far it is.
+  const { data: myArea } = showForm ? await supabase.rpc("my_area") : { data: null };
+  const area = myArea?.[0] ? { lat: Number(myArea[0].lat), lng: Number(myArea[0].lng) } : null;
   const { data: parts } =
     subscription?.payment_mode === "installments" && !showForm
       ? await supabase.from("subscription_installments").select("id, seq, percent, amount_xaf, due_date, status, proof_path, review_note").eq("subscription_id", subscription.id).order("seq").limit(4)
@@ -150,7 +154,8 @@ async function Subscription({ searchParams }: { searchParams: SearchParams }) {
             semesterId={semester.id}
             schoolId={student.schoolId}
             studentId={student.userId}
-            stops={stops?.data ?? []}
+            stops={(stops?.data ?? []).map((s) => ({ id: s.id, name: s.name, position: parsePoint(s.location) }))}
+            area={area}
             billing={billing}
             preference={preference}
             months={months}

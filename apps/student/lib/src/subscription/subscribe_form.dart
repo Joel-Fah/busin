@@ -2,10 +2,13 @@ import 'package:busin_core/busin_core.dart';
 import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
+import '../area/area_providers.dart';
 import '../auth/access.dart';
 import '../providers.dart';
+import '../router.dart';
 import 'billing_choices.dart';
 import 'money.dart';
 import 'pick_proof.dart';
@@ -60,7 +63,18 @@ class _SubscribeFormState extends ConsumerState<SubscribeForm> {
   DateTime _today(School school) => ref.read(schoolClockProvider).today(school.timezone, now: ref.read(nowProvider)());
 
   Future<void> _chooseStop(List<Stop> stops) async {
-    final stop = await showStopPicker(context, stops, selectedId: _stop?.id);
+    // The student's area, if they gave one, to say how far each stop is (ADR 0013): read here, kept in memory.
+    final area = ref.read(myAreaProvider).value;
+    final stop = await showStopPicker(
+      context,
+      stops,
+      selectedId: _stop?.id,
+      area: area == null ? null : GeoPoint(area.lat, area.lng),
+      onAddArea: () {
+        Navigator.of(context).pop();
+        context.push(Routes.area);
+      },
+    );
     if (stop != null && mounted) setState(() => _stop = stop);
   }
 
@@ -180,6 +194,8 @@ class _SubscribeFormState extends ConsumerState<SubscribeForm> {
     final palette = BusinPalette.of(context);
     final text = Theme.of(context).textTheme;
     final stops = ref.watch(stopsProvider);
+    // Loaded while the form shows, so the stop list can say how far each stop is.
+    ref.watch(myAreaProvider);
     final school = ref.watch(schoolProvider).value;
     final billingMissing = school != null && !school.billingSet;
     final monthly = school?.billingPeriod == BillingPeriod.month;
