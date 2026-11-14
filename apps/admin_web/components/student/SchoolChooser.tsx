@@ -3,6 +3,7 @@
 import { Search01Icon, School01Icon } from "@hugeicons/core-free-icons";
 import { useActionState, useMemo, useState } from "react";
 
+import { SchoolLogo } from "@/components/SchoolLogo";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
@@ -48,15 +49,7 @@ export function SchoolChooser({ schools, copy }: { schools: OpenSchool[]; copy: 
                 onClick={() => setChosen(school)}
                 className="flex w-full cursor-pointer items-center gap-4 rounded-md border-0 bg-surface p-4 text-left font-sans text-fg shadow-soft transition-shadow duration-(--dur-fast) hover:shadow-float focus-visible:outline-3 focus-visible:outline-focus"
               >
-                <span className="grid size-12 shrink-0 place-items-center overflow-hidden rounded-sm bg-white">
-                  {school.logoUrl ? (
-                    // A logo from the public bucket; plain <img> because its host is the Supabase project.
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={school.logoUrl} alt="" className="size-full object-contain" />
-                  ) : (
-                    <Icon icon={School01Icon} size={22} className="text-brand" />
-                  )}
-                </span>
+                <SchoolLogo url={school.logoUrl} fallback={<Icon icon={School01Icon} size={22} className="text-brand" />} />
                 <span className="min-w-0">
                   <span className="block truncate font-bold">{school.name}</span>
                   {school.place ? <span className="block truncate text-sm text-muted">{school.place}</span> : null}

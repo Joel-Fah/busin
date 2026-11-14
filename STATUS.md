@@ -31,6 +31,9 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: school logos (2026-11-14)
+
+- Logos keep their shape (#456): done, PR into `dev`. The upload keeps the logo's own proportions (longest side 512, only the empty margin cut, no square padding); every display is a white plate of fixed height that lets a wide logo be up to two and a half times as wide, the logo centred and never cut: portal picker preview, landing school wall, web join list, setup and waiting pages (shared `SchoolLogo`), Flutter `SchoolLogo` and the profile badge. Owner: logos uploaded before stay padded squares until each school uploads its logo again.
 ## Handoff: phone numbers and logos (2026-11-14)
 
 - Flutter country and phone field (#455): done, PR into `dev`, stacked on #454. `BusinPhoneField` in `busin_ui`: flag (the same SVG files as the web, bundled in `busin_ui`, no new dependency) and dialling code opening a searchable sheet (EN/FR names), the number written the country's way as typed, a pasted `+` number picks its country; one row down to 320 dp at text 1.6. Used in the student setup and profile edit; in the app styleguide; the design-system skill has the rule. Owner, device test: pick a country by search, type a Cameroonian and a foreign number, paste `+33...`, large text.
