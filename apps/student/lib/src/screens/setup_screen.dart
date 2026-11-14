@@ -3,6 +3,7 @@ import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../area/area_providers.dart';
 import '../auth/access.dart';
 import '../greeting.dart';
 import '../join/join_providers.dart';
@@ -13,11 +14,24 @@ import '../providers.dart';
 /// The first thing a new student sees after signing in with Google: who they are, for the school. Student number and
 /// phone are needed (the driver and the school use them); department and program are optional. When it is saved the
 /// access rules let them in and the router moves them on by itself.
-class SetupScreen extends ConsumerWidget {
+class SetupScreen extends ConsumerStatefulWidget {
   const SetupScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SetupScreen> createState() => _SetupScreenState();
+}
+
+class _SetupScreenState extends ConsumerState<SetupScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Noted before saving, because saving lets the student in and the router moves on at once: the first landing after
+    // setup then offers My area (ADR 0023).
+    ref.read(markAreaIntroProvider)();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = BusinL10n.of(context);
     final access = ref.watch(accessProvider);
     if (access is! NeedsSetup) return const Scaffold(body: SizedBox.shrink());

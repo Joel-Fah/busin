@@ -1,6 +1,7 @@
 import 'package:busin_core/busin_core.dart';
 import 'package:busin_ops/src/app.dart';
 import 'package:busin_ops/src/queue/scan_queue.dart';
+import 'package:busin_ops/src/scan/scan_sound.dart';
 import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,6 +26,7 @@ Future<void> openScanner(
   FakeQr? qr,
   bool online = false,
   FakeRosterStore? rosters,
+  FakeSoundPlayer? sounds,
   Size size = const Size(800, 1600),
 }) async {
   tester.view.physicalSize = size;
@@ -40,6 +42,7 @@ Future<void> openScanner(
       rosters: rosters,
       queue: queue,
       scans: scans,
+      sounds: sounds,
       online: online,
     ),
     child: const OpsApp(),
@@ -58,7 +61,9 @@ void main() {
     final rosters = FakeRosterStore();
     // The connection is gone: sending waits (the list was downloaded before).
     final scans = FakeScans()..error = const Offline('no connection');
-    await openScanner(tester, queue: queue, qr: FakeQr([riderKey(ada, 1, 'Ada Lovelace')]), online: true, rosters: rosters, scans: scans);
+    final sounds = FakeSoundPlayer();
+    await openScanner(tester, queue: queue, qr: FakeQr([riderKey(ada, 1, 'Ada Lovelace')]), online: true, rosters: rosters, scans: scans, sounds: sounds);
+    expect(sounds.preloads, 1, reason: 'loaded when the scanner opens, so the first sound is not late');
     expect(find.textContaining('Today\'s list: 1 riders'), findsOneWidget);
 
     feed(codeOf(ada, 1));
@@ -75,15 +80,38 @@ void main() {
     expect(find.text('Already on board'), findsOneWidget);
     expect(queue.all, hasLength(1));
     expect(queue.all.single.state, QueuedState.pending, reason: 'kept until the connection is back');
+    expect(sounds.played, [ScanSound.admit, ScanSound.again]);
   });
 
   testWidgets('a forged code is refused at the door', (tester) async {
     final queue = MemoryScanQueue();
-    await openScanner(tester, queue: queue, online: true);
+    final sounds = FakeSoundPlayer();
+    await openScanner(tester, queue: queue, online: true, sounds: sounds);
     feed(codeOf(ada, 99));
     await settle(tester);
     expect(find.text('Not a valid boarding code'), findsOneWidget);
     expect(queue.all, isEmpty);
+    expect(sounds.played, [ScanSound.suspect]);
+  });
+
+  testWidgets('when the server cannot be reached for a student missing from the list, staff still hear it', (tester) async {
+    final queue = MemoryScanQueue();
+    final scans = FakeScans()..error = const Offline('no connection');
+    final sounds = FakeSoundPlayer();
+    await openScanner(tester, queue: queue, scans: scans, online: true, sounds: sounds);
+    feed(codeOf(ben, 2));
+    await settle(tester);
+    expect(sounds.played, [ScanSound.error]);
+  });
+
+  testWidgets('the server refusing a student without a subscription plays the refusal sound', (tester) async {
+    final queue = MemoryScanQueue();
+    final scans = FakeScans()..answer = const ScanRefused(ScanFailure.noActiveSubscription);
+    final sounds = FakeSoundPlayer();
+    await openScanner(tester, queue: queue, scans: scans, online: true, sounds: sounds);
+    feed(codeOf(ben, 2));
+    await settle(tester);
+    expect(sounds.played, [ScanSound.refused]);
   });
 
   testWidgets('online, a student missing from the list is checked by the server', (tester) async {
