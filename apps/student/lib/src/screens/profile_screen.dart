@@ -9,6 +9,7 @@ import 'package:hugeicons/hugeicons.dart';
 import '../area/area_providers.dart';
 import '../auth/access.dart';
 import '../legal/legal_screen.dart';
+import '../profile/payment_preference_card.dart';
 import '../profile/profile_form.dart';
 import '../profile/school_badge.dart';
 import '../providers.dart';
@@ -375,7 +376,7 @@ class ProfileScreen extends ConsumerWidget {
                   padding: side,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [details, const SizedBox(height: BusinSpace.x4), history, const SizedBox(height: BusinSpace.x4), notifications, const SizedBox(height: BusinSpace.x4), area, const SizedBox(height: BusinSpace.x4), streaks, const SizedBox(height: BusinSpace.x4), appearance, const SizedBox(height: BusinSpace.x4), legal],
+                    children: [details, const SizedBox(height: BusinSpace.x4), history, const SizedBox(height: BusinSpace.x4), notifications, const SizedBox(height: BusinSpace.x4), area, const PaymentPreferenceCard(), const SizedBox(height: BusinSpace.x4), streaks, const SizedBox(height: BusinSpace.x4), appearance, const SizedBox(height: BusinSpace.x4), legal],
                   ),
                 ),
               ),
@@ -398,6 +399,7 @@ class ProfileScreen extends ConsumerWidget {
           notifications,
           const SizedBox(height: BusinSpace.x4),
           area,
+          const PaymentPreferenceCard(),
           const SizedBox(height: BusinSpace.x4),
           streaks,
           const SizedBox(height: BusinSpace.x4),

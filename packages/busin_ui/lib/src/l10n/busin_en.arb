@@ -329,22 +329,67 @@
   "busLiveFailed": "Live updates are not available right now.",
   "busMapLabel": "Map of the bus and the stops",
   "busUpdateFollowing": "Following {bus} · {direction}",
-  "@busUpdateFollowing": {"placeholders": {"bus": {"type": "String"}, "direction": {"type": "String"}}},
+  "@busUpdateFollowing": {
+    "placeholders": {
+      "bus": {
+        "type": "String"
+      },
+      "direction": {
+        "type": "String"
+      }
+    }
+  },
   "busUpdateAtStop": "At {stop}",
-  "@busUpdateAtStop": {"placeholders": {"stop": {"type": "String"}}},
+  "@busUpdateAtStop": {
+    "placeholders": {
+      "stop": {
+        "type": "String"
+      }
+    }
+  },
   "busUpdateLeftStop": "Left {stop}",
-  "@busUpdateLeftStop": {"placeholders": {"stop": {"type": "String"}}},
+  "@busUpdateLeftStop": {
+    "placeholders": {
+      "stop": {
+        "type": "String"
+      }
+    }
+  },
   "busUpdateStopped": "Not moving for {minutes} min",
-  "@busUpdateStopped": {"placeholders": {"minutes": {"type": "String"}}},
+  "@busUpdateStopped": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
   "busUpdateMoving": "Moving again",
   "busUpdateNearMyStop": "Almost at your stop, about {minutes} min away",
-  "@busUpdateNearMyStop": {"placeholders": {"minutes": {"type": "String"}}},
+  "@busUpdateNearMyStop": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
   "busUpdatePassedMyStop": "The bus has passed your stop",
   "busUpdateSignalLost": "No news from the bus for {minutes} min",
-  "@busUpdateSignalLost": {"placeholders": {"minutes": {"type": "String"}}},
+  "@busUpdateSignalLost": {
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
   "busUpdateSignalBack": "Back in touch with the bus",
   "busUpdateEnded": "The trip of {bus} has ended",
-  "@busUpdateEnded": {"placeholders": {"bus": {"type": "String"}}},
+  "@busUpdateEnded": {
+    "placeholders": {
+      "bus": {
+        "type": "String"
+      }
+    }
+  },
   "busUpdateDismiss": "Hide this update",
   "busUpdatesTitle": "Live updates",
   "busUpdatesEmpty": "What the bus does appears here while you follow it.",
@@ -361,9 +406,27 @@
   "busMeSettings": "Open settings",
   "busMeApproximate": "Your phone shares only an approximate position. Allow precise location for BusIn to see exactly where you are.",
   "busMeWalkM": "{distance} m from your stop, about {minutes} min on foot",
-  "@busMeWalkM": {"placeholders": {"distance": {"type": "String"}, "minutes": {"type": "String"}}},
+  "@busMeWalkM": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
   "busMeWalkKm": "{distance} km from your stop, about {minutes} min on foot",
-  "@busMeWalkKm": {"placeholders": {"distance": {"type": "String"}, "minutes": {"type": "String"}}},
+  "@busMeWalkKm": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
   "pushPromptTitle": "Get notified",
   "pushPromptBody": "We can tell you as soon as your school decides on your request, even when the app is closed.",
   "pushPromptEnable": "Turn on notifications",
@@ -633,7 +696,13 @@
   "leaderboardEmpty": "No one is on the board yet.",
   "leaderboardYou": "You",
   "leaderboardRank": "Rank {rank}",
-  "@leaderboardRank": {"placeholders": {"rank": {"type": "int"}}},
+  "@leaderboardRank": {
+    "placeholders": {
+      "rank": {
+        "type": "int"
+      }
+    }
+  },
   "pushForegroundBusNear": "Your bus is a few minutes from your stop.",
   "areaTitle": "My area",
   "areaHint": "Roughly where you live, to help your school place stops. Optional.",
@@ -693,7 +762,13 @@
   "opsTodayMine": "Assigned to you",
   "opsTodayOthers": "Other trips",
   "opsDeparts": "Departs {time}",
-  "@opsDeparts": {"placeholders": {"time": {"type": "String"}}},
+  "@opsDeparts": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "opsTripTitle": "Trip",
   "opsStart": "Start trip",
   "opsEnd": "End trip",
@@ -706,7 +781,16 @@
   "opsNotToday": "This trip is not scheduled for today.",
   "opsNotScheduled": "This trip has already started or is over.",
   "opsBoarded": "{count} of {capacity} on board",
-  "@opsBoarded": {"placeholders": {"count": {"type": "int"}, "capacity": {"type": "int"}}},
+  "@opsBoarded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "capacity": {
+        "type": "int"
+      }
+    }
+  },
   "opsScannerSoon": "Start the trip to scan boarding codes.",
   "opsProblemBody": "Check the connection and try again. The first sign-in on a phone needs a connection.",
   "opsScan": "Scan boarding codes",
@@ -722,11 +806,26 @@
   "opsResultNoSubscription": "No valid subscription for today.",
   "opsResultUnknown": "Not a student of this school.",
   "opsKeysStatus": "Today's list: {count} riders, updated {time}",
-  "@opsKeysStatus": {"placeholders": {"count": {"type": "int"}, "time": {"type": "String"}}},
+  "@opsKeysStatus": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "opsKeysMissing": "No list for today yet. Connect to download it.",
   "opsKeysRefresh": "Update the list",
   "opsPending": "{count, plural, =0{All scans sent} =1{1 scan waiting to send} other{{count} scans waiting to send}}",
-  "@opsPending": {"placeholders": {"count": {"type": "int"}}},
+  "@opsPending": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "opsRefusedLaterTitle": "Refused by the server after boarding",
   "opsRefusedLaterBody": "The phone let these students on, but the server did not accept the boarding (for example a subscription revoked since this morning).",
   "opsCameraDenied": "Allow the camera to scan boarding codes.",
@@ -738,7 +837,7 @@
   "opsSettingsScanning": "Scanning",
   "opsSettingsVibrate": "Vibrate on each scan",
   "opsSettingsSound": "Sound on each scan",
-  "opsSettingsSoundHint": "A click when a student is let on, an alert when refused.",
+  "opsSettingsSoundHint": "A different sound for let on, already on board, refused and suspect codes.",
   "opsSettingsDriving": "Driver mode",
   "opsSettingsOfferShare": "Offer to share the bus position when I start a trip",
   "opsSettingsOfferShareHint": "You can always turn sharing on from the trip.",
@@ -746,13 +845,31 @@
   "opsSettingsSendNow": "Send now",
   "opsSettingsAllSent": "Everything is sent.",
   "opsSettingsNotSent": "Not sent yet: no connection. It will go when the connection is back.",
-  "@opsSignOutPending": {"placeholders": {"count": {"type": "int"}}},
+  "@opsSignOutPending": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "opsAtStop": "At {stop}",
-  "@opsAtStop": {"placeholders": {"stop": {"type": "String"}}},
+  "@opsAtStop": {
+    "placeholders": {
+      "stop": {
+        "type": "String"
+      }
+    }
+  },
   "opsShareTitle": "Share the bus position",
   "opsShareBody": "Students following this bus see where it is, and those waiting get a push when it is a few minutes away.",
   "opsShareLast": "Sharing. Last sent {time}",
-  "@opsShareLast": {"placeholders": {"time": {"type": "String"}}},
+  "@opsShareLast": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "opsShareStarting": "Sharing. Waiting for the first position...",
   "opsShareWaiting": "No connection. Sharing resumes by itself.",
   "opsShareOff": "Not sharing",
@@ -787,7 +904,13 @@
   "opsFieldOff": "Your school has turned this off.",
   "opsFieldCrew": "That colleague cannot be added. Pick someone else.",
   "opsShareStandby": "{name}'s phone is sharing the bus position. This phone takes over by itself if it goes quiet.",
-  "@opsShareStandby": {"placeholders": {"name": {"type": "String"}}},
+  "@opsShareStandby": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "navTrips": "Trips",
   "navStats": "Stats",
   "opsTodayEmptyMine": "No trips are assigned to you today.",
@@ -953,5 +1076,145 @@
   "opsPushCrewAssigned": "You were added to a trip. It is in your trips.",
   "phoneCountry": "Country",
   "phoneSearch": "Search a country",
-  "phoneNoMatch": "No country matches."
+  "phoneNoMatch": "No country matches.",
+  "areaIntroTitle": "One more thing: where do you live?",
+  "areaIntroSkip": "Not now",
+  "areaPromptTitle": "Add your area",
+  "areaPromptBody": "Say roughly where you live so your school can place stops near students. Rounded to about 500 metres, never tracked.",
+  "areaPromptAdd": "Add my area",
+  "subscribePriceSemester": "{price} for the semester",
+  "@subscribePriceSemester": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "subscribePriceMonth": "{price} a month",
+  "@subscribePriceMonth": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "subscribeBillingNotSet": "Your school is still setting up payments. You can ask for a subscription once it has.",
+  "subscribeMonthLabel": "Month",
+  "subscribePaymentLabel": "How you pay",
+  "paymentFull": "In full",
+  "paymentInstallments": "In installments",
+  "subscribeFullNote": "{amount} with this request.",
+  "@subscribeFullNote": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "subscribeInstallmentsNote": "{parts}. The first with this request, the others by their dates.",
+  "@subscribeInstallmentsNote": {
+    "placeholders": {
+      "parts": {
+        "type": "String"
+      }
+    }
+  },
+  "subscribePaymentRequired": "Choose how you pay.",
+  "subscribeErrorPeriodEnded": "That month has ended. Pull down to refresh and choose again.",
+  "preferenceSaveTitle": "Pay this way next time?",
+  "preferenceSaveBody": "BusIn can fill in “{mode}” for your next requests. You can change it in your profile.",
+  "@preferenceSaveBody": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "preferenceSave": "Save as my preference",
+  "preferenceNotNow": "Not now",
+  "preferenceSaved": "Saved as how you prefer to pay.",
+  "profilePaymentTitle": "How you prefer to pay",
+  "profilePaymentHint": "Filled in when you ask for a subscription.",
+  "partsTitle": "Installments",
+  "partLabel": "Part {n}",
+  "@partLabel": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "partDue": "Due {date}",
+  "@partDue": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "partStatusDue": "Not paid yet",
+  "partStatusSubmitted": "Proof sent, waiting for the school",
+  "partStatusPaid": "Paid",
+  "partStatusRejected": "Proof not accepted",
+  "partLate": "Late",
+  "partSendProof": "Send proof of payment",
+  "partSent": "Proof sent. Your school will check it.",
+  "nextMonthAsk": "Ask for {month}",
+  "@nextMonthAsk": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "nextMonthState": "{month}: {status}",
+  "@nextMonthState": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "pushForegroundInstallmentPaid": "Your school marked a payment as received.",
+  "pushForegroundInstallmentRejected": "Your school could not accept a payment proof.",
+  "pushForegroundInstallmentDue": "A payment is due soon.",
+  "receiptSent": "Proof for part {n} sent",
+  "@receiptSent": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptPaid": "Part {n} paid",
+  "@receiptPaid": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "receiptRejected": "Proof for part {n} not accepted",
+  "@receiptRejected": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "stopDistance": "about {km} km from your area",
+  "@stopDistance": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "stopClosest": "Closest to your area",
+  "stopSuggested": "Suggested",
+  "stopAll": "All stops",
+  "stopAddArea": "Add your area to see which stop is closest"
 }

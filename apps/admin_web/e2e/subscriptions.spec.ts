@@ -284,10 +284,12 @@ for (const [label, who] of [
 ] as const) {
   test(`${label} cannot open the review pages`, async ({ page, context }) => {
     await signInBrowser(context, who());
+    // Staff are shown the no-access page; a student is sent to their own app instead (ADR 0021).
+    const away = label === "a student" ? /\/app\// : /\/no-access$/;
     await page.goto("/subscriptions");
-    await expect(page).toHaveURL(/\/no-access$/);
+    await expect(page).toHaveURL(away);
     await page.goto(`/subscriptions/${rejectId}`);
-    await expect(page).toHaveURL(/\/no-access$/);
+    await expect(page).toHaveURL(away);
   });
 }
 

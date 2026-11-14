@@ -7,6 +7,7 @@ import type { ReasonFormState } from "@/components/ReasonForm";
 import { requireAdmin } from "@/lib/auth";
 import { checkReason, reasonProblemFromDb } from "@/lib/reasons";
 import { createClient } from "@/lib/supabase/server";
+import { installmentErrorKey } from "@/lib/billing";
 import { MAX_REASON_LENGTH, isUuid, reinstateErrorKey, revokeErrorKey, reviewErrorKey } from "@/lib/subscriptions";
 
 /**
@@ -95,4 +96,40 @@ export async function reinstateSubscription(_previous: ReasonFormState, formData
 
   revalidatePath("/subscriptions");
   redirect(`/subscriptions/${id}?done=reinstated`);
+}
+
+/**
+ * Marks a later part of a subscription paid in installments as paid (ADR 0022), with or without a proof: money paid at the
+ * office counts. The database function checks the caller again, refuses part 1 and a part already paid, audits it and
+ * tells the student.
+ */
+export async function markInstallmentPaid(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const id = formData.get("subscription");
+  const part = formData.get("part");
+  if (!isUuid(id) || !isUuid(part)) redirect("/subscriptions");
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("admin_review_installment", { p_installment: part, p_decision: "paid" });
+  if (error) redirect(`/subscriptions/${id}?partError=${installmentErrorKey(error.code, error.message)}`);
+
+  revalidatePath("/subscriptions");
+  redirect(`/subscriptions/${id}?done=part_paid`);
+}
+
+/** Does not accept the proof sent for a part, with a reason the student reads; they can send another. */
+export async function rejectInstallment(_previous: ReasonFormState, formData: FormData): Promise<ReasonFormState> {
+  await requireAdmin();
+  const id = formData.get("subscription");
+  const part = formData.get("part");
+  if (!isUuid(id) || !isUuid(part)) redirect("/subscriptions");
+  const { text, checked } = reasonOf(formData);
+  if (!checked.ok) return { error: checked.problem, text };
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("admin_review_installment", { p_installment: part, p_decision: "rejected", p_note: checked.value ?? undefined });
+  if (error) return { error: reasonProblemFromDb(error.code, error.message) ?? `part_${installmentErrorKey(error.code, error.message)}`, text };
+
+  revalidatePath("/subscriptions");
+  redirect(`/subscriptions/${id}?done=part_rejected`);
 }

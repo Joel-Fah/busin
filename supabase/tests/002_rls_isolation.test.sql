@@ -6,6 +6,8 @@ select plan(35);
 insert into public.schools (id, name) values
   ('10000000-0000-4000-8000-000000000001', 'School A'),
   ('10000000-0000-4000-8000-000000000002', 'School B');
+-- Students can only ask once their school has set billing (ADR 0022).
+update public.schools set billing_period = 'semester', price_xaf = 30000;
 insert into public.school_domains (domain, school_id) values
   ('a.edu', '10000000-0000-4000-8000-000000000001'),
   ('b.edu', '10000000-0000-4000-8000-000000000002');

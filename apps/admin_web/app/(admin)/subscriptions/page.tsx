@@ -15,6 +15,7 @@ import { DataTable, Head, TableCard, Td, Th, Tr } from "@/components/ui/Table";
 import { Tabs, type TabItem } from "@/components/ui/Tabs";
 import { StickyToolbar } from "@/components/ui/StickyToolbar";
 import { requireAdmin } from "@/lib/auth";
+import { partsAttention } from "@/lib/billing";
 import { chipText, filterText } from "@/lib/filter-text";
 import { format, type Locale } from "@/lib/i18n/messages";
 import { getMessages } from "@/lib/i18n/server";
@@ -68,20 +69,24 @@ async function SubscriptionsList({ searchParams }: { searchParams: SearchParams 
   const { from, to } = pageRange(page, size);
 
   const supabase = await createClient();
+  const todayIso = new Intl.DateTimeFormat("en-CA", { timeZone: admin.schoolTimezone }).format(new Date());
 
-  // The same column filters narrow the list and the counts on the tabs, so a tab's number is what it would show.
-  const narrow = <Q extends { eq(column: string, value: string): Q }>(q: Q): Q => {
+  // The same column filters narrow the list and the counts on the tabs, so a tab's number is what it would show. "Payments"
+  // keeps the subscriptions with a later part waiting for a check or late (ADR 0022), through the parts joined below.
+  const narrow = <Q extends { eq(column: string, value: string): Q; gt(column: string, value: number): Q; or(filters: string, options: { referencedTable: string }): Q }>(q: Q): Q => {
     let next = q;
     if (filters.semester) next = next.eq("semester_id", filters.semester);
     if (filters.stop) next = next.eq("stop_id", filters.stop);
+    if (filters.payments) next = next.gt("parts.seq", 1).or(`status.eq.submitted,and(status.in.(due,rejected),due_date.lte.${todayIso})`, { referencedTable: "parts" });
     return next;
   };
+  const parts = filters.payments ? "parts:subscription_installments!inner(seq, status, due_date)" : "parts:subscription_installments(seq, status, due_date)";
 
   let request = narrow(
     supabase
       .from("subscriptions")
       .select(
-        `id, status, created_at,
+        `id, status, created_at, period_start, ${parts},
          student:profiles!subscriptions_student_id_school_id_fkey(full_name, email, matricule),
          semester:semesters!subscriptions_semester_id_school_id_fkey(name, year),
          stop:stops!subscriptions_stop_id_school_id_fkey(name)`,
@@ -98,7 +103,7 @@ async function SubscriptionsList({ searchParams }: { searchParams: SearchParams 
     request,
     supabase.from("semesters").select("id, name, year").order("start_date", { ascending: false }).limit(100),
     supabase.from("stops").select("id, name").order("name", { ascending: true }).limit(500),
-    ...STATUSES.map((s) => narrow(supabase.from("subscriptions").select("id", { count: "exact", head: true }).eq("status", s))),
+    ...STATUSES.map((s) => narrow(supabase.from("subscriptions").select(filters.payments ? `id, ${parts}` : "id", { count: "exact", head: true }).eq("status", s))),
   ]);
 
   // A page past the last one is not a failure: the database answers "range not satisfiable" and there is simply nothing there.
@@ -132,7 +137,9 @@ async function SubscriptionsList({ searchParams }: { searchParams: SearchParams 
     ...(filters.stop
       ? [{ label: t.subscriptions.columns.stop, value: stops.find((s) => s.id === filters.stop)?.name ?? "-", href: without({ stop: null }) }]
       : []),
+    ...(filters.payments ? [{ label: t.subscriptions.payments, value: t.subscriptions.paymentsOn, href: without({ payments: false }) }] : []),
   ];
+  const monthOf = (day: string) => new Intl.DateTimeFormat(locale, { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${day}T00:00:00Z`));
   const anyFilter = chips.length > 0;
 
   return (
@@ -154,7 +161,7 @@ async function SubscriptionsList({ searchParams }: { searchParams: SearchParams 
         <Tabs label={t.subscriptions.filtersLabel} items={tabs} active={status} />
       </StickyToolbar>
 
-      <FilterChips chips={chips} clearAllHref={without({ semester: null, stop: null })} {...chipText(t)} />
+      <FilterChips chips={chips} clearAllHref={without({ semester: null, stop: null, payments: false })} {...chipText(t)} />
 
       {error ? (
         <Notice tone="bad">{t.subscriptions.loadError}</Notice>
@@ -197,6 +204,7 @@ async function SubscriptionsList({ searchParams }: { searchParams: SearchParams 
               <tbody>
                 {rows.map((row) => {
                   const name = row.student?.full_name || row.student?.email || "";
+                  const attention = partsAttention(row.parts ?? [], todayIso);
                   return (
                     <Tr key={row.id}>
                       <Td>
@@ -210,11 +218,21 @@ async function SubscriptionsList({ searchParams }: { searchParams: SearchParams 
                           </div>
                         </div>
                       </Td>
-                      <Td>{row.semester ? `${t.semester[row.semester.name]} ${row.semester.year}` : ""}</Td>
+                      <Td>
+                        {row.semester ? `${t.semester[row.semester.name]} ${row.semester.year}` : ""}
+                        {row.period_start ? <p className="text-xs text-muted capitalize">{monthOf(row.period_start)}</p> : null}
+                      </Td>
                       <Td>{row.stop?.name}</Td>
                       <Td className="text-muted">{formatDateTime(row.created_at, locale, admin.schoolTimezone)}</Td>
                       <Td>
-                        <Chip tone={statusTone(row.status)}>{t.status[row.status]}</Chip>
+                        <span className="flex flex-wrap gap-1.5">
+                          <Chip tone={statusTone(row.status)}>{t.status[row.status]}</Chip>
+                          {attention ? (
+                            <Chip tone={attention.kind === "overdue" ? "bad" : "warn"}>
+                              {format(attention.kind === "overdue" ? t.subscriptions.partOverdue : t.subscriptions.partToCheck, { n: attention.seq })}
+                            </Chip>
+                          ) : null}
+                        </span>
                       </Td>
                     </Tr>
                   );
