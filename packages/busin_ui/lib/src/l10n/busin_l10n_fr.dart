@@ -257,6 +257,9 @@ class BusinL10nFr extends BusinL10n {
       'Ce compte Google n’est pas autorisé ici. Connectez-vous avec votre compte de l’école ou l’adresse que votre école a invitée.';
 
   @override
+  String get navNew => 'nouveau';
+
+  @override
   String get signInWithGoogle => 'Continuer avec Google';
 
   @override

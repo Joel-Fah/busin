@@ -118,6 +118,16 @@ class FakeSchools implements SchoolRepository {
 class FakeTrips implements TripsRepository {
   FakeTrips(this.trips);
 
+  /// Trips that become news for the crew, as the live feed delivers them.
+  final crewNews = StreamController<String>.broadcast();
+  int crewListeners = 0;
+
+  @override
+  Stream<String> watchCrewNews(String staffId) {
+    crewListeners++;
+    return crewNews.stream;
+  }
+
   final List<Trip> trips;
   final List<String> started = [];
   final List<String> ended = [];

@@ -110,6 +110,7 @@
   "signInSubtitle": "Sign in with your school Google account to subscribe, show your boarding code and follow your bus.",
   "signInSchoolEmailTip": "Tip: if your school gave you an email address, sign in with it rather than a personal one.",
   "opsSignInNotAllowed": "This Google account is not allowed here. Sign in with your school account or the address your school invited.",
+  "navNew": "new",
   "signInWithGoogle": "Continue with Google",
   "signInCancelled": "Sign-in was cancelled.",
   "signInFailed": "Sign-in did not work. Try again.",

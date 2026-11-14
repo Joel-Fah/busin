@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
+import '../l10n/busin_l10n.dart';
 import '../painters/contour.dart';
 import '../tokens/elevation.dart';
 import '../tokens/palette.dart';
@@ -12,7 +13,7 @@ import 'nav_indicator.dart';
 
 /// One place the navigation leads to.
 class BusinDestination {
-  const BusinDestination({required this.label, required this.icon, this.semanticLabel});
+  const BusinDestination({required this.label, required this.icon, this.semanticLabel, this.badge = false});
 
   /// Short, because it sits under an icon.
   final String label;
@@ -20,6 +21,10 @@ class BusinDestination {
 
   /// The full name for screen readers, if the short label is abbreviated.
   final String? semanticLabel;
+
+  /// Something new is waiting on this tab: a small dot on the icon, read out as "new". The app clears it when the tab
+  /// is opened.
+  final bool badge;
 }
 
 /// Shared by the bar and the rail: a highlight that slides between items with the elastic stretch.
@@ -108,10 +113,11 @@ class _NavItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = BusinPalette.of(context);
     final color = selected ? p.fg : p.navLabel;
+    final name = destination.semanticLabel ?? destination.label;
     return Semantics(
       button: true,
       selected: selected,
-      label: destination.semanticLabel ?? destination.label,
+      label: destination.badge ? '$name, ${BusinL10n.of(context).navNew}' : name,
       excludeSemantics: true,
       child: InkWell(
         borderRadius: BorderRadius.circular(BusinRadius.sm),
@@ -122,7 +128,27 @@ class _NavItem extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            HugeIcon(icon: destination.icon, size: 22, color: color),
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                HugeIcon(icon: destination.icon, size: 22, color: color),
+                Positioned(
+                  top: -2,
+                  right: -3,
+                  child: AnimatedScale(
+                    key: const ValueKey('nav-badge'),
+                    scale: destination.badge ? 1 : 0,
+                    duration: BusinMotion.of(context, BusinMotion.fast),
+                    curve: Curves.easeOutBack,
+                    child: Container(
+                      width: 9,
+                      height: 9,
+                      decoration: BoxDecoration(color: BusinPalette.orange, shape: BoxShape.circle, border: Border.all(color: p.surface, width: 1.5)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 4),
             Text(
               destination.label,

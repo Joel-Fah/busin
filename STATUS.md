@@ -42,13 +42,13 @@ Merged into `dev` on 2026-11-14 (not on `main`, not on the hosted project):
 - **School logos:** keep their own shape (#460).
 - **Admin:** stuck filter tabs stay on one row (#462).
 
-Next: the owner tests on `dev` (below), then the milestone PR `dev` to `main`, the hosted migrations (`20261115160000_school_billing`, `20261115170000_installments`, `20261115175000_installment_receipts`, `20261115180000_phone_e164`, then `20261115190000_installments_from_start`), the `send-push` redeploy, and setting billing for each live school right after the billing migration. Each needs the owner's go.
+Next: the owner tests on `dev` (below), then the milestone PR `dev` to `main`, the hosted migrations (`20261115160000_school_billing`, `20261115170000_installments`, `20261115175000_installment_receipts`, `20261115180000_phone_e164`, then `20261115190000_installments_from_start`, `20261115200000_trips_realtime`), the `send-push` redeploy, and setting billing for each live school right after the billing migration. Each needs the owner's go.
 
 Since then (PRs into `dev`, not merged): the school logo fits its box in its own proportions (#465, fixes an overflow after #460); leaving the school profile with unsaved changes asks first (#466, stacked on #465).
 
 Then (PRs into `dev`): the sign-in screen follows the theme, with the bus stop photo in light mode on the phone and the web (#472); the ops app's launch screen follows the theme too (#473, stacked on #472).
 
-Next round (PRs into `dev`, stacked in this order): the sign-in tip to use the school email (#476); search on the admin Subscriptions list (#477); a refused account is told it is not allowed instead of "try again" (#482); installments follow each student's start and close when fewer than two weeks per part are left (#478, migration `20261115190000_installments_from_start`, ADR 0022 point 8).
+Next round (PRs into `dev`, stacked in this order): the sign-in tip to use the school email (#476); search on the admin Subscriptions list (#477); a refused account is told it is not allowed instead of "try again" (#482); installments follow each student's start and close when fewer than two weeks per part are left (#478, migration `20261115190000_installments_from_start`, ADR 0022 point 8); tab badges in the student and ops apps (#479, migration `20261115200000_trips_realtime`).
 
 What to test (local: `npm run backend:start`, `npm run seed:demo`, `npm run web`, `npm run dev:device`; rebuild both Flutter apps):
 - **Ops scan sounds:** a valid code, the same again, a screenshot older than a minute, a student without a subscription, no network and no list. Each sounds different, and music keeps playing. The switch is in the profile.
@@ -74,6 +74,8 @@ What to test (local: `npm run backend:start`, `npm run seed:demo`, `npm run web`
 - **Subscriptions search (admin):** search a student by name, email or matricule; the tabs' numbers follow, the semester, stop and payments filters stay, and Clear search brings everything back.
 - **Ops sign-in with a personal account:** says it is not allowed and to use the school account or the invited address. To sign in to ops with a non-school address, invite it first from People > Invite.
 - **Installments from the student's start:** on the form (phone and web), In installments shows each part's amount and date, spread from today to the semester's end. With fewer than 28 days left (two parts) or 42 (three), only In full is offered, with a note. The admin Billing page explains it.
+- **Tab badges (student app):** on Profile, have the request approved from the portal: Subscription and Code get an orange dot; opening a tab clears its dot. With notifications on, a part paid or rejected marks Subscription and the bus near your stop marks My bus. The tab you are on never gets one.
+- **Tab badges (ops app):** on History, assign a trip to yourself from the portal (or have a colleague start a field trip with you): Trips gets a dot and its list refreshes.
 - **Admin lists on a phone width:** scroll a list until the tabs stick. They stay on one row and scroll sideways, with the current tab in view.
 
 ## Handoff: student web app (2026-11-13)

@@ -255,6 +255,9 @@ class BusinL10nEn extends BusinL10n {
       'This Google account is not allowed here. Sign in with your school account or the address your school invited.';
 
   @override
+  String get navNew => 'new';
+
+  @override
   String get signInWithGoogle => 'Continue with Google';
 
   @override

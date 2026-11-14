@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'dart:typed_data';
 
@@ -406,6 +407,46 @@ class SupabaseQrRepository implements QrRepository {
 class SupabaseTripsRepository implements TripsRepository {
   SupabaseTripsRepository(this._client);
   final SupabaseClient _client;
+
+  @override
+  Stream<String> watchCrewNews(String staffId) {
+    RealtimeChannel? channel;
+    late final StreamController<String> controller;
+    controller = StreamController<String>(
+      onListen: () {
+        void heard(PostgresChangePayload payload) {
+          final row = payload.newRecord;
+          final id = row['id'];
+          if (id is! String) return;
+          final news = switch (payload.eventType) {
+            PostgresChangeEvent.insert => row['started_by'] != staffId,
+            PostgresChangeEvent.update => row['status'] == 'scheduled',
+            _ => false,
+          };
+          if (news) controller.add(id);
+        }
+
+        // One channel, two filters: as the driver and as the assistant. Row Level Security applies to Realtime too.
+        var c = _client.channel('crew-news-$staffId');
+        for (final column in const ['driver_id', 'assistant_id']) {
+          c = c.onPostgresChanges(
+            event: PostgresChangeEvent.all,
+            schema: 'public',
+            table: 'trips',
+            filter: PostgresChangeFilter(type: PostgresChangeFilterType.eq, column: column, value: staffId),
+            callback: heard,
+          );
+        }
+        channel = c..subscribe();
+      },
+      onCancel: () async {
+        final c = channel;
+        channel = null;
+        if (c != null) await _client.removeChannel(c);
+      },
+    );
+    return controller.stream;
+  }
 
   @override
   Future<List<Trip>> listForCrew(

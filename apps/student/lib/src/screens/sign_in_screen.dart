@@ -105,25 +105,35 @@ class _SignInScreenState extends ConsumerState<SignInScreen> with SingleTickerPr
               children: [
                 const _Photo(fade: true),
                 SafeArea(
-                  // Scrolls only when the screen is too short or the text too big for everything to fit.
-                  child: CustomScrollView(
-                    slivers: [
-                      SliverFillRemaining(
-                        hasScrollBody: false,
+                  // Scrolls only when the screen is too short or the text too big for everything to fit. At least the
+                  // screen's height, with the mark at the top and the words at the bottom; taller content simply scrolls.
+                  // (Not a SliverFillRemaining: it sizes from intrinsic heights, which the SVG marks report as zero, so
+                  // tall content overflowed instead of scrolling.)
+                  child: LayoutBuilder(
+                    builder: (context, viewport) => SingleChildScrollView(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(minHeight: viewport.maxHeight),
                         child: Padding(
                           padding: const EdgeInsets.fromLTRB(BusinSpace.x6, BusinSpace.x4, BusinSpace.x6, BusinSpace.x6),
                           child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               Align(alignment: Alignment.centerLeft, child: Opacity(opacity: _handoff ? 0 : 1, child: const BrandMark(color: Colors.white, height: 44))),
-                              const Spacer(),
-                              Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 520), child: words)),
-                              if (kDebugMode) const _StyleguideLink(),
+                              Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  const SizedBox(height: BusinSpace.x8),
+                                  Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 520), child: words)),
+                                  if (kDebugMode) const _StyleguideLink(),
+                                ],
+                              ),
                             ],
                           ),
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ],
@@ -271,16 +281,20 @@ class _Words extends StatelessWidget {
         // Schools that keep sign-in to their own addresses refuse a personal account: say so before it happens.
         StaggeredIn(
           index: 3,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 2),
-                child: HugeIcon(icon: HugeIcons.strokeRoundedInformationCircle, size: 18, color: ink.withValues(alpha: 0.75)),
+          // One rich text with the icon inline: a Row with wrapping text reports too small a height to the scroll view
+          // that sizes this screen, and the content then overflows instead of scrolling.
+          child: Text.rich(
+            TextSpan(children: [
+              WidgetSpan(
+                alignment: PlaceholderAlignment.middle,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: BusinSpace.x2),
+                  child: HugeIcon(icon: HugeIcons.strokeRoundedInformationCircle, size: 18, color: ink.withValues(alpha: 0.75)),
+                ),
               ),
-              const SizedBox(width: BusinSpace.x2),
-              Expanded(child: Text(l10n.signInSchoolEmailTip, style: text.bodyMedium?.copyWith(color: ink.withValues(alpha: 0.75), height: 1.4))),
-            ],
+              TextSpan(text: l10n.signInSchoolEmailTip),
+            ]),
+            style: text.bodyMedium?.copyWith(color: ink.withValues(alpha: 0.75), height: 1.4),
           ),
         ),
       ],

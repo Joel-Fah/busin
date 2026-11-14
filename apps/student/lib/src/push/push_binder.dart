@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../nav/tab_badges.dart';
 import '../providers.dart';
 import '../subscription/live_changes.dart';
 import '../subscription/installments_section.dart';
@@ -62,6 +63,7 @@ class _PushBinderState extends ConsumerState<PushBinder> {
 
   void _arrived(PushMessage message) {
     if (!mounted) return;
+    ref.read(tabBadgesProvider.notifier).mark(tabsForPush(message.kind));
     final l10n = BusinL10n.of(context);
     if (message.kind == 'bus_near_stop') {
       _show(l10n.pushForegroundBusNear, message);

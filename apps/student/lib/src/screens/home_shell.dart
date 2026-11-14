@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../boarding/boarding_binder.dart';
+import '../nav/tab_badges.dart';
 import '../offline/offline_banner.dart';
 import '../offline/offline_binder.dart';
 import '../push/push_binder.dart';
@@ -30,12 +31,21 @@ class HomeShell extends ConsumerWidget {
     ref.watch(reminderSyncProvider);
     final l10n = BusinL10n.of(context);
     final p = BusinPalette.of(context);
+    // A dot on a tab with news waiting (a decision, a code ready, the bus near the stop); the tab on screen has none.
+    final badges = ref.watch(tabBadgesProvider);
+    final current = shell.currentIndex;
+    if (badges.contains(current) || ref.read(tabBadgesProvider.notifier).current != current) {
+      // Reached another way (a notification's link): the tab is now in view. After this frame, as a provider cannot
+      // change while the tree builds.
+      WidgetsBinding.instance.addPostFrameCallback((_) => ref.read(tabBadgesProvider.notifier).opened(current));
+    }
+    bool dot(int tab) => tab != current && badges.contains(tab);
     // The short label sits under the icon; the full name is what a screen reader says.
     final destinations = [
-      BusinDestination(label: l10n.navSubscription, icon: HugeIcons.strokeRoundedTicket03),
-      BusinDestination(label: l10n.navQrShort, icon: HugeIcons.strokeRoundedQrCode, semanticLabel: l10n.navQr),
-      BusinDestination(label: l10n.navBus, icon: HugeIcons.strokeRoundedBus01),
-      BusinDestination(label: l10n.navProfile, icon: HugeIcons.strokeRoundedUser),
+      BusinDestination(label: l10n.navSubscription, icon: HugeIcons.strokeRoundedTicket03, badge: dot(StudentTabs.subscription)),
+      BusinDestination(label: l10n.navQrShort, icon: HugeIcons.strokeRoundedQrCode, semanticLabel: l10n.navQr, badge: dot(StudentTabs.code)),
+      BusinDestination(label: l10n.navBus, icon: HugeIcons.strokeRoundedBus01, badge: dot(StudentTabs.bus)),
+      BusinDestination(label: l10n.navProfile, icon: HugeIcons.strokeRoundedUser, badge: dot(StudentTabs.profile)),
     ];
 
     // The main tab is where the student lands: the code for someone with a subscription, the subscription otherwise.
@@ -54,7 +64,10 @@ class HomeShell extends ConsumerWidget {
         child: AdaptiveScaffold(
           destinations: destinations,
           currentIndex: shell.currentIndex,
-          onDestinationSelected: (index) => shell.goBranch(index, initialLocation: index == shell.currentIndex),
+          onDestinationSelected: (index) {
+            ref.read(tabBadgesProvider.notifier).opened(index);
+            shell.goBranch(index, initialLocation: index == shell.currentIndex);
+          },
           railHeader: BrandMark(color: p.fg, height: 28),
           // The profile is the last destination: on the rail it sits at the bottom end.
           pinLastToRailEnd: true,
