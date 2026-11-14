@@ -180,7 +180,7 @@ SubscribeFailure failureFor(Object error) => switch (error) {
       Conflict(reason: 'period_ended') => SubscribeFailure.periodEnded,
       Conflict(reason: 'billing_not_set') => SubscribeFailure.billingNotSet,
       // The school changed its billing meanwhile (a month, or installments no longer offered): read it again.
-      Invalid(reason: 'installments_not_offered' || 'month_required' || 'month_not_allowed') => SubscribeFailure.unavailable,
+      Invalid(reason: 'installments_not_offered' || 'installments_too_late' || 'month_required' || 'month_not_allowed') => SubscribeFailure.unavailable,
       Invalid(reason: 'proof_required' || 'proof_missing') => SubscribeFailure.proofRequired,
       // The semester or the stop was removed meanwhile (the screen showed an old list).
       Invalid(reason: 'missing_reference') => SubscribeFailure.unavailable,

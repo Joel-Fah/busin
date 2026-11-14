@@ -55,7 +55,7 @@ test("pays in installments without a preference, keeps it, and sends the proof o
   await fill(page);
 
   await page.getByRole("radio", { name: "In installments" }).click();
-  await expect(page.getByTestId("payment-note")).toContainText("12,000 XAF, 9,000 XAF, 9,000 XAF");
+  await expect(page.getByTestId("payment-note")).toContainText("12,000 XAF with this request, 9,000 XAF by ");
   await page.getByRole("button", { name: "Send request" }).click();
   await page.getByTestId("preference-sheet").getByRole("button", { name: "Save as my preference" }).click();
   await expect(page.getByTestId("status-card")).toContainText("Request sent");

@@ -106,4 +106,32 @@ void main() {
     expect(profile.paymentPreference, PaymentMode.installments);
     expect(Profile.fromJson(profile.toJson()).paymentPreference, PaymentMode.installments);
   });
+
+  group('installments follow the student\'s start', () {
+    final start = DateTime.utc(2026, 9, 1);
+    final end = DateTime.utc(2026, 12, 29); // 120 days
+
+    test('a student on the first day gets the parts across the semester', () {
+      expect(InstallmentPlan.thirds.dueDates(start, start, end), [DateTime.utc(2026, 9, 1), DateTime.utc(2026, 10, 11), DateTime.utc(2026, 11, 20)]);
+    });
+
+    test('a late joiner gets them across their own time, not the semester\'s dates', () {
+      final today = DateTime.utc(2026, 11, 20); // 40 days left
+      expect(InstallmentPlan.daysLeft(today, start, end), 40);
+      expect(InstallmentPlan.halves.dueDates(today, start, end), [today, DateTime.utc(2026, 12, 10)]);
+    });
+
+    test('asking before the semester: part 1 now, the rest from the first day', () {
+      final early = DateTime.utc(2026, 8, 20);
+      expect(InstallmentPlan.halves.dueDates(early, start, end), [early, DateTime.utc(2026, 10, 31)]);
+    });
+
+    test('offered only while the parts can be two weeks apart', () {
+      expect(InstallmentPlan.halves.minDays, 28);
+      expect(InstallmentPlan.thirds.minDays, 42);
+      expect(InstallmentPlan.halves.fits(DateTime.utc(2026, 12, 2), start, end), isTrue); // 28 days
+      expect(InstallmentPlan.halves.fits(DateTime.utc(2026, 12, 3), start, end), isFalse); // 27 days
+      expect(InstallmentPlan.thirds.fits(DateTime.utc(2026, 12, 2), start, end), isFalse);
+    });
+  });
 }

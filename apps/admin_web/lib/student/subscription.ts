@@ -148,7 +148,7 @@ export function subscribeProblem(error: { code?: string | null; message?: string
   if (message.includes("period_ended")) return "periodEnded";
   if (message.includes("billing_not_set")) return "billing";
   // The school changed its billing meanwhile: read the page again.
-  if (message.includes("installments_not_offered") || message.includes("month_required") || message.includes("month_not_allowed")) return "unavailable";
+  if (message.includes("installments_not_offered") || message.includes("installments_too_late") || message.includes("month_required") || message.includes("month_not_allowed")) return "unavailable";
   if (message.includes("proof_required") || message.includes("proof_missing")) return "proof";
   if (error.code === "23503") return "unavailable";
   if (error.code === "23505" || error.code === "55000") return "exists";

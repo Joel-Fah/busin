@@ -3403,10 +3403,28 @@ abstract class BusinL10n {
   /// **'{amount} with this request.'**
   String subscribeFullNote(String amount);
 
+  /// No description provided for @installmentPartNow.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} with this request'**
+  String installmentPartNow(String amount);
+
+  /// No description provided for @installmentPartBy.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} by {date}'**
+  String installmentPartBy(String amount, String date);
+
+  /// No description provided for @subscribeInstallmentsTooLate.
+  ///
+  /// In en, this message translates to:
+  /// **'Paying in installments needs at least {days} days left in the semester, so this request is paid in full.'**
+  String subscribeInstallmentsTooLate(int days);
+
   /// No description provided for @subscribeInstallmentsNote.
   ///
   /// In en, this message translates to:
-  /// **'{parts}. The first with this request, the others by their dates.'**
+  /// **'{parts}. The dates follow your own time on the bus, up to the end of the semester.'**
   String subscribeInstallmentsNote(String parts);
 
   /// No description provided for @subscribePaymentRequired.

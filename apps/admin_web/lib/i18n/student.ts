@@ -138,7 +138,10 @@ const en = {
     paymentFull: "In full",
     paymentInstallments: "In installments",
     fullNote: "{amount} with this request.",
-    installmentsNote: "{parts}. The first with this request, the others by their dates.",
+    installmentsNote: "{parts}. The dates follow your own time on the bus, up to the end of the semester.",
+    partNow: "{amount} with this request",
+    partBy: "{amount} by {date}",
+    installmentsTooLate: "Paying in installments needs at least {days} days left in the semester, so this request is paid in full.",
     preference: {
       title: "Pay this way next time?",
       body: "BusIn can fill in \u201c{mode}\u201d for your next requests. You can change it in your profile.",
@@ -582,7 +585,10 @@ const fr: StudentCopy = {
     paymentFull: "En une fois",
     paymentInstallments: "En plusieurs fois",
     fullNote: "{amount} avec cette demande.",
-    installmentsNote: "{parts}. La première avec cette demande, les autres à leurs dates.",
+    installmentsNote: "{parts}. Les dates suivent votre propre temps de bus, jusqu’à la fin du semestre.",
+    partNow: "{amount} avec cette demande",
+    partBy: "{amount} au plus tard le {date}",
+    installmentsTooLate: "Le paiement en plusieurs fois demande au moins {days} jours restants dans le semestre : cette demande se paie en une fois.",
     preference: {
       title: "Payer ainsi la prochaine fois ?",
       body: "BusIn peut remplir « {mode} » pour vos prochaines demandes. Vous pouvez le changer dans votre profil.",

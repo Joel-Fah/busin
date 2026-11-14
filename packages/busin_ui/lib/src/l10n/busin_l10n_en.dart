@@ -1943,8 +1943,23 @@ class BusinL10nEn extends BusinL10n {
   }
 
   @override
+  String installmentPartNow(String amount) {
+    return '$amount with this request';
+  }
+
+  @override
+  String installmentPartBy(String amount, String date) {
+    return '$amount by $date';
+  }
+
+  @override
+  String subscribeInstallmentsTooLate(int days) {
+    return 'Paying in installments needs at least $days days left in the semester, so this request is paid in full.';
+  }
+
+  @override
   String subscribeInstallmentsNote(String parts) {
-    return '$parts. The first with this request, the others by their dates.';
+    return '$parts. The dates follow your own time on the bus, up to the end of the semester.';
   }
 
   @override

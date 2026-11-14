@@ -57,8 +57,15 @@ class _SubscribeFormState extends ConsumerState<SubscribeForm> {
     _mode = (access is Allowed ? access.profile.paymentPreference : null) ?? PaymentMode.full;
   }
 
-  /// Whether the school offers installments for this request (semester billing with a plan).
-  bool _offersInstallments(School? school) => school?.billingPeriod == BillingPeriod.semester && school?.installmentPlan != null;
+  /// The school's plan, when it bills by the semester and offers one.
+  InstallmentPlan? _planOf(School? school) => school?.billingPeriod == BillingPeriod.semester ? school?.installmentPlan : null;
+
+  /// Whether this request may be paid in installments: the school offers a plan, and the parts still fit two weeks apart
+  /// before the semester ends (ADR 0022). Later, it is paid in full.
+  bool _offersInstallments(School? school) {
+    final plan = _planOf(school);
+    return plan != null && plan.fits(_today(school!), widget.semester.startDate, widget.semester.endDate);
+  }
 
   DateTime _today(School school) => ref.read(schoolClockProvider).today(school.timezone, now: ref.read(nowProvider)());
 
@@ -188,6 +195,18 @@ class _SubscribeFormState extends ConsumerState<SubscribeForm> {
     }
   }
 
+  /// Each part with its amount and when it is due, for a request sent today.
+  String _schedule(BuildContext context, InstallmentPlan plan, int price, String currency, DateTime today) {
+    final l10n = BusinL10n.of(context);
+    final dates = plan.dueDates(today, widget.semester.startDate, widget.semester.endDate);
+    final amounts = plan.split(price);
+    final material = MaterialLocalizations.of(context);
+    return [
+      for (var i = 0; i < amounts.length; i++)
+        i == 0 ? l10n.installmentPartNow(money(context, amounts[i], currency)) : l10n.installmentPartBy(money(context, amounts[i], currency), material.formatShortMonthDay(dates[i])),
+    ].join(', ');
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = BusinL10n.of(context);
@@ -200,6 +219,8 @@ class _SubscribeFormState extends ConsumerState<SubscribeForm> {
     final billingMissing = school != null && !school.billingSet;
     final monthly = school?.billingPeriod == BillingPeriod.month;
     final offers = _offersInstallments(school);
+    final plan = _planOf(school);
+    final tooLate = plan != null && !offers;
     final months = monthly ? monthChoices(semester: widget.semester, today: _today(school!), live: widget.live) : const <DateTime>[];
     // The month starts on the first one offered, unless one was asked for.
     final month = monthly ? (months.any((m) => _month != null && sameMonth(m, _month!)) ? _month : (months.isEmpty ? null : months.first)) : null;
@@ -253,10 +274,14 @@ class _SubscribeFormState extends ConsumerState<SubscribeForm> {
           const SizedBox(height: BusinSpace.x2),
           Text(
             _mode == PaymentMode.installments
-                ? l10n.subscribeInstallmentsNote(school!.installmentPlan!.split(price).map((part) => money(context, part, currency)).join(', '))
+                ? l10n.subscribeInstallmentsNote(_schedule(context, plan!, price, currency, _today(school!)))
                 : l10n.subscribeFullNote(money(context, price, currency)),
             style: text.bodySmall?.copyWith(color: palette.muted),
           ),
+          const SizedBox(height: BusinSpace.x4),
+        ],
+        if (tooLate && price != null) ...[
+          Notice(tone: StatusTone.info, child: Text(l10n.subscribeInstallmentsTooLate(plan.minDays))),
           const SizedBox(height: BusinSpace.x4),
         ],
         StaggeredIn(
