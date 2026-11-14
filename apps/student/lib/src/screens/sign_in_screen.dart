@@ -4,6 +4,7 @@ import 'package:busin_app/busin_app.dart';
 import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -12,9 +13,10 @@ import '../providers.dart';
 import '../router.dart';
 import 'splash_screen.dart';
 
-/// The first thing a student sees: a full-bleed night-bus photo under a teal gradient, the wordmark, a headline with the
-/// marker under it, and a rotated orange call to action. On a wide screen (a tablet in landscape) the photo takes the
-/// left and the words and the button sit on the brand teal at the right.
+/// The first thing a student sees: a full-bleed photo under a veil, the wordmark, a headline with the marker under it,
+/// and a rotated orange call to action. Dark mode shows the night bus under a teal veil with white words; light mode the
+/// bus stop seen from above under a light veil with teal words, matching the splash before it. On a wide screen (a
+/// tablet in landscape) the photo takes the left and the words and the button sit on the page colour at the right.
 class SignInScreen extends ConsumerStatefulWidget {
   const SignInScreen({super.key});
 
@@ -73,6 +75,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> with SingleTickerPr
   Widget build(BuildContext context) {
     final l10n = BusinL10n.of(context);
     final wide = BusinLayout.of(context).isExpanded;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final ink = dark ? Colors.white : BusinRamps.seed;
     final message = switch (_failure) {
       SignInFailure.cancelled => l10n.signInCancelled,
       SignInFailure.notAllowed => l10n.signInNotAllowed,
@@ -112,7 +116,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> with SingleTickerPr
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              Align(alignment: Alignment.centerLeft, child: Opacity(opacity: _handoff ? 0 : 1, child: const BrandMark(color: Colors.white, height: 44))),
+                              Align(alignment: Alignment.centerLeft, child: Opacity(opacity: _handoff ? 0 : 1, child: BrandMark(color: ink, height: 44))),
                               const Spacer(),
                               Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 520), child: words)),
                               if (kDebugMode) const _StyleguideLink(),
@@ -126,15 +130,19 @@ class _SignInScreenState extends ConsumerState<SignInScreen> with SingleTickerPr
               ],
             );
 
-    return Scaffold(
-      backgroundColor: BusinRamps.seed,
-      body: _handoff ? _withHandoff(context, content, wide) : content,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+      child: Scaffold(
+        // The splash's own colours, so the hand-off from it shows no jump.
+        backgroundColor: dark ? BusinRamps.seed : BusinPalette.of(context).bg,
+        body: _handoff ? _withHandoff(context, content, wide, ink) : content,
+      ),
     );
   }
 
   /// The screen fading in while the mark travels from the centre to its corner. The corner is where the screen's own
   /// mark sits (hidden until the end), so the traveller lands exactly on it.
-  Widget _withHandoff(BuildContext context, Widget content, bool wide) {
+  Widget _withHandoff(BuildContext context, Widget content, bool wide, Color ink) {
     final size = MediaQuery.sizeOf(context);
     final safe = MediaQuery.paddingOf(context);
     const startWidth = splashMarkWidth;
@@ -157,7 +165,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> with SingleTickerPr
             final rect = Rect.lerp(start, end, travel.value)!;
             return Positioned.fromRect(
               rect: rect,
-              child: const IgnorePointer(key: ValueKey('logo-handoff'), child: FittedBox(child: BrandMark(color: Colors.white, height: 100))),
+              child: IgnorePointer(key: const ValueKey('logo-handoff'), child: FittedBox(child: BrandMark(color: ink, height: 100))),
             );
           },
         ),
@@ -166,7 +174,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> with SingleTickerPr
   }
 }
 
-/// The photo, decorative. With [fade] a teal gradient lets the words sit on it; without, the photo is shown whole.
+/// The photo, decorative: the night bus in dark mode, the bus stop seen from above (Pexels 21576182) in light mode. With
+/// [fade] a veil of the page colour lets the words sit on it; without, the photo is shown whole.
 class _Photo extends StatelessWidget {
   const _Photo({required this.fade, this.showMark = true});
 
@@ -177,24 +186,32 @@ class _Photo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final veil = dark ? BusinRamps.seed : BusinPalette.of(context).bg;
+    final (colors, stops) = switch ((dark, fade)) {
+      (true, true) => ([veil.withValues(alpha: 0.25), veil.withValues(alpha: 0.45), veil.withValues(alpha: 0.96)], const [0.0, 0.4, 0.82]),
+      (true, false) => ([veil.withValues(alpha: 0.12), veil.withValues(alpha: 0.25)], const [0.0, 1.0]),
+      // Light: a wash at the top for the mark, the photo clear in the middle, then the page colour under the words.
+      (false, true) => (
+          [veil.withValues(alpha: 0.6), veil.withValues(alpha: 0.12), veil.withValues(alpha: 0.5), veil.withValues(alpha: 0.95), veil],
+          const [0.0, 0.28, 0.5, 0.7, 1.0],
+        ),
+      (false, false) => ([veil.withValues(alpha: 0.6), veil.withValues(alpha: 0.05)], const [0.0, 0.3]),
+    };
     return ExcludeSemantics(
       child: Stack(
         fit: StackFit.expand,
         children: [
-          Image.asset('assets/photos/night-bus.webp', package: 'busin_ui', fit: BoxFit.cover, alignment: const Alignment(0.1, 0.35), filterQuality: FilterQuality.medium),
+          if (dark)
+            Image.asset('assets/photos/night-bus.webp', package: 'busin_ui', fit: BoxFit.cover, alignment: const Alignment(0.1, 0.35), filterQuality: FilterQuality.medium)
+          else
+            Image.asset('assets/photos/bus-stop.webp', package: 'busin_ui', fit: BoxFit.cover, alignment: const Alignment(-0.1, -0.2), filterQuality: FilterQuality.medium),
           DecoratedBox(
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: fade
-                    ? [BusinRamps.seed.withValues(alpha: 0.25), BusinRamps.seed.withValues(alpha: 0.45), BusinRamps.seed.withValues(alpha: 0.96)]
-                    : [BusinRamps.seed.withValues(alpha: 0.12), BusinRamps.seed.withValues(alpha: 0.25)],
-                stops: fade ? const [0, 0.4, 0.82] : const [0, 1],
-              ),
+              gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: colors, stops: stops),
             ),
           ),
-          if (!fade) Align(alignment: Alignment.topLeft, child: Padding(padding: const EdgeInsets.all(BusinSpace.x8), child: Opacity(opacity: showMark ? 1 : 0, child: const BrandMark(color: Colors.white, height: 48)))),
+          if (!fade) Align(alignment: Alignment.topLeft, child: Padding(padding: const EdgeInsets.all(BusinSpace.x8), child: Opacity(opacity: showMark ? 1 : 0, child: BrandMark(color: dark ? Colors.white : BusinRamps.seed, height: 48)))),
         ],
       ),
     );
@@ -212,28 +229,31 @@ class _Words extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = BusinL10n.of(context);
     final text = Theme.of(context).textTheme;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final ink = dark ? Colors.white : BusinRamps.seed;
+    final p = dark ? BusinPalette.dark : BusinPalette.light;
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         StaggeredIn(
-          child: MarkedText(l10n.signInTitle, opacity: 0.7, style: text.displaySmall?.copyWith(color: Colors.white, height: 1.1)),
+          child: MarkedText(l10n.signInTitle, opacity: 0.7, style: text.displaySmall?.copyWith(color: ink, height: 1.1)),
         ),
         const SizedBox(height: BusinSpace.x4),
-        StaggeredIn(index: 1, child: Text(l10n.signInSubtitle, style: text.bodyLarge?.copyWith(color: Colors.white.withValues(alpha: 0.85), height: 1.45))),
+        StaggeredIn(index: 1, child: Text(l10n.signInSubtitle, style: text.bodyLarge?.copyWith(color: ink.withValues(alpha: 0.85), height: 1.45))),
         const SizedBox(height: BusinSpace.x8),
         if (message != null) ...[
           Semantics(
             liveRegion: true,
             child: DecoratedBox(
-              decoration: BoxDecoration(color: BusinPalette.dark.badBg, borderRadius: BorderRadius.circular(BusinRadius.md)),
+              decoration: BoxDecoration(color: p.badBg, borderRadius: BorderRadius.circular(BusinRadius.md)),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: BusinSpace.x4, vertical: BusinSpace.x3),
                 child: Row(
                   children: [
-                    HugeIcon(icon: HugeIcons.strokeRoundedAlert02, size: 18, color: BusinPalette.dark.bad),
+                    HugeIcon(icon: HugeIcons.strokeRoundedAlert02, size: 18, color: p.bad),
                     const SizedBox(width: BusinSpace.x3),
-                    Expanded(child: Text(message!, style: text.bodyMedium?.copyWith(color: BusinPalette.dark.bad))),
+                    Expanded(child: Text(message!, style: text.bodyMedium?.copyWith(color: p.bad))),
                   ],
                 ),
               ),
@@ -333,7 +353,7 @@ class _StyleguideLink extends StatelessWidget {
         child: Center(
           child: TextButton(
             onPressed: () => context.go(Routes.styleguide),
-            child: const Text('Styleguide', style: TextStyle(color: Colors.white70)),
+            child: Text('Styleguide', style: TextStyle(color: (Theme.of(context).brightness == Brightness.dark ? Colors.white : BusinRamps.seed).withValues(alpha: 0.7))),
           ),
         ),
       );
