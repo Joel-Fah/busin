@@ -35,6 +35,16 @@ void main() {
       expect(find.text('Subscription'), findsNothing, reason: 'no tabs yet');
     });
 
+    testWidgets('the school lists come in the order program, faculty, department', (tester) async {
+      final profiles = FakeProfileRepository({'u1': profile(complete: false)});
+      await open(tester, FakeAuthService(signedInAs: 'u1'), profiles);
+      final program = tester.getTopLeft(find.text('Program')).dy;
+      final faculty = tester.getTopLeft(find.text('Faculty')).dy;
+      final department = tester.getTopLeft(find.text('Department')).dy;
+      expect(program, lessThan(faculty));
+      expect(faculty, lessThan(department));
+    });
+
     testWidgets('empty required fields are explained and nothing is sent', (tester) async {
       final profiles = FakeProfileRepository({'u1': profile(complete: false)});
       await open(tester, FakeAuthService(signedInAs: 'u1'), profiles);
@@ -49,7 +59,9 @@ void main() {
       await open(tester, FakeAuthService(signedInAs: 'u1'), profiles);
       final fields = find.byType(TextField);
       await tester.enterText(fields.at(1), 'ICT2026-0457');
-      await tester.enterText(fields.at(2), 'call me');
+      // Letters never reach the field; a number too short for the country is called out.
+      await tester.enterText(fields.at(2), 'call me 12345');
+      expect(find.text('1 23 45'), findsNothing);
       await tester.tap(find.text('Save and continue'));
       await tester.pumpAndSettle();
       expect(find.text('Check this one: it has characters we cannot use.'), findsOneWidget);
@@ -69,7 +81,7 @@ void main() {
       await open(tester, FakeAuthService(signedInAs: 'u1'), profiles);
       final fields = find.byType(TextField);
       await tester.enterText(fields.at(1), 'ICT2026-0457');
-      await tester.enterText(fields.at(2), '677123456');
+      await tester.enterText(fields.at(2), '+237 677 12 34 56');
       profiles.error = const Offline('x');
       await tester.tap(find.text('Save and continue'));
       await tester.pumpAndSettle();
@@ -108,7 +120,7 @@ void main() {
       expect(find.text('Test Person'), findsOneWidget);
       expect(find.text('u1@school.edu'), findsOneWidget);
       expect(find.text('ICT2026-0001'), findsOneWidget);
-      expect(find.text('677123456'), findsOneWidget);
+      expect(find.text(PhoneNumbers.display('+237677123456')), findsOneWidget, reason: 'shown with spaces (ADR 0024)');
       expect(find.text('Not set'), findsNWidgets(2), reason: 'department and program');
       handle.dispose();
     });

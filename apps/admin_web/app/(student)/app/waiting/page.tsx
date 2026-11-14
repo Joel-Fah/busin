@@ -2,6 +2,7 @@ import { School01Icon } from "@hugeicons/core-free-icons";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
+import { SchoolLogo } from "@/components/SchoolLogo";
 import { GatePage } from "@/components/student/GatePage";
 import { RefreshOnReturn } from "@/components/student/RefreshOnReturn";
 import { SignOutForm } from "@/components/student/SignOutForm";
@@ -42,14 +43,7 @@ async function Waiting() {
   return (
     <GatePage lang={locale} title={format(s.waiting.title, { school })}>
       <RefreshOnReturn />
-      <div className="grid size-20 place-items-center overflow-hidden rounded-md bg-white shadow-soft">
-        {logo ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={logo} alt="" className="size-full object-contain" />
-        ) : (
-          <Icon icon={School01Icon} size={32} className="text-brand" />
-        )}
-      </div>
+      <SchoolLogo url={logo} size="lg" className="shadow-soft" fallback={<Icon icon={School01Icon} size={32} className="text-brand" />} />
       <p className="m-0 text-muted">{date ? format(s.waiting.body, { date }) : s.waiting.still}</p>
       <WaitingActions copy={s.waiting} errors={s.join} />
       <div className="mt-auto pt-6">

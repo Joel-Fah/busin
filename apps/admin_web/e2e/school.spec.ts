@@ -4,7 +4,7 @@ import { expect, test } from "@playwright/test";
 
 import type { Database } from "../lib/database.types";
 
-import { SEED, createUser, deleteUser, serviceClient, signInBrowser, type TestUser } from "./support";
+import { SEED, createUser, deleteUser, localKeys, serviceClient, signInBrowser, type TestUser } from "./support";
 
 const tag = randomBytes(3).toString("hex");
 let admin: TestUser;
@@ -132,6 +132,15 @@ test.describe("the school profile", () => {
     await expect(page.getByText("Logo saved.")).toBeVisible();
     const { data } = await serviceClient().from("schools").select("logo_path").eq("id", SEED.schoolId).single();
     expect(data?.logo_path).toMatch(new RegExp(`^${SEED.schoolId}/logo-\\d+\\.webp$`));
+    // Stored in its own shape (3:2 here), its longest side 512: never padded to a square.
+    const stored = `${localKeys().url}/storage/v1/object/public/school-logos/${data!.logo_path}`;
+    const size = await page.evaluate(async (src) => {
+      const image = new Image();
+      image.src = src;
+      await image.decode();
+      return { width: image.naturalWidth, height: image.naturalHeight };
+    }, stored);
+    expect(size).toEqual({ width: 512, height: 341 });
 
     await page.getByRole("button", { name: "Remove", exact: true }).click();
     await expect(page.getByText("Logo removed.")).toBeVisible();
@@ -141,6 +150,8 @@ test.describe("the school profile", () => {
 
   test("a logo dropped on the zone lights it up and is saved; a wrong file is refused with its own message", async ({ page }) => {
     await page.goto("/school");
+    // The drop zone listens once the page has hydrated; synthetic drag events sent before are lost.
+    await page.waitForLoadState("networkidle");
     const zone = page.locator("[data-dropzone]");
     const dropFile = async (name: string, type: string, make: () => Promise<number[]>) => {
       const bytes = await page.evaluate(make);

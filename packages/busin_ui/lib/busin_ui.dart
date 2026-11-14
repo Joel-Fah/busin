@@ -43,6 +43,8 @@ export 'src/widgets/haptics.dart';
 export 'src/widgets/illustration.dart';
 export 'src/widgets/initials.dart';
 export 'src/widgets/notice.dart';
+export 'src/widgets/phone_field.dart';
+export 'src/phone/countries.dart';
 export 'src/widgets/skeleton.dart';
 export 'src/widgets/staggered_in.dart';
 export 'src/widgets/step_line.dart';

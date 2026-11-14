@@ -18,7 +18,9 @@ import {
   UserMultiple02Icon,
 } from "@hugeicons/core-free-icons";
 
+import { PlanParts } from "@/components/billing/PlanParts";
 import { BusStopScene } from "@/components/landing/BusStopScene";
+import { PhoneField } from "@/components/ui/PhoneField";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { GoogleMark } from "@/components/ui/GoogleMark";
 import { Card } from "@/components/ui/Card";
@@ -565,6 +567,14 @@ async function Styleguide() {
         </div>
         <p className="mt-3 max-w-2xl text-sm text-muted">{note("Dropdown, date and time")}</p>
 
+        <h3 className="mt-8 mb-3 text-lg font-bold">Phone number</h3>
+        <div className="grid max-w-3xl gap-4 sm:grid-cols-2">
+          <PhoneField id="guide-phone" name="guidePhone" label="Phone" hint="Choose the country, then type the number." defaultCountry="CM" locale="en" />
+          <PhoneField id="guide-phone-saved" name="guidePhoneSaved" label="A saved number" defaultValue="+33612345678" defaultCountry="CM" locale="en" />
+          <PhoneField id="guide-phone-error" name="guidePhoneError" label="With an error" defaultValue="12345" defaultCountry="CM" locale="en" error="This is not a phone number for the country chosen." />
+        </div>
+        <p className="mt-3 max-w-2xl text-sm text-muted">{note("Phone number")}</p>
+
         <h3 className="mt-8 mb-3 text-lg font-bold">Checkbox, radio and switch</h3>
         <div className="grid max-w-3xl gap-6 sm:grid-cols-3">
           <div className="flex flex-col gap-4">
@@ -764,6 +774,12 @@ async function Styleguide() {
           </Card>
         </div>
         <p className="mt-4 max-w-2xl text-sm text-muted">{note("Card")}</p>
+
+        <h3 className="mt-8 mb-3 text-lg font-bold">Installment plan</h3>
+        <div className="max-w-md">
+          <PlanParts percents={[40, 30, 30]} amounts={["12,000 XAF", "9,000 XAF", "9,000 XAF"]} label="Installments: 40%, 30%, 30%" />
+        </div>
+        <p className="mt-3 max-w-2xl text-sm text-muted">{note("Installment plan")}</p>
       </Section>
 
       <Section {...sectionProps("rules")}>

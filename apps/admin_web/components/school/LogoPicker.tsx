@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { useToast } from "@/components/ui/Toast";
 import type { LogoResult } from "@/app/(admin)/school/actions";
-import { checkLogoFile, contentBox, fitInSquare, LOGO_TYPES } from "@/lib/logo-image";
+import { checkLogoFile, contentBox, fitWithin, LOGO_TYPES } from "@/lib/logo-image";
 import { LOGO_SIZE } from "@/lib/school";
 
 type Copy = {
@@ -35,11 +35,10 @@ type Props = {
 };
 
 /**
- * Draws the logo on a transparent square of LOGO_SIZE pixels and returns it as WebP. The empty margin around the logo
- * (transparent, or one flat colour such as white) is cut away first, so a logo saved with wide margins fills the square
- * instead of looking small, and then it is centred with a little room around it.
+ * Returns the logo as WebP in its own proportions, its longest side LOGO_SIZE pixels. The empty margin around it
+ * (transparent, or one flat colour such as white) is cut away first; nothing else is cut, stretched or padded.
  */
-async function toSquareWebp(file: File): Promise<Blob | null> {
+async function toLogoWebp(file: File): Promise<Blob | null> {
   const bitmap = await createImageBitmap(file);
   try {
     // Look at the image at a size that is cheap to scan, then cut the same box from the full image.
@@ -57,14 +56,15 @@ async function toSquareWebp(file: File): Promise<Blob | null> {
       ? { x: found.x / scan, y: found.y / scan, width: found.width / scan, height: found.height / scan }
       : { x: 0, y: 0, width: bitmap.width, height: bitmap.height };
 
+    // The logo keeps its own shape: wide stays wide, tall stays tall. Only the empty margin is cut.
+    const size = fitWithin(crop, LOGO_SIZE);
     const canvas = document.createElement("canvas");
-    canvas.width = LOGO_SIZE;
-    canvas.height = LOGO_SIZE;
+    canvas.width = size.width;
+    canvas.height = size.height;
     const context = canvas.getContext("2d");
     if (!context) return null;
-    const target = fitInSquare(crop, LOGO_SIZE);
     context.imageSmoothingQuality = "high";
-    context.drawImage(bitmap, crop.x, crop.y, crop.width, crop.height, target.x, target.y, target.width, target.height);
+    context.drawImage(bitmap, crop.x, crop.y, crop.width, crop.height, 0, 0, size.width, size.height);
     return await new Promise((resolve) => canvas.toBlob((blob) => resolve(blob), "image/webp", 0.9));
   } finally {
     bitmap.close();
@@ -108,7 +108,7 @@ export function LogoPicker({ url, schoolName, copy, upload, remove }: Props) {
       return;
     }
     startTransition(async () => {
-      const blob = await toSquareWebp(file).catch(() => null);
+      const blob = await toLogoWebp(file).catch(() => null);
       if (!blob) {
         toast(copy.unreadable, { tone: "bad" });
         return;
@@ -162,10 +162,11 @@ export function LogoPicker({ url, schoolName, copy, upload, remove }: Props) {
         (over ? "border-accent bg-[color-mix(in_srgb,var(--accent)_14%,transparent)] shadow-[0_0_0_4px_color-mix(in_srgb,var(--accent)_25%,transparent)]" : "border-line")
       }
     >
-      <div className="relative grid aspect-square size-32 shrink-0 place-items-center overflow-hidden rounded-lg bg-surface-2">
+      {/* The logo as it is: a box of fixed height and up to twice as wide, the logo centred inside, never cut. */}
+      <div className="relative grid h-32 w-32 shrink-0 place-items-center rounded-lg bg-surface-2 p-3 sm:w-64">
         {preview ? (
           // eslint-disable-next-line @next/next/no-img-element -- a public file or a local preview, already small
-          <img src={preview} alt={schoolName} className="size-full object-contain" />
+          <img src={preview} alt={schoolName} className="max-h-full max-w-full object-contain" />
         ) : (
           <span className="px-2 text-center text-xs font-semibold text-muted">{copy.none}</span>
         )}
