@@ -15,7 +15,7 @@ import 'splash_screen.dart';
 
 /// The first thing a student sees: a full-bleed photo under a veil, the wordmark, a headline with the marker under it,
 /// and a rotated orange call to action. Dark mode shows the night bus under a teal veil with white words; light mode the
-/// bus stop seen from above under a light veil with teal words, matching the splash before it. On a wide screen (a
+/// bus stop seen from above under a light veil with teal words (the mark stays white, on a teal shade at the top). On a wide screen (a
 /// tablet in landscape) the photo takes the left and the words and the button sit on the page colour at the right.
 class SignInScreen extends ConsumerStatefulWidget {
   const SignInScreen({super.key});
@@ -76,7 +76,6 @@ class _SignInScreenState extends ConsumerState<SignInScreen> with SingleTickerPr
     final l10n = BusinL10n.of(context);
     final wide = BusinLayout.of(context).isExpanded;
     final dark = Theme.of(context).brightness == Brightness.dark;
-    final ink = dark ? Colors.white : BusinRamps.seed;
     final message = switch (_failure) {
       SignInFailure.cancelled => l10n.signInCancelled,
       SignInFailure.notAllowed => l10n.signInNotAllowed,
@@ -116,7 +115,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> with SingleTickerPr
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              Align(alignment: Alignment.centerLeft, child: Opacity(opacity: _handoff ? 0 : 1, child: BrandMark(color: ink, height: 44))),
+                              Align(alignment: Alignment.centerLeft, child: Opacity(opacity: _handoff ? 0 : 1, child: const BrandMark(color: Colors.white, height: 44))),
                               const Spacer(),
                               Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 520), child: words)),
                               if (kDebugMode) const _StyleguideLink(),
@@ -131,18 +130,19 @@ class _SignInScreenState extends ConsumerState<SignInScreen> with SingleTickerPr
             );
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+      // Light icons in both themes: the top of the photo stays dark enough for the white mark.
+      value: SystemUiOverlayStyle.light,
       child: Scaffold(
         // The splash's own colours, so the hand-off from it shows no jump.
         backgroundColor: dark ? BusinRamps.seed : BusinPalette.of(context).bg,
-        body: _handoff ? _withHandoff(context, content, wide, ink) : content,
+        body: _handoff ? _withHandoff(context, content, wide, dark) : content,
       ),
     );
   }
 
   /// The screen fading in while the mark travels from the centre to its corner. The corner is where the screen's own
   /// mark sits (hidden until the end), so the traveller lands exactly on it.
-  Widget _withHandoff(BuildContext context, Widget content, bool wide, Color ink) {
+  Widget _withHandoff(BuildContext context, Widget content, bool wide, bool dark) {
     final size = MediaQuery.sizeOf(context);
     final safe = MediaQuery.paddingOf(context);
     const startWidth = splashMarkWidth;
@@ -165,7 +165,11 @@ class _SignInScreenState extends ConsumerState<SignInScreen> with SingleTickerPr
             final rect = Rect.lerp(start, end, travel.value)!;
             return Positioned.fromRect(
               rect: rect,
-              child: IgnorePointer(key: const ValueKey('logo-handoff'), child: FittedBox(child: BrandMark(color: ink, height: 100))),
+              // In light mode the splash's mark is teal: it turns white on the way, as the photo appears under it.
+              child: IgnorePointer(
+                key: const ValueKey('logo-handoff'),
+                child: FittedBox(child: BrandMark(color: dark ? Colors.white : Color.lerp(BusinRamps.seed, Colors.white, travel.value)!, height: 100)),
+              ),
             );
           },
         ),
@@ -191,12 +195,13 @@ class _Photo extends StatelessWidget {
     final (colors, stops) = switch ((dark, fade)) {
       (true, true) => ([veil.withValues(alpha: 0.25), veil.withValues(alpha: 0.45), veil.withValues(alpha: 0.96)], const [0.0, 0.4, 0.82]),
       (true, false) => ([veil.withValues(alpha: 0.12), veil.withValues(alpha: 0.25)], const [0.0, 1.0]),
-      // Light: a wash at the top for the mark, the photo clear in the middle, then the page colour under the words.
+      // Light: a teal shade at the top so the white mark reads, the photo clear in the middle, then the page colour under
+      // the words.
       (false, true) => (
-          [veil.withValues(alpha: 0.6), veil.withValues(alpha: 0.12), veil.withValues(alpha: 0.5), veil.withValues(alpha: 0.95), veil],
-          const [0.0, 0.28, 0.5, 0.7, 1.0],
+          [BusinRamps.seed.withValues(alpha: 0.5), BusinRamps.seed.withValues(alpha: 0), veil.withValues(alpha: 0), veil.withValues(alpha: 0.5), veil.withValues(alpha: 0.95), veil],
+          const [0.0, 0.22, 0.3, 0.5, 0.7, 1.0],
         ),
-      (false, false) => ([veil.withValues(alpha: 0.6), veil.withValues(alpha: 0.05)], const [0.0, 0.3]),
+      (false, false) => ([BusinRamps.seed.withValues(alpha: 0.5), BusinRamps.seed.withValues(alpha: 0)], const [0.0, 0.3]),
     };
     return ExcludeSemantics(
       child: Stack(
@@ -211,7 +216,7 @@ class _Photo extends StatelessWidget {
               gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: colors, stops: stops),
             ),
           ),
-          if (!fade) Align(alignment: Alignment.topLeft, child: Padding(padding: const EdgeInsets.all(BusinSpace.x8), child: Opacity(opacity: showMark ? 1 : 0, child: BrandMark(color: dark ? Colors.white : BusinRamps.seed, height: 48)))),
+          if (!fade) Align(alignment: Alignment.topLeft, child: Padding(padding: const EdgeInsets.all(BusinSpace.x8), child: Opacity(opacity: showMark ? 1 : 0, child: const BrandMark(color: Colors.white, height: 48)))),
         ],
       ),
     );

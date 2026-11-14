@@ -69,13 +69,13 @@ void main() {
     expect(find.byType(BrandMark), findsOneWidget);
   });
 
-  testWidgets('light mode: the bus stop photo, teal words on the light page, like the splash before it', (tester) async {
+  testWidgets('light mode: the bus stop photo, teal words on the light page, white mark', (tester) async {
     final container = containerFor();
     addTearDown(container.dispose);
     await tester.pumpWidget(host(container));
     await tester.pump();
     expect(photoOf(tester), contains('bus-stop.webp'));
-    expect(tester.widget<BrandMark>(find.byType(BrandMark)).color, BusinRamps.seed);
+    expect(tester.widget<BrandMark>(find.byType(BrandMark)).color, Colors.white, reason: 'the mark stays white');
     expect(tester.widget<Scaffold>(find.byType(Scaffold)).backgroundColor, BusinPalette.light.bg);
   });
 

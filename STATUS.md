@@ -66,7 +66,7 @@ What to test (local: `npm run backend:start`, `npm run seed:demo`, `npm run web`
 - **Logos:** upload a wide and a tall logo. Neither is cropped in the portal, the landing page, the web join, setup and waiting pages, or the phone app.
 - **School profile guard:** change a field, then click any link (navigation, Academics card, Back to profile). The dialog offers Go back, Save and continue (saves, then goes where you clicked), or Leave without saving. Closing the tab warns too.
 - **Student app splash:** open the app with the phone in light mode, then dark mode. The launch screen and the logo drawing match: teal logo on the light background, or white logo on the brand teal, with no jump between them.
-- **Sign-in (phone and web app):** signed out, in light mode the bus stop photo with teal words and logo, and the logo lands from the light splash with no jump; in dark mode the night bus as before.
+- **Sign-in (phone and web app):** signed out, in light mode the bus stop photo with teal words and a white logo (it turns from teal to white as it travels from the splash); in dark mode the night bus as before.
 - **Admin lists on a phone width:** scroll a list until the tabs stick. They stay on one row and scroll sideways, with the current tab in view.
 
 ## Handoff: student web app (2026-11-13)
