@@ -163,10 +163,10 @@ export function LogoPicker({ url, schoolName, copy, upload, remove }: Props) {
       }
     >
       {/* The logo as it is: a box of fixed height and up to twice as wide, the logo centred inside, never cut. */}
-      <div className="relative grid h-32 w-32 shrink-0 place-items-center rounded-lg bg-surface-2 p-3 sm:w-64">
+      <div className="relative flex h-32 w-32 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-surface-2 p-3 sm:w-64" data-testid="logo-preview">
         {preview ? (
           // eslint-disable-next-line @next/next/no-img-element -- a public file or a local preview, already small
-          <img src={preview} alt={schoolName} className="max-h-full max-w-full object-contain" />
+          <img src={preview} alt={schoolName} className="block h-auto max-h-full w-auto max-w-full object-contain" />
         ) : (
           <span className="px-2 text-center text-xs font-semibold text-muted">{copy.none}</span>
         )}

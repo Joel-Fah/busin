@@ -141,6 +141,14 @@ test.describe("the school profile", () => {
       return { width: image.naturalWidth, height: image.naturalHeight };
     }, stored);
     expect(size).toEqual({ width: 512, height: 341 });
+    // Shown smaller, in its own proportions, inside its box: never at its file size, never stretched.
+    const box = (await page.getByTestId("logo-preview").boundingBox())!;
+    const shown = (await page.getByTestId("logo-preview").locator("img").boundingBox())!;
+    expect(shown.x).toBeGreaterThanOrEqual(box.x);
+    expect(shown.y).toBeGreaterThanOrEqual(box.y);
+    expect(shown.x + shown.width).toBeLessThanOrEqual(box.x + box.width + 0.5);
+    expect(shown.y + shown.height).toBeLessThanOrEqual(box.y + box.height + 0.5);
+    expect(shown.width / shown.height).toBeCloseTo(512 / 341, 1);
 
     await page.getByRole("button", { name: "Remove", exact: true }).click();
     await expect(page.getByText("Logo removed.")).toBeVisible();
