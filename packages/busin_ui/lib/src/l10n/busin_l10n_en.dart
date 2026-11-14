@@ -152,7 +152,8 @@ class BusinL10nEn extends BusinL10n {
   String get fieldPhone => 'Phone number';
 
   @override
-  String get fieldPhoneHint => 'For example 677 12 34 56';
+  String get fieldPhoneHint =>
+      'Choose your country, then type your number. No need for the country code.';
 
   @override
   String get fieldDepartment => 'Department';
@@ -1876,4 +1877,13 @@ class BusinL10nEn extends BusinL10n {
   @override
   String get opsPushCrewAssigned =>
       'You were added to a trip. It is in your trips.';
+
+  @override
+  String get phoneCountry => 'Country';
+
+  @override
+  String get phoneSearch => 'Search a country';
+
+  @override
+  String get phoneNoMatch => 'No country matches.';
 }

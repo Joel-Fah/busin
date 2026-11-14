@@ -370,7 +370,7 @@ abstract class BusinL10n {
   /// No description provided for @fieldPhoneHint.
   ///
   /// In en, this message translates to:
-  /// **'For example 677 12 34 56'**
+  /// **'Choose your country, then type your number. No need for the country code.'**
   String get fieldPhoneHint;
 
   /// No description provided for @fieldDepartment.
@@ -3294,6 +3294,24 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'You were added to a trip. It is in your trips.'**
   String get opsPushCrewAssigned;
+
+  /// No description provided for @phoneCountry.
+  ///
+  /// In en, this message translates to:
+  /// **'Country'**
+  String get phoneCountry;
+
+  /// No description provided for @phoneSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search a country'**
+  String get phoneSearch;
+
+  /// No description provided for @phoneNoMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No country matches.'**
+  String get phoneNoMatch;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {

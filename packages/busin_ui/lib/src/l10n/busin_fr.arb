@@ -45,7 +45,7 @@
   "fieldMatricule": "Matricule",
   "fieldMatriculeHint": "Par exemple ICT2026-0001",
   "fieldPhone": "Numéro de téléphone",
-  "fieldPhoneHint": "Par exemple 677 12 34 56",
+  "fieldPhoneHint": "Choisissez votre pays, puis saisissez votre numéro. Pas besoin de l’indicatif.",
   "fieldDepartment": "Département",
   "fieldDepartmentHint": "Choisissez votre département",
   "fieldProgram": "Programme",
@@ -635,5 +635,8 @@
   "opsStatsTrendUp": "Mieux que les 4 semaines d'avant",
   "opsStatsTrendDown": "En dessous des 4 semaines d'avant",
   "opsStatsTrendSame": "Stable sur les 8 dernières semaines",
-  "opsPushCrewAssigned": "Vous avez été ajouté à un trajet. Il est dans vos trajets."
+  "opsPushCrewAssigned": "Vous avez été ajouté à un trajet. Il est dans vos trajets.",
+  "phoneCountry": "Pays",
+  "phoneSearch": "Rechercher un pays",
+  "phoneNoMatch": "Aucun pays ne correspond."
 }

@@ -49,7 +49,9 @@ void main() {
       await open(tester, FakeAuthService(signedInAs: 'u1'), profiles);
       final fields = find.byType(TextField);
       await tester.enterText(fields.at(1), 'ICT2026-0457');
-      await tester.enterText(fields.at(2), 'call me');
+      // Letters never reach the field; a number too short for the country is called out.
+      await tester.enterText(fields.at(2), 'call me 12345');
+      expect(find.text('1 23 45'), findsNothing);
       await tester.tap(find.text('Save and continue'));
       await tester.pumpAndSettle();
       expect(find.text('Check this one: it has characters we cannot use.'), findsOneWidget);

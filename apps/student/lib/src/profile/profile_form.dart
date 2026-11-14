@@ -27,11 +27,15 @@ class ProfileForm extends ConsumerStatefulWidget {
 class _ProfileFormState extends ConsumerState<ProfileForm> {
   late final _name = TextEditingController(text: widget.profile.fullName);
   late final _matricule = TextEditingController(text: widget.profile.matricule ?? '');
-  late final _phone = TextEditingController(text: widget.profile.phone ?? '');
+  // A saved number (E.164) shows its national part, written the country's way; its country goes on the button.
+  late final _savedPhone = widget.profile.phone == null ? null : PhoneNumbers.splitInternational(widget.profile.phone!);
+  late final _phone = TextEditingController(
+    text: _savedPhone == null ? (widget.profile.phone ?? '') : PhoneNumbers.formatTyping(_savedPhone.national, _savedPhone.country),
+  );
   String? _facultyId;
 
   /// The country a number without its code is read for (ADR 0024): the saved number's, else the phone's region.
-  late final String _phoneCountry = PhoneNumbers.defaultCountry(saved: widget.profile.phone, deviceRegion: WidgetsBinding.instance.platformDispatcher.locale.countryCode);
+  late String _phoneCountry = PhoneNumbers.defaultCountry(saved: widget.profile.phone, deviceRegion: WidgetsBinding.instance.platformDispatcher.locale.countryCode);
   String? _departmentId;
   String? _programId;
   bool _academicSeeded = false;
@@ -133,14 +137,14 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
           onChanged: changed,
         ),
         const SizedBox(height: BusinSpace.x4),
-        BusinTextField(
+        // The country and the number on one row (ADR 0024); the number is saved as E.164.
+        BusinPhoneField(
           label: l10n.fieldPhone,
           hint: l10n.fieldPhoneHint,
-          icon: HugeIcons.strokeRoundedSmartPhone01,
           controller: _phone,
+          country: _phoneCountry,
+          onCountryChanged: (code) => setState(() => _phoneCountry = code),
           enabled: !_saving,
-          textInputAction: TextInputAction.done,
-          keyboardType: TextInputType.phone,
           errorText: _message(l10n, ProfileValidation.phone(_phone.text, _phoneCountry)),
           onChanged: changed,
         ),

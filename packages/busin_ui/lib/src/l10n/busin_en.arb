@@ -71,7 +71,7 @@
   "fieldMatricule": "Student number",
   "fieldMatriculeHint": "For example ICT2026-0001",
   "fieldPhone": "Phone number",
-  "fieldPhoneHint": "For example 677 12 34 56",
+  "fieldPhoneHint": "Choose your country, then type your number. No need for the country code.",
   "fieldDepartment": "Department",
   "fieldDepartmentHint": "Choose your department",
   "fieldProgram": "Program",
@@ -950,5 +950,8 @@
   "opsStatsTrendUp": "Better than the 4 weeks before",
   "opsStatsTrendDown": "Below the 4 weeks before",
   "opsStatsTrendSame": "Steady over the last 8 weeks",
-  "opsPushCrewAssigned": "You were added to a trip. It is in your trips."
+  "opsPushCrewAssigned": "You were added to a trip. It is in your trips.",
+  "phoneCountry": "Country",
+  "phoneSearch": "Search a country",
+  "phoneNoMatch": "No country matches."
 }

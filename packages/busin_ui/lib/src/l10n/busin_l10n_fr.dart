@@ -153,7 +153,8 @@ class BusinL10nFr extends BusinL10n {
   String get fieldPhone => 'Numéro de téléphone';
 
   @override
-  String get fieldPhoneHint => 'Par exemple 677 12 34 56';
+  String get fieldPhoneHint =>
+      'Choisissez votre pays, puis saisissez votre numéro. Pas besoin de l’indicatif.';
 
   @override
   String get fieldDepartment => 'Département';
@@ -1909,4 +1910,13 @@ class BusinL10nFr extends BusinL10n {
   @override
   String get opsPushCrewAssigned =>
       'Vous avez été ajouté à un trajet. Il est dans vos trajets.';
+
+  @override
+  String get phoneCountry => 'Pays';
+
+  @override
+  String get phoneSearch => 'Rechercher un pays';
+
+  @override
+  String get phoneNoMatch => 'Aucun pays ne correspond.';
 }
