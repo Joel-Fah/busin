@@ -31,6 +31,10 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: setup field order (2026-11-14)
+
+- Student setup asks program, then faculty, then department (#445), on the phone and the web; profile edit uses the same forms. PR into `dev`. Owner, device test: a new account's setup shows that order.
+
 ## Handoff: student web app (2026-11-13)
 
 Live on main (release #415): the student web app at `/app` (ADR 0021) with sign-in, onboarding, subscription, boarding code, My bus, profile, offline and web push, plus the landing's "In your browser" card and the `/app` share card. Set up and verified: Firebase web app "BusIn Web" with its Web Push key; `NEXT_PUBLIC_FIREBASE_*` and `NEXT_PUBLIC_GOOGLE_CLIENT_ID` on Vercel (Production and Preview); Vercel on Node 24.x; `PUSH_WEB_BASE_URL` on the functions; hosted migration `20261115140000_web_push` applied and `send-push` redeployed.

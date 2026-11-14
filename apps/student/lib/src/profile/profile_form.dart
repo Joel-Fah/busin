@@ -7,7 +7,7 @@ import 'package:hugeicons/hugeicons.dart';
 import '../providers.dart';
 import 'choice_sheet.dart';
 
-/// The student's own details as a form: name, student number, phone, and optionally faculty, department and program
+/// The student's own details as a form: name, student number, phone, and optionally program, faculty and department
 /// (picked from the lists the school set up). Used on
 /// the first-login setup page and in the profile's edit sheet. It checks what it can on the phone (kindly, after the
 /// first try), saves through the repository (the server decides what is accepted) and then reloads the profile.
@@ -143,6 +143,26 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
         ),
         const SizedBox(height: BusinSpace.x4),
         if (!units.isEmpty) ...[
+          // Program first, then faculty and its department (the owner's order for setup).
+          const SizedBox(height: BusinSpace.x4),
+          FieldTile(
+            label: l10n.fieldProgram,
+            icon: HugeIcons.strokeRoundedMortarboard02,
+            placeholder: l10n.fieldProgramHint,
+            value: units.program(_programId)?.name,
+            onTap: _saving
+                ? null
+                : () async {
+                    final result = await showChoiceSheet(
+                      context,
+                      title: l10n.fieldProgram,
+                      choices: [for (final x in units.programs) Choice(id: x.id, title: x.name)],
+                      selectedId: _programId,
+                      clearLabel: l10n.choiceNone,
+                    );
+                    if (result != null) setState(() => _programId = result.id);
+                  },
+          ),
           const SizedBox(height: BusinSpace.x4),
           FieldTile(
             label: l10n.fieldFaculty,
@@ -184,25 +204,6 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
                       clearLabel: l10n.choiceNone,
                     );
                     if (result != null) setState(() => _departmentId = result.id);
-                  },
-          ),
-          const SizedBox(height: BusinSpace.x4),
-          FieldTile(
-            label: l10n.fieldProgram,
-            icon: HugeIcons.strokeRoundedMortarboard02,
-            placeholder: l10n.fieldProgramHint,
-            value: units.program(_programId)?.name,
-            onTap: _saving
-                ? null
-                : () async {
-                    final result = await showChoiceSheet(
-                      context,
-                      title: l10n.fieldProgram,
-                      choices: [for (final x in units.programs) Choice(id: x.id, title: x.name)],
-                      selectedId: _programId,
-                      clearLabel: l10n.choiceNone,
-                    );
-                    if (result != null) setState(() => _programId = result.id);
                   },
           ),
         ],
