@@ -1,3 +1,6 @@
+import { distanceMeters, type LatLng } from "@/lib/geo";
+import { ROAD_FACTOR } from "@/lib/student/bus";
+
 /**
  * The subscription tab's rules, ported from the student app (subscription_providers.dart, request_history.dart,
  * proof_picker.dart) and kept pure so each is a unit test.
@@ -159,4 +162,20 @@ export function uploadProblem(error: { statusCode?: string | number; message?: s
   if (status === "413" || message.includes("size") || message.includes("too large")) return "tooLarge";
   if (status === "415" || message.includes("mime") || message.includes("type")) return "type";
   return "failed";
+}
+
+/** A stop with its approximate distance by road from the student's area, in km rounded to 0.1 (null without an area). */
+export type RankedStop<S> = { stop: S; km: number | null };
+
+/**
+ * Each stop with how far it is from the student's area (ADR 0013, rounded to about 500 m by the server): the straight
+ * line times the road factor 1.3, as for Show me. The school's order is kept; the nearest is only pointed out.
+ */
+export function stopsWithDistance<S extends { position: LatLng | null }>(stops: S[], area: LatLng | null): RankedStop<S>[] {
+  return stops.map((stop) => ({ stop, km: area && stop.position ? Math.round((distanceMeters(area, stop.position) * ROAD_FACTOR) / 100) / 10 : null }));
+}
+
+/** The nearest stop, to suggest. Null without an area. */
+export function closestStop<S>(ranked: RankedStop<S>[]): RankedStop<S> | null {
+  return ranked.reduce<RankedStop<S> | null>((best, r) => (r.km !== null && (best === null || r.km < (best.km as number)) ? r : best), null);
 }

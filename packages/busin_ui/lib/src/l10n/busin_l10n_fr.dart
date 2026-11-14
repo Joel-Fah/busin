@@ -2045,4 +2045,22 @@ class BusinL10nFr extends BusinL10n {
   String receiptRejected(String n) {
     return 'Preuve de la tranche $n refusée';
   }
+
+  @override
+  String stopDistance(String km) {
+    return 'à environ $km km de votre zone';
+  }
+
+  @override
+  String get stopClosest => 'Le plus proche de votre zone';
+
+  @override
+  String get stopSuggested => 'Suggéré';
+
+  @override
+  String get stopAll => 'Tous les arrêts';
+
+  @override
+  String get stopAddArea =>
+      'Ajoutez votre zone pour voir l’arrêt le plus proche';
 }

@@ -758,5 +758,17 @@
         "type": "String"
       }
     }
-  }
+  },
+  "stopDistance": "à environ {km} km de votre zone",
+  "@stopDistance": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "stopClosest": "Le plus proche de votre zone",
+  "stopSuggested": "Suggéré",
+  "stopAll": "Tous les arrêts",
+  "stopAddArea": "Ajoutez votre zone pour voir l’arrêt le plus proche"
 }

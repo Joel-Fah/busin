@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/Button";
+import { Chip } from "@/components/ui/Chip";
 import { Icon } from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
@@ -13,14 +14,15 @@ import { formatAmount, splitAmount, type BillingPeriod, type InstallmentPlan } f
 import { format } from "@/lib/i18n/format";
 import type { StudentCopy } from "@/lib/i18n/student";
 import { prepareProof } from "@/lib/student/proof-image";
-import { proofPath, subscribeProblem, uploadProblem, type SubscribeProblem } from "@/lib/student/subscription";
+import type { LatLng } from "@/lib/geo";
+import { closestStop, proofPath, stopsWithDistance, subscribeProblem, uploadProblem, type RankedStop, type SubscribeProblem } from "@/lib/student/subscription";
 import { setPaymentPreference } from "@/lib/student/settings";
 import { browserClient } from "@/lib/supabase/browser";
 import { Contour } from "@/components/ui/Contour";
 
 import { Sheet } from "./Sheet";
 
-export type StopOption = { id: string; name: string };
+export type StopOption = { id: string; name: string; position: LatLng | null };
 export type Billing = { period: BillingPeriod; price: number; plan: InstallmentPlan | null; currency: string };
 type Mode = "full" | "installments";
 
@@ -104,6 +106,7 @@ export function SubscribeForm({
   months,
   month: initialMonth = null,
   locale,
+  area = null,
 }: {
   copy: StudentCopy["subscription"];
   semesterId: string;
@@ -119,6 +122,8 @@ export function SubscribeForm({
   /** The month to start with. */
   month?: string | null;
   locale: string;
+  /** The student's area, rounded, to say how far each stop is; null when they have not given one. */
+  area?: LatLng | null;
 }) {
   const router = useRouter();
   const monthly = billing?.period === "month";
@@ -143,10 +148,12 @@ export function SubscribeForm({
 
   useEffect(() => () => (proof ? URL.revokeObjectURL(proof.url) : undefined), [proof]);
 
-  const shown = useMemo(() => {
-    const q = plain(query.trim());
-    return q ? stops.filter((s) => plain(s.name).includes(q)) : stops;
-  }, [query, stops]);
+  // The nearest stop is suggested above the list while nothing is searched; it is never chosen for the student.
+  const ranked = useMemo(() => stopsWithDistance(stops, area), [stops, area]);
+  const q = plain(query.trim());
+  const closest = q ? null : closestStop(ranked);
+  const shown = ranked.filter((r) => (!q || plain(r.stop.name).includes(q)) && r.stop.id !== closest?.stop.id);
+  const km = (value: number) => new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(value);
 
   const choosePhoto = async (file: File | undefined) => {
     if (!file) return;
@@ -198,6 +205,30 @@ export function SubscribeForm({
     }
     done();
   };
+
+  const stopRow = (r: RankedStop<StopOption>, suggested: boolean) => (
+    <li key={r.stop.id}>
+      <button
+        type="button"
+        aria-pressed={stop?.id === r.stop.id}
+        onClick={() => {
+          setStop(r.stop);
+          setPicking(false);
+        }}
+        className={
+          "flex w-full cursor-pointer items-center gap-3 rounded-sm border-0 px-3 py-3 text-left font-sans text-base text-fg focus-visible:outline-3 focus-visible:outline-focus " +
+          (stop?.id === r.stop.id ? "bg-surface-2 font-bold" : "bg-transparent hover:bg-surface-2")
+        }
+      >
+        <Icon icon={Location01Icon} size={18} className="shrink-0 text-muted" />
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span>{r.stop.name}</span>
+          {r.km !== null ? <span className="text-sm font-normal text-muted">{format(copy.stopDistance, { km: km(r.km) })}</span> : null}
+        </span>
+        {suggested ? <Chip tone="info">{copy.stopClosest}</Chip> : null}
+      </button>
+    </li>
+  );
 
   return (
     <section className="flex flex-col gap-4 relative rounded-lg bg-surface p-5 shadow-soft" aria-labelledby="subscribe-intro">
@@ -292,30 +323,28 @@ export function SubscribeForm({
       >
         <div className="flex flex-col gap-3">
           <Input id="stop-search" type="search" label={copy.stopSearch} icon={Search01Icon} value={query} onChange={(event) => setQuery(event.target.value)} autoComplete="off" />
-          {shown.length === 0 ? (
+          {!area ? (
+            <a href="/app/settings/area" className="text-sm font-semibold text-fg">
+              {copy.stopAddArea}
+            </a>
+          ) : null}
+          {shown.length === 0 && !closest ? (
             <p className="m-0 text-sm text-muted">{copy.stopNone}</p>
           ) : (
-            <ul className="m-0 grid max-h-[50dvh] list-none gap-1 overflow-y-auto p-0" aria-label={copy.stopLabel}>
-              {shown.map((option) => (
-                <li key={option.id}>
-                  <button
-                    type="button"
-                    aria-pressed={stop?.id === option.id}
-                    onClick={() => {
-                      setStop(option);
-                      setPicking(false);
-                    }}
-                    className={
-                      "flex w-full cursor-pointer items-center gap-3 rounded-sm border-0 px-3 py-3 text-left font-sans text-base text-fg focus-visible:outline-3 focus-visible:outline-focus " +
-                      (stop?.id === option.id ? "bg-surface-2 font-bold" : "bg-transparent hover:bg-surface-2")
-                    }
-                  >
-                    <Icon icon={Location01Icon} size={18} className="text-muted" />
-                    {option.name}
-                  </button>
-                </li>
-              ))}
-            </ul>
+            <div className="flex max-h-[50dvh] flex-col gap-1 overflow-y-auto">
+              {closest ? (
+                <>
+                  <p className="m-0 px-3 pt-1 text-sm font-semibold text-muted">{copy.stopSuggested}</p>
+                  <ul className="m-0 grid list-none gap-1 p-0" aria-label={copy.stopSuggested}>
+                    {stopRow(closest, true)}
+                  </ul>
+                  <p className="m-0 px-3 pt-2 text-sm font-semibold text-muted">{copy.stopAll}</p>
+                </>
+              ) : null}
+              <ul className="m-0 grid list-none gap-1 p-0" aria-label={copy.stopLabel}>
+                {shown.map((r) => stopRow(r, false))}
+              </ul>
+            </div>
           )}
         </div>
       </Modal>

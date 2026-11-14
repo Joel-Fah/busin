@@ -3510,6 +3510,36 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'Proof for part {n} not accepted'**
   String receiptRejected(String n);
+
+  /// No description provided for @stopDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'about {km} km from your area'**
+  String stopDistance(String km);
+
+  /// No description provided for @stopClosest.
+  ///
+  /// In en, this message translates to:
+  /// **'Closest to your area'**
+  String get stopClosest;
+
+  /// No description provided for @stopSuggested.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested'**
+  String get stopSuggested;
+
+  /// No description provided for @stopAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All stops'**
+  String get stopAll;
+
+  /// No description provided for @stopAddArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your area to see which stop is closest'**
+  String get stopAddArea;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {
