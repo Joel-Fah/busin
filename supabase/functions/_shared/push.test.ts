@@ -8,6 +8,7 @@ import {
   classify,
   createAssertion,
   isKind,
+  webRoute,
   processBatch,
   sameSecret,
   type Claimed,
@@ -53,7 +54,7 @@ test("a message carries wording in the phone's language and only ids as data", (
 });
 
 test("no personal text is ever put in a notification", () => {
-  for (const kind of ["subscription_approved", "subscription_rejected", "subscription_revoked", "subscription_restored", "school_notice", "bus_near_stop", "crew_assigned"] as const) {
+  for (const kind of ["subscription_approved", "subscription_rejected", "subscription_revoked", "subscription_restored", "school_notice", "bus_near_stop", "crew_assigned", "installment_paid", "installment_rejected", "installment_due"] as const) {
     for (const locale of ["en", "fr"] as const) {
       const { title, body } = buildMessage(token(1), kind, "x", locale).message.notification;
       assert.ok(title.length > 0 && body.length > 0);
@@ -69,6 +70,7 @@ test("kinds and languages are checked, with English as the fallback", () => {
   assert.equal(isKind("crew_assigned"), true);
   assert.equal(isKind("subscription_revoked"), true);
   assert.equal(isKind("subscription_restored"), true);
+  assert.equal(isKind("installment_due"), true);
   assert.equal(isKind("anything_else"), false);
   assert.equal(asLocale("fr"), "fr");
   assert.equal(asLocale("de"), "en");
@@ -189,4 +191,10 @@ test("a web message without a valid https address has no link", () => {
 test("phones keep their Android and Apple blocks", () => {
   const message = buildMessage(token(1), "subscription_approved", "s", "en", "ios");
   assert.ok("android" in message.message && "apns" in message.message);
+});
+
+test("payment notifications open the subscription page of the web app", () => {
+  for (const kind of ["installment_paid", "installment_rejected", "installment_due"] as const) {
+    assert.equal(webRoute(kind), "/app/subscription", kind);
+  }
 });

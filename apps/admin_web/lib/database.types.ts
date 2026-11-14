@@ -545,6 +545,44 @@ isOneToOne: false
       referencedColumns: ["id","school_id"]
     }
                   ]
+                },"subscription_installments": {
+                  Row: {
+                    "amount_xaf": number,"created_at": string,"due_date": string,"id": string,"percent": number,"proof_path": string | null,"reminded_on": string | null,"review_note": string | null,"reviewed_at": string | null,"reviewed_by": string | null,"school_id": string,"seq": number,"status": string,"student_id": string,"submitted_at": string | null,"subscription_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount_xaf": number,"created_at"?: string,"due_date": string,"id"?: string,"percent": number,"proof_path"?: string | null,"reminded_on"?: string | null,"review_note"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"school_id": string,"seq": number,"status"?: string,"student_id": string,"submitted_at"?: string | null,"subscription_id": string
+                  }
+                  Update: {
+                    "amount_xaf"?: number,"created_at"?: string,"due_date"?: string,"id"?: string,"percent"?: number,"proof_path"?: string | null,"reminded_on"?: string | null,"review_note"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"school_id"?: string,"seq"?: number,"status"?: string,"student_id"?: string,"submitted_at"?: string | null,"subscription_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "subscription_installments_reviewed_by_fkey"
+      columns: ["reviewed_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "subscription_installments_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "subscription_installments_student_id_school_id_fkey"
+      columns: ["student_id","school_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id","school_id"]
+    },{
+      foreignKeyName: "subscription_installments_subscription_id_school_id_fkey"
+      columns: ["subscription_id","school_id"]
+isOneToOne: false
+      referencedRelation: "subscriptions"
+      referencedColumns: ["id","school_id"]
+    }
+                  ]
                 },"subscriptions": {
                   Row: {
                     "amount_xaf": number | null,"billing_period": string | null,"created_at": string,"id": string,"installment_plan": string | null,"payment_mode": string,"period_end": string | null,"period_start": string | null,"proof_path": string | null,"review_note": string | null,"reviewed_at": string | null,"reviewed_by": string | null,"school_id": string,"semester_id": string,"status": Database["public"]['Enums']["subscription_status"],"stop_id": string,"student_id": string,"updated_at": string
@@ -739,6 +777,9 @@ isOneToOne: false
                            },
 "admin_reinstate_subscription":
 { Args: { "p_note"?: string,"p_subscription_id": string }; Returns: undefined
+                           },
+"admin_review_installment":
+{ Args: { "p_decision": string,"p_installment": string,"p_note"?: string }; Returns: undefined
                            },
 "admin_review_subscription":
 { Args: { "p_decision": string,"p_note"?: string,"p_subscription_id": string }; Returns: undefined
@@ -948,6 +989,9 @@ isOneToOne: false
                            },
 "start_trip":
 { Args: { "p_trip_id": string }; Returns: undefined
+                           },
+"submit_installment_proof":
+{ Args: { "p_installment": string,"p_path": string }; Returns: undefined
                            },
 "submit_interest":
 { Args: { "p_email": string,"p_kind": string,"p_locale"?: string,"p_message"?: string,"p_name"?: string,"p_organisation"?: string,"p_trap"?: string }; Returns: string
