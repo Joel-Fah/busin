@@ -17,7 +17,9 @@ import { Icon } from "@/components/ui/Icon";
 import { ListSkeleton } from "@/components/ui/ListSkeleton";
 import { Notice } from "@/components/ui/Notice";
 
+import { PlanParts } from "@/components/billing/PlanParts";
 import { requireAdmin } from "@/lib/auth";
+import { formatAmount, isInstallmentPlan, planPercents, type InstallmentRow } from "@/lib/billing";
 import { format } from "@/lib/i18n/messages";
 import { REASON_MIN } from "@/lib/reasons";
 import { getMessages } from "@/lib/i18n/server";
@@ -34,7 +36,7 @@ import {
   type RequestHistory,
 } from "@/lib/subscriptions";
 
-import { approveSubscription, reinstateSubscription, rejectSubscription, revokeSubscription } from "../actions";
+import { approveSubscription, markInstallmentPaid, reinstateSubscription, rejectInstallment, rejectSubscription, revokeSubscription } from "../actions";
 
 export const metadata: Metadata = { title: "Subscription" };
 
@@ -42,7 +44,7 @@ export const metadata: Metadata = { title: "Subscription" };
 export const instant = false;
 
 type Params = Promise<{ id: string }>;
-type SearchParams = Promise<{ done?: string | string[]; error?: string | string[]; past?: string | string[] }>;
+type SearchParams = Promise<{ done?: string | string[]; error?: string | string[]; partError?: string | string[]; past?: string | string[] }>;
 
 export default function SubscriptionPage({ params, searchParams }: { params: Params; searchParams: SearchParams }) {
   return (
@@ -67,6 +69,7 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
     .from("subscriptions")
     .select(
       `id, status, created_at, proof_path, review_note, reviewed_at, student_id, semester_id,
+       period_start, period_end, payment_mode, amount_xaf, installment_plan,
        student:profiles!subscriptions_student_id_school_id_fkey(full_name, email, matricule, status),
        semester:semesters!subscriptions_semester_id_school_id_fkey(name, year),
        stop:stops!subscriptions_stop_id_school_id_fkey(name),
@@ -76,14 +79,34 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
     .maybeSingle();
   if (!row) notFound();
 
-  // Everything this student asked for in this semester, and what happened to each: the history.
-  const { data: siblings } = await supabase
+  // Everything this student asked for in this period (the semester, or the month for monthly billing), and what happened
+  // to each: the history.
+  const siblingsQuery = supabase
     .from("subscriptions")
     .select("id, status, created_at, stop:stops!subscriptions_stop_id_school_id_fkey(name)")
     .eq("student_id", row.student_id)
-    .eq("semester_id", row.semester_id)
+    .eq("semester_id", row.semester_id);
+  const { data: siblings } = await (row.period_start ? siblingsQuery.eq("period_start", row.period_start) : siblingsQuery.is("period_start", null))
     .order("created_at", { ascending: false })
     .limit(50);
+
+  // The parts of a subscription paid in installments (ADR 0022), each with a short-lived link to its proof.
+  const { data: partRows } =
+    row.payment_mode === "installments"
+      ? await supabase
+          .from("subscription_installments")
+          .select("id, seq, percent, amount_xaf, due_date, status, proof_path, review_note")
+          .eq("subscription_id", row.id)
+          .order("seq")
+          .limit(4)
+      : { data: [] as InstallmentRow[] };
+  const parts = await Promise.all(
+    (partRows ?? []).map(async (part) => {
+      if (!part.proof_path || part.seq === 1) return { ...part, proofUrl: null as string | null };
+      const { data } = await supabase.storage.from("proofs").createSignedUrl(part.proof_path, 60);
+      return { ...part, proofUrl: data?.signedUrl ?? null };
+    }),
+  );
   const siblingIds = (siblings ?? []).map((s) => s.id);
   const { data: events } = siblingIds.length
     ? await supabase
@@ -142,6 +165,13 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
   const done = single(query.done);
   const errorParam = single(query.error);
   const errorKey = isReviewErrorKey(errorParam) ? errorParam : null;
+  const partErrorParam = single(query.partError);
+  const partErrorKey = partErrorParam === "not_open" || partErrorParam === "not_found" || partErrorParam === "generic" ? partErrorParam : null;
+  const pt = t.subscriptions.detail.parts;
+  const todayIso = new Intl.DateTimeFormat("en-CA", { timeZone: admin.schoolTimezone }).format(new Date());
+  const day = (iso: string) => new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeZone: "UTC" }).format(new Date(`${iso}T00:00:00Z`));
+  const month = row.period_start ? new Intl.DateTimeFormat(locale, { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${row.period_start}T00:00:00Z`)) : null;
+  const plan = isInstallmentPlan(row.installment_plan) ? row.installment_plan : null;
 
   // Words for the reason forms: the shared labels, and what each problem the server can answer with says.
   const reasonText = { presetsLabel: t.reasons.presetsLabel, counter: t.reasons.counter, minimum: t.reasons.minimum };
@@ -150,6 +180,9 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
     reason_required: t.reasons.problems.reason_required,
     reason_too_short: format(t.reasons.problems.reason_too_short, { min: REASON_MIN }),
     reason_too_long: format(t.reasons.problems.reason_too_long, { max: MAX_REASON_LENGTH }),
+    part_not_open: pt.errors.not_open,
+    part_not_found: pt.errors.not_found,
+    part_generic: pt.errors.generic,
   };
 
   const dateTime = (value: string) =>
@@ -178,6 +211,8 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
       </header>
 
       {done === "approved" || done === "rejected" || done === "revoked" || done === "reinstated" ? <FlashToast message={t.subscriptions.done[done]} /> : null}
+      {done === "part_paid" ? <FlashToast message={pt.done.paid} /> : done === "part_rejected" ? <FlashToast message={pt.done.rejected} /> : null}
+      {partErrorKey ? <Notice tone="bad">{pt.errors[partErrorKey]}</Notice> : null}
       {supersededBy ? (
         <Notice tone="warn" className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <span>{format(t.subscriptions.detail.superseded, { status: t.status[supersededBy.status].toLowerCase() })}</span>
@@ -200,7 +235,17 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
                 [t.subscriptions.detail.email, row.student?.email],
                 [t.subscriptions.detail.matricule, row.student?.matricule || "-"],
                 [t.subscriptions.detail.semester, row.semester ? `${t.semester[row.semester.name]} ${row.semester.year}` : "-"],
+                ...(month ? [[t.subscriptions.detail.month, month]] : []),
                 [t.subscriptions.detail.stop, row.stop?.name ?? "-"],
+                ...(row.amount_xaf !== null
+                  ? [
+                      [t.subscriptions.detail.amount, formatAmount(row.amount_xaf, locale)],
+                      [
+                        t.subscriptions.detail.payment,
+                        plan ? format(t.subscriptions.detail.paymentInstallments, { plan }) : t.subscriptions.detail.paymentFull,
+                      ],
+                    ]
+                  : []),
                 [t.subscriptions.detail.submitted, dateTime(row.created_at)],
               ].map(([label, value], index) => (
                 // The email is long, so it takes the whole row.
@@ -311,6 +356,72 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
               ) : null}
             </Card>
           )}
+          {parts.length > 0 ? (
+            <Card className="flex flex-col gap-4" data-testid="parts">
+              <div>
+                <h2 className="text-xl font-bold">{pt.title}</h2>
+                <p className="mt-1 text-sm text-muted">{pt.hint}</p>
+              </div>
+              {plan ? <PlanParts percents={planPercents(plan)} amounts={parts.map((p) => formatAmount(p.amount_xaf, locale))} label={pt.title} /> : null}
+              <ol className="m-0 flex list-none flex-col gap-3 p-0">
+                {parts.map((part) => {
+                  const late = part.seq > 1 && (part.status === "due" || part.status === "rejected") && part.due_date <= todayIso;
+                  const status = part.status as keyof typeof pt.statuses;
+                  return (
+                    <li key={part.id} className="flex flex-col gap-3 rounded-md bg-surface-2 p-4" data-testid={`part-${part.seq}`}>
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                          <p className="font-bold">
+                            {format(pt.part, { n: part.seq })} · {format(pt.share, { percent: part.percent })} · {formatAmount(part.amount_xaf, locale)}
+                          </p>
+                          <p className="text-sm text-muted">{format(pt.due, { date: day(part.due_date) })}</p>
+                        </div>
+                        <span className="flex flex-wrap gap-1.5">
+                          <Chip tone={part.status === "paid" ? "ok" : part.status === "rejected" ? "bad" : part.status === "submitted" ? "warn" : "neutral"}>{pt.statuses[status]}</Chip>
+                          {late ? <Chip tone="bad">{pt.late}</Chip> : null}
+                        </span>
+                      </div>
+                      {part.review_note && part.status === "rejected" ? <p className="text-sm">{part.review_note}</p> : null}
+                      {part.seq > 1 && part.status !== "paid" && row.status === "approved" ? (
+                        <div className="flex flex-wrap items-center gap-2">
+                          {part.proofUrl ? (
+                            <a href={part.proofUrl} target="_blank" rel="noopener noreferrer" className="inline-flex h-11 items-center gap-2 rounded-sm bg-surface px-4 text-sm font-semibold text-fg no-underline hover:bg-line focus-visible:outline-3 focus-visible:outline-focus">
+                              <Icon icon={ArrowUpRight01Icon} size={18} />
+                              {pt.proofOpen}
+                            </a>
+                          ) : null}
+                          <form action={markInstallmentPaid}>
+                            <input type="hidden" name="subscription" value={row.id} />
+                            <input type="hidden" name="part" value={part.id} />
+                            <Button type="submit" icon={Tick02Icon}>
+                              {pt.markPaid}
+                            </Button>
+                          </form>
+                          {part.status === "submitted" ? (
+                            <details className="group w-full">
+                              <summary className="inline-flex cursor-pointer list-none items-center gap-2 rounded-sm px-4 py-2.5 text-sm font-semibold text-bad transition-colors duration-(--dur-fast) hover:bg-bad-bg focus-visible:outline-3 focus-visible:outline-focus [&::-webkit-details-marker]:hidden">
+                                {pt.rejectOpen}
+                              </summary>
+                              <ReasonForm
+                                action={rejectInstallment}
+                                hidden={{ subscription: row.id, part: part.id }}
+                                idPrefix={`part-${part.seq}`}
+                                text={{ ...reasonText, label: pt.reasonLabel, hint: t.subscriptions.detail.reasonHint, placeholder: t.subscriptions.detail.reasonPlaceholder }}
+                                presets={t.subscriptions.reasons.reject}
+                                max={MAX_REASON_LENGTH}
+                                errors={reasonErrors}
+                                submit={{ label: pt.rejectConfirm, icon: Cancel01Icon, variant: "danger" }}
+                              />
+                            </details>
+                          ) : null}
+                        </div>
+                      ) : null}
+                    </li>
+                  );
+                })}
+              </ol>
+            </Card>
+          ) : null}
         </div>
 
         <Card className="flex flex-col gap-4 self-start">
