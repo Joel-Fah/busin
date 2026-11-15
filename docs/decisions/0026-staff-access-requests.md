@@ -10,8 +10,9 @@ portal could turn the account into staff, since a student could never become sta
 refused. The only way out was a manual change in the database.
 
 ## Decision
-1. **Asking.** A student account that is not suspended can ask a school for staff access from the ops app: its own school
-   when it is a student of one, else any active school. One request at a time; it can be withdrawn, and not changed
+1. **Asking.** A student account that is not suspended can ask a school for staff access from the ops app. The school
+   is found as for students: the school of the email's domain when it has one, else the account's own school when it is
+   a student of one, else any active school to choose from. With one school to ask, the app names it and sends at once. One request at a time; it can be withdrawn, and not changed
    more than once every 30 seconds. The request is kept on the profile (`staff_requested_at`, `staff_request_school`)
    and written only through `request_staff_access`. The phone never chooses a role: it only asks.
 2. **Deciding.** The administrators of the school asked see the requests on People, To verify (through
@@ -27,6 +28,8 @@ refused. The only way out was a manual change in the database.
 5. **Not in this decision:** deleting or removing accounts. That is handled separately.
 
 ## Consequences
+- One email is one account with one role at a time: student and staff access are never held together. Someone who
+  needs both uses two Google accounts (a school email as a student, another invited as staff), or the role is switched.
 - A sign-in with an email that no school accepts is still refused before any account exists (the server cannot tell
   which app it came from), and the ops app says to ask the school for an invite. Inviting stays the direct path.
 - Installed ops apps from before this change show the old dead end until updated; the request needs the new build.

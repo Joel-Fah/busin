@@ -679,6 +679,12 @@ abstract class BusinL10n {
   /// **'Their note: {note}'**
   String opsStaffDeclinedNote(String note);
 
+  /// No description provided for @opsStaffAskSchool.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask {school} for staff access'**
+  String opsStaffAskSchool(String school);
+
   /// No description provided for @signInWithGoogle.
   ///
   /// In en, this message translates to:

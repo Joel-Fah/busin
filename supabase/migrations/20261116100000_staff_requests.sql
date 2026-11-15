@@ -51,18 +51,38 @@ as $$
 $$;
 
 -- ---------------------------------------------------------------- asking
--- The schools the caller may ask for staff access: their own school when they belong to one, else every active school.
--- Only a student account that is not suspended asks.
+-- The school(s) an account may ask for staff access, as for students: the school of the email's domain when it has one
+-- (school.edu), else the account's own school when it is a verified student of one, else every active school to choose
+-- from. Only a student account that is not suspended asks.
+create function private.staff_request_school_ids(p_user uuid)
+returns setof uuid
+language sql stable security definer
+set search_path = ''
+as $$
+  with me as (
+    select p.school_id, p.status, private.email_domain(p.email) as domain
+    from public.profiles p where p.id = p_user and p.role = 'student' and p.status <> 'suspended'
+  ),
+  by_domain as (
+    select d.school_id from public.school_domains d join public.schools s on s.id = d.school_id and s.status = 'active'
+    join me on d.domain = me.domain
+  )
+  select school_id from by_domain
+  union all
+  select me.school_id from me where not exists (select 1 from by_domain) and me.status = 'verified'
+  union all
+  select s.id from public.schools s, me
+  where s.status = 'active' and not exists (select 1 from by_domain) and me.status <> 'verified';
+$$;
+
 create function public.list_staff_request_schools()
 returns table (id uuid, name text, short_name text, city text, country text, logo_path text)
 language sql stable security definer
 set search_path = ''
 as $$
   select s.id, s.name, s.short_name, s.city, s.country, s.logo_path
-  from public.profiles p
-  join public.schools s on s.status = 'active'
-    and (case when p.status = 'verified' then s.id = p.school_id else true end)
-  where p.id = (select auth.uid()) and p.role = 'student' and p.status <> 'suspended'
+  from public.schools s
+  where s.id in (select private.staff_request_school_ids((select auth.uid())))
   order by s.name
   limit 200;
 $$;
@@ -106,8 +126,8 @@ begin
   if not exists (select 1 from public.schools s where s.id = p_school_id and s.status = 'active') then
     raise exception 'school_unknown' using errcode = '22023';
   end if;
-  -- A student of a school asks their own school only.
-  if v_profile.status = 'verified' and v_profile.school_id is distinct from p_school_id then
+  -- Only a school the account may ask (its email's school, its own school, or any for an account without one).
+  if p_school_id not in (select private.staff_request_school_ids(v_uid)) then
     raise exception 'not_your_school' using errcode = '42501';
   end if;
 
@@ -255,7 +275,7 @@ begin
 end;
 $$;
 
-revoke execute on function private.has_live_subscription(uuid), private.trip_duty(uuid) from public;
+revoke execute on function private.has_live_subscription(uuid), private.trip_duty(uuid), private.staff_request_school_ids(uuid) from public;
 revoke execute on function public.list_staff_request_schools(), public.my_staff_request(), public.request_staff_access(uuid),
   public.admin_staff_requests(), public.admin_review_staff_request(uuid, boolean, text) from public, anon;
 grant execute on function public.list_staff_request_schools(), public.my_staff_request(), public.request_staff_access(uuid),

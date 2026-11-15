@@ -322,6 +322,11 @@ class BusinL10nEn extends BusinL10n {
   }
 
   @override
+  String opsStaffAskSchool(String school) {
+    return 'Ask $school for staff access';
+  }
+
+  @override
   String get signInWithGoogle => 'Continue with Google';
 
   @override

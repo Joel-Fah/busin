@@ -25,16 +25,14 @@ Future<void> open(WidgetTester tester, FakeStaffAccess staffAccess) async {
 }
 
 void main() {
-  testWidgets('a student account asks a school for staff access, sees it waiting, and can withdraw it', (tester) async {
+  testWidgets('with one school to ask (the email\'s or its own), the button names it and sends at once; withdraw works', (tester) async {
     final staffAccess = FakeStaffAccess();
     await open(tester, staffAccess);
     expect(find.text('This app is for staff'), findsOneWidget);
 
-    await tester.tap(find.text('Ask for staff access'));
+    await tester.tap(find.text('Ask Test School for staff access'));
     await settle(tester);
-    expect(find.text('Which school do you work for?'), findsOneWidget);
-    await tester.tap(find.text('Test School'));
-    await settle(tester);
+    expect(find.text('Which school do you work for?'), findsNothing, reason: 'no list to choose from');
     expect(staffAccess.asked, [schoolId]);
     expect(find.textContaining('Your request is with Test School'), findsOneWidget);
     BusinToast.dismiss();
@@ -43,7 +41,21 @@ void main() {
     await tester.tap(find.text('Withdraw the request'));
     await settle(tester);
     expect(staffAccess.asked.last, isNull);
-    expect(find.text('Ask for staff access'), findsOneWidget);
+    expect(find.text('Ask Test School for staff access'), findsOneWidget);
+  });
+
+  testWidgets('an account with no school picks one from the list first', (tester) async {
+    final staffAccess = FakeStaffAccess(schools: const [OpenSchool(id: schoolId, name: 'Test School'), OpenSchool(id: 'other', name: 'Other School')]);
+    await open(tester, staffAccess);
+    await tester.tap(find.text('Ask for staff access'));
+    await settle(tester);
+    expect(find.text('Which school do you work for?'), findsOneWidget);
+    await tester.tap(find.text('Other School'));
+    await settle(tester);
+    expect(staffAccess.asked, ['other']);
+    expect(find.textContaining('Your request is with Other School'), findsOneWidget);
+    BusinToast.dismiss();
+    await settle(tester, 3);
   });
 
   testWidgets('a declined request shows the school and its note, and the person can ask again', (tester) async {
@@ -57,9 +69,7 @@ void main() {
   testWidgets('asking again too soon says so', (tester) async {
     final staffAccess = FakeStaffAccess()..error = const NotAllowed('database 54000', reason: 'too_many');
     await open(tester, staffAccess);
-    await tester.tap(find.text('Ask for staff access'));
-    await settle(tester);
-    await tester.tap(find.text('Test School'));
+    await tester.tap(find.text('Ask Test School for staff access'));
     await settle(tester, 3);
     expect(find.text('Wait a few seconds before asking again.'), findsOneWidget);
     BusinToast.dismiss();

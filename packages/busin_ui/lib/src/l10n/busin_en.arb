@@ -133,6 +133,8 @@
   "@opsStaffDeclined": {"placeholders": {"school": {"type": "String"}}},
   "opsStaffDeclinedNote": "Their note: {note}",
   "@opsStaffDeclinedNote": {"placeholders": {"note": {"type": "String"}}},
+  "opsStaffAskSchool": "Ask {school} for staff access",
+  "@opsStaffAskSchool": {"placeholders": {"school": {"type": "String"}}},
   "signInWithGoogle": "Continue with Google",
   "signInCancelled": "Sign-in was cancelled.",
   "signInFailed": "Sign-in did not work. Try again.",

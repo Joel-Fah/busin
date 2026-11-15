@@ -97,6 +97,7 @@
   "opsStaffWaiting": "Votre demande est chez {school}. Ses administrateurs vont l’examiner, et l’application s’ouvre dès qu’ils l’approuvent.",
   "opsStaffDeclined": "{school} a refusé votre demande.",
   "opsStaffDeclinedNote": "Leur note : {note}",
+  "opsStaffAskSchool": "Demander l’accès du personnel à {school}",
   "signInWithGoogle": "Continuer avec Google",
   "signInCancelled": "La connexion a été annulée.",
   "signInFailed": "La connexion n’a pas fonctionné. Réessayez.",

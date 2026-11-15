@@ -12,6 +12,12 @@ final myStaffRequestProvider = FutureProvider.autoDispose<JoinRequest?>((ref) as
   return ref.watch(staffAccessRepositoryProvider).myRequest();
 });
 
+/// The schools the account may ask: the one its email's domain belongs to, its own, or every active school (ADR 0026).
+final staffRequestSchoolsProvider = FutureProvider.autoDispose<List<OpenSchool>>((ref) async {
+  if (ref.watch(authUserIdProvider).value == null) return const [];
+  return ref.watch(staffAccessRepositoryProvider).listSchools();
+});
+
 /// For a student account that opened the ops app (signed in before their school invited them): ask a school for staff
 /// access, see where the request stands, withdraw it, or ask again after a decline. The school's administrators decide in
 /// the portal; when they approve, the account watcher opens the app by itself.
@@ -43,25 +49,14 @@ class _StaffRequestPanelState extends ConsumerState<StaffRequestPanel> {
     }
   }
 
-  Future<void> _ask() async {
+  /// One school (the email's, or the account's own): asked straight away. Several: the person picks one first.
+  Future<void> _ask(List<OpenSchool> schools) async {
     final l10n = BusinL10n.of(context);
-    setState(() => _busy = true);
-    List<OpenSchool> schools;
-    try {
-      schools = await ref.read(staffAccessRepositoryProvider).listSchools();
-    } catch (_) {
-      if (mounted) {
-        setState(() => _busy = false);
-        BusinToast.show(context, l10n.errorGeneric, tone: ToastTone.error);
-      }
-      return;
-    }
-    if (!mounted) return;
-    setState(() => _busy = false);
     if (schools.isEmpty) {
       BusinToast.show(context, l10n.opsStaffNoSchools, tone: ToastTone.info);
       return;
     }
+    if (schools.length == 1) return _send(schools.single.id);
     final url = ref.read(appConfigProvider).supabaseUrl;
     final chosen = await showBusinSheet<OpenSchool>(
       context,
@@ -98,6 +93,7 @@ class _StaffRequestPanelState extends ConsumerState<StaffRequestPanel> {
     final l10n = BusinL10n.of(context);
     final request = ref.watch(myStaffRequestProvider);
     final value = request.value;
+    final schools = ref.watch(staffRequestSchoolsProvider).value ?? const <OpenSchool>[];
     final text = Theme.of(context).textTheme;
 
     if (request.isLoading && value == null) {
@@ -133,10 +129,15 @@ class _StaffRequestPanelState extends ConsumerState<StaffRequestPanel> {
         ]);
       }
       children.add(BusinButton(
-        label: value != null && value.wasDeclined ? l10n.opsStaffAskAgain : l10n.opsStaffAsk,
+        // With one school to ask (the email's, or the account's own), the button names it and sends at once.
+        label: value != null && value.wasDeclined
+            ? l10n.opsStaffAskAgain
+            : schools.length == 1
+                ? l10n.opsStaffAskSchool(schools.single.name)
+                : l10n.opsStaffAsk,
         icon: HugeIcons.strokeRoundedUserShield01,
         loading: _busy,
-        onPressed: _busy ? null : _ask,
+        onPressed: _busy ? null : () => _ask(schools),
       ));
     }
     return ConstrainedBox(

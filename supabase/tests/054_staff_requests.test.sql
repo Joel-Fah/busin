@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(30);
+select plan(31);
 
 -- Staff access requests and student/staff role changes (ADR 0026).
 
@@ -44,6 +44,15 @@ select throws_ok($$select public.request_staff_access('99999999-0000-4000-8000-0
 
 set local "request.jwt.claims" = '{"sub":"a1000000-0000-4000-8000-000000000001","role":"authenticated"}';
 select results_eq($$select id from public.list_staff_request_schools()$$, $$values ('10000000-0000-4000-8000-000000000001'::uuid)$$, 'a student of a school sees only their own school');
+reset role;
+-- Even when the account is not (or no longer) a verified student there, the email's school is the one offered.
+update public.profiles set status = 'pending', school_id = null where id = 'a1000000-0000-4000-8000-000000000001';
+set local role authenticated;
+select results_eq($$select id from public.list_staff_request_schools()$$, $$values ('10000000-0000-4000-8000-000000000001'::uuid)$$, 'a school email is matched to its school by domain, with no list to choose from');
+reset role;
+update public.profiles set status = 'verified', school_id = '10000000-0000-4000-8000-000000000001' where id = 'a1000000-0000-4000-8000-000000000001';
+set local role authenticated;
+set local "request.jwt.claims" = '{"sub":"a1000000-0000-4000-8000-000000000001","role":"authenticated"}';
 select throws_ok($$select public.request_staff_access('20000000-0000-4000-8000-000000000002')$$, '42501', 'not_your_school', 'and cannot ask another');
 select lives_ok($$select public.request_staff_access('10000000-0000-4000-8000-000000000001')$$, 'they ask their own school');
 select throws_ok($$update public.profiles set staff_request_school = null where id = 'a1000000-0000-4000-8000-000000000001'$$, '42501', null, 'the request columns are not writable directly');
