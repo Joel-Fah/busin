@@ -49,6 +49,8 @@ export async function requireAdmin(): Promise<AdminContext> {
 
   // An administrator always has a school (the database allows no school only for a student waiting to join one).
   if (decideAccess(current.profile) !== "admin" || !current.profile?.school_id) {
+    // A platform admin who administers no school (ADR 0027) has the console as their home.
+    if (await platformContext()) redirect("/platform");
     redirect("/no-access");
   }
 

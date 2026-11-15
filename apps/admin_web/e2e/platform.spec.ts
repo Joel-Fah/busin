@@ -9,18 +9,24 @@ const tag = randomBytes(3).toString("hex");
 let owner: TestUser;
 let schoolAdmin: TestUser;
 let student: TestUser;
+let consoleOnly: TestUser;
 
 test.beforeAll(async () => {
   owner = await createUser(`platform-owner-${tag}`, "admin");
   schoolAdmin = await createUser(`platform-admin-${tag}`, "admin");
   student = await createUser(`platform-student-${tag}`, "student");
+  // As "npm run dev:user -- <email> platform" makes it: staff of a school, listed as platform admin.
+  consoleOnly = await createUser(`platform-only-${tag}`, "staff");
   setPlatformAdmin(owner.id, true);
   setPlatformAdmin(student.id, true);
+  setPlatformAdmin(consoleOnly.id, true);
 });
 
 test.afterAll(async () => {
   setPlatformAdmin(owner.id, false);
   setPlatformAdmin(student.id, false);
+  setPlatformAdmin(consoleOnly.id, false);
+  await deleteUser(consoleOnly);
   await deleteUser(owner);
   await deleteUser(schoolAdmin);
   await deleteUser(student);
@@ -59,6 +65,15 @@ test("the console does not depend on the role inside a school", async ({ context
   await expect(page.getByRole("heading", { name: "Platform", exact: true, level: 1 })).toBeVisible();
   await page.goto("/platform/account");
   // A student has no school portal to go back to.
+  await expect(page.getByRole("link", { name: "Open my school's portal" })).toHaveCount(0);
+});
+
+test("an account that opens only the console lands on it instead of the no-access page", async ({ context, page }) => {
+  await signInBrowser(context, consoleOnly);
+  await page.goto("/");
+  await expect(page).toHaveURL(/\/platform$/);
+  await expect(page.getByRole("heading", { name: "Platform", exact: true, level: 1 })).toBeVisible();
+  await page.goto("/platform/account");
   await expect(page.getByRole("link", { name: "Open my school's portal" })).toHaveCount(0);
 });
 

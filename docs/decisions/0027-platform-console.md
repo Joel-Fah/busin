@@ -31,8 +31,10 @@ be helped or reminded, and onboards a new school without code.
    outreach log); school onboarding; leads; usage, costs and system health; account lookup.
 
 ## Consequences
-- The owner adds their own row on the hosted project with SQL (owner approval, as for any hosted change). Locally,
-  `npm run platform:admin -- <email>` lists an account.
+- The owner adds their own row on the hosted project with SQL (owner approval, as for any hosted change).
+- Local accounts for the development sign-in: `npm run dev:platform` (an account that opens only the console),
+  `npm run dev:user -- <email> platform`, or `npm run dev:user -- <email> admin --platform` (a school admin who also
+  opens it). An account that administers no school lands on the console after signing in, not on "no access".
 - The Google account of a platform admin protects the whole platform's figures: it should have 2-step verification.
 - Not in version 1: account deletion, adding platform admins from the console, announcements or feature flags per
   school, the Crashlytics API, revenue across schools. Acting as another user is never planned.

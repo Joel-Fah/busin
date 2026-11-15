@@ -38,7 +38,8 @@ Platform admins are listed in `private.platform_admins` (not a role; added by SQ
 gives platform totals (schools, people, new accounts, waiting, this semester's subscriptions, today's trips and
 boardings, buses live) and one row of counts per school. Everyone else gets "not found". Platform actions will be logged
 in `platform_audit`. The console's own tabs and account page; the school profile shows the way in to listed accounts.
-Locally: `npm run platform:admin -- <email>`.
+Locally: `npm run dev:platform` makes a local account (development sign-in) that opens only the console and lands
+on it; `npm run dev:user -- <email> admin --platform` makes a school admin who also opens it.
 
 Verified: pgTAP 936 (new 055), Vitest 452, platform E2E (5), shell and portal E2E, tsc, lint, `npm run check`.
 

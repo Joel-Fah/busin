@@ -1,18 +1,26 @@
 // Creates (or resets) a local account for the development-only sign-in page.
 // Local development only: it runs SQL inside the local database container and prints a fresh
-// random password each time. Usage: npm run dev:user [-- email [role]]
+// random password each time.
+//   npm run dev:user [-- email [role] [--platform]]
+//   role: student, staff, admin (default), or platform: an account that opens only the platform console (ADR 0027).
+//   --platform: also lists the account as a platform admin (for example a school admin who also opens the console).
+//   npm run dev:platform   the same as: dev-platform@ictuniversity.edu.cm platform
 import { execFileSync } from 'node:child_process';
 import { randomBytes, randomUUID } from 'node:crypto';
 
-const email = (process.argv[2] ?? 'dev-admin@ictuniversity.edu.cm').toLowerCase();
-const role = process.argv[3] ?? 'admin';
+const args = process.argv.slice(2).filter((arg) => arg !== '--platform');
+const email = (args[0] ?? 'dev-admin@ictuniversity.edu.cm').toLowerCase();
+const asked = args[1] ?? 'admin';
+// A console-only account is staff of the seeded school (a profile always has a role in a school), listed as platform admin.
+const platform = asked === 'platform' || process.argv.includes('--platform');
+const role = asked === 'platform' ? 'staff' : asked;
 
 if (!/^[a-z0-9._+-]+@[a-z0-9.-]+\.[a-z]{2,}$/.test(email)) {
   console.error('That does not look like an email address.');
   process.exit(1);
 }
 if (!['student', 'staff', 'admin'].includes(role)) {
-  console.error('The role must be student, staff or admin.');
+  console.error('The role must be student, staff, admin or platform.');
   process.exit(1);
 }
 
@@ -34,7 +42,7 @@ begin
       '00000000-0000-0000-0000-000000000000', v_id, 'authenticated', 'authenticated',
       '${email}', extensions.crypt('${password}', extensions.gen_salt('bf')), now(),
       '{"provider":"google","providers":["google"]}',
-      '{"full_name":"Local ${role}"}', now(), now(), '', '', '', ''
+      '{"full_name":"Local ${asked === 'platform' ? 'platform' : role}"}', now(), now(), '', '', '', ''
     );
     insert into auth.identities (id, user_id, provider_id, provider, identity_data, last_sign_in_at, created_at, updated_at)
     values (gen_random_uuid(), v_id, v_id::text, 'google',
@@ -46,6 +54,9 @@ begin
     where id = v_id;
   end if;
   update public.profiles set role = '${role}', status = 'verified' where id = v_id;
+  ${platform
+    ? "insert into private.platform_admins (user_id, note) values (v_id, 'local, npm run dev:user') on conflict (user_id) do nothing;"
+    : 'delete from private.platform_admins where user_id = v_id;'}
 end
 $$;
 `;
@@ -68,9 +79,11 @@ try {
   process.exit(1);
 }
 
+const what = asked === 'platform' ? 'platform console account' : platform ? `${role}, also platform admin,` : role;
+const where = platform ? '\nIt opens the platform console at http://127.0.0.1:3000/platform\n' : '';
 console.log(`
-Local ${role} ready. Sign in at http://127.0.0.1:3000/dev/login (development only)
-
+Local ${what} ready. Sign in at http://127.0.0.1:3000/dev/login (development only)
+${where}
   email:    ${email}
   password: ${password}
 
