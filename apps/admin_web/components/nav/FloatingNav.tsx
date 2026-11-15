@@ -8,6 +8,7 @@ import {
   Cancel01Icon,
   DashboardSquare01Icon,
   GeometricShapes01Icon,
+  InboxIcon,
   Menu03Icon,
   Navigation03Icon,
   ReceiptTextIcon,
@@ -28,7 +29,7 @@ import { INTRO_DONE_EVENT } from "@/lib/intro";
 import { NAV_DOCK_ID } from "./NavDock";
 
 /** The school portal's tabs, then the platform console's (ADR 0027). */
-export type NavKey = "overview" | "subscriptions" | "people" | "trips" | "scans" | "insights" | "platform" | "platformSchools";
+export type NavKey = "overview" | "subscriptions" | "people" | "trips" | "scans" | "insights" | "platform" | "platformSchools" | "platformLeads";
 
 const ICONS: Record<NavKey, IconSvgElement> = {
   overview: GeometricShapes01Icon,
@@ -39,6 +40,7 @@ const ICONS: Record<NavKey, IconSvgElement> = {
   insights: Analytics01Icon,
   platform: DashboardSquare01Icon,
   platformSchools: School01Icon,
+  platformLeads: InboxIcon,
 };
 
 const HREFS: Record<NavKey, string> = {
@@ -50,6 +52,7 @@ const HREFS: Record<NavKey, string> = {
   insights: "/insights",
   platform: "/platform",
   platformSchools: "/platform/schools",
+  platformLeads: "/platform/leads",
 };
 
 /** Home pages: lit only on their own address, not on the pages below them. */

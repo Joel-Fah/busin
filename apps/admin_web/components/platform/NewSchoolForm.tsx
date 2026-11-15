@@ -19,6 +19,8 @@ type Props = {
   timeZones: string[];
   /** Prefilled values (for example from a lead), all optional. */
   initial?: { name?: string; adminEmail?: string };
+  /** The lead this school comes from: it is marked converted once the school exists. */
+  leadId?: string;
 };
 
 /**
@@ -26,7 +28,7 @@ type Props = {
  * administrator. Everything else is set up by that administrator in the school's portal. A refused form keeps what was
  * typed and says what to fix.
  */
-export function NewSchoolForm({ action, text, locale, timeZones, initial }: Props) {
+export function NewSchoolForm({ action, text, locale, timeZones, initial, leadId }: Props) {
   const [state, formAction, pending] = useActionState(action, { error: null });
   const error = state.error;
   const typed = state.typed;
@@ -34,6 +36,7 @@ export function NewSchoolForm({ action, text, locale, timeZones, initial }: Prop
 
   return (
     <form action={formAction} className="flex flex-col gap-6" noValidate>
+      {leadId ? <input type="hidden" name="lead" value={leadId} /> : null}
       {error && !on("bad_name", "name_taken", "bad_short_name", "bad_timezone", "bad_city", "bad_country", "bad_domain", "too_many_domains", "domain_taken", "invalid_email", "other_school") ? (
         <Notice tone="bad">{text.errors[error]}</Notice>
       ) : null}

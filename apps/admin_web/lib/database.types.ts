@@ -181,17 +181,23 @@ isOneToOne: false
                   ]
                 },"interest_requests": {
                   Row: {
-                    "created_at": string,"email": string,"id": string,"kind": string,"locale": string,"message": string | null,"name": string | null,"organisation": string | null
+                    "created_at": string,"email": string,"handled_at": string | null,"id": string,"kind": string,"locale": string,"message": string | null,"name": string | null,"note": string | null,"organisation": string | null,"school_id": string | null,"status": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"email": string,"id"?: string,"kind": string,"locale"?: string,"message"?: string | null,"name"?: string | null,"organisation"?: string | null
+                    "created_at"?: string,"email": string,"handled_at"?: string | null,"id"?: string,"kind": string,"locale"?: string,"message"?: string | null,"name"?: string | null,"note"?: string | null,"organisation"?: string | null,"school_id"?: string | null,"status"?: string
                   }
                   Update: {
-                    "created_at"?: string,"email"?: string,"id"?: string,"kind"?: string,"locale"?: string,"message"?: string | null,"name"?: string | null,"organisation"?: string | null
+                    "created_at"?: string,"email"?: string,"handled_at"?: string | null,"id"?: string,"kind"?: string,"locale"?: string,"message"?: string | null,"name"?: string | null,"note"?: string | null,"organisation"?: string | null,"school_id"?: string | null,"status"?: string
                   }
                   Relationships: [
-                    
+                    {
+      foreignKeyName: "interest_requests_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    }
                   ]
                 },"live_positions": {
                   Row: {
@@ -1092,6 +1098,19 @@ isOneToOne: false
 "platform_invite_school_admin":
 { Args: { "p_email": string,"p_school_id": string }; Returns: string
                            },
+"platform_lead":
+{ Args: { "p_lead_id": string }; Returns: {
+              "email": string,"id": string,"kind": string,"name": string,"organisation": string,"status": string
+            }[]
+                           },
+"platform_lead_counts":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"platform_leads":
+{ Args: { "p_kind"?: string,"p_limit"?: number,"p_offset"?: number,"p_status"?: string }; Returns: {
+              "created_at": string,"email": string,"handled_at": string,"id": string,"kind": string,"locale": string,"message": string,"name": string,"note": string,"organisation": string,"school_id": string,"school_name": string,"status": string,"total": number
+            }[]
+                           },
 "platform_log_outreach":
 { Args: { "p_channel": string,"p_follow_up_on"?: string,"p_note"?: string,"p_school_id": string,"p_signals"?: (string)[],"p_snooze_days"?: number }; Returns: string
                            },
@@ -1122,6 +1141,9 @@ isOneToOne: false
                            },
 "platform_set_school_status":
 { Args: { "p_active": boolean,"p_school_id": string }; Returns: undefined
+                           },
+"platform_update_lead":
+{ Args: { "p_lead_id": string,"p_note"?: string,"p_school_id"?: string,"p_status": string }; Returns: undefined
                            },
 "public_schools":
 { Args: Record<PropertyKey, never>; Returns: {

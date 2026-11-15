@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requirePlatformAdmin } from "@/lib/auth";
+import { isUuid } from "@/lib/ids";
 import { onboardingErrorKey, readNewSchool, type OnboardingError } from "@/lib/platform-onboarding";
 import { createClient } from "@/lib/supabase/server";
 
@@ -37,6 +38,10 @@ export async function createSchool(_previous: CreateSchoolState, formData: FormD
     p_domains: school.domains,
   });
   if (error || !id) return { error: onboardingErrorKey(error?.message), typed: typedOf(formData) };
+
+  // Created from a lead: the lead now names the school it became. A failure here does not undo the school.
+  const lead = formData.get("lead");
+  if (isUuid(lead)) await supabase.rpc("platform_update_lead", { p_lead_id: lead, p_status: "converted", p_school_id: id });
 
   revalidatePath("/platform", "layout");
   if (!school.adminEmail) redirect(`/platform/schools/${id}?done=created`);
