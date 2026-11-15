@@ -13,6 +13,7 @@ import {
   Tick02Icon,
   InboxIcon,
   ArrowRight01Icon,
+  Activity01Icon,
 } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 
@@ -36,6 +37,7 @@ import { getMessages } from "@/lib/i18n/server";
 import { contactedText, needingAttention, parseSchoolRows } from "@/lib/platform-health";
 import { isChannel } from "@/lib/platform-outreach";
 import { parseLeadCounts } from "@/lib/platform-leads";
+import { parseSystemHealth, systemAttention } from "@/lib/platform-system";
 import { daysSince, parsePlatformOverview } from "@/lib/platform-overview";
 import { logoUrl } from "@/lib/school";
 import { createClient } from "@/lib/supabase/server";
@@ -105,12 +107,14 @@ async function Overview({ searchParams }: { searchParams: SearchParams }) {
   const { locale, t } = await getMessages();
   const p = t.platform;
   const supabase = await createClient();
-  const [{ data, error }, health, followUpsResult, leadCountsResult] = await Promise.all([
+  const [{ data, error }, health, followUpsResult, leadCountsResult, systemResult] = await Promise.all([
     supabase.rpc("platform_overview"),
     supabase.rpc("platform_schools"),
     supabase.rpc("platform_follow_ups"),
     supabase.rpc("platform_lead_counts"),
+    supabase.rpc("platform_system_health"),
   ]);
+  const systemChecks = systemResult.error ? 0 : systemAttention(parseSystemHealth(systemResult.data));
   const newLeads = parseLeadCounts(leadCountsResult.data).get("school", "new");
   const attention = needingAttention(parseSchoolRows(health.data));
   const followUps = followUpsResult.data ?? [];
@@ -198,6 +202,19 @@ async function Overview({ searchParams }: { searchParams: SearchParams }) {
             {p.needs.all}
           </Link>
         </div>
+        {systemChecks > 0 ? (
+          <Link
+            href="/platform/health"
+            data-testid="platform-system-checks"
+            className="flex items-center justify-between gap-3 rounded-lg bg-surface px-6 py-4 font-semibold text-fg no-underline shadow-soft hover:text-link"
+          >
+            <span className="inline-flex items-center gap-2">
+              <Icon icon={Activity01Icon} size={20} />
+              {format(p.system.attention, { n: systemChecks })}
+            </span>
+            <Icon icon={ArrowRight01Icon} size={18} />
+          </Link>
+        ) : null}
         {newLeads > 0 ? (
           <Link
             href="/platform/leads?kind=school&status=new"
