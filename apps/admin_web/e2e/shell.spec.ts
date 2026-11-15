@@ -109,6 +109,9 @@ test.describe("floating navigation on a wide screen", () => {
     const nav = page.getByRole("navigation", { name: "Main navigation" });
     for (const gone of ["Stops", "Buses", "Semesters", "Faculties"]) await expect(nav.getByRole("link", { name: gone, exact: true })).toHaveCount(0);
     await nav.getByRole("link", { name: "Profile", exact: true }).click();
+    // Wait for the profile itself: the overview has a "Semesters" link too, which the click could otherwise catch while
+    // the page changes (and then wait on it once it is hidden).
+    await expect(page.getByRole("heading", { name: "Your profile", level: 1 })).toBeVisible();
     await page.getByRole("link", { name: /^Semesters/ }).click();
     await expect(page).toHaveURL(/\/semesters$/);
     await expect(nav.getByRole("link", { name: "Profile", exact: true })).toHaveAttribute("aria-current", "page");
