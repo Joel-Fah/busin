@@ -59,8 +59,9 @@ RepositoryException _fromCode(PostgrestException error) {
     case '42501':
     case '401':
     case '403':
-    // Too many requests (a function's quota, raised as PT429 so PostgREST answers 429).
+    // Too many requests (a function's quota, raised as PT429 so PostgREST answers 429), or asked again too soon (54000).
     case 'PT429':
+    case '54000':
       return NotAllowed(message, reason: reason);
     // No row (a single-row read found none), or an id the function does not know.
     case 'PGRST116':

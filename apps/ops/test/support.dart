@@ -115,6 +115,29 @@ class FakeSchools implements SchoolRepository {
   Future<School> getSchool(String id) async => offline ? throw const Offline('test') : const School(id: schoolId, name: 'Test School', timezone: 'Africa/Douala', isActive: true);
 }
 
+/// Staff access requests (ADR 0026): the schools offered, the request as the server keeps it, and what was asked.
+class FakeStaffAccess implements StaffAccessRepository {
+  FakeStaffAccess({this.request, List<OpenSchool>? schools}) : schools = schools ?? const [OpenSchool(id: schoolId, name: 'Test School', city: 'Yaounde')];
+
+  JoinRequest? request;
+  final List<OpenSchool> schools;
+  final List<String?> asked = [];
+  Object? error;
+
+  @override
+  Future<List<OpenSchool>> listSchools() async => schools;
+
+  @override
+  Future<JoinRequest?> myRequest() async => request;
+
+  @override
+  Future<void> requestStaffAccess(String? id) async {
+    if (error != null) throw error!;
+    asked.add(id);
+    request = id == null ? null : JoinRequest(schoolId: id, schoolName: schools.firstWhere((s) => s.id == id).name, requestedAt: DateTime.utc(2026, 11, 15));
+  }
+}
+
 class FakeTrips implements TripsRepository {
   FakeTrips(this.trips);
 
@@ -399,6 +422,7 @@ List<Override> overridesFor({
   FakeProfiles? profileRepository,
   FakeSchools? schools,
   FakeBuses? buses,
+  FakeStaffAccess? staffAccess,
   OpsSnapshotStore? snapshots,
   FakeSoundPlayer? sounds,
   Duration? gateTimeout = const Duration(seconds: 15),
@@ -422,6 +446,7 @@ List<Override> overridesFor({
       appConfigProvider.overrideWithValue(const AppConfig(supabaseUrl: 'http://127.0.0.1:54321', publishableKey: 'test', googleServerClientId: 'test', environment: 'test')),
       profileRepositoryProvider.overrideWithValue(profileRepository ?? FakeProfiles(profiles)),
       schoolRepositoryProvider.overrideWithValue(schools ?? FakeSchools()),
+      staffAccessRepositoryProvider.overrideWithValue(staffAccess ?? FakeStaffAccess()),
       opsSnapshotStoreProvider.overrideWithValue(snapshots ?? MemoryOpsSnapshotStore()),
       gateTimeoutProvider.overrideWithValue(gateTimeout),
       tripsRepositoryProvider.overrideWithValue(trips),

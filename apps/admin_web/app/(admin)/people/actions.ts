@@ -86,6 +86,36 @@ export async function declineMember(formData: FormData): Promise<void> {
   redirect(formData.get("from") === "detail" ? "/people?role=verify&done=declined" : back(formData, id, "done=declined"));
 }
 
+/** Approves a staff access request (ADR 0026): the person becomes verified staff of the school. */
+export async function approveStaffRequest(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const id = formData.get("id");
+  if (!isUuid(id)) redirect("/people?role=verify");
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("admin_review_staff_request", { p_user_id: id, p_approve: true });
+  if (error) redirect(`/people?role=verify&error=${peopleErrorKey(error.code, error.message)}`);
+
+  revalidatePath("/people");
+  redirect("/people?role=verify&done=staffApproved");
+}
+
+/** Declines a staff access request, with an optional note the person sees. Their account stays as it was. */
+export async function declineStaffRequest(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const id = formData.get("id");
+  if (!isUuid(id)) redirect("/people?role=verify");
+  const reason = checkReason(formData.get("reason"), { required: false, max: MAX_DECLINE_REASON });
+  if (!reason.ok) redirect(`/people?role=verify&error=${reason.problem}`);
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("admin_review_staff_request", { p_user_id: id, p_approve: false, p_note: reason.value ?? undefined });
+  if (error) redirect(`/people?role=verify&error=${peopleErrorKey(error.code, error.message)}`);
+
+  revalidatePath("/people");
+  redirect("/people?role=verify&done=staffDeclined");
+}
+
 /**
  * Adds a staff member or an administrator by email (ADR 0015). The database function checks the caller, applies the role
  * at once to an account of the school (or one without a school), or keeps the invite for the first sign-in.

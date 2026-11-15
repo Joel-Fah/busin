@@ -31,6 +31,23 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: staff access requests (2026-11-15, branch `phase-5/staff-requests`)
+
+Done (#498, ADR 0026, migration `20261116100000_staff_requests`): a student account in the ops app can ask a school for
+staff access; the school's admins approve or decline on People, To verify (a decline leaves the account as it was, the
+email is not blocked); admins can switch a verified member between student and staff, with guards. Also on the live
+database (owner's request, before this change): developerace0@gmail.com made verified staff of ICT University, audited.
+
+To ship: push the branch and open its PR into `dev`, then the hosted migration `20261116100000_staff_requests`, then
+`main`, and new ops builds (older ones keep the dead end). Each needs the owner's go.
+
+What to test (local):
+- **Ops app, a student account:** "Ask for staff access", pick the school, see it waiting, withdraw, ask again.
+- **Portal, People, To verify:** the request with its chips (student of your school or not, live subscription);
+  Approve as staff (the ops app opens by itself), or Decline with a note (the ops app shows the note and Ask again).
+- **Portal, a person's page:** a student can be made staff and staff a student, after a confirmation; refusals for a
+  live subscription, a running trip or coming trips are explained.
+
 ## Handoff: release of 2026-11-14 (on `main`)
 
 Released: `dev` merged into `main` (milestone PR below), deployed by Vercel. Applied to the hosted project before the merge
@@ -39,8 +56,8 @@ Released: `dev` merged into `main` (milestone PR below), deployed by Vercel. App
 
 Owner, now:
 - **Set billing for each live school** in the portal (Billing): until it is set, students cannot ask for a subscription.
-- **Import places for each live school** (see `docs/guides/hosting.md`, `npm run places:import` with the hosted URL and
-  service role key in your own terminal).
+- Places: done for ICT University on 2026-11-14 (8,782 places, about 6 MB). Import again for each new school, and when a
+  school's stops move (`npm run places:import`, see `docs/guides/hosting.md`).
 - Re-upload the school logo where it is missing; set the second phone if wanted.
 - Install the new app builds (both apps read columns the migrations added). Run the test list below on the hosted setup.
 - Later: the Crashlytics Gradle plugin (#496), when a release build can run on a machine with enough memory; and the

@@ -20,7 +20,7 @@ update public.profiles set role = 'admin' where id in ('a3000000-0000-4000-8000-
 
 -- 120 days from today, so the parts fall on days 0, 40 and 80.
 insert into public.semesters (id, school_id, name, year, start_date, end_date) values
-  ('c1000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', 'fall', extract(year from current_date)::int, current_date, current_date + 119);
+  ('c1000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', 'fall', extract(year from (now() at time zone 'Africa/Douala')::date)::int, (now() at time zone 'Africa/Douala')::date, (now() at time zone 'Africa/Douala')::date + 119);
 insert into public.stops (id, school_id, name, location) values
   ('d1000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', 'Stop A', extensions.st_point(11.5, 3.85)::extensions.geography);
 insert into storage.objects (bucket_id, name, owner) values
@@ -34,12 +34,12 @@ set local "request.jwt.claims" = '{"sub":"a1000000-0000-4000-8000-000000000001",
 insert into public.subscriptions (school_id, student_id, semester_id, stop_id, proof_path, payment_mode)
 values ('10000000-0000-4000-8000-000000000001', 'a1000000-0000-4000-8000-000000000001', 'c1000000-0000-4000-8000-000000000001', 'd1000000-0000-4000-8000-000000000001',
         '10000000-0000-4000-8000-000000000001/a1000000-0000-4000-8000-000000000001/receipt.jpg', 'installments');
-select results_eq($$select seq::int, percent::int, amount_xaf, due_date - current_date, status from public.subscription_installments order by seq$$,
+select results_eq($$select seq::int, percent::int, amount_xaf, due_date - (now() at time zone 'Africa/Douala')::date, status from public.subscription_installments order by seq$$,
   $$values (1, 40, 12000, 0, 'submitted'), (2, 30, 9000, 40, 'due'), (3, 30, 9001, 80, 'due')$$,
   'a request in installments gets its parts: shares of the price adding up exactly, due across the semester');
 select is((select proof_path from public.subscription_installments where seq = 1), '10000000-0000-4000-8000-000000000001/a1000000-0000-4000-8000-000000000001/receipt.jpg', 'part 1 is the request''s proof');
 select throws_ok($$insert into public.subscription_installments (school_id, subscription_id, student_id, seq, percent, amount_xaf, due_date)
-  select school_id, id, student_id, 4, 10, 1, current_date from public.subscriptions$$, '42501', null, 'a student cannot add a part');
+  select school_id, id, student_id, 4, 10, 1, (now() at time zone 'Africa/Douala')::date from public.subscriptions$$, '42501', null, 'a student cannot add a part');
 select throws_ok($$update public.subscription_installments set status = 'paid'$$, '42501', null, 'nor mark one paid');
 
 set local "request.jwt.claims" = '{"sub":"a1000000-0000-4000-8000-000000000002","role":"authenticated"}';
@@ -114,12 +114,12 @@ select is((select count(*)::int from public.installment_receipts), 0, 'nor does 
 reset role;
 
 -- ---------------------------------------------------------------- reminders
-update public.subscription_installments set status = 'due', due_date = current_date + 3, reminded_on = null where seq = 3;
+update public.subscription_installments set status = 'due', due_date = (now() at time zone 'Africa/Douala')::date + 3, reminded_on = null where seq = 3;
 -- At 7 school time nothing; at 8 the reminder; later that day not again.
-select is(private.remind_installments(((current_date + time '07:30') at time zone 'Africa/Douala')), 0, 'not before 8 in the morning, school time');
-select is(private.remind_installments(((current_date + time '08:30') at time zone 'Africa/Douala')), 1, 'a part due in three days is reminded at 8');
+select is(private.remind_installments((((now() at time zone 'Africa/Douala')::date + time '07:30') at time zone 'Africa/Douala')), 0, 'not before 8 in the morning, school time');
+select is(private.remind_installments((((now() at time zone 'Africa/Douala')::date + time '08:30') at time zone 'Africa/Douala')), 1, 'a part due in three days is reminded at 8');
 select is((select count(*)::int from private.notification_outbox where kind = 'installment_due' and school_id = '10000000-0000-4000-8000-000000000001'), 1, 'as an installment_due notification');
-select is(private.remind_installments(((current_date + time '08:45') at time zone 'Africa/Douala')), 0, 'and only once that day');
+select is(private.remind_installments((((now() at time zone 'Africa/Douala')::date + time '08:45') at time zone 'Africa/Douala')), 0, 'and only once that day');
 
 select * from finish();
 rollback;

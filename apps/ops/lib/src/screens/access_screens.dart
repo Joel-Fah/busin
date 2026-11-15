@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../access.dart';
 import '../providers.dart';
+import 'staff_request_panel.dart';
 
 /// While the session and the profile load.
 class LoadingScreen extends ConsumerWidget {
@@ -70,7 +71,14 @@ class BlockedScreen extends ConsumerWidget {
           illustration: art,
           title: title,
           body: body,
-          action: BusinButton(label: l10n.actionSignOut, variant: BusinButtonVariant.secondary, onPressed: () => ref.read(signOutProvider)()),
+          // A student account (signed in before being invited) can ask a school for staff access here (ADR 0026).
+          action: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (reason == OpsBlockReason.notStaff) ...[const StaffRequestPanel(), const SizedBox(height: BusinSpace.x3)],
+              BusinButton(label: l10n.actionSignOut, variant: BusinButtonVariant.ghost, onPressed: () => ref.read(signOutProvider)()),
+            ],
+          ),
         ),
       ),
     );

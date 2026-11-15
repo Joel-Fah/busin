@@ -15,9 +15,9 @@ insert into auth.users (id, email, raw_app_meta_data) values
 
 -- A semester that started 60 days ago and has 40 days left (today included); one that ends in 20 days; one in the future.
 insert into public.semesters (id, school_id, name, year, start_date, end_date) values
-  ('c1000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', 'fall', 2090, current_date - 60, current_date + 39),
-  ('c1000000-0000-4000-8000-000000000002', '10000000-0000-4000-8000-000000000001', 'spring', 2091, current_date - 100, current_date + 19),
-  ('c1000000-0000-4000-8000-000000000003', '10000000-0000-4000-8000-000000000001', 'summer', 2092, current_date + 10, current_date + 109);
+  ('c1000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', 'fall', 2090, (now() at time zone 'Africa/Douala')::date - 60, (now() at time zone 'Africa/Douala')::date + 39),
+  ('c1000000-0000-4000-8000-000000000002', '10000000-0000-4000-8000-000000000001', 'spring', 2091, (now() at time zone 'Africa/Douala')::date - 100, (now() at time zone 'Africa/Douala')::date + 19),
+  ('c1000000-0000-4000-8000-000000000003', '10000000-0000-4000-8000-000000000001', 'summer', 2092, (now() at time zone 'Africa/Douala')::date + 10, (now() at time zone 'Africa/Douala')::date + 109);
 insert into public.stops (id, school_id, name, location) values
   ('d1000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', 'Stop A', extensions.st_point(11.5, 3.85)::extensions.geography);
 insert into storage.objects (bucket_id, name, owner) values
@@ -25,9 +25,9 @@ insert into storage.objects (bucket_id, name, owner) values
   ('proofs', '10000000-0000-4000-8000-000000000001/a1000000-0000-4000-8000-000000000002/r.jpg', 'a1000000-0000-4000-8000-000000000002'),
   ('proofs', '10000000-0000-4000-8000-000000000001/a1000000-0000-4000-8000-000000000003/r.jpg', 'a1000000-0000-4000-8000-000000000003');
 
-select ok(private.installments_fit(current_date, current_date, current_date + 27, '50-50'), 'two parts fit in 28 days');
-select ok(not private.installments_fit(current_date, current_date, current_date + 26, '50-50'), 'but not in 27');
-select ok(not private.installments_fit(current_date, current_date, current_date + 40, '40-30-30'), 'three parts need 42 days');
+select ok(private.installments_fit((now() at time zone 'Africa/Douala')::date, (now() at time zone 'Africa/Douala')::date, (now() at time zone 'Africa/Douala')::date + 27, '50-50'), 'two parts fit in 28 days');
+select ok(not private.installments_fit((now() at time zone 'Africa/Douala')::date, (now() at time zone 'Africa/Douala')::date, (now() at time zone 'Africa/Douala')::date + 26, '50-50'), 'but not in 27');
+select ok(not private.installments_fit((now() at time zone 'Africa/Douala')::date, (now() at time zone 'Africa/Douala')::date, (now() at time zone 'Africa/Douala')::date + 40, '40-30-30'), 'three parts need 42 days');
 
 set local role authenticated;
 -- Joining late: the parts follow the student's own 40 days, not the semester's dates.
@@ -35,7 +35,7 @@ set local "request.jwt.claims" = '{"sub":"a1000000-0000-4000-8000-000000000001",
 insert into public.subscriptions (school_id, student_id, semester_id, stop_id, proof_path, payment_mode)
 values ('10000000-0000-4000-8000-000000000001', 'a1000000-0000-4000-8000-000000000001', 'c1000000-0000-4000-8000-000000000001', 'd1000000-0000-4000-8000-000000000001',
         '10000000-0000-4000-8000-000000000001/a1000000-0000-4000-8000-000000000001/r.jpg', 'installments');
-select results_eq($$select seq::int, amount_xaf, due_date - current_date from public.subscription_installments order by seq$$,
+select results_eq($$select seq::int, amount_xaf, due_date - (now() at time zone 'Africa/Douala')::date from public.subscription_installments order by seq$$,
   $$values (1, 15000, 0), (2, 15000, 20)$$,
   'a late joiner pays the same price, part 2 halfway through their own time (not the day they join)');
 select is((select amount_xaf from public.subscriptions), 30000, 'the whole price, like everyone');
@@ -56,7 +56,7 @@ set local "request.jwt.claims" = '{"sub":"a1000000-0000-4000-8000-000000000003",
 insert into public.subscriptions (school_id, student_id, semester_id, stop_id, proof_path, payment_mode)
 values ('10000000-0000-4000-8000-000000000001', 'a1000000-0000-4000-8000-000000000003', 'c1000000-0000-4000-8000-000000000003', 'd1000000-0000-4000-8000-000000000001',
         '10000000-0000-4000-8000-000000000001/a1000000-0000-4000-8000-000000000003/r.jpg', 'installments');
-select results_eq($$select seq::int, due_date - current_date from public.subscription_installments order by seq$$,
+select results_eq($$select seq::int, due_date - (now() at time zone 'Africa/Douala')::date from public.subscription_installments order by seq$$,
   $$values (1, 0), (2, 60)$$,
   'asked before the semester: part 1 today, part 2 halfway through the semester');
 reset role;

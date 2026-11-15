@@ -124,6 +124,20 @@ abstract interface class JoinRepository {
   Future<void> requestSchool(String? schoolId);
 }
 
+/// Asking a school for staff access from the ops app (ADR 0026). Only a student account uses it; the school's
+/// administrators decide. The request has the same shape as a join request.
+abstract interface class StaffAccessRepository {
+  /// The schools the account may ask: its own when it belongs to one, else every active school, by name.
+  Future<List<OpenSchool>> listSchools();
+
+  /// The account's own request (the school asked, or the last decline with its note), or null for a staff account.
+  Future<JoinRequest?> myRequest();
+
+  /// Asks [schoolId] for staff access, or withdraws the request when it is null. [NotAllowed] with reason `too_many`
+  /// when asked again within 30 seconds, `not_your_school` for another school than the student's own.
+  Future<void> requestStaffAccess(String? schoolId);
+}
+
 abstract interface class StopsRepository {
   /// The stops students can pick from, by name. A school has tens of stops, so
   /// this is one request; apps keep the result for the session.

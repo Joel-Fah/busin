@@ -228,6 +228,28 @@ class SupabaseJoinRepository implements JoinRepository {
       });
 }
 
+class SupabaseStaffAccessRepository implements StaffAccessRepository {
+  SupabaseStaffAccessRepository(this._client);
+  final SupabaseClient _client;
+
+  @override
+  Future<List<OpenSchool>> listSchools() => guarded(() async {
+        final rows = await _client.rpc<List<dynamic>>('list_staff_request_schools');
+        return rows.cast<Map<String, dynamic>>().map(OpenSchool.fromJson).toList();
+      });
+
+  @override
+  Future<JoinRequest?> myRequest() => guarded(() async {
+        final rows = await _client.rpc<List<dynamic>>('my_staff_request');
+        return rows.isEmpty ? null : JoinRequest.fromJson(rows.first as Map<String, dynamic>);
+      });
+
+  @override
+  Future<void> requestStaffAccess(String? schoolId) => guarded(() async {
+        await _client.rpc<void>('request_staff_access', params: {'p_school_id': schoolId});
+      });
+}
+
 class SupabaseStopsRepository implements StopsRepository {
   SupabaseStopsRepository(this._client);
   final SupabaseClient _client;
