@@ -6,6 +6,7 @@ import { Megaphone01Icon, School01Icon } from "@hugeicons/core-free-icons";
 import { FlashToast } from "@/components/FlashToast";
 import { HealthTrend } from "@/components/platform/HealthTrend";
 import { LevelChip } from "@/components/platform/LevelChip";
+import { SignalTile } from "@/components/platform/SignalTile";
 import { OutreachHistory } from "@/components/platform/OutreachHistory";
 import { ReachOut } from "@/components/platform/ReachOut";
 import { SchoolLogo } from "@/components/SchoolLogo";
@@ -13,6 +14,7 @@ import { BackLink } from "@/components/ui/BackLink";
 import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
+import { HelpSheet } from "@/components/ui/HelpSheet";
 import { Icon } from "@/components/ui/Icon";
 import { ListSkeleton } from "@/components/ui/ListSkeleton";
 import { Notice } from "@/components/ui/Notice";
@@ -23,7 +25,7 @@ import { en, fr, format } from "@/lib/i18n/messages";
 import { getMessages } from "@/lib/i18n/server";
 import { isUuid } from "@/lib/ids";
 import { siteUrl } from "@/lib/landing/site";
-import { AREAS, parseSchoolDetail, signalSentence, thresholdsText } from "@/lib/platform-health";
+import { AREAS, parseSchoolDetail } from "@/lib/platform-health";
 import { messageCopy, parseContacts, parseSchoolOutreach } from "@/lib/platform-outreach";
 import { isOutreachDone, isOutreachError } from "@/lib/platform-outreach-errors";
 import { logoUrl } from "@/lib/school";
@@ -40,6 +42,12 @@ type Params = Promise<{ id: string }>;
 type SearchParams = Promise<{ done?: string | string[]; error?: string | string[] }>;
 
 const first = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value);
+
+/** "school.logo_changed" as "Logo changed": readable without a dictionary of every action. */
+const actionLabel = (action: string) => {
+  const words = (action.split(".").pop() ?? action).replace(/_/g, " ");
+  return words.charAt(0).toUpperCase() + words.slice(1);
+};
 
 export default function PlatformSchoolPage({ params, searchParams }: { params: Params; searchParams: SearchParams }) {
   return (
@@ -86,11 +94,22 @@ async function School({ params, searchParams }: { params: Params; searchParams: 
   // What a message may be about: the signals at Watch or worse, and any paused ones (they may still need a word).
   const talkable = school.signals.filter((s) => (s.value !== null && s.level > 0) || outreach.snoozed[s.signal]);
   const today = new Date().toISOString().slice(0, 10);
+  const shortNames = Object.fromEntries(Object.entries(p.health.signals).map(([key, c]) => [key, c.short]));
 
   return (
     <>
       {isOutreachDone(done) ? <FlashToast message={o.done[done]} /> : null}
-      <BackLink href="/platform/schools">{p.school.back}</BackLink>
+      <div className="flex items-center justify-between gap-3">
+        <BackLink href="/platform/schools">{p.school.back}</BackLink>
+        <HelpSheet
+          label={t.help.open}
+          title={p.help.school.title}
+          intro={p.help.school.intro}
+          scenarios={Object.values(p.help.school.scenarios)}
+          scenariosLabel={t.help.scenarios}
+          closeLabel={t.help.close}
+        />
+      </div>
 
       <StickyHeader
         media={<SchoolLogo url={logoUrl(school.logoPath, supabaseConfig().url)} size="lg" className="shadow-soft" fallback={<Icon icon={School01Icon} size={32} className="text-brand" />} />}
@@ -117,37 +136,23 @@ async function School({ params, searchParams }: { params: Params; searchParams: 
 
       <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)]">
         <section aria-labelledby="signals" className="flex min-w-0 flex-col gap-4">
-          <div>
-            <h2 id="signals" className="text-xl font-bold">
-              {p.school.signals}
-            </h2>
-            <p className="text-sm text-muted">{p.school.signalsHint}</p>
-          </div>
+          <h2 id="signals" className="text-xl font-bold">
+            {p.school.signals}
+          </h2>
           {AREAS.map((area) => {
             const signals = school.signals.filter((s) => s.area === area);
             if (signals.length === 0) return null;
             return (
-              <Card key={area} className="p-6!">
-                <h3 className="mb-3 text-base font-bold">{p.areas[area]}</h3>
-                <ul className="m-0 flex list-none flex-col gap-4 p-0">
+              <section key={area} aria-labelledby={`area-${area}`} className="flex flex-col gap-2">
+                <h3 id={`area-${area}`} className="m-0 text-xs font-semibold tracking-wide text-muted uppercase">
+                  {p.areas[area]}
+                </h3>
+                <ul className="m-0 grid list-none grid-cols-2 gap-3 p-0 xl:grid-cols-3">
                   {signals.map((signal) => (
-                    <li key={signal.signal} data-testid={`signal-${signal.signal}`} className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
-                      <div className="min-w-0 flex-1">
-                        <p className="m-0 font-semibold">{p.health.signals[signal.signal].title}</p>
-                        <p className="m-0 text-sm">{signalSentence(signal, p.health, locale)}</p>
-                        <p className="m-0 text-xs text-muted">{thresholdsText(signal, p.health, locale)}</p>
-                        {signal.graced ? <p className="m-0 text-xs text-muted">{p.health.graced}</p> : null}
-                        {snoozed[signal.signal] ? (
-                          <p className="m-0 text-xs font-semibold text-muted" data-testid="signal-paused">
-                            {format(o.paused, { date: snoozed[signal.signal] })}
-                          </p>
-                        ) : null}
-                      </div>
-                      <LevelChip level={signal.value === null ? 0 : signal.level} labels={p.levels} />
-                    </li>
+                    <SignalTile key={signal.signal} signal={signal} copy={p.health} locale={locale} levels={p.levels} pausedUntil={snoozed[signal.signal]} />
                   ))}
                 </ul>
-              </Card>
+              </section>
             );
           })}
 
@@ -155,10 +160,9 @@ async function School({ params, searchParams }: { params: Params; searchParams: 
             // Clear of the sticky header when the "Reach out" button scrolls here.
             <Card className="scroll-mt-32 p-6!">
               <section id="reach-out" aria-labelledby="reach-out-title" className="scroll-mt-32">
-                <h2 id="reach-out-title" className="text-xl font-bold">
+                <h2 id="reach-out-title" className="mb-4 text-xl font-bold">
                   {o.title}
                 </h2>
-                <p className="mb-5 text-sm text-muted">{o.hint}</p>
                 <ReachOut
                   schoolId={school.id}
                   schoolName={school.name}
@@ -169,7 +173,8 @@ async function School({ params, searchParams }: { params: Params; searchParams: 
                   copy={{ en: messageCopy(en), fr: messageCopy(fr) }}
                   language={locale}
                   text={o}
-                  titles={Object.fromEntries(Object.entries(p.health.signals).map(([key, c]) => [key, c.title]))}
+                  titles={shortNames}
+                  closeLabel={t.help.close}
                   dateText={t.pickers.date}
                   today={today}
                   sendNotice={sendNotice}
@@ -188,13 +193,12 @@ async function School({ params, searchParams }: { params: Params; searchParams: 
               schoolId={school.id}
               locale={locale}
               text={o}
-              titles={Object.fromEntries(Object.entries(p.health.signals).map(([key, c]) => [key, c.title]))}
+              titles={shortNames}
               completeFollowUp={completeFollowUp}
             />
           </Card>
           <Card className="p-6!">
-            <h2 className="text-base font-bold">{p.school.trend}</h2>
-            <p className="mb-4 text-sm text-muted">{p.school.trendHint}</p>
+            <h2 className="mb-4 text-base font-bold">{p.school.trend}</h2>
             {school.history.length === 0 ? (
               <p className="m-0 text-sm text-muted">{p.school.trendEmpty}</p>
             ) : (
@@ -241,19 +245,26 @@ async function School({ params, searchParams }: { params: Params; searchParams: 
           </Card>
 
           <Card className="p-6!">
-            <h2 className="text-base font-bold">{p.school.actions}</h2>
-            <p className="mb-3 text-sm text-muted">{p.school.actionsHint}</p>
             {school.adminActions.length === 0 ? (
-              <p className="m-0 text-sm text-muted">{p.school.noActions}</p>
+              <>
+                <h2 className="mb-2 text-base font-bold">{p.school.actions}</h2>
+                <p className="m-0 text-sm text-muted">{p.school.noActions}</p>
+              </>
             ) : (
-              <ul className="m-0 flex list-none flex-col gap-2 p-0 text-sm">
-                {school.adminActions.map((a, index) => (
-                  <li key={`${a.at}-${index}`} className="flex justify-between gap-3">
-                    <code className="truncate text-xs">{a.action}</code>
-                    <span className="shrink-0 text-muted tabular-nums">{timeOf(a.at)}</span>
-                  </li>
-                ))}
-              </ul>
+              // Folded by default: the kind of action and the time, for when you need to know what they did lately.
+              <details>
+                <summary className="cursor-pointer text-base font-bold">
+                  {p.school.actions} <span className="font-normal text-muted tabular-nums">({school.adminActions.length})</span>
+                </summary>
+                <ul className="m-0 mt-3 flex list-none flex-col gap-2 p-0 text-sm">
+                  {school.adminActions.map((a, index) => (
+                    <li key={`${a.at}-${index}`} className="flex justify-between gap-3">
+                      <span className="truncate">{actionLabel(a.action)}</span>
+                      <span className="shrink-0 text-muted tabular-nums">{timeOf(a.at)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </details>
             )}
           </Card>
         </aside>

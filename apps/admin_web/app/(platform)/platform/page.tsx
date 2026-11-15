@@ -16,6 +16,7 @@ import type { IconSvgElement } from "@hugeicons/react";
 
 import { FlashToast } from "@/components/FlashToast";
 import { LevelChip } from "@/components/platform/LevelChip";
+import { SignalChip } from "@/components/platform/SignalChip";
 import { SchoolLogo } from "@/components/SchoolLogo";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -30,7 +31,7 @@ import { requirePlatformAdmin } from "@/lib/auth";
 import { supabaseConfig } from "@/lib/env";
 import { format, type Messages } from "@/lib/i18n/messages";
 import { getMessages } from "@/lib/i18n/server";
-import { contactedText, needingAttention, parseSchoolRows, signalSentence } from "@/lib/platform-health";
+import { contactedText, needingAttention, parseSchoolRows } from "@/lib/platform-health";
 import { isChannel } from "@/lib/platform-outreach";
 import { daysSince, parsePlatformOverview } from "@/lib/platform-overview";
 import { logoUrl } from "@/lib/school";
@@ -64,18 +65,26 @@ function OverviewSkeleton() {
   );
 }
 
-/** One figure with its icon, title and a line of detail. */
-function Figure({ icon, title, value, hint, testId }: { icon: IconSvgElement; title: string; value: number; hint?: string; testId?: string }) {
+/** One figure with its icon and title, and its breakdown as short "number label" pairs instead of a sentence. */
+function Figure({ icon, title, value, parts = [], testId }: { icon: IconSvgElement; title: string; value: number; parts?: [number, string][]; testId?: string }) {
   return (
     <div data-testid={testId}>
-    <Card className="flex h-full flex-col gap-3 p-6!">
-      <div className="flex items-center gap-2 text-sm font-semibold text-muted">
-        <Icon icon={icon} size={18} />
-        <h2 className="m-0 text-sm font-semibold">{title}</h2>
-      </div>
-      <p className="m-0 text-3xl font-extrabold tracking-tight tabular-nums">{value}</p>
-      {hint ? <p className="m-0 text-sm text-muted">{hint}</p> : null}
-    </Card>
+      <Card className="flex h-full flex-col gap-3 p-6!">
+        <div className="flex items-center gap-2 text-sm font-semibold text-muted">
+          <Icon icon={icon} size={18} />
+          <h2 className="m-0 text-sm font-semibold">{title}</h2>
+        </div>
+        <p className="m-0 text-3xl font-extrabold tracking-tight tabular-nums">{value}</p>
+        {parts.length > 0 ? (
+          <ul className="m-0 flex list-none flex-wrap gap-x-3 gap-y-1 p-0 text-xs">
+            {parts.map(([n, label]) => (
+              <li key={label}>
+                <strong className="font-bold tabular-nums">{n}</strong> <span className="text-muted">{label}</span>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </Card>
     </div>
   );
 }
@@ -113,60 +122,60 @@ async function Overview({ searchParams }: { searchParams: SearchParams }) {
   }
 
   const { totals, schools } = parsePlatformOverview(data);
+  const q = p.totals.parts;
+  const help = {
+    label: t.help.open,
+    title: p.help.overview.title,
+    intro: p.help.overview.intro,
+    scenarios: Object.values(p.help.overview.scenarios),
+    scenariosLabel: t.help.scenarios,
+    closeLabel: t.help.close,
+  };
   const url = supabaseConfig().url;
 
   return (
     <>
       {done === "followUp" ? <FlashToast message={p.outreach.done.followUp} /> : null}
-      <PageHeader title={p.title} subtitle={p.subtitle} />
+      <PageHeader title={p.title} subtitle={p.subtitle} help={help} />
 
       <section aria-label={p.title} className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Figure
           icon={School01Icon}
           title={p.totals.schools}
           value={totals.schoolsActive}
-          hint={format(p.totals.schoolsHint, { active: totals.schoolsActive, inactive: totals.schoolsInactive })}
+          parts={[[totals.schoolsActive, q.active], [totals.schoolsInactive, q.off]]}
           testId="platform-schools"
         />
         <Figure
           icon={UserMultiple02Icon}
           title={p.totals.people}
           value={totals.students + totals.staff + totals.admins}
-          hint={format(p.totals.peopleHint, { students: totals.students, staff: totals.staff, admins: totals.admins })}
+          parts={[[totals.students, q.students], [totals.staff, q.staff], [totals.admins, q.admins]]}
           testId="platform-people"
         />
         <Figure
           icon={UserAdd01Icon}
           title={p.totals.newAccounts}
           value={totals.newAccounts30d}
-          hint={format(p.totals.newAccountsHint, { week: totals.newAccounts7d, month: totals.newAccounts30d })}
+          parts={[[totals.newAccounts7d, q.week], [totals.newAccounts30d, q.month]]}
         />
         <Figure
           icon={Clock01Icon}
           title={p.totals.waiting}
           value={totals.pendingAccounts + totals.subscriptionsPending}
-          hint={format(p.totals.waitingHint, { accounts: totals.pendingAccounts, subscriptions: totals.subscriptionsPending })}
+          parts={[[totals.pendingAccounts, q.toVerify], [totals.subscriptionsPending, q.requests]]}
         />
         <Figure
           icon={Ticket03Icon}
           title={p.totals.subscriptions}
           value={totals.subscriptionsApproved}
-          hint={format(p.totals.subscriptionsHint, {
-            approved: totals.subscriptionsApproved,
-            pending: totals.subscriptionsPending,
-            rejected: totals.subscriptionsRejected,
-          })}
+          parts={[[totals.subscriptionsApproved, q.approved], [totals.subscriptionsPending, q.waiting], [totals.subscriptionsRejected, q.refused]]}
         />
         <Figure
           icon={Navigation03Icon}
           title={p.totals.today}
           value={totals.tripsScheduled + totals.tripsActive + totals.tripsCompleted}
-          hint={format(p.totals.todayHint, {
-            scheduled: totals.tripsScheduled,
-            active: totals.tripsActive,
-            completed: totals.tripsCompleted,
-            cancelled: totals.tripsCancelled,
-          })}
+          parts={[[totals.tripsScheduled, q.toCome], [totals.tripsActive, q.running], [totals.tripsCompleted, q.done], [totals.tripsCancelled, q.cancelled]]}
         />
         <Figure icon={ReceiptTextIcon} title={p.totals.scans} value={totals.scansToday} />
         <Figure icon={Bus01Icon} title={p.totals.live} value={totals.busesLive} />
@@ -178,7 +187,7 @@ async function Overview({ searchParams }: { searchParams: SearchParams }) {
             <h2 id="platform-needs-title" className="text-xl font-bold">
               {p.needs.title}
             </h2>
-            <p className="text-sm text-muted">{p.needs.hint}</p>
+            
           </div>
           <Link href="/platform/schools" className="text-sm font-semibold text-link no-underline hover:text-fg">
             {p.needs.all}
@@ -226,11 +235,11 @@ async function Overview({ searchParams }: { searchParams: SearchParams }) {
                       <span className="text-lg font-bold">{school.name}</span>
                       <LevelChip level={school.level} labels={p.levels} />
                     </div>
-                    <ul className="m-0 flex list-disc flex-col gap-1 pl-5 text-sm">
+                    <div className="flex flex-wrap gap-1.5">
                       {school.reasons.slice(0, 3).map((reason) => (
-                        <li key={reason.signal}>{signalSentence(reason, p.health, locale)}</li>
+                        <SignalChip key={reason.signal} signal={reason} copy={p.health} locale={locale} paused={Boolean(school.snoozed[reason.signal])} />
                       ))}
-                    </ul>
+                    </div>
                     {school.lastOutreachAt ? <p className="m-0 text-xs text-muted">{contactedText(school.lastOutreachAt, p.outreach)}</p> : null}
                   </Card>
                 </Link>
@@ -245,7 +254,7 @@ async function Overview({ searchParams }: { searchParams: SearchParams }) {
           <h2 id="platform-schools-title" className="text-xl font-bold">
             {p.schools.title}
           </h2>
-          <p className="text-sm text-muted">{p.schools.hint}</p>
+          
         </div>
         {schools.length === 0 ? (
           <EmptyState title={p.schools.empty} />

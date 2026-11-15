@@ -65,11 +65,14 @@ test("the header sticks as a compact bar while the page scrolls, and comes back 
 test("the message is written for the chosen signals and language, and opens in email or WhatsApp", async ({ context, page }) => {
   await signInBrowser(context, owner);
   await page.goto(`/platform/schools/${schoolId}#reach-out`);
+  // The page lists who to contact, with icon links.
+  await expect(page.getByTestId("reach-contacts").getByRole("link", { name: "Open in WhatsApp" })).toBeVisible();
+  await page.getByRole("button", { name: "Write a message" }).click();
   const message = page.getByLabel("Message", { exact: true });
   await expect(message).toHaveValue(new RegExp(`^Hello ${schoolName} team,`));
   await expect(message).toHaveValue(/A join or staff request has waited 15 days\. Someone is waiting to join or to become staff: see People, To verify\. .*\/people\?role=verify/);
 
-  const contacts = page.getByTestId("reach-contacts");
+  const contacts = page.getByTestId("message-contacts");
   await expect(contacts.getByRole("link", { name: "Open in email" }).first()).toHaveAttribute("href", new RegExp(`^mailto:office-${tag}%40example.org\\?subject=BusIn%3A%20a%20few%20things`));
   await expect(contacts.getByRole("link", { name: "Open in WhatsApp" })).toHaveAttribute("href", /^https:\/\/wa\.me\/237677000099\?text=Hello/);
 
@@ -77,19 +80,21 @@ test("the message is written for the chosen signals and language, and opens in e
   await expect(message).toHaveValue(new RegExp(`^Bonjour à l'équipe de ${schoolName},`));
 
   // Leaving a signal out takes it out of the message.
-  await page.getByRole("checkbox", { name: "Oldest join or staff request" }).uncheck();
+  await page.getByRole("button", { name: "Join and staff requests", pressed: true }).click();
   await expect(message).not.toHaveValue(/adhésion ou de personnel attend/);
 });
 
 test("a notice reaches the school's administrators, pauses its signals, and they dismiss it", async ({ browser, context, page }) => {
   await signInBrowser(context, owner);
   await page.goto(`/platform/schools/${schoolId}#reach-out`);
-  await page.getByRole("button", { name: "Send as a notice in their portal" }).click();
+  await page.getByRole("button", { name: "Write a message" }).click();
+  await page.getByText("Send as a notice in their portal").click();
+  await page.getByRole("button", { name: "Send the notice" }).click();
   await expect(page.getByText("Notice sent to the school.")).toBeVisible();
   const history = page.getByTestId("outreach-history");
   await expect(history).toContainText("Notice in their portal");
   await expect(history).toContainText("Not dismissed yet");
-  await expect(page.getByTestId("signal-oldest_request_days").getByTestId("signal-paused")).toContainText("Paused until");
+  await expect(page.getByTestId("signal-oldest_request_days").getByTestId("signal-paused")).toContainText("Paused");
 
   // Its serious signals are all paused, so it leaves "Needs you" for now.
   await page.goto("/platform");
@@ -116,6 +121,7 @@ test("a notice reaches the school's administrators, pauses its signals, and they
 test("a contact is logged with a follow-up, which shows in Needs you until done", async ({ context, page }) => {
   await signInBrowser(context, owner);
   await page.goto(`/platform/schools/${schoolId}#reach-out`);
+  await page.getByRole("button", { name: "Log a contact" }).click();
   const today = new Date().toISOString().slice(0, 10);
   await pickDate(page, "Follow up on", today);
   await page.getByLabel("Note", { exact: true }).fill("Called the registrar.");

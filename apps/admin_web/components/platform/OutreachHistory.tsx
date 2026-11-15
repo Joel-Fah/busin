@@ -37,7 +37,7 @@ export function OutreachHistory({ entries, schoolId, locale, text, titles, compl
               ))}
             </div>
           ) : null}
-          {entry.note ? <p className="m-0 whitespace-pre-line text-muted">{entry.note}</p> : null}
+          {entry.note ? <p className="m-0 line-clamp-3 whitespace-pre-line text-muted" title={entry.note}>{entry.note}</p> : null}
           <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted">
             {entry.snoozeUntil && entry.snoozeUntil >= today ? <span>{format(text.paused, { date: day(entry.snoozeUntil) })}</span> : null}
             {entry.channel === "notice" ? <span>{entry.noticeDismissedAt ? text.noticeDismissed : text.noticeOpen}</span> : null}

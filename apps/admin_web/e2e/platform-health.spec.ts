@@ -49,8 +49,11 @@ test("a struggling school is Critical, with its reasons in plain words", async (
   await expect(page).toHaveURL(/level=critical$/);
   const row = page.getByRole("row").filter({ hasText: schoolName });
   await expect(row).toContainText("Critical");
-  await expect(row).toContainText("7 missing: email domain, price, current semester, stops, route, buses, staff");
-  await expect(row).toContainText("A join or staff request has waited 15 days");
+  // Short chips, with the full sentence as their tip.
+  const setup = row.locator('[data-signal="setup_missing"]');
+  await expect(setup).toContainText("7 missing");
+  await expect(setup).toHaveAttribute("data-tip", "7 missing: email domain, price, current semester, stops, route, buses, staff");
+  await expect(row.locator('[data-signal="oldest_request_days"]')).toHaveAttribute("data-tip", "A join or staff request has waited 15 days");
   await expect(page.getByRole("row").filter({ hasText: "Off" })).toHaveCount(0);
 
   // Its page: each signal with its level and thresholds.
@@ -58,8 +61,10 @@ test("a struggling school is Critical, with its reasons in plain words", async (
   await expect(page.getByRole("heading", { name: schoolName, level: 1 })).toBeVisible();
   const request = page.getByTestId("signal-oldest_request_days");
   await expect(request).toContainText("Critical");
-  await expect(request).toContainText("Watch above 3, needs help above 7, critical above 14 (days)");
-  await expect(page.getByTestId("signal-oldest_pending_days")).toContainText("No request waiting");
+  await expect(request).toContainText("15 days");
+  await expect(request.getByRole("button")).toHaveAttribute("data-tip", /Watch above 3, needs help above 7, critical above 14 \(days\)/);
+  await expect(page.getByTestId("signal-setup_missing")).toContainText("route");
+  await expect(page.getByTestId("signal-oldest_pending_days")).toContainText("No data");
   await expect(page.getByText("No record yet: the first one is made tonight.")).toBeVisible();
 
   const nav = page.getByRole("navigation", { name: "Main navigation" });
