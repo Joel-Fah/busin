@@ -80,6 +80,16 @@ describe("parseSchoolRows and the attention list", () => {
     expect(needingAttention(rows).map((r: SchoolHealthRow) => r.id)).toEqual(["d", "b", "c"]);
   });
 
+  it("leaves out a school whose serious signals are all paused after a contact", () => {
+    const paused = parseSchoolRows([
+      { id: "p", name: "Paused", status: "active", level: 2, score: 50, reasons: [pending], snoozed: { oldest_pending_days: { until: "2026-11-23" } }, last_outreach_at: "2026-11-16T08:00:00Z" },
+      { id: "q", name: "Partly", status: "active", level: 2, score: 50, reasons: [pending, { ...pending, signal: "answer_time_days" }], snoozed: { oldest_pending_days: { until: "2026-11-23" } } },
+    ]);
+    expect(paused[0].snoozed).toEqual({ oldest_pending_days: "2026-11-23" });
+    expect(paused[0].lastOutreachAt).toBe("2026-11-16T08:00:00Z");
+    expect(needingAttention(paused).map((r) => r.id)).toEqual(["q"]);
+  });
+
   it("counts the schools at each level", () => {
     expect(levelCounts(rows)).toEqual({ byLevel: [0, 1, 1, 2], off: 1 });
   });
