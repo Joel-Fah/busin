@@ -215,14 +215,15 @@ test.describe("administrator reading the styleguide", () => {
   });
 });
 
-for (const [label, who] of [
-  ["a student", () => student],
-  ["a staff member", () => staff],
+// A student is sent to the student web app (ADR 0021); staff get the no-access page. Neither sees the styleguide.
+for (const [label, who, away] of [
+  ["a student", () => student, /\/app(\/|$)/],
+  ["a staff member", () => staff, /\/no-access$/],
 ] as const) {
   test(`${label} cannot open the styleguide`, async ({ page, context }) => {
     await signInBrowser(context, who());
     await page.goto("/styleguide");
-    await expect(page).toHaveURL(/\/no-access$/);
+    await expect(page).toHaveURL(away);
   });
 
   test(`${label} cannot download its exports`, async ({ context }) => {
@@ -231,7 +232,7 @@ for (const [label, who] of [
       const response = await context.request.get(path, { maxRedirects: 0 });
       expect(response.status(), path).toBeGreaterThanOrEqual(300);
       expect(response.status(), path).toBeLessThan(400);
-      expect(response.headers().location ?? "", path).toMatch(/\/no-access$/);
+      expect(response.headers().location ?? "", path).toMatch(away);
     }
   });
 }
