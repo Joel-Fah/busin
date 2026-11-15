@@ -14,7 +14,7 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 | 3 Student app | Lightweight student app | **Done, signed off by the owner on a device (2026-11-11) and merged into `dev`.** Sign-in, subscribe with proof, live approval, rotating code, history, live bus, push, EN and FR, light and dark, plus the ideas round (school join, notifications and reminders, on-board card, streaks and leaderboard, bus near my stop, My area with OpenStreetMap place search). Still open: a hosted Supabase project, iOS configuration, Firebase for push |
 | 4 Ops app | Scanner and driver mode | **Signed off by the owner (2026-11-11) after device testing, and merged into `dev`.** Owner decisions: day keys for offline checks (ADR 0014), any staff phone scans and the trip's assignee shares the position, the assignee starts and ends the trip (any staff when none). Slices: day keys (#249), trip control, shared app package, ops shell, scanner with offline queue, driver mode, then the owner's test on a real run |
 | 5 Insights | Density map, pickup and route suggestions | **Feature complete and merged into `dev`, waiting for the owner's check.** Stop load (#261), proximity (#265), students nearer another stop (#287), the graph view (#289), stop suggestions (#291). Route optimization (OR-Tools) and the weekly summary stay for later, as agreed |
-| 6 Scale | More schools, payments, hardware tracker | **Started (2026-11-16): the platform console** (ADR 0027), in seven slices; slice 1 (access, audit, overview) on `phase-6/platform-console`, slice 2 (school health) on `phase-6/school-health`, slice 3 (reaching out) on `phase-6/outreach`, calmer console on `phase-6/console-calm`, slice 4 (onboarding) on `phase-6/onboarding`, slice 5 (leads) on `phase-6/leads`, slice 6 (health) on `phase-6/system-health` |
+| 6 Scale | More schools, payments, hardware tracker | **Started (2026-11-16): the platform console** (ADR 0027), in seven slices; slice 1 (access, audit, overview) on `phase-6/platform-console`, slice 2 (school health) on `phase-6/school-health`, slice 3 (reaching out) on `phase-6/outreach`, calmer console on `phase-6/console-calm`, slice 4 (onboarding) on `phase-6/onboarding`, slice 5 (leads) on `phase-6/leads`, slice 6 (health) on `phase-6/system-health`, slice 7 (lookup) on `phase-6/lookup`; version 1 complete |
 
 ## Blockers (owner)
 
@@ -30,6 +30,23 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 ## Findings from the audit that apply only to the legacy app
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
+
+## Handoff: platform console, slice 7, account lookup, version 1 complete (2026-11-16, branch `phase-6/lookup`)
+
+Done (migration `20261116170000_account_lookup`, ADR 0027 point 11): a Lookup tab finds one account by its exact email
+and shows where it stands (school, role, status, last sign-in, requests, invites, subscriptions, devices). Read only;
+each lookup is audited (never the email typed) and limited to 30 an hour; the email never goes into the address.
+
+The platform console's version 1 is complete: Console (totals, Needs you), Schools (health, reaching out, onboarding),
+Leads, Health, Lookup. Branches, stacked in order on `dev`: `phase-6/platform-console`, `phase-6/school-health`,
+`phase-6/outreach`, `phase-6/console-calm`, `phase-6/onboarding`, `phase-6/leads`, `phase-6/system-health`,
+`phase-6/lookup`.
+
+Verified: pgTAP 1044 (new 061), Vitest 496, E2E (lookup, system, leads, onboarding, outreach, health, platform, shell:
+50), tsc, lint, check. One full pgTAP run ended with a container error and no failing test; three runs after it passed.
+
+Owner: approve creating the GitHub issues (the tool refused them), then the PRs into `dev` in the order above; on the
+hosted project later, the migrations `20261116110000` to `20261116170000` and your own row in `private.platform_admins`.
 
 ## Handoff: platform console, slice 6, usage, costs and health (2026-11-16, branch `phase-6/system-health`, on slice 5)
 

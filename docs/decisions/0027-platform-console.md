@@ -54,7 +54,11 @@ be helped or reminded, and onboards a new school without code.
     kind, each scheduled job with its last run and failures, and running trips whose bus sent no position for 15
     minutes. The plan limits it is measured against live in the console code (`PLAN_LIMITS`), so a plan change needs no
     migration; a limit turns amber at 80% and red at 95%.
-11. **Version 1, in slices:** access and overview (this decision's first slice); school health with levels (OK, Watch,
+11. **Account lookup:** one account at a time by its exact email (no search, no list): its school, role, status, last
+    sign-in, waiting requests and invites, subscriptions by status and devices. Read only. Each lookup is in the
+    platform audit with the account found, never the email typed, and a platform admin makes at most 30 an hour. The
+    email goes through a server action, never into the address.
+12. **Version 1, in slices:** access and overview (this decision's first slice); school health with levels (OK, Watch,
    Needs help, Critical) and a nightly health record; reaching out (contacts, ready messages, an in-portal notice, an
    outreach log); school onboarding; leads; usage, costs and system health; account lookup.
 
