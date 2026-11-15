@@ -40,7 +40,13 @@ be helped or reminded, and onboards a new school without code.
    dismissed by them, expiring after 30 days). Every contact goes to `platform_outreach`, and may pause its signals for
    a few days (they stay visible, marked paused; a school whose serious signals are all paused leaves "Needs you") and
    set a follow-up date, listed in "Needs you" until done.
-8. **Version 1, in slices:** access and overview (this decision's first slice); school health with levels (OK, Watch,
+8. **Onboarding:** a platform admin creates a school (name, short name, country, city, time zone, student email
+   domains; a name or a domain already in use is refused) and invites its first administrator, through the staff
+   invites of ADR 0015 (an existing account of no other school becomes its administrator at once). That administrator
+   sets up the rest in the school's portal. A school can be switched off and back on after a confirmation: switched off,
+   it takes no new sign-ups, joins, invites or staff requests, leaves the landing page and is not scored; the people
+   already in keep their access.
+9. **Version 1, in slices:** access and overview (this decision's first slice); school health with levels (OK, Watch,
    Needs help, Critical) and a nightly health record; reaching out (contacts, ready messages, an in-portal notice, an
    outreach log); school onboarding; leads; usage, costs and system health; account lookup.
 

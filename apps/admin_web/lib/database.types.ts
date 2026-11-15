@@ -1081,10 +1081,16 @@ isOneToOne: false
 "platform_complete_follow_up":
 { Args: { "p_outreach_id": string }; Returns: undefined
                            },
+"platform_create_school":
+{ Args: { "p_city"?: string,"p_country"?: string,"p_domains"?: (string)[],"p_name": string,"p_short_name"?: string,"p_timezone"?: string }; Returns: string
+                           },
 "platform_follow_ups":
 { Args: Record<PropertyKey, never>; Returns: {
               "channel": string,"created_at": string,"follow_up_on": string,"id": string,"note": string,"school_id": string,"school_name": string
             }[]
+                           },
+"platform_invite_school_admin":
+{ Args: { "p_email": string,"p_school_id": string }; Returns: string
                            },
 "platform_log_outreach":
 { Args: { "p_channel": string,"p_follow_up_on"?: string,"p_note"?: string,"p_school_id": string,"p_signals"?: (string)[],"p_snooze_days"?: number }; Returns: string
@@ -1098,6 +1104,11 @@ isOneToOne: false
 "platform_school_contacts":
 { Args: { "p_school_id": string }; Returns: Json
                            },
+"platform_school_invites":
+{ Args: { "p_school_id": string }; Returns: {
+              "created_at": string,"email": string,"expires_at": string,"role": Database["public"]['Enums']["user_role"]
+            }[]
+                           },
 "platform_school_outreach":
 { Args: { "p_school_id": string }; Returns: Json
                            },
@@ -1108,6 +1119,9 @@ isOneToOne: false
                            },
 "platform_send_notice":
 { Args: { "p_body": string,"p_follow_up_on"?: string,"p_link_path"?: string,"p_school_id": string,"p_signals"?: (string)[],"p_snooze_days"?: number }; Returns: string
+                           },
+"platform_set_school_status":
+{ Args: { "p_active": boolean,"p_school_id": string }; Returns: undefined
                            },
 "public_schools":
 { Args: Record<PropertyKey, never>; Returns: {

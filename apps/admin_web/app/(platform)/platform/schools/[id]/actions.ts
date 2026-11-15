@@ -7,6 +7,7 @@ import { requirePlatformAdmin } from "@/lib/auth";
 import { isUuid } from "@/lib/ids";
 import { SIGNALS } from "@/lib/platform-health";
 import { isChannel, isPortalPath, SNOOZE_DAYS } from "@/lib/platform-outreach";
+import { onboardingErrorKey } from "@/lib/platform-onboarding";
 import { outreachErrorKey } from "@/lib/platform-outreach-errors";
 import { createClient } from "@/lib/supabase/server";
 
@@ -87,4 +88,32 @@ export async function completeFollowUp(formData: FormData): Promise<void> {
   if (error) redirect(`${back}?error=generic`);
   revalidatePath("/platform", "layout");
   redirect(`${back}?done=followUp`);
+}
+
+/** Invites an administrator for the school (or makes an existing account of no other school its administrator). */
+export async function inviteSchoolAdmin(formData: FormData): Promise<void> {
+  await requirePlatformAdmin();
+  const id = formData.get("school");
+  if (!isUuid(id)) redirect("/platform/schools");
+  const email = formData.get("email");
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("platform_invite_school_admin", { p_school_id: id, p_email: typeof email === "string" ? email : "" });
+  if (error) redirect(`${page(id)}?error=${onboardingErrorKey(error.message)}#admins`);
+  revalidatePath("/platform", "layout");
+  redirect(`${page(id)}?done=${data === "applied" ? "adminApplied" : "adminInvited"}#admins`);
+}
+
+/** Switches the school off or back on, after the confirmation on its page. */
+export async function setSchoolStatus(formData: FormData): Promise<void> {
+  await requirePlatformAdmin();
+  const id = formData.get("school");
+  if (!isUuid(id)) redirect("/platform/schools");
+  const active = formData.get("active") === "true";
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("platform_set_school_status", { p_school_id: id, p_active: active });
+  if (error) redirect(`${page(id)}?error=${onboardingErrorKey(error.message)}`);
+  revalidatePath("/platform", "layout");
+  redirect(`${page(id)}?done=${active ? "on" : "off"}`);
 }
