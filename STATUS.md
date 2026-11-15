@@ -38,8 +38,10 @@ staff access; the school's admins approve or decline on People, To verify (a dec
 email is not blocked); admins can switch a verified member between student and staff, with guards. Also on the live
 database (owner's request, before this change): developerace0@gmail.com made verified staff of ICT University, audited.
 
-To ship: push the branch and open its PR into `dev`, then the hosted migration `20261116100000_staff_requests`, then
-`main`, and new ops builds (older ones keep the dead end). Each needs the owner's go.
+Shipped on 2026-11-15 (owner approved): migration `20261116100000_staff_requests` on the live database, BusIn Ops
+0.1.0 (2) on App Distribution (group BusIn Inders), and `dev` released to `main` (#500, deployed by Vercel). Phones
+holding an earlier ops build with a different version code or signature must uninstall it first (done on the test
+tablet).
 
 What to test (local):
 - **Ops app, a student account:** "Ask for staff access", pick the school, see it waiting, withdraw, ask again.
