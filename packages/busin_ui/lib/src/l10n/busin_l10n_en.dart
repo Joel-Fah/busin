@@ -282,6 +282,51 @@ class BusinL10nEn extends BusinL10n {
   String get schoolLinkFailed => 'No app on this phone can open this.';
 
   @override
+  String get opsStaffAsk => 'Ask for staff access';
+
+  @override
+  String get opsStaffChooseSchool => 'Which school do you work for?';
+
+  @override
+  String get opsStaffChooseHint =>
+      'Its administrators decide. You can withdraw the request at any time.';
+
+  @override
+  String get opsStaffWithdraw => 'Withdraw the request';
+
+  @override
+  String get opsStaffAskAgain => 'Ask again';
+
+  @override
+  String get opsStaffSent => 'Request sent';
+
+  @override
+  String get opsStaffTooSoon => 'Wait a few seconds before asking again.';
+
+  @override
+  String get opsStaffNoSchools => 'No school is available to ask right now.';
+
+  @override
+  String opsStaffWaiting(String school) {
+    return 'Your request is with $school. Its administrators will review it, and the app opens as soon as they approve.';
+  }
+
+  @override
+  String opsStaffDeclined(String school) {
+    return '$school declined your request.';
+  }
+
+  @override
+  String opsStaffDeclinedNote(String note) {
+    return 'Their note: $note';
+  }
+
+  @override
+  String opsStaffAskSchool(String school) {
+    return 'Ask $school for staff access';
+  }
+
+  @override
   String get signInWithGoogle => 'Continue with Google';
 
   @override
@@ -1384,7 +1429,7 @@ class BusinL10nEn extends BusinL10n {
 
   @override
   String get opsNotStaffBody =>
-      'Students use the BusIn app to show their boarding code. If you should have staff access, ask your school\'s administrator.';
+      'Students use the BusIn app to show their boarding code. If you work for a school, ask it for staff access below.';
 
   @override
   String get opsProblemTitle => 'BusIn Ops could not load your account';

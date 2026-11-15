@@ -286,6 +286,53 @@ class BusinL10nFr extends BusinL10n {
       'Aucune application de ce téléphone ne peut ouvrir ceci.';
 
   @override
+  String get opsStaffAsk => 'Demander l’accès du personnel';
+
+  @override
+  String get opsStaffChooseSchool => 'Pour quelle école travaillez-vous ?';
+
+  @override
+  String get opsStaffChooseHint =>
+      'Ses administrateurs décident. Vous pouvez retirer la demande à tout moment.';
+
+  @override
+  String get opsStaffWithdraw => 'Retirer la demande';
+
+  @override
+  String get opsStaffAskAgain => 'Demander à nouveau';
+
+  @override
+  String get opsStaffSent => 'Demande envoyée';
+
+  @override
+  String get opsStaffTooSoon =>
+      'Attendez quelques secondes avant de demander à nouveau.';
+
+  @override
+  String get opsStaffNoSchools =>
+      'Aucune école ne peut être sollicitée pour le moment.';
+
+  @override
+  String opsStaffWaiting(String school) {
+    return 'Votre demande est chez $school. Ses administrateurs vont l’examiner, et l’application s’ouvre dès qu’ils l’approuvent.';
+  }
+
+  @override
+  String opsStaffDeclined(String school) {
+    return '$school a refusé votre demande.';
+  }
+
+  @override
+  String opsStaffDeclinedNote(String note) {
+    return 'Leur note : $note';
+  }
+
+  @override
+  String opsStaffAskSchool(String school) {
+    return 'Demander l’accès du personnel à $school';
+  }
+
+  @override
   String get signInWithGoogle => 'Continuer avec Google';
 
   @override
@@ -1409,7 +1456,7 @@ class BusinL10nFr extends BusinL10n {
 
   @override
   String get opsNotStaffBody =>
-      'Les étudiants utilisent l\'application BusIn pour montrer leur code d\'embarquement. Si vous devriez avoir un accès personnel, demandez à l\'administrateur de votre école.';
+      'Les étudiants utilisent l’application BusIn pour montrer leur code d’embarquement. Si vous travaillez pour une école, demandez-lui l’accès du personnel ci-dessous.';
 
   @override
   String get opsProblemTitle => 'BusIn Ops n\'a pas pu charger votre compte';

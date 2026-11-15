@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { Cancel01Icon, Tick02Icon, UserMultiple02Icon } from "@hugeicons/core-free-icons";
+import { Cancel01Icon, Tick02Icon } from "@hugeicons/core-free-icons";
 
 import { JoinRequestActions } from "@/components/people/JoinRequestActions";
+import { RoleForm } from "@/components/people/RoleForm";
 import { Avatar } from "@/components/ui/Avatar";
 import { BackLink } from "@/components/ui/BackLink";
 import { Button } from "@/components/ui/Button";
@@ -12,7 +13,6 @@ import { Chip } from "@/components/ui/Chip";
 import { ListSkeleton } from "@/components/ui/ListSkeleton";
 import { FlashToast } from "@/components/FlashToast";
 import { Notice } from "@/components/ui/Notice";
-import { Select } from "@/components/ui/Select";
 
 import { displayPhone } from "@/lib/phone/phone";
 import { requireAdmin } from "@/lib/auth";
@@ -114,31 +114,27 @@ async function PersonDetail({ params, searchParams }: { params: Params; searchPa
           <div className="flex flex-col gap-6">
             {person.status === "suspended" ? <Notice tone="warn">{d.suspendedNotice}</Notice> : null}
 
-            {/* A suspended account is frozen, so there is no role form for it. A student's role is not changed: staff
-                and administrators are one family, students another. */}
-            {person.status === "suspended" ? null : person.role === "student" ? (
-              <Card className="flex flex-col gap-2">
-                <h2 className="text-xl font-bold">{d.roleHeading}</h2>
-                <p className="text-sm text-muted">{d.roleStudentFixed}</p>
-              </Card>
-            ) : person.status === "verified" ? (
+            {/* A suspended or pending account is not changed here (restore it, or decide its request first). Student and
+                staff switch both ways; administrator is reached through staff (ADR 0026). */}
+            {person.status === "verified" ? (
               <Card className="flex flex-col gap-4">
                 <h2 className="text-xl font-bold">{d.roleHeading}</h2>
-                <form action={changeRole} className="flex flex-col gap-5">
-                  <input type="hidden" name="id" value={person.id} />
-                  <Select
-                    id="role"
-                    name="role"
-                    label={d.roleLabel}
-                    icon={UserMultiple02Icon}
-                    hint={d.roleHint}
-                    defaultValue={person.role}
-                    options={(["staff", "admin"] as const).map((role) => ({ value: role, label: t.role[role] }))}
-                  />
-                  <div>
-                    <Button type="submit">{d.roleButton}</Button>
-                  </div>
-                </form>
+                <RoleForm
+                  id={person.id}
+                  current={person.role}
+                  labels={t.role}
+                  action={changeRole}
+                  copy={{
+                    label: d.roleLabel,
+                    hint: d.roleHint,
+                    button: d.roleButton,
+                    confirmTitle: d.roleConfirmTitle,
+                    toStaff: d.roleConfirmToStaff,
+                    toStudent: d.roleConfirmToStudent,
+                    other: d.roleConfirmOther,
+                    cancel: d.roleCancel,
+                  }}
+                />
               </Card>
             ) : null}
 
