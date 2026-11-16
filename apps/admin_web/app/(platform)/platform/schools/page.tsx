@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { School01Icon } from "@hugeicons/core-free-icons";
+import { PlusSignIcon, School01Icon } from "@hugeicons/core-free-icons";
 
 import { LevelChip } from "@/components/platform/LevelChip";
 import { SignalChip } from "@/components/platform/SignalChip";
 import { SchoolLogo } from "@/components/SchoolLogo";
+import { ButtonLink } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Icon } from "@/components/ui/Icon";
 import { ListSkeleton } from "@/components/ui/ListSkeleton";
@@ -74,6 +75,11 @@ async function Schools({ searchParams }: { searchParams: SearchParams }) {
     <>
       <PageHeader
         title={p.list.title}
+        action={
+          <ButtonLink href="/platform/schools/new" icon={PlusSignIcon}>
+            {p.onboarding.newSchool}
+          </ButtonLink>
+        }
         help={{
           label: t.help.open,
           title: p.help.schools.title,

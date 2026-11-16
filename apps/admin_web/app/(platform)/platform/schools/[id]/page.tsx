@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { Megaphone01Icon, School01Icon } from "@hugeicons/core-free-icons";
+import { Mail01Icon, Megaphone01Icon, School01Icon, UserAdd01Icon } from "@hugeicons/core-free-icons";
 
 import { FlashToast } from "@/components/FlashToast";
 import { HealthTrend } from "@/components/platform/HealthTrend";
@@ -9,9 +9,11 @@ import { LevelChip } from "@/components/platform/LevelChip";
 import { SignalTile } from "@/components/platform/SignalTile";
 import { OutreachHistory } from "@/components/platform/OutreachHistory";
 import { ReachOut } from "@/components/platform/ReachOut";
+import { SchoolStatusSwitch } from "@/components/platform/SchoolStatusSwitch";
 import { SchoolLogo } from "@/components/SchoolLogo";
 import { BackLink } from "@/components/ui/BackLink";
-import { ButtonLink } from "@/components/ui/Button";
+import { Button, ButtonLink } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
 import { HelpSheet } from "@/components/ui/HelpSheet";
@@ -27,11 +29,12 @@ import { isUuid } from "@/lib/ids";
 import { siteUrl } from "@/lib/landing/site";
 import { AREAS, parseSchoolDetail } from "@/lib/platform-health";
 import { messageCopy, parseContacts, parseSchoolOutreach } from "@/lib/platform-outreach";
+import { isOnboardingDone, isOnboardingError } from "@/lib/platform-onboarding";
 import { isOutreachDone, isOutreachError } from "@/lib/platform-outreach-errors";
 import { logoUrl } from "@/lib/school";
 import { createClient } from "@/lib/supabase/server";
 
-import { completeFollowUp, logOutreach, sendNotice } from "./actions";
+import { completeFollowUp, inviteSchoolAdmin, logOutreach, sendNotice, setSchoolStatus } from "./actions";
 
 export const metadata: Metadata = { title: "School" };
 
@@ -67,12 +70,14 @@ async function School({ params, searchParams }: { params: Params; searchParams: 
   const { locale, t } = await getMessages();
   const p = t.platform;
   const supabase = await createClient();
-  const [{ data, error }, contactsResult, outreachResult] = await Promise.all([
+  const [{ data, error }, contactsResult, outreachResult, invitesResult] = await Promise.all([
     supabase.rpc("platform_school", { p_school_id: id }),
     // Each view of the contacts is recorded in the platform audit (ADR 0027).
     supabase.rpc("platform_school_contacts", { p_school_id: id }),
     supabase.rpc("platform_school_outreach", { p_school_id: id }),
+    supabase.rpc("platform_school_invites", { p_school_id: id }),
   ]);
+  const invites = invitesResult.data ?? [];
   if (error) {
     return (
       <>
@@ -88,6 +93,7 @@ async function School({ params, searchParams }: { params: Params; searchParams: 
   const timeOf = (iso: string) => new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(iso));
   const dayOf = (iso: string) => new Intl.DateTimeFormat(locale, { day: "numeric", month: "long", timeZone: "UTC" }).format(new Date(`${iso.slice(0, 10)}T00:00:00Z`));
   const o = p.outreach;
+  const n = p.onboarding;
   const contacts = parseContacts(contactsResult.data, { school: o.schoolLabel, admin: o.adminLabel });
   const outreach = parseSchoolOutreach(outreachResult.data);
   const snoozed = Object.fromEntries(Object.entries(outreach.snoozed).map(([signal, s]) => [signal, dayOf(s.until)]));
@@ -99,6 +105,7 @@ async function School({ params, searchParams }: { params: Params; searchParams: 
   return (
     <>
       {isOutreachDone(done) ? <FlashToast message={o.done[done]} /> : null}
+      {isOnboardingDone(done) ? <FlashToast message={n.done[done]} /> : null}
       <div className="flex items-center justify-between gap-3">
         <BackLink href="/platform/schools">{p.school.back}</BackLink>
         <HelpSheet
@@ -130,7 +137,7 @@ async function School({ params, searchParams }: { params: Params; searchParams: 
         }
       />
 
-      {isOutreachError(failed) ? <Notice tone="bad">{o.errors[failed]}</Notice> : null}
+      {isOutreachError(failed) ? <Notice tone="bad">{o.errors[failed]}</Notice> : isOnboardingError(failed) ? <Notice tone="bad">{n.errors[failed]}</Notice> : null}
 
       {school.active ? null : <Notice tone="warn">{p.school.off}</Notice>}
 
@@ -186,6 +193,40 @@ async function School({ params, searchParams }: { params: Params; searchParams: 
         </section>
 
         <aside className="flex min-w-0 flex-col gap-6">
+          <Card className="scroll-mt-32 p-6!">
+            <section id="admins" aria-labelledby="admins-title" className="flex flex-col gap-3">
+              <div className="flex items-baseline justify-between gap-3">
+                <h2 id="admins-title" className="m-0 text-base font-bold">
+                  {n.admins}
+                </h2>
+                <span className="text-sm text-muted tabular-nums">{format(n.adminsCount, { n: school.counts.admins })}</span>
+              </div>
+              {invites.length > 0 ? (
+                <div data-testid="admin-invites">
+                  <p className="m-0 mb-1.5 text-xs font-semibold tracking-wide text-muted uppercase">{n.invites}</p>
+                  <ul className="m-0 flex list-none flex-col gap-1.5 p-0 text-sm">
+                    {invites.map((invite) => (
+                      <li key={invite.email} className="flex flex-wrap justify-between gap-x-3">
+                        <span className="min-w-0 truncate font-semibold">{invite.email}</span>
+                        <span className="text-xs text-muted">{format(n.inviteUntil, { date: dayOf(invite.expires_at) })}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+              {school.active ? (
+                <form action={inviteSchoolAdmin} className="flex flex-col gap-2">
+                  <input type="hidden" name="school" value={school.id} />
+                  <Input id="invite-email" name="email" type="email" label={n.inviteLabel} icon={Mail01Icon} required maxLength={254} />
+                  <div>
+                    <Button type="submit" variant="secondary" icon={UserAdd01Icon}>
+                      {n.invite}
+                    </Button>
+                  </div>
+                </form>
+              ) : null}
+            </section>
+          </Card>
           <Card className="p-6!">
             <h2 className="mb-3 text-base font-bold">{o.history}</h2>
             <OutreachHistory
@@ -242,6 +283,9 @@ async function School({ params, searchParams }: { params: Params; searchParams: 
                 </div>
               ) : null}
             </dl>
+            <div className="mt-4">
+              <SchoolStatusSwitch schoolId={school.id} schoolName={school.name} active={school.active} text={n.status} action={setSchoolStatus} />
+            </div>
           </Card>
 
           <Card className="p-6!">
