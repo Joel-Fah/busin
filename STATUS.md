@@ -31,6 +31,18 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: platform console and account deletion on `dev` and live (2026-11-16)
+
+Merged into `dev` (owner approved): #510 to #517 (platform console) and #519 (account deletion). Live database (owner
+approved): migrations `20261116110000` to `20261116180000` applied (dry run first, then up to date); `delete-accounts`
+deployed with `DELETIONS_SECRET`, and the Vault values `deletions_url` and `deletions_secret` stored (checked: refuses
+without the secret, answers with it; the nightly job `busin-erase-accounts` runs at 02:40 UTC). Versions on `dev`: ops
+0.1.0+3, student 0.1.0+2 (not yet distributed: the builds were stopped at the owner's request).
+
+Not on `main` yet: the live portal does not have the console or the deletion pages until `dev` is released. Owner:
+add your account to `private.platform_admins` on the live project when you want the console there; give Google Play the
+`/delete-account` link once `main` has it.
+
 ## Handoff: account deletion, slice 3, the phone apps, complete (2026-11-16, branch `phase-6/account-deletion`)
 
 Done: `AccountDeletionRepository` (core) and its Supabase implementation; a shared `DeleteAccountSection` in `busin_app`
