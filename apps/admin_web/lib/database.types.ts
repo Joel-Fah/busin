@@ -265,6 +265,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"platform_audit": {
+                  Row: {
+                    "action": string,"actor_id": string,"created_at": string,"details": NonNullable<Json>,"id": number,"school_id": string | null,"target_id": string | null,"target_type": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "action": string,"actor_id": string,"created_at"?: string,"details"?: NonNullable<Json>,"id"?: never,"school_id"?: string | null,"target_id"?: string | null,"target_type"?: string | null
+                  }
+                  Update: {
+                    "action"?: string,"actor_id"?: string,"created_at"?: string,"details"?: NonNullable<Json>,"id"?: never,"school_id"?: string | null,"target_id"?: string | null,"target_type"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "platform_audit_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"profiles": {
                   Row: {
                     "avatar_url": string | null,"created_at": string,"department": string | null,"department_id": string | null,"email": string,"full_name": string,"id": string,"join_decline_note": string | null,"join_declined_at": string | null,"join_declined_school": string | null,"join_requested_at": string | null,"matricule": string | null,"payment_preference": string | null,"phone": string | null,"program": string | null,"program_id": string | null,"role": Database["public"]['Enums']["user_role"],"school_id": string | null,"staff_decline_note": string | null,"staff_declined_at": string | null,"staff_declined_school": string | null,"staff_request_school": string | null,"staff_requested_at": string | null,"status": Database["public"]['Enums']["account_status"],"streak_opt_in": boolean,"streak_opt_in_at": string | null,"updated_at": string
@@ -893,6 +913,9 @@ isOneToOne: false
 "admin_verify_member":
 { Args: { "p_user_id": string }; Returns: undefined
                            },
+"am_platform_admin":
+{ Args: Record<PropertyKey, never>; Returns: boolean
+                           },
 "can_follow_buses":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
@@ -979,6 +1002,9 @@ isOneToOne: false
 { Args: { "p_school_id": string }; Returns: {
               "east": number,"north": number,"south": number,"west": number
             }[]
+                           },
+"platform_overview":
+{ Args: Record<PropertyKey, never>; Returns: Json
                            },
 "public_schools":
 { Args: Record<PropertyKey, never>; Returns: {

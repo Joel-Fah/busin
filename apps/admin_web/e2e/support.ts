@@ -105,6 +105,16 @@ export async function createUser(
   return { id, email, password };
 }
 
+/** Lists or unlists a user as a platform admin (ADR 0027), as the owner does with SQL. The id is a generated UUID. */
+export function setPlatformAdmin(userId: string, on: boolean): void {
+  if (!/^[0-9a-f-]{36}$/.test(userId)) throw new Error("a user id is a UUID");
+  sql(
+    on
+      ? `insert into private.platform_admins (user_id, note) values ('${userId}', 'e2e') on conflict do nothing;`
+      : `delete from private.platform_admins where user_id = '${userId}';`,
+  );
+}
+
 /** Removes a user and anything the tests created for them. */
 export async function deleteUser(user: TestUser): Promise<void> {
   const admin = serviceClient();

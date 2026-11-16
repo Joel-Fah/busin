@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import { decideAccess } from "@/lib/access";
 import { createClient } from "@/lib/supabase/server";
@@ -49,6 +49,8 @@ export async function requireAdmin(): Promise<AdminContext> {
 
   // An administrator always has a school (the database allows no school only for a student waiting to join one).
   if (decideAccess(current.profile) !== "admin" || !current.profile?.school_id) {
+    // A platform admin who administers no school (ADR 0027) has the console as their home.
+    if (await platformContext()) redirect("/platform");
     redirect("/no-access");
   }
 
@@ -63,4 +65,49 @@ export async function requireAdmin(): Promise<AdminContext> {
     schoolTimezone: school?.timezone ?? "UTC",
     avatarUrl: profile.avatar_url,
   };
+}
+
+export type PlatformContext = {
+  userId: string;
+  email: string;
+  fullName: string;
+  avatarUrl: string | null;
+  /** The school the account belongs to, if any (a platform admin may also be a member of a school). */
+  schoolName: string | null;
+  /** Also a verified administrator of a school, so the console offers the way back to that school's portal. */
+  schoolAdmin: boolean;
+};
+
+/**
+ * The signed-in platform admin (ADR 0027), or null for anyone else. Signed-out visitors go to the login page. The list is
+ * read live on the server (`am_platform_admin`), never from the token. Cached per request so the layout and the page
+ * share one check. The console's layout uses it to decide whether to show its navigation at all.
+ */
+export const platformContext = cache(async (): Promise<PlatformContext | null> => {
+  const current = await getCurrentUser();
+  if (!current) redirect("/login");
+
+  const supabase = await createClient();
+  const { data: allowed, error } = await supabase.rpc("am_platform_admin");
+  if (error || allowed !== true) return null;
+
+  const { user, profile } = current;
+  return {
+    userId: user.id,
+    email: profile?.email ?? user.email ?? "",
+    fullName: profile?.full_name ?? "",
+    avatarUrl: profile?.avatar_url ?? null,
+    schoolName: profile?.schools?.name ?? null,
+    schoolAdmin: decideAccess(profile) === "admin" && Boolean(profile?.school_id),
+  };
+});
+
+/**
+ * Guard for every platform console page and server action: everyone who is not a platform admin gets "not found", so the
+ * console does not show that it exists. Call it again in each action: never rely on the layout or the proxy.
+ */
+export async function requirePlatformAdmin(): Promise<PlatformContext> {
+  const context = await platformContext();
+  if (!context) notFound();
+  return context;
 }

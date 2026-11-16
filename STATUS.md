@@ -14,7 +14,7 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 | 3 Student app | Lightweight student app | **Done, signed off by the owner on a device (2026-11-11) and merged into `dev`.** Sign-in, subscribe with proof, live approval, rotating code, history, live bus, push, EN and FR, light and dark, plus the ideas round (school join, notifications and reminders, on-board card, streaks and leaderboard, bus near my stop, My area with OpenStreetMap place search). Still open: a hosted Supabase project, iOS configuration, Firebase for push |
 | 4 Ops app | Scanner and driver mode | **Signed off by the owner (2026-11-11) after device testing, and merged into `dev`.** Owner decisions: day keys for offline checks (ADR 0014), any staff phone scans and the trip's assignee shares the position, the assignee starts and ends the trip (any staff when none). Slices: day keys (#249), trip control, shared app package, ops shell, scanner with offline queue, driver mode, then the owner's test on a real run |
 | 5 Insights | Density map, pickup and route suggestions | **Feature complete and merged into `dev`, waiting for the owner's check.** Stop load (#261), proximity (#265), students nearer another stop (#287), the graph view (#289), stop suggestions (#291). Route optimization (OR-Tools) and the weekly summary stay for later, as agreed |
-| 6 Scale | More schools, payments, hardware tracker | Not started |
+| 6 Scale | More schools, payments, hardware tracker | **Started (2026-11-16): the platform console** (ADR 0027), in seven slices; slice 1 (access, audit, overview) on branch `phase-6/platform-console` |
 
 ## Blockers (owner)
 
@@ -30,6 +30,26 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 ## Findings from the audit that apply only to the legacy app
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
+
+## Handoff: platform console, slice 1 (2026-11-16, branch `phase-6/platform-console`)
+
+Done (ADR 0027, migration `20261116110000_platform_console`): the platform console at `/platform`, in the admin portal.
+Platform admins are listed in `private.platform_admins` (not a role; added by SQL only, read live). `platform_overview()`
+gives platform totals (schools, people, new accounts, waiting, this semester's subscriptions, today's trips and
+boardings, buses live) and one row of counts per school. Everyone else gets "not found". Platform actions will be logged
+in `platform_audit`. The console's own tabs and account page; the school profile shows the way in to listed accounts.
+Locally: `npm run dev:platform` makes a local account (development sign-in) that opens only the console and lands
+on it; `npm run dev:user -- <email> admin --platform` makes a school admin who also opens it.
+
+Verified: pgTAP 936 (new 055), Vitest 452, platform E2E (5), shell and portal E2E, tsc, lint, `npm run check`.
+
+Next slices (plan approved 2026-11-15): school health signals and levels with a nightly record; reaching out (contacts,
+ready messages, in-portal notice, outreach log); school onboarding; leads; usage, costs and health; account lookup.
+
+Owner: the GitHub issues for the seven slices were not created (the tool permission was refused); approve creating them,
+then the PR into `dev`. On the hosted project, later: the migration, then your own row with
+`insert into private.platform_admins (user_id, note) select id, 'owner' from auth.users where email = '<your email>';`
+(each needs your go). Keep 2-step verification on that Google account.
 
 ## Handoff: staff access requests (2026-11-15, branch `phase-5/staff-requests`)
 

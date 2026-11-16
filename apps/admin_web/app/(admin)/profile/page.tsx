@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { Building03Icon, Bus01Icon, Calendar02Icon, Coins01Icon, FlagTriangleRightIcon } from "@hugeicons/core-free-icons";
+import { Building03Icon, Bus01Icon, Calendar02Icon, Coins01Icon, DashboardSquare01Icon, FlagTriangleRightIcon } from "@hugeicons/core-free-icons";
 
 import { LanguageSwitch } from "@/components/LanguageSwitch";
 import { SignOutButton } from "@/components/SignOutButton";
 import { Avatar } from "@/components/ui/Avatar";
+import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { requireAdmin } from "@/lib/auth";
+import { platformContext, requireAdmin } from "@/lib/auth";
 import { getMessages } from "@/lib/i18n/server";
 
 export const metadata: Metadata = { title: "Your profile" };
@@ -28,6 +29,8 @@ export default function ProfilePage() {
 
 async function Profile() {
   const admin = await requireAdmin();
+  // A platform admin (ADR 0027) also gets the way into the console here; nobody else sees that it exists.
+  const platform = await platformContext();
   const { locale, t } = await getMessages();
   const name = admin.fullName || admin.email;
 
@@ -87,6 +90,15 @@ async function Profile() {
         </Card>
 
         <div className="flex flex-col gap-6">
+          {platform ? (
+            <Card>
+              <h2 className="text-xl font-bold">{t.platform.entry.title}</h2>
+              <p className="mt-1 mb-4 text-sm text-muted">{t.platform.entry.body}</p>
+              <ButtonLink href="/platform" variant="secondary" icon={DashboardSquare01Icon}>
+                {t.platform.entry.open}
+              </ButtonLink>
+            </Card>
+          ) : null}
           <Card>
             <h2 className="text-xl font-bold">{t.profile.appearance}</h2>
             <p className="mt-1 mb-4 text-sm text-muted">{t.profile.appearanceHint}</p>

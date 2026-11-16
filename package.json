@@ -22,6 +22,7 @@
     "web": "npm run dev -w apps/admin_web",
     "dev:device": "node tools/dev-device.mjs",
     "dev:user": "node tools/dev-user.mjs",
+    "dev:platform": "node tools/dev-user.mjs dev-platform@ictuniversity.edu.cm platform",
     "seed:demo": "node tools/seed-demo.mjs",
     "seed:staff": "node tools/seed-staff.mjs",
     "dev:bus": "node tools/simulate-bus.mjs",
