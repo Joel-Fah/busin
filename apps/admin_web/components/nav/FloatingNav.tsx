@@ -11,6 +11,7 @@ import {
   Menu03Icon,
   Navigation03Icon,
   ReceiptTextIcon,
+  School01Icon,
   Ticket03Icon,
   UserMultiple02Icon,
 } from "@hugeicons/core-free-icons";
@@ -27,7 +28,7 @@ import { INTRO_DONE_EVENT } from "@/lib/intro";
 import { NAV_DOCK_ID } from "./NavDock";
 
 /** The school portal's tabs, then the platform console's (ADR 0027). */
-export type NavKey = "overview" | "subscriptions" | "people" | "trips" | "scans" | "insights" | "platform";
+export type NavKey = "overview" | "subscriptions" | "people" | "trips" | "scans" | "insights" | "platform" | "platformSchools";
 
 const ICONS: Record<NavKey, IconSvgElement> = {
   overview: GeometricShapes01Icon,
@@ -37,6 +38,7 @@ const ICONS: Record<NavKey, IconSvgElement> = {
   scans: ReceiptTextIcon,
   insights: Analytics01Icon,
   platform: DashboardSquare01Icon,
+  platformSchools: School01Icon,
 };
 
 const HREFS: Record<NavKey, string> = {
@@ -47,6 +49,7 @@ const HREFS: Record<NavKey, string> = {
   scans: "/scans",
   insights: "/insights",
   platform: "/platform",
+  platformSchools: "/platform/schools",
 };
 
 /** Home pages: lit only on their own address, not on the pages below them. */

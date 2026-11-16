@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
 import {
   Bus01Icon,
@@ -12,6 +13,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 
+import { LevelChip } from "@/components/platform/LevelChip";
 import { SchoolLogo } from "@/components/SchoolLogo";
 import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
@@ -25,6 +27,7 @@ import { requirePlatformAdmin } from "@/lib/auth";
 import { supabaseConfig } from "@/lib/env";
 import { format, type Messages } from "@/lib/i18n/messages";
 import { getMessages } from "@/lib/i18n/server";
+import { needingAttention, parseSchoolRows, signalSentence } from "@/lib/platform-health";
 import { daysSince, parsePlatformOverview } from "@/lib/platform-overview";
 import { logoUrl } from "@/lib/school";
 import { createClient } from "@/lib/supabase/server";
@@ -79,10 +82,11 @@ function lastAction(iso: string | null, copy: Messages["platform"]["schools"]): 
 
 async function Overview() {
   await requirePlatformAdmin();
-  const { t } = await getMessages();
+  const { locale, t } = await getMessages();
   const p = t.platform;
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("platform_overview");
+  const [{ data, error }, health] = await Promise.all([supabase.rpc("platform_overview"), supabase.rpc("platform_schools")]);
+  const attention = needingAttention(parseSchoolRows(health.data));
 
   if (error) {
     return (
@@ -152,6 +156,47 @@ async function Overview() {
         <Figure icon={Bus01Icon} title={p.totals.live} value={totals.busesLive} />
       </section>
 
+      <section aria-labelledby="platform-needs-title" className="flex flex-col gap-4" data-testid="platform-needs">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4">
+          <div>
+            <h2 id="platform-needs-title" className="text-xl font-bold">
+              {p.needs.title}
+            </h2>
+            <p className="text-sm text-muted">{p.needs.hint}</p>
+          </div>
+          <Link href="/platform/schools" className="text-sm font-semibold text-link no-underline hover:text-fg">
+            {p.needs.all}
+          </Link>
+        </div>
+        {health.error ? (
+          <Notice tone="bad">{p.list.loadError}</Notice>
+        ) : attention.length === 0 ? (
+          <Card className="p-6!">
+            <p className="m-0 text-sm text-muted">{p.needs.none}</p>
+          </Card>
+        ) : (
+          <ul className="m-0 grid list-none gap-4 p-0 md:grid-cols-2">
+            {attention.slice(0, 6).map((school) => (
+              <li key={school.id}>
+                <Link href={`/platform/schools/${school.id}`} className="group block h-full no-underline">
+                  <Card className="flex h-full flex-col gap-3 p-6! text-fg transition-transform duration-(--dur) ease-soft group-hover:-translate-y-0.5 motion-reduce:transition-none">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="text-lg font-bold">{school.name}</span>
+                      <LevelChip level={school.level} labels={p.levels} />
+                    </div>
+                    <ul className="m-0 flex list-disc flex-col gap-1 pl-5 text-sm">
+                      {school.reasons.slice(0, 3).map((reason) => (
+                        <li key={reason.signal}>{signalSentence(reason, p.health, locale)}</li>
+                      ))}
+                    </ul>
+                  </Card>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
       <section aria-labelledby="platform-schools-title" className="flex flex-col gap-4">
         <div>
           <h2 id="platform-schools-title" className="text-xl font-bold">
@@ -180,7 +225,9 @@ async function Overview() {
                           fallback={<Icon icon={School01Icon} size={22} className="text-brand" />}
                         />
                         <div className="min-w-0">
-                          <p className="m-0 font-semibold">{school.name}</p>
+                          <Link href={`/platform/schools/${school.id}`} className="font-semibold text-fg no-underline hover:text-link">
+                            {school.name}
+                          </Link>
                           <div className="mt-1 flex flex-wrap gap-1.5">
                             {school.active ? null : <Chip tone="warn">{p.schools.switchedOff}</Chip>}
                             {school.tripsActive > 0 ? <Chip tone="info">{format(p.schools.running, { n: school.tripsActive })}</Chip> : null}

@@ -453,6 +453,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"school_health_daily": {
+                  Row: {
+                    "day": string,"level": number,"school_id": string,"score": number,"signals": NonNullable<Json>
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "day": string,"level": number,"school_id": string,"score": number,"signals"?: NonNullable<Json>
+                  }
+                  Update: {
+                    "day"?: string,"level"?: number,"school_id"?: string,"score"?: number,"signals"?: NonNullable<Json>
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "school_health_daily_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"schools": {
                   Row: {
                     "about": string | null,"accepts_open_signup": boolean,"address": string | null,"allow_field_trips": boolean,"billing_period": string | null,"campus_location": unknown,"campus_name": string | null,"city": string | null,"contact_email": string | null,"country": string | null,"created_at": string,"currency": string,"id": string,"installment_plan": string | null,"logo_path": string | null,"name": string,"open_signup_domains": (string)[],"phone": string | null,"phone_secondary": string | null,"price_xaf": number | null,"public_listing": boolean,"short_name": string | null,"status": string,"terms_accepted_at": string | null,"terms_accepted_by": string | null,"terms_version": string | null,"timezone": string,"website": string | null
@@ -1005,6 +1025,14 @@ isOneToOne: false
                            },
 "platform_overview":
 { Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"platform_school":
+{ Args: { "p_school_id": string }; Returns: Json
+                           },
+"platform_schools":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "created_at": string,"id": string,"last_admin_action_at": string,"level": number,"logo_path": string,"name": string,"reasons": Json,"score": number,"short_name": string,"staff": number,"status": string,"students": number
+            }[]
                            },
 "public_schools":
 { Args: Record<PropertyKey, never>; Returns: {

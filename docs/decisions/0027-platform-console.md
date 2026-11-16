@@ -26,7 +26,14 @@ be helped or reminded, and onboards a new school without code.
 5. **Audit:** what platform admins do (lookups, schools created or switched off, leads handled, notices sent) goes to
    `public.platform_audit`, written only by platform functions and read by no school. It is separate from `audit_log`,
    whose school is required.
-6. **Version 1, in slices:** access and overview (this decision's first slice); school health with levels (OK, Watch,
+6. **School health:** fourteen signals per school, computed in the database from data that already exists (waiting
+   times, answers, profile, setup, buses and trips, activity). Each gets a level (OK, Watch, Needs help, Critical) from
+   thresholds kept in `private.health_rules`, so they can be tuned without code; a school takes the level of its worst
+   signal, with a weighted score to order schools at the same level. Shares and rates need at least 3 trips or 5
+   requests. Setup-type signals are capped at Watch during a new school's first 14 days. A switched-off school is not
+   scored. A nightly job keeps one record per school per day (`school_health_daily`, about 13 months). No "trips left
+   running" signal: a scheduled job already ends stale trips.
+7. **Version 1, in slices:** access and overview (this decision's first slice); school health with levels (OK, Watch,
    Needs help, Critical) and a nightly health record; reaching out (contacts, ready messages, an in-portal notice, an
    outreach log); school onboarding; leads; usage, costs and system health; account lookup.
 
