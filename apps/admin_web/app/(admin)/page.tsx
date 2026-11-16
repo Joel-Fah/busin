@@ -15,6 +15,7 @@ import {
 import { FlashToast } from "@/components/FlashToast";
 import { BoardingsChart } from "@/components/overview/BoardingsChart";
 import { GettingStarted } from "@/components/overview/GettingStarted";
+import { SchoolNotices } from "@/components/overview/SchoolNotices";
 import { QuickActions } from "@/components/overview/QuickActions";
 import { Welcome, type Insight } from "@/components/overview/Welcome";
 import { StatusMix, type MixPart } from "@/components/overview/StatusMix";
@@ -36,6 +37,8 @@ import { STATUSES } from "@/lib/subscriptions";
 import { createClient } from "@/lib/supabase/server";
 import { startOfDayInTimeZone } from "@/lib/time";
 import { tripStatusTone } from "@/lib/trips";
+
+import { dismissNotice } from "./notice-actions";
 
 export const metadata: Metadata = { title: "Overview" };
 
@@ -249,6 +252,9 @@ async function Overview({ searchParams }: { searchParams: SearchParams }) {
       />
 
       {done === "bus" ? <FlashToast message={t.overview.quick.busAdded} /> : null}
+      {done === "notice" ? <FlashToast message={t.notices.dismissed} /> : null}
+
+      <SchoolNotices text={t.notices} dismiss={dismissNotice} />
 
       {failed ? (
         <Notice tone="bad">{t.overview.loadError}</Notice>

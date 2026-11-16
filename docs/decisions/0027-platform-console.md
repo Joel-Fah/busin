@@ -33,7 +33,14 @@ be helped or reminded, and onboards a new school without code.
    requests. Setup-type signals are capped at Watch during a new school's first 14 days. A switched-off school is not
    scored. A nightly job keeps one record per school per day (`school_health_daily`, about 13 months). No "trips left
    running" signal: a scheduled job already ends stale trips.
-7. **Version 1, in slices:** access and overview (this decision's first slice); school health with levels (OK, Watch,
+7. **Reaching out:** the school page shows the school's contacts and its administrators' (each view in the platform
+   audit), and writes a ready message about the chosen signals in English or French. It opens in the owner's own email
+   or WhatsApp (no email vendor; nothing is sent for them), or goes to the school's administrators as a notice at the top
+   of their overview (`school_notices`: read by that school's administrators only, linking to a page of their portal,
+   dismissed by them, expiring after 30 days). Every contact goes to `platform_outreach`, and may pause its signals for
+   a few days (they stay visible, marked paused; a school whose serious signals are all paused leaves "Needs you") and
+   set a follow-up date, listed in "Needs you" until done.
+8. **Version 1, in slices:** access and overview (this decision's first slice); school health with levels (OK, Watch,
    Needs help, Critical) and a nightly health record; reaching out (contacts, ready messages, an in-portal notice, an
    outreach log); school onboarding; leads; usage, costs and system health; account lookup.
 

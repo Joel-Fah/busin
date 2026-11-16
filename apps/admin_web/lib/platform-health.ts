@@ -64,6 +64,9 @@ export type SchoolHealthRow = {
   score: number | null;
   reasons: Signal[];
   lastAdminActionAt: string | null;
+  /** Signals paused after a contact, with the date they are paused until (ISO). */
+  snoozed: Record<string, string>;
+  lastOutreachAt: string | null;
 };
 
 export type SchoolDetail = {
@@ -143,6 +146,16 @@ function signals(value: unknown): Signal[] {
   return (Array.isArray(value) ? value : []).map(parseSignal).filter((s): s is Signal => s !== null);
 }
 
+/** {"oldest_pending_days": {"until": "2026-11-23", ...}} as {"oldest_pending_days": "2026-11-23"}. */
+export function snoozedUntil(value: unknown): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [signal, entry] of Object.entries(record(value))) {
+    const until = text(record(entry).until);
+    if (until) out[signal] = until;
+  }
+  return out;
+}
+
 export function parseSchoolRows(value: unknown): SchoolHealthRow[] {
   return (Array.isArray(value) ? value : [])
     .map(record)
@@ -160,6 +173,8 @@ export function parseSchoolRows(value: unknown): SchoolHealthRow[] {
       score: s.status === "active" ? num(s.score) : null,
       reasons: signals(s.reasons),
       lastAdminActionAt: text(s.last_admin_action_at),
+      snoozed: snoozedUntil(s.snoozed),
+      lastOutreachAt: text(s.last_outreach_at),
     }));
 }
 
@@ -250,10 +265,17 @@ export function thresholdsText(signal: Signal, copy: HealthCopy, locale: string)
   });
 }
 
-/** Schools that need the platform's attention first: Critical, then Needs help; the lowest score first within a level. */
+/**
+ * Schools that need the platform's attention first: Critical, then Needs help; the lowest score first within a level. A
+ * school whose serious signals were all paused after a contact waits until the pause ends.
+ */
 export function needingAttention(rows: SchoolHealthRow[]): SchoolHealthRow[] {
   return rows
     .filter((row) => row.level !== null && row.level >= 2)
+    .filter((row) => {
+      const serious = row.reasons.filter((reason) => reason.level >= 2);
+      return serious.length === 0 || serious.some((reason) => !row.snoozed[reason.signal]);
+    })
     .sort((a, b) => (b.level ?? 0) - (a.level ?? 0) || (a.score ?? 100) - (b.score ?? 100) || a.name.localeCompare(b.name));
 }
 
@@ -266,4 +288,10 @@ export function levelCounts(rows: SchoolHealthRow[]): { byLevel: [number, number
     else byLevel[row.level] += 1;
   }
   return { byLevel, off };
+}
+
+/** "Contacted today", "Contacted 3 days ago": when the platform last reached out to the school. */
+export function contactedText(iso: string, copy: { contactedToday: string; contactedDaysAgo: string }, now: Date = new Date()): string {
+  const days = Math.max(0, Math.floor((now.getTime() - Date.parse(iso)) / 86_400_000));
+  return days === 0 ? copy.contactedToday : format(copy.contactedDaysAgo, { n: days });
 }

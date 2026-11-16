@@ -10,11 +10,14 @@ import {
   UserAdd01Icon,
   UserMultiple02Icon,
   Clock01Icon,
+  Tick02Icon,
 } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 
+import { FlashToast } from "@/components/FlashToast";
 import { LevelChip } from "@/components/platform/LevelChip";
 import { SchoolLogo } from "@/components/SchoolLogo";
+import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -27,20 +30,25 @@ import { requirePlatformAdmin } from "@/lib/auth";
 import { supabaseConfig } from "@/lib/env";
 import { format, type Messages } from "@/lib/i18n/messages";
 import { getMessages } from "@/lib/i18n/server";
-import { needingAttention, parseSchoolRows, signalSentence } from "@/lib/platform-health";
+import { contactedText, needingAttention, parseSchoolRows, signalSentence } from "@/lib/platform-health";
+import { isChannel } from "@/lib/platform-outreach";
 import { daysSince, parsePlatformOverview } from "@/lib/platform-overview";
 import { logoUrl } from "@/lib/school";
 import { createClient } from "@/lib/supabase/server";
+
+import { completeFollowUp } from "./schools/[id]/actions";
 
 export const metadata: Metadata = { title: "Platform" };
 
 // Depends on who is signed in, so it cannot be an instant navigation.
 export const instant = false;
 
-export default function PlatformOverviewPage() {
+type SearchParams = Promise<{ done?: string | string[] }>;
+
+export default function PlatformOverviewPage({ searchParams }: { searchParams: SearchParams }) {
   return (
     <Suspense fallback={<OverviewSkeleton />}>
-      <Overview />
+      <Overview searchParams={searchParams} />
     </Suspense>
   );
 }
@@ -80,13 +88,20 @@ function lastAction(iso: string | null, copy: Messages["platform"]["schools"]): 
   return format(copy.daysAgo, { n: days });
 }
 
-async function Overview() {
+async function Overview({ searchParams }: { searchParams: SearchParams }) {
   await requirePlatformAdmin();
   const { locale, t } = await getMessages();
   const p = t.platform;
   const supabase = await createClient();
-  const [{ data, error }, health] = await Promise.all([supabase.rpc("platform_overview"), supabase.rpc("platform_schools")]);
+  const [{ data, error }, health, followUpsResult] = await Promise.all([
+    supabase.rpc("platform_overview"),
+    supabase.rpc("platform_schools"),
+    supabase.rpc("platform_follow_ups"),
+  ]);
   const attention = needingAttention(parseSchoolRows(health.data));
+  const followUps = followUpsResult.data ?? [];
+  const query = await searchParams;
+  const done = Array.isArray(query.done) ? query.done[0] : query.done;
 
   if (error) {
     return (
@@ -102,6 +117,7 @@ async function Overview() {
 
   return (
     <>
+      {done === "followUp" ? <FlashToast message={p.outreach.done.followUp} /> : null}
       <PageHeader title={p.title} subtitle={p.subtitle} />
 
       <section aria-label={p.title} className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -168,6 +184,32 @@ async function Overview() {
             {p.needs.all}
           </Link>
         </div>
+        {followUps.length > 0 ? (
+          <div data-testid="platform-follow-ups">
+          <Card className="p-6!">
+            <h3 className="mb-3 text-base font-bold">{p.outreach.followUps}</h3>
+            <ul className="m-0 flex list-none flex-col gap-3 p-0">
+              {followUps.map((f) => (
+                <li key={f.id} className="flex flex-wrap items-center justify-between gap-3 text-sm">
+                  <div className="min-w-0">
+                    <Link href={`/platform/schools/${f.school_id}`} className="font-semibold text-fg no-underline hover:text-link">
+                      {f.school_name}
+                    </Link>
+                    <span className="text-muted"> · {p.outreach.channels[isChannel(f.channel) ? f.channel : "other"]}</span>
+                    {f.note ? <p className="m-0 truncate text-muted">{f.note}</p> : null}
+                  </div>
+                  <form action={completeFollowUp}>
+                    <input type="hidden" name="outreach" value={f.id} />
+                    <Button type="submit" variant="secondary" icon={Tick02Icon}>
+                      {p.outreach.markDone}
+                    </Button>
+                  </form>
+                </li>
+              ))}
+            </ul>
+          </Card>
+          </div>
+        ) : null}
         {health.error ? (
           <Notice tone="bad">{p.list.loadError}</Notice>
         ) : attention.length === 0 ? (
@@ -189,6 +231,7 @@ async function Overview() {
                         <li key={reason.signal}>{signalSentence(reason, p.health, locale)}</li>
                       ))}
                     </ul>
+                    {school.lastOutreachAt ? <p className="m-0 text-xs text-muted">{contactedText(school.lastOutreachAt, p.outreach)}</p> : null}
                   </Card>
                 </Link>
               </li>

@@ -18,7 +18,7 @@ import { supabaseConfig } from "@/lib/env";
 import { format } from "@/lib/i18n/messages";
 import { getMessages } from "@/lib/i18n/server";
 import { daysSince } from "@/lib/platform-overview";
-import { LEVEL_KEYS, LEVEL_TONES, levelCounts, levelFromParam, parseSchoolRows, signalSentence } from "@/lib/platform-health";
+import { LEVEL_KEYS, LEVEL_TONES, contactedText, levelCounts, levelFromParam, parseSchoolRows, signalSentence } from "@/lib/platform-health";
 import { logoUrl } from "@/lib/school";
 import { createClient } from "@/lib/supabase/server";
 
@@ -119,6 +119,7 @@ async function Schools({ searchParams }: { searchParams: SearchParams }) {
                         ))}
                       </ul>
                     )}
+                    {row.lastOutreachAt ? <p className="m-0 mt-1 text-xs text-muted">{contactedText(row.lastOutreachAt, p.outreach)}</p> : null}
                   </Td>
                   <Td className="tabular-nums">{format(p.list.peopleValue, { students: row.students, staff: row.staff })}</Td>
                   <Td>{lastAction(row.lastAdminActionAt)}</Td>

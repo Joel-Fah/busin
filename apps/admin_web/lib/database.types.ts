@@ -285,6 +285,32 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"platform_outreach": {
+                  Row: {
+                    "channel": string,"created_at": string,"created_by": string,"follow_up_done_at": string | null,"follow_up_on": string | null,"id": string,"note": string | null,"notice_id": string | null,"school_id": string,"signals": (string)[],"snooze_until": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "channel": string,"created_at"?: string,"created_by": string,"follow_up_done_at"?: string | null,"follow_up_on"?: string | null,"id"?: string,"note"?: string | null,"notice_id"?: string | null,"school_id": string,"signals"?: (string)[],"snooze_until"?: string | null
+                  }
+                  Update: {
+                    "channel"?: string,"created_at"?: string,"created_by"?: string,"follow_up_done_at"?: string | null,"follow_up_on"?: string | null,"id"?: string,"note"?: string | null,"notice_id"?: string | null,"school_id"?: string,"signals"?: (string)[],"snooze_until"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "platform_outreach_notice_id_fkey"
+      columns: ["notice_id"]
+isOneToOne: false
+      referencedRelation: "school_notices"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "platform_outreach_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"profiles": {
                   Row: {
                     "avatar_url": string | null,"created_at": string,"department": string | null,"department_id": string | null,"email": string,"full_name": string,"id": string,"join_decline_note": string | null,"join_declined_at": string | null,"join_declined_school": string | null,"join_requested_at": string | null,"matricule": string | null,"payment_preference": string | null,"phone": string | null,"program": string | null,"program_id": string | null,"role": Database["public"]['Enums']["user_role"],"school_id": string | null,"staff_decline_note": string | null,"staff_declined_at": string | null,"staff_declined_school": string | null,"staff_request_school": string | null,"staff_requested_at": string | null,"status": Database["public"]['Enums']["account_status"],"streak_opt_in": boolean,"streak_opt_in_at": string | null,"updated_at": string
@@ -467,6 +493,32 @@ isOneToOne: false
                   Relationships: [
                     {
       foreignKeyName: "school_health_daily_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"school_notices": {
+                  Row: {
+                    "body": string,"created_at": string,"created_by": string,"dismissed_at": string | null,"dismissed_by": string | null,"expires_at": string,"id": string,"link_path": string | null,"school_id": string,"signals": (string)[]
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "body": string,"created_at"?: string,"created_by": string,"dismissed_at"?: string | null,"dismissed_by"?: string | null,"expires_at"?: string,"id"?: string,"link_path"?: string | null,"school_id": string,"signals"?: (string)[]
+                  }
+                  Update: {
+                    "body"?: string,"created_at"?: string,"created_by"?: string,"dismissed_at"?: string | null,"dismissed_by"?: string | null,"expires_at"?: string,"id"?: string,"link_path"?: string | null,"school_id"?: string,"signals"?: (string)[]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "school_notices_dismissed_by_fkey"
+      columns: ["dismissed_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "school_notices_school_id_fkey"
       columns: ["school_id"]
 isOneToOne: false
       referencedRelation: "schools"
@@ -953,6 +1005,9 @@ isOneToOne: false
 "custom_access_token_hook":
 { Args: { "event": Json }; Returns: Json
                            },
+"dismiss_school_notice":
+{ Args: { "p_notice_id": string }; Returns: undefined
+                           },
 "drop_device_token":
 { Args: { "p_token": string }; Returns: undefined
                            },
@@ -1023,16 +1078,36 @@ isOneToOne: false
               "east": number,"north": number,"south": number,"west": number
             }[]
                            },
+"platform_complete_follow_up":
+{ Args: { "p_outreach_id": string }; Returns: undefined
+                           },
+"platform_follow_ups":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "channel": string,"created_at": string,"follow_up_on": string,"id": string,"note": string,"school_id": string,"school_name": string
+            }[]
+                           },
+"platform_log_outreach":
+{ Args: { "p_channel": string,"p_follow_up_on"?: string,"p_note"?: string,"p_school_id": string,"p_signals"?: (string)[],"p_snooze_days"?: number }; Returns: string
+                           },
 "platform_overview":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
 "platform_school":
 { Args: { "p_school_id": string }; Returns: Json
                            },
+"platform_school_contacts":
+{ Args: { "p_school_id": string }; Returns: Json
+                           },
+"platform_school_outreach":
+{ Args: { "p_school_id": string }; Returns: Json
+                           },
 "platform_schools":
 { Args: Record<PropertyKey, never>; Returns: {
-              "created_at": string,"id": string,"last_admin_action_at": string,"level": number,"logo_path": string,"name": string,"reasons": Json,"score": number,"short_name": string,"staff": number,"status": string,"students": number
+              "created_at": string,"id": string,"last_admin_action_at": string,"last_outreach_at": string,"level": number,"logo_path": string,"name": string,"reasons": Json,"score": number,"short_name": string,"snoozed": Json,"staff": number,"status": string,"students": number
             }[]
+                           },
+"platform_send_notice":
+{ Args: { "p_body": string,"p_follow_up_on"?: string,"p_link_path"?: string,"p_school_id": string,"p_signals"?: (string)[],"p_snooze_days"?: number }; Returns: string
                            },
 "public_schools":
 { Args: Record<PropertyKey, never>; Returns: {
