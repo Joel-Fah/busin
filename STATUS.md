@@ -31,6 +31,20 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: account deletion, slice 1, the backend (2026-11-16, branch `phase-6/account-deletion`, on `phase-6/lookup`)
+
+Owner decisions: records kept but anonymised, a 7-day wait that can be cancelled, asked from every app, a public page and
+the platform console. Done (ADR 0028, migration `20261116180000_account_deletion`): ask, cancel and see a deletion;
+guards for the last admin and running trips; the platform schedules or cancels; the nightly `delete-accounts` Edge
+Function (proof files, soft-deleted sign-in, emptied profile); `deletion` leads from the public page; Lookup shows a
+scheduled deletion. `npm run dev:erase -- <email>` runs it locally. Guide: `docs/guides/account-deletion.md`.
+
+Verified: pgTAP 1071 (new 062), function tests 33 (new erase), a local end-to-end erasure and a fresh sign-up with the
+same email.
+
+Next: slice 2 (web: portal and student web profile, `/delete-account`, the console's Lookup and Leads, People hides
+deleted accounts), slice 3 (student and ops apps).
+
 ## Handoff: platform console, slice 7, account lookup, version 1 complete (2026-11-16, branch `phase-6/lookup`)
 
 Done (migration `20261116170000_account_lookup`, ADR 0027 point 11): a Lookup tab finds one account by its exact email
