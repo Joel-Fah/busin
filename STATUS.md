@@ -31,12 +31,15 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
-## Handoff: release signing (2026-11-16, #521)
+## Handoff: release signing and store docs (2026-11-16, #521, #522)
 
 - Release signing: both apps read `android/key.properties` (never in git) and sign release builds with the upload key,
   else the debug key (checked with `signingReport` both ways). `npm run build:release -- <student|ops> [appbundle|apk]`
   builds against production and says which key signed it. Guide: `docs/guides/release-signing.md` (owner: make the two
   upload keys). A full app bundle build was not run here.
+- Store docs: `docs/store/data-safety.md` (Data safety and app content answers for both apps, from the code) and
+  `docs/store/listings.md` (titles and descriptions in EN and FR, within Play's limits). Still to make: screenshots, the
+  feature graphic, a support email, and the reviewer demo accounts.
 
 ## Handoff: rich text notices (2026-11-17)
 
