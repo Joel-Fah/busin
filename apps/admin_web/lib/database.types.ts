@@ -1114,6 +1114,9 @@ isOneToOne: false
 "platform_log_outreach":
 { Args: { "p_channel": string,"p_follow_up_on"?: string,"p_note"?: string,"p_school_id": string,"p_signals"?: (string)[],"p_snooze_days"?: number }; Returns: string
                            },
+"platform_lookup_account":
+{ Args: { "p_email": string }; Returns: Json
+                           },
 "platform_overview":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
