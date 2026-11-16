@@ -31,6 +31,21 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: account deletion, slice 3, the phone apps, complete (2026-11-16, branch `phase-6/account-deletion`)
+
+Done: `AccountDeletionRepository` (core) and its Supabase implementation; a shared `DeleteAccountSection` in `busin_app`
+(a sheet that says what is erased and kept, then the date and "Keep my account"; refusals for the last admin and a
+running trip explained) on the student app's and the ops app's profile, below Sign out. EN and FR strings in
+`busin_ui`. Account deletion is now complete in every app, on the public page and in the console.
+
+Verified: Flutter tests (ui 125, app 13, ops 87, student 407, data 49, core 98), analyze clean, Vitest 501, pgTAP 1071,
+function tests 33, E2E account deletion.
+
+Owner: device-test the deletion in both apps (ask, see the date, keep the account); on the hosted project, follow
+`docs/guides/account-deletion.md` (migration, function secret, deploy, the two Vault values), then give Google Play the
+`/delete-account` link. Not covered: an account blocked before the apps' main screens (a student waiting for a school, a
+student account in the ops app) asks from the website (`/app` or `/delete-account`) for now.
+
 ## Handoff: account deletion, slice 2, the web (2026-11-16, branch `phase-6/account-deletion`)
 
 Done: "Delete my account" on the admin portal's profile, the student web app's profile and the console's account page

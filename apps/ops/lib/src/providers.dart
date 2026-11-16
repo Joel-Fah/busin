@@ -22,6 +22,7 @@ Duration? noAutomaticRetry(int retryCount, Object error) => null;
 final repositoriesProvider = Provider<SupabaseRepositories>((ref) => SupabaseRepositories(ref.watch(supabaseClientProvider)));
 
 final profileRepositoryProvider = Provider<ProfileRepository>((ref) => ref.watch(repositoriesProvider).profiles);
+final accountDeletionRepositoryProvider = Provider<AccountDeletionRepository>((ref) => ref.watch(repositoriesProvider).accountDeletion);
 final staffAccessRepositoryProvider = Provider<StaffAccessRepository>((ref) => ref.watch(repositoriesProvider).staffAccess);
 final schoolRepositoryProvider = Provider<SchoolRepository>((ref) => ref.watch(repositoriesProvider).schools);
 final tripsRepositoryProvider = Provider<TripsRepository>((ref) => ref.watch(repositoriesProvider).trips);

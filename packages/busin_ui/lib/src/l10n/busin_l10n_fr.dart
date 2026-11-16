@@ -2182,4 +2182,78 @@ class BusinL10nFr extends BusinL10n {
   @override
   String get stopAddArea =>
       'Ajoutez votre zone pour voir l’arrêt le plus proche';
+
+  @override
+  String get accountDeleteTitle => 'Supprimer mon compte';
+
+  @override
+  String get accountDeleteBody =>
+      'Votre compte et ce qui vous identifie sont effacés 7 jours après votre demande. Vous pouvez annuler jusque-là.';
+
+  @override
+  String get accountDeleteOpen => 'Supprimer mon compte';
+
+  @override
+  String accountDeleteScheduled(String date) {
+    return 'Votre compte sera supprimé le $date.';
+  }
+
+  @override
+  String accountDeleteScheduledByPlatform(String date) {
+    return 'BusIn a programmé la suppression de votre compte pour le $date, comme vous l\'avez demandé.';
+  }
+
+  @override
+  String get accountDeleteKeep => 'Garder mon compte';
+
+  @override
+  String get accountDeleteConfirmTitle => 'Supprimer votre compte ?';
+
+  @override
+  String get accountDeleteConfirmIntro => 'Dans 7 jours, BusIn efface :';
+
+  @override
+  String get accountDeleteErased1 => 'Votre nom, email, téléphone et photo';
+
+  @override
+  String get accountDeleteErased2 =>
+      'Votre matricule et votre zone de domicile';
+
+  @override
+  String get accountDeleteErased3 => 'Vos preuves de paiement et reçus';
+
+  @override
+  String get accountDeleteErased4 =>
+      'Vos appareils et réglages de notifications';
+
+  @override
+  String get accountDeleteKept =>
+      'Votre école garde ses registres sans votre nom : vos abonnements et paiements, vos embarquements, les trajets que vous avez conduits.';
+
+  @override
+  String get accountDeletePass =>
+      'Votre pass cesse de fonctionner quand votre compte est effacé. Un éventuel remboursement dépend de votre école.';
+
+  @override
+  String get accountDeleteSignInAgain =>
+      'Vous pourrez vous reconnecter plus tard avec le même compte Google : ce sera un nouveau compte.';
+
+  @override
+  String get accountDeleteConfirm => 'Supprimer dans 7 jours';
+
+  @override
+  String get accountDeleteRequested =>
+      'Votre compte sera supprimé dans 7 jours.';
+
+  @override
+  String get accountDeleteCancelled =>
+      'Suppression annulée. Votre compte reste.';
+
+  @override
+  String get accountDeleteLastAdmin =>
+      'Vous êtes le dernier administrateur de votre école. Nommez d\'abord quelqu\'un d\'autre administrateur.';
+
+  @override
+  String get accountDeleteActiveTrip =>
+      'Vous êtes sur un trajet en cours. Terminez-le, puis redemandez.';
 }

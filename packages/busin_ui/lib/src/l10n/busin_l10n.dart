@@ -3732,6 +3732,126 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'Add your area to see which stop is closest'**
   String get stopAddArea;
+
+  /// No description provided for @accountDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete my account'**
+  String get accountDeleteTitle;
+
+  /// No description provided for @accountDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account and what identifies you are erased 7 days after you ask. You can cancel until then.'**
+  String get accountDeleteBody;
+
+  /// No description provided for @accountDeleteOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete my account'**
+  String get accountDeleteOpen;
+
+  /// No description provided for @accountDeleteScheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account will be deleted on {date}.'**
+  String accountDeleteScheduled(String date);
+
+  /// No description provided for @accountDeleteScheduledByPlatform.
+  ///
+  /// In en, this message translates to:
+  /// **'BusIn scheduled the deletion of your account for {date}, as you asked.'**
+  String accountDeleteScheduledByPlatform(String date);
+
+  /// No description provided for @accountDeleteKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep my account'**
+  String get accountDeleteKeep;
+
+  /// No description provided for @accountDeleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete your account?'**
+  String get accountDeleteConfirmTitle;
+
+  /// No description provided for @accountDeleteConfirmIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'In 7 days, BusIn erases:'**
+  String get accountDeleteConfirmIntro;
+
+  /// No description provided for @accountDeleteErased1.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name, email, phone and photo'**
+  String get accountDeleteErased1;
+
+  /// No description provided for @accountDeleteErased2.
+  ///
+  /// In en, this message translates to:
+  /// **'Your matricule and your home area'**
+  String get accountDeleteErased2;
+
+  /// No description provided for @accountDeleteErased3.
+  ///
+  /// In en, this message translates to:
+  /// **'Your payment proofs and receipts'**
+  String get accountDeleteErased3;
+
+  /// No description provided for @accountDeleteErased4.
+  ///
+  /// In en, this message translates to:
+  /// **'Your devices and notification settings'**
+  String get accountDeleteErased4;
+
+  /// No description provided for @accountDeleteKept.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school keeps its records without your name: your subscriptions and payments, your boardings, the trips you drove.'**
+  String get accountDeleteKept;
+
+  /// No description provided for @accountDeletePass.
+  ///
+  /// In en, this message translates to:
+  /// **'Your pass stops working when your account is erased. Any refund is up to your school.'**
+  String get accountDeletePass;
+
+  /// No description provided for @accountDeleteSignInAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'You can sign in again with the same Google account later: it starts as a new account.'**
+  String get accountDeleteSignInAgain;
+
+  /// No description provided for @accountDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete in 7 days'**
+  String get accountDeleteConfirm;
+
+  /// No description provided for @accountDeleteRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account will be deleted in 7 days.'**
+  String get accountDeleteRequested;
+
+  /// No description provided for @accountDeleteCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Deletion cancelled. Your account stays.'**
+  String get accountDeleteCancelled;
+
+  /// No description provided for @accountDeleteLastAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'You are the last administrator of your school. Make someone else an administrator first.'**
+  String get accountDeleteLastAdmin;
+
+  /// No description provided for @accountDeleteActiveTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'You are on a running trip. End it first, then ask again.'**
+  String get accountDeleteActiveTrip;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {

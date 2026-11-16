@@ -1268,5 +1268,27 @@
     }
   },
   "stopClosest": "Closest to your area",
-  "stopAddArea": "Add your area to see which stop is closest"
+  "stopAddArea": "Add your area to see which stop is closest",
+  "accountDeleteTitle": "Delete my account",
+  "accountDeleteBody": "Your account and what identifies you are erased 7 days after you ask. You can cancel until then.",
+  "accountDeleteOpen": "Delete my account",
+  "accountDeleteScheduled": "Your account will be deleted on {date}.",
+  "@accountDeleteScheduled": {"placeholders": {"date": {"type": "String"}}},
+  "accountDeleteScheduledByPlatform": "BusIn scheduled the deletion of your account for {date}, as you asked.",
+  "@accountDeleteScheduledByPlatform": {"placeholders": {"date": {"type": "String"}}},
+  "accountDeleteKeep": "Keep my account",
+  "accountDeleteConfirmTitle": "Delete your account?",
+  "accountDeleteConfirmIntro": "In 7 days, BusIn erases:",
+  "accountDeleteErased1": "Your name, email, phone and photo",
+  "accountDeleteErased2": "Your matricule and your home area",
+  "accountDeleteErased3": "Your payment proofs and receipts",
+  "accountDeleteErased4": "Your devices and notification settings",
+  "accountDeleteKept": "Your school keeps its records without your name: your subscriptions and payments, your boardings, the trips you drove.",
+  "accountDeletePass": "Your pass stops working when your account is erased. Any refund is up to your school.",
+  "accountDeleteSignInAgain": "You can sign in again with the same Google account later: it starts as a new account.",
+  "accountDeleteConfirm": "Delete in 7 days",
+  "accountDeleteRequested": "Your account will be deleted in 7 days.",
+  "accountDeleteCancelled": "Deletion cancelled. Your account stays.",
+  "accountDeleteLastAdmin": "You are the last administrator of your school. Make someone else an administrator first.",
+  "accountDeleteActiveTrip": "You are on a running trip. End it first, then ask again."
 }

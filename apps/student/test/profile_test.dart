@@ -125,6 +125,26 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('the student asks for the deletion of their account, and can keep it (ADR 0028)', (tester) async {
+      await openProfile(tester, FakeAuthService(signedInAs: 'u1'), FakeProfileRepository({'u1': profile()}));
+      final button = find.widgetWithText(BusinButton, 'Delete my account');
+      await tester.scrollUntilVisible(button, 300, scrollable: find.byType(Scrollable).first);
+      // Clear of the floating bottom bar before tapping.
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, -300));
+      await tester.pumpAndSettle();
+      await tester.tap(button);
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Your school keeps its records without your name'), findsOneWidget);
+      await tester.tap(find.text('Delete in 7 days'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Your account will be deleted on'), findsOneWidget);
+      await tester.tap(find.text('Keep my account'));
+      await tester.pumpAndSettle();
+      expect(find.widgetWithText(BusinButton, 'Delete my account'), findsOneWidget);
+      BusinToast.dismiss();
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('tapping the school shows what its administrators wrote', (tester) async {
       await openProfile(tester, FakeAuthService(signedInAs: 'u1'), FakeProfileRepository({'u1': profile()}));
       await tester.tap(find.text('Test School'));
