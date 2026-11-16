@@ -14,7 +14,7 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 | 3 Student app | Lightweight student app | **Done, signed off by the owner on a device (2026-11-11) and merged into `dev`.** Sign-in, subscribe with proof, live approval, rotating code, history, live bus, push, EN and FR, light and dark, plus the ideas round (school join, notifications and reminders, on-board card, streaks and leaderboard, bus near my stop, My area with OpenStreetMap place search). Still open: a hosted Supabase project, iOS configuration, Firebase for push |
 | 4 Ops app | Scanner and driver mode | **Signed off by the owner (2026-11-11) after device testing, and merged into `dev`.** Owner decisions: day keys for offline checks (ADR 0014), any staff phone scans and the trip's assignee shares the position, the assignee starts and ends the trip (any staff when none). Slices: day keys (#249), trip control, shared app package, ops shell, scanner with offline queue, driver mode, then the owner's test on a real run |
 | 5 Insights | Density map, pickup and route suggestions | **Feature complete and merged into `dev`, waiting for the owner's check.** Stop load (#261), proximity (#265), students nearer another stop (#287), the graph view (#289), stop suggestions (#291). Route optimization (OR-Tools) and the weekly summary stay for later, as agreed |
-| 6 Scale | More schools, payments, hardware tracker | **Started (2026-11-16): the platform console** (ADR 0027), in seven slices; slice 1 (access, audit, overview) on `phase-6/platform-console`, slice 2 (school health) on `phase-6/school-health`, slice 3 (reaching out) on `phase-6/outreach`, calmer console on `phase-6/console-calm`, slice 4 (onboarding) on `phase-6/onboarding` |
+| 6 Scale | More schools, payments, hardware tracker | **Started (2026-11-16): the platform console** (ADR 0027), in seven slices; slice 1 (access, audit, overview) on `phase-6/platform-console`, slice 2 (school health) on `phase-6/school-health`, slice 3 (reaching out) on `phase-6/outreach`, calmer console on `phase-6/console-calm`, slice 4 (onboarding) on `phase-6/onboarding`, slice 5 (leads) on `phase-6/leads` |
 
 ## Blockers (owner)
 
@@ -30,6 +30,22 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 ## Findings from the audit that apply only to the legacy app
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
+
+## Handoff: platform console, slice 5, leads (2026-11-16, branch `phase-6/leads`, on slice 4)
+
+Done (migration `20261116150000_leads`, ADR 0027 point 9): a Leads tab lists the landing page's requests (Schools,
+Notify me) with status tabs; each lead can be marked contacted, dismissed or back to new, carry a note, and a school
+lead becomes a school through the prefilled New school form (the lead then links to it). New school leads show in
+"Needs you"; Notify me has "Copy these emails" for the app launch.
+
+Also fixed (found by the tests, on `main` already): a dialog or side sheet reopened during its closing motion closed
+anyway and its button did nothing (Modal, SideSheet), and the landing's interest form lost a click made while it was
+closing; the styleguide test still expected a student to get "no access" since students go to `/app` (ADR 0021).
+
+Verified: pgTAP 1023 (new 059), Vitest 486, E2E (leads, onboarding, outreach, health, platform, shell, landing,
+landing-interest, styleguide, components, people, subscriptions), tsc, lint, check.
+
+Next: slice 6, usage, costs and system health.
 
 ## Handoff: platform console, slice 4, school onboarding (2026-11-16, branch `phase-6/onboarding`, on the calmer console)
 

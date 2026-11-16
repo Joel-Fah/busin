@@ -33,17 +33,35 @@ const calm = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches
  */
 export function SideSheet({ open, onClose, title, closeLabel, modal = true, children }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
+  const closing = useRef<gsap.core.Tween | null>(null);
   useScrollLock(open && modal);
 
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
-    if (open && !dialog.open) {
-      if (modal) dialog.showModal();
-      else dialog.show();
+    // Opening again during the closing animation cancels it (as in Modal), so the sheet does not close behind the page.
+    if (open && closing.current) {
+      closing.current.kill();
+      closing.current = null;
+    }
+    if (open && (!dialog.open || gsap.getProperty(dialog, "opacity") !== 1)) {
+      if (!dialog.open) {
+        if (modal) dialog.showModal();
+        else dialog.show();
+      }
       gsap.fromTo(dialog, { x: 80, opacity: 0, scale: 0.97 }, { x: 0, opacity: 1, scale: 1, duration: calm() ? 0 : 0.5, ease: "power3.out" });
-    } else if (!open && dialog.open) {
-      gsap.to(dialog, { x: 60, opacity: 0, scale: 0.98, duration: calm() ? 0 : 0.3, ease: "power2.in", onComplete: () => dialog.close() });
+    } else if (!open && dialog.open && !closing.current) {
+      closing.current = gsap.to(dialog, {
+        x: 60,
+        opacity: 0,
+        scale: 0.98,
+        duration: calm() ? 0 : 0.3,
+        ease: "power2.in",
+        onComplete: () => {
+          closing.current = null;
+          dialog.close();
+        },
+      });
     }
   }, [open, modal]);
 

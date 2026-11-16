@@ -11,6 +11,8 @@ import {
   UserMultiple02Icon,
   Clock01Icon,
   Tick02Icon,
+  InboxIcon,
+  ArrowRight01Icon,
 } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 
@@ -33,6 +35,7 @@ import { format, type Messages } from "@/lib/i18n/messages";
 import { getMessages } from "@/lib/i18n/server";
 import { contactedText, needingAttention, parseSchoolRows } from "@/lib/platform-health";
 import { isChannel } from "@/lib/platform-outreach";
+import { parseLeadCounts } from "@/lib/platform-leads";
 import { daysSince, parsePlatformOverview } from "@/lib/platform-overview";
 import { logoUrl } from "@/lib/school";
 import { createClient } from "@/lib/supabase/server";
@@ -102,11 +105,13 @@ async function Overview({ searchParams }: { searchParams: SearchParams }) {
   const { locale, t } = await getMessages();
   const p = t.platform;
   const supabase = await createClient();
-  const [{ data, error }, health, followUpsResult] = await Promise.all([
+  const [{ data, error }, health, followUpsResult, leadCountsResult] = await Promise.all([
     supabase.rpc("platform_overview"),
     supabase.rpc("platform_schools"),
     supabase.rpc("platform_follow_ups"),
+    supabase.rpc("platform_lead_counts"),
   ]);
+  const newLeads = parseLeadCounts(leadCountsResult.data).get("school", "new");
   const attention = needingAttention(parseSchoolRows(health.data));
   const followUps = followUpsResult.data ?? [];
   const query = await searchParams;
@@ -193,6 +198,19 @@ async function Overview({ searchParams }: { searchParams: SearchParams }) {
             {p.needs.all}
           </Link>
         </div>
+        {newLeads > 0 ? (
+          <Link
+            href="/platform/leads?kind=school&status=new"
+            data-testid="platform-new-leads"
+            className="flex items-center justify-between gap-3 rounded-lg bg-surface px-6 py-4 font-semibold text-fg no-underline shadow-soft hover:text-link"
+          >
+            <span className="inline-flex items-center gap-2">
+              <Icon icon={InboxIcon} size={20} />
+              {format(p.leads.newLeads, { n: newLeads })}
+            </span>
+            <Icon icon={ArrowRight01Icon} size={18} />
+          </Link>
+        ) : null}
         {followUps.length > 0 ? (
           <div data-testid="platform-follow-ups">
           <Card className="p-6!">

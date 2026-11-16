@@ -46,7 +46,10 @@ be helped or reminded, and onboards a new school without code.
    sets up the rest in the school's portal. A school can be switched off and back on after a confirmation: switched off,
    it takes no new sign-ups, joins, invites or staff requests, leaves the landing page and is not scored; the people
    already in keep their access.
-9. **Version 1, in slices:** access and overview (this decision's first slice); school health with levels (OK, Watch,
+9. **Leads:** the landing page's requests (schools that want BusIn, people waiting for the apps) are listed in the
+   console with a status (new, contacted, converted, dismissed) and a note; a school lead prefills the new school form,
+   and once the school exists the lead names it. The visitors sent their email to be contacted, so it is shown.
+10. **Version 1, in slices:** access and overview (this decision's first slice); school health with levels (OK, Watch,
    Needs help, Critical) and a nightly health record; reaching out (contacts, ready messages, an in-portal notice, an
    outreach log); school onboarding; leads; usage, costs and system health; account lookup.
 
