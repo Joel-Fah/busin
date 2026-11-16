@@ -31,6 +31,51 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: account deletion, slice 3, the phone apps, complete (2026-11-16, branch `phase-6/account-deletion`)
+
+Done: `AccountDeletionRepository` (core) and its Supabase implementation; a shared `DeleteAccountSection` in `busin_app`
+(a sheet that says what is erased and kept, then the date and "Keep my account"; refusals for the last admin and a
+running trip explained) on the student app's and the ops app's profile, below Sign out. EN and FR strings in
+`busin_ui`. Account deletion is now complete in every app, on the public page and in the console.
+
+Verified: Flutter tests (ui 125, app 13, ops 87, student 407, data 49, core 98), analyze clean, Vitest 501, pgTAP 1071,
+function tests 33, E2E account deletion.
+
+Owner: device-test the deletion in both apps (ask, see the date, keep the account); on the hosted project, follow
+`docs/guides/account-deletion.md` (migration, function secret, deploy, the two Vault values), then give Google Play the
+`/delete-account` link. Not covered: an account blocked before the apps' main screens (a student waiting for a school, a
+student account in the ops app) asks from the website (`/app` or `/delete-account`) for now.
+
+## Handoff: account deletion, slice 2, the web (2026-11-16, branch `phase-6/account-deletion`)
+
+Done: "Delete my account" on the admin portal's profile, the student web app's profile and the console's account page
+(a confirmation that says what is erased and what the school keeps; once asked, the date and "Keep my account"); the
+public page `/delete-account` (steps, what is erased and kept, a form for someone who lost access, linked from the
+landing footer); the console's Lookup shows a scheduled deletion and schedules or cancels one after a confirmation;
+Leads has a "Deletion requests" tab; People hides erased accounts. The copy is one shared EN/FR file.
+
+Also fixed: the BusIn reminder on a school's overview squeezed its text on a phone (slice 3); the school overview could
+scroll sideways on a phone when a list row was long (its grids had no width cap).
+
+Verified: Vitest 501, E2E (account deletion 5, lookup, leads, people, shell, portal, student profile, landing), pgTAP,
+tsc, lint, check.
+
+Next: slice 3, the student and ops apps.
+
+## Handoff: account deletion, slice 1, the backend (2026-11-16, branch `phase-6/account-deletion`, on `phase-6/lookup`)
+
+Owner decisions: records kept but anonymised, a 7-day wait that can be cancelled, asked from every app, a public page and
+the platform console. Done (ADR 0028, migration `20261116180000_account_deletion`): ask, cancel and see a deletion;
+guards for the last admin and running trips; the platform schedules or cancels; the nightly `delete-accounts` Edge
+Function (proof files, soft-deleted sign-in, emptied profile); `deletion` leads from the public page; Lookup shows a
+scheduled deletion. `npm run dev:erase -- <email>` runs it locally. Guide: `docs/guides/account-deletion.md`.
+
+Verified: pgTAP 1071 (new 062), function tests 33 (new erase), a local end-to-end erasure and a fresh sign-up with the
+same email.
+
+Next: slice 2 (web: portal and student web profile, `/delete-account`, the console's Lookup and Leads, People hides
+deleted accounts), slice 3 (student and ops apps).
+
 ## Handoff: platform console, slice 7, account lookup, version 1 complete (2026-11-16, branch `phase-6/lookup`)
 
 Done (migration `20261116170000_account_lookup`, ADR 0027 point 11): a Lookup tab finds one account by its exact email

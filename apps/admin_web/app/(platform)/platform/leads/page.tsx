@@ -126,7 +126,7 @@ async function Leads({ searchParams }: { searchParams: SearchParams }) {
                     <p className="m-0 truncate text-lg font-bold">{lead.kind === "school" ? (lead.organisation ?? lead.name ?? lead.email) : lead.email}</p>
                     <p className="m-0 flex flex-wrap gap-x-2 text-sm text-muted">
                       {lead.kind === "school" && lead.name ? <span>{lead.name}</span> : null}
-                      {lead.kind === "school" ? (
+                      {lead.kind !== "notify" ? (
                         <a href={`mailto:${lead.email}`} className="inline-flex items-center gap-1 font-semibold text-link no-underline">
                           <Icon icon={Mail01Icon} size={14} />
                           {lead.email}

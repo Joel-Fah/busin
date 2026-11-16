@@ -14,6 +14,8 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_riverpod: ^3.4.3
+  # Icons, as busin_ui uses them (same version).
+  hugeicons: ^1.1.1
   flutter_secure_storage: ^11.2.0
   google_sign_in: ^7.0.0
   shared_preferences: ^2.5.6

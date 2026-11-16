@@ -342,6 +342,9 @@ class ProfileScreen extends ConsumerWidget {
         const SizedBox(height: BusinSpace.x6),
         StaggeredIn(index: 5, child: BusinButton(label: l10n.profileSignOut, variant: BusinButtonVariant.danger, icon: HugeIcons.strokeRoundedLogout01, expand: true, onPressed: signOut)),
         const SizedBox(height: BusinSpace.x6),
+        // Deleting the account (ADR 0028), after signing out: rarely used, never in the way.
+        DeleteAccountSection(repository: ref.watch(accountDeletionRepositoryProvider)),
+        const SizedBox(height: BusinSpace.x6),
         Center(child: Text(l10n.profileCredits, style: text.bodySmall?.copyWith(color: p.muted), textAlign: TextAlign.center)),
       ],
     );

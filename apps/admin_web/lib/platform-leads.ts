@@ -3,7 +3,8 @@
  * to be told when the apps are out. What the database returns, read safely, and the filters in the address.
  */
 
-export const LEAD_KINDS = ["school", "notify"] as const;
+/** "deletion": someone who cannot sign in asked for their account's deletion (ADR 0028). */
+export const LEAD_KINDS = ["school", "notify", "deletion"] as const;
 export type LeadKind = (typeof LEAD_KINDS)[number];
 export const LEAD_STATUSES = ["new", "contacted", "converted", "dismissed"] as const;
 export type LeadStatus = (typeof LEAD_STATUSES)[number];
@@ -82,7 +83,7 @@ export function parseLeadCounts(value: unknown): { byKind: Record<LeadKind, numb
     const v = Number(raw[key]);
     return Number.isFinite(v) && v > 0 ? v : 0;
   };
-  const byKind = { school: 0, notify: 0 } as Record<LeadKind, number>;
+  const byKind = { school: 0, notify: 0, deletion: 0 } as Record<LeadKind, number>;
   for (const kind of LEAD_KINDS) for (const status of LEAD_STATUSES) byKind[kind] += n(`${kind}:${status}`);
   return { byKind, get: (kind, status) => n(`${kind}:${status}`) };
 }

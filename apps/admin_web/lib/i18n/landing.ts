@@ -16,7 +16,7 @@ export type LandingCopy = {
     rights: string;
     explore: string;
     forSchools: string;
-    legal: { title: string; privacy: string; terms: string; soon: string; credits: string };
+    legal: { title: string; privacy: string; terms: string; soon: string; credits: string; deleteAccount: string };
   };
   /** The credits page: what the site uses that others made, and under which licence. */
   credits: {
@@ -216,7 +216,7 @@ const en: LandingCopy = {
     ],
     back: "Back to BusIn",
   },
-  footer: { tagline: "A companion for the daily ride.", staff: "Staff sign in", theme: "Theme", rights: "BusIn", explore: "On this page", forSchools: "For schools", legal: { title: "Legal and credits", privacy: "Privacy", terms: "Terms of use", soon: "Soon", credits: "Credits" } },
+  footer: { tagline: "A companion for the daily ride.", staff: "Staff sign in", theme: "Theme", rights: "BusIn", explore: "On this page", forSchools: "For schools", legal: { title: "Legal and credits", privacy: "Privacy", terms: "Terms of use", soon: "Soon", credits: "Credits", deleteAccount: "Delete your account" } },
 };
 
 const fr: LandingCopy = {
@@ -367,7 +367,7 @@ const fr: LandingCopy = {
     ],
     back: "Retour à BusIn",
   },
-  footer: { tagline: "Un compagnon pour le trajet de tous les jours.", staff: "Connexion du personnel", theme: "Thème", rights: "BusIn", explore: "Sur cette page", forSchools: "Pour les écoles", legal: { title: "Mentions et crédits", privacy: "Confidentialité", terms: "Conditions d'utilisation", soon: "Bientôt", credits: "Crédits" } },
+  footer: { tagline: "Un compagnon pour le trajet de tous les jours.", staff: "Connexion du personnel", theme: "Thème", rights: "BusIn", explore: "Sur cette page", forSchools: "Pour les écoles", legal: { title: "Mentions et crédits", privacy: "Confidentialité", terms: "Conditions d'utilisation", soon: "Bientôt", credits: "Crédits", deleteAccount: "Supprimer votre compte" } },
 };
 
 export const landingCatalogues: Record<Locale, LandingCopy> = { en, fr };

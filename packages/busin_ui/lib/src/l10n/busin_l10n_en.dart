@@ -2144,4 +2144,76 @@ class BusinL10nEn extends BusinL10n {
 
   @override
   String get stopAddArea => 'Add your area to see which stop is closest';
+
+  @override
+  String get accountDeleteTitle => 'Delete my account';
+
+  @override
+  String get accountDeleteBody =>
+      'Your account and what identifies you are erased 7 days after you ask. You can cancel until then.';
+
+  @override
+  String get accountDeleteOpen => 'Delete my account';
+
+  @override
+  String accountDeleteScheduled(String date) {
+    return 'Your account will be deleted on $date.';
+  }
+
+  @override
+  String accountDeleteScheduledByPlatform(String date) {
+    return 'BusIn scheduled the deletion of your account for $date, as you asked.';
+  }
+
+  @override
+  String get accountDeleteKeep => 'Keep my account';
+
+  @override
+  String get accountDeleteConfirmTitle => 'Delete your account?';
+
+  @override
+  String get accountDeleteConfirmIntro => 'In 7 days, BusIn erases:';
+
+  @override
+  String get accountDeleteErased1 => 'Your name, email, phone and photo';
+
+  @override
+  String get accountDeleteErased2 => 'Your matricule and your home area';
+
+  @override
+  String get accountDeleteErased3 => 'Your payment proofs and receipts';
+
+  @override
+  String get accountDeleteErased4 => 'Your devices and notification settings';
+
+  @override
+  String get accountDeleteKept =>
+      'Your school keeps its records without your name: your subscriptions and payments, your boardings, the trips you drove.';
+
+  @override
+  String get accountDeletePass =>
+      'Your pass stops working when your account is erased. Any refund is up to your school.';
+
+  @override
+  String get accountDeleteSignInAgain =>
+      'You can sign in again with the same Google account later: it starts as a new account.';
+
+  @override
+  String get accountDeleteConfirm => 'Delete in 7 days';
+
+  @override
+  String get accountDeleteRequested =>
+      'Your account will be deleted in 7 days.';
+
+  @override
+  String get accountDeleteCancelled =>
+      'Deletion cancelled. Your account stays.';
+
+  @override
+  String get accountDeleteLastAdmin =>
+      'You are the last administrator of your school. Make someone else an administrator first.';
+
+  @override
+  String get accountDeleteActiveTrip =>
+      'You are on a running trip. End it first, then ask again.';
 }

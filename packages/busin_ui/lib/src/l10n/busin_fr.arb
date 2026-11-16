@@ -802,5 +802,25 @@
     }
   },
   "stopClosest": "Le plus proche de votre zone",
-  "stopAddArea": "Ajoutez votre zone pour voir l’arrêt le plus proche"
+  "stopAddArea": "Ajoutez votre zone pour voir l’arrêt le plus proche",
+  "accountDeleteTitle": "Supprimer mon compte",
+  "accountDeleteBody": "Votre compte et ce qui vous identifie sont effacés 7 jours après votre demande. Vous pouvez annuler jusque-là.",
+  "accountDeleteOpen": "Supprimer mon compte",
+  "accountDeleteScheduled": "Votre compte sera supprimé le {date}.",
+  "accountDeleteScheduledByPlatform": "BusIn a programmé la suppression de votre compte pour le {date}, comme vous l'avez demandé.",
+  "accountDeleteKeep": "Garder mon compte",
+  "accountDeleteConfirmTitle": "Supprimer votre compte ?",
+  "accountDeleteConfirmIntro": "Dans 7 jours, BusIn efface :",
+  "accountDeleteErased1": "Votre nom, email, téléphone et photo",
+  "accountDeleteErased2": "Votre matricule et votre zone de domicile",
+  "accountDeleteErased3": "Vos preuves de paiement et reçus",
+  "accountDeleteErased4": "Vos appareils et réglages de notifications",
+  "accountDeleteKept": "Votre école garde ses registres sans votre nom : vos abonnements et paiements, vos embarquements, les trajets que vous avez conduits.",
+  "accountDeletePass": "Votre pass cesse de fonctionner quand votre compte est effacé. Un éventuel remboursement dépend de votre école.",
+  "accountDeleteSignInAgain": "Vous pourrez vous reconnecter plus tard avec le même compte Google : ce sera un nouveau compte.",
+  "accountDeleteConfirm": "Supprimer dans 7 jours",
+  "accountDeleteRequested": "Votre compte sera supprimé dans 7 jours.",
+  "accountDeleteCancelled": "Suppression annulée. Votre compte reste.",
+  "accountDeleteLastAdmin": "Vous êtes le dernier administrateur de votre école. Nommez d'abord quelqu'un d'autre administrateur.",
+  "accountDeleteActiveTrip": "Vous êtes sur un trajet en cours. Terminez-le, puis redemandez."
 }

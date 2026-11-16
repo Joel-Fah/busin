@@ -9,6 +9,8 @@ const PUBLIC_PATHS = [
   "/dev/login",
   "/landing",
   "/credits",
+  // How to delete a BusIn account (ADR 0028), the link Google Play asks for.
+  "/delete-account",
   "/robots.txt",
   "/sitemap.xml",
   "/llms.txt",

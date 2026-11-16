@@ -250,6 +250,28 @@ class SupabaseStaffAccessRepository implements StaffAccessRepository {
       });
 }
 
+class SupabaseAccountDeletionRepository implements AccountDeletionRepository {
+  SupabaseAccountDeletionRepository(this._client);
+  final SupabaseClient _client;
+
+  @override
+  Future<ScheduledDeletion?> mine() => guarded(() async {
+        final rows = await _client.rpc<List<dynamic>>('my_account_deletion');
+        return rows.isEmpty ? null : ScheduledDeletion.fromJson(rows.first as Map<String, dynamic>);
+      });
+
+  @override
+  Future<DateTime> request() => guarded(() async {
+        final due = await _client.rpc<String>('request_account_deletion');
+        return DateTime.parse(due).toUtc();
+      });
+
+  @override
+  Future<void> cancel() => guarded(() async {
+        await _client.rpc<void>('cancel_account_deletion');
+      });
+}
+
 class SupabaseStopsRepository implements StopsRepository {
   SupabaseStopsRepository(this._client);
   final SupabaseClient _client;

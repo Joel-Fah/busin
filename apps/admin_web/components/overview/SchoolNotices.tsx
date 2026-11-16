@@ -29,15 +29,18 @@ export async function SchoolNotices({ text, dismiss }: Props) {
   return (
     <section aria-label={text.label} className="flex flex-col gap-3" data-testid="school-notices">
       {data.map((notice) => (
-        <article key={notice.id} className="flex flex-wrap items-start gap-4 rounded-lg bg-info-bg p-5 text-fg shadow-soft">
-          <span className="grid size-10 shrink-0 place-items-center rounded-md bg-surface text-info">
-            <Icon icon={Megaphone01Icon} size={20} />
-          </span>
-          <div className="min-w-0 flex-1">
-            <h2 className="m-0 text-base font-bold">{text.from}</h2>
-            <p className="m-0 mt-1 text-sm whitespace-pre-line">{notice.body}</p>
+        // On a phone the buttons go under the text; from tablet width they sit at the end of the row.
+        <article key={notice.id} className="flex min-w-0 flex-col gap-3 rounded-lg bg-info-bg p-5 text-fg shadow-soft sm:flex-row sm:items-start sm:gap-4">
+          <div className="flex min-w-0 flex-1 items-start gap-3">
+            <span className="grid size-10 shrink-0 place-items-center rounded-md bg-surface text-info">
+              <Icon icon={Megaphone01Icon} size={20} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <h2 className="m-0 text-base font-bold">{text.from}</h2>
+              <p className="m-0 mt-1 text-sm break-words whitespace-pre-line">{notice.body}</p>
+            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex shrink-0 flex-wrap items-center gap-2">
             {isPortalPath(notice.link_path) ? (
               <ButtonLink href={notice.link_path} variant="secondary" icon={ArrowRight01Icon}>
                 {text.open}
