@@ -1,3 +1,4 @@
+import 'package:busin_app/busin_app.dart';
 import 'package:busin_core/busin_core.dart';
 import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/material.dart';
@@ -141,6 +142,8 @@ class _ChooseSchoolScreenState extends ConsumerState<ChooseSchoolScreen> {
                 ),
                 const SizedBox(height: BusinSpace.x4),
                 Center(child: TextButton(onPressed: () => ref.read(signOutProvider)(), child: Text(l10n.actionSignOut))),
+                // Deleting the account stays possible before joining a school (ADR 0028).
+                Center(child: DeleteAccountLink(repository: ref.watch(accountDeletionRepositoryProvider))),
               ],
             ),
           ),
