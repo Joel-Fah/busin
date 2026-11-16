@@ -40,6 +40,8 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 - Store docs: `docs/store/data-safety.md` (Data safety and app content answers for both apps, from the code) and
   `docs/store/listings.md` (titles and descriptions in EN and FR, within Play's limits). Still to make: screenshots, the
   feature graphic, a support email, and the reviewer demo accounts.
+- Delete account from where an account is stuck: a "Delete my account" button opens the deletion card in a sheet on the
+  student app's choose-school, waiting and blocked screens, and the ops app's blocked screen (ADR 0028's gap closed).
 
 ## Handoff: rich text notices (2026-11-17)
 
@@ -79,8 +81,7 @@ function tests 33, E2E account deletion.
 
 Owner: device-test the deletion in both apps (ask, see the date, keep the account); on the hosted project, follow
 `docs/guides/account-deletion.md` (migration, function secret, deploy, the two Vault values), then give Google Play the
-`/delete-account` link. Not covered: an account blocked before the apps' main screens (a student waiting for a school, a
-student account in the ops app) asks from the website (`/app` or `/delete-account`) for now.
+`/delete-account` link. An account blocked before the apps' main screens can delete itself there too (added after).
 
 ## Handoff: account deletion, slice 2, the web (2026-11-16, branch `phase-6/account-deletion`)
 
