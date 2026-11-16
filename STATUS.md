@@ -31,6 +31,13 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: release signing (2026-11-16, #521)
+
+- Release signing: both apps read `android/key.properties` (never in git) and sign release builds with the upload key,
+  else the debug key (checked with `signingReport` both ways). `npm run build:release -- <student|ops> [appbundle|apk]`
+  builds against production and says which key signed it. Guide: `docs/guides/release-signing.md` (owner: make the two
+  upload keys). A full app bundle build was not run here.
+
 ## Handoff: rich text notices (2026-11-17)
 
 - The platform's notices to a school are written with formatting and shown laid out in the portal, on
