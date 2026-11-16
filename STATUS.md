@@ -47,6 +47,12 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
   feature graphic, a support email, and the reviewer demo accounts.
 - Delete account from where an account is stuck: a "Delete my account" button opens the deletion card in a sheet on the
   student app's choose-school, waiting and blocked screens, and the ops app's blocked screen (ADR 0028's gap closed).
+- Housekeeping: `busin-prune-old-rows` (03:10 UTC) clears pushes sent over 30 days ago and failed over 90, "bus near"
+  markers over 30 days, and usage counters over 90 days (migration `20261116190000_prune_old_rows`, local only; hosted
+  with the owner's go). The Health page names it and the deletion job.
+
+Skipped from the light list: Lookup showing an erased account (it would mean keeping something derived from the
+email after erasure), and #496 (needs an Android build-tool upgrade, its own PR). #441 was fixed in #511.
 
 ## Handoff: platform console and account deletion on `dev` and live (2026-11-16)
 
