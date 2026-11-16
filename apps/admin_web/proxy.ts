@@ -11,6 +11,10 @@ const PUBLIC_PATHS = [
   "/credits",
   // How to delete a BusIn account (ADR 0028), the link Google Play asks for.
   "/delete-account",
+  // The terms, the privacy policy and acceptable use, public (the app stores link to them); /privacy and /terms redirect.
+  "/legal",
+  "/privacy",
+  "/terms",
   "/robots.txt",
   "/sitemap.xml",
   "/llms.txt",

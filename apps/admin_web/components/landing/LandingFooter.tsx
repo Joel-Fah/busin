@@ -47,13 +47,13 @@ export function LandingFooter({ copy, nav, invite, locale, t }: Props) {
         </div>
         <nav aria-label={copy.legal.title} className="relative flex flex-col gap-3">
           <p className="m-0 text-sm font-bold text-muted">{copy.legal.title}</p>
-          {/* The privacy policy and the terms are written for the app; their web pages come once the owner has reviewed them. */}
-          {[copy.legal.privacy, copy.legal.terms].map((label) => (
-            <span key={label} className="flex items-center gap-2 font-semibold text-muted">
-              {label}
-              <span className="rounded-xs bg-surface-2 px-2 py-0.5 text-xs font-bold">{copy.legal.soon}</span>
-            </span>
-          ))}
+          {/* The same texts the apps show, public for the app stores (lib/student/legal.ts). */}
+          <Link href="/legal/privacy" className="w-fit font-semibold text-fg no-underline hover:text-accent">
+            {copy.legal.privacy}
+          </Link>
+          <Link href="/legal/terms" className="w-fit font-semibold text-fg no-underline hover:text-accent">
+            {copy.legal.terms}
+          </Link>
           <Link href="/credits" className="w-fit font-semibold text-fg no-underline hover:text-accent">
             {copy.legal.credits}
           </Link>
