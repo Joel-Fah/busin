@@ -30,7 +30,7 @@ class LegalDocument {
 }
 
 /// When the texts were last changed.
-final legalUpdatedAt = DateTime.utc(2026, 11, 14);
+final legalUpdatedAt = DateTime.utc(2026, 11, 16);
 
 /// The document in [languageCode] ('fr' or anything else for English).
 LegalDocument legalDocument(LegalDoc doc, String languageCode) {
@@ -80,7 +80,7 @@ const _termsEn = LegalDocument(
     LegalSection('Changes and ending', bullets: [
       'We may improve, change or stop parts of the service. When a change matters to you, the app tells you.',
       'Your school may suspend an account that breaks these terms or the acceptable use rules.',
-      'You can stop using the app at any time. Ask your school to remove your account and data.',
+      'You can stop using the app at any time, and delete your account yourself from your profile: it is erased 7 days later, and your school keeps its records without your name.',
     ]),
     LegalSection('Law and contact', paragraphs: [
       'These terms follow the law that applies where your school operates. For any question, contact your school\'s administration.',
@@ -126,7 +126,7 @@ const _termsFr = LegalDocument(
     LegalSection('Évolutions et fin d\'usage', bullets: [
       'Nous pouvons améliorer, modifier ou arrêter des parties du service. Quand un changement vous concerne, l\'application vous le dit.',
       'Votre école peut suspendre un compte qui enfreint ces conditions ou les règles d\'usage acceptable.',
-      'Vous pouvez cesser d\'utiliser l\'application à tout moment. Demandez à votre école de supprimer votre compte et vos données.',
+      'Vous pouvez cesser d\'utiliser l\'application à tout moment, et supprimer vous-même votre compte depuis votre profil : il est effacé 7 jours plus tard, et votre école garde ses registres sans votre nom.',
     ]),
     LegalSection('Droit applicable et contact', paragraphs: [
       'Ces conditions suivent le droit applicable là où votre école exerce son activité. Pour toute question, contactez l\'administration de votre école.',
@@ -139,7 +139,7 @@ const _privacyEn = LegalDocument(
     'We keep only what is needed to run your bus subscription.',
     'We never sell your data, and we never track your phone\'s location.',
     'Your school can see your details and your boardings. Other students see nothing about you, unless you join the streaks board.',
-    'You can correct your details in the profile, and ask your school to delete your account.',
+    'You can correct your details in the profile, and delete your account yourself there.',
   ],
   sections: [
     LegalSection('What we keep', paragraphs: ['When you use BusIn we hold:'], bullets: [
@@ -192,7 +192,7 @@ const _privacyEn = LegalDocument(
       'Correct your details in the profile at any time.',
       'Turn notifications off in your phone settings.',
       'Change or remove your area in My area at any time. Place search runs on BusIn\'s own servers, on a copy of OpenStreetMap: what you type is not sent to anyone else.',
-      'Ask your school for a copy of your data, or to delete your account and data.',
+      'Ask your school for a copy of your data. Delete your account yourself from your profile, or, if you cannot sign in any more, ask from the BusIn website (Delete your account, at the bottom of the home page): your name, contact details, photo, matricule, home area and payment proofs are erased 7 days later, and your school keeps its records without your name.',
     ]),
     LegalSection('Changes to this policy', paragraphs: [
       'If we change what we collect or why, we update this page and the app tells you.',
@@ -205,7 +205,7 @@ const _privacyFr = LegalDocument(
     'Nous ne gardons que ce qui est nécessaire pour gérer votre abonnement de bus.',
     'Nous ne vendons jamais vos données et nous ne suivons jamais la position de votre téléphone.',
     'Votre école voit vos informations et vos embarquements. Les autres étudiants ne voient rien de vous, sauf si vous rejoignez le tableau des séries.',
-    'Vous pouvez corriger vos informations dans le profil et demander à votre école de supprimer votre compte.',
+    'Vous pouvez corriger vos informations dans le profil, et y supprimer vous-même votre compte.',
   ],
   sections: [
     LegalSection('Ce que nous gardons', paragraphs: ['Quand vous utilisez BusIn, nous conservons :'], bullets: [
@@ -258,7 +258,7 @@ const _privacyFr = LegalDocument(
       'Corrigez vos informations dans le profil à tout moment.',
       'Désactivez les notifications dans les réglages de votre téléphone.',
       'Modifiez ou supprimez votre zone dans Ma zone à tout moment. La recherche de lieux se fait sur les serveurs de BusIn, sur une copie d\'OpenStreetMap : ce que vous tapez n\'est envoyé à personne d\'autre.',
-      'Demandez à votre école une copie de vos données, ou la suppression de votre compte et de vos données.',
+      'Demandez à votre école une copie de vos données. Supprimez vous-même votre compte depuis votre profil, ou, si vous ne pouvez plus vous connecter, demandez-le depuis le site BusIn (Supprimer votre compte, en bas de la page d\'accueil) : vos nom, coordonnées, photo, matricule, zone de domicile et preuves de paiement sont effacés 7 jours plus tard, et votre école garde ses registres sans votre nom.',
     ]),
     LegalSection('Modifications de cette politique', paragraphs: [
       'Si nous changeons ce que nous collectons ou pourquoi, nous mettons cette page à jour et l\'application vous le dit.',

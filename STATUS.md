@@ -31,6 +31,14 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: light work before the stores (2026-11-16, stacked branches from `phase-6/public-legal-pages`)
+
+- Public legal pages: `/legal/terms`, `/legal/privacy`, `/legal/acceptable-use` (`/privacy` and `/terms` redirect), the
+  same texts as the apps, linked from the landing footer (no more "Soon"). The texts now say people delete their own
+  account (7 days, the school keeps its records anonymised), in the apps and on the web; dated 16 November 2026.
+  Owner: these texts are still the plain-language draft; review them before `dev` goes to `main`, since they become
+  public then.
+
 ## Handoff: platform console and account deletion on `dev` and live (2026-11-16)
 
 Merged into `dev` (owner approved): #510 to #517 (platform console) and #519 (account deletion). Live database (owner
