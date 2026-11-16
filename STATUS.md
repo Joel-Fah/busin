@@ -42,6 +42,9 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
   else the debug key (checked with `signingReport` both ways). `npm run build:release -- <student|ops> [appbundle|apk]`
   builds against production and says which key signed it. Guide: `docs/guides/release-signing.md` (owner: make the two
   upload keys). A full app bundle build was not run here.
+- Store docs: `docs/store/data-safety.md` (Data safety and app content answers for both apps, from the code) and
+  `docs/store/listings.md` (titles and descriptions in EN and FR, within Play's limits). Still to make: screenshots, the
+  feature graphic, a support email, and the reviewer demo accounts.
 
 ## Handoff: platform console and account deletion on `dev` and live (2026-11-16)
 
