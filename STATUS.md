@@ -46,6 +46,10 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
   markers over 30 days, and usage counters over 90 days (migration `20261116190000_prune_old_rows`, local only; hosted
   with the owner's go). The Health page names it and the deletion job.
 
+Distributed for testing (2026-11-16, built from `dev` at `3a21456`, production, debug-signed like the earlier test
+builds): BusIn Ops 0.1.0 (3) and BusIn (student) 0.1.0 (2) to the BusIn Inders group on App Distribution, with release
+notes. They include account deletion in the profile; the deletion on blocked screens (#528) comes with the next builds.
+
 Skipped from the light list: Lookup showing an erased account (it would mean keeping something derived from the
 email after erasure), and #496 (needs an Android build-tool upgrade, its own PR). #441 was fixed in #511.
 
