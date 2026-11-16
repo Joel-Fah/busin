@@ -45,8 +45,11 @@ Leads, Health, Lookup. Branches, stacked in order on `dev`: `phase-6/platform-co
 Verified: pgTAP 1044 (new 061), Vitest 496, E2E (lookup, system, leads, onboarding, outreach, health, platform, shell:
 50), tsc, lint, check. One full pgTAP run ended with a container error and no failing test; three runs after it passed.
 
-Owner: approve creating the GitHub issues (the tool refused them), then the PRs into `dev` in the order above; on the
-hosted project later, the migrations `20261116110000` to `20261116170000` and your own row in `private.platform_admins`.
+Opened (owner approved, 2026-11-16): issues #501 to #509; PRs into `dev`, to merge in this order: #510, #511, #512,
+#513, #514, #515 (also closes #507, the dialog fix), #516, #517.
+
+Owner: review and merge the PRs in order; then, with your go, apply the migrations `20261116110000` to
+`20261116170000` to the hosted project and add your row to `private.platform_admins`; check `PLAN_LIMITS`.
 
 ## Handoff: platform console, slice 6, usage, costs and health (2026-11-16, branch `phase-6/system-health`, on slice 5)
 
