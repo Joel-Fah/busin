@@ -259,7 +259,7 @@ async function Overview({ searchParams }: { searchParams: SearchParams }) {
       {failed ? (
         <Notice tone="bad">{t.overview.loadError}</Notice>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label={t.overview.title}>
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label={t.overview.title}>
           <QuickActions t={t} pending={counts.pending} billingSet={billingSet} payments={payments.count ?? 0} />
           {setup ? <GettingStarted steps={setup} t={t} /> : null}
 
@@ -353,7 +353,7 @@ async function Overview({ searchParams }: { searchParams: SearchParams }) {
                 <p className="m-0 mt-1 text-sm text-muted">{tiles.tripsEmptyHint}</p>
               </div>
             ) : (
-              <ul className="m-0 grid list-none gap-1 p-0">
+              <ul className="m-0 grid list-none grid-cols-[minmax(0,1fr)] gap-1 p-0">
                 {(todaysTrips.data ?? []).map((trip) => (
                   <li key={trip.id}>
                     <Link
@@ -383,7 +383,7 @@ async function Overview({ searchParams }: { searchParams: SearchParams }) {
                 <p className="m-0 mt-1 text-sm text-muted">{tiles.waitingEmptyHint}</p>
               </div>
             ) : (
-              <ul className="m-0 grid list-none gap-1 p-0">
+              <ul className="m-0 grid list-none grid-cols-[minmax(0,1fr)] gap-1 p-0">
                 {(waiting.data ?? []).map((row) => (
                   <li key={row.id}>
                     <Link

@@ -21,6 +21,9 @@ export type LookedUp = {
   staffRequestedAt: string | null;
   staffRequestSchool: string | null;
   staffDeclinedAt: string | null;
+  /** A scheduled deletion (ADR 0028): when, and who asked. */
+  deletionDueAt: string | null;
+  deletionBy: "self" | "platform" | null;
   platformAdmin: boolean;
   subscriptions: Record<string, number>;
   devices: number;
@@ -61,6 +64,8 @@ export function parseLookup(value: unknown): LookedUp {
     staffRequestedAt: text(raw.staff_requested_at),
     staffRequestSchool: text(raw.staff_request_school),
     staffDeclinedAt: text(raw.staff_declined_at),
+    deletionDueAt: text(raw.deletion_due_at),
+    deletionBy: raw.deletion_by === "self" || raw.deletion_by === "platform" ? raw.deletion_by : null,
     platformAdmin: raw.platform_admin === true,
     subscriptions,
     devices: count(raw.devices),
@@ -68,10 +73,10 @@ export function parseLookup(value: unknown): LookedUp {
   };
 }
 
-export const LOOKUP_ERRORS = ["invalid_email", "too_many", "generic"] as const;
+export const LOOKUP_ERRORS = ["invalid_email", "too_many", "last_admin", "active_trip", "generic"] as const;
 export type LookupError = (typeof LOOKUP_ERRORS)[number];
 
 export function lookupErrorKey(message: string | null | undefined): LookupError {
   const key = (message ?? "").trim();
-  return key === "invalid_email" || key === "too_many" ? key : "generic";
+  return (LOOKUP_ERRORS as readonly string[]).includes(key) ? (key as LookupError) : "generic";
 }

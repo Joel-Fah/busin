@@ -1,14 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
-import { Mail01Icon, Search01Icon } from "@hugeicons/core-free-icons";
+import { useActionState, useState } from "react";
+import { Delete02Icon, Mail01Icon, Search01Icon, UserCheck01Icon } from "@hugeicons/core-free-icons";
 
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
 import { Input } from "@/components/ui/Input";
+import { Modal } from "@/components/ui/Modal";
 import { Notice } from "@/components/ui/Notice";
 import type { LookupState } from "@/app/(platform)/platform/lookup/actions";
 import { format } from "@/lib/i18n/format";
@@ -28,6 +29,7 @@ const STATUS_TONE = { verified: "ok", pending: "warn", suspended: "bad" } as con
 /** The lookup form and where the account found stands. Read only. */
 export function AccountLookup({ action, text, roles, statuses, subscriptionStatuses, locale }: Props) {
   const [state, formAction, pending] = useActionState(action, { email: "", result: null, error: null });
+  const [confirming, setConfirming] = useState(false);
   const day = (iso: string) => new Intl.DateTimeFormat(locale, { day: "numeric", month: "long", year: "numeric" }).format(new Date(iso));
   const when = (iso: string) => new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date(iso));
   const r = state.result;
@@ -130,6 +132,14 @@ export function AccountLookup({ action, text, roles, statuses, subscriptionStatu
                 <dt className="text-muted">{text.devices}</dt>
                 <dd className="m-0 font-semibold tabular-nums">{r.devices}</dd>
               </div>
+              <div data-testid="lookup-deletion">
+                <dt className="text-muted">{text.deletion}</dt>
+                <dd className="m-0 font-semibold">
+                  {r.deletionDueAt
+                    ? format(text.deletionOn, { date: day(r.deletionDueAt), who: r.deletionBy === "platform" ? text.deletionPlatform : text.deletionSelf })
+                    : text.deletionNone}
+                </dd>
+              </div>
               {r.provider ? (
                 <div>
                   <dt className="text-muted">{text.signIn}</dt>
@@ -142,7 +152,46 @@ export function AccountLookup({ action, text, roles, statuses, subscriptionStatu
                 {format(text.invited, { role: roles[(r.invite.role ?? "staff") as keyof typeof roles] ?? "", school: r.invite.schoolName, date: day(r.invite.expiresAt) })}
               </p>
             ) : null}
+            {r.id ? (
+              <div>
+                {r.deletionDueAt ? (
+                  <form action={formAction}>
+                    <input type="hidden" name="email" value={state.email} />
+                    <input type="hidden" name="user" value={r.id} />
+                    <input type="hidden" name="intent" value="cancel" />
+                    <Button type="submit" variant="secondary" icon={UserCheck01Icon} disabled={pending}>
+                      {text.cancelDeletion}
+                    </Button>
+                  </form>
+                ) : (
+                  <Button variant="ghost" icon={Delete02Icon} onClick={() => setConfirming(true)} className="-ml-3">
+                    {text.scheduleDeletion}
+                  </Button>
+                )}
+              </div>
+            ) : null}
           </Card>
+          <Modal
+            open={confirming}
+            onClose={() => setConfirming(false)}
+            title={text.scheduleTitle}
+            description={text.scheduleBody}
+            actions={
+              <>
+                <Button variant="ghost" onClick={() => setConfirming(false)}>
+                  {text.cancel}
+                </Button>
+                <form action={formAction} onSubmit={() => setConfirming(false)}>
+                  <input type="hidden" name="email" value={state.email} />
+                  <input type="hidden" name="user" value={r.id ?? ""} />
+                  <input type="hidden" name="intent" value="schedule" />
+                  <Button type="submit" variant="danger" icon={Delete02Icon}>
+                    {text.scheduleDeletion}
+                  </Button>
+                </form>
+              </>
+            }
+          />
         </div>
       ) : null}
     </div>

@@ -33,7 +33,7 @@ describe("filters", () => {
 describe("parseLeadCounts", () => {
   it("counts by kind, and by kind and status", () => {
     const counts = parseLeadCounts({ "school:new": 3, "school:contacted": 2, "notify:new": 40 });
-    expect(counts.byKind).toEqual({ school: 5, notify: 40 });
+    expect(counts.byKind).toEqual({ school: 5, notify: 40, deletion: 0 });
     expect(counts.get("school", "new")).toBe(3);
     expect(counts.get("school", "dismissed")).toBe(0);
   });

@@ -18,7 +18,7 @@ type Props = {
 /** One cell of the overview grid: a titled card whose action leads to the full page. */
 export function Tile({ title, action, children, className = "", testId }: Props) {
   return (
-    <Card className={`flex flex-col gap-5 p-6! sm:p-7! ${className}`}>
+    <Card className={`flex min-w-0 flex-col gap-5 p-6! sm:p-7! ${className}`}>
       <div data-testid={testId} className="relative flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <h2 className="text-base font-bold tracking-tight">{title}</h2>
         {action ? (

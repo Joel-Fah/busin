@@ -91,6 +91,8 @@ async function PeopleList({ searchParams }: { searchParams: SearchParams }) {
     .select("id, full_name, email, role, status, matricule, created_at, join_requested_at", { count: "exact" })
     // The queue is oldest request first, so no one waits forever; the other lists are newest first.
     .order(verifying ? "join_requested_at" : "created_at", { ascending: verifying })
+    // Erased accounts (ADR 0028) stay only as "Deleted account" in the school's records, not in People.
+    .is("deleted_at", null)
     .range(from, to);
   if (verifying) request = request.eq("role", "student").eq("status", "pending").not("join_requested_at", "is", null);
   else if (role !== "all" && role !== "invited") request = request.eq("role", role);
@@ -123,7 +125,7 @@ async function PeopleList({ searchParams }: { searchParams: SearchParams }) {
     invitedCount,
     inviting ? invitedRows : Promise.resolve({ data: [] as { email: string; role: "student" | "staff" | "admin"; expires_at: string }[] }),
     ...ROLES.map((r) => {
-      let counting = supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", r);
+      let counting = supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", r).is("deleted_at", null);
       if (q) counting = counting.or(searchFilter(q));
       return counting;
     }),

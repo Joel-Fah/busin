@@ -31,6 +31,22 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: account deletion, slice 2, the web (2026-11-16, branch `phase-6/account-deletion`)
+
+Done: "Delete my account" on the admin portal's profile, the student web app's profile and the console's account page
+(a confirmation that says what is erased and what the school keeps; once asked, the date and "Keep my account"); the
+public page `/delete-account` (steps, what is erased and kept, a form for someone who lost access, linked from the
+landing footer); the console's Lookup shows a scheduled deletion and schedules or cancels one after a confirmation;
+Leads has a "Deletion requests" tab; People hides erased accounts. The copy is one shared EN/FR file.
+
+Also fixed: the BusIn reminder on a school's overview squeezed its text on a phone (slice 3); the school overview could
+scroll sideways on a phone when a list row was long (its grids had no width cap).
+
+Verified: Vitest 501, E2E (account deletion 5, lookup, leads, people, shell, portal, student profile, landing), pgTAP,
+tsc, lint, check.
+
+Next: slice 3, the student and ops apps.
+
 ## Handoff: account deletion, slice 1, the backend (2026-11-16, branch `phase-6/account-deletion`, on `phase-6/lookup`)
 
 Owner decisions: records kept but anonymised, a 7-day wait that can be cancelled, asked from every app, a public page and
