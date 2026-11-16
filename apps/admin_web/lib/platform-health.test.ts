@@ -9,6 +9,7 @@ import {
   parseSchoolRows,
   parseSignal,
   signalSentence,
+  signalValue,
   thresholdsText,
   type SchoolHealthRow,
 } from "./platform-health";
@@ -122,5 +123,21 @@ describe("parseSchoolDetail", () => {
   });
   it("is null for an unknown school", () => {
     expect(parseSchoolDetail(null)).toBeNull();
+  });
+});
+
+describe("signalValue", () => {
+  const base = parseSignal(pending)!;
+  it("says the value in a few words", () => {
+    expect(signalValue(base, en.platform.health, "en")).toBe("9.4 days");
+    expect(signalValue({ ...base, value: 1 }, en.platform.health, "en")).toBe("1 day");
+    expect(signalValue({ ...base, signal: "scanned_trips_pct", value: 89 }, en.platform.health, "en")).toBe("89%");
+    expect(signalValue({ ...base, signal: "scanned_trips_pct", value: 89 }, fr.platform.health, "fr")).toBe("89 %");
+    expect(signalValue({ ...base, signal: "new_students_change_pct", value: 12 }, en.platform.health, "en")).toBe("+12%");
+    expect(signalValue({ ...base, signal: "setup_missing", value: 2 }, en.platform.health, "en")).toBe("2 missing");
+    expect(signalValue({ ...base, signal: "profile_missing", value: 0 }, en.platform.health, "en")).toBe("Complete");
+    expect(signalValue({ ...base, signal: "semester_days_left", value: -1 }, en.platform.health, "en")).toBe("Ended");
+    expect(signalValue({ ...base, signal: "admin_idle_days", value: 0 }, en.platform.health, "en")).toBe("Today");
+    expect(signalValue({ ...base, value: null }, en.platform.health, "en")).toBe("No data");
   });
 });

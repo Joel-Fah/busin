@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { School01Icon } from "@hugeicons/core-free-icons";
 
 import { LevelChip } from "@/components/platform/LevelChip";
+import { SignalChip } from "@/components/platform/SignalChip";
 import { SchoolLogo } from "@/components/SchoolLogo";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Icon } from "@/components/ui/Icon";
@@ -18,7 +19,7 @@ import { supabaseConfig } from "@/lib/env";
 import { format } from "@/lib/i18n/messages";
 import { getMessages } from "@/lib/i18n/server";
 import { daysSince } from "@/lib/platform-overview";
-import { LEVEL_KEYS, LEVEL_TONES, contactedText, levelCounts, levelFromParam, parseSchoolRows, signalSentence } from "@/lib/platform-health";
+import { LEVEL_KEYS, LEVEL_TONES, contactedText, levelCounts, levelFromParam, parseSchoolRows } from "@/lib/platform-health";
 import { logoUrl } from "@/lib/school";
 import { createClient } from "@/lib/supabase/server";
 
@@ -71,7 +72,17 @@ async function Schools({ searchParams }: { searchParams: SearchParams }) {
 
   return (
     <>
-      <PageHeader title={p.list.title} subtitle={p.list.subtitle} />
+      <PageHeader
+        title={p.list.title}
+        help={{
+          label: t.help.open,
+          title: p.help.schools.title,
+          intro: p.help.schools.intro,
+          scenarios: Object.values(p.help.schools.scenarios),
+          scenariosLabel: t.help.scenarios,
+          closeLabel: t.help.close,
+        }}
+      />
       <StickyToolbar>
         <Tabs label={p.list.filterLabel} items={tabs} active={level === null ? "all" : LEVEL_KEYS[level]} />
       </StickyToolbar>
@@ -113,11 +124,11 @@ async function Schools({ searchParams }: { searchParams: SearchParams }) {
                     {row.reasons.length === 0 ? (
                       <span className="text-muted">{p.list.noReason}</span>
                     ) : (
-                      <ul className="m-0 flex list-none flex-col gap-1 p-0">
-                        {row.reasons.slice(0, 2).map((reason) => (
-                          <li key={reason.signal}>{signalSentence(reason, p.health, locale)}</li>
+                      <div className="flex flex-wrap gap-1.5">
+                        {row.reasons.slice(0, 3).map((reason) => (
+                          <SignalChip key={reason.signal} signal={reason} copy={p.health} locale={locale} paused={Boolean(row.snoozed[reason.signal])} />
                         ))}
-                      </ul>
+                      </div>
                     )}
                     {row.lastOutreachAt ? <p className="m-0 mt-1 text-xs text-muted">{contactedText(row.lastOutreachAt, p.outreach)}</p> : null}
                   </Td>

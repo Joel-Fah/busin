@@ -14,7 +14,7 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 | 3 Student app | Lightweight student app | **Done, signed off by the owner on a device (2026-11-11) and merged into `dev`.** Sign-in, subscribe with proof, live approval, rotating code, history, live bus, push, EN and FR, light and dark, plus the ideas round (school join, notifications and reminders, on-board card, streaks and leaderboard, bus near my stop, My area with OpenStreetMap place search). Still open: a hosted Supabase project, iOS configuration, Firebase for push |
 | 4 Ops app | Scanner and driver mode | **Signed off by the owner (2026-11-11) after device testing, and merged into `dev`.** Owner decisions: day keys for offline checks (ADR 0014), any staff phone scans and the trip's assignee shares the position, the assignee starts and ends the trip (any staff when none). Slices: day keys (#249), trip control, shared app package, ops shell, scanner with offline queue, driver mode, then the owner's test on a real run |
 | 5 Insights | Density map, pickup and route suggestions | **Feature complete and merged into `dev`, waiting for the owner's check.** Stop load (#261), proximity (#265), students nearer another stop (#287), the graph view (#289), stop suggestions (#291). Route optimization (OR-Tools) and the weekly summary stay for later, as agreed |
-| 6 Scale | More schools, payments, hardware tracker | **Started (2026-11-16): the platform console** (ADR 0027), in seven slices; slice 1 (access, audit, overview) on `phase-6/platform-console`, slice 2 (school health) on `phase-6/school-health`, slice 3 (reaching out) on `phase-6/outreach` |
+| 6 Scale | More schools, payments, hardware tracker | **Started (2026-11-16): the platform console** (ADR 0027), in seven slices; slice 1 (access, audit, overview) on `phase-6/platform-console`, slice 2 (school health) on `phase-6/school-health`, slice 3 (reaching out) on `phase-6/outreach`, calmer console on `phase-6/console-calm` |
 
 ## Blockers (owner)
 
@@ -30,6 +30,14 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 ## Findings from the audit that apply only to the legacy app
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
+
+## Handoff: platform console, a calmer console (2026-11-16, branch `phase-6/console-calm`, on slice 3)
+
+Owner feedback: the console read as text everywhere. Now: signals are tiles (short name, value in large type, level,
+missing items as small chips) with the sentence and thresholds behind an information tip; the schools list and "Needs
+you" show signal chips ("Answer time 4.6 days") with the sentence as a tip; overview tiles show short "number label"
+breakdowns; explanations moved to each page's help sheet; writing a message and logging a contact open in side panels;
+recent administrator actions are folded, with readable names.
 
 ## Handoff: platform console, slice 3, reaching out (2026-11-16, branch `phase-6/outreach`, on slice 2)
 

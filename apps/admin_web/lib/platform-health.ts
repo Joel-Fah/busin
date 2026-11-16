@@ -220,11 +220,14 @@ export function levelFromParam(value: string | string[] | undefined): Level | nu
 }
 
 /** `zero`, when given, words a value of 0 ("Nothing missing", "An administrator acted today"). */
-export type SignalCopy = { title: string; sentence: string; none: string; ended?: string; zero?: string };
+export type SignalCopy = { short: string; title: string; sentence: string; none: string; ended?: string; zero?: string };
 export type HealthCopy = {
   signals: Record<SignalKey, SignalCopy>;
   /** Names of the missing profile and setup items, by key. */
   items: Record<string, string>;
+  values: { days: string; oneDay: string; today: string; pct: string; missing: string; complete: string; ended: string; noData: string };
+  gracedShort: string;
+  pausedShort: string;
   thresholdsAbove: string;
   thresholdsBelow: string;
   unit: { days: string; pct: string; count: string };
@@ -294,4 +297,23 @@ export function levelCounts(rows: SchoolHealthRow[]): { byLevel: [number, number
 export function contactedText(iso: string, copy: { contactedToday: string; contactedDaysAgo: string }, now: Date = new Date()): string {
   const days = Math.max(0, Math.floor((now.getTime() - Date.parse(iso)) / 86_400_000));
   return days === 0 ? copy.contactedToday : format(copy.contactedDaysAgo, { n: days });
+}
+
+/**
+ * A signal's value in a few words, for tiles and chips: "4.6 days", "89%", "2 missing", "Complete", "Today". The full
+ * sentence (signalSentence) stays for tips and messages.
+ */
+export function signalValue(signal: Signal, copy: HealthCopy, locale: string): string {
+  const v = copy.values;
+  if (signal.value === null) return v.noData;
+  const n = signal.value;
+  if (signal.signal === "profile_missing" || signal.signal === "setup_missing") return n === 0 ? v.complete : format(v.missing, { n: shown(n, locale) });
+  if (signal.signal === "semester_days_left" && n < 0) return v.ended;
+  if (signal.signal.endsWith("_pct")) {
+    const sign = signal.signal === "new_students_change_pct" && n > 0 ? "+" : "";
+    return format(v.pct, { n: `${sign}${shown(n, locale)}` });
+  }
+  if (n === 0 && signal.signal === "admin_idle_days") return v.today;
+  if (n === 1) return v.oneDay;
+  return format(v.days, { n: shown(n, locale) });
 }
