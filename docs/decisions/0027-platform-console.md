@@ -49,7 +49,12 @@ be helped or reminded, and onboards a new school without code.
 9. **Leads:** the landing page's requests (schools that want BusIn, people waiting for the apps) are listed in the
    console with a status (new, contacted, converted, dismissed) and a note; a school lead prefills the new school form,
    and once the school exists the lead names it. The visitors sent their email to be contacted, so it is shown.
-10. **Version 1, in slices:** access and overview (this decision's first slice); school health with levels (OK, Watch,
+10. **Usage, costs and health:** one function reports the database size, file storage by bucket, accounts active in
+    30 days, map directions and place searches this month, push notifications sent, failed and waiting, devices by
+    kind, each scheduled job with its last run and failures, and running trips whose bus sent no position for 15
+    minutes. The plan limits it is measured against live in the console code (`PLAN_LIMITS`), so a plan change needs no
+    migration; a limit turns amber at 80% and red at 95%.
+11. **Version 1, in slices:** access and overview (this decision's first slice); school health with levels (OK, Watch,
    Needs help, Critical) and a nightly health record; reaching out (contacts, ready messages, an in-portal notice, an
    outreach log); school onboarding; leads; usage, costs and system health; account lookup.
 

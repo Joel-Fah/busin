@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import {
+  Activity01Icon,
   Analytics01Icon,
   Cancel01Icon,
   DashboardSquare01Icon,
@@ -29,7 +30,7 @@ import { INTRO_DONE_EVENT } from "@/lib/intro";
 import { NAV_DOCK_ID } from "./NavDock";
 
 /** The school portal's tabs, then the platform console's (ADR 0027). */
-export type NavKey = "overview" | "subscriptions" | "people" | "trips" | "scans" | "insights" | "platform" | "platformSchools" | "platformLeads";
+export type NavKey = "overview" | "subscriptions" | "people" | "trips" | "scans" | "insights" | "platform" | "platformSchools" | "platformLeads" | "platformHealth";
 
 const ICONS: Record<NavKey, IconSvgElement> = {
   overview: GeometricShapes01Icon,
@@ -41,6 +42,7 @@ const ICONS: Record<NavKey, IconSvgElement> = {
   platform: DashboardSquare01Icon,
   platformSchools: School01Icon,
   platformLeads: InboxIcon,
+  platformHealth: Activity01Icon,
 };
 
 const HREFS: Record<NavKey, string> = {
@@ -53,6 +55,7 @@ const HREFS: Record<NavKey, string> = {
   platform: "/platform",
   platformSchools: "/platform/schools",
   platformLeads: "/platform/leads",
+  platformHealth: "/platform/health",
 };
 
 /** Home pages: lit only on their own address, not on the pages below them. */

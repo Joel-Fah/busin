@@ -1142,6 +1142,9 @@ isOneToOne: false
 "platform_set_school_status":
 { Args: { "p_active": boolean,"p_school_id": string }; Returns: undefined
                            },
+"platform_system_health":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
 "platform_update_lead":
 { Args: { "p_lead_id": string,"p_note"?: string,"p_school_id"?: string,"p_status": string }; Returns: undefined
                            },

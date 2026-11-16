@@ -17,7 +17,7 @@ export default function PlatformLayout({ children }: { children: React.ReactNode
   );
 }
 
-const KEYS: NavKey[] = ["platform", "platformSchools", "platformLeads"];
+const KEYS: NavKey[] = ["platform", "platformSchools", "platformLeads", "platformHealth"];
 
 /**
  * The platform console's shell (ADR 0027): the same look as the school portal, its own tabs. Someone who is not a
