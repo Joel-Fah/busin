@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { onboardingErrorKey, readNewSchool, timeZones } from "./platform-onboarding";
+import { onboardingErrorKey, readNewSchool, timeZoneOptions, timeZones } from "./platform-onboarding";
 
 const form = (entries: Record<string, string>) => {
   const data = new FormData();
@@ -39,5 +39,21 @@ describe("onboardingErrorKey and timeZones", () => {
   });
   it("lists real time zones", () => {
     expect(timeZones()).toContain("Africa/Douala");
+  });
+});
+
+describe("timeZoneOptions", () => {
+  it("reads each zone with spaces and its offset on the day", () => {
+    const winter = new Date("2026-01-15T12:00:00Z");
+    expect(timeZoneOptions(["America/New_York", "Asia/Kolkata", "Africa/Douala", "UTC"], winter)).toEqual([
+      { value: "America/New_York", label: "America/New York", detail: "UTC-5" },
+      { value: "Asia/Kolkata", label: "Asia/Kolkata", detail: "UTC+5:30" },
+      { value: "Africa/Douala", label: "Africa/Douala", detail: "UTC+1" },
+      { value: "UTC", label: "UTC", detail: "UTC" },
+    ]);
+    expect(timeZoneOptions(["America/New_York"], new Date("2026-07-15T12:00:00Z"))[0].detail).toBe("UTC-4");
+  });
+  it("keeps a zone it cannot format, without an offset", () => {
+    expect(timeZoneOptions(["Mars/Olympus"])).toEqual([{ value: "Mars/Olympus", label: "Mars/Olympus", detail: "" }]);
   });
 });

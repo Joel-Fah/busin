@@ -1,4 +1,5 @@
 import 'package:busin_app/busin_app.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -6,6 +7,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'src/app.dart';
 import 'src/providers.dart';
+import 'src/push/trip_reminders.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,6 +33,8 @@ Future<void> main() async {
   final client = Supabase.instance.client;
   // Without Firebase configured this is a stand-in that does nothing, and the app works the same otherwise.
   final push = await FirebasePushService.tryCreate();
+  // Trip reminders arrive as data messages and are drawn by the app, also when it is closed (their End trip button).
+  if (push.available) FirebaseMessaging.onBackgroundMessage(opsBackgroundMessage);
   // Crash reports (ADR 0025): release builds only, no personal data. Nothing without Firebase or in a debug build.
   final crashes = await startCrashReports(app: 'ops');
   // Read before the first frame, so the chosen theme and language are there from the start.

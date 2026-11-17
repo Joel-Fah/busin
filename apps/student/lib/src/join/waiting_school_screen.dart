@@ -1,3 +1,4 @@
+import 'package:busin_app/busin_app.dart';
 import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -108,6 +109,8 @@ class _WaitingSchoolScreenState extends ConsumerState<WaitingSchoolScreen> {
                   Center(
                     child: TextButton(onPressed: () => ref.read(signOutProvider)(), child: Text(l10n.actionSignOut)),
                   ),
+                  // Deleting the account stays possible while waiting for a school (ADR 0028).
+                  Center(child: DeleteAccountLink(repository: ref.watch(accountDeletionRepositoryProvider))),
                 ],
               ),
             ),

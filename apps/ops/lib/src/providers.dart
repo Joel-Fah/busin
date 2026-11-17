@@ -8,6 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'access.dart';
 import 'keys/roster.dart';
 import 'offline/ops_snapshot.dart';
+import 'push/trip_reminders.dart';
 
 /// Set once at start-up (see main.dart). Tests override the providers below it instead.
 final appConfigProvider = Provider<AppConfig>((ref) => throw UnimplementedError('appConfigProvider is overridden at start-up'));
@@ -29,6 +30,9 @@ final tripsRepositoryProvider = Provider<TripsRepository>((ref) => ref.watch(rep
 
 /// Firebase Cloud Messaging, or a stand-in that does nothing when this build has no Firebase configuration.
 final pushServiceProvider = Provider<PushService>((ref) => const NoPushService());
+
+/// Draws trip reminders with their End trip button, and reports what the person chose.
+final tripReminderNotificationsProvider = Provider<TripReminderNotifications>((ref) => LocalTripReminderNotifications());
 
 /// Crash reporting (ADR 0025). Replaced at start-up in release builds; nothing is sent otherwise.
 final crashReporterProvider = Provider<CrashReporter>((ref) => const NoCrashReporter());

@@ -2,7 +2,7 @@ import { randomBytes, randomUUID } from "node:crypto";
 
 import { expect, test } from "@playwright/test";
 
-import { createUser, deleteSchool, deleteUser, serviceClient, setPlatformAdmin, signInBrowser, type TestUser } from "./support";
+import { createUser, deleteSchool, deleteUser, searchAndChoose, serviceClient, setPlatformAdmin, signInBrowser, type TestUser } from "./support";
 
 // Leads from the landing page in the platform console (ADR 0027, slice 5).
 const tag = randomBytes(3).toString("hex");
@@ -63,7 +63,7 @@ test("the school is created from the lead, which then names it", async ({ contex
   await page.locator(`[data-lead="${schoolLead}"]`).getByRole("link", { name: "Create the school" }).click();
   await expect(page.getByLabel("Name", { exact: true })).toHaveValue(org);
   await expect(page.getByLabel("Their Google email")).toHaveValue(leadEmail);
-  await page.getByLabel("Time zone").fill("Africa/Douala");
+  await searchAndChoose(page, "Time zone", "Douala", /^Africa\/Douala/);
   await page.getByRole("button", { name: "Create the school" }).click();
   await expect(page).toHaveURL(/\/platform\/schools\/[0-9a-f-]{36}/);
   schoolId = page.url().match(/schools\/([0-9a-f-]{36})/)?.[1] ?? null;
