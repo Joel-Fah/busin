@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(63);
+select plan(67);
 
 -- Mobile money payments (ADR 0029): opening a payment, settling it once, approving the request, the school's ledger,
 -- BusIn's charge, refunds of what cannot be applied, and who reads what.
@@ -36,6 +36,9 @@ select throws_ok($$insert into public.subscriptions (school_id, student_id, seme
 
 reset role;
 insert into private.school_payment_terms (school_id, enabled) values ('e0000000-0000-4000-8000-0000000000a1', true);
+-- Example rates: pawaPay 1 percent, then MTN 1 percent and Orange 1.5 percent each way; no margin, for round numbers.
+update private.payment_settings set fee_buffer_percent = 0;
+update private.provider_rates set mmo_percent = 1.00 where provider = 'MTN_MOMO_CMR' and operation in ('deposit', 'payout');
 set local role authenticated;
 
 -- Ana pays in full (asking as a student), Ben in installments, Cy in full.
@@ -52,19 +55,27 @@ set local role authenticated;
 
 -- ---------------------------------------------------------------- the quote and opening a payment
 set local "request.jwt.claims" = '{"sub":"e1000000-0000-4000-8000-0000000000a2","role":"authenticated"}';
-select results_eq($$select amount_xaf, fee_xaf, total_xaf from public.payment_quote('subscription', current_setting('test.subA')::uuid)$$,
-  $$values (20000, 500, 20500)$$, 'the quote: the school''s price, 2.5 percent on top, and the total');
+select results_eq($$select provider, amount_xaf, fee_xaf, total_xaf from public.payment_quote('subscription', current_setting('test.subA')::uuid)$$,
+  $$values ('MTN_MOMO_CMR'::text, 20000, 817, 20817), ('ORANGE_CMR'::text, 20000, null::integer, null::integer)$$,
+  'the quote per operator: the fee covers collecting (2 percent) and paying the school (2 percent); unknown rates give no fee');
+select throws_ok($$select * from public.start_payment('subscription', current_setting('test.subA')::uuid, 'ORANGE_CMR', '237693456789')$$,
+  '55000', 'fees_not_set', 'no payment starts with an operator whose rates are not set');
+reset role;
+update private.provider_rates set mmo_percent = 1.50 where provider = 'ORANGE_CMR' and operation in ('deposit', 'payout');
+set local role authenticated;
+set local "request.jwt.claims" = '{"sub":"e1000000-0000-4000-8000-0000000000a2","role":"authenticated"}';
+select is((select fee_xaf from public.payment_quote('subscription', current_setting('test.subA')::uuid, 'ORANGE_CMR')), 1026, 'Orange costs more, so its fee is higher');
 select throws_ok($$select * from public.payment_quote('subscription', 'e4000000-0000-4000-8000-0000000000a3')$$, 'P0002', 'not_found', 'another student''s request is not found');
 select throws_ok($$select * from public.start_payment('subscription', current_setting('test.subA')::uuid, 'WAVE_CMR', '237653456789')$$, '22023', 'bad_provider', 'an unknown operator is refused');
 select throws_ok($$select * from public.start_payment('subscription', current_setting('test.subA')::uuid, 'MTN_MOMO_CMR', '+237 653456789')$$, '22023', 'bad_phone', 'the number is checked');
-select throws_ok($$insert into public.payments (school_id, paid_by, purpose, subscription_id, item_key, amount_xaf, fee_xaf, fee_percent, provider, payer_masked)
-  values ('e0000000-0000-4000-8000-0000000000a1', 'e1000000-0000-4000-8000-0000000000a2', 'subscription', current_setting('test.subA')::uuid, 'x', 1, 0, 0, 'ORANGE_CMR', 'x')$$,
+select throws_ok($$insert into public.payments (school_id, paid_by, purpose, subscription_id, item_key, amount_xaf, fee_xaf, provider, payer_masked)
+  values ('e0000000-0000-4000-8000-0000000000a1', 'e1000000-0000-4000-8000-0000000000a2', 'subscription', current_setting('test.subA')::uuid, 'x', 1, 0, 'ORANGE_CMR', 'x')$$,
   '42501', null, 'nobody writes a payment directly');
 
 select lives_ok($$select set_config('test.pay1', (select id::text from public.start_payment('subscription', current_setting('test.subA')::uuid, 'MTN_MOMO_CMR', '237653456789')), true)$$,
   'the student opens a payment');
 select is((select payer_masked from public.payments where id = current_setting('test.pay1')::uuid), '2376*****789', 'the number is kept partly hidden');
-select is((select total_xaf from public.payments where id = current_setting('test.pay1')::uuid), 20500, 'with the total fixed when it starts');
+select is((select total_xaf from public.payments where id = current_setting('test.pay1')::uuid), 20817, 'with the total fixed when it starts');
 select throws_ok($$select * from public.start_payment('subscription', current_setting('test.subA')::uuid, 'ORANGE_CMR', '237693456789')$$,
   '55000', 'payment_in_progress', 'only one payment at a time for the same request');
 
@@ -88,13 +99,13 @@ reset role;
 set local "request.jwt.claims" = '{}';
 select is(public.settle_payment(current_setting('test.pay1')::uuid, 'ACCEPTED')->>'status', 'accepted', 'pawaPay accepted it');
 select is(public.settle_payment('e9000000-0000-4000-8000-000000000999', 'COMPLETED'), null, 'an unknown payment is ignored');
-select is(public.settle_payment(current_setting('test.pay1')::uuid, 'COMPLETED', '20500', 'XAF', 'MP123')->>'status', 'completed', 'then completed it');
+select is(public.settle_payment(current_setting('test.pay1')::uuid, 'COMPLETED', '20817', 'XAF', 'MP123')->>'status', 'completed', 'then completed it');
 select is((select status::text from public.subscriptions where id = current_setting('test.subA')::uuid), 'approved', 'the request is approved by its payment');
 select matches((select receipt_no from public.payments where id = current_setting('test.pay1')::uuid), '^BI-[0-9]{4}-[0-9]{6}$', 'with a numbered receipt');
 select is((select outcome from public.payments where id = current_setting('test.pay1')::uuid), 'applied', 'the money was applied');
 select results_eq($$select kind from private.notification_outbox where user_id = 'e1000000-0000-4000-8000-0000000000a2' order by created_at$$,
   $$values ('payment_completed'::text)$$, 'the student is told once, as a payment');
-select is(public.settle_payment(current_setting('test.pay1')::uuid, 'COMPLETED', '20500', 'XAF')->>'changed', 'false', 'the same result twice changes nothing');
+select is(public.settle_payment(current_setting('test.pay1')::uuid, 'COMPLETED', '20817', 'XAF')->>'changed', 'false', 'the same result twice changes nothing');
 select is((select count(*)::int from public.school_ledger where payment_id = current_setting('test.pay1')::uuid), 1, 'and credits the school once');
 select results_eq($$select * from private.school_balance('e0000000-0000-4000-8000-0000000000a1')$$, $$values (0, 20000, 0)$$,
   'the school''s share is on hold, not available yet');
@@ -136,10 +147,10 @@ select is(public.settle_payment(current_setting('test.pay4')::uuid, 'NOT_FOUND')
 
 -- It turns out pawaPay did take the money after all, but meanwhile the request was paid another way: refunded in full.
 update public.subscriptions set status = 'approved', proof_path = 'x/y.jpg' where id = 'e4000000-0000-4000-8000-0000000000a4';
-select is(public.settle_payment(current_setting('test.pay4')::uuid, 'COMPLETED', '20500', 'XAF')->>'status', 'completed', 'a late success is honoured');
+select is(public.settle_payment(current_setting('test.pay4')::uuid, 'COMPLETED', '20817', 'XAF')->>'status', 'completed', 'a late success is honoured');
 select is((select outcome from public.payments where id = current_setting('test.pay4')::uuid), 'refunded', 'but the request no longer takes it');
 select results_eq($$select kind, amount_xaf, fee_xaf, status from public.refunds where payment_id = current_setting('test.pay4')::uuid$$,
-  $$values ('system'::text, 20000, 500, 'queued'::text)$$, 'so it is refunded in full, fee included');
+  $$values ('system'::text, 20000, 817, 'queued'::text)$$, 'so it is refunded in full, fee included');
 select is((select sum(amount_xaf)::int from public.school_ledger where payment_id = current_setting('test.pay4')::uuid), 0, 'and the school''s ledger nets to nothing');
 
 -- ---------------------------------------------------------------- installments, and BusIn's charge
@@ -147,12 +158,12 @@ update private.school_payment_terms set charges_from = (now() at time zone 'Afri
 update private.payment_settings set charge_semester_xaf = 700;
 set local role authenticated;
 set local "request.jwt.claims" = '{"sub":"e1000000-0000-4000-8000-0000000000a3","role":"authenticated"}';
-select results_eq($$select amount_xaf, fee_xaf from public.payment_quote('subscription', 'e4000000-0000-4000-8000-0000000000a3')$$,
-  $$values (10000, 250)$$, 'paying in installments, the first payment is part 1 with its own fee');
+select results_eq($$select amount_xaf, fee_xaf from public.payment_quote('subscription', 'e4000000-0000-4000-8000-0000000000a3', 'MTN_MOMO_CMR')$$,
+  $$values (10000, 409)$$, 'paying in installments, the first payment is part 1 with its own fee');
 select ok(set_config('test.pay5', (select id::text from public.start_payment('subscription', 'e4000000-0000-4000-8000-0000000000a3', 'MTN_MOMO_CMR', '237653456789')), true) is not null, 'the student pays part 1');
 reset role;
 set local "request.jwt.claims" = '{}';
-select is(public.settle_payment(current_setting('test.pay5')::uuid, 'COMPLETED', '10250', 'XAF')->>'status', 'completed', 'part 1 is paid');
+select is(public.settle_payment(current_setting('test.pay5')::uuid, 'COMPLETED', '10409', 'XAF')->>'status', 'completed', 'part 1 is paid');
 select is((select status from public.subscription_installments where subscription_id = 'e4000000-0000-4000-8000-0000000000a3' and seq = 1), 'paid', 'part 1 is paid with the request');
 select is((select amount_xaf from public.busin_charges where subscription_id = 'e4000000-0000-4000-8000-0000000000a3'), 700, 'BusIn charges the school for a paying student');
 select is((select amount_xaf from public.school_ledger where kind = 'charge'), -700, 'taken from the school''s balance');
@@ -164,7 +175,7 @@ select ok(set_config('test.part2', (select id::text from public.subscription_ins
   'part 2 is paid in the app once the request is approved');
 reset role;
 set local "request.jwt.claims" = '{}';
-select is(public.settle_payment(current_setting('test.pay6')::uuid, 'COMPLETED', '10250', 'XAF')->>'status', 'completed', 'and completes');
+select is(public.settle_payment(current_setting('test.pay6')::uuid, 'COMPLETED', '10513', 'XAF')->>'status', 'completed', 'and completes');
 select is((select status from public.subscription_installments where id = current_setting('test.part2')::uuid), 'paid', 'a later part is paid in the app');
 select is((select payment_id::text from public.installment_receipts where installment_id = current_setting('test.part2')::uuid), current_setting('test.pay6'),
   'and its receipt line points to the payment');
@@ -182,6 +193,20 @@ select throws_ok($$select * from public.start_payment('subscription', 'e4000000-
 set local "request.jwt.claims" = '{"sub":"e1000000-0000-4000-8000-0000000000a1","role":"authenticated"}';
 select results_eq($$select * from public.school_balance()$$, $$values (0, 40000, 700)$$,
   'the school sees its balance: the payments on hold (the refunded one cancelled out), and what it owes (the charge)');
+
+-- ---------------------------------------------------------------- BusIn's invoice, and the school bearing the costs
+reset role;
+insert into public.busin_invoices (id, school_id, number, month, amount_xaf, due_date) values
+  ('e5000000-0000-4000-8000-0000000000a1', 'e0000000-0000-4000-8000-0000000000a1', 'BF-2093-000001', date_trunc('month', now())::date, 5000, current_date + 14);
+set local role authenticated;
+set local "request.jwt.claims" = '{"sub":"e1000000-0000-4000-8000-0000000000a1","role":"authenticated"}';
+select is((select fee_xaf from public.payment_quote('invoice', 'e5000000-0000-4000-8000-0000000000a1', 'MTN_MOMO_CMR')), 103,
+  'the school pays BusIn''s invoice with only the cost of collecting it on top');
+reset role;
+update private.payment_settings set costs_paid_by = 'school';
+set local role authenticated;
+select is((select fee_xaf from public.payment_quote('invoice', 'e5000000-0000-4000-8000-0000000000a1', 'MTN_MOMO_CMR')), 0,
+  'when the school bears the costs, nobody pays a fee on top');
 
 select * from finish();
 rollback;

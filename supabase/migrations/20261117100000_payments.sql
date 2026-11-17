@@ -10,19 +10,26 @@
 -- ---------------------------------------------------------------- the platform's settings
 create table private.payment_settings (
   id boolean primary key default true check (id),
-  -- The service fee the student pays on top of the school's price: a percentage between a floor and a ceiling.
-  fee_percent numeric(5, 2) not null default 2.50 check (fee_percent between 0 and 20),
-  fee_min_xaf integer not null default 100 check (fee_min_xaf >= 0),
-  fee_max_xaf integer not null default 1500 check (fee_max_xaf >= fee_min_xaf),
+  -- pawaPay's own share of every transaction (payments, payouts, refunds), in percent. The operators' shares are in
+  -- `provider_rates`.
+  pawapay_percent numeric(5, 2) not null default 1.00 check (pawapay_percent between 0 and 20),
+  -- Added to the transaction costs, in percent of the price, for rounding and the fixed part of a payout.
+  fee_buffer_percent numeric(5, 2) not null default 0.20 check (fee_buffer_percent between 0 and 5),
+  -- The smallest service fee.
+  fee_min_xaf integer not null default 0 check (fee_min_xaf >= 0),
+  -- Who bears what moving the money costs. 'student': a service fee on top of the price, so the school receives its
+  -- whole price (the owner's choice, 2026-11-17). 'school': no fee, the costs come out of the school's share. pawaPay's
+  -- sub-merchant terms forbid surcharging end users (Appendix 1, 3.5.1): 'student' stands only if pawaPay confirms it
+  -- in writing; otherwise switch here, without a code change.
+  costs_paid_by text not null default 'student' check (costs_paid_by in ('student', 'school')),
   -- Days a payment stays on hold before the school can be paid it.
   hold_days smallint not null default 7 check (hold_days between 0 and 60),
   -- The smallest weekly payout.
   payout_min_xaf integer not null default 5000 check (payout_min_xaf >= 0),
-  -- BusIn's charge per paying student, by billing period; a school may have its own.
+  -- BusIn's charge per paying student, by billing period; a school may have its own. This is BusIn's margin: the
+  -- student's service fee only covers what moving the money costs.
   charge_semester_xaf integer not null default 0 check (charge_semester_xaf >= 0),
   charge_month_xaf integer not null default 0 check (charge_month_xaf >= 0),
-  -- pawaPay's rate, as an estimate until its statements give the real fee of each payment. Null: unknown.
-  provider_fee_percent numeric(5, 2) check (provider_fee_percent is null or provider_fee_percent between 0 and 20),
   -- Payments a person may start in an hour.
   max_starts_per_hour smallint not null default 6 check (max_starts_per_hour between 1 and 60),
   updated_at timestamptz not null default now(),
@@ -30,6 +37,20 @@ create table private.payment_settings (
 );
 insert into private.payment_settings default values;
 revoke all on private.payment_settings from public, anon, authenticated;
+
+-- What each operator takes on top of pawaPay's share, by kind of transaction. Not set (null) until the platform enters
+-- the rates pawaPay gives; no payment starts with that operator until then.
+create table private.provider_rates (
+  provider text not null check (provider in ('MTN_MOMO_CMR', 'ORANGE_CMR')),
+  operation text not null check (operation in ('deposit', 'payout', 'refund')),
+  mmo_percent numeric(5, 2) check (mmo_percent is null or mmo_percent between 0 and 20),
+  mmo_fixed_xaf integer not null default 0 check (mmo_fixed_xaf >= 0),
+  updated_at timestamptz not null default now(),
+  primary key (provider, operation)
+);
+insert into private.provider_rates (provider, operation)
+select p, o from unnest(array['MTN_MOMO_CMR', 'ORANGE_CMR']) p, unnest(array['deposit', 'payout', 'refund']) o;
+revoke all on private.provider_rates from public, anon, authenticated;
 
 -- Per school: whether its students can pay by mobile money, and from when BusIn charges it per paying student.
 create table private.school_payment_terms (
@@ -82,16 +103,36 @@ end;
 $$;
 revoke execute on function private.next_receipt_no(text) from public;
 
--- The service fee on an amount: rounded to the franc, between the floor and the ceiling.
-create function private.service_fee(p_amount integer) returns integer
+-- What moving an amount costs with an operator: pawaPay's share plus the operator's, rounded up. Null while the
+-- operator's rate is not set.
+create function private.transfer_cost(p_provider text, p_operation text, p_amount integer) returns integer
 language sql stable security definer
 set search_path = ''
 as $$
-  select case when coalesce(p_amount, 0) <= 0 then 0
-    else least(s.fee_max_xaf, greatest(s.fee_min_xaf, round(p_amount * s.fee_percent / 100)::integer)) end
+  select ceil(p_amount * (s.pawapay_percent + r.mmo_percent) / 100 + r.mmo_fixed_xaf)::integer
   from private.payment_settings s
+  join private.provider_rates r on r.provider = p_provider and r.operation = p_operation
 $$;
-revoke execute on function private.service_fee(integer) from public;
+revoke execute on function private.transfer_cost(text, text, integer) from public;
+
+-- The service fee: what the payer adds so that, once pawaPay and the operator have taken their share of the payment
+-- and of the payout to the school, the school receives its whole price. For BusIn's own invoice (no payout), the
+-- payment's cost only. Null while the operator's rates are not set; zero when the school bears the costs.
+create function private.service_fee(p_provider text, p_amount integer, p_with_payout boolean) returns integer
+language sql stable security definer
+set search_path = ''
+as $$
+  -- greatest() skips nulls, so rates not set are caught first.
+  select case when d.mmo_percent is null or o.mmo_percent is null then null
+    when s.costs_paid_by = 'school' then 0 else greatest(s.fee_min_xaf,
+    ceil((p_amount * (1 + case when p_with_payout then (s.pawapay_percent + o.mmo_percent + s.fee_buffer_percent) / 100 else 0 end)
+          + d.mmo_fixed_xaf)
+         / (1 - (s.pawapay_percent + d.mmo_percent) / 100))::integer - p_amount) end
+  from private.payment_settings s
+  join private.provider_rates d on d.provider = p_provider and d.operation = 'deposit'
+  join private.provider_rates o on o.provider = p_provider and o.operation = 'payout'
+$$;
+revoke execute on function private.service_fee(text, integer, boolean) from public;
 
 create function private.mobile_money_enabled(p_school uuid) returns boolean
 language sql stable security definer
@@ -133,7 +174,11 @@ create table public.payments (
   amount_xaf integer not null check (amount_xaf > 0),
   fee_xaf integer not null check (fee_xaf >= 0),
   total_xaf integer generated always as (amount_xaf + fee_xaf) stored,
-  fee_percent numeric(5, 2) not null,
+  -- What pawaPay and the operator should take, on this payment and on paying the school its share, by the rates in
+  -- force when it started. BusIn's cost: not shown to schools or students.
+  est_cost_xaf integer not null default 0 check (est_cost_xaf >= 0),
+  -- The school bears those costs (taken from its share), by the setting in force when it started.
+  school_pays_costs boolean not null default false,
   currency text not null default 'XAF' check (currency = 'XAF'),
   provider text not null check (provider in ('MTN_MOMO_CMR', 'ORANGE_CMR')),
   -- The payer's number, partly hidden. pawaPay keeps the full one under the payment's id.
@@ -143,7 +188,7 @@ create table public.payments (
   failure_code text check (failure_code is null or char_length(failure_code) <= 64),
   failure_message text check (failure_message is null or char_length(failure_message) <= 300),
   provider_txn text check (provider_txn is null or char_length(provider_txn) <= 100),
-  -- pawaPay's own fee on this payment, from its statements. BusIn's cost: not shown to schools or students.
+  -- What pawaPay actually took on this payment, from its statements. BusIn's cost too.
   provider_fee_xaf integer check (provider_fee_xaf is null or provider_fee_xaf >= 0),
   receipt_no text unique,
   -- What the money did once completed: applied to the item, or refunded because the item could no longer take it.
@@ -158,9 +203,7 @@ create table public.payments (
   constraint payments_item_check check (
     (purpose = 'subscription' and subscription_id is not null and installment_id is null and invoice_id is null)
     or (purpose = 'installment' and subscription_id is not null and installment_id is not null and invoice_id is null)
-    or (purpose = 'invoice' and subscription_id is null and installment_id is null and invoice_id is not null)),
-  -- BusIn's own invoice carries no service fee.
-  constraint payments_invoice_no_fee check (purpose <> 'invoice' or fee_xaf = 0)
+    or (purpose = 'invoice' and subscription_id is null and installment_id is null and invoice_id is not null))
 );
 create unique index payments_one_open_per_item on public.payments (item_key)
   where status in ('initiated', 'accepted', 'processing', 'in_reconciliation', 'needs_attention');
@@ -175,7 +218,7 @@ alter table public.payments enable row level security;
 alter table public.payments force row level security;
 revoke all on public.payments from anon, authenticated;
 grant select (id, school_id, paid_by, purpose, subscription_id, installment_id, invoice_id, amount_xaf, fee_xaf, total_xaf,
-              fee_percent, currency, provider, payer_masked, status, failure_code, failure_message, provider_txn, receipt_no,
+              currency, provider, payer_masked, status, failure_code, failure_message, provider_txn, receipt_no,
               outcome, created_at, updated_at, completed_at)
   on public.payments to authenticated;
 -- The payer reads their own; a school administrator reads the school's.
@@ -320,7 +363,9 @@ create policy busin_invoices_select on public.busin_invoices for select to authe
 create table public.school_ledger (
   id bigint generated always as identity primary key,
   school_id uuid not null references public.schools (id) on delete cascade,
-  kind text not null check (kind in ('payment', 'refund', 'refund_reversal', 'charge', 'payout', 'payout_reversal',
+  -- refund_fee: what sending a refund the school decided costs (the school pays it).
+  -- transaction_fee: what a payment cost to collect and pay out, when the school bears it.
+  kind text not null check (kind in ('payment', 'transaction_fee', 'refund', 'refund_fee', 'refund_reversal', 'charge', 'payout', 'payout_reversal',
                                      'invoice_payment', 'reversal', 'adjustment')),
   amount_xaf integer not null check (amount_xaf <> 0),
   available_at timestamptz not null default now(),
@@ -538,10 +583,10 @@ create trigger subscriptions_charge_paying_student after update of status on pub
   for each row execute function private.charge_paying_student();
 
 -- ---------------------------------------------------------------- what a payment is for
--- The item, checked for the caller: its school, the amount that goes to the school (or BusIn), whether the service fee
--- applies, and its key. Refusals: 42501 not allowed, P0002 not found, 55000 not payable now, 22023 bad input.
+-- The item, checked for the caller: its school, the amount that goes to the school (or BusIn), whether it is paid out
+-- to the school afterwards, and its key. Refusals: 42501 not allowed, P0002 not found, 55000 not payable now, 22023 bad input.
 create function private.payment_item(p_purpose text, p_target uuid)
-returns table (school_id uuid, amount_xaf integer, with_fee boolean, item_key text)
+returns table (school_id uuid, amount_xaf integer, with_payout boolean, item_key text)
 language plpgsql stable security definer
 set search_path = ''
 as $$
@@ -625,30 +670,36 @@ end;
 $$;
 revoke execute on function private.payment_item(text, uuid) from public;
 
--- What the caller would pay, before paying.
-create function public.payment_quote(p_purpose text, p_target uuid)
-returns table (amount_xaf integer, fee_xaf integer, total_xaf integer, fee_percent numeric, currency text)
+-- What the caller would pay, before paying: one line per operator (or the one asked for). The fee is null for an
+-- operator whose rates are not set yet; the app shows it as unavailable.
+create function public.payment_quote(p_purpose text, p_target uuid, p_provider text default null)
+returns table (provider text, amount_xaf integer, fee_xaf integer, total_xaf integer, currency text)
 language plpgsql stable security definer
 set search_path = ''
 as $$
 declare
   v_item record;
-  v_fee integer;
 begin
+  if p_provider is not null and p_provider not in ('MTN_MOMO_CMR', 'ORANGE_CMR') then
+    raise exception 'bad_provider' using errcode = '22023';
+  end if;
   select * into v_item from private.payment_item(p_purpose, p_target);
-  v_fee := case when v_item.with_fee then private.service_fee(v_item.amount_xaf) else 0 end;
-  return query select v_item.amount_xaf, v_fee, v_item.amount_xaf + v_fee,
-    (select s.fee_percent from private.payment_settings s), 'XAF'::text;
+  return query
+  select x.p, v_item.amount_xaf, f.fee, v_item.amount_xaf + f.fee, 'XAF'::text
+  from unnest(array['MTN_MOMO_CMR', 'ORANGE_CMR']) as x(p)
+  cross join lateral (select private.service_fee(x.p, v_item.amount_xaf, v_item.with_payout) as fee) f
+  where p_provider is null or x.p = p_provider
+  order by x.p;
 end;
 $$;
-revoke execute on function public.payment_quote(text, uuid) from public, anon;
-grant execute on function public.payment_quote(text, uuid) to authenticated;
+revoke execute on function public.payment_quote(text, uuid, text) from public, anon;
+grant execute on function public.payment_quote(text, uuid, text) to authenticated;
 
 -- ---------------------------------------------------------------- opening a payment
 -- Called by the `payments` Edge Function with the caller's session, before it calls pawaPay. Writes the payment first,
 -- so whatever happens next it can be found and finished. The number is a Cameroonian mobile number in international
--- form without the plus (2376XXXXXXXX). Refusals as payment_item, plus 55000 payment_in_progress and 54000
--- too_many_attempts.
+-- form without the plus (2376XXXXXXXX). Refusals as payment_item, plus 55000 payment_in_progress or fees_not_set (the
+-- operator's rates are not entered yet) and 54000 too_many_attempts.
 create function public.start_payment(p_purpose text, p_target uuid, p_provider text, p_phone text)
 returns table (id uuid, amount_xaf integer, fee_xaf integer, total_xaf integer, currency text, provider text)
 language plpgsql security definer
@@ -659,6 +710,7 @@ declare
   v_item record;
   v_settings private.payment_settings;
   v_fee integer;
+  v_cost integer;
   v_row public.payments;
 begin
   if p_provider is null or p_provider not in ('MTN_MOMO_CMR', 'ORANGE_CMR') then
@@ -672,18 +724,23 @@ begin
     raise exception 'too_many_attempts' using errcode = '54000';
   end if;
   select * into v_item from private.payment_item(p_purpose, p_target);
-  v_fee := case when v_item.with_fee then private.service_fee(v_item.amount_xaf) else 0 end;
+  v_fee := private.service_fee(p_provider, v_item.amount_xaf, v_item.with_payout);
+  v_cost := private.transfer_cost(p_provider, 'deposit', v_item.amount_xaf + coalesce(v_fee, 0))
+    + case when v_item.with_payout then private.transfer_cost(p_provider, 'payout', v_item.amount_xaf) else 0 end;
+  if v_fee is null or v_cost is null then
+    raise exception 'fees_not_set' using errcode = '55000';
+  end if;
 
   begin
     insert into public.payments (school_id, paid_by, purpose, subscription_id, installment_id, invoice_id, item_key,
-                                 amount_xaf, fee_xaf, fee_percent, provider, payer_masked)
+                                 amount_xaf, fee_xaf, est_cost_xaf, school_pays_costs, provider, payer_masked)
     values (v_item.school_id, v_uid, p_purpose,
             case when p_purpose = 'subscription' then p_target
                  when p_purpose = 'installment' then (select i.subscription_id from public.subscription_installments i where i.id = p_target) end,
             case when p_purpose = 'installment' then p_target end,
             case when p_purpose = 'invoice' then p_target end,
-            v_item.item_key, v_item.amount_xaf, v_fee,
-            case when v_item.with_fee then v_settings.fee_percent else 0 end,
+            v_item.item_key, v_item.amount_xaf, v_fee, v_cost,
+            v_item.with_payout and v_settings.costs_paid_by = 'school',
             p_provider, left(p_phone, 4) || '*****' || right(p_phone, 3))
     returning * into v_row;
   exception when unique_violation then
@@ -714,6 +771,10 @@ begin
     insert into public.school_ledger (school_id, kind, amount_xaf, available_at, refund_id, payment_id)
     select p_payment.school_id, 'refund', -p_payment.amount_xaf, greatest(now(), coalesce(max(l.available_at), now())), v_refund, p_payment.id
     from public.school_ledger l where l.payment_id = p_payment.id and l.kind = 'payment';
+    -- BusIn's error: the school does not pay for moving the money either.
+    insert into public.school_ledger (school_id, kind, amount_xaf, available_at, payment_id, note)
+    select l.school_id, 'reversal', -l.amount_xaf, l.available_at, p_payment.id, 'transaction_fee'
+    from public.school_ledger l where l.payment_id = p_payment.id and l.kind = 'transaction_fee';
   end if;
   update public.payments set outcome = 'refunded' where id = p_payment.id;
 end;
@@ -745,9 +806,13 @@ begin
     return;
   end if;
 
-  -- The school's share, on hold for the set days.
+  -- The school's share, on hold for the set days, less what moving it costs when the school bears that.
   insert into public.school_ledger (school_id, kind, amount_xaf, available_at, payment_id)
   values (p_payment.school_id, 'payment', p_payment.amount_xaf, now() + make_interval(days => v_settings.hold_days), p_payment.id);
+  if p_payment.school_pays_costs and p_payment.est_cost_xaf > 0 then
+    insert into public.school_ledger (school_id, kind, amount_xaf, available_at, payment_id)
+    values (p_payment.school_id, 'transaction_fee', -p_payment.est_cost_xaf, now() + make_interval(days => v_settings.hold_days), p_payment.id);
+  end if;
 
   if p_payment.purpose = 'subscription' then
     select * into v_sub from public.subscriptions where id = p_payment.subscription_id for update;

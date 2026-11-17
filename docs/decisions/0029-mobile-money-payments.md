@@ -27,16 +27,21 @@ payment.
 4. **Completed means approved.** The request is approved (part 1 paid with it), or the part is marked paid with a
    receipt line, and the student is told. When the item can no longer take the money (already paid, rejected, ended),
    the payment is refunded in full automatically.
-5. **The money.** The student pays the school's price plus a service fee: a percentage with a floor and a ceiling,
-   set by the platform, shown before paying and stored on each payment. BusIn holds the money in its pawaPay wallet. The
-   school's share is written to its ledger (`school_ledger`, one signed row per movement, never edited), available
-   after a hold (7 days). BusIn's charge per paying student (each approved subscription, whatever the payment method,
-   from the date the school accepted the payment terms) is a ledger debit. Each week the available balance is paid out
-   to the school's confirmed payout number. A negative balance (charges for a school paid only by receipts, or a refund
-   after a payout) is what the school owes: it is taken from later payments, or invoiced monthly and paid from the
-   portal.
-6. **Refunds.** System errors are refunded in full, fee included. Otherwise the school decides on a student's request
-   (full or partial, of the school's price; the fee stays with BusIn). A refund is a ledger debit.
+5. **The money.** pawaPay takes 1% of every transaction (payments, payouts, refunds) plus the operator's own fee,
+   which differs between MTN and Orange and by kind of transaction. The student pays the school's price plus a service
+   fee worked out per operator so that, once the payment and the payout to the school have been paid for, the school
+   receives exactly its price; the fee covers those costs and nothing more (plus a small margin for rounding, 0.2% by
+   default). The rates are platform settings; a payment does not start with an operator whose rates are not entered.
+   BusIn's own margin, which has to cover its infrastructure and the service, is its charge per paying student (each
+   approved subscription, whatever the payment method, from the date the school accepted the payment terms), taken
+   from the school's balance, which costs nothing to move. BusIn holds the money in its pawaPay wallet. The school's
+   share is written to its ledger (`school_ledger`, one signed row per movement, never edited), available after a hold
+   (7 days). Each week the available balance is paid out to the school's confirmed payout number. A negative balance (a
+   school paid only by receipts, or a refund after a payout) is what the school owes: it is taken from later payments,
+   or invoiced monthly and paid from the portal with the cost of collecting it on top.
+6. **Refunds.** System errors are refunded in full, fee included, at BusIn's cost. Otherwise the school decides on a
+   student's request (full or partial, of the school's price; the fee is not returned, as it paid for the transfers)
+   and bears what sending the refund costs (a `refund_fee` row in its ledger).
 7. **Receipts.** Every completed payment and refund gets a number (`BI-2026-000123`, refunds `BR-`, invoices `BF-`).
    The payer's number is stored masked; pawaPay keeps the full one under the payment's id.
 8. **Who sees what.** A student reads their own payments and refunds; a school administrator their school's payments,
@@ -44,9 +49,17 @@ payment.
    totals through `platform_*` functions; settings and infrastructure costs are private.
 9. **Switched on per school** by the platform, with the date its charges start.
 10. **The key** lives only in Edge Function secrets (`PAWAPAY_API_TOKEN`, `PAWAPAY_BASE_URL`).
+11. **pawaPay's terms.** In pawaPay's merchant terms, BusIn is an intermediary merchant (Schedule 2) and each school a
+    sub-merchant: BusIn needs a written agreement with each school, no less strict than pawaPay's general terms, that
+    includes the sub-merchant terms (Appendix 1), which pawaPay can enforce against the school directly. Those terms
+    forbid surcharging end users (Appendix 1, 3.5.1), and the service fee could read as one. Until pawaPay confirms in
+    writing that it may stand, a setting (`costs_paid_by`) switches to the school bearing the costs: no fee for the
+    student, and a `transaction_fee` row in the school's ledger instead.
 
 ## Consequences
 - The receipt flow is unchanged; mobile money is one more way to reach the same approved subscription.
 - Accounting rows (payments, refunds, ledger) stay after an account is deleted, under the empty profile (ADR 0028).
-- BusIn becomes a collector for schools: pawaPay must confirm this use of the account, and the rules on holding funds
-  for others (CEMAC) and the tax on the fee are to be checked before going live.
+- BusIn becomes a collector for schools: pawaPay must enable the intermediary schedule on the account and confirm the
+  service fee, and the rules on holding funds for others (CEMAC) and the tax on the fee are to be checked before going
+  live.
+- The school terms grow a payments part that carries pawaPay's sub-merchant terms (slice 7).
