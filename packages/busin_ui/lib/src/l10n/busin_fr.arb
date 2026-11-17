@@ -822,5 +822,7 @@
   "accountDeleteRequested": "Votre compte sera supprimé dans 7 jours.",
   "accountDeleteCancelled": "Suppression annulée. Votre compte reste.",
   "accountDeleteLastAdmin": "Vous êtes le dernier administrateur de votre école. Nommez d'abord quelqu'un d'autre administrateur.",
-  "accountDeleteActiveTrip": "Vous êtes sur un trajet en cours. Terminez-le, puis redemandez."
+  "accountDeleteActiveTrip": "Vous êtes sur un trajet en cours. Terminez-le, puis redemandez.",
+  "opsStaffRequestsLeft": "{count, plural, =1{Vous pouvez encore demander 1 fois.} other{Vous pouvez encore demander {count} fois.}}",
+  "opsStaffRequestsUsedUp": "Vous avez utilisé toutes vos demandes d’accès du personnel. Demandez à l’administrateur de votre école de vous inviter : l’application s’ouvre dès qu’il le fait."
 }

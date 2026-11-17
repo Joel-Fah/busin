@@ -3852,6 +3852,18 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'You are on a running trip. End it first, then ask again.'**
   String get accountDeleteActiveTrip;
+
+  /// No description provided for @opsStaffRequestsLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{You can ask 1 more time.} other{You can ask {count} more times.}}'**
+  String opsStaffRequestsLeft(int count);
+
+  /// No description provided for @opsStaffRequestsUsedUp.
+  ///
+  /// In en, this message translates to:
+  /// **'You have used all your requests for staff access. Ask your school\'s administrator to invite you: the app opens as soon as they do.'**
+  String get opsStaffRequestsUsedUp;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {

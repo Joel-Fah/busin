@@ -64,14 +64,26 @@ test("a staff member of the school gets the new role at once", async ({ page, co
   }
 });
 
-test("a student's account is never turned into staff by an invite", async ({ page, context }) => {
+test("a student's account is not turned into staff by an invite while it can still ask", async ({ page, context }) => {
   await signInBrowser(context, admin);
   await page.goto("/people/invite");
   await page.getByLabel("Email", { exact: true }).fill(student.email);
   await page.getByRole("button", { name: "Add", exact: true }).click();
-  await expect(page.getByRole("alert").filter({ hasText: "is a student's account here" })).toBeVisible();
+  await expect(page.getByRole("alert").filter({ hasText: "That email is a student's account." })).toBeVisible();
   const { data } = await serviceClient().from("profiles").select("role").eq("id", student.id).single();
   expect(data?.role).toBe("student");
+});
+
+test("an invite lets in someone who used their 3 staff requests (issue #543)", async ({ page, context }) => {
+  // Three requests sent, none waiting: the ops app no longer lets them ask.
+  await serviceClient().from("profiles").update({ staff_request_count: 3 }).eq("id", student.id);
+  await signInBrowser(context, admin);
+  await page.goto("/people/invite");
+  await page.getByLabel("Email", { exact: true }).fill(student.email);
+  await page.getByRole("button", { name: "Add", exact: true }).click();
+  await expect(page.getByText("Done. That account now has the role.")).toBeVisible();
+  const { data } = await serviceClient().from("profiles").select("role, status, staff_request_count").eq("id", student.id).single();
+  expect(data).toEqual({ role: "staff", status: "verified", staff_request_count: 0 });
 });
 
 test("a staff member cannot add staff", async ({ page, context }) => {

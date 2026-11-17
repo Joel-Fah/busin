@@ -349,6 +349,26 @@ void main() {
     });
   });
 
+  group('staff request (issue #543)', () {
+    test('reads how many requests are left, and when none are', () {
+      final waiting = JoinRequest.fromJson({'school_id': 's1', 'school_name': 'Test School', 'requested_at': '2026-11-17T08:00:00+00:00', 'requests_left': 2});
+      expect(waiting.isWaiting, isTrue);
+      expect(waiting.requestsLeft, 2);
+      expect(waiting.requestsUsedUp, isFalse);
+
+      final usedUp = JoinRequest.fromJson({'declined_at': '2026-11-17T09:00:00+00:00', 'declined_school_name': 'Test School', 'requests_left': 0});
+      expect(usedUp.requestsUsedUp, isTrue);
+      expect(usedUp.wasDeclined, isTrue);
+    });
+
+    test('a join request carries no count, and is never used up', () {
+      final join = JoinRequest.fromJson({'school_id': 's1', 'school_name': 'Test School'});
+      expect(join.requestsLeft, isNull);
+      expect(join.requestsUsedUp, isFalse);
+      expect(join, isNot(const JoinRequest(schoolId: 's1', schoolName: 'Test School', requestsLeft: 3)), reason: 'the count is part of the value');
+    });
+  });
+
   group('student area', () {
     test('reads the stored area and a search result', () {
       final area = StudentArea.fromJson({'label': 'Bastos', 'lat': 3.86, 'lng': 11.52, 'source': 'device', 'updated_at': '2026-11-11T08:00:00+00:00'});
