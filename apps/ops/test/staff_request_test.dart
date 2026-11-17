@@ -75,4 +75,12 @@ void main() {
     BusinToast.dismiss();
     await settle(tester, 3);
   });
+
+  testWidgets('a student account in the staff app can still delete itself (ADR 0028)', (tester) async {
+    await open(tester, FakeStaffAccess());
+    expect(find.text('This app is for staff'), findsOneWidget);
+    await tester.tap(find.widgetWithText(TextButton, 'Delete my account'));
+    await settle(tester);
+    expect(find.text('Your account and what identifies you are erased 7 days after you ask. You can cancel until then.'), findsOneWidget);
+  });
 }
