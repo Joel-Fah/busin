@@ -3,9 +3,13 @@
 import { useState } from "react";
 import { Copy01Icon, Delete02Icon, Edit02Icon } from "@hugeicons/core-free-icons";
 
+import { NoticeCard } from "@/components/overview/NoticeCard";
 import { Button } from "@/components/ui/Button";
 import { Menu } from "@/components/ui/Menu";
 import { Modal } from "@/components/ui/Modal";
+import { RichTextEditor, type RichTextEditorText } from "@/components/ui/RichTextEditor";
+import type { Messages } from "@/lib/i18n/messages";
+import type { RichDoc } from "@/lib/rich-text";
 import { SideSheet } from "@/components/ui/SideSheet";
 import { Tabs } from "@/components/ui/Tabs";
 import { useToast } from "@/components/ui/Toast";
@@ -171,5 +175,56 @@ export function UnsavedDemo({ copy }: { copy: { title: string; body: string; sta
         }
       />
     </>
+  );
+}
+
+const RICH_SAMPLE: RichDoc = {
+  type: "doc",
+  content: [
+    { type: "heading", attrs: { level: 2 }, content: [{ type: "text", text: "Next semester opens soon" }] },
+    {
+      type: "paragraph",
+      content: [
+        { type: "text", text: "Students can subscribe from " },
+        { type: "text", text: "Monday", marks: [{ type: "bold" }] },
+        { type: "text", text: ". Before then, please:" },
+      ],
+    },
+    {
+      type: "bulletList",
+      content: [
+        {
+          type: "listItem",
+          content: [{ type: "paragraph", content: [{ type: "text", text: "check the prices in " }, { type: "text", text: "Billing", marks: [{ type: "link", attrs: { href: "/billing" } }] }] }],
+        },
+        {
+          type: "listItem",
+          content: [{ type: "paragraph", content: [{ type: "text", text: "review the stops that " }, { type: "text", text: "changed", marks: [{ type: "italic" }] }] }],
+        },
+      ],
+    },
+    { type: "blockquote", content: [{ type: "paragraph", content: [{ type: "text", text: "Answering within a day keeps students riding." }] }] },
+    {
+      type: "paragraph",
+      content: [
+        { type: "text", text: "The guide is on " },
+        { type: "text", text: "our help pages", marks: [{ type: "link", attrs: { href: "https://busin.example/help" } }] },
+        { type: "text", text: "." },
+      ],
+    },
+  ],
+};
+
+/** The rich text editor beside the notice it becomes, both live. */
+export function RichTextDemo({ text, notice }: { text: RichTextEditorText; notice: Pick<Messages["notices"], "from" | "showMore" | "showLess" | "newTab"> }) {
+  const [doc, setDoc] = useState<RichDoc>(RICH_SAMPLE);
+  return (
+    <div className="grid max-w-5xl gap-6 lg:grid-cols-2">
+      <RichTextEditor id="sg-rich" label="Notice" text={text} initial={RICH_SAMPLE} placeholder="Write what the school should know" onChange={(d) => setDoc(d)} />
+      <div className="flex flex-col gap-1.5">
+        <p className="m-0 text-sm font-semibold">How it is read</p>
+        <NoticeCard preview title={notice.from} doc={doc} text="" labels={notice} actions={null} />
+      </div>
+    </div>
   );
 }

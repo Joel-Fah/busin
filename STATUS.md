@@ -54,10 +54,16 @@ school portal, platform console, legal texts). The local database has the paymen
   requirements, and written confirmation on the student's fee. Decide the per-student charge (BusIn's margin; it can
   change later). The key goes in `supabase/functions/.env` locally (see the setup guide), never in an app.
 
+## Handoff: rich text notices (2026-11-17)
+
+- The platform's notices to a school are written with formatting and shown laid out in the portal (#537), merged into
+  `dev` with #538 after the Next.js patch (#535).
+- Owner: try it from a school's page in the console (Reach out, then In the portal), and on that school's portal
+  overview. The migration `20261117090000_rich_notices.sql` goes live with the next approved database update.
+
 ## Handoff: Next.js security patch (2026-11-17)
 
-- Next.js 16.4.6 on `phase-6/next-16-4-6` (#534), PR into `dev` for the owner to merge. After merging, redeploy the
-  portal so the hosted site gets the fix.
+- Next.js 16.4.6 (#534), merged into `dev` with #535. The hosted site gets it when `dev` goes to `main`.
 - Known and left: `@grpc/grpc-js` advisory through firebase's Firestore, not loaded by the portal; revisit when a
   firebase release moves to a fixed grpc.
 
