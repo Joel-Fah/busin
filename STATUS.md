@@ -56,9 +56,9 @@ builds): BusIn Ops 0.1.0 (3) and BusIn (student) 0.1.0 (2) to the BusIn Inders g
 notes. They include account deletion in the profile; the deletion on blocked screens (#528) comes with the next builds.
 
 Released to `main` (2026-11-17, #530, owner's request): the platform console and account deletion, deployed by
-Vercel (checked: `/delete-account` answers, `/platform` asks to sign in). Closed #501 to #509, #518, #441. Owner, with your
-go: add your account to `private.platform_admins` on the live project to open the console there; give Google Play the
-`/delete-account` link when the time comes. Not in this release: #525 to #529 (review the legal texts before #525).
+Vercel (checked: `/delete-account` answers, `/platform` asks to sign in). Closed #501 to #509, #518, #441. The owner's
+account (an admin of ICT University) was added to `private.platform_admins` on the live project (owner's request), so
+`/platform` opens for it. Owner: give Google Play the `/delete-account` link when the time comes. Not in this release: #525 to #529 (review the legal texts before #525).
 
 Skipped from the light list: Lookup showing an erased account (it would mean keeping something derived from the
 email after erasure), and #496 (needs an Android build-tool upgrade, its own PR). #441 was fixed in #511.
