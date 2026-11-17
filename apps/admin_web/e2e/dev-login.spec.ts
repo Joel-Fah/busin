@@ -50,7 +50,10 @@ test.describe("development sign-in (local development only)", () => {
 
   test("signing in does not make anyone an administrator", async ({ page }) => {
     await signInThroughForm(page, student);
-    await expect(page).toHaveURL(/\/no-access$/);
-    await expect(page.getByRole("heading", { name: "No access" })).toBeVisible();
+    // A student is sent to the student web app (ADR 0021), never into the portal.
+    await expect(page).toHaveURL(/\/app\//);
+    await page.goto("/");
+    await expect(page).toHaveURL(/\/app\//);
+    await expect(page.getByRole("heading", { name: "Overview", level: 1 })).toHaveCount(0);
   });
 });
