@@ -45,6 +45,14 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 - Known and left: `@grpc/grpc-js` advisory through firebase's Firestore, not loaded by the portal; revisit when a
   firebase release moves to a fixed grpc.
 
+## Handoff: trip reminders (2026-11-17, `phase-6/trip-reminders`, #542)
+
+- Whoever runs a trip that looks forgotten (silent 30 minutes, or 3 hours long) gets a push with an End trip button,
+  a second one an hour later; the end of the school day still ends it.
+- Owner: build the ops app and try it on a phone (start a trip, stop sharing the position for 30 minutes, or set the
+  trip's start back in the local database), with the app open, in the background and closed. The migration goes live
+  with the next approved database update.
+
 ## Handoff: platform console and account deletion on `dev` and live (2026-11-16)
 
 Merged into `dev` (owner approved): #510 to #517 (platform console) and #519 (account deletion). Live database (owner

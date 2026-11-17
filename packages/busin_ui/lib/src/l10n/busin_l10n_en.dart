@@ -2216,4 +2216,21 @@ class BusinL10nEn extends BusinL10n {
   @override
   String get accountDeleteActiveTrip =>
       'You are on a running trip. End it first, then ask again.';
+
+  @override
+  String get opsTripReminderTitle => 'Is your trip over?';
+
+  @override
+  String get opsTripReminderBody =>
+      'Your trip is still running. If it is over, end it so students see the bus has stopped.';
+
+  @override
+  String get opsTripReminderAction => 'End trip';
+
+  @override
+  String get opsTripEndedFromReminder => 'Trip ended.';
+
+  @override
+  String get opsTripEndFromReminderFailed =>
+      'The trip could not be ended. Open it to try again.';
 }

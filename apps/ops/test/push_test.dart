@@ -5,8 +5,10 @@ import 'package:busin_core/busin_core.dart';
 import 'package:busin_ops/src/app.dart';
 import 'package:busin_ops/src/providers.dart';
 import 'package:busin_ops/src/push/push_binder.dart';
+import 'package:busin_ops/src/push/trip_reminders.dart';
 import 'package:busin_ops/src/router.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -55,6 +57,23 @@ class FakeTokens implements DeviceTokensRepository {
   Future<void> unregister(String token) async => unregistered.add(token);
 }
 
+/// The reminders the app draws, and the taps a test makes on them.
+class FakeReminders implements TripReminderNotifications {
+  void Function(ReminderChoice choice)? _onChoice;
+  ReminderChoice? launched;
+  final List<({String tripId, String title, String body, String action})> shown = [];
+
+  void tap(ReminderChoice choice) => _onChoice?.call(choice);
+
+  @override
+  Future<void> init(void Function(ReminderChoice choice) onChoice) async => _onChoice = onChoice;
+  @override
+  Future<ReminderChoice?> launchChoice() async => launched;
+  @override
+  Future<void> show({required String tripId, required String title, required String body, required String action}) async =>
+      shown.add((tripId: tripId, title: title, body: body, action: action));
+}
+
 Future<void> settle(WidgetTester tester, [int frames = 12]) async {
   for (var i = 0; i < frames; i++) {
     await tester.pump(const Duration(milliseconds: 200));
@@ -68,7 +87,7 @@ void main() {
     expect(opsRouteForPush(const PushMessage(kind: 'subscription_approved')), isNull);
   });
 
-  Future<(FakePush, FakeTokens, FakeAuth)> open(WidgetTester tester, {Map<String, Object> prefs = const {}, FakeTrips? trips}) async {
+  Future<(FakePush, FakeTokens, FakeAuth)> open(WidgetTester tester, {Map<String, Object> prefs = const {}, FakeTrips? trips, FakeReminders? reminders}) async {
     SharedPreferences.setMockInitialValues(prefs);
     tester.view.physicalSize = const Size(800, 1800);
     tester.view.devicePixelRatio = 1;
@@ -81,6 +100,7 @@ void main() {
         ...overridesFor(auth: auth, profiles: {'u1': staff()}, trips: trips ?? FakeTrips([trip('t1', driver: 'u1')])),
         pushServiceProvider.overrideWithValue(push),
         deviceTokensRepositoryProvider.overrideWithValue(tokens),
+        tripReminderNotificationsProvider.overrideWithValue(reminders ?? FakeReminders()),
       ],
       child: const OpsApp(),
     ));
@@ -126,5 +146,53 @@ void main() {
     expect(tokens.unregistered, ['ops-phone-token']);
     expect(push.forgets, 1);
     expect(auth.signOuts, 1);
+  });
+
+  group('trips left running', () {
+    test('a reminder opens its trip; End trip is told apart from opening it', () {
+      expect(opsRouteForPush(const PushMessage(kind: tripReminderKind, refId: 't1')), Routes.trip('t1'));
+      expect(reminderChoice(const NotificationResponse(notificationResponseType: NotificationResponseType.selectedNotificationAction, actionId: endTripActionId, payload: 't1')),
+          (tripId: 't1', end: true));
+      expect(reminderChoice(const NotificationResponse(notificationResponseType: NotificationResponseType.selectedNotification, payload: 't1')), (tripId: 't1', end: false));
+      expect(reminderChoice(const NotificationResponse(notificationResponseType: NotificationResponseType.selectedNotification)), isNull);
+    });
+
+    testWidgets('a reminder while the app is open is drawn with its End trip button, in the app language', (tester) async {
+      final reminders = FakeReminders();
+      final (push, _, _) = await open(tester, prefs: {pushAskedKey: true}, reminders: reminders);
+      push.arrived.add(const PushMessage(kind: tripReminderKind, refId: 't1'));
+      await settle(tester, 4);
+      expect(reminders.shown.single.tripId, 't1');
+      expect(reminders.shown.single.title, 'Is your trip over?');
+      expect(reminders.shown.single.action, 'End trip');
+    });
+
+    testWidgets('End trip on a reminder ends the trip and says so', (tester) async {
+      final reminders = FakeReminders();
+      final trips = FakeTrips([trip('t1', driver: 'u1', status: TripStatus.active)]);
+      await open(tester, prefs: {pushAskedKey: true}, trips: trips, reminders: reminders);
+      reminders.tap((tripId: 't1', end: true));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(trips.ended, ['t1']);
+      expect(find.text('Trip ended.'), findsOneWidget);
+      await settle(tester, 40);
+    });
+
+    testWidgets('tapping the reminder itself opens the trip', (tester) async {
+      final reminders = FakeReminders();
+      await open(tester, prefs: {pushAskedKey: true}, trips: FakeTrips([trip('t1', driver: 'u1'), trip('t2', bus: 'b2', driver: 'u1')]), reminders: reminders);
+      reminders.tap((tripId: 't2', end: false));
+      await settle(tester);
+      expect(find.text('Bus B2'), findsWidgets);
+    });
+
+    testWidgets('End trip pressed while the app was closed ends it once the app opens', (tester) async {
+      final reminders = FakeReminders()..launched = (tripId: 't1', end: true);
+      final trips = FakeTrips([trip('t1', driver: 'u1', status: TripStatus.active)]);
+      await open(tester, prefs: {pushAskedKey: true}, trips: trips, reminders: reminders);
+      expect(trips.ended, ['t1']);
+      await settle(tester, 40);
+    });
   });
 }
