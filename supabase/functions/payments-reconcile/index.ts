@@ -1,13 +1,15 @@
-// Finishes payments whose result never arrived (ADR 0029): every two minutes the scheduler calls this with a shared
-// secret (private.dispatch_payment_checks, Vault names payments_reconcile_url and payments_reconcile_secret) when a
-// payment has been open for more than two minutes. Each one's status is asked from pawaPay and applied once through
-// settle_payment; one pawaPay has never heard of is failed after 15 minutes.
+// Finishes payments whose result never arrived, and sends refunds (ADR 0029): every two minutes the scheduler calls
+// this with a shared secret (private.dispatch_payment_checks, Vault names payments_reconcile_url and
+// payments_reconcile_secret) when a payment has been open for more than two minutes or a refund waits. Each payment's
+// status is asked from pawaPay and applied once through settle_payment; one pawaPay has never heard of is failed after
+// 15 minutes. Refunds waiting are sent (their id is pawaPay's idempotency key, so sending twice is safe), and those
+// sent are checked, through settle_refund.
 //
 // Secrets: PAYMENTS_RECONCILE_SECRET (sent in the x-reconcile-secret header), PAWAPAY_API_TOKEN, PAWAPAY_BASE_URL.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 
-import { pawaPay, settleArgs } from "../_shared/pawapay.ts";
+import { pawaPay, settleArgs, settleRefundArgs } from "../_shared/pawapay.ts";
 import { sameSecret } from "../_shared/push.ts";
 
 function json(body: unknown, status = 200): Response {
@@ -47,5 +49,27 @@ Deno.serve(async (request) => {
       }),
     );
   }
-  return json({ checked: ids.length, settled, unanswered });
+  // Refunds: send those waiting, check those sent.
+  const { data: due, error: dueError } = await service.rpc("refunds_to_send", { p_limit: 50 });
+  if (dueError) return json({ error: "could not read the refunds" }, 500);
+  let refunds = 0;
+  for (const r of (due ?? []) as { id: string; payment_id: string; total_xaf: number; action: string }[]) {
+    if (r.action === "send") {
+      const sent = await client.initiateRefund({ id: r.id, depositId: r.payment_id, amountXaf: r.total_xaf });
+      if (sent.kind === "accepted" || sent.kind === "duplicate") {
+        await service.rpc("settle_refund", { p_id: r.id, p_status: sent.kind === "accepted" ? "ACCEPTED" : "DUPLICATE_IGNORED" });
+      } else if (sent.kind === "rejected") {
+        await service.rpc("settle_refund", { p_id: r.id, p_status: "REJECTED", p_failure_code: sent.failureCode });
+      } else {
+        // No clear answer: ask; if pawaPay has it, apply it, otherwise it stays queued and is sent again next time.
+        const state = await client.refundStatus(r.id);
+        if (state?.found) await service.rpc("settle_refund", settleRefundArgs(r.id, state));
+      }
+    } else {
+      const state = await client.refundStatus(r.id);
+      if (state) await service.rpc("settle_refund", settleRefundArgs(r.id, state));
+    }
+    refunds++;
+  }
+  return json({ checked: ids.length, settled, unanswered, refunds });
 });

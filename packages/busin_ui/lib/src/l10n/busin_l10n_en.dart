@@ -2401,4 +2401,61 @@ class BusinL10nEn extends BusinL10n {
   @override
   String get accountDeletePaymentInProgress =>
       'A payment or a refund of yours is still in progress. Wait until it is finished, then ask again.';
+
+  @override
+  String get refundAsk => 'Ask for a refund';
+
+  @override
+  String get refundAskTitle => 'Ask your school for a refund';
+
+  @override
+  String get refundAskBody =>
+      'Your school decides, and may refund all or part of the price. The mobile money fee is not refunded: it paid for the transfers.';
+
+  @override
+  String get refundReasonLabel => 'Why do you ask?';
+
+  @override
+  String get refundReasonHint =>
+      'For example: I am leaving the school this month';
+
+  @override
+  String get refundReasonShort => 'Write at least 10 characters.';
+
+  @override
+  String get refundSend => 'Send the request';
+
+  @override
+  String get refundSent => 'Your request was sent to your school.';
+
+  @override
+  String get refundNotRefundable => 'This payment can no longer be refunded.';
+
+  @override
+  String get refundRequested => 'Refund asked: your school will decide.';
+
+  @override
+  String refundOnItsWay(String amount) {
+    return 'Refund of $amount on its way to your mobile money account.';
+  }
+
+  @override
+  String refundDone(String amount) {
+    return 'Refunded $amount.';
+  }
+
+  @override
+  String get refundDeclined => 'Refund not approved.';
+
+  @override
+  String get refundDelayed =>
+      'The refund could not be sent yet. Your school can send it again.';
+
+  @override
+  String refundReceiptNo(String number) {
+    return 'Refund receipt $number';
+  }
+
+  @override
+  String get pushForegroundRefund => 'News about your refund.';
 }

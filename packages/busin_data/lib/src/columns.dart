@@ -18,6 +18,9 @@ class Columns {
       'id, school_id, student_id, semester_id, stop_id, status, proof_path, review_note, reviewed_by, reviewed_at, created_at, updated_at, payment_mode, period_start, period_end, billing_period, amount_xaf, installment_plan, payment_method';
 
   /// A payment as its payer reads it. Never `failure_message` (for BusIn's team) and never BusIn's costs.
+  /// A refund as the student reads it.
+  static const refund = 'id, payment_id, amount_xaf, total_xaf, status, reason, decision_note, receipt_no, requested_at, completed_at';
+
   static const payment =
       'id, purpose, subscription_id, installment_id, amount_xaf, fee_xaf, total_xaf, provider, payer_masked, status, failure_code, provider_txn, receipt_no, outcome, created_at, completed_at';
   static const bus = 'id, school_id, plate, name, capacity, in_service';

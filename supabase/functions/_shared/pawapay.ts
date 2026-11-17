@@ -64,6 +64,14 @@ export function depositRequest(input: DepositInput) {
   };
 }
 
+export type RefundInput = { id: string; depositId: string; amountXaf: number };
+
+/** The body of POST /v2/refunds: BusIn's refund id (its idempotency key), the payment refunded, a whole amount in XAF. */
+export function refundRequest(input: RefundInput) {
+  if (!Number.isInteger(input.amountXaf) || input.amountXaf <= 0) throw new Error("amount must be a positive whole number");
+  return { refundId: input.id, depositId: input.depositId, amount: String(input.amountXaf), currency: "XAF" };
+}
+
 // ---------------------------------------------------------------- what pawaPay answers
 
 export type Initiation =
@@ -134,6 +142,19 @@ export function readDepositStatus(httpStatus: number, body: unknown): DepositSta
   return null;
 }
 
+/** The arguments of the database's settle_refund for a refund's state (see the refunds migration). */
+export function settleRefundArgs(id: string, state: DepositState) {
+  if (!state.found) return { p_id: id, p_status: "NOT_FOUND" };
+  return {
+    p_id: id,
+    p_status: state.status,
+    p_amount: state.amount,
+    p_currency: state.currency,
+    p_provider_txn: state.providerTransactionId,
+    p_failure_code: state.failureCode,
+  };
+}
+
 /** The arguments of the database's settle_payment for a deposit's state (see the payments migration). */
 export function settleArgs(id: string, state: DepositState) {
   if (!state.found) return { p_id: id, p_status: "NOT_FOUND" };
@@ -155,6 +176,8 @@ export type Fetch = (url: string, init: RequestInit) => Promise<Response>;
 export type PawaPayClient = {
   initiateDeposit(input: DepositInput): Promise<Initiation>;
   depositStatus(id: string): Promise<DepositState | null>;
+  initiateRefund(input: RefundInput): Promise<Initiation>;
+  refundStatus(id: string): Promise<DepositState | null>;
   predictProvider(phone: string): Promise<{ provider: string; phoneNumber: string } | null>;
   publicKeys(): Promise<{ id: string; key: string }[]>;
 };
@@ -195,6 +218,14 @@ export function pawaPay(options: { baseUrl: string; token: string; fetch: Fetch;
     },
     async depositStatus(id) {
       const { status, json } = await call("GET", `/v2/deposits/${encodeURIComponent(id)}`);
+      return readDepositStatus(status, json);
+    },
+    async initiateRefund(input) {
+      const { status, json } = await call("POST", "/v2/refunds", refundRequest(input));
+      return readInitiation(status, json);
+    },
+    async refundStatus(id) {
+      const { status, json } = await call("GET", `/v2/refunds/${encodeURIComponent(id)}`);
       return readDepositStatus(status, json);
     },
     async predictProvider(phone) {

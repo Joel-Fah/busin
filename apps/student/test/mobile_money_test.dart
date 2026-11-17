@@ -173,4 +173,60 @@ void main() {
     // A completed payment activates the pass: the code tab too.
     expect(tabsForPush('payment_completed'), contains(StudentTabs.code));
   });
+
+  testWidgets('a paid request can be refunded on request, with a reason, and the student follows it', (tester) async {
+    final backend = FakeBackend(current: semester(), mine: [subscription(status: SubscriptionStatus.approved, paymentMethod: PaymentMethod.mobileMoney)]);
+    final payments = FakePayments(mobileMoney: true);
+    await payments.start(purpose: PaymentPurpose.subscription, targetId: 'sub1', phone: '237677123456');
+    payments.finish('pay1', PaymentStatus.completed);
+    await open(tester, backend, payments);
+    if (find.text('Boarding code').evaluate().isNotEmpty) {
+      await tester.tap(find.text('Subscription').first);
+      await settle(tester);
+    }
+
+    await tester.ensureVisible(find.text('Ask for a refund'));
+    await tester.tap(find.text('Ask for a refund'));
+    await settle(tester, 4);
+    expect(find.textContaining('The mobile money fee is not refunded'), findsOneWidget);
+    await tester.enterText(find.byType(TextField).last, 'too short');
+    await tester.tap(find.text('Send the request'));
+    await settle(tester, 4);
+    expect(find.text('Write at least 10 characters.'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField).last, 'I am leaving the school this month');
+    await tester.tap(find.text('Send the request'));
+    await settle(tester);
+    expect(payments.refundRequests.single.paymentId, 'pay1');
+    expect(find.text('Refund asked: your school will decide.'), findsOneWidget);
+    expect(find.text('Ask for a refund'), findsNothing, reason: 'one refund at a time');
+  });
+
+  testWidgets('a declined refund says why, and the student may ask again', (tester) async {
+    final backend = FakeBackend(current: semester(), mine: [subscription(status: SubscriptionStatus.approved, paymentMethod: PaymentMethod.mobileMoney)]);
+    final payments = FakePayments(mobileMoney: true);
+    await payments.start(purpose: PaymentPurpose.subscription, targetId: 'sub1', phone: '237677123456');
+    payments.finish('pay1', PaymentStatus.completed);
+    payments.refunds.add(Refund(
+      id: 'r1',
+      paymentId: 'pay1',
+      amountXaf: 30000,
+      totalXaf: 30000,
+      status: RefundStatus.declined,
+      decisionNote: 'The semester is almost over',
+      requestedAt: DateTime.utc(2026, 11, 16),
+    ));
+    await open(tester, backend, payments);
+    if (find.text('Boarding code').evaluate().isNotEmpty) {
+      await tester.tap(find.text('Subscription').first);
+      await settle(tester);
+    }
+    await tester.ensureVisible(find.text('Refund not approved.'));
+    expect(find.text('The semester is almost over'), findsOneWidget);
+    expect(find.text('Ask for a refund'), findsOneWidget);
+  });
+
+  test('a notification about a declined refund opens the subscription tab', () {
+    expect(routeForPush(const PushMessage(kind: 'refund_declined', refId: 'pay1')), '/subscription');
+  });
 }

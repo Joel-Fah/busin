@@ -1,6 +1,6 @@
-// pawaPay's callbacks (ADR 0029). pawaPay posts a payment's final status here and retries up to 8 times over about 25
-// minutes until it gets a 200; the same callback may come more than once, and settle_payment applies it once. Refunds
-// and payouts are answered 200 and left to their own slice for now (the reconciler asks their status).
+// pawaPay's callbacks (ADR 0029). pawaPay posts a payment's or a refund's final status here and retries up to 8 times
+// over about 25 minutes until it gets a 200; the same callback may come more than once, and settle_payment or
+// settle_refund applies it once. Payouts are answered 200 and left to their own slice for now.
 //
 // Signed callbacks (RFC 9421) are checked against pawaPay's public keys, fetched from pawaPay and kept in memory. With
 // signing off (PAWAPAY_SIGNED_CALLBACKS=off, for a sandbox without it), the callback is only a nudge: the status is asked
@@ -11,7 +11,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 
-import { callbackSubject, pawaPay, readDeposit, settleArgs, verifyCallback } from "../_shared/pawapay.ts";
+import { callbackSubject, pawaPay, readDeposit, settleArgs, settleRefundArgs, verifyCallback } from "../_shared/pawapay.ts";
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
@@ -58,21 +58,23 @@ Deno.serve(async (request) => {
     return json({ error: "bad_request" }, 400);
   }
   const subject = callbackSubject(body);
-  if (!subject || subject.kind !== "deposit") return json({ ok: true, ignored: true });
+  if (!subject || subject.kind === "payout") return json({ ok: true, ignored: true });
+  const refund = subject.kind === "refund";
+  const toArgs = refund ? settleRefundArgs : settleArgs;
 
   let args: Record<string, unknown> | null = null;
   if (signed) {
     const state = readDeposit(body);
-    if (state) args = settleArgs(subject.id, state);
+    if (state) args = toArgs(subject.id, state);
   } else {
-    const { data: known } = await service.from("payments").select("id").eq("id", subject.id).maybeSingle();
+    const { data: known } = await service.from(refund ? "refunds" : "payments").select("id").eq("id", subject.id).maybeSingle();
     if (!known) return json({ ok: true, ignored: true });
-    const state = await client.depositStatus(subject.id);
-    if (state) args = settleArgs(subject.id, state);
+    const state = refund ? await client.refundStatus(subject.id) : await client.depositStatus(subject.id);
+    if (state) args = toArgs(subject.id, state);
   }
   if (!args) return json({ ok: true, ignored: true });
 
-  const { error } = await service.rpc("settle_payment", args);
+  const { error } = await service.rpc(refund ? "settle_refund" : "settle_payment", args);
   // A database failure: answer an error so pawaPay tries again.
   if (error) return json({ error: "not_saved" }, 500);
   return json({ ok: true });

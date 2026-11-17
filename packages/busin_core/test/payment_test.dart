@@ -100,4 +100,38 @@ void main() {
       expect(receipt.toJson().containsKey('payment_method'), isFalse);
     });
   });
+
+  group('Refund', () {
+    Map<String, dynamic> row(String status) => {
+          'id': 'r1',
+          'payment_id': 'p1',
+          'amount_xaf': 15000,
+          'total_xaf': 15000,
+          'status': status,
+          'reason': 'Leaving the school',
+          'decision_note': null,
+          'receipt_no': null,
+          'requested_at': '2026-11-17T08:00:00Z',
+          'completed_at': null,
+        };
+    final paid = Payment.fromJson({
+      'id': 'p1', 'purpose': 'subscription', 'subscription_id': 's1', 'installment_id': null, 'amount_xaf': 20000, 'fee_xaf': 445,
+      'total_xaf': 20445, 'provider': 'MTN_MOMO_CMR', 'payer_masked': '2376*****789', 'status': 'completed', 'failure_code': null,
+      'provider_txn': 'T', 'receipt_no': 'BI-2026-000001', 'outcome': 'applied', 'created_at': '2026-11-17T08:00:00Z', 'completed_at': null,
+    });
+
+    test('every pawaPay stage and a case set aside read as on its way', () {
+      for (final code in ['queued', 'accepted', 'processing', 'in_reconciliation', 'needs_attention']) {
+        expect(Refund.fromJson(row(code)).status, RefundStatus.onItsWay, reason: code);
+      }
+    });
+
+    test('a paid payment can be refunded once at a time; declined or failed, it can be asked again', () {
+      expect(canAskRefund(paid, const []), isTrue);
+      expect(canAskRefund(paid, [Refund.fromJson(row('requested'))]), isFalse);
+      expect(canAskRefund(paid, [Refund.fromJson(row('completed'))]), isFalse);
+      expect(canAskRefund(paid, [Refund.fromJson(row('declined'))]), isTrue);
+      expect(canAskRefund(paid, [Refund.fromJson(row('failed'))]), isTrue);
+    });
+  });
 }

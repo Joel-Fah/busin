@@ -75,10 +75,12 @@ class _PushBinderState extends ConsumerState<PushBinder> {
     final paid = switch (message.kind) {
       'payment_completed' => l10n.payDoneTitle,
       'payment_failed' => l10n.payFailedTitle,
+      'refund_completed' || 'refund_failed' || 'refund_declined' => l10n.pushForegroundRefund,
       _ => null,
     };
     if (paid != null) {
       ref.invalidate(myPaymentsProvider);
+      ref.invalidate(myRefundsProvider);
       ref.invalidate(requestHistoryProvider);
       _show(paid, message);
       return;

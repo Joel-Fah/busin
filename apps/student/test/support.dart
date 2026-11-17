@@ -890,6 +890,22 @@ class FakePayments implements PaymentsRepository {
 
   @override
   Future<List<Payment>> mine({PageRequest page = const PageRequest()}) async => List.of(payments);
+
+  final List<Refund> refunds = [];
+  final List<({String paymentId, String reason})> refundRequests = [];
+
+  @override
+  Future<List<Refund>> myRefunds({PageRequest page = const PageRequest()}) async => List.of(refunds);
+
+  @override
+  Future<void> requestRefund({required String paymentId, required String reason}) async {
+    refundRequests.add((paymentId: paymentId, reason: reason));
+    final paid = payments.firstWhere((p) => p.id == paymentId);
+    refunds.insert(
+      0,
+      Refund(id: 'ref${refunds.length + 1}', paymentId: paymentId, amountXaf: paid.amountXaf, totalXaf: paid.amountXaf, status: RefundStatus.requested, requestedAt: DateTime.utc(2026, 11, 17, 9)),
+    );
+  }
 }
 
 List<Override> overridesFor(

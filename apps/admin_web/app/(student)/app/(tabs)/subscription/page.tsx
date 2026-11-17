@@ -21,6 +21,7 @@ import { firstName, greetingFor } from "@/lib/overview";
 import { requireStudent } from "@/lib/student/session";
 import { schoolBilling, type InstallmentRow } from "@/lib/billing";
 import { parsePoint } from "@/lib/geo";
+import { REFUND_COLUMNS, type RefundRow } from "@/lib/student/refunds";
 import { PAYMENT_COLUMNS, isStartError, latestByItem, offeredOperators, prefillPhone, receiptsOf, type BreakdownRow, type PaymentRow } from "@/lib/student/mobile-money";
 import { buildRequestHistory, isLive, liveRequests, monthChoices, subscriptionToShow, type ReceiptRow, type SubscriptionEvent, type SubscriptionRow } from "@/lib/student/subscription";
 import { createClient } from "@/lib/supabase/server";
@@ -154,6 +155,11 @@ async function Subscription({ searchParams }: { searchParams: SearchParams }) {
     ? await supabase.from("payments").select(PAYMENT_COLUMNS).eq("paid_by", student.userId).in("subscription_id", ofSemester.map((r) => r.id)).order("created_at", { ascending: false }).limit(50)
     : { data: [] };
   const payments = (paid ?? []) as PaymentRow[];
+  // Their refunds (ADR 0029), for the receipts.
+  const { data: refundRows } = payments.length
+    ? await supabase.from("refunds").select(REFUND_COLUMNS).in("payment_id", payments.map((p) => p.id)).order("requested_at", { ascending: false }).limit(50)
+    : { data: [] };
+  const refunds = (refundRows ?? []) as RefundRow[];
   const latest = latestByItem(payments);
   const awaitingPayment = !showForm && subscription?.status === "pending" && subscription.payment_method === "mobile_money";
   const partOf = Object.fromEntries((parts ?? []).map((p) => [p.id, p.seq]));
@@ -247,7 +253,7 @@ async function Subscription({ searchParams }: { searchParams: SearchParams }) {
       <PushOptIn copy={s.push} locale={locale} compact />
       {/* My area, offered once to a student who never added it, when the notification offer is not showing (ADR 0023). */}
       <AreaOffer copy={s.area} />
-      <PaymentReceipts copy={c.pay} receipts={receiptsOf(payments)} partOf={partOf} timeOf={timeOf} locale={locale} />
+      <PaymentReceipts copy={c.pay} receipts={receiptsOf(payments)} partOf={partOf} timeOf={timeOf} locale={locale} refunds={refunds} />
       <RequestHistory copy={c} history={history} dateOf={dateOf} timeOf={timeOf} receiptUrls={receiptUrls} />
     </main>
   );

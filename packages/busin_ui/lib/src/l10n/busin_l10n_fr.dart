@@ -2443,4 +2443,61 @@ class BusinL10nFr extends BusinL10n {
   @override
   String get accountDeletePaymentInProgress =>
       'Un paiement ou un remboursement à votre nom est encore en cours. Attendez qu\'il soit terminé, puis redemandez.';
+
+  @override
+  String get refundAsk => 'Demander un remboursement';
+
+  @override
+  String get refundAskTitle => 'Demander un remboursement à votre école';
+
+  @override
+  String get refundAskBody =>
+      'Votre école décide, et peut rembourser tout ou partie du prix. Les frais mobile money ne sont pas remboursés : ils ont payé les transferts.';
+
+  @override
+  String get refundReasonLabel => 'Pourquoi le demandez-vous ?';
+
+  @override
+  String get refundReasonHint => 'Par exemple : je quitte l\'école ce mois-ci';
+
+  @override
+  String get refundReasonShort => 'Écrivez au moins 10 caractères.';
+
+  @override
+  String get refundSend => 'Envoyer la demande';
+
+  @override
+  String get refundSent => 'Votre demande a été envoyée à votre école.';
+
+  @override
+  String get refundNotRefundable => 'Ce paiement ne peut plus être remboursé.';
+
+  @override
+  String get refundRequested =>
+      'Remboursement demandé : votre école va décider.';
+
+  @override
+  String refundOnItsWay(String amount) {
+    return 'Remboursement de $amount en route vers votre compte mobile money.';
+  }
+
+  @override
+  String refundDone(String amount) {
+    return 'Remboursé : $amount.';
+  }
+
+  @override
+  String get refundDeclined => 'Remboursement non accordé.';
+
+  @override
+  String get refundDelayed =>
+      'Le remboursement n\'a pas encore pu être envoyé. Votre école peut le renvoyer.';
+
+  @override
+  String refundReceiptNo(String number) {
+    return 'Reçu de remboursement $number';
+  }
+
+  @override
+  String get pushForegroundRefund => 'Du nouveau sur votre remboursement.';
 }

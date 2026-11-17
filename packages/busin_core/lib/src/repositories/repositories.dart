@@ -221,6 +221,13 @@ abstract interface class PaymentsRepository {
 
   /// The student's own payments, newest first.
   Future<List<Payment>> mine({PageRequest page = const PageRequest()});
+
+  /// The refunds of the student's payments, newest first.
+  Future<List<Refund>> myRefunds({PageRequest page = const PageRequest()});
+
+  /// Asks the school to refund a payment, with a reason (10 to 500 characters). Refused with `not_refundable`
+  /// (Conflict) or `reason_too_short` (Invalid).
+  Future<void> requestRefund({required String paymentId, required String reason});
 }
 
 /// What a proof of payment may be. The `proofs` bucket enforces the same limits on the server.

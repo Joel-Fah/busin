@@ -29,6 +29,12 @@ final myPaymentsProvider = FutureProvider.autoDispose<List<Payment>>(
   retry: noAutomaticRetry,
 );
 
+/// The refunds of the student's payments, newest first.
+final myRefundsProvider = FutureProvider.autoDispose<List<Refund>>(
+  (ref) => ref.watch(paymentsRepositoryProvider).myRefunds(page: const PageRequest(limit: 30)),
+  retry: noAutomaticRetry,
+);
+
 /// The newest payment for a request (in full or its first part) or for a part, among [payments].
 Payment? latestPaymentFor(List<Payment> payments, {String? subscriptionId, String? installmentId}) {
   for (final p in payments) {

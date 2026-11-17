@@ -35,25 +35,25 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 
 Mobile money through pawaPay (ADR 0029, proposed), kept on its own branch: nothing goes to `dev` or live until the
 sandbox tests pass and the owner approves. Plan: seven slices (data model, pawaPay functions, student apps, refunds,
-school portal, platform console, legal texts).
+school portal, platform console, legal texts). The local database has the payment migrations applied by hand (psql).
 
-- Done: slice 1, the data model and settling (#531): migration `20261117100000_payments.sql`, pgTAP `064_payments` (63);
-  full suite 1134 passing. Applied to the local database by hand (psql), not recorded as a migration there.
-- Fee model (owner, 2026-11-17): the student's fee covers exactly pawaPay's 1% and the operator's rate on the payment
-  and on the payout, so the school gets its whole price; BusIn's margin is the per-student charge; the school pays for
-  refunds it decides. Rates start from pawaPay's published Cameroon fees. pawaPay's sub-merchant terms forbid
-  surcharges, so `costs_paid_by` can switch to the school bearing the costs until pawaPay confirms.
-- Done: slice 2, the pawaPay client and the `payments`, `pawapay-callback` and `payments-reconcile` functions (#532),
-  setup guide [docs/guides/payments-setup.md](docs/guides/payments-setup.md). Sending payouts and refunds comes with
-  slices 4 and 5, where their database side is built.
-- Done: slice 3, paying by mobile money in the student app and the student web app (#533), beside the receipt.
-- Next: slice 4, refunds (student requests, the school's decisions, sending refunds and automatic ones, the ledger).
+- Fee model (owner, 2026-11-17): pawaPay takes 1% of every transaction, refunds included, and nothing more (operator
+  rates and VAT are settings, at 0). Each school chooses who pays the fees: students (BusIn's charge in the price for
+  every way of paying, mobile money's transfer costs on top, so the school receives its whole price) or the school.
+  BusIn's margin is its per-student charge. A platform switch withholds the fee on top if pawaPay refuses it (its
+  sub-merchant terms forbid surcharges).
+- Done: slice 1, data model and settling (#531); slice 2, pawaPay client and functions (#532), setup guide
+  [docs/guides/payments-setup.md](docs/guides/payments-setup.md); slice 3, paying in the student app and the student
+  web app (#533); slice 4, refunds (#536): students ask with a reason, the school decides or refunds on its own (its
+  screens come in slice 5), the reconciler sends refunds, one per payment.
+- Next: slice 5, the school portal: the Payments tab (balance, on hold, owed), who pays the fees beside the price with
+  the breakdown, refunds to decide, the payout number with a second administrator, payouts, invoices, CSV export.
 - Later: the operators' official acceptance marks (text badges for now); showing part 1's fee before the request is
-  sent; the Next.js security advisory the dev server printed for 16.4.3 (an upgrade is its own issue and PR).
+  sent.
 - Owner: ask pawaPay for a sandbox account and key, the intermediary merchant schedule, the Cameroon launch
-  requirements, refund rates, whether VAT applies to its 1%, and written confirmation on the student's service fee.
-  Decide the per-student charge (BusIn's margin; it can change later). The key goes in `supabase/functions/.env`
-  locally (see the setup guide), never in an app.
+  requirements, and written confirmation on the student's fee. Decide the per-student charge (BusIn's margin; it can
+  change later). The key goes in `supabase/functions/.env` locally (see the setup guide), never in an app.
+
 ## Handoff: Next.js security patch (2026-11-17)
 
 - Next.js 16.4.6 on `phase-6/next-16-4-6` (#534), PR into `dev` for the owner to merge. After merging, redeploy the

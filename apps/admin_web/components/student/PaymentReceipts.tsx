@@ -4,13 +4,17 @@ import { formatAmount } from "@/lib/billing";
 import { format } from "@/lib/i18n/format";
 import type { StudentCopy } from "@/lib/i18n/student";
 import { isProvider, maskedDisplay, type PaymentRow } from "@/lib/student/mobile-money";
+import { canAskRefund, latestRefunds, refundStage, type RefundRow } from "@/lib/student/refunds";
+
+import { Notice } from "@/components/ui/Notice";
 
 import { OperatorBadge } from "./OperatorBadge";
+import { RefundAsk } from "./RefundAsk";
 
 /**
  * The student's receipts for what they paid by mobile money (ADR 0029): number, date, amount, fee, total, network, the
  * number that paid (masked) and pawaPay's transaction id. A payment the request could no longer take is being refunded
- * in full, and says so.
+ * in full, and says so. Under each, its refund (ADR 0029): where it stands, or "Ask for a refund" while none is under way.
  */
 export function PaymentReceipts({
   copy,
@@ -18,6 +22,7 @@ export function PaymentReceipts({
   partOf,
   timeOf,
   locale,
+  refunds = [],
 }: {
   copy: StudentCopy["subscription"]["pay"];
   receipts: PaymentRow[];
@@ -25,9 +30,13 @@ export function PaymentReceipts({
   partOf: Record<string, number>;
   timeOf: (iso: string) => string;
   locale: string;
+  /** The refunds of these payments, newest first. */
+  refunds?: RefundRow[];
 }) {
   if (receipts.length === 0) return null;
   const r = copy.receipts;
+  const latest = latestRefunds(refunds);
+  const rc = copy.refunds;
   return (
     <section aria-labelledby="payments-title" className="relative flex flex-col gap-3 rounded-lg bg-surface p-6 shadow-soft" data-testid="payment-receipts">
       <Contour radius={28} inset={10} />
@@ -68,10 +77,26 @@ export function PaymentReceipts({
                 {line(r.payer, maskedDisplay(p.payer_masked))}
                 {p.provider_txn ? line(r.txn, p.provider_txn) : null}
               </dl>
+              {latest[p.id] ? <RefundLine copy={rc} refund={latest[p.id]} money={money} /> : null}
+              {canAskRefund(p, refunds) ? <RefundAsk copy={rc} paymentId={p.id} /> : null}
             </li>
           );
         })}
       </ul>
     </section>
+  );
+}
+
+function RefundLine({ copy, refund, money }: { copy: StudentCopy["subscription"]["pay"]["refunds"]; refund: RefundRow; money: (n: number) => string }) {
+  const stage = refundStage(refund.status);
+  const amount = money(refund.total_xaf);
+  const text = { requested: copy.requested, onItsWay: format(copy.onItsWay, { amount }), done: format(copy.done, { amount }), declined: copy.declined, delayed: copy.delayed }[stage];
+  const tone = stage === "done" ? "ok" : stage === "declined" ? "bad" : stage === "delayed" ? "warn" : "info";
+  return (
+    <Notice tone={tone} className="flex flex-col gap-1">
+      <span data-testid="refund-line">{text}</span>
+      {stage === "declined" && refund.decision_note ? <span>{refund.decision_note}</span> : null}
+      {refund.receipt_no ? <span>{format(copy.receipt, { number: refund.receipt_no })}</span> : null}
+    </Notice>
   );
 }

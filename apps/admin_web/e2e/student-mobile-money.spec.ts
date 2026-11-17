@@ -203,3 +203,29 @@ test("pays a later installment part by mobile money, and lists its receipt", asy
   await expect(page.getByTestId("payment-receipt")).toContainText("Part 2");
   await expect(page.getByTestId("payment-receipt")).toContainText(`${started![0].total_xaf.toLocaleString("en")} XAF`);
 });
+
+test("asks for a refund of a paid request, with a reason, and follows it", async ({ page, context }) => {
+  await signInBrowser(context, student);
+  await page.goto("/app/subscription");
+  await page.waitForLoadState("networkidle");
+  const receipt = page.getByTestId("payment-receipt").first();
+  await receipt.getByText("Ask for a refund").click();
+  const form = page.getByTestId("refund-ask");
+  await expect(form).toContainText("The mobile money fee is not refunded");
+  await form.getByLabel("Why do you ask?").fill("too short");
+  await form.getByRole("button", { name: "Send the request" }).click();
+  await expect(form).toContainText("Write at least 10 characters.");
+  await form.getByLabel("Why do you ask?").fill("I am leaving the school this month");
+  await form.getByRole("button", { name: "Send the request" }).click();
+  await expect(page.getByTestId("refund-line").first()).toHaveText("Refund asked: your school will decide.");
+  await expect(receipt.getByText("Ask for a refund")).toHaveCount(0);
+
+  // The school declines it, with a reason: the student reads it and may ask again.
+  const db = serviceClient();
+  const { data: refund } = await db.from("refunds").select("id").eq("student_id", student.id).single();
+  await db.from("refunds").update({ status: "declined", decision_note: "The semester is almost over" }).eq("id", refund!.id);
+  await page.reload();
+  await expect(page.getByTestId("refund-line").first()).toHaveText("Refund not approved.");
+  await expect(page.getByTestId("payment-receipt").first()).toContainText("The semester is almost over");
+  await expect(page.getByTestId("payment-receipt").first().getByText("Ask for a refund")).toBeVisible();
+});

@@ -875,5 +875,21 @@
   "paymentReceiptNo": "Reçu {number}",
   "paymentPaidWith": "Payé avec {operator} depuis le {number}",
   "paymentTxn": "Référence opérateur {reference}",
-  "accountDeletePaymentInProgress": "Un paiement ou un remboursement à votre nom est encore en cours. Attendez qu'il soit terminé, puis redemandez."
+  "accountDeletePaymentInProgress": "Un paiement ou un remboursement à votre nom est encore en cours. Attendez qu'il soit terminé, puis redemandez.",
+  "refundAsk": "Demander un remboursement",
+  "refundAskTitle": "Demander un remboursement à votre école",
+  "refundAskBody": "Votre école décide, et peut rembourser tout ou partie du prix. Les frais mobile money ne sont pas remboursés : ils ont payé les transferts.",
+  "refundReasonLabel": "Pourquoi le demandez-vous ?",
+  "refundReasonHint": "Par exemple : je quitte l'école ce mois-ci",
+  "refundReasonShort": "Écrivez au moins 10 caractères.",
+  "refundSend": "Envoyer la demande",
+  "refundSent": "Votre demande a été envoyée à votre école.",
+  "refundNotRefundable": "Ce paiement ne peut plus être remboursé.",
+  "refundRequested": "Remboursement demandé : votre école va décider.",
+  "refundOnItsWay": "Remboursement de {amount} en route vers votre compte mobile money.",
+  "refundDone": "Remboursé : {amount}.",
+  "refundDeclined": "Remboursement non accordé.",
+  "refundDelayed": "Le remboursement n'a pas encore pu être envoyé. Votre école peut le renvoyer.",
+  "refundReceiptNo": "Reçu de remboursement {number}",
+  "pushForegroundRefund": "Du nouveau sur votre remboursement."
 }

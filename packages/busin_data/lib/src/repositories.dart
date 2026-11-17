@@ -472,6 +472,24 @@ class SupabasePaymentsRepository implements PaymentsRepository {
             .range(page.offset, page.lastIndex);
         return _rows(rows).map(Payment.fromJson).toList(growable: false);
       });
+
+  @override
+  Future<List<Refund>> myRefunds({PageRequest page = const PageRequest()}) => guarded(() async {
+        final uid = _client.auth.currentUser?.id;
+        if (uid == null) return const [];
+        final rows = await _client
+            .from('refunds')
+            .select(Columns.refund)
+            .eq('student_id', uid)
+            .order('requested_at', ascending: false)
+            .range(page.offset, page.lastIndex);
+        return _rows(rows).map(Refund.fromJson).toList(growable: false);
+      });
+
+  @override
+  Future<void> requestRefund({required String paymentId, required String reason}) => guarded(() async {
+        await _client.rpc<void>('request_refund', params: {'p_payment': paymentId, 'p_reason': reason});
+      });
 }
 
 class SupabaseProofsRepository implements ProofsRepository {

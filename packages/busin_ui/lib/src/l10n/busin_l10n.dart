@@ -4170,6 +4170,102 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'A payment or a refund of yours is still in progress. Wait until it is finished, then ask again.'**
   String get accountDeletePaymentInProgress;
+
+  /// No description provided for @refundAsk.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask for a refund'**
+  String get refundAsk;
+
+  /// No description provided for @refundAskTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask your school for a refund'**
+  String get refundAskTitle;
+
+  /// No description provided for @refundAskBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your school decides, and may refund all or part of the price. The mobile money fee is not refunded: it paid for the transfers.'**
+  String get refundAskBody;
+
+  /// No description provided for @refundReasonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Why do you ask?'**
+  String get refundReasonLabel;
+
+  /// No description provided for @refundReasonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For example: I am leaving the school this month'**
+  String get refundReasonHint;
+
+  /// No description provided for @refundReasonShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Write at least 10 characters.'**
+  String get refundReasonShort;
+
+  /// No description provided for @refundSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send the request'**
+  String get refundSend;
+
+  /// No description provided for @refundSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Your request was sent to your school.'**
+  String get refundSent;
+
+  /// No description provided for @refundNotRefundable.
+  ///
+  /// In en, this message translates to:
+  /// **'This payment can no longer be refunded.'**
+  String get refundNotRefundable;
+
+  /// No description provided for @refundRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund asked: your school will decide.'**
+  String get refundRequested;
+
+  /// No description provided for @refundOnItsWay.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund of {amount} on its way to your mobile money account.'**
+  String refundOnItsWay(String amount);
+
+  /// No description provided for @refundDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunded {amount}.'**
+  String refundDone(String amount);
+
+  /// No description provided for @refundDeclined.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund not approved.'**
+  String get refundDeclined;
+
+  /// No description provided for @refundDelayed.
+  ///
+  /// In en, this message translates to:
+  /// **'The refund could not be sent yet. Your school can send it again.'**
+  String get refundDelayed;
+
+  /// No description provided for @refundReceiptNo.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund receipt {number}'**
+  String refundReceiptNo(String number);
+
+  /// No description provided for @pushForegroundRefund.
+  ///
+  /// In en, this message translates to:
+  /// **'News about your refund.'**
+  String get pushForegroundRefund;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {

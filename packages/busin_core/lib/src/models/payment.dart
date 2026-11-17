@@ -287,3 +287,85 @@ extension PriceLines on List<PriceLine> {
 
   PriceLine? forOperator(MobileMoneyOperator operator) => where((l) => l.operator == operator).firstOrNull;
 }
+
+/// Where a refund stands, as the student reads it.
+enum RefundStatus {
+  /// Asked for; the school decides.
+  requested('requested'),
+  declined('declined'),
+
+  /// Approved (or decided by the school, or by BusIn), on its way to the payer's account.
+  onItsWay('queued'),
+  completed('completed'),
+
+  /// Not sent this time; the school can send it again.
+  failed('failed');
+
+  const RefundStatus(this.code);
+
+  final String code;
+
+  /// pawaPay's stages and anything BusIn checks by hand all read as on its way.
+  static RefundStatus parse(Object? raw) => switch (raw) {
+        'requested' => requested,
+        'declined' => declined,
+        'completed' => completed,
+        'failed' => failed,
+        _ => onItsWay,
+      };
+}
+
+/// A refund of a payment made in the app (ADR 0029): asked for by the student, decided by the school, or sent by BusIn
+/// when it could not use a payment.
+class Refund extends ValueObject {
+  const Refund({
+    required this.id,
+    required this.paymentId,
+    required this.amountXaf,
+    required this.totalXaf,
+    required this.status,
+    required this.requestedAt,
+    this.reason,
+    this.decisionNote,
+    this.receiptNo,
+    this.completedAt,
+  });
+
+  factory Refund.fromJson(Map<String, dynamic> json) => Refund(
+        id: reqString(json, 'id'),
+        paymentId: reqString(json, 'payment_id'),
+        amountXaf: reqInt(json, 'amount_xaf'),
+        totalXaf: reqInt(json, 'total_xaf'),
+        status: RefundStatus.parse(json['status']),
+        reason: optString(json, 'reason'),
+        decisionNote: optString(json, 'decision_note'),
+        receiptNo: optString(json, 'receipt_no'),
+        requestedAt: reqTimestamp(json, 'requested_at'),
+        completedAt: optTimestamp(json, 'completed_at'),
+      );
+
+  final String id;
+  final String paymentId;
+
+  /// What the school gives back of its price, and what reaches the payer (the fee too, when BusIn refunds its error).
+  final int amountXaf;
+  final int totalXaf;
+  final RefundStatus status;
+  final String? reason;
+
+  /// Why the school declined, or what it said when approving.
+  final String? decisionNote;
+  final String? receiptNo;
+  final DateTime requestedAt;
+  final DateTime? completedAt;
+
+  /// Still counts: a declined or failed refund leaves the payment refundable again.
+  bool get live => status != RefundStatus.declined && status != RefundStatus.failed;
+
+  @override
+  List<Object?> get props => [id, paymentId, amountXaf, totalXaf, status, reason, decisionNote, receiptNo, requestedAt, completedAt];
+}
+
+/// Whether a student can ask for a refund of [payment]: paid and used for their request, with no refund under way.
+bool canAskRefund(Payment payment, Iterable<Refund> refunds) =>
+    payment.status == PaymentStatus.completed && !payment.refunded && !refunds.any((r) => r.paymentId == payment.id && r.live);

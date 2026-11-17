@@ -182,3 +182,30 @@ test("database refusals keep their code and get a fitting status; anything else 
   assert.deepEqual(refusal({ code: "XX000", message: "relation \"x\" does not exist" }), { status: 500, code: "payment_error" });
   assert.deepEqual(refusal(null), { status: 500, code: "payment_error" });
 });
+
+test("a refund request names BusIn's refund id and the payment, with a whole amount", async () => {
+  const { refundRequest, settleRefundArgs } = await import("./pawapay.ts");
+  assert.deepEqual(refundRequest({ id: "r1", depositId: "p1", amountXaf: 15000 }), { refundId: "r1", depositId: "p1", amount: "15000", currency: "XAF" });
+  assert.throws(() => refundRequest({ id: "r1", depositId: "p1", amountXaf: 0 }));
+  assert.deepEqual(settleRefundArgs("r1", { found: false }), { p_id: "r1", p_status: "NOT_FOUND" });
+  assert.equal(
+    settleRefundArgs("r1", { found: true, status: "COMPLETED", amount: "15000", currency: "XAF", providerTransactionId: "T", failureCode: null, failureMessage: null })
+      .p_status,
+    "COMPLETED",
+  );
+});
+
+test("a refund is sent to /v2/refunds and checked at /v2/refunds/{id}", async () => {
+  const urls: string[] = [];
+  const fetch: Fetch = async (url) => {
+    urls.push(url);
+    return url.endsWith("/v2/refunds")
+      ? new Response(JSON.stringify({ refundId: "r1", status: "ACCEPTED" }), { status: 200 })
+      : new Response(JSON.stringify({ status: "FOUND", data: { refundId: "r1", status: "COMPLETED", amount: "15000", currency: "XAF" } }), { status: 200 });
+  };
+  const client = pawaPay({ baseUrl: "https://api.sandbox.pawapay.io", token: "t", fetch });
+  assert.deepEqual(await client.initiateRefund({ id: "r1", depositId: "p1", amountXaf: 15000 }), { kind: "accepted" });
+  const state = await client.refundStatus("r1");
+  assert.equal(state?.found && state.status, "COMPLETED");
+  assert.deepEqual(urls, ["https://api.sandbox.pawapay.io/v2/refunds", "https://api.sandbox.pawapay.io/v2/refunds/r1"]);
+});

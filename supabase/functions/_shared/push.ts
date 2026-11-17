@@ -17,7 +17,8 @@ export type Kind =
   | "payment_completed"
   | "payment_failed"
   | "refund_completed"
-  | "refund_failed";
+  | "refund_failed"
+  | "refund_declined";
 
 const KINDS: readonly Kind[] = [
   "subscription_approved",
@@ -34,6 +35,7 @@ const KINDS: readonly Kind[] = [
   "payment_failed",
   "refund_completed",
   "refund_failed",
+  "refund_declined",
 ];
 
 /** One claimed notification, as claim_notifications returns it. */
@@ -105,6 +107,10 @@ const TEXT: Record<Kind, Record<Locale, { title: string; body: string }>> = {
   refund_completed: {
     en: { title: "Refund sent", body: "A refund was sent to your mobile money account. Open BusIn to see the details." },
     fr: { title: "Remboursement envoyé", body: "Un remboursement a été envoyé sur votre compte mobile money. Ouvrez BusIn pour voir le détail." },
+  },
+  refund_declined: {
+    en: { title: "Refund not approved", body: "Your school has decided on your refund request. Open BusIn to see why." },
+    fr: { title: "Remboursement non accordé", body: "Votre école a statué sur votre demande de remboursement. Ouvrez BusIn pour en connaître la raison." },
   },
   refund_failed: {
     en: { title: "Refund delayed", body: "Your refund could not be sent yet. BusIn will try again; open the app to see where it stands." },

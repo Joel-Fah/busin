@@ -47,7 +47,11 @@ payment.
    collecting it on top.
 6. **Refunds.** System errors are refunded in full, fee included, at BusIn's cost. Otherwise the school decides on a
    student's request (full or partial, of the school's price; the fee is not returned, as it paid for the transfers)
-   and bears what sending the refund costs (a `refund_fee` row in its ledger).
+   and bears what sending the refund costs (a `refund_fee` row in its ledger), or refunds on its own. One refund per
+   payment (pawaPay refuses a second one for a deposit already refunded); a declined or failed one leaves the payment
+   refundable again. Approving takes the amount from the school's balance at once; a refund that fails is put back,
+   except BusIn's own, which goes to the platform. A refund of a request's whole price ends the subscription. The
+   reconciler sends refunds and checks them; pawaPay's callbacks settle them like payments.
 7. **Receipts.** Every completed payment and refund gets a number (`BI-2026-000123`, refunds `BR-`, invoices `BF-`).
    The payer's number is stored masked; pawaPay keeps the full one under the payment's id.
 8. **Who sees what.** A student reads their own payments and refunds; a school administrator their school's payments,

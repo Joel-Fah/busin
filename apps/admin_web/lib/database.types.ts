@@ -1132,6 +1132,9 @@ isOneToOne: false
 "admin_cancel_trip":
 { Args: { "p_reason"?: string,"p_trip_id": string }; Returns: undefined
                            },
+"admin_decide_refund":
+{ Args: { "p_amount"?: number,"p_approve": boolean,"p_note"?: string,"p_refund": string }; Returns: undefined
+                           },
 "admin_decline_member":
 { Args: { "p_reason"?: string,"p_user_id": string }; Returns: undefined
                            },
@@ -1158,6 +1161,9 @@ isOneToOne: false
                            },
 "admin_refresh_stop_loads":
 { Args: Record<PropertyKey, never>; Returns: string
+                           },
+"admin_refund_payment":
+{ Args: { "p_amount": number,"p_payment": string,"p_reason": string }; Returns: string
                            },
 "admin_reinstate_subscription":
 { Args: { "p_note"?: string,"p_subscription_id": string }; Returns: undefined
@@ -1450,11 +1456,19 @@ isOneToOne: false
 "record_qr_scan":
 { Args: { "p_accuracy"?: number,"p_client_id"?: string,"p_code": string,"p_lat"?: number,"p_lng"?: number,"p_scanned_at"?: string,"p_stop_id"?: string,"p_trip_id": string }; Returns: Json
                            },
+"refunds_to_send":
+{ Args: { "p_limit"?: number }; Returns: {
+              "action": string,"currency": string,"id": string,"payment_id": string,"total_xaf": number
+            }[]
+                           },
 "register_device_token":
 { Args: { "p_locale"?: string,"p_platform": string,"p_token": string }; Returns: undefined
                            },
 "request_account_deletion":
 { Args: Record<PropertyKey, never>; Returns: string
+                           },
+"request_refund":
+{ Args: { "p_payment": string,"p_reason": string }; Returns: string
                            },
 "request_school":
 { Args: { "p_school_id": string }; Returns: undefined
@@ -1507,6 +1521,9 @@ isOneToOne: false
                            },
 "settle_payment":
 { Args: { "p_amount"?: string,"p_currency"?: string,"p_failure_code"?: string,"p_failure_message"?: string,"p_id": string,"p_provider_txn"?: string,"p_status": string }; Returns: Json
+                           },
+"settle_refund":
+{ Args: { "p_amount"?: string,"p_currency"?: string,"p_failure_code"?: string,"p_id": string,"p_provider_txn"?: string,"p_status": string }; Returns: Json
                            },
 "staff_day_keys":
 { Args: Record<PropertyKey, never>; Returns: {
