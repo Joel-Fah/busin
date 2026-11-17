@@ -2216,4 +2216,189 @@ class BusinL10nEn extends BusinL10n {
   @override
   String get accountDeleteActiveTrip =>
       'You are on a running trip. End it first, then ask again.';
+
+  @override
+  String get payMethodLabel => 'How will you pay?';
+
+  @override
+  String get payMethodMobileMoney => 'Mobile money';
+
+  @override
+  String get payMethodReceipt => 'Upload a receipt';
+
+  @override
+  String get payMethodMobileMoneyNote =>
+      'Pay now with MTN Mobile Money or Orange Money. Your pass is active as soon as the payment goes through.';
+
+  @override
+  String get payPhoneLabel => 'Mobile money number';
+
+  @override
+  String get payPhoneHint => '6XX XX XX XX';
+
+  @override
+  String get payPhoneInvalid =>
+      'Enter a Cameroonian mobile number, for example 6 53 45 67 89.';
+
+  @override
+  String get payOperatorUnknown => 'We will check the operator when you pay.';
+
+  @override
+  String get payOperatorChange => 'Change operator';
+
+  @override
+  String get payOperatorPick => 'Which operator is this number with?';
+
+  @override
+  String payOperatorUnavailable(String operator) {
+    return '$operator cannot be used right now.';
+  }
+
+  @override
+  String get payLinePrice => 'Price';
+
+  @override
+  String get payLineFee => 'Mobile money fee';
+
+  @override
+  String get payLineTotal => 'Total';
+
+  @override
+  String get payFeeNote => 'The fee covers the cost of moving the money.';
+
+  @override
+  String get payTitleSubscription => 'Pay your bus pass';
+
+  @override
+  String payTitleInstallment(String part) {
+    return 'Pay part $part';
+  }
+
+  @override
+  String paySubmit(String amount) {
+    return 'Pay $amount';
+  }
+
+  @override
+  String get payWaitingTitle => 'Check your phone';
+
+  @override
+  String payWaitingBody(String amount, String operator) {
+    return 'Confirm the payment of $amount with your $operator PIN.';
+  }
+
+  @override
+  String get payWaitingNote =>
+      'This screen updates by itself. You can close the app: we will tell you when it is done.';
+
+  @override
+  String get payWaitingCheck => 'I confirmed, check again';
+
+  @override
+  String get payDoneTitle => 'Payment received';
+
+  @override
+  String get payDoneSubscription => 'Your bus pass is active.';
+
+  @override
+  String get payDoneInstallment => 'This part is paid.';
+
+  @override
+  String get payFailedTitle => 'Payment not completed';
+
+  @override
+  String get payFailedNothingTaken => 'Nothing was taken from your account.';
+
+  @override
+  String get payFailNotApproved =>
+      'The payment was not confirmed with your PIN in time.';
+
+  @override
+  String get payFailBalance => 'There is not enough money in the account.';
+
+  @override
+  String get payFailNotFound =>
+      'This number has no account with this operator. Check the number or the operator.';
+
+  @override
+  String get payFailLimit => 'The account has reached its limit.';
+
+  @override
+  String get payFailOtherPending =>
+      'Another payment is waiting on this phone. Finish or cancel it first.';
+
+  @override
+  String get payFailOperatorDown =>
+      'The operator is not available right now. Try again later, or use the other operator.';
+
+  @override
+  String get payFailAmount => 'The operator does not allow this amount.';
+
+  @override
+  String get payFailNumber => 'This number was refused.';
+
+  @override
+  String get payFailGeneric => 'The payment could not be completed.';
+
+  @override
+  String get payRetry => 'Try again';
+
+  @override
+  String get paySendReceiptInstead => 'Send a receipt instead';
+
+  @override
+  String get payAttention =>
+      'We are checking this payment. You have nothing more to do.';
+
+  @override
+  String get payRefunding =>
+      'This payment could not be used and is being refunded in full.';
+
+  @override
+  String get payErrorUnavailable =>
+      'Mobile money is not available right now. You can upload a receipt instead.';
+
+  @override
+  String get payErrorInProgress => 'A payment is already in progress for this.';
+
+  @override
+  String get payErrorTooMany => 'Too many attempts. Try again in an hour.';
+
+  @override
+  String get payErrorNotPayable => 'This can no longer be paid.';
+
+  @override
+  String get payAwaitingTitle => 'Waiting for your payment';
+
+  @override
+  String get payAwaitingBody =>
+      'Pay by mobile money to activate your pass, or send a receipt instead.';
+
+  @override
+  String get payNow => 'Pay now';
+
+  @override
+  String get payInstallmentMobile => 'Pay with mobile money';
+
+  @override
+  String get paymentsTitle => 'Payments';
+
+  @override
+  String paymentReceiptNo(String number) {
+    return 'Receipt $number';
+  }
+
+  @override
+  String paymentPaidWith(String operator, String number) {
+    return 'Paid with $operator from $number';
+  }
+
+  @override
+  String paymentTxn(String reference) {
+    return 'Operator reference $reference';
+  }
+
+  @override
+  String get accountDeletePaymentInProgress =>
+      'A payment or a refund of yours is still in progress. Wait until it is finished, then ask again.';
 }

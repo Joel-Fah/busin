@@ -35,11 +35,15 @@ RepositoryException _fromStorage(StorageException error) {
 
 RepositoryException _fromFunction(FunctionException error) {
   final message = 'function ${error.status}';
+  // Our functions answer { error: "short_code" }: passed on as the reason, like a database function's code.
+  final details = error.details;
+  final reason = details is Map ? _reasonOf(details['error']?.toString()) : null;
   return switch (error.status) {
-    401 || 403 || 429 => NotAllowed(message),
-    404 => NotFound(message),
-    400 || 422 => Invalid(message),
-    _ => Unexpected(message),
+    401 || 403 || 429 => NotAllowed(message, reason: reason),
+    404 => NotFound(message, reason: reason),
+    409 => Conflict(message, reason: reason),
+    400 || 422 => Invalid(message, reason: reason),
+    _ => Unexpected(message, reason: reason),
   };
 }
 

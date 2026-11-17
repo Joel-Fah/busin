@@ -42,6 +42,7 @@ class _DeleteAccountSectionState extends State<DeleteAccountSection> {
     final message = switch (error) {
       Conflict(reason: 'last_admin') => l10n.accountDeleteLastAdmin,
       Conflict(reason: 'active_trip') => l10n.accountDeleteActiveTrip,
+      Conflict(reason: 'payment_in_progress') => l10n.accountDeletePaymentInProgress,
       Offline() => l10n.offlineTitle,
       _ => l10n.errorGeneric,
     };

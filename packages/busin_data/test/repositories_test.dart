@@ -634,4 +634,95 @@ void main() {
       expect(jsonDecode(h.last.body), {'expiresIn': 300});
     });
   });
+
+  group('mobile money payments', () {
+    Map<String, dynamic> paymentRow({String status = 'accepted'}) => {
+          'id': _id,
+          'purpose': 'subscription',
+          'subscription_id': _other,
+          'installment_id': null,
+          'amount_xaf': 20000,
+          'fee_xaf': 445,
+          'total_xaf': 20445,
+          'provider': 'MTN_MOMO_CMR',
+          'payer_masked': '2376*****789',
+          'status': status,
+          'failure_code': null,
+          'provider_txn': null,
+          'receipt_no': null,
+          'outcome': null,
+          'created_at': '2026-11-17T08:00:00Z',
+          'completed_at': null,
+        };
+
+    test('a request paid by mobile money is sent without a proof, saying how it is paid', () async {
+      final h = Harness((_) async => json({...subscriptionRow(), 'payment_method': 'mobile_money'}, status: 201));
+      final created = await h.repos.subscriptions.request(const NewSubscription(
+        schoolId: _school,
+        studentId: _other,
+        semesterId: _id,
+        stopId: _id,
+        paymentMethod: PaymentMethod.mobileMoney,
+      ));
+      final body = jsonDecode(h.last.body) as Map<String, dynamic>;
+      expect(body.keys.toSet(), {'school_id', 'student_id', 'semester_id', 'stop_id', 'payment_mode', 'payment_method'});
+      expect(created.awaitsPayment, isTrue);
+    });
+
+    test('starting asks the payments function, then reads the payment back with named columns', () async {
+      final h = Harness((request) async => request.url.path.startsWith('/functions/')
+          ? json({'payment_id': _id, 'status': 'accepted'})
+          : json(paymentRow()));
+      final payment = await h.repos.payments.start(purpose: PaymentPurpose.subscription, targetId: _other, phone: '6 53 45 67 89');
+      final call = h.requests.first;
+      expect(call.url.path, '/functions/v1/payments');
+      // The phone goes as typed (the server reads it); no operator unless the payer chose one.
+      expect(jsonDecode(call.body), {'action': 'start', 'purpose': 'subscription', 'target': _other, 'phone': '6 53 45 67 89'});
+      expect(h.last.url.queryParameters['select'], isNot(contains('failure_message')));
+      expect(h.last.url.queryParameters['select'], isNot(contains('*')));
+      expect(payment.status, PaymentStatus.accepted);
+    });
+
+    test('a refusal from the function keeps its short code', () async {
+      Future<RepositoryException> refused(int status, Object body) async {
+        final h = Harness((_) async => json(body, status: status));
+        try {
+          await h.repos.payments.start(purpose: PaymentPurpose.installment, targetId: _id, phone: '653456789', operator: MobileMoneyOperator.orange);
+        } on RepositoryException catch (e) {
+          return e;
+        }
+        fail('expected a refusal');
+      }
+
+      expect(await refused(409, {'error': 'payment_in_progress'}), isA<Conflict>().having((e) => e.reason, 'reason', 'payment_in_progress'));
+      expect(await refused(429, {'error': 'too_many_attempts'}), isA<NotAllowed>().having((e) => e.reason, 'reason', 'too_many_attempts'));
+      expect(await refused(503, {'error': 'payments_unavailable'}), isA<Unexpected>().having((e) => e.reason, 'reason', 'payments_unavailable'));
+      expect(await refused(400, {'error': 'Some sentence'}), isA<Invalid>().having((e) => e.reason, 'reason', isNull));
+    });
+
+    test('prices and quotes come from the database functions', () async {
+      final h = Harness((request) async => request.url.path.endsWith('price_breakdown')
+          ? json([
+              {'method': 'receipt', 'student_pays': 20000, 'busin_charge': 0, 'transaction_cost': 0, 'school_receives': 20000},
+              {'method': 'ORANGE_CMR', 'student_pays': 20445, 'busin_charge': 0, 'transaction_cost': 405, 'school_receives': 20000},
+            ])
+          : json([
+              {'provider': 'MTN_MOMO_CMR', 'amount_xaf': 20000, 'fee_xaf': 445, 'total_xaf': 20445, 'currency': 'XAF'},
+              {'provider': 'ORANGE_CMR', 'amount_xaf': 20000, 'fee_xaf': null, 'total_xaf': null, 'currency': 'XAF'},
+            ]));
+      final lines = await h.repos.payments.priceBreakdown();
+      expect(lines.offersMobileMoney, isTrue);
+      final quotes = await h.repos.payments.quote(purpose: PaymentPurpose.subscription, targetId: _id);
+      expect(h.last.url.path, '/rest/v1/rpc/payment_quote');
+      expect(jsonDecode(h.last.body), {'p_purpose': 'subscription', 'p_target': _id});
+      expect(quotes.where((q) => q.available).map((q) => q.operator), [MobileMoneyOperator.mtn]);
+    });
+
+    test('a receipt instead goes through the database function', () async {
+      final h = Harness((_) async => http.Response('', 204));
+      await h.repos.subscriptions.attachProof(subscriptionId: _id, proofPath: '$_school/$_other/r.jpg');
+      expect(h.last.url.path, '/rest/v1/rpc/attach_subscription_proof');
+      expect(jsonDecode(h.last.body), {'p_subscription': _id, 'p_path': '$_school/$_other/r.jpg'});
+    });
+  });
 }

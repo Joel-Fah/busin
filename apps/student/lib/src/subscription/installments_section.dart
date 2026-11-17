@@ -5,6 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../auth/access.dart';
+import '../payments/awaiting_payment.dart';
+import '../payments/pay_sheet.dart';
+import '../payments/payment_providers.dart';
 import '../providers.dart';
 import 'billing_choices.dart';
 import 'money.dart';
@@ -37,18 +40,19 @@ class _InstallmentsSectionState extends ConsumerState<InstallmentsSection> {
     final l10n = BusinL10n.of(context);
     final access = ref.read(accessProvider);
     if (access is! Allowed) return;
-    final proof = await pickProof(context, ref, onProblem: (message) {
-      if (mounted) BusinToast.show(context, message, tone: ToastTone.error);
-    });
+    final proof = await pickProof(
+      context,
+      ref,
+      onProblem: (message) {
+        if (mounted) BusinToast.show(context, message, tone: ToastTone.error);
+      },
+    );
     if (proof == null || !mounted) return;
     setState(() => _sending = part.id);
     try {
-      final path = await ref.read(proofsRepositoryProvider).upload(
-            schoolId: access.profile.schoolId!,
-            studentId: access.profile.id,
-            bytes: proof.bytes,
-            contentType: proof.contentType,
-          );
+      final path = await ref
+          .read(proofsRepositoryProvider)
+          .upload(schoolId: access.profile.schoolId!, studentId: access.profile.id, bytes: proof.bytes, contentType: proof.contentType);
       await ref.read(installmentsRepositoryProvider).submitProof(installmentId: part.id, proofPath: path);
       ref.invalidate(installmentsProvider(widget.subscription.id));
       // The receipt joins the request's history.
@@ -63,9 +67,27 @@ class _InstallmentsSectionState extends ConsumerState<InstallmentsSection> {
     }
   }
 
+  /// Pays a later part by mobile money (ADR 0029), or picks up its payment still waiting.
+  Future<void> _payPart(Installment part, Payment? latest) async {
+    final l10n = BusinL10n.of(context);
+    await showPaySheet(
+      context,
+      purpose: PaymentPurpose.installment,
+      targetId: part.id,
+      title: l10n.payTitleInstallment('${part.seq}'),
+      resume: latest,
+    );
+    ref.invalidate(installmentsProvider(widget.subscription.id));
+    refreshAfterPayment(ref);
+  }
+
   @override
   Widget build(BuildContext context) {
     final parts = ref.watch(installmentsProvider(widget.subscription.id)).value;
+    // Mobile money for a part: where the school offers it, and only once the request is approved.
+    final mobile =
+        widget.subscription.status == SubscriptionStatus.approved && (ref.watch(priceLinesProvider).value?.offersMobileMoney ?? false);
+    final payments = mobile ? (ref.watch(myPaymentsProvider).value ?? const <Payment>[]) : const <Payment>[];
     if (parts == null || parts.isEmpty) return const SizedBox.shrink();
     final l10n = BusinL10n.of(context);
     final p = BusinPalette.of(context);
@@ -94,7 +116,10 @@ class _InstallmentsSectionState extends ConsumerState<InstallmentsSection> {
                     spacing: BusinSpace.x2,
                     runSpacing: BusinSpace.x2,
                     children: [
-                      Text('${l10n.partLabel('${part.seq}')} · ${money(context, part.amountXaf, school?.currency ?? 'XAF')}', style: text.titleSmall),
+                      Text(
+                        '${l10n.partLabel('${part.seq}')} · ${money(context, part.amountXaf, school?.currency ?? 'XAF')}',
+                        style: text.titleSmall,
+                      ),
                       Wrap(
                         spacing: BusinSpace.x2,
                         children: [
@@ -109,6 +134,21 @@ class _InstallmentsSectionState extends ConsumerState<InstallmentsSection> {
                   if (part.status == InstallmentStatus.rejected && (part.reviewNote?.isNotEmpty ?? false)) ...[
                     const SizedBox(height: BusinSpace.x2),
                     Text(part.reviewNote!, style: text.bodySmall),
+                  ],
+                  if (part.open && canSend && mobile) ...[
+                    const SizedBox(height: BusinSpace.x3),
+                    Builder(
+                      builder: (context) {
+                        final latest = latestPaymentFor(payments, installmentId: part.id);
+                        final waiting = latest != null && latest.status.waiting;
+                        return BusinButton(
+                          label: waiting ? l10n.payWaitingTitle : l10n.payInstallmentMobile,
+                          icon: waiting ? HugeIcons.strokeRoundedSmartPhone01 : HugeIcons.strokeRoundedWallet01,
+                          onPressed: _sending == null ? () => _payPart(part, latest) : null,
+                          expand: true,
+                        );
+                      },
+                    ),
                   ],
                   if (part.open && canSend) ...[
                     const SizedBox(height: BusinSpace.x3),
@@ -132,16 +172,16 @@ class _InstallmentsSectionState extends ConsumerState<InstallmentsSection> {
   }
 
   static String _statusLabel(BusinL10n l10n, InstallmentStatus status) => switch (status) {
-        InstallmentStatus.due => l10n.partStatusDue,
-        InstallmentStatus.submitted => l10n.partStatusSubmitted,
-        InstallmentStatus.paid => l10n.partStatusPaid,
-        InstallmentStatus.rejected => l10n.partStatusRejected,
-      };
+    InstallmentStatus.due => l10n.partStatusDue,
+    InstallmentStatus.submitted => l10n.partStatusSubmitted,
+    InstallmentStatus.paid => l10n.partStatusPaid,
+    InstallmentStatus.rejected => l10n.partStatusRejected,
+  };
 
   static StatusTone _tone(InstallmentStatus status) => switch (status) {
-        InstallmentStatus.due => StatusTone.neutral,
-        InstallmentStatus.submitted => StatusTone.warn,
-        InstallmentStatus.paid => StatusTone.ok,
-        InstallmentStatus.rejected => StatusTone.bad,
-      };
+    InstallmentStatus.due => StatusTone.neutral,
+    InstallmentStatus.submitted => StatusTone.warn,
+    InstallmentStatus.paid => StatusTone.ok,
+    InstallmentStatus.rejected => StatusTone.bad,
+  };
 }

@@ -3,6 +3,19 @@ import '../json.dart';
 import '../value_object.dart';
 import 'billing.dart';
 
+/// How a request is paid (ADR 0029): a photo of the receipt the school approves, or mobile money in the app, which
+/// approves it once paid.
+enum PaymentMethod {
+  receipt('receipt'),
+  mobileMoney('mobile_money');
+
+  const PaymentMethod(this.code);
+
+  final String code;
+
+  static PaymentMethod parse(Object? raw) => values.firstWhere((v) => v.code == raw, orElse: () => PaymentMethod.receipt);
+}
+
 /// A student's request for bus service in one semester, from one stop.
 class Subscription extends ValueObject {
   const Subscription({
@@ -24,6 +37,7 @@ class Subscription extends ValueObject {
     this.billingPeriod,
     this.amountXaf,
     this.installmentPlan,
+    this.paymentMethod = PaymentMethod.receipt,
   });
 
   factory Subscription.fromJson(Map<String, dynamic> json) => Subscription(
@@ -45,6 +59,7 @@ class Subscription extends ValueObject {
         billingPeriod: BillingPeriod.tryParse(json['billing_period']),
         amountXaf: optInt(json, 'amount_xaf'),
         installmentPlan: InstallmentPlan.tryParse(json['installment_plan']),
+        paymentMethod: PaymentMethod.parse(json['payment_method']),
       );
 
   final String id;
@@ -74,6 +89,12 @@ class Subscription extends ValueObject {
   final int? amountXaf;
   final InstallmentPlan? installmentPlan;
 
+  /// How it is paid. A pending mobile money request waits for its payment, not for the school.
+  final PaymentMethod paymentMethod;
+
+  /// Pending and to be paid by mobile money (no receipt sent).
+  bool get awaitsPayment => status == SubscriptionStatus.pending && paymentMethod == PaymentMethod.mobileMoney && proofPath == null;
+
   /// The last day it covers: its month's last day, or else [semesterEnd].
   DateTime coversUntil(DateTime semesterEnd) => periodEnd ?? semesterEnd;
 
@@ -101,6 +122,7 @@ class Subscription extends ValueObject {
         'billing_period': billingPeriod?.name,
         'amount_xaf': amountXaf,
         'installment_plan': installmentPlan?.code,
+        'payment_method': paymentMethod.code,
       };
 
   /// A student may have only one pending or approved request per period (a semester, or a month).
@@ -128,6 +150,7 @@ class Subscription extends ValueObject {
         billingPeriod,
         amountXaf,
         installmentPlan,
+        paymentMethod,
       ];
 }
 
@@ -139,19 +162,23 @@ class NewSubscription extends ValueObject {
     required this.studentId,
     required this.semesterId,
     required this.stopId,
-    required this.proofPath,
+    this.proofPath,
     this.paymentMode = PaymentMode.full,
     this.periodStart,
-  });
+    this.paymentMethod = PaymentMethod.receipt,
+  }) : assert(proofPath != null || paymentMethod == PaymentMethod.mobileMoney, 'A receipt request needs its proof');
 
   final String schoolId;
   final String studentId;
   final String semesterId;
   final String stopId;
 
-  /// The uploaded proof of payment. Required: the database refuses a request without one that exists in storage.
-  /// Must be `<schoolId>/<studentId>/<file>`.
-  final String proofPath;
+  /// The uploaded proof of payment, for a receipt request: the database refuses one without a proof that exists in
+  /// storage. Must be `<schoolId>/<studentId>/<file>`. Null for a request paid by mobile money.
+  final String? proofPath;
+
+  /// How the student will pay. Mobile money only where the school offers it.
+  final PaymentMethod paymentMethod;
 
   /// How the student pays. Installments only where the school offers a plan.
   final PaymentMode paymentMode;
@@ -173,12 +200,13 @@ class NewSubscription extends ValueObject {
         'student_id': studentId,
         'semester_id': semesterId,
         'stop_id': stopId,
-        'proof_path': proofPath,
+        if (proofPath != null) 'proof_path': proofPath,
         'payment_mode': paymentMode.name,
         if (periodStart != null) 'period_start': formatDate(periodStart!),
+        if (paymentMethod != PaymentMethod.receipt) 'payment_method': paymentMethod.code,
       };
 
   @override
   List<Object?> get props =>
-      [schoolId, studentId, semesterId, stopId, proofPath, paymentMode, periodStart];
+      [schoolId, studentId, semesterId, stopId, proofPath, paymentMode, periodStart, paymentMethod];
 }

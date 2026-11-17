@@ -391,6 +391,87 @@ class SupabaseSubscriptionsRepository implements SubscriptionsRepository {
             .single();
         return Subscription.fromJson(row);
       });
+
+  @override
+  Future<void> attachProof({required String subscriptionId, required String proofPath}) => guarded(() async {
+        await _client.rpc<void>('attach_subscription_proof', params: {'p_subscription': subscriptionId, 'p_path': proofPath});
+      });
+}
+
+class SupabasePaymentsRepository implements PaymentsRepository {
+  SupabasePaymentsRepository(this._client);
+  final SupabaseClient _client;
+
+  @override
+  Future<List<PriceLine>> priceBreakdown() => guarded(() async {
+        final rows = await _client.rpc<List<dynamic>>('price_breakdown');
+        return _rows(rows).map(PriceLine.fromJson).toList(growable: false);
+      });
+
+  @override
+  Future<List<PaymentQuote>> quote({required PaymentPurpose purpose, required String targetId}) => guarded(() async {
+        final rows = await _client.rpc<List<dynamic>>('payment_quote', params: {'p_purpose': purpose.name, 'p_target': targetId});
+        return _rows(rows).map(PaymentQuote.fromJson).toList(growable: false);
+      });
+
+  Future<Payment> _read(String id) async {
+    final row = await _client.from('payments').select(Columns.payment).eq('id', id).single();
+    return Payment.fromJson(row);
+  }
+
+  /// The payments function's answer, or its refusal as a repository exception with the function's code.
+  Future<Map<String, dynamic>> _invoke(Map<String, dynamic> body) async {
+    final response = await _client.functions.invoke('payments', body: body);
+    final data = response.data;
+    if (data is! Map<String, dynamic>) throw const FormatException('payments: no answer');
+    return data;
+  }
+
+  @override
+  Future<Payment> start({required PaymentPurpose purpose, required String targetId, required String phone, MobileMoneyOperator? operator}) =>
+      guarded(() async {
+        final answer = await _invoke({
+          'action': 'start',
+          'purpose': purpose.name,
+          'target': targetId,
+          'phone': phone,
+          if (operator != null) 'provider': operator.code,
+        });
+        final id = answer['payment_id'];
+        if (id is! String) throw const FormatException('payments: no payment id');
+        return _read(id);
+      });
+
+  @override
+  Future<Payment> check(String paymentId) => guarded(() async {
+        await _invoke({'action': 'check', 'payment_id': paymentId});
+        return _read(paymentId);
+      });
+
+  @override
+  Stream<Payment> watch(String paymentId) {
+    // Filtered to the one row on the server; Row Level Security lets only its payer (or the school's admin) read it.
+    return _client
+        .from('payments')
+        .stream(primaryKey: ['id'])
+        .eq('id', paymentId)
+        .expand((rows) => rows)
+        .map(Payment.fromJson)
+        .handleError((Object error) => throw mapError(error));
+  }
+
+  @override
+  Future<List<Payment>> mine({PageRequest page = const PageRequest()}) => guarded(() async {
+        final uid = _client.auth.currentUser?.id;
+        if (uid == null) return const [];
+        final rows = await _client
+            .from('payments')
+            .select(Columns.payment)
+            .eq('paid_by', uid)
+            .order('created_at', ascending: false)
+            .range(page.offset, page.lastIndex);
+        return _rows(rows).map(Payment.fromJson).toList(growable: false);
+      });
 }
 
 class SupabaseProofsRepository implements ProofsRepository {

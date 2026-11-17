@@ -35,7 +35,8 @@ class SupabaseRepositories {
         buses = SupabaseBusesRepository(client),
         deviceTokens = SupabaseDeviceTokensRepository(client),
         scans = SupabaseScansRepository(client),
-        livePositions = SupabaseLivePositionsRepository(client);
+        livePositions = SupabaseLivePositionsRepository(client),
+        payments = SupabasePaymentsRepository(client);
 
   final ProfileRepository profiles;
   final AcademicRepository academic;
@@ -55,6 +56,7 @@ class SupabaseRepositories {
   final TripsRepository trips;
   final BusesRepository buses;
   final DeviceTokensRepository deviceTokens;
+  final PaymentsRepository payments;
   final ScansRepository scans;
   final LivePositionsRepository livePositions;
 }

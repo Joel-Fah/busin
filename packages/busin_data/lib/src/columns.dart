@@ -15,7 +15,11 @@ class Columns {
   static const stop = 'id, school_id, name, location, photo_path, active';
   static const semester = 'id, school_id, name, year, start_date, end_date';
   static const subscription =
-      'id, school_id, student_id, semester_id, stop_id, status, proof_path, review_note, reviewed_by, reviewed_at, created_at, updated_at, payment_mode, period_start, period_end, billing_period, amount_xaf, installment_plan';
+      'id, school_id, student_id, semester_id, stop_id, status, proof_path, review_note, reviewed_by, reviewed_at, created_at, updated_at, payment_mode, period_start, period_end, billing_period, amount_xaf, installment_plan, payment_method';
+
+  /// A payment as its payer reads it. Never `failure_message` (for BusIn's team) and never BusIn's costs.
+  static const payment =
+      'id, purpose, subscription_id, installment_id, amount_xaf, fee_xaf, total_xaf, provider, payer_masked, status, failure_code, provider_txn, receipt_no, outcome, created_at, completed_at';
   static const bus = 'id, school_id, plate, name, capacity, in_service';
   static const trip = 'id, school_id, bus_id, driver_id, assistant_id, origin, created_by, direction, status, scheduled_start, started_at, ended_at, started_by';
   static const scan =

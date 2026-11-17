@@ -117,7 +117,7 @@ final proofUrlProvider = FutureProvider.autoDispose.family<String, String>(
 );
 
 /// Why a request could not be sent, as the screen explains it.
-enum SubscribeFailure { alreadyRequested, offline, rejectedFile, proofRequired, semesterEnded, periodEnded, billingNotSet, unavailable, other }
+enum SubscribeFailure { alreadyRequested, offline, rejectedFile, proofRequired, semesterEnded, periodEnded, billingNotSet, unavailable, mobileMoneyOff, other }
 
 /// The storage refused the photo itself (its type or size): the only failure that is about the file.
 class ProofRejected implements Exception {
@@ -170,15 +170,38 @@ class SubscriptionService {
     // The caller may ask something first (keep the way of paying?) and reload the overview itself.
     if (refresh) _ref.invalidate(subscriptionOverviewProvider);
   }
+
+  /// Sends a request to be paid by mobile money (ADR 0029): no receipt; the payment that follows approves it.
+  Future<Subscription> requestMobileMoney({
+    required Profile profile,
+    required Semester semester,
+    required Stop stop,
+    PaymentMode paymentMode = PaymentMode.full,
+    DateTime? month,
+  }) =>
+      _ref.read(subscriptionsRepositoryProvider).request(
+            NewSubscription(
+              schoolId: profile.schoolId!,
+              studentId: profile.id,
+              semesterId: semester.id,
+              stopId: stop.id,
+              paymentMode: paymentMode,
+              periodStart: month == null ? null : DateTime.utc(month.year, month.month),
+              paymentMethod: PaymentMethod.mobileMoney,
+            ),
+          );
 }
 
 final subscriptionServiceProvider = Provider<SubscriptionService>(SubscriptionService.new);
+
 
 SubscribeFailure failureFor(Object error) => switch (error) {
       // The server's own short reasons first (`proof_required`, `proof_missing`, `semester_ended`).
       Conflict(reason: 'semester_ended') => SubscribeFailure.semesterEnded,
       Conflict(reason: 'period_ended') => SubscribeFailure.periodEnded,
       Conflict(reason: 'billing_not_set') => SubscribeFailure.billingNotSet,
+      // The school stopped offering mobile money meanwhile (ADR 0029): a receipt is still possible.
+      Conflict(reason: 'mobile_money_off') => SubscribeFailure.mobileMoneyOff,
       // The school changed its billing meanwhile (a month, or installments no longer offered): read it again.
       Invalid(reason: 'installments_not_offered' || 'installments_too_late' || 'month_required' || 'month_not_allowed') => SubscribeFailure.unavailable,
       Invalid(reason: 'proof_required' || 'proof_missing') => SubscribeFailure.proofRequired,

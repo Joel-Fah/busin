@@ -3,6 +3,7 @@ import '../models/academic.dart';
 import '../models/account_deletion.dart';
 import '../models/billing.dart';
 import '../models/installment.dart';
+import '../models/payment.dart';
 import 'dart:typed_data';
 
 import '../geo_point.dart';
@@ -191,6 +192,35 @@ abstract interface class SubscriptionsRepository {
 
   /// Everything that happened to these subscriptions (the student's own), oldest first.
   Future<List<SubscriptionEvent>> eventsFor(List<String> subscriptionIds);
+
+  /// Sends a receipt for a pending mobile money request whose payment did not go through (ADR 0029). Refused with
+  /// `not_pending` or `payment_in_progress` (Conflict), `proof_required` or `proof_missing` (Invalid).
+  Future<void> attachProof({required String subscriptionId, required String proofPath});
+}
+
+/// Mobile money payments (ADR 0029). The server starts each payment and finishes it however the result arrives; the app
+/// asks, then follows. Refusals carry the server's short code as the exception's reason: `payment_in_progress`,
+/// `too_many_attempts`, `not_payable`, `period_ended`, `mobile_money_off`, `fees_not_set`, `bad_phone`,
+/// `unknown_provider`, `payments_unavailable`.
+abstract interface class PaymentsRepository {
+  /// What a subscription costs at the student's school, by receipt and by each operator that can be used.
+  Future<List<PriceLine>> priceBreakdown();
+
+  /// What paying [targetId] by mobile money costs with each operator.
+  Future<List<PaymentQuote>> quote({required PaymentPurpose purpose, required String targetId});
+
+  /// Asks for the payment: the payer's phone then shows the operator's PIN prompt. [operator] only when the payer chose
+  /// it; otherwise pawaPay recognises the number. Answers the payment as it stands right after.
+  Future<Payment> start({required PaymentPurpose purpose, required String targetId, required String phone, MobileMoneyOperator? operator});
+
+  /// Asks pawaPay again about a payment that is still waiting, and answers where it stands.
+  Future<Payment> check(String paymentId);
+
+  /// One payment, now and whenever it changes.
+  Stream<Payment> watch(String paymentId);
+
+  /// The student's own payments, newest first.
+  Future<List<Payment>> mine({PageRequest page = const PageRequest()});
 }
 
 /// What a proof of payment may be. The `proofs` bucket enforces the same limits on the server.

@@ -2256,4 +2256,191 @@ class BusinL10nFr extends BusinL10n {
   @override
   String get accountDeleteActiveTrip =>
       'Vous êtes sur un trajet en cours. Terminez-le, puis redemandez.';
+
+  @override
+  String get payMethodLabel => 'Comment allez-vous payer ?';
+
+  @override
+  String get payMethodMobileMoney => 'Mobile money';
+
+  @override
+  String get payMethodReceipt => 'Envoyer un reçu';
+
+  @override
+  String get payMethodMobileMoneyNote =>
+      'Payez maintenant avec MTN Mobile Money ou Orange Money. Votre pass est actif dès que le paiement passe.';
+
+  @override
+  String get payPhoneLabel => 'Numéro mobile money';
+
+  @override
+  String get payPhoneHint => '6XX XX XX XX';
+
+  @override
+  String get payPhoneInvalid =>
+      'Saisissez un numéro mobile camerounais, par exemple 6 53 45 67 89.';
+
+  @override
+  String get payOperatorUnknown =>
+      'L\'opérateur sera vérifié au moment du paiement.';
+
+  @override
+  String get payOperatorChange => 'Changer d\'opérateur';
+
+  @override
+  String get payOperatorPick => 'Chez quel opérateur est ce numéro ?';
+
+  @override
+  String payOperatorUnavailable(String operator) {
+    return '$operator n\'est pas disponible pour le moment.';
+  }
+
+  @override
+  String get payLinePrice => 'Prix';
+
+  @override
+  String get payLineFee => 'Frais mobile money';
+
+  @override
+  String get payLineTotal => 'Total';
+
+  @override
+  String get payFeeNote =>
+      'Les frais couvrent le coût du transfert de l\'argent.';
+
+  @override
+  String get payTitleSubscription => 'Payer votre pass de bus';
+
+  @override
+  String payTitleInstallment(String part) {
+    return 'Payer la tranche $part';
+  }
+
+  @override
+  String paySubmit(String amount) {
+    return 'Payer $amount';
+  }
+
+  @override
+  String get payWaitingTitle => 'Regardez votre téléphone';
+
+  @override
+  String payWaitingBody(String amount, String operator) {
+    return 'Confirmez le paiement de $amount avec votre code $operator.';
+  }
+
+  @override
+  String get payWaitingNote =>
+      'Cet écran se met à jour tout seul. Vous pouvez fermer l\'application : nous vous préviendrons quand ce sera fait.';
+
+  @override
+  String get payWaitingCheck => 'J\'ai confirmé, vérifier';
+
+  @override
+  String get payDoneTitle => 'Paiement reçu';
+
+  @override
+  String get payDoneSubscription => 'Votre pass de bus est actif.';
+
+  @override
+  String get payDoneInstallment => 'Cette tranche est payée.';
+
+  @override
+  String get payFailedTitle => 'Paiement non abouti';
+
+  @override
+  String get payFailedNothingTaken => 'Rien n\'a été prélevé sur votre compte.';
+
+  @override
+  String get payFailNotApproved =>
+      'Le paiement n\'a pas été confirmé avec votre code à temps.';
+
+  @override
+  String get payFailBalance => 'Le solde du compte est insuffisant.';
+
+  @override
+  String get payFailNotFound =>
+      'Ce numéro n\'a pas de compte chez cet opérateur. Vérifiez le numéro ou l\'opérateur.';
+
+  @override
+  String get payFailLimit => 'Le compte a atteint sa limite.';
+
+  @override
+  String get payFailOtherPending =>
+      'Un autre paiement attend sur ce téléphone. Terminez-le ou annulez-le d\'abord.';
+
+  @override
+  String get payFailOperatorDown =>
+      'L\'opérateur n\'est pas disponible pour le moment. Réessayez plus tard, ou utilisez l\'autre opérateur.';
+
+  @override
+  String get payFailAmount => 'L\'opérateur n\'accepte pas ce montant.';
+
+  @override
+  String get payFailNumber => 'Ce numéro a été refusé.';
+
+  @override
+  String get payFailGeneric => 'Le paiement n\'a pas pu aboutir.';
+
+  @override
+  String get payRetry => 'Réessayer';
+
+  @override
+  String get paySendReceiptInstead => 'Envoyer un reçu à la place';
+
+  @override
+  String get payAttention =>
+      'Nous vérifions ce paiement. Vous n\'avez rien d\'autre à faire.';
+
+  @override
+  String get payRefunding =>
+      'Ce paiement n\'a pas pu être utilisé et vous est remboursé en entier.';
+
+  @override
+  String get payErrorUnavailable =>
+      'Le mobile money n\'est pas disponible pour le moment. Vous pouvez envoyer un reçu à la place.';
+
+  @override
+  String get payErrorInProgress => 'Un paiement est déjà en cours pour ceci.';
+
+  @override
+  String get payErrorTooMany => 'Trop de tentatives. Réessayez dans une heure.';
+
+  @override
+  String get payErrorNotPayable => 'Ceci ne peut plus être payé.';
+
+  @override
+  String get payAwaitingTitle => 'En attente de votre paiement';
+
+  @override
+  String get payAwaitingBody =>
+      'Payez par mobile money pour activer votre pass, ou envoyez un reçu à la place.';
+
+  @override
+  String get payNow => 'Payer maintenant';
+
+  @override
+  String get payInstallmentMobile => 'Payer par mobile money';
+
+  @override
+  String get paymentsTitle => 'Paiements';
+
+  @override
+  String paymentReceiptNo(String number) {
+    return 'Reçu $number';
+  }
+
+  @override
+  String paymentPaidWith(String operator, String number) {
+    return 'Payé avec $operator depuis le $number';
+  }
+
+  @override
+  String paymentTxn(String reference) {
+    return 'Référence opérateur $reference';
+  }
+
+  @override
+  String get accountDeletePaymentInProgress =>
+      'Un paiement ou un remboursement à votre nom est encore en cours. Attendez qu\'il soit terminé, puis redemandez.';
 }

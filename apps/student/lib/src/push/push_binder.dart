@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../payments/payment_providers.dart';
 import '../nav/tab_badges.dart';
 import '../providers.dart';
 import '../subscription/live_changes.dart';
@@ -70,6 +71,18 @@ class _PushBinderState extends ConsumerState<PushBinder> {
       return;
     }
     ref.invalidate(subscriptionOverviewProvider);
+    // Mobile money (ADR 0029): the payments are read again, and the outcome said as it comes.
+    final paid = switch (message.kind) {
+      'payment_completed' => l10n.payDoneTitle,
+      'payment_failed' => l10n.payFailedTitle,
+      _ => null,
+    };
+    if (paid != null) {
+      ref.invalidate(myPaymentsProvider);
+      ref.invalidate(requestHistoryProvider);
+      _show(paid, message);
+      return;
+    }
     // A part of a subscription paid in installments: said as it comes, and the parts are read again.
     final part = switch (message.kind) {
       'installment_paid' => l10n.pushForegroundInstallmentPaid,

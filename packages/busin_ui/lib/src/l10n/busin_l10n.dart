@@ -3852,6 +3852,324 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'You are on a running trip. End it first, then ask again.'**
   String get accountDeleteActiveTrip;
+
+  /// No description provided for @payMethodLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'How will you pay?'**
+  String get payMethodLabel;
+
+  /// No description provided for @payMethodMobileMoney.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile money'**
+  String get payMethodMobileMoney;
+
+  /// No description provided for @payMethodReceipt.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload a receipt'**
+  String get payMethodReceipt;
+
+  /// No description provided for @payMethodMobileMoneyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay now with MTN Mobile Money or Orange Money. Your pass is active as soon as the payment goes through.'**
+  String get payMethodMobileMoneyNote;
+
+  /// No description provided for @payPhoneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile money number'**
+  String get payPhoneLabel;
+
+  /// No description provided for @payPhoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'6XX XX XX XX'**
+  String get payPhoneHint;
+
+  /// No description provided for @payPhoneInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a Cameroonian mobile number, for example 6 53 45 67 89.'**
+  String get payPhoneInvalid;
+
+  /// No description provided for @payOperatorUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'We will check the operator when you pay.'**
+  String get payOperatorUnknown;
+
+  /// No description provided for @payOperatorChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change operator'**
+  String get payOperatorChange;
+
+  /// No description provided for @payOperatorPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Which operator is this number with?'**
+  String get payOperatorPick;
+
+  /// No description provided for @payOperatorUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'{operator} cannot be used right now.'**
+  String payOperatorUnavailable(String operator);
+
+  /// No description provided for @payLinePrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get payLinePrice;
+
+  /// No description provided for @payLineFee.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile money fee'**
+  String get payLineFee;
+
+  /// No description provided for @payLineTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get payLineTotal;
+
+  /// No description provided for @payFeeNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The fee covers the cost of moving the money.'**
+  String get payFeeNote;
+
+  /// No description provided for @payTitleSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay your bus pass'**
+  String get payTitleSubscription;
+
+  /// No description provided for @payTitleInstallment.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay part {part}'**
+  String payTitleInstallment(String part);
+
+  /// No description provided for @paySubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay {amount}'**
+  String paySubmit(String amount);
+
+  /// No description provided for @payWaitingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your phone'**
+  String get payWaitingTitle;
+
+  /// No description provided for @payWaitingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm the payment of {amount} with your {operator} PIN.'**
+  String payWaitingBody(String amount, String operator);
+
+  /// No description provided for @payWaitingNote.
+  ///
+  /// In en, this message translates to:
+  /// **'This screen updates by itself. You can close the app: we will tell you when it is done.'**
+  String get payWaitingNote;
+
+  /// No description provided for @payWaitingCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'I confirmed, check again'**
+  String get payWaitingCheck;
+
+  /// No description provided for @payDoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment received'**
+  String get payDoneTitle;
+
+  /// No description provided for @payDoneSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Your bus pass is active.'**
+  String get payDoneSubscription;
+
+  /// No description provided for @payDoneInstallment.
+  ///
+  /// In en, this message translates to:
+  /// **'This part is paid.'**
+  String get payDoneInstallment;
+
+  /// No description provided for @payFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment not completed'**
+  String get payFailedTitle;
+
+  /// No description provided for @payFailedNothingTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing was taken from your account.'**
+  String get payFailedNothingTaken;
+
+  /// No description provided for @payFailNotApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'The payment was not confirmed with your PIN in time.'**
+  String get payFailNotApproved;
+
+  /// No description provided for @payFailBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'There is not enough money in the account.'**
+  String get payFailBalance;
+
+  /// No description provided for @payFailNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This number has no account with this operator. Check the number or the operator.'**
+  String get payFailNotFound;
+
+  /// No description provided for @payFailLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'The account has reached its limit.'**
+  String get payFailLimit;
+
+  /// No description provided for @payFailOtherPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Another payment is waiting on this phone. Finish or cancel it first.'**
+  String get payFailOtherPending;
+
+  /// No description provided for @payFailOperatorDown.
+  ///
+  /// In en, this message translates to:
+  /// **'The operator is not available right now. Try again later, or use the other operator.'**
+  String get payFailOperatorDown;
+
+  /// No description provided for @payFailAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'The operator does not allow this amount.'**
+  String get payFailAmount;
+
+  /// No description provided for @payFailNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'This number was refused.'**
+  String get payFailNumber;
+
+  /// No description provided for @payFailGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'The payment could not be completed.'**
+  String get payFailGeneric;
+
+  /// No description provided for @payRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get payRetry;
+
+  /// No description provided for @paySendReceiptInstead.
+  ///
+  /// In en, this message translates to:
+  /// **'Send a receipt instead'**
+  String get paySendReceiptInstead;
+
+  /// No description provided for @payAttention.
+  ///
+  /// In en, this message translates to:
+  /// **'We are checking this payment. You have nothing more to do.'**
+  String get payAttention;
+
+  /// No description provided for @payRefunding.
+  ///
+  /// In en, this message translates to:
+  /// **'This payment could not be used and is being refunded in full.'**
+  String get payRefunding;
+
+  /// No description provided for @payErrorUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile money is not available right now. You can upload a receipt instead.'**
+  String get payErrorUnavailable;
+
+  /// No description provided for @payErrorInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'A payment is already in progress for this.'**
+  String get payErrorInProgress;
+
+  /// No description provided for @payErrorTooMany.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Try again in an hour.'**
+  String get payErrorTooMany;
+
+  /// No description provided for @payErrorNotPayable.
+  ///
+  /// In en, this message translates to:
+  /// **'This can no longer be paid.'**
+  String get payErrorNotPayable;
+
+  /// No description provided for @payAwaitingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for your payment'**
+  String get payAwaitingTitle;
+
+  /// No description provided for @payAwaitingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay by mobile money to activate your pass, or send a receipt instead.'**
+  String get payAwaitingBody;
+
+  /// No description provided for @payNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay now'**
+  String get payNow;
+
+  /// No description provided for @payInstallmentMobile.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay with mobile money'**
+  String get payInstallmentMobile;
+
+  /// No description provided for @paymentsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments'**
+  String get paymentsTitle;
+
+  /// No description provided for @paymentReceiptNo.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt {number}'**
+  String paymentReceiptNo(String number);
+
+  /// No description provided for @paymentPaidWith.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid with {operator} from {number}'**
+  String paymentPaidWith(String operator, String number);
+
+  /// No description provided for @paymentTxn.
+  ///
+  /// In en, this message translates to:
+  /// **'Operator reference {reference}'**
+  String paymentTxn(String reference);
+
+  /// No description provided for @accountDeletePaymentInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'A payment or a refund of yours is still in progress. Wait until it is finished, then ask again.'**
+  String get accountDeletePaymentInProgress;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {

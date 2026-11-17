@@ -8,6 +8,7 @@ import 'package:busin_student/src/bus/bus_providers.dart';
 import 'package:busin_student/src/bus/map_scene.dart';
 import 'package:busin_student/src/bus/my_location.dart';
 import 'package:busin_student/src/offline/pass_snapshot.dart';
+import 'package:busin_student/src/payments/payment_providers.dart';
 import 'package:busin_student/src/providers.dart';
 import 'package:busin_student/src/reminders/notification_providers.dart';
 import 'package:busin_student/src/reminders/reminder_plan.dart';
@@ -202,6 +203,7 @@ Subscription subscription({
   String? proofPath,
   String? note,
   DateTime? createdAt,
+  PaymentMethod paymentMethod = PaymentMethod.receipt,
 }) =>
     Subscription(
       id: id,
@@ -214,6 +216,7 @@ Subscription subscription({
       reviewNote: note,
       createdAt: createdAt ?? DateTime.utc(2026, 11, 3, 9),
       updatedAt: createdAt ?? DateTime.utc(2026, 11, 3, 9),
+      paymentMethod: paymentMethod,
     );
 
 /// The school, semester, stop and subscription repositories in one fake that remembers what was asked.
@@ -310,10 +313,26 @@ class FakeBackend implements SchoolRepository, SemestersRepository, StopsReposit
   Future<Subscription> request(NewSubscription request) async {
     if (requestError != null) throw requestError!;
     requests.add(request);
-    final created = subscription(id: 'new', studentId: request.studentId, semesterId: request.semesterId, stopId: request.stopId, proofPath: request.proofPath);
+    final created = subscription(
+      id: 'new',
+      studentId: request.studentId,
+      semesterId: request.semesterId,
+      stopId: request.stopId,
+      proofPath: request.proofPath,
+      paymentMethod: request.paymentMethod,
+    );
     mine.insert(0, created);
     events.add(SubscriptionEvent(id: events.length + 1, subscriptionId: created.id, action: SubscriptionEventAction.requested, createdAt: DateTime.utc(2026, 11, 3, 9)));
     return created;
+  }
+
+  /// Receipts sent for requests whose mobile money payment did not go through (ADR 0029).
+  final Map<String, String> attached = {};
+
+  @override
+  Future<void> attachProof({required String subscriptionId, required String proofPath}) async {
+    if (requestError != null) throw requestError!;
+    attached[subscriptionId] = proofPath;
   }
 
   @override
@@ -777,6 +796,102 @@ class TestClock {
 /// The public settings a test app is built with (nothing is reached over the network).
 const testConfig = AppConfig(supabaseUrl: 'http://127.0.0.1:54321', publishableKey: 'test', googleServerClientId: 'test', environment: 'test');
 
+/// Mobile money (ADR 0029). By default the school offers none, so the receipt flow is unchanged; a test that pays turns
+/// it on with [mobileMoney] and decides how each payment ends with [finish].
+class FakePayments implements PaymentsRepository {
+  FakePayments({bool mobileMoney = false, this.price = 30000, this.fee = 690})
+      // Without mobile money, no lines: the form shows the school's own price, as before payments existed.
+      : lines = [
+          if (mobileMoney) ...[
+            PriceLine(studentPays: price, chargeXaf: 0, transactionCost: 0),
+            PriceLine(operator: MobileMoneyOperator.mtn, studentPays: price + fee, chargeXaf: 0, transactionCost: fee),
+            PriceLine(operator: MobileMoneyOperator.orange, studentPays: price + fee, chargeXaf: 0, transactionCost: fee),
+          ],
+        ];
+
+  final int price;
+  final int fee;
+  List<PriceLine> lines;
+
+  /// Set to make the next start fail (a refusal, no connection).
+  Object? startError;
+  final List<({PaymentPurpose purpose, String targetId, String phone, MobileMoneyOperator? operator})> started = [];
+  final List<String> checked = [];
+  final List<Payment> payments = [];
+  final Map<String, StreamController<Payment>> _feeds = {};
+
+  @override
+  Future<List<PriceLine>> priceBreakdown() async => lines;
+
+  @override
+  Future<List<PaymentQuote>> quote({required PaymentPurpose purpose, required String targetId}) async => [
+        for (final o in MobileMoneyOperator.values) PaymentQuote(operator: o, amountXaf: price, feeXaf: fee, totalXaf: price + fee),
+      ];
+
+  @override
+  Future<Payment> start({required PaymentPurpose purpose, required String targetId, required String phone, MobileMoneyOperator? operator}) async {
+    if (startError != null) throw startError!;
+    started.add((purpose: purpose, targetId: targetId, phone: phone, operator: operator));
+    final payment = Payment(
+      id: 'pay${started.length}',
+      purpose: purpose,
+      subscriptionId: purpose == PaymentPurpose.subscription ? targetId : 'sub1',
+      installmentId: purpose == PaymentPurpose.installment ? targetId : null,
+      amountXaf: price,
+      feeXaf: fee,
+      totalXaf: price + fee,
+      operator: operator ?? MobileMoneyNumber.guessOperator(phone) ?? MobileMoneyOperator.mtn,
+      payerMasked: '2376*****789',
+      status: PaymentStatus.accepted,
+      createdAt: DateTime.utc(2026, 11, 17, 8),
+    );
+    payments.insert(0, payment);
+    return payment;
+  }
+
+  /// Ends a payment as pawaPay would, and tells whoever follows it.
+  void finish(String id, PaymentStatus status, {String? failureCode, bool refunded = false}) {
+    final i = payments.indexWhere((p) => p.id == id);
+    final old = payments[i];
+    final now = Payment(
+      id: old.id,
+      purpose: old.purpose,
+      subscriptionId: old.subscriptionId,
+      installmentId: old.installmentId,
+      amountXaf: old.amountXaf,
+      feeXaf: old.feeXaf,
+      totalXaf: old.totalXaf,
+      operator: old.operator,
+      payerMasked: old.payerMasked,
+      status: status,
+      failureCode: failureCode,
+      receiptNo: status == PaymentStatus.completed ? 'BI-2026-000042' : null,
+      providerTxn: status == PaymentStatus.completed ? 'MP2611' : null,
+      refunded: refunded,
+      createdAt: old.createdAt,
+      completedAt: status == PaymentStatus.completed ? DateTime.utc(2026, 11, 17, 8, 1) : null,
+    );
+    payments[i] = now;
+    _feeds[id]?.add(now);
+  }
+
+  @override
+  Future<Payment> check(String paymentId) async {
+    checked.add(paymentId);
+    return payments.firstWhere((p) => p.id == paymentId);
+  }
+
+  @override
+  Stream<Payment> watch(String paymentId) async* {
+    final feed = _feeds.putIfAbsent(paymentId, StreamController<Payment>.broadcast);
+    yield payments.firstWhere((p) => p.id == paymentId);
+    yield* feed.stream;
+  }
+
+  @override
+  Future<List<Payment>> mine({PageRequest page = const PageRequest()}) async => List.of(payments);
+}
+
 List<Override> overridesFor(
   FakeAuthService auth,
   FakeProfileRepository profiles, {
@@ -797,6 +912,7 @@ List<Override> overridesFor(
   FakeStreaks? streaks,
   FakeAreas? areas,
   FakeInstallments? installments,
+  FakePayments? payments,
   FakeLocator? locator,
   FakeSecretStore? store,
   FakeScreenSecurity? security,
@@ -826,6 +942,7 @@ List<Override> overridesFor(
     streaksRepositoryProvider.overrideWithValue(streaks ?? FakeStreaks(profiles)),
     areaRepositoryProvider.overrideWithValue(areas ?? FakeAreas()),
     installmentsRepositoryProvider.overrideWithValue(installments ?? FakeInstallments()),
+    paymentsRepositoryProvider.overrideWithValue(payments ?? FakePayments()),
     areaLocatorProvider.overrideWithValue(locator ?? FakeLocator(const LocationFailed())),
     academicRepositoryProvider.overrideWithValue(academic ?? FakeAcademic()),
     schoolRepositoryProvider.overrideWithValue(b),

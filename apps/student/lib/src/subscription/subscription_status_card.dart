@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
 
+import '../payments/awaiting_payment.dart';
 import 'installments_section.dart';
 import 'proof_thumbnail.dart';
 import 'subscription_providers.dart';
@@ -28,7 +29,9 @@ class SubscriptionStatusCard extends ConsumerWidget {
     final text = Theme.of(context).textTheme;
     final status = subscription.status;
 
+    final awaitsPayment = subscription.awaitsPayment;
     final (title, body) = switch (status) {
+      SubscriptionStatus.pending when awaitsPayment => (l10n.payAwaitingTitle, l10n.payAwaitingBody),
       SubscriptionStatus.pending => (l10n.statusPendingTitle, l10n.statusPendingBody),
       SubscriptionStatus.approved => (l10n.statusApprovedTitle, l10n.statusApprovedBody(stopName)),
       SubscriptionStatus.rejected => (l10n.statusRejectedTitle, null),
@@ -117,6 +120,16 @@ class SubscriptionStatusCard extends ConsumerWidget {
           if (subscription.proofPath != null) ...[
             const SizedBox(height: BusinSpace.x4),
             StoredProofPreview(path: subscription.proofPath!),
+          ],
+          // To be paid by mobile money (ADR 0029): pay now, follow the payment, or send a receipt instead.
+          if (awaitsPayment) ...[
+            const SizedBox(height: BusinSpace.x5),
+            AwaitingPaymentPanel(subscription: subscription),
+          ],
+          // What was paid in the app, with the receipts.
+          if (status != SubscriptionStatus.pending) ...[
+            const SizedBox(height: BusinSpace.x5),
+            SubscriptionPayments(subscriptionId: subscription.id),
           ],
           // Paid in installments: each part, and a way to send the proof of the next one (ADR 0022).
           if (subscription.paymentMode == PaymentMode.installments) ...[

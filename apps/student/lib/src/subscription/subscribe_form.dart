@@ -7,6 +7,8 @@ import 'package:hugeicons/hugeicons.dart';
 
 import '../area/area_providers.dart';
 import '../auth/access.dart';
+import '../payments/awaiting_payment.dart';
+import '../payments/payment_providers.dart';
 import '../providers.dart';
 import '../router.dart';
 import 'billing_choices.dart';
@@ -18,7 +20,8 @@ import 'subscription_providers.dart';
 
 /// The request form: a stop, a photo of the payment receipt, and Send. Nothing is sent until both are chosen. The school's
 /// billing (ADR 0022) adds the price, the month for monthly billing, and how the student pays when the school offers
-/// installments, filled in from their saved preference.
+/// installments, filled in from their saved preference. Where the school offers mobile money (ADR 0029), the student
+/// may pay in the app instead of sending a receipt: the request is sent without one, and the payment approves it.
 class SubscribeForm extends ConsumerStatefulWidget {
   const SubscribeForm({super.key, required this.semester, this.offline = false, this.live = const [], this.month, this.onSent});
 
@@ -47,6 +50,12 @@ class _SubscribeFormState extends ConsumerState<SubscribeForm> {
   String? _error;
   DateTime? _month;
   PaymentMode _mode = PaymentMode.full;
+
+  /// The student's choice of mobile money or a receipt; null until they choose (mobile money first, where offered).
+  PaymentMethod? _methodChoice;
+
+  /// What the form shows now: paying by mobile money.
+  bool _payByMobile = false;
 
   @override
   void initState() {
@@ -86,9 +95,13 @@ class _SubscribeFormState extends ConsumerState<SubscribeForm> {
   }
 
   Future<void> _chooseProof() async {
-    final proof = await pickProof(context, ref, onProblem: (message) {
-      if (mounted) setState(() => _error = message);
-    });
+    final proof = await pickProof(
+      context,
+      ref,
+      onProblem: (message) {
+        if (mounted) setState(() => _error = message);
+      },
+    );
     if (proof != null && mounted) {
       setState(() {
         _proof = proof;
@@ -102,7 +115,8 @@ class _SubscribeFormState extends ConsumerState<SubscribeForm> {
     final access = ref.read(accessProvider);
     final stop = _stop;
     final proof = _proof;
-    if (access is! Allowed || stop == null || proof == null) return;
+    final mobile = _payByMobile;
+    if (access is! Allowed || stop == null || (!mobile && proof == null)) return;
 
     // A form left open past the semester's last day would send a request for a semester that is over. Check the
     // school's own day first, and reload what is open.
@@ -122,11 +136,29 @@ class _SubscribeFormState extends ConsumerState<SubscribeForm> {
     });
     try {
       final mode = offers ? _mode : PaymentMode.full;
-      await ref.read(subscriptionServiceProvider).submit(
+      if (mobile) {
+        final request = await ref
+            .read(subscriptionServiceProvider)
+            .requestMobileMoney(
+              profile: access.profile,
+              semester: widget.semester,
+              stop: stop,
+              paymentMode: mode,
+              month: monthly ? _month : null,
+            );
+        // The payment opens at once; closing it leaves the request waiting for its payment on the overview.
+        if (mounted) await payRequest(context, ref, request);
+        widget.onSent?.call();
+        ref.invalidate(subscriptionOverviewProvider);
+        return;
+      }
+      await ref
+          .read(subscriptionServiceProvider)
+          .submit(
             profile: access.profile,
             semester: widget.semester,
             stop: stop,
-            proof: proof,
+            proof: proof!,
             paymentMode: mode,
             month: monthly ? _month : null,
             refresh: false,
@@ -140,6 +172,7 @@ class _SubscribeFormState extends ConsumerState<SubscribeForm> {
       if (!mounted) return;
       final failure = failureFor(e);
       // What was on screen is out of date: read again what is open, so the student can choose again.
+      if (failure == SubscribeFailure.mobileMoneyOff) ref.invalidate(priceLinesProvider);
       if (failure == SubscribeFailure.unavailable || failure == SubscribeFailure.semesterEnded || failure == SubscribeFailure.periodEnded) {
         ref.invalidate(subscriptionOverviewProvider);
         ref.invalidate(schoolProvider);
@@ -154,6 +187,7 @@ class _SubscribeFormState extends ConsumerState<SubscribeForm> {
           SubscribeFailure.periodEnded => l10n.subscribeErrorPeriodEnded,
           SubscribeFailure.billingNotSet => l10n.subscribeBillingNotSet,
           SubscribeFailure.unavailable => l10n.subscribeErrorUnavailable,
+          SubscribeFailure.mobileMoneyOff => l10n.payErrorUnavailable,
           SubscribeFailure.other => l10n.errorGeneric,
         };
       });
@@ -176,11 +210,19 @@ class _SubscribeFormState extends ConsumerState<SubscribeForm> {
           children: [
             Text(l10n.preferenceSaveTitle, style: Theme.of(sheet).textTheme.titleLarge),
             const SizedBox(height: BusinSpace.x2),
-            Text(l10n.preferenceSaveBody(label), style: Theme.of(sheet).textTheme.bodyMedium?.copyWith(color: BusinPalette.of(sheet).muted)),
+            Text(
+              l10n.preferenceSaveBody(label),
+              style: Theme.of(sheet).textTheme.bodyMedium?.copyWith(color: BusinPalette.of(sheet).muted),
+            ),
             const SizedBox(height: BusinSpace.x5),
             BusinButton(label: l10n.preferenceSave, expand: true, onPressed: () => Navigator.of(sheet).pop(true)),
             const SizedBox(height: BusinSpace.x2),
-            BusinButton(label: l10n.preferenceNotNow, variant: BusinButtonVariant.ghost, expand: true, onPressed: () => Navigator.of(sheet).pop(false)),
+            BusinButton(
+              label: l10n.preferenceNotNow,
+              variant: BusinButtonVariant.ghost,
+              expand: true,
+              onPressed: () => Navigator.of(sheet).pop(false),
+            ),
           ],
         ),
       ),
@@ -203,7 +245,9 @@ class _SubscribeFormState extends ConsumerState<SubscribeForm> {
     final material = MaterialLocalizations.of(context);
     return [
       for (var i = 0; i < amounts.length; i++)
-        i == 0 ? l10n.installmentPartNow(money(context, amounts[i], currency)) : l10n.installmentPartBy(money(context, amounts[i], currency), material.formatShortMonthDay(dates[i])),
+        i == 0
+            ? l10n.installmentPartNow(money(context, amounts[i], currency))
+            : l10n.installmentPartBy(money(context, amounts[i], currency), material.formatShortMonthDay(dates[i])),
     ].join(', ');
   }
 
@@ -223,10 +267,20 @@ class _SubscribeFormState extends ConsumerState<SubscribeForm> {
     final tooLate = plan != null && !offers;
     final months = monthly ? monthChoices(semester: widget.semester, today: _today(school!), live: widget.live) : const <DateTime>[];
     // The month starts on the first one offered, unless one was asked for.
-    final month = monthly ? (months.any((m) => _month != null && sameMonth(m, _month!)) ? _month : (months.isEmpty ? null : months.first)) : null;
+    final month = monthly
+        ? (months.any((m) => _month != null && sameMonth(m, _month!)) ? _month : (months.isEmpty ? null : months.first))
+        : null;
     if (month != _month && monthly) _month = month;
-    final ready = _stop != null && _proof != null && !_busy && school != null && !billingMissing && (!monthly || month != null);
-    final price = school?.priceXaf;
+    // Where the school offers mobile money, it comes first; the student may switch to a receipt (ADR 0029).
+    final lines = ref.watch(priceLinesProvider).value ?? const <PriceLine>[];
+    final offersMobile = lines.offersMobileMoney && !widget.offline;
+    final method = _methodChoice ?? (offersMobile ? PaymentMethod.mobileMoney : PaymentMethod.receipt);
+    final mobile = offersMobile && method == PaymentMethod.mobileMoney;
+    _payByMobile = mobile;
+    final ready = _stop != null && (mobile || _proof != null) && !_busy && school != null && !billingMissing && (!monthly || month != null);
+    // What the student pays by receipt, BusIn's charge included when the school passes it on; the school's own price
+    // until that is known.
+    final price = lines.receipt?.studentPays ?? school?.priceXaf;
     final currency = school?.currency ?? 'XAF';
 
     return Column(
@@ -239,7 +293,9 @@ class _SubscribeFormState extends ConsumerState<SubscribeForm> {
           const SizedBox(height: BusinSpace.x4),
         ] else if (price != null) ...[
           Text(
-            monthly ? l10n.subscribePriceMonth(money(context, price, currency)) : l10n.subscribePriceSemester(money(context, price, currency)),
+            monthly
+                ? l10n.subscribePriceMonth(money(context, price, currency))
+                : l10n.subscribePriceSemester(money(context, price, currency)),
             style: text.titleMedium,
           ),
           const SizedBox(height: BusinSpace.x4),
@@ -306,35 +362,73 @@ class _SubscribeFormState extends ConsumerState<SubscribeForm> {
           ),
         ],
         const SizedBox(height: BusinSpace.x4),
-        StaggeredIn(
-          index: 1,
-          child: FieldTile(
-            label: l10n.subscribeProofLabel,
-            icon: HugeIcons.strokeRoundedReceiptText,
-            value: _proof == null ? null : l10n.proofAdded,
-            placeholder: l10n.subscribeProofHint,
-            onTap: _busy ? null : _chooseProof,
-            preview: _proof == null ? null : Image.memory(_proof!.bytes, height: 180, fit: BoxFit.cover, semanticLabel: l10n.subscribeProofLabel),
+        if (offersMobile) ...[
+          Text(l10n.payMethodLabel, style: text.labelLarge),
+          const SizedBox(height: BusinSpace.x2),
+          BusinSegmented<PaymentMethod?>(
+            groupLabel: l10n.payMethodLabel,
+            selected: method,
+            segments: [
+              BusinSegment(value: PaymentMethod.mobileMoney, label: l10n.payMethodMobileMoney),
+              BusinSegment(value: PaymentMethod.receipt, label: l10n.payMethodReceipt),
+            ],
+            onChanged: _busy
+                ? (_) {}
+                : (m) {
+                    if (m != null) setState(() => _methodChoice = m);
+                  },
           ),
-        ),
-        const SizedBox(height: BusinSpace.x3),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(padding: const EdgeInsets.only(top: 2), child: HugeIcon(icon: HugeIcons.strokeRoundedShield01, size: 16, color: palette.muted)),
-            const SizedBox(width: BusinSpace.x2),
-            Expanded(child: Text(l10n.subscribeProofPrivacy, style: text.bodySmall?.copyWith(color: palette.muted))),
+          if (mobile) ...[
+            const SizedBox(height: BusinSpace.x2),
+            Text(l10n.payMethodMobileMoneyNote, style: text.bodySmall?.copyWith(color: palette.muted)),
           ],
-        ),
-        if (_error != null) ...[
           const SizedBox(height: BusinSpace.x4),
-          Notice(tone: StatusTone.bad, child: Text(_error!)),
         ],
+        if (!mobile)
+          StaggeredIn(
+            index: 1,
+            child: FieldTile(
+              label: l10n.subscribeProofLabel,
+              icon: HugeIcons.strokeRoundedReceiptText,
+              value: _proof == null ? null : l10n.proofAdded,
+              placeholder: l10n.subscribeProofHint,
+              onTap: _busy ? null : _chooseProof,
+              preview: _proof == null
+                  ? null
+                  : Image.memory(_proof!.bytes, height: 180, fit: BoxFit.cover, semanticLabel: l10n.subscribeProofLabel),
+            ),
+          ),
+        if (!mobile) ...[
+          const SizedBox(height: BusinSpace.x3),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: HugeIcon(icon: HugeIcons.strokeRoundedShield01, size: 16, color: palette.muted),
+              ),
+              const SizedBox(width: BusinSpace.x2),
+              Expanded(
+                child: Text(l10n.subscribeProofPrivacy, style: text.bodySmall?.copyWith(color: palette.muted)),
+              ),
+            ],
+          ),
+        ],
+        if (_error != null) ...[const SizedBox(height: BusinSpace.x4), Notice(tone: StatusTone.bad, child: Text(_error!))],
         const SizedBox(height: BusinSpace.x6),
-        BusinButton(label: l10n.subscribeSubmit, onPressed: ready && !widget.offline ? _submit : null, loading: _busy, expand: true),
+        BusinButton(
+          label: mobile ? l10n.payNow : l10n.subscribeSubmit,
+          onPressed: ready && !widget.offline ? _submit : null,
+          loading: _busy,
+          expand: true,
+        ),
         if (widget.offline) ...[
           const SizedBox(height: BusinSpace.x2),
-          Text(l10n.offlineNeedsConnection, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: BusinPalette.of(context).muted), textAlign: TextAlign.center),
+          Text(
+            l10n.offlineNeedsConnection,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: BusinPalette.of(context).muted),
+            textAlign: TextAlign.center,
+          ),
         ],
       ],
     );

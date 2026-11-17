@@ -19,6 +19,7 @@ export 'src/models/installment.dart';
 export 'src/models/live_position.dart';
 export 'src/models/position_holder.dart';
 export 'src/models/notification_preferences.dart';
+export 'src/models/payment.dart';
 export 'src/models/profile.dart';
 export 'src/models/scan.dart';
 export 'src/models/scan_outcome.dart';
