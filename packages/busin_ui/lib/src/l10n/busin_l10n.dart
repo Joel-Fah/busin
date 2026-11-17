@@ -4266,6 +4266,18 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'News about your refund.'**
   String get pushForegroundRefund;
+
+  /// No description provided for @legalPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments and refunds'**
+  String get legalPayments;
+
+  /// No description provided for @legalPaymentsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Paying in the app, fees and refunds'**
+  String get legalPaymentsBody;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {

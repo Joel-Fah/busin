@@ -50,7 +50,11 @@ school portal, platform console, legal texts). The local database has the paymen
   decide, the payout number with a second administrator, weekly payouts, monthly invoices, the ledger CSV.
 - Done: slice 6, the database side of the platform console (#540): settings, each school's switch and terms,
   infrastructure costs, BusIn's money and margin, the daily wallet reading, alerts.
-- Next: slice 6, the console pages (`/platform/payments`, settings, a school's payments), then slice 7, the legal texts.
+- Done: slice 7, the legal texts (#541): students' terms, privacy and acceptable use, a payments and refunds policy
+  (`/legal/payments` and in the student apps), school terms version 2026-11-17 with pawaPay's sub-merchant terms (schools
+  accept again once this is live), store answers. Built on #525 and #527, merged into this branch.
+- Next: slice 6, the console pages (`/platform/payments`, settings, a school's payments), being built.
+- Owner: have a lawyer read the payment parts of the texts and pawaPay's merchant terms in full before release.
 - Later: the operators' official acceptance marks (text badges for now); showing part 1's fee before the request is
   sent.
 - Owner: ask pawaPay for a sandbox account and key, the intermediary merchant schedule, the Cameroon launch

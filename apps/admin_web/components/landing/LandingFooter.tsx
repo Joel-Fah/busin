@@ -54,6 +54,9 @@ export function LandingFooter({ copy, nav, invite, locale, t }: Props) {
           <Link href="/legal/terms" className="w-fit font-semibold text-fg no-underline hover:text-accent">
             {copy.legal.terms}
           </Link>
+          <Link href="/legal/payments" className="w-fit font-semibold text-fg no-underline hover:text-accent">
+            {copy.legal.payments}
+          </Link>
           <Link href="/credits" className="w-fit font-semibold text-fg no-underline hover:text-accent">
             {copy.legal.credits}
           </Link>

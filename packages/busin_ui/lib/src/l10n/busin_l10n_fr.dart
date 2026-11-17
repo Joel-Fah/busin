@@ -2500,4 +2500,11 @@ class BusinL10nFr extends BusinL10n {
 
   @override
   String get pushForegroundRefund => 'Du nouveau sur votre remboursement.';
+
+  @override
+  String get legalPayments => 'Paiements et remboursements';
+
+  @override
+  String get legalPaymentsBody =>
+      'Payer dans l\'application, frais et remboursements';
 }

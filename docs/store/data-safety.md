@@ -9,8 +9,12 @@ them again before each submission if a feature changed. The privacy policy these
 - **Users can ask for their data to be deleted:** yes, in the app (Profile, Delete my account) and on the web
   (`/delete-account`). See [ADR 0028](../decisions/0028-account-deletion.md).
 - **Data shared with third parties:** no. Supabase (hosting the data) and Firebase (push notifications, crash reports)
-  process data for BusIn as service providers, which Play does not count as sharing.
-- **Ads:** none. **In-app purchases:** none (a bus pass is paid to the school, outside the app).
+  process data for BusIn as service providers, which Play does not count as sharing. With mobile money payments
+  (ADR 0029, not live yet): pawaPay and the operator process the payer's number and the amount to make the payment;
+  declare them as payment processors, which Play also does not count as sharing.
+- **Ads:** none. **In-app purchases:** none in Play's sense. A bus pass is a physical service paid to the school,
+  either outside the app (a receipt) or, once payments are live, by mobile money through pawaPay; Play Billing does not
+  apply to physical services.
 - **Account creation:** Google sign-in only. **Deletion link:** `https://<site>/delete-account`.
 
 ## Student app (`com.joelfah.busin.student`)
@@ -29,9 +33,11 @@ them again before each submission if a feature changed. The privacy policy these
 | Diagnostics | Yes (device model and OS with a crash) | Analytics | Required |
 | Device or other IDs | Yes (the push token) | App functionality (notifications) | Optional (notification permission) |
 | App activity: other actions | Yes (subscription requests, boardings, streaks) | App functionality | Required |
+| Financial info: purchase history | Yes, once mobile money payments are live (payments and refunds: amounts, operator, the payer's number partly hidden, receipts) | App functionality (paying the pass, receipts, refunds) | Optional (a receipt can be sent instead) |
 
-Not collected: financial info (no card or mobile money details in the app; payment proofs are images), contacts,
-messages, health, audio, files other than the proof, web browsing.
+Not collected: card details or mobile money PINs (the PIN is entered in the operator's own prompt, never in BusIn;
+the full payer number goes to pawaPay and is not kept), contacts, messages, health, audio, files other than the proof,
+web browsing. Until mobile money payments are live, financial info is not collected at all.
 
 Permissions to explain if asked: location (foreground only, for My area and Show me; background location is removed
 from the manifest), notifications, photos or camera (the proof).

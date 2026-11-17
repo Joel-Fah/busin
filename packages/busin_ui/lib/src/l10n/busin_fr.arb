@@ -891,5 +891,7 @@
   "refundDeclined": "Remboursement non accordé.",
   "refundDelayed": "Le remboursement n'a pas encore pu être envoyé. Votre école peut le renvoyer.",
   "refundReceiptNo": "Reçu de remboursement {number}",
-  "pushForegroundRefund": "Du nouveau sur votre remboursement."
+  "pushForegroundRefund": "Du nouveau sur votre remboursement.",
+  "legalPayments": "Paiements et remboursements",
+  "legalPaymentsBody": "Payer dans l'application, frais et remboursements"
 }

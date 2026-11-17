@@ -5,11 +5,15 @@ import 'package:go_router/go_router.dart';
 
 import '../router.dart';
 
+/// The documents staff read. The payments and refunds policy is about what students pay (ADR 0029), so it is not listed.
+const staffLegalDocs = [LegalDoc.terms, LegalDoc.privacy, LegalDoc.acceptableUse];
+
 /// The name of each document, from the shared strings.
 String legalTitle(BusinL10n l10n, LegalDoc doc) => switch (doc) {
       LegalDoc.terms => l10n.legalTerms,
       LegalDoc.privacy => l10n.legalPrivacy,
       LegalDoc.acceptableUse => l10n.legalAcceptable,
+      LegalDoc.payments => l10n.legalPayments,
     };
 
 /// One legal document, the same text as the student app (busin_app): the short version first, then each part. Bundled,
@@ -66,7 +70,7 @@ class LegalScreen extends StatelessWidget {
               ],
               const SizedBox(height: BusinSpace.x6),
               Text(l10n.legalAlsoRead, style: text.titleSmall?.copyWith(color: p.muted)),
-              for (final other in LegalDoc.values)
+              for (final other in staffLegalDocs)
                 if (other != doc)
                   TextButton(
                     style: TextButton.styleFrom(alignment: Alignment.centerLeft),
@@ -91,7 +95,7 @@ class LegalLinks extends StatelessWidget {
     return Wrap(
       alignment: WrapAlignment.center,
       children: [
-        for (final doc in LegalDoc.values)
+        for (final doc in staffLegalDocs)
           TextButton(onPressed: () => context.push(Routes.legal(doc)), child: Text(legalTitle(l10n, doc))),
       ],
     );

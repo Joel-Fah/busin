@@ -16,11 +16,11 @@ import { getMessages, getStudentCopy } from "@/lib/i18n/server";
 import { siteUrl } from "@/lib/landing/site";
 import { LEGAL_UPDATED, legalDocument, readingMinutes, type LegalDoc } from "@/lib/student/legal";
 
-const DOCS: LegalDoc[] = ["terms", "privacy", "acceptable-use"];
+const DOCS: LegalDoc[] = ["terms", "privacy", "acceptable-use", "payments"];
 
 async function titleOf(doc: LegalDoc): Promise<string> {
   const { s } = await getStudentCopy();
-  return doc === "terms" ? s.legal.terms : doc === "privacy" ? s.legal.privacy : s.legal.acceptable;
+  return doc === "terms" ? s.legal.terms : doc === "privacy" ? s.legal.privacy : doc === "payments" ? s.legal.payments : s.legal.acceptable;
 }
 
 /** The metadata of one legal page (its route file passes it on). */

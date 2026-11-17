@@ -24,6 +24,8 @@ class LegalDocInfo {
         LegalDoc.terms => LegalDocInfo(l10n.legalTerms, l10n.legalTermsBody, HugeIcons.strokeRoundedFile01, 'assets/legal/terms.webp', const Alignment(0.3, 0)),
         LegalDoc.privacy => LegalDocInfo(l10n.legalPrivacy, l10n.legalPrivacyBody, HugeIcons.strokeRoundedSquareLock02, 'assets/legal/privacy.webp', const Alignment(0.2, 0)),
         LegalDoc.acceptableUse => LegalDocInfo(l10n.legalAcceptable, l10n.legalAcceptableBody, HugeIcons.strokeRoundedShieldUser, 'assets/legal/acceptable.webp', const Alignment(0.4, 0)),
+        // No photo of its own yet: the terms' photo, framed differently.
+        LegalDoc.payments => LegalDocInfo(l10n.legalPayments, l10n.legalPaymentsBody, HugeIcons.strokeRoundedWallet01, 'assets/legal/terms.webp', const Alignment(0.7, 0)),
       };
 }
 

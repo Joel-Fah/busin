@@ -12,7 +12,7 @@ import { Contour } from "@/components/ui/Contour";
 export const metadata: Metadata = { title: "Legal" };
 export const instant = false;
 
-const DOCS: LegalDoc[] = ["terms", "privacy", "acceptable-use"];
+const DOCS: LegalDoc[] = ["terms", "privacy", "acceptable-use", "payments"];
 type Params = Promise<{ doc: string }>;
 
 export default function LegalDocPage({ params }: { params: Params }) {
@@ -31,7 +31,7 @@ async function Doc({ params }: { params: Params }) {
   const { locale, s } = await getStudentCopy();
   const l = s.legal;
   const document = legalDocument(doc as LegalDoc, locale);
-  const title = doc === "terms" ? l.terms : doc === "privacy" ? l.privacy : l.acceptable;
+  const title = doc === "terms" ? l.terms : doc === "privacy" ? l.privacy : doc === "payments" ? l.payments : l.acceptable;
   const updated = new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone: "UTC" }).format(new Date(`${LEGAL_UPDATED}T00:00:00Z`));
 
   return (

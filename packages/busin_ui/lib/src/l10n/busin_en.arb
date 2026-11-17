@@ -1369,5 +1369,7 @@
   "refundDelayed": "The refund could not be sent yet. Your school can send it again.",
   "refundReceiptNo": "Refund receipt {number}",
   "@refundReceiptNo": {"placeholders": {"number": {"type": "String"}}},
-  "pushForegroundRefund": "News about your refund."
+  "pushForegroundRefund": "News about your refund.",
+  "legalPayments": "Payments and refunds",
+  "legalPaymentsBody": "Paying in the app, fees and refunds"
 }

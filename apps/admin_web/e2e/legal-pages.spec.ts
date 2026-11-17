@@ -27,3 +27,14 @@ test("the landing footer links to them", async ({ page }) => {
   await expect(legal.getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "/legal/privacy");
   await expect(legal.getByRole("link", { name: "Terms of use" })).toHaveAttribute("href", "/legal/terms");
 });
+
+test("the payments and refunds policy is public, and linked from the footer", async ({ page }) => {
+  const response = await page.goto("/legal/payments");
+  expect(response?.ok()).toBe(true);
+  await expect(page.getByRole("heading", { name: "Payments and refunds", level: 1 })).toBeVisible();
+  await expect(page.getByText("A payment that does not go through takes nothing.")).toBeVisible();
+  await expect(page.getByText("The mobile money fee is not refunded", { exact: false })).toBeVisible();
+  await page.goto("/");
+  const legal = page.getByRole("navigation", { name: "Legal and credits" });
+  await expect(legal.getByRole("link", { name: "Payments and refunds" })).toHaveAttribute("href", "/legal/payments");
+});

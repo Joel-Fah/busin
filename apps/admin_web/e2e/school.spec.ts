@@ -3,6 +3,7 @@ import { randomBytes } from "node:crypto";
 import { expect, test } from "@playwright/test";
 
 import type { Database } from "../lib/database.types";
+import { SCHOOL_TERMS_VERSION } from "../lib/school";
 
 import { SEED, createUser, deleteUser, localKeys, serviceClient, signInBrowser, type TestUser } from "./support";
 
@@ -100,7 +101,7 @@ test.describe("the school profile", () => {
     await page.getByRole("button", { name: "Save the profile" }).click();
     await expect(page.getByRole("status")).toContainText("School profile saved.");
     const { data } = await serviceClient().from("schools").select("public_listing, terms_version").eq("id", SEED.schoolId).single();
-    expect(data).toEqual({ public_listing: true, terms_version: "2026-11-11" });
+    expect(data).toEqual({ public_listing: true, terms_version: SCHOOL_TERMS_VERSION });
   });
 
   test("an administrator turns off starting trips from the ops app, and back on", async ({ page }) => {

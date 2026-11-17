@@ -2458,4 +2458,10 @@ class BusinL10nEn extends BusinL10n {
 
   @override
   String get pushForegroundRefund => 'News about your refund.';
+
+  @override
+  String get legalPayments => 'Payments and refunds';
+
+  @override
+  String get legalPaymentsBody => 'Paying in the app, fees and refunds';
 }

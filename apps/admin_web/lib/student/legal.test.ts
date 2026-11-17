@@ -5,7 +5,7 @@ import { legalDocument, readingMinutes, type LegalDoc } from "./legal";
 
 describe("the legal texts", () => {
   it("exist in both languages with the same parts", () => {
-    for (const doc of ["terms", "privacy", "acceptable-use"] as LegalDoc[]) {
+    for (const doc of ["terms", "privacy", "acceptable-use", "payments"] as LegalDoc[]) {
       const en = legalDocument(doc, "en");
       const fr = legalDocument(doc, "fr");
       expect(en.sections.length).toBeGreaterThan(0);

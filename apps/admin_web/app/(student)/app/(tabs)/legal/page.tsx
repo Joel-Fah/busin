@@ -1,4 +1,4 @@
-import { Agreement02Icon, LegalDocument01Icon, SquareLock02Icon } from "@hugeicons/core-free-icons";
+import { Agreement02Icon, LegalDocument01Icon, SquareLock02Icon, Wallet01Icon } from "@hugeicons/core-free-icons";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
@@ -28,6 +28,7 @@ async function Legal() {
         <LinkRow href="/app/legal/terms" icon={LegalDocument01Icon} title={l.terms} body={l.termsBody} />
         <LinkRow href="/app/legal/privacy" icon={SquareLock02Icon} title={l.privacy} body={l.privacyBody} />
         <LinkRow href="/app/legal/acceptable-use" icon={Agreement02Icon} title={l.acceptable} body={l.acceptableBody} />
+        <LinkRow href="/app/legal/payments" icon={Wallet01Icon} title={l.payments} body={l.paymentsBody} />
       </nav>
     </StudentPage>
   );
