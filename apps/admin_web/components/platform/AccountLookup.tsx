@@ -26,6 +26,18 @@ type Props = {
 
 const STATUS_TONE = { verified: "ok", pending: "warn", suspended: "bad" } as const;
 
+/** An email that wraps before its "@" when it does not fit on one line, rather than in the middle of a word. */
+function breakableEmail(email: string) {
+  const at = email.lastIndexOf("@");
+  if (at <= 0) return email;
+  return (
+    <>
+      <span className="inline-block max-w-full">{email.slice(0, at)}</span>
+      <span className="inline-block max-w-full">{email.slice(at)}</span>
+    </>
+  );
+}
+
 /** The lookup form and where the account found stands. Read only. */
 export function AccountLookup({ action, text, roles, statuses, subscriptionStatuses, locale }: Props) {
   const [state, formAction, pending] = useActionState(action, { email: "", result: null, error: null });
@@ -74,13 +86,17 @@ export function AccountLookup({ action, text, roles, statuses, subscriptionStatu
       {r && r.found ? (
         <div data-testid="lookup-result">
           <Card className="flex flex-col gap-5 p-6!">
-            <div className="flex flex-wrap items-center gap-4">
+            {/* On a phone the header stacks (avatar, name, email, then the chips) so the name has the card's width;
+                from sm up they sit on one row, chips at the end. */}
+            <div data-testid="lookup-header" className="flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
               <Avatar name={r.fullName ?? r.email ?? ""} url={r.avatarUrl} size={56} />
-              <div className="min-w-0 flex-1">
-                <p className="m-0 text-xl font-extrabold tracking-tight">{r.fullName || r.email}</p>
-                <p className="m-0 text-sm break-all text-muted">{r.email}</p>
+              <div className="flex w-full min-w-0 flex-col gap-0.5 sm:w-auto sm:flex-1">
+                <p data-testid="lookup-name" className="m-0 text-xl font-extrabold tracking-tight wrap-break-word">
+                  {r.fullName || r.email}
+                </p>
+                {r.email ? <p className="m-0 text-sm text-muted wrap-anywhere">{breakableEmail(r.email)}</p> : null}
               </div>
-              <div className="flex flex-wrap gap-1.5">
+              <div data-testid="lookup-chips" className="flex flex-wrap gap-1.5">
                 {r.role ? <Chip>{roles[r.role]}</Chip> : null}
                 {r.status ? <Chip tone={STATUS_TONE[r.status]}>{statuses[r.status]}</Chip> : null}
                 {r.platformAdmin ? <Chip tone="accent">{text.platformAdmin}</Chip> : null}

@@ -8,15 +8,18 @@ import { Card } from "@/components/ui/Card";
 import { CountrySelect } from "@/components/ui/CountrySelect";
 import { Input } from "@/components/ui/Input";
 import { Notice } from "@/components/ui/Notice";
+import { SearchSelect } from "@/components/ui/SearchSelect";
 import { DomainsTagInput } from "@/components/ui/TagInput";
 import type { Messages } from "@/lib/i18n/messages";
+import type { TimeZoneOption } from "@/lib/platform-onboarding";
 import type { CreateSchoolState } from "@/app/(platform)/platform/schools/new/actions";
 
 type Props = {
   action: (state: CreateSchoolState, formData: FormData) => Promise<CreateSchoolState>;
   text: Messages["platform"]["onboarding"];
   locale: "en" | "fr";
-  timeZones: string[];
+  /** Every time zone the server knows, with its offset today. */
+  timeZones: TimeZoneOption[];
   /** Prefilled values (for example from a lead), all optional. */
   initial?: { name?: string; adminEmail?: string };
   /** The lead this school comes from: it is marked converted once the school exists. */
@@ -50,25 +53,20 @@ export function NewSchoolForm({ action, text, locale, timeZones, initial, leadId
         <div className="grid gap-4 sm:grid-cols-3">
           <CountrySelect id="country" name="country" label={text.country} locale={locale} defaultValue={typed?.country || null} error={on("bad_country")} />
           <Input id="city" name="city" label={text.city} icon={Location01Icon} maxLength={80} defaultValue={typed?.city} error={on("bad_city")} />
-          <div>
-            <Input
-              id="timezone"
-              name="timezone"
-              label={text.timezone}
-              icon={Clock01Icon}
-              list="timezones"
-              autoComplete="off"
-              required
-              defaultValue={typed?.timezone}
-              hint={text.timezoneHint}
-              error={on("bad_timezone")}
-            />
-            <datalist id="timezones">
-              {timeZones.map((zone) => (
-                <option key={zone} value={zone} />
-              ))}
-            </datalist>
-          </div>
+          <SearchSelect
+            id="timezone"
+            name="timezone"
+            label={text.timezone}
+            icon={Clock01Icon}
+            options={timeZones}
+            required
+            defaultValue={typed?.timezone}
+            placeholder={text.timezonePlaceholder}
+            searchLabel={text.timezoneSearch}
+            noneText={text.timezoneNone}
+            hint={text.timezoneHint}
+            error={on("bad_timezone")}
+          />
         </div>
         <DomainsTagInput
           id="domains"

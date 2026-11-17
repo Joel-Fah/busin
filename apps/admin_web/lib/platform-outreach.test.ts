@@ -12,6 +12,7 @@ import {
   signalPath,
   whatsappHref,
 } from "./platform-outreach";
+import { MAX_TEXT, parseNoticeDoc } from "./rich-text";
 
 const signal = (overrides: Record<string, unknown>): Signal =>
   parseSignal({
@@ -47,7 +48,11 @@ describe("readyMessage", () => {
     expect(m.body).toContain("- 2 missing: logo, website.");
     expect(m.body.endsWith("The BusIn team")).toBe(true);
     expect(m.link).toBe("/subscriptions");
-    expect(m.notice.startsWith("A reminder from BusIn:\nA request with its proof has waited 9 days.")).toBe(true);
+    expect(m.notice.startsWith("A reminder from BusIn:\n- A request with its proof has waited 9 days.")).toBe(true);
+    // The notice is rich text: the intro, then one bullet per signal.
+    expect(m.noticeDoc.content.map((b) => b.type)).toEqual(["paragraph", "bulletList"]);
+    const list = m.noticeDoc.content[1];
+    expect(list.type === "bulletList" ? list.content.length : 0).toBe(2);
   });
 
   it("writes it in French whatever the console's language", () => {
@@ -63,9 +68,12 @@ describe("readyMessage", () => {
     expect(m.link).toBeNull();
   });
 
-  it("keeps the notice within 600 characters", () => {
-    const many = Array.from({ length: 14 }, () => signal({}));
-    expect(readyMessage("A", many, messageCopy(en), "en", "https://b").notice.length).toBeLessThanOrEqual(600);
+  it("keeps the notice within the database's limit, and a valid document", () => {
+    const many = Array.from({ length: 60 }, () => signal({}));
+    const m = readyMessage("A", many, messageCopy(en), "en", "https://b");
+    expect(m.notice.length).toBeLessThanOrEqual(MAX_TEXT);
+    const parsed = parseNoticeDoc(JSON.stringify(m.noticeDoc));
+    expect(parsed.ok && parsed.text).toBe(m.notice);
   });
 });
 

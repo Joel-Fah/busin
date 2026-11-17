@@ -52,7 +52,26 @@ export function timeZones(): string[] {
   }
 }
 
-const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+export type TimeZoneOption = { value: string; label: string; detail: string };
+
+/**
+ * The time zones as the picker lists them: the name as stored ("America/New_York"), read with spaces
+ * ("America/New York"), and its offset from UTC on the given day ("UTC-5", "UTC+5:30", "UTC").
+ */
+export function timeZoneOptions(zones: string[], at: Date = new Date()): TimeZoneOption[] {
+  return zones.map((zone) => {
+    let offset = "";
+    try {
+      const part = new Intl.DateTimeFormat("en", { timeZone: zone, timeZoneName: "shortOffset" }).formatToParts(at).find((p) => p.type === "timeZoneName");
+      offset = (part?.value ?? "").replace(/^GMT/, "UTC").replace(/^UTC[+-]0$/, "UTC");
+    } catch {
+      // A name this runtime cannot format: listed without its offset.
+    }
+    return { value: zone, label: zone.replaceAll("_", " "), detail: offset };
+  });
+}
+
+const EMAIL =/^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
 const text = (form: FormData, key: string) => {
   const value = form.get(key);

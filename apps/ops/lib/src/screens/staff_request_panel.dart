@@ -20,7 +20,8 @@ final staffRequestSchoolsProvider = FutureProvider.autoDispose<List<OpenSchool>>
 
 /// For a student account that opened the ops app (signed in before their school invited them): ask a school for staff
 /// access, see where the request stands, withdraw it, or ask again after a decline. The school's administrators decide in
-/// the portal; when they approve, the account watcher opens the app by itself.
+/// the portal; when they approve, the account watcher opens the app by itself. An account sends at most 3 requests
+/// (issue #543): it is told how many are left, and once none are, to ask its school's administrator for an invite.
 class StaffRequestPanel extends ConsumerStatefulWidget {
   const StaffRequestPanel({super.key});
 
@@ -39,6 +40,9 @@ class _StaffRequestPanelState extends ConsumerState<StaffRequestPanel> {
       if (mounted && schoolId != null) BusinToast.show(context, l10n.opsStaffSent, tone: ToastTone.success);
     } on NotAllowed catch (e) {
       if (mounted) BusinToast.show(context, e.reason == 'too_many' ? l10n.opsStaffTooSoon : l10n.errorGeneric, tone: ToastTone.warning);
+    } on Conflict catch (e) {
+      // The account sent its 3 requests (issue #543): the panel, read again below, then says to ask for an invite.
+      if (mounted) BusinToast.show(context, e.reason == 'requests_used_up' ? l10n.opsStaffRequestsUsedUp : l10n.errorGeneric, tone: ToastTone.warning);
     } on Offline {
       if (mounted) BusinToast.show(context, l10n.offlineTitle, tone: ToastTone.warning);
     } catch (_) {
@@ -128,17 +132,34 @@ class _StaffRequestPanelState extends ConsumerState<StaffRequestPanel> {
           const SizedBox(height: BusinSpace.x3),
         ]);
       }
-      children.add(BusinButton(
-        // With one school to ask (the email's, or the account's own), the button names it and sends at once.
-        label: value != null && value.wasDeclined
-            ? l10n.opsStaffAskAgain
-            : schools.length == 1
-                ? l10n.opsStaffAskSchool(schools.single.name)
-                : l10n.opsStaffAsk,
-        icon: HugeIcons.strokeRoundedUserShield01,
-        loading: _busy,
-        onPressed: _busy ? null : () => _ask(schools),
-      ));
+      if (value != null && value.requestsUsedUp) {
+        // At most 3 requests per account (issue #543): no button any more, only an administrator lets them in.
+        children.add(Notice(
+          tone: StatusTone.info,
+          icon: HugeIcons.strokeRoundedUserShield01,
+          child: Text(l10n.opsStaffRequestsUsedUp),
+        ));
+      } else {
+        children.add(BusinButton(
+          // With one school to ask (the email's, or the account's own), the button names it and sends at once.
+          label: value != null && value.wasDeclined
+              ? l10n.opsStaffAskAgain
+              : schools.length == 1
+                  ? l10n.opsStaffAskSchool(schools.single.name)
+                  : l10n.opsStaffAsk,
+          icon: HugeIcons.strokeRoundedUserShield01,
+          loading: _busy,
+          onPressed: _busy ? null : () => _ask(schools),
+        ));
+        // Once the account has asked before, it is told how many requests are left.
+        final left = value?.requestsLeft;
+        if (left != null && left < JoinRequest.staffRequestLimit) {
+          children.addAll([
+            const SizedBox(height: BusinSpace.x2),
+            Text(l10n.opsStaffRequestsLeft(left), textAlign: TextAlign.center, style: text.bodySmall?.copyWith(color: BusinPalette.of(context).muted)),
+          ]);
+        }
+      }
     }
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 420),

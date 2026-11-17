@@ -54,9 +54,11 @@ test("a message carries wording in the phone's language and only ids as data", (
 });
 
 test("no personal text is ever put in a notification", () => {
-  for (const kind of ["subscription_approved", "subscription_rejected", "subscription_revoked", "subscription_restored", "school_notice", "bus_near_stop", "crew_assigned", "installment_paid", "installment_rejected", "installment_due"] as const) {
+  for (const kind of ["subscription_approved", "subscription_rejected", "subscription_revoked", "subscription_restored", "school_notice", "bus_near_stop", "crew_assigned", "installment_paid", "installment_rejected", "installment_due", "trip_still_running"] as const) {
     for (const locale of ["en", "fr"] as const) {
-      const { title, body } = buildMessage(token(1), kind, "x", locale).message.notification;
+      const message = buildMessage(token(1), kind, "x", locale).message as { notification?: { title: string; body: string }; data: Record<string, string> };
+      // A kind the app draws itself carries its words in the data.
+      const { title, body } = message.notification ?? { title: message.data.title, body: message.data.body };
       assert.ok(title.length > 0 && body.length > 0);
       assert.doesNotMatch(`${title} ${body}`, /@|matricule|reason:|motif :/i);
     }
@@ -197,4 +199,21 @@ test("payment notifications open the subscription page of the web app", () => {
   for (const kind of ["installment_paid", "installment_rejected", "installment_due"] as const) {
     assert.equal(webRoute(kind), "/app/subscription", kind);
   }
+});
+
+test("a trip still running goes to an Android phone as a data message the app draws with an End trip button", () => {
+  const android = buildMessage(token(1), "trip_still_running", "trip-1", "fr", "android") as { message: Record<string, unknown> };
+  assert.equal(android.message.notification, undefined);
+  assert.deepEqual(android.message.data, {
+    kind: "trip_still_running",
+    ref_id: "trip-1",
+    title: "Votre trajet est-il terminé ?",
+    body: "Votre trajet est toujours en cours. S'il est terminé, arrêtez-le pour que les étudiants voient que le bus s'est arrêté.",
+    action: "Terminer le trajet",
+  });
+  assert.deepEqual(android.message.android, { priority: "HIGH" });
+  // Elsewhere, an ordinary notification.
+  const ios = buildMessage(token(1), "trip_still_running", "trip-1", "en", "ios") as { message: { notification: { title: string } } };
+  assert.equal(ios.message.notification.title, "Is your trip over?");
+  assert.equal(isKind("trip_still_running"), true);
 });

@@ -9,6 +9,8 @@ import { SIGNALS } from "@/lib/platform-health";
 import { isChannel, isPortalPath, SNOOZE_DAYS } from "@/lib/platform-outreach";
 import { onboardingErrorKey } from "@/lib/platform-onboarding";
 import { outreachErrorKey } from "@/lib/platform-outreach-errors";
+import { parseNoticeDoc } from "@/lib/rich-text";
+import type { Json } from "@/lib/database.types";
 import { createClient } from "@/lib/supabase/server";
 
 /** The signals ticked in the form, known ones only. */
@@ -29,20 +31,24 @@ function followUpOf(formData: FormData): string | null {
 const page = (id: string) => `/platform/schools/${id}`;
 
 /**
- * Sends a notice to the school's administrators (they see it on their overview) and logs it. The database function
- * checks the caller again, bounds the text, keeps the link inside the portal and writes the platform audit.
+ * Sends a notice to the school's administrators (they see it on their overview) and logs it. The notice comes as a
+ * rich text document: it is checked here against the whitelist (nodes, marks, depth, size, links) and its plain text
+ * derived, never taken from the browser. The database function checks the caller again, bounds the text and the
+ * document, keeps the button's link inside the portal and writes the platform audit.
  */
 export async function sendNotice(formData: FormData): Promise<void> {
   await requirePlatformAdmin();
   const id = formData.get("school");
   if (!isUuid(id)) redirect("/platform/schools");
-  const body = formData.get("notice");
+  const notice = parseNoticeDoc(formData.get("notice_doc"));
+  if (!notice.ok) redirect(`${page(id)}?error=${notice.error}#reach-out`);
   const link = formData.get("link");
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("platform_send_notice", {
     p_school_id: id,
-    p_body: typeof body === "string" ? body : "",
+    p_body: notice.text,
+    p_body_doc: notice.doc as unknown as Json,
     p_link_path: isPortalPath(link) ? link : undefined,
     p_signals: signalsOf(formData),
     p_snooze_days: snoozeOf(formData),

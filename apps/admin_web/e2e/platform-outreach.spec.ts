@@ -118,6 +118,103 @@ test("a notice reaches the school's administrators, pauses its signals, and they
   await expect(page.getByTestId("outreach-history")).toContainText("Dismissed by the school");
 });
 
+test("a notice is formatted with the toolbar, refuses a javascript: link, and the school sees it laid out", async ({ browser, context, page }) => {
+  await signInBrowser(context, owner);
+  await page.goto(`/platform/schools/${schoolId}#reach-out`);
+  await page.getByRole("button", { name: "Write a message" }).click();
+  await page.getByText("Send as a notice in their portal").click();
+
+  // The ready notice is already rich text: the intro, then a bullet per signal.
+  const editor = page.getByRole("textbox", { name: "Notice" });
+  await expect(editor.locator("p").first()).toContainText("A reminder from BusIn:");
+  const toolbar = page.getByRole("toolbar", { name: "Formatting" });
+  const bold = toolbar.getByRole("button", { name: "Bold" });
+
+  // Start again: a bold line, a bulleted list of two, and a linked word.
+  await editor.click();
+  await page.keyboard.press("ControlOrMeta+a");
+  await page.keyboard.press("Backspace");
+  await bold.click();
+  await expect(bold).toHaveAttribute("aria-pressed", "true");
+  await page.keyboard.type("Please act this week");
+  await bold.click();
+  await expect(bold).toHaveAttribute("aria-pressed", "false");
+  await page.keyboard.press("Enter");
+  await toolbar.getByRole("button", { name: "Bulleted list" }).click();
+  await page.keyboard.type("Review the waiting requests");
+  await page.keyboard.press("Enter");
+  await page.keyboard.type("Check the stops");
+  await page.keyboard.press("Enter");
+  await page.keyboard.press("Enter");
+  await page.keyboard.type("Read the guide");
+  for (let i = 0; i < "guide".length; i++) await page.keyboard.press("Shift+ArrowLeft");
+
+  // A javascript: address is refused in the link field.
+  await toolbar.getByRole("button", { name: "Link" }).click();
+  const address = page.getByLabel("Link address");
+  await address.fill("javascript:alert(1)");
+  await page.getByRole("button", { name: "Apply" }).click();
+  await expect(page.getByText("Use an address that starts with https://, or a portal page that starts with a single /.")).toBeVisible();
+  await expect(editor.locator("a")).toHaveCount(0);
+  await address.fill("https://busin.example/guide");
+  await page.getByRole("button", { name: "Apply" }).click();
+  await expect(editor.locator("a", { hasText: "guide" })).toHaveCount(1);
+
+  // The preview shows it as the school will.
+  const preview = page.getByTestId("notice-preview");
+  await expect(preview.locator("strong", { hasText: "Please act this week" })).toBeVisible();
+  await expect(preview.getByRole("listitem")).toHaveText(["Review the waiting requests", "Check the stops"]);
+  await expect(page.getByText(/\d+ of 4000 characters/)).toBeVisible();
+
+  // The server checks the document too: a javascript: link slipped into the form is refused.
+  const field = page.locator('input[name="notice_doc"]');
+  const good = await field.inputValue();
+  await field.evaluate((input: HTMLInputElement, value) => {
+    input.value = value;
+  }, good.replace("https://busin.example/guide", "javascript:alert(1)"));
+  await page.getByRole("button", { name: "Send the notice" }).click();
+  await expect(page.getByText("A link in the notice must start with https:// or be a page of their portal")).toBeVisible();
+
+  // Written again and sent as it should be.
+  await page.getByRole("button", { name: "Write a message" }).click();
+  await page.getByText("Send as a notice in their portal").click();
+  await editor.click();
+  await page.keyboard.press("ControlOrMeta+a");
+  await page.keyboard.press("Backspace");
+  await page.keyboard.press("ControlOrMeta+b");
+  await page.keyboard.type("Please act this week");
+  await page.keyboard.press("ControlOrMeta+b");
+  await page.keyboard.press("Enter");
+  await page.keyboard.type("- Review the waiting requests");
+  await page.keyboard.press("Enter");
+  await page.keyboard.type("Check the stops");
+  await page.keyboard.press("Enter");
+  await page.keyboard.press("Enter");
+  // An address typed in full becomes a link by itself.
+  await page.keyboard.type("Guide: https://busin.example/guide ");
+  await expect(editor.locator('a[href="https://busin.example/guide"]')).toHaveCount(1);
+  await page.getByRole("button", { name: "Send the notice" }).click();
+  await expect(page.getByText("Notice sent to the school.")).toBeVisible();
+  // The outreach log keeps the plain text.
+  await expect(page.getByTestId("outreach-history")).toContainText("Please act this week");
+
+  const other = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  await signInBrowser(other, schoolAdmin);
+  const adminPage = await other.newPage();
+  await adminPage.goto("/");
+  const notices = adminPage.getByTestId("school-notices");
+  await expect(notices.locator("strong", { hasText: "Please act this week" })).toBeVisible();
+  await expect(notices.getByRole("list").getByRole("listitem")).toHaveText(["Review the waiting requests", "Check the stops"]);
+  const guide = notices.getByRole("link", { name: /busin\.example\/guide/ });
+  await expect(guide).toHaveAttribute("href", "https://busin.example/guide");
+  await expect(guide).toHaveAttribute("target", "_blank");
+  await expect(guide).toHaveAttribute("rel", "noopener noreferrer");
+  await expect(notices.locator('a[href^="javascript"]')).toHaveCount(0);
+  await notices.getByRole("button", { name: "Dismiss" }).click();
+  await expect(adminPage.getByTestId("school-notices")).toHaveCount(0);
+  await other.close();
+});
+
 test("a contact is logged with a follow-up, which shows in Needs you until done", async ({ context, page }) => {
   await signInBrowser(context, owner);
   await page.goto(`/platform/schools/${schoolId}#reach-out`);

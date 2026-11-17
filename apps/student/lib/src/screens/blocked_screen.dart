@@ -1,3 +1,4 @@
+import 'package:busin_app/busin_app.dart';
 import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,10 +26,18 @@ class BlockedScreen extends ConsumerWidget {
           illustration: art,
           title: title,
           body: body,
-          action: BusinButton(
-            label: l10n.actionSignOut,
-            variant: BusinButtonVariant.secondary,
-            onPressed: () => ref.read(signOutProvider)(),
+          action: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              BusinButton(
+                label: l10n.actionSignOut,
+                variant: BusinButtonVariant.secondary,
+                onPressed: () => ref.read(signOutProvider)(),
+              ),
+              const SizedBox(height: BusinSpace.x2),
+              // Deleting the account stays possible from here (ADR 0028).
+              DeleteAccountLink(repository: ref.watch(accountDeletionRepositoryProvider)),
+            ],
           ),
         ),
       ),

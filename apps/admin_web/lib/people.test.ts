@@ -5,6 +5,7 @@ import {
   MAX_SEARCH_LENGTH,
   accountTone,
   initials,
+  isLastStaffRequest,
   isPeopleDone,
   isRole,
   parseRoleFilter,
@@ -89,6 +90,19 @@ describe("peopleErrorKey", () => {
     expect(peopleErrorKey("P0002")).toBe("not_found");
     expect(peopleErrorKey("XX000")).toBe("generic");
     expect(peopleErrorKey(undefined)).toBe("generic");
+  });
+});
+
+describe("isLastStaffRequest (issue #543)", () => {
+  it("is the last one when no request is left", () => {
+    expect(isLastStaffRequest(0)).toBe(true);
+    expect(isLastStaffRequest(1)).toBe(false);
+    expect(isLastStaffRequest(2)).toBe(false);
+  });
+
+  it("an unknown count is not the last", () => {
+    expect(isLastStaffRequest(null)).toBe(false);
+    expect(isLastStaffRequest(undefined)).toBe(false);
   });
 });
 

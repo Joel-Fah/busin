@@ -19,12 +19,25 @@ export function normalizeInviteEmail(value: unknown): string | null {
   return email;
 }
 
-export type InviteErrorKey = "invalid_email" | "invalid_role" | "self" | "other_school" | "student_account" | "account_not_active" | "last_admin" | "generic";
+export type InviteErrorKey =
+  | "invalid_email"
+  | "invalid_role"
+  | "self"
+  | "other_school"
+  | "student_account"
+  | "account_not_active"
+  | "last_admin"
+  | "live_subscription"
+  | "generic";
 export type InviteDone = "invited" | "applied" | "cancelled";
 
 /** Maps an error of `admin_invite_staff` (its code and message) to the message shown. */
 export function inviteErrorKey(code: string | undefined, message: string | undefined): InviteErrorKey {
-  if (code === "55000" && (message === "other_school" || message === "student_account" || message === "account_not_active" || message === "last_admin")) return message;
+  if (
+    code === "55000" &&
+    (message === "other_school" || message === "student_account" || message === "account_not_active" || message === "last_admin" || message === "live_subscription")
+  )
+    return message;
   if (code === "22023") return message === "invalid_role" ? "invalid_role" : "invalid_email";
   if (code === "42501") return "self";
   return "generic";
@@ -32,7 +45,9 @@ export function inviteErrorKey(code: string | undefined, message: string | undef
 
 export function parseInviteError(value: string | string[] | undefined): InviteErrorKey | null {
   const raw = first(value);
-  return raw === "invalid_email" || raw === "invalid_role" || raw === "self" || raw === "other_school" || raw === "student_account" || raw === "account_not_active" || raw === "last_admin" || raw === "generic" ? raw : null;
+  return raw === "invalid_email" || raw === "invalid_role" || raw === "self" || raw === "other_school" || raw === "student_account" || raw === "account_not_active" || raw === "last_admin" || raw === "live_subscription" || raw === "generic"
+    ? raw
+    : null;
 }
 
 export function parseInviteDone(value: string | string[] | undefined): InviteDone | null {
