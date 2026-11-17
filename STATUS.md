@@ -31,6 +31,19 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: released to `main` (2026-11-17, #554)
+
+- Live: the Next.js 16.4.6 patch, rich text notices, trip reminders with an End trip action, staff access asked at most
+  3 times, the console's time zone list and lookup card, release signing, store docs, Delete my account where an
+  account is stuck, and the nightly clearing of old rows. Live database: migrations `20261116190000`,
+  `20261117090000`, `20261117170000` and `20261117180000` applied (owner approved, dry run first); `send-push`
+  redeployed.
+- Not released: payments (`phase-6/payments`, being tested) and the public legal pages (#525, waiting for the owner's
+  review).
+- Owner: build the ops app (trip reminders, the staff request limit) and the student app (Delete my account on the
+  waiting and blocked screens) and try them on a phone; the redeployed `send-push` sends trip reminders to Android as
+  data messages, which only the new ops build draws with its button.
+
 ## Handoff: release signing and store docs (2026-11-16, #521, #522)
 
 - Release signing: both apps read `android/key.properties` (never in git) and sign release builds with the upload key,
@@ -86,8 +99,8 @@ email after erasure), and #496 (needs an Android build-tool upgrade, its own PR)
 
 ## Handoff: rich text notices (2026-11-17)
 
-- The platform's notices to a school are written with formatting and shown laid out in the portal, on
-  `phase-6/rich-notices` (#537), stacked on the Next.js patch (#535): merge #535 first.
+- The platform's notices to a school are written with formatting and shown laid out in the portal (#537, merged with
+  #538, live).
 - Owner: try it from a school's page in the console (Reach out, then In the portal), and on that school's portal
   overview. The migration `20261117090000_rich_notices.sql` goes live with the next approved database update.
 
