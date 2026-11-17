@@ -72,6 +72,20 @@ export function refundRequest(input: RefundInput) {
   return { refundId: input.id, depositId: input.depositId, amount: String(input.amountXaf), currency: "XAF" };
 }
 
+export type PayoutInput = { id: string; phone: string; provider: Provider; amountXaf: number };
+
+/** The body of POST /v2/payouts: BusIn's payout id (its idempotency key), the school's number, a whole amount in XAF. */
+export function payoutRequest(input: PayoutInput) {
+  if (!Number.isInteger(input.amountXaf) || input.amountXaf <= 0) throw new Error("amount must be a positive whole number");
+  return {
+    payoutId: input.id,
+    recipient: { type: "MMO", accountDetails: { phoneNumber: input.phone, provider: input.provider } },
+    amount: String(input.amountXaf),
+    currency: "XAF",
+    customerMessage: "BusIn payout",
+  };
+}
+
 // ---------------------------------------------------------------- what pawaPay answers
 
 export type Initiation =
@@ -178,6 +192,8 @@ export type PawaPayClient = {
   depositStatus(id: string): Promise<DepositState | null>;
   initiateRefund(input: RefundInput): Promise<Initiation>;
   refundStatus(id: string): Promise<DepositState | null>;
+  initiatePayout(input: PayoutInput): Promise<Initiation>;
+  payoutStatus(id: string): Promise<DepositState | null>;
   predictProvider(phone: string): Promise<{ provider: string; phoneNumber: string } | null>;
   publicKeys(): Promise<{ id: string; key: string }[]>;
 };
@@ -226,6 +242,14 @@ export function pawaPay(options: { baseUrl: string; token: string; fetch: Fetch;
     },
     async refundStatus(id) {
       const { status, json } = await call("GET", `/v2/refunds/${encodeURIComponent(id)}`);
+      return readDepositStatus(status, json);
+    },
+    async initiatePayout(input) {
+      const { status, json } = await call("POST", "/v2/payouts", payoutRequest(input));
+      return readInitiation(status, json);
+    },
+    async payoutStatus(id) {
+      const { status, json } = await call("GET", `/v2/payouts/${encodeURIComponent(id)}`);
       return readDepositStatus(status, json);
     },
     async predictProvider(phone) {

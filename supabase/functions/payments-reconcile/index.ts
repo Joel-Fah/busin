@@ -3,13 +3,14 @@
 // payments_reconcile_secret) when a payment has been open for more than two minutes or a refund waits. Each payment's
 // status is asked from pawaPay and applied once through settle_payment; one pawaPay has never heard of is failed after
 // 15 minutes. Refunds waiting are sent (their id is pawaPay's idempotency key, so sending twice is safe), and those
-// sent are checked, through settle_refund.
+// sent are checked, through settle_refund. Payouts planned on Monday (private.plan_payouts) are sent and checked the
+// same way, through settle_payout.
 //
 // Secrets: PAYMENTS_RECONCILE_SECRET (sent in the x-reconcile-secret header), PAWAPAY_API_TOKEN, PAWAPAY_BASE_URL.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 
-import { pawaPay, settleArgs, settleRefundArgs } from "../_shared/pawapay.ts";
+import { isProvider, pawaPay, settleArgs, settleRefundArgs } from "../_shared/pawapay.ts";
 import { sameSecret } from "../_shared/push.ts";
 
 function json(body: unknown, status = 200): Response {
@@ -71,5 +72,26 @@ Deno.serve(async (request) => {
     }
     refunds++;
   }
-  return json({ checked: ids.length, settled, unanswered, refunds });
+  // Payouts: the same, to the school's confirmed number.
+  const { data: owed, error: owedError } = await service.rpc("payouts_to_send", { p_limit: 50 });
+  if (owedError) return json({ error: "could not read the payouts" }, 500);
+  let payouts = 0;
+  for (const p of (owed ?? []) as { id: string; amount_xaf: number; provider: string; phone: string; action: string }[]) {
+    if (p.action === "send" && isProvider(p.provider)) {
+      const sent = await client.initiatePayout({ id: p.id, phone: p.phone, provider: p.provider, amountXaf: p.amount_xaf });
+      if (sent.kind === "accepted" || sent.kind === "duplicate") {
+        await service.rpc("settle_payout", { p_id: p.id, p_status: sent.kind === "accepted" ? "ACCEPTED" : "DUPLICATE_IGNORED" });
+      } else if (sent.kind === "rejected") {
+        await service.rpc("settle_payout", { p_id: p.id, p_status: "REJECTED", p_failure_code: sent.failureCode });
+      } else {
+        const state = await client.payoutStatus(p.id);
+        if (state?.found) await service.rpc("settle_payout", settleRefundArgs(p.id, state));
+      }
+    } else if (p.action === "check") {
+      const state = await client.payoutStatus(p.id);
+      if (state) await service.rpc("settle_payout", settleRefundArgs(p.id, state));
+    }
+    payouts++;
+  }
+  return json({ checked: ids.length, settled, unanswered, refunds, payouts });
 });

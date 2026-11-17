@@ -209,3 +209,26 @@ test("a refund is sent to /v2/refunds and checked at /v2/refunds/{id}", async ()
   assert.equal(state?.found && state.status, "COMPLETED");
   assert.deepEqual(urls, ["https://api.sandbox.pawapay.io/v2/refunds", "https://api.sandbox.pawapay.io/v2/refunds/r1"]);
 });
+
+test("a payout goes to the school's number with a whole amount, and is checked at /v2/payouts/{id}", async () => {
+  const { payoutRequest } = await import("./pawapay.ts");
+  assert.deepEqual(payoutRequest({ id: "o1", phone: "237677123456", provider: "MTN_MOMO_CMR", amountXaf: 30000 }), {
+    payoutId: "o1",
+    recipient: { type: "MMO", accountDetails: { phoneNumber: "237677123456", provider: "MTN_MOMO_CMR" } },
+    amount: "30000",
+    currency: "XAF",
+    customerMessage: "BusIn payout",
+  });
+  const urls: string[] = [];
+  const fetch: Fetch = async (url) => {
+    urls.push(url);
+    return url.endsWith("/v2/payouts")
+      ? new Response(JSON.stringify({ payoutId: "o1", status: "ACCEPTED" }), { status: 200 })
+      : new Response(JSON.stringify({ status: "FOUND", data: { payoutId: "o1", status: "ENQUEUED", amount: "30000", currency: "XAF" } }), { status: 200 });
+  };
+  const client = pawaPay({ baseUrl: "https://api.sandbox.pawapay.io", token: "t", fetch });
+  assert.deepEqual(await client.initiatePayout({ id: "o1", phone: "237677123456", provider: "MTN_MOMO_CMR", amountXaf: 30000 }), { kind: "accepted" });
+  const state = await client.payoutStatus("o1");
+  assert.equal(state?.found && state.status, "ENQUEUED");
+  assert.deepEqual(urls, ["https://api.sandbox.pawapay.io/v2/payouts", "https://api.sandbox.pawapay.io/v2/payouts/o1"]);
+});

@@ -1132,11 +1132,17 @@ isOneToOne: false
 "admin_cancel_trip":
 { Args: { "p_reason"?: string,"p_trip_id": string }; Returns: undefined
                            },
+"admin_confirm_payout_account":
+{ Args: { "p_account": string }; Returns: undefined
+                           },
 "admin_decide_refund":
 { Args: { "p_amount"?: number,"p_approve": boolean,"p_note"?: string,"p_refund": string }; Returns: undefined
                            },
 "admin_decline_member":
 { Args: { "p_reason"?: string,"p_user_id": string }; Returns: undefined
+                           },
+"admin_decline_payout_account":
+{ Args: { "p_account": string }; Returns: undefined
                            },
 "admin_delete_stop":
 { Args: { "p_stop_id": string }; Returns: undefined
@@ -1158,6 +1164,12 @@ isOneToOne: false
 { Args: Record<PropertyKey, never>; Returns: {
               "last_position_at": string,"reason": string,"started_at": string,"trip_id": string
             }[]
+                           },
+"admin_payment_summary":
+{ Args: { "p_months"?: number }; Returns: Json
+                           },
+"admin_propose_payout_account":
+{ Args: { "p_account_name": string,"p_phone": string,"p_provider": string }; Returns: string
                            },
 "admin_refresh_stop_loads":
 { Args: Record<PropertyKey, never>; Returns: string
@@ -1365,6 +1377,11 @@ isOneToOne: false
               "created_at": string,"id": string,"status": string
             }[]
                            },
+"payouts_to_send":
+{ Args: { "p_limit"?: number }; Returns: {
+              "action": string,"amount_xaf": number,"id": string,"phone": string,"provider": string
+            }[]
+                           },
 "place_import_box":
 { Args: { "p_school_id": string }; Returns: {
               "east": number,"north": number,"south": number,"west": number
@@ -1372,6 +1389,9 @@ isOneToOne: false
                            },
 "platform_complete_follow_up":
 { Args: { "p_outreach_id": string }; Returns: undefined
+                           },
+"platform_confirm_payout_account":
+{ Args: { "p_account": string }; Returns: undefined
                            },
 "platform_create_school":
 { Args: { "p_city"?: string,"p_country"?: string,"p_domains"?: (string)[],"p_name": string,"p_short_name"?: string,"p_timezone"?: string }; Returns: string
@@ -1521,6 +1541,9 @@ isOneToOne: false
                            },
 "settle_payment":
 { Args: { "p_amount"?: string,"p_currency"?: string,"p_failure_code"?: string,"p_failure_message"?: string,"p_id": string,"p_provider_txn"?: string,"p_status": string }; Returns: Json
+                           },
+"settle_payout":
+{ Args: { "p_amount"?: string,"p_currency"?: string,"p_failure_code"?: string,"p_id": string,"p_provider_txn"?: string,"p_status": string }; Returns: Json
                            },
 "settle_refund":
 { Args: { "p_amount"?: string,"p_currency"?: string,"p_failure_code"?: string,"p_id": string,"p_provider_txn"?: string,"p_status": string }; Returns: Json
