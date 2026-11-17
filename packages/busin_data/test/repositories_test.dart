@@ -356,6 +356,28 @@ void main() {
     });
   });
 
+  group('staff access requests (issue #543)', () {
+    test('reads the request with how many are left', () async {
+      final h = Harness((_) async => json([
+            {'school_id': null, 'school_name': null, 'school_logo_path': null, 'requested_at': null, 'declined_at': '2026-11-17T08:00:00+00:00',
+             'declined_school_name': 'Test School', 'decline_note': null, 'requests_left': 0},
+          ]));
+      final request = await h.repos.staffAccess.myRequest();
+      expect(h.last.url.path, '/rest/v1/rpc/my_staff_request');
+      expect(request!.requestsLeft, 0);
+      expect(request.requestsUsedUp, isTrue);
+    });
+
+    test('a fourth request is a Conflict with the reason requests_used_up', () async {
+      final h = Harness((_) async => json({'code': '55000', 'message': 'requests_used_up'}, status: 400));
+      await expectLater(
+        h.repos.staffAccess.requestStaffAccess(_school),
+        throwsA(isA<Conflict>().having((e) => e.reason, 'reason', 'requests_used_up')),
+      );
+      expect(h.last.url.path, '/rest/v1/rpc/request_staff_access');
+    });
+  });
+
   group('trip control', () {
     test('starts and ends a trip through the server functions', () async {
       final h = Harness((_) async => json(const <String, dynamic>{}));

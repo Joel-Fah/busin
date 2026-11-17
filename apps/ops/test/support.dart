@@ -117,9 +117,14 @@ class FakeSchools implements SchoolRepository {
 
 /// Staff access requests (ADR 0026): the schools offered, the request as the server keeps it, and what was asked.
 class FakeStaffAccess implements StaffAccessRepository {
-  FakeStaffAccess({this.request, List<OpenSchool>? schools}) : schools = schools ?? const [OpenSchool(id: schoolId, name: 'Test School', city: 'Yaounde')];
+  FakeStaffAccess({this.request, this.requestsLeft, List<OpenSchool>? schools})
+      : schools = schools ?? const [OpenSchool(id: schoolId, name: 'Test School', city: 'Yaounde')];
 
   JoinRequest? request;
+
+  /// Requests the account may still send (issue #543), or null to leave the count out as before. A new request uses
+  /// one; changing a waiting request or withdrawing it does not.
+  int? requestsLeft;
   final List<OpenSchool> schools;
   final List<String?> asked = [];
   Object? error;
@@ -134,7 +139,10 @@ class FakeStaffAccess implements StaffAccessRepository {
   Future<void> requestStaffAccess(String? id) async {
     if (error != null) throw error!;
     asked.add(id);
-    request = id == null ? null : JoinRequest(schoolId: id, schoolName: schools.firstWhere((s) => s.id == id).name, requestedAt: DateTime.utc(2026, 11, 15));
+    if (id != null && !(request?.isWaiting ?? false) && requestsLeft != null) requestsLeft = requestsLeft! - 1;
+    request = id == null
+        ? (requestsLeft == null ? null : JoinRequest(requestsLeft: requestsLeft))
+        : JoinRequest(schoolId: id, schoolName: schools.firstWhere((s) => s.id == id).name, requestedAt: DateTime.utc(2026, 11, 15), requestsLeft: requestsLeft);
   }
 }
 

@@ -77,6 +77,17 @@ void main() {
     BusinToast.dismiss();
   });
 
+  testWidgets('a student waiting for a school can still delete their account (ADR 0028)', (tester) async {
+    final profiles = FakeProfileRepository({'u1': profile(status: AccountStatus.pending, schoolId: null, complete: false)});
+    await start(tester, profiles, FakeJoin(profiles, schools: const [_hill, _river]));
+    expect(find.text('Choose your school'), findsOneWidget);
+    final link = find.widgetWithText(TextButton, 'Delete my account');
+    await tester.scrollUntilVisible(link, 200, scrollable: find.byType(Scrollable).first);
+    await tester.tap(link);
+    await tester.pumpAndSettle();
+    expect(find.text('Your account and what identifies you are erased 7 days after you ask. You can cancel until then.'), findsOneWidget);
+  });
+
   testWidgets('a declined student sees who declined and why, and when no school accepts their email, says so', (tester) async {
     final profiles = FakeProfileRepository({'u1': profile(status: AccountStatus.pending, schoolId: null, complete: false)});
     final join = FakeJoin(profiles, request: JoinRequest(declinedAt: DateTime.utc(2026, 11, 10), declinedSchoolName: 'Hill University', declineNote: 'We could not find you.'));

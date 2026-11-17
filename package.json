@@ -24,6 +24,7 @@
     "dev:user": "node tools/dev-user.mjs",
     "dev:platform": "node tools/dev-user.mjs dev-platform@ictuniversity.edu.cm platform",
     "dev:erase": "node --no-warnings tools/erase-account.mjs",
+    "build:release": "node tools/build-release.mjs",
     "seed:demo": "node tools/seed-demo.mjs",
     "seed:staff": "node tools/seed-staff.mjs",
     "dev:bus": "node tools/simulate-bus.mjs",
