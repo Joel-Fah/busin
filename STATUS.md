@@ -31,6 +31,21 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: payments, in progress on `phase-6/payments` (2026-11-17)
+
+Mobile money through pawaPay (ADR 0029, proposed), kept on its own branch: nothing goes to `dev` or live until the
+sandbox tests pass and the owner approves. Plan: seven slices (data model, pawaPay functions, student apps, refunds,
+school portal, platform console, legal texts).
+
+- Done: slice 1, the data model and settling (#531): migration `20261117100000_payments.sql`, pgTAP `064_payments` (63);
+  full suite 1134 passing. Applied to the local database by hand (psql), not recorded as a migration there.
+- Next: slice 2, the pawaPay client (`_shared/pawapay.ts`) and the `payments`, `pawapay-callback`,
+  `payments-reconcile` and `payouts-run` functions, tested against the sandbox.
+- Owner: ask pawaPay for a sandbox account and key, its Cameroon fee rates, payouts and refunds on the account, and
+  written confirmation that BusIn may collect for schools. Decide the service fee and the per-student charge (they can
+  change later). The key goes in `supabase/functions/.env` locally (`PAWAPAY_API_TOKEN`, `PAWAPAY_BASE_URL`), never in
+  an app.
+
 ## Handoff: platform console and account deletion on `dev` and live (2026-11-16)
 
 Merged into `dev` (owner approved): #510 to #517 (platform console) and #519 (account deletion). Live database (owner
