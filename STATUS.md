@@ -31,6 +31,25 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## To do: owner's list (2026-11-17), not started
+
+Each gets its own issue and a branch from `dev` (not the payments branch).
+
+- [ ] **Ops: trips left running, in steps.** Today `private.end_stale_trips` ends a trip that started on an earlier
+      school day (hourly job), and the portal flags one overdue after 3 hours or 30 minutes without a position; nobody
+      on the trip is told. Plan:
+  - Reminder push to whoever runs the trip, with an "End trip" action in the notification, when the bus has been
+    silent for 30 minutes or 3 hours after the start (the portal's overdue rules).
+  - A second reminder an hour later if it still runs.
+  - Automatic end at the end of the school day, as today (sooner than 24 hours, and never cuts a trip still running
+    that day). Owner to confirm these intervals.
+- [ ] **Ops: staff access asked at most 3 times.** Today the only limit is one request every 30 seconds
+      (`request_staff_access`). After 3 declined requests, the account cannot ask again; only the school's
+      administrator can let it in (for example by inviting the email).
+- [ ] **Platform: the dropdown on the new school page** (`/platform/schools/new`): to reproduce first; ask the owner
+      which one (country or time zone) and what goes wrong.
+- [ ] **Platform: the lookup result card on a phone** (`/platform/lookup`): the header is too packed; give it room.
+
 ## Handoff: payments, in progress on `phase-6/payments` (2026-11-17)
 
 Mobile money through pawaPay (ADR 0029, proposed), kept on its own branch: nothing goes to `dev` or live until the
