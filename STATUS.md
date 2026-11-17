@@ -39,12 +39,18 @@ school portal, platform console, legal texts).
 
 - Done: slice 1, the data model and settling (#531): migration `20261117100000_payments.sql`, pgTAP `064_payments` (63);
   full suite 1134 passing. Applied to the local database by hand (psql), not recorded as a migration there.
-- Next: slice 2, the pawaPay client (`_shared/pawapay.ts`) and the `payments`, `pawapay-callback`,
-  `payments-reconcile` and `payouts-run` functions, tested against the sandbox.
-- Owner: ask pawaPay for a sandbox account and key, its Cameroon fee rates, payouts and refunds on the account, and
-  written confirmation that BusIn may collect for schools. Decide the service fee and the per-student charge (they can
-  change later). The key goes in `supabase/functions/.env` locally (`PAWAPAY_API_TOKEN`, `PAWAPAY_BASE_URL`), never in
-  an app.
+- Fee model (owner, 2026-11-17): the student's fee covers exactly pawaPay's 1% and the operator's rate on the payment
+  and on the payout, so the school gets its whole price; BusIn's margin is the per-student charge; the school pays for
+  refunds it decides. Rates start from pawaPay's published Cameroon fees. pawaPay's sub-merchant terms forbid
+  surcharges, so `costs_paid_by` can switch to the school bearing the costs until pawaPay confirms.
+- Done: slice 2, the pawaPay client and the `payments`, `pawapay-callback` and `payments-reconcile` functions (#532),
+  setup guide [docs/guides/payments-setup.md](docs/guides/payments-setup.md). Sending payouts and refunds comes with
+  slices 4 and 5, where their database side is built.
+- Next: slice 3, paying in the student app and the student web app.
+- Owner: ask pawaPay for a sandbox account and key, the intermediary merchant schedule, the Cameroon launch
+  requirements, refund rates, whether VAT applies to its 1%, and written confirmation on the student's service fee.
+  Decide the per-student charge (BusIn's margin; it can change later). The key goes in `supabase/functions/.env`
+  locally (see the setup guide), never in an app.
 
 ## Handoff: platform console and account deletion on `dev` and live (2026-11-16)
 

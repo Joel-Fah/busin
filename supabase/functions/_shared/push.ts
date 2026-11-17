@@ -13,7 +13,11 @@ export type Kind =
   | "crew_assigned"
   | "installment_paid"
   | "installment_rejected"
-  | "installment_due";
+  | "installment_due"
+  | "payment_completed"
+  | "payment_failed"
+  | "refund_completed"
+  | "refund_failed";
 
 const KINDS: readonly Kind[] = [
   "subscription_approved",
@@ -26,6 +30,10 @@ const KINDS: readonly Kind[] = [
   "installment_paid",
   "installment_rejected",
   "installment_due",
+  "payment_completed",
+  "payment_failed",
+  "refund_completed",
+  "refund_failed",
 ];
 
 /** One claimed notification, as claim_notifications returns it. */
@@ -84,6 +92,23 @@ const TEXT: Record<Kind, Record<Locale, { title: string; body: string }>> = {
   installment_due: {
     en: { title: "A payment is due soon", body: "A part of your bus subscription is due soon. Open BusIn to send your proof." },
     fr: { title: "Un paiement arrive à échéance", body: "Une tranche de votre abonnement au bus arrive bientôt à échéance. Ouvrez BusIn pour envoyer votre preuve." },
+  },
+  // Mobile money (ADR 0029). No amount, number or operator in the text: the app shows the receipt.
+  payment_completed: {
+    en: { title: "Payment received", body: "Your mobile money payment went through. Open BusIn to see your receipt." },
+    fr: { title: "Paiement reçu", body: "Votre paiement mobile money a abouti. Ouvrez BusIn pour voir votre reçu." },
+  },
+  payment_failed: {
+    en: { title: "Payment not completed", body: "Your mobile money payment did not go through and nothing was taken. Open BusIn to try again." },
+    fr: { title: "Paiement non abouti", body: "Votre paiement mobile money n’a pas abouti et rien n’a été prélevé. Ouvrez BusIn pour réessayer." },
+  },
+  refund_completed: {
+    en: { title: "Refund sent", body: "A refund was sent to your mobile money account. Open BusIn to see the details." },
+    fr: { title: "Remboursement envoyé", body: "Un remboursement a été envoyé sur votre compte mobile money. Ouvrez BusIn pour voir le détail." },
+  },
+  refund_failed: {
+    en: { title: "Refund delayed", body: "Your refund could not be sent yet. BusIn will try again; open the app to see where it stands." },
+    fr: { title: "Remboursement retardé", body: "Votre remboursement n’a pas encore pu être envoyé. BusIn va réessayer ; ouvrez l’application pour suivre." },
   },
 };
 

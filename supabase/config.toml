@@ -439,3 +439,11 @@ verify_jwt = false
 # session, so the platform's JWT check is off for it. The function refuses any call without the secret.
 [functions.delete-accounts]
 verify_jwt = false
+
+# pawaPay posts payment results here (ADR 0029). Not a user session: the function checks pawaPay's signature instead.
+[functions.pawapay-callback]
+verify_jwt = false
+
+# The payment-checks scheduler calls this with a shared secret in the x-reconcile-secret header (ADR 0029).
+[functions.payments-reconcile]
+verify_jwt = false
