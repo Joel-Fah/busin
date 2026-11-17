@@ -17,11 +17,13 @@ create table private.payment_settings (
   fee_buffer_percent numeric(5, 2) not null default 0.20 check (fee_buffer_percent between 0 and 5),
   -- The smallest service fee.
   fee_min_xaf integer not null default 0 check (fee_min_xaf >= 0),
-  -- Who bears what moving the money costs. 'student': a service fee on top of the price, so the school receives its
-  -- whole price (the owner's choice, 2026-11-17). 'school': no fee, the costs come out of the school's share. pawaPay's
-  -- sub-merchant terms forbid surcharging end users (Appendix 1, 3.5.1): 'student' stands only if pawaPay confirms it
-  -- in writing; otherwise switch here, without a code change.
-  costs_paid_by text not null default 'student' check (costs_paid_by in ('student', 'school')),
+  -- VAT on pawaPay's fee, in percent of it. None for now (owner, 2026-11-17).
+  pawapay_vat_percent numeric(5, 2) not null default 0 check (pawapay_vat_percent between 0 and 50),
+  -- Whether a school may pass mobile money's costs on to its students as a fee on top (each school chooses, see
+  -- schools.fees_paid_by). pawaPay's sub-merchant terms forbid surcharging end users (Appendix 1, 3.5.1): this stands
+  -- only if pawaPay confirms it in writing. Switched off, every school bears those costs; BusIn's charge can still be
+  -- in the price, as it applies to every way of paying.
+  student_fee_allowed boolean not null default true,
   -- Days a payment stays on hold before the school can be paid it.
   hold_days smallint not null default 7 check (hold_days between 0 and 60),
   -- The smallest weekly payout.
@@ -39,9 +41,9 @@ insert into private.payment_settings default values;
 revoke all on private.payment_settings from public, anon, authenticated;
 
 -- What each operator takes on top of pawaPay's share, by kind of transaction. A rate not set (null) stops payments with
--- that operator. Started from pawaPay's published Cameroon rates (pawapay.io/fees, Enterprise plan, 2026-11-17):
--- collections MTN 0.75%, Orange 0.77%; payouts MTN 0.30%, Orange none. Refund rates are not published: left unset
--- until pawaPay gives them. pawaPay's own fee is before tax; if VAT applies to it, raise `pawapay_percent`.
+-- that operator. pawaPay told the owner (2026-11-17) that every transaction, refunds included, costs its 1% and nothing
+-- more, so all start at 0. Its public fee page listed operator shares (collections MTN 0.75%, Orange 0.77%; payouts MTN
+-- 0.30%): confirm in the signed agreement, and change them here if they apply.
 create table private.provider_rates (
   provider text not null check (provider in ('MTN_MOMO_CMR', 'ORANGE_CMR')),
   operation text not null check (operation in ('deposit', 'payout', 'refund')),
@@ -52,12 +54,16 @@ create table private.provider_rates (
 );
 insert into private.provider_rates (provider, operation)
 select p, o from unnest(array['MTN_MOMO_CMR', 'ORANGE_CMR']) p, unnest(array['deposit', 'payout', 'refund']) o;
-update private.provider_rates set mmo_percent = case
-  when provider = 'MTN_MOMO_CMR' and operation = 'deposit' then 0.75
-  when provider = 'MTN_MOMO_CMR' and operation = 'payout' then 0.30
-  when provider = 'ORANGE_CMR' and operation = 'deposit' then 0.77
-  when provider = 'ORANGE_CMR' and operation = 'payout' then 0.00 end
-where operation in ('deposit', 'payout');
+update private.provider_rates set mmo_percent = 0;
+
+-- pawaPay's share with its VAT, in percent.
+create function private.pawapay_rate() returns numeric
+language sql stable security definer
+set search_path = ''
+as $$
+  select s.pawapay_percent * (1 + s.pawapay_vat_percent / 100) from private.payment_settings s
+$$;
+revoke execute on function private.pawapay_rate() from public;
 revoke all on private.provider_rates from public, anon, authenticated;
 
 -- Per school: whether its students can pay by mobile money, and from when BusIn charges it per paying student.
@@ -117,25 +123,24 @@ create function private.transfer_cost(p_provider text, p_operation text, p_amoun
 language sql stable security definer
 set search_path = ''
 as $$
-  select ceil(p_amount * (s.pawapay_percent + r.mmo_percent) / 100 + r.mmo_fixed_xaf)::integer
-  from private.payment_settings s
-  join private.provider_rates r on r.provider = p_provider and r.operation = p_operation
+  select ceil(p_amount * (private.pawapay_rate() + r.mmo_percent) / 100 + r.mmo_fixed_xaf)::integer
+  from private.provider_rates r
+  where r.provider = p_provider and r.operation = p_operation
 $$;
 revoke execute on function private.transfer_cost(text, text, integer) from public;
 
 -- The service fee: what the payer adds so that, once pawaPay and the operator have taken their share of the payment
 -- and of the payout to the school, the school receives its whole price. For BusIn's own invoice (no payout), the
--- payment's cost only. Null while the operator's rates are not set; zero when the school bears the costs.
+-- payment's cost only. Null while the operator's rates are not set. Whether the payer pays it is decided by the caller.
 create function private.service_fee(p_provider text, p_amount integer, p_with_payout boolean) returns integer
 language sql stable security definer
 set search_path = ''
 as $$
   -- greatest() skips nulls, so rates not set are caught first.
-  select case when d.mmo_percent is null or o.mmo_percent is null then null
-    when s.costs_paid_by = 'school' then 0 else greatest(s.fee_min_xaf,
-    ceil((p_amount * (1 + case when p_with_payout then (s.pawapay_percent + o.mmo_percent + s.fee_buffer_percent) / 100 else 0 end)
+  select case when d.mmo_percent is null or o.mmo_percent is null then null else greatest(s.fee_min_xaf,
+    ceil((p_amount * (1 + case when p_with_payout then (private.pawapay_rate() + o.mmo_percent + s.fee_buffer_percent) / 100 else 0 end)
           + d.mmo_fixed_xaf)
-         / (1 - (s.pawapay_percent + d.mmo_percent) / 100))::integer - p_amount) end
+         / (1 - (private.pawapay_rate() + d.mmo_percent) / 100))::integer - p_amount) end
   from private.payment_settings s
   join private.provider_rates d on d.provider = p_provider and d.operation = 'deposit'
   join private.provider_rates o on o.provider = p_provider and o.operation = 'payout'
@@ -439,6 +444,208 @@ $$;
 revoke execute on function public.school_balance() from public, anon;
 grant execute on function public.school_balance() to authenticated;
 
+-- ---------------------------------------------------------------- who pays the fees: each school chooses
+-- 'student': students pay the price plus BusIn's charge (whatever the way of paying), and mobile money's costs on top
+-- when they pay that way (if the platform allows it), so the school receives its whole price. 'school': students pay
+-- the price only; BusIn's charge and mobile money's costs come out of the school's share.
+alter table public.schools
+  add column fees_paid_by text not null default 'student' check (fees_paid_by in ('student', 'school'));
+
+create function public.admin_set_fees_paid_by(p_who text)
+returns void
+language plpgsql security definer
+set search_path = ''
+as $$
+declare
+  v_school uuid := private.my_school_id();
+begin
+  if not private.is_admin() then
+    raise exception 'Administrators only' using errcode = '42501';
+  end if;
+  if p_who is null or p_who not in ('student', 'school') then
+    raise exception 'invalid_value' using errcode = '22023';
+  end if;
+  update public.schools set fees_paid_by = p_who where id = v_school;
+  perform private.write_audit(v_school, (select auth.uid()), 'school.fees_paid_by', 'school', v_school, jsonb_build_object('who', p_who));
+end;
+$$;
+revoke execute on function public.admin_set_fees_paid_by(text) from public, anon;
+grant execute on function public.admin_set_fees_paid_by(text) to authenticated;
+
+-- BusIn's charge for one paying student of a school today, by billing period: zero before the school's charges start.
+create function private.busin_charge_for(p_school uuid, p_period text) returns integer
+language sql stable security definer
+set search_path = ''
+as $$
+  select case when t.charges_from is null or t.charges_from > private.school_today(p_school) then 0
+    else coalesce(case when p_period = 'month' then coalesce(t.charge_month_xaf, s.charge_month_xaf)
+                       else coalesce(t.charge_semester_xaf, s.charge_semester_xaf) end, 0) end
+  from private.payment_settings s
+  left join private.school_payment_terms t on t.school_id = p_school
+$$;
+revoke execute on function private.busin_charge_for(uuid, text) from public;
+grant execute on function private.busin_charge_for(uuid, text) to authenticated;
+
+-- The charge fixed when the request is made (null for requests made before payments existed).
+alter table public.subscriptions add column charge_xaf integer check (charge_xaf >= 0);
+
+create or replace function private.price_subscription() returns trigger
+language plpgsql
+set search_path = ''
+as $$
+declare
+  v_school public.schools%rowtype;
+  v_sem public.semesters%rowtype;
+  v_today date;
+  v_student boolean := current_user = 'authenticated';
+  v_month date;
+  v_charge integer := 0;
+begin
+  -- Someone else's row or another school: left to row-level security, which refuses it with its own error.
+  if v_student then
+    if new.student_id is distinct from (select auth.uid()) or new.school_id is distinct from private.my_school_id() then
+      return new;
+    end if;
+  end if;
+
+  select * into v_school from public.schools where id = new.school_id;
+  select * into v_sem from public.semesters where id = new.semester_id and school_id = new.school_id;
+  if v_school.billing_period is null then
+    -- Seeds and fixtures may load history before billing exists; a student may not ask yet.
+    if v_student then
+      raise exception 'billing_not_set' using errcode = '55000';
+    end if;
+    return new;
+  end if;
+  -- The school's date, worked out here: the service role (tests, tools) does not use the private helpers.
+  v_today := (now() at time zone v_school.timezone)::date;
+
+  if v_school.billing_period = 'month' then
+    if new.payment_mode = 'installments' then
+      raise exception 'installments_not_offered' using errcode = '22023';
+    end if;
+    if new.period_start is null then
+      if v_student then
+        raise exception 'month_required' using errcode = '22023';
+      end if;
+      return new;
+    end if;
+    v_month := date_trunc('month', new.period_start)::date;
+    -- The current month or the next one, and a month that overlaps the semester.
+    if v_student and (new.period_start <> v_month or v_month not in (date_trunc('month', v_today)::date, (date_trunc('month', v_today) + interval '1 month')::date)) then
+      raise exception 'month_not_allowed' using errcode = '22023';
+    end if;
+    new.period_start := greatest(v_month, v_sem.start_date);
+    new.period_end := least((v_month + interval '1 month' - interval '1 day')::date, v_sem.end_date);
+    if new.period_start > new.period_end then
+      raise exception 'month_not_allowed' using errcode = '22023';
+    end if;
+    if v_student and new.period_end < v_today then
+      raise exception 'period_ended' using errcode = '55000';
+    end if;
+    new.installment_plan := null;
+  else
+    -- A whole semester: no month.
+    new.period_start := null;
+    new.period_end := null;
+    if new.payment_mode = 'installments' then
+      if v_school.installment_plan is null then
+        raise exception 'installments_not_offered' using errcode = '22023';
+      end if;
+      -- Too close to the end of the semester for the parts to be two weeks apart: in full only. Checked for students
+      -- only, in its own block: the service role (tests, tools) cannot use the private schema, and an `and` in one
+      -- condition does not keep it from being looked at.
+      if v_student then
+        if not private.installments_fit(v_today, v_sem.start_date, v_sem.end_date, v_school.installment_plan) then
+          raise exception 'installments_too_late' using errcode = '22023';
+        end if;
+      end if;
+      new.installment_plan := v_school.installment_plan;
+    else
+      new.installment_plan := null;
+    end if;
+  end if;
+
+  new.billing_period := v_school.billing_period;
+  -- BusIn's charge for a paying student, fixed now; in the price when the school passes its fees on (ADR 0029). The
+  -- service role (tools) cannot use the private schema: no charge then.
+  begin
+    v_charge := private.busin_charge_for(new.school_id, v_school.billing_period);
+  exception when insufficient_privilege then
+    v_charge := 0;
+  end;
+  new.charge_xaf := v_charge;
+  new.amount_xaf := v_school.price_xaf + case when v_school.fees_paid_by = 'student' then v_charge else 0 end;
+
+  -- Already covered for some of this time (for example a whole-semester subscription and now a month of it).
+  if new.status in ('pending', 'approved') and exists (
+    select 1 from public.subscriptions s
+    where s.student_id = new.student_id and s.semester_id = new.semester_id and s.status in ('pending', 'approved')
+      and coalesce(s.period_start, v_sem.start_date) <= coalesce(new.period_end, v_sem.end_date)
+      and coalesce(new.period_start, v_sem.start_date) <= coalesce(s.period_end, v_sem.end_date)
+  ) then
+    raise exception 'already_requested' using errcode = '23505';
+  end if;
+  return new;
+end;
+$$;
+
+-- ---------------------------------------------------------------- what a price means, for the school and its students
+-- For each way of paying: what the student pays, BusIn's charge, what moving the money costs, and what the school
+-- receives. An administrator can try a price before saving it (p_price); a student sees their school's. The school
+-- portal shows it where the price is set, the apps before paying.
+create function public.price_breakdown(p_price integer default null)
+returns table (method text, student_pays integer, busin_charge integer, transaction_cost integer, school_receives integer)
+language plpgsql stable security definer
+set search_path = ''
+as $$
+declare
+  v_school public.schools;
+  v_settings private.payment_settings;
+  v_price integer;
+  v_charge integer;
+  v_amount integer;
+  v_with_fee boolean;
+  v_fee integer;
+  v_cost integer;
+  v_provider text;
+begin
+  if (select auth.uid()) is null or private.my_school_id() is null then
+    raise exception 'not_allowed' using errcode = '42501';
+  end if;
+  select * into v_school from public.schools where id = private.my_school_id();
+  v_price := case when p_price is not null and private.is_admin() then p_price else v_school.price_xaf end;
+  if v_price is null then
+    return;
+  end if;
+  if v_price <= 0 or v_price > 10000000 then
+    raise exception 'invalid_price' using errcode = '22023';
+  end if;
+  select * into v_settings from private.payment_settings;
+  v_charge := private.busin_charge_for(v_school.id, coalesce(v_school.billing_period, 'semester'));
+  v_amount := v_price + case when v_school.fees_paid_by = 'student' then v_charge else 0 end;
+  method := 'receipt'; student_pays := v_amount; busin_charge := v_charge; transaction_cost := 0; school_receives := v_amount - v_charge;
+  return next;
+  if not private.mobile_money_enabled(v_school.id) then
+    return;
+  end if;
+  v_with_fee := v_school.fees_paid_by = 'student' and v_settings.student_fee_allowed;
+  foreach v_provider in array array['MTN_MOMO_CMR', 'ORANGE_CMR'] loop
+    v_fee := private.service_fee(v_provider, v_amount, true);
+    continue when v_fee is null;
+    if not v_with_fee then
+      v_fee := 0;
+    end if;
+    v_cost := private.transfer_cost(v_provider, 'deposit', v_amount + v_fee) + private.transfer_cost(v_provider, 'payout', v_amount);
+    method := v_provider; student_pays := v_amount + v_fee; busin_charge := v_charge; transaction_cost := v_cost;
+    school_receives := v_amount - v_charge - case when v_with_fee then 0 else v_cost end;
+    return next;
+  end loop;
+end;
+$$;
+revoke execute on function public.price_breakdown(integer) from public, anon;
+grant execute on function public.price_breakdown(integer) to authenticated;
+
 -- ---------------------------------------------------------------- requests paid by mobile money
 -- A request is still made by the student first; `mobile_money` ones have no receipt and are approved by their payment.
 alter table public.subscriptions
@@ -569,9 +776,10 @@ begin
     return new;
   end if;
   select * into v_settings from private.payment_settings;
-  v_amount := case when new.billing_period = 'month'
+  -- The charge fixed with the request (and in its price, when passed on); computed now for older requests.
+  v_amount := coalesce(new.charge_xaf, case when new.billing_period = 'month'
     then coalesce(v_terms.charge_month_xaf, v_settings.charge_month_xaf)
-    else coalesce(v_terms.charge_semester_xaf, v_settings.charge_semester_xaf) end;
+    else coalesce(v_terms.charge_semester_xaf, v_settings.charge_semester_xaf) end);
   if coalesce(v_amount, 0) <= 0 then
     return new;
   end if;
@@ -592,9 +800,9 @@ create trigger subscriptions_charge_paying_student after update of status on pub
 
 -- ---------------------------------------------------------------- what a payment is for
 -- The item, checked for the caller: its school, the amount that goes to the school (or BusIn), whether it is paid out
--- to the school afterwards, and its key. Refusals: 42501 not allowed, P0002 not found, 55000 not payable now, 22023 bad input.
+-- to the school afterwards, whether the payer pays mobile money's costs on top, and its key. Refusals: 42501 not allowed, P0002 not found, 55000 not payable now, 22023 bad input.
 create function private.payment_item(p_purpose text, p_target uuid)
-returns table (school_id uuid, amount_xaf integer, with_payout boolean, item_key text)
+returns table (school_id uuid, amount_xaf integer, with_payout boolean, with_fee boolean, item_key text)
 language plpgsql stable security definer
 set search_path = ''
 as $$
@@ -605,6 +813,7 @@ declare
   v_part public.subscription_installments;
   v_invoice public.busin_invoices;
   v_today date;
+  v_with_fee boolean;
 begin
   if v_uid is null or v_school is null then
     raise exception 'not_allowed' using errcode = '42501';
@@ -628,7 +837,7 @@ begin
     if v_invoice.status <> 'open' then
       raise exception 'not_payable' using errcode = '55000';
     end if;
-    return query select v_school, v_invoice.amount_xaf, false, 'invoice:' || v_invoice.id::text;
+    return query select v_school, v_invoice.amount_xaf, false, true, 'invoice:' || v_invoice.id::text;
     return;
   end if;
 
@@ -639,6 +848,8 @@ begin
   if not private.mobile_money_enabled(v_school) then
     raise exception 'mobile_money_off' using errcode = '55000';
   end if;
+  v_with_fee := (select sc.fees_paid_by = 'student' from public.schools sc where sc.id = v_school)
+    and (select st.student_fee_allowed from private.payment_settings st);
 
   if p_purpose = 'subscription' then
     select * into v_sub from public.subscriptions s where s.id = p_target and s.student_id = v_uid and s.school_id = v_school;
@@ -653,14 +864,14 @@ begin
       raise exception 'period_ended' using errcode = '55000';
     end if;
     if v_sub.payment_mode = 'installments' then
-      return query select v_school, i.amount_xaf, true, 'subscription:' || v_sub.id::text
+      return query select v_school, i.amount_xaf, true, v_with_fee, 'subscription:' || v_sub.id::text
         from public.subscription_installments i where i.subscription_id = v_sub.id and i.seq = 1;
       if not found then
         raise exception 'not_payable' using errcode = '55000';
       end if;
       return;
     end if;
-    return query select v_school, v_sub.amount_xaf, true, 'subscription:' || v_sub.id::text;
+    return query select v_school, v_sub.amount_xaf, true, v_with_fee, 'subscription:' || v_sub.id::text;
     return;
   end if;
 
@@ -673,7 +884,7 @@ begin
      or not exists (select 1 from public.subscriptions s where s.id = v_part.subscription_id and s.status = 'approved') then
     raise exception 'not_payable' using errcode = '55000';
   end if;
-  return query select v_school, v_part.amount_xaf, true, 'installment:' || v_part.id::text;
+  return query select v_school, v_part.amount_xaf, true, v_with_fee, 'installment:' || v_part.id::text;
 end;
 $$;
 revoke execute on function private.payment_item(text, uuid) from public;
@@ -695,7 +906,8 @@ begin
   return query
   select x.p, v_item.amount_xaf, f.fee, v_item.amount_xaf + f.fee, 'XAF'::text
   from unnest(array['MTN_MOMO_CMR', 'ORANGE_CMR']) as x(p)
-  cross join lateral (select private.service_fee(x.p, v_item.amount_xaf, v_item.with_payout) as fee) f
+  cross join lateral (select case when v_item.with_fee then private.service_fee(x.p, v_item.amount_xaf, v_item.with_payout)
+                                  else 0 * private.service_fee(x.p, v_item.amount_xaf, v_item.with_payout) end as fee) f
   where p_provider is null or x.p = p_provider
   order by x.p;
 end;
@@ -733,6 +945,9 @@ begin
   end if;
   select * into v_item from private.payment_item(p_purpose, p_target);
   v_fee := private.service_fee(p_provider, v_item.amount_xaf, v_item.with_payout);
+  if not v_item.with_fee then
+    v_fee := 0 * v_fee;
+  end if;
   v_cost := private.transfer_cost(p_provider, 'deposit', v_item.amount_xaf + coalesce(v_fee, 0))
     + case when v_item.with_payout then private.transfer_cost(p_provider, 'payout', v_item.amount_xaf) else 0 end;
   if v_fee is null or v_cost is null then
@@ -748,7 +963,7 @@ begin
             case when p_purpose = 'installment' then p_target end,
             case when p_purpose = 'invoice' then p_target end,
             v_item.item_key, v_item.amount_xaf, v_fee, v_cost,
-            v_item.with_payout and v_settings.costs_paid_by = 'school',
+            v_item.with_payout and not v_item.with_fee,
             p_provider, left(p_phone, 4) || '*****' || right(p_phone, 3))
     returning * into v_row;
   exception when unique_violation then

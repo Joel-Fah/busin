@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(68);
+select plan(78);
 
 -- Mobile money payments (ADR 0029): opening a payment, settling it once, approving the request, the school's ledger,
 -- BusIn's charge, refunds of what cannot be applied, and who reads what.
@@ -166,8 +166,9 @@ reset role;
 set local "request.jwt.claims" = '{}';
 select is(public.settle_payment(current_setting('test.pay5')::uuid, 'COMPLETED', '10409', 'XAF')->>'status', 'completed', 'part 1 is paid');
 select is((select status from public.subscription_installments where subscription_id = 'e4000000-0000-4000-8000-0000000000a3' and seq = 1), 'paid', 'part 1 is paid with the request');
-select is((select amount_xaf from public.busin_charges where subscription_id = 'e4000000-0000-4000-8000-0000000000a3'), 700, 'BusIn charges the school for a paying student');
-select is((select amount_xaf from public.school_ledger where kind = 'charge'), -700, 'taken from the school''s balance');
+select is((select count(*)::int from public.busin_charges where subscription_id = 'e4000000-0000-4000-8000-0000000000a3'), 0,
+  'a request made before the school''s charges started is not charged');
+select is((select charge_xaf from public.subscriptions where id = 'e4000000-0000-4000-8000-0000000000a3'), 0, 'its charge was fixed when it was asked');
 
 set local role authenticated;
 set local "request.jwt.claims" = '{"sub":"e1000000-0000-4000-8000-0000000000a3","role":"authenticated"}';
@@ -192,8 +193,8 @@ select throws_ok($$select * from public.start_payment('subscription', 'e4000000-
   '54000', 'too_many_attempts', 'a student cannot start payments without end');
 
 set local "request.jwt.claims" = '{"sub":"e1000000-0000-4000-8000-0000000000a1","role":"authenticated"}';
-select results_eq($$select * from public.school_balance()$$, $$values (0, 40000, 700)$$,
-  'the school sees its balance: the payments on hold (the refunded one cancelled out), and what it owes (the charge)');
+select results_eq($$select * from public.school_balance()$$, $$values (0, 40000, 0)$$,
+  'the school sees its balance: the payments on hold, the refunded one cancelled out');
 
 -- ---------------------------------------------------------------- BusIn's invoice, and the school bearing the costs
 reset role;
@@ -203,20 +204,48 @@ set local role authenticated;
 set local "request.jwt.claims" = '{"sub":"e1000000-0000-4000-8000-0000000000a1","role":"authenticated"}';
 select is((select fee_xaf from public.payment_quote('invoice', 'e5000000-0000-4000-8000-0000000000a1', 'MTN_MOMO_CMR')), 103,
   'the school pays BusIn''s invoice with only the cost of collecting it on top');
+-- ---------------------------------------------------------------- the price, and who pays the fees
+-- pawaPay's 1 percent on everything and nothing more (what pawaPay told the owner), with the default margin; BusIn's
+-- charge is 700 a semester (set above).
 reset role;
-update private.payment_settings set costs_paid_by = 'school';
+update private.provider_rates set mmo_percent = 0;
+update private.payment_settings set fee_buffer_percent = 0.20;
 set local role authenticated;
-select is((select fee_xaf from public.payment_quote('invoice', 'e5000000-0000-4000-8000-0000000000a1', 'MTN_MOMO_CMR')), 0,
-  'when the school bears the costs, nobody pays a fee on top');
+set local "request.jwt.claims" = '{"sub":"e1000000-0000-4000-8000-0000000000a1","role":"authenticated"}';
+select results_eq($$select method, student_pays, busin_charge, transaction_cost, school_receives from public.price_breakdown()$$,
+  $$values ('receipt'::text, 20700, 700, 0, 20000), ('MTN_MOMO_CMR'::text, 21160, 700, 419, 20000), ('ORANGE_CMR'::text, 21160, 700, 419, 20000)$$,
+  'students paying the fees: BusIn''s charge is in the price and mobile money''s costs on top, so the school receives its whole price');
+select lives_ok($$select public.admin_set_fees_paid_by('school')$$, 'the school chooses to bear the fees');
+select results_eq($$select method, student_pays, busin_charge, transaction_cost, school_receives from public.price_breakdown()$$,
+  $$values ('receipt'::text, 20000, 700, 0, 19300), ('MTN_MOMO_CMR'::text, 20000, 700, 400, 18900), ('ORANGE_CMR'::text, 20000, 700, 400, 18900)$$,
+  'then students pay the price only, and the school sees what comes out of its share');
+select is((select school_receives from public.price_breakdown(30000) where method = 'receipt'), 29300, 'an administrator tries a price before saving it');
+select throws_ok($$select public.admin_set_fees_paid_by('parents')$$, '22023', 'invalid_value', 'only the student or the school pays the fees');
+set local "request.jwt.claims" = '{"sub":"e1000000-0000-4000-8000-0000000000a2","role":"authenticated"}';
+select is((select student_pays from public.price_breakdown(1) where method = 'receipt'), 20000, 'a student sees their school''s price, not a price they make up');
+select throws_ok($$select public.admin_set_fees_paid_by('student')$$, '42501', null, 'and cannot choose who pays');
 
--- The published Cameroon rates, with the default margin: MTN 1.75 percent in and 1.30 out, Orange 1.77 in and 1.00 out.
+-- A request fixes the charge, and carries it in its price when students pay the fees.
 reset role;
-update private.payment_settings set costs_paid_by = 'student', fee_buffer_percent = 0.20;
-update private.provider_rates set mmo_percent = case
-  when provider = 'MTN_MOMO_CMR' and operation = 'deposit' then 0.75 when provider = 'MTN_MOMO_CMR' and operation = 'payout' then 0.30
-  when provider = 'ORANGE_CMR' and operation = 'deposit' then 0.77 else 0 end where operation <> 'refund';
-select results_eq($$select private.service_fee('MTN_MOMO_CMR', 20000, true), private.service_fee('ORANGE_CMR', 20000, true)$$,
-  $$values (662, 605)$$, 'a 20,000 XAF pass costs the student 662 XAF with MTN and 605 XAF with Orange');
+update public.schools set fees_paid_by = 'student' where id = 'e0000000-0000-4000-8000-0000000000a1';
+insert into auth.users (id, email, raw_app_meta_data) values ('e1000000-0000-4000-8000-0000000000a5', 'dee@pay.edu', '{"provider":"google"}');
+insert into public.subscriptions (school_id, student_id, semester_id, stop_id, payment_method)
+values ('e0000000-0000-4000-8000-0000000000a1', 'e1000000-0000-4000-8000-0000000000a5', 'e2000000-0000-4000-8000-0000000000a1', 'e3000000-0000-4000-8000-0000000000a1', 'mobile_money');
+select results_eq($$select amount_xaf, charge_xaf from public.subscriptions where student_id = 'e1000000-0000-4000-8000-0000000000a5'$$,
+  $$values (20700, 700)$$, 'the request''s price includes BusIn''s charge, fixed when asked');
+update public.subscriptions set status = 'approved', proof_path = 'x/d.jpg' where student_id = 'e1000000-0000-4000-8000-0000000000a5';
+select is((select b.amount_xaf from public.busin_charges b join public.subscriptions x on x.id = b.subscription_id where x.student_id = 'e1000000-0000-4000-8000-0000000000a5'),
+  700, 'once approved, BusIn charges the school for a paying student');
+select is((select sum(amount_xaf)::int from public.school_ledger where kind = 'charge'), -700, 'taken from the school''s balance');
+
+-- VAT on pawaPay's fee, and the platform withholding the fee on top.
+update private.payment_settings set pawapay_vat_percent = 19.25;
+select is(private.pawapay_rate(), 1.1925::numeric, 'VAT, when it applies, is added to pawaPay''s share');
+update private.payment_settings set pawapay_vat_percent = 0, student_fee_allowed = false;
+set local role authenticated;
+set local "request.jwt.claims" = '{"sub":"e1000000-0000-4000-8000-0000000000a1","role":"authenticated"}';
+select results_eq($$select student_pays, school_receives from public.price_breakdown() where method = 'MTN_MOMO_CMR'$$,
+  $$values (20700, 19586)$$, 'if pawaPay refuses a fee on top, students still pay the charge but the school bears the transfer costs');
 
 select * from finish();
 rollback;
