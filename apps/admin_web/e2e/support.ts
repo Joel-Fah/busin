@@ -68,6 +68,38 @@ function sql(statement: string): void {
 }
 
 /**
+ * Mobile money for a school (ADR 0029), as the platform switches it on: `private.school_payment_terms` is reachable only
+ * with a direct connection. Returns whether it was on before, to put back. The id is a generated or seed UUID.
+ */
+export function setMobileMoney(schoolId: string, enabled: boolean): boolean {
+  if (!/^[0-9a-f-]{36}$/.test(schoolId)) throw new Error("a school id is a UUID");
+  const before = execFileSync(
+    "docker",
+    ["exec", "-i", "supabase_db_busin", "psql", "-U", "postgres", "-tAc", `select coalesce((select enabled from private.school_payment_terms where school_id = '${schoolId}'), false)`],
+    { encoding: "utf8" },
+  ).trim();
+  sql(`insert into private.school_payment_terms (school_id, enabled) values ('${schoolId}', ${enabled}) on conflict (school_id) do update set enabled = ${enabled};`);
+  return before === "t";
+}
+
+/**
+ * Removes a user's mobile money payments and what hangs on them (ledger lines, refunds, charges, part receipts), so the
+ * user and their requests can be deleted. Ledger lines are never edited, but they can be removed in a test database.
+ */
+export function deletePaymentsOf(userId: string): void {
+  if (!/^[0-9a-f-]{36}$/.test(userId)) throw new Error("a user id is a UUID");
+  sql(`
+    delete from public.school_ledger where payment_id in (select id from public.payments where paid_by = '${userId}')
+      or refund_id in (select r.id from public.refunds r join public.payments p on p.id = r.payment_id where p.paid_by = '${userId}')
+      or charge_id in (select c.id from public.busin_charges c join public.subscriptions s on s.id = c.subscription_id where s.student_id = '${userId}');
+    delete from public.refunds where payment_id in (select id from public.payments where paid_by = '${userId}');
+    delete from public.installment_receipts where payment_id in (select id from public.payments where paid_by = '${userId}');
+    delete from public.payments where paid_by = '${userId}';
+    delete from public.busin_charges where subscription_id in (select id from public.subscriptions where student_id = '${userId}');
+  `);
+}
+
+/**
  * Creates a user that looks like a Google sign-up. The Auth admin API marks every user it
  * creates as an email sign-up, which the sign-up trigger rightly refuses, so the row is
  * inserted directly. A password is set only so the test can open a real session.

@@ -21,6 +21,8 @@ export type SubscriptionRow = {
   period_end?: string | null;
   amount_xaf?: number | null;
   installment_plan?: string | null;
+  /** How the request is paid (ADR 0029): a receipt photo, or mobile money in the app. */
+  payment_method?: string;
 };
 
 export type SubscriptionEvent = { id: number; subscription_id: string; action: "requested" | "approved" | "rejected" | "revoked" | "reinstated"; note: string | null; created_at: string };

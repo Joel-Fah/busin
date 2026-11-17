@@ -1,6 +1,6 @@
 "use client";
 
-import { ReceiptTextIcon } from "@hugeicons/core-free-icons";
+import { ReceiptTextIcon, SmartPhone01Icon } from "@hugeicons/core-free-icons";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
@@ -10,8 +10,11 @@ import { formatAmount, type InstallmentRow } from "@/lib/billing";
 import { format } from "@/lib/i18n/format";
 import type { StudentCopy } from "@/lib/i18n/student";
 import { prepareProof } from "@/lib/student/proof-image";
+import { stageOfPayment, type PaymentRow, type Provider } from "@/lib/student/mobile-money";
 import { proofPath } from "@/lib/student/subscription";
 import { browserClient } from "@/lib/supabase/browser";
+
+import { MobileMoneyPay } from "./MobileMoneyPay";
 
 const TONE = { due: "neutral", submitted: "warn", paid: "ok", rejected: "bad" } as const;
 
@@ -22,7 +25,8 @@ function randomHex(bytes: number): string {
 /**
  * The parts of a subscription paid in installments (ADR 0022), as the app's: each with its amount, due date and where it
  * stands, Late when its day has passed, and a way to send the proof of a later part. The photo goes to the student's own
- * folder, then the server is told which part it pays.
+ * folder, then the server is told which part it pays. Where the school takes mobile money (ADR 0029), a later part can
+ * also be paid from the phone; its payment, while in progress or after it failed, shows under it.
  */
 export function InstallmentParts({
   copy,
@@ -33,6 +37,7 @@ export function InstallmentParts({
   schoolId,
   studentId,
   canSend,
+  pay = null,
 }: {
   copy: StudentCopy["subscription"]["parts"];
   parts: InstallmentRow[];
@@ -42,11 +47,14 @@ export function InstallmentParts({
   schoolId: string;
   studentId: string;
   canSend: boolean;
+  /** Mobile money, when the school offers it: the words, the networks, the latest payment of each part, the number to start with. */
+  pay?: { copy: StudentCopy["subscription"]["pay"]; operators: Provider[]; payments: Record<string, PaymentRow>; phone: string } | null;
 }) {
   const router = useRouter();
   const input = useRef<HTMLInputElement>(null);
   const [target, setTarget] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  const [paying, setPaying] = useState<string | null>(null);
   const [message, setMessage] = useState<{ tone: "ok" | "bad"; text: string } | null>(null);
   const day = (iso: string) => new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeZone: "UTC" }).format(new Date(`${iso}T00:00:00Z`));
 
@@ -82,6 +90,12 @@ export function InstallmentParts({
           const open = part.seq > 1 && (part.status === "due" || part.status === "rejected");
           const late = open && part.due_date <= today;
           const status = part.status as keyof typeof TONE;
+          const latest = pay?.payments[part.id] ?? null;
+          const stage = latest ? stageOfPayment(latest) : null;
+          // pawaPay may still finish it, or BusIn is checking it: no other way to pay meanwhile.
+          const inProgress = stage === "waiting" || stage === "checking";
+          const showPay = open && canSend && pay !== null && (paying === part.id || inProgress || stage === "failed");
+          const offerPay = open && canSend && pay !== null && pay.operators.length > 0 && !showPay;
           return (
             <li key={part.id} className="flex flex-col gap-2 rounded-md bg-surface-2 p-4" data-testid={`part-${part.seq}`}>
               <div className="flex flex-wrap items-center justify-between gap-2">
@@ -95,7 +109,7 @@ export function InstallmentParts({
               </div>
               <p className="m-0 text-sm text-muted">{format(copy.due, { date: day(part.due_date) })}</p>
               {part.status === "rejected" && part.review_note ? <p className="m-0 text-sm">{part.review_note}</p> : null}
-              {open && canSend ? (
+              {open && canSend && !inProgress ? (
                 <Button
                   variant="secondary"
                   icon={ReceiptTextIcon}
@@ -107,6 +121,26 @@ export function InstallmentParts({
                 >
                   {busy === part.id ? copy.sending : copy.send}
                 </Button>
+              ) : null}
+              {offerPay ? (
+                <Button variant="secondary" icon={SmartPhone01Icon} disabled={busy !== null} onClick={() => setPaying(part.id)}>
+                  {pay.copy.payPart}
+                </Button>
+              ) : null}
+              {showPay ? (
+                <MobileMoneyPay
+                  key={latest?.id ?? "none"}
+                  copy={pay.copy}
+                  purpose="installment"
+                  target={part.id}
+                  initialPayment={latest}
+                  phone={pay.phone}
+                  operators={pay.operators}
+                  amountLabel={format(pay.copy.part, { n: part.seq })}
+                  locale={locale}
+                  currency={currency}
+                  onCancel={() => setPaying(null)}
+                />
               ) : null}
             </li>
           );

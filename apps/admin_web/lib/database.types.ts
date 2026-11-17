@@ -69,6 +69,52 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"busin_charges": {
+                  Row: {
+                    "amount_xaf": number,"billing_period": string | null,"created_at": string,"id": string,"school_id": string,"subscription_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount_xaf": number,"billing_period"?: string | null,"created_at"?: string,"id"?: string,"school_id": string,"subscription_id": string
+                  }
+                  Update: {
+                    "amount_xaf"?: number,"billing_period"?: string | null,"created_at"?: string,"id"?: string,"school_id"?: string,"subscription_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "busin_charges_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "busin_charges_subscription_id_school_id_fkey"
+      columns: ["subscription_id","school_id"]
+isOneToOne: false
+      referencedRelation: "subscriptions"
+      referencedColumns: ["id","school_id"]
+    }
+                  ]
+                },"busin_invoices": {
+                  Row: {
+                    "amount_xaf": number,"due_date": string,"id": string,"issued_at": string,"month": string,"number": string,"paid_at": string | null,"school_id": string,"status": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount_xaf": number,"due_date": string,"id"?: string,"issued_at"?: string,"month": string,"number": string,"paid_at"?: string | null,"school_id": string,"status"?: string
+                  }
+                  Update: {
+                    "amount_xaf"?: number,"due_date"?: string,"id"?: string,"issued_at"?: string,"month"?: string,"number"?: string,"paid_at"?: string | null,"school_id"?: string,"status"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "busin_invoices_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"departments": {
                   Row: {
                     "code": string | null,"created_at": string,"faculty_id": string,"id": string,"name": string,"school_id": string
@@ -143,14 +189,14 @@ isOneToOne: false
                   ]
                 },"installment_receipts": {
                   Row: {
-                    "decided_at": string | null,"decided_by": string | null,"decision": string | null,"id": string,"installment_id": string,"note": string | null,"proof_path": string | null,"school_id": string,"sent_at": string,"seq": number,"student_id": string,"subscription_id": string
+                    "decided_at": string | null,"decided_by": string | null,"decision": string | null,"id": string,"installment_id": string,"note": string | null,"payment_id": string | null,"proof_path": string | null,"school_id": string,"sent_at": string,"seq": number,"student_id": string,"subscription_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "decided_at"?: string | null,"decided_by"?: string | null,"decision"?: string | null,"id"?: string,"installment_id": string,"note"?: string | null,"proof_path"?: string | null,"school_id": string,"sent_at"?: string,"seq": number,"student_id": string,"subscription_id": string
+                    "decided_at"?: string | null,"decided_by"?: string | null,"decision"?: string | null,"id"?: string,"installment_id": string,"note"?: string | null,"payment_id"?: string | null,"proof_path"?: string | null,"school_id": string,"sent_at"?: string,"seq": number,"student_id": string,"subscription_id": string
                   }
                   Update: {
-                    "decided_at"?: string | null,"decided_by"?: string | null,"decision"?: string | null,"id"?: string,"installment_id"?: string,"note"?: string | null,"proof_path"?: string | null,"school_id"?: string,"sent_at"?: string,"seq"?: number,"student_id"?: string,"subscription_id"?: string
+                    "decided_at"?: string | null,"decided_by"?: string | null,"decision"?: string | null,"id"?: string,"installment_id"?: string,"note"?: string | null,"payment_id"?: string | null,"proof_path"?: string | null,"school_id"?: string,"sent_at"?: string,"seq"?: number,"student_id"?: string,"subscription_id"?: string
                   }
                   Relationships: [
                     {
@@ -164,6 +210,12 @@ isOneToOne: false
       columns: ["installment_id"]
 isOneToOne: false
       referencedRelation: "subscription_installments"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "installment_receipts_payment_id_fkey"
+      columns: ["payment_id"]
+isOneToOne: false
+      referencedRelation: "payments"
       referencedColumns: ["id"]
     },{
       foreignKeyName: "installment_receipts_school_id_fkey"
@@ -248,6 +300,76 @@ isOneToOne: false
       columns: ["user_id"]
 isOneToOne: true
       referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"payments": {
+                  Row: {
+                    "amount_xaf": number,"checks": number,"completed_at": string | null,"created_at": string,"currency": string,"est_cost_xaf": number,"failure_code": string | null,"failure_message": string | null,"fee_xaf": number,"id": string,"installment_id": string | null,"invoice_id": string | null,"item_key": string,"last_checked_at": string | null,"outcome": string | null,"paid_by": string,"payer_masked": string,"provider": string,"provider_fee_xaf": number | null,"provider_txn": string | null,"purpose": string,"receipt_no": string | null,"school_id": string,"school_pays_costs": boolean,"status": string,"subscription_id": string | null,"total_xaf": number | null,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount_xaf": number,"checks"?: number,"completed_at"?: string | null,"created_at"?: string,"currency"?: string,"est_cost_xaf"?: number,"failure_code"?: string | null,"failure_message"?: string | null,"fee_xaf": number,"id"?: string,"installment_id"?: string | null,"invoice_id"?: string | null,"item_key": string,"last_checked_at"?: string | null,"outcome"?: string | null,"paid_by": string,"payer_masked": string,"provider": string,"provider_fee_xaf"?: number | null,"provider_txn"?: string | null,"purpose": string,"receipt_no"?: string | null,"school_id": string,"school_pays_costs"?: boolean,"status"?: string,"subscription_id"?: string | null,"total_xaf"?: never,"updated_at"?: string
+                  }
+                  Update: {
+                    "amount_xaf"?: number,"checks"?: number,"completed_at"?: string | null,"created_at"?: string,"currency"?: string,"est_cost_xaf"?: number,"failure_code"?: string | null,"failure_message"?: string | null,"fee_xaf"?: number,"id"?: string,"installment_id"?: string | null,"invoice_id"?: string | null,"item_key"?: string,"last_checked_at"?: string | null,"outcome"?: string | null,"paid_by"?: string,"payer_masked"?: string,"provider"?: string,"provider_fee_xaf"?: number | null,"provider_txn"?: string | null,"purpose"?: string,"receipt_no"?: string | null,"school_id"?: string,"school_pays_costs"?: boolean,"status"?: string,"subscription_id"?: string | null,"total_xaf"?: never,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "payments_installment_id_fkey"
+      columns: ["installment_id"]
+isOneToOne: false
+      referencedRelation: "subscription_installments"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payments_invoice_id_fkey"
+      columns: ["invoice_id"]
+isOneToOne: false
+      referencedRelation: "busin_invoices"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payments_paid_by_fkey"
+      columns: ["paid_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payments_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payments_subscription_id_school_id_fkey"
+      columns: ["subscription_id","school_id"]
+isOneToOne: false
+      referencedRelation: "subscriptions"
+      referencedColumns: ["id","school_id"]
+    }
+                  ]
+                },"payouts": {
+                  Row: {
+                    "account_id": string,"amount_xaf": number,"completed_at": string | null,"created_at": string,"failure_code": string | null,"id": string,"phone_masked": string,"provider": string,"provider_txn": string | null,"school_id": string,"status": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "account_id": string,"amount_xaf": number,"completed_at"?: string | null,"created_at"?: string,"failure_code"?: string | null,"id"?: string,"phone_masked": string,"provider": string,"provider_txn"?: string | null,"school_id": string,"status"?: string,"updated_at"?: string
+                  }
+                  Update: {
+                    "account_id"?: string,"amount_xaf"?: number,"completed_at"?: string | null,"created_at"?: string,"failure_code"?: string | null,"id"?: string,"phone_masked"?: string,"provider"?: string,"provider_txn"?: string | null,"school_id"?: string,"status"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "payouts_account_id_fkey"
+      columns: ["account_id"]
+isOneToOne: false
+      referencedRelation: "school_payout_accounts"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payouts_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
       referencedColumns: ["id"]
     }
                   ]
@@ -366,6 +488,50 @@ isOneToOne: false
       columns: ["school_id"]
 isOneToOne: false
       referencedRelation: "schools"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"refunds": {
+                  Row: {
+                    "amount_xaf": number,"completed_at": string | null,"decided_at": string | null,"decided_by": string | null,"decision_note": string | null,"failure_code": string | null,"fee_xaf": number,"id": string,"kind": string,"payment_id": string,"provider_txn": string | null,"reason": string | null,"receipt_no": string | null,"requested_at": string,"requested_by": string | null,"school_id": string,"status": string,"student_id": string,"total_xaf": number | null,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount_xaf": number,"completed_at"?: string | null,"decided_at"?: string | null,"decided_by"?: string | null,"decision_note"?: string | null,"failure_code"?: string | null,"fee_xaf"?: number,"id"?: string,"kind": string,"payment_id": string,"provider_txn"?: string | null,"reason"?: string | null,"receipt_no"?: string | null,"requested_at"?: string,"requested_by"?: string | null,"school_id": string,"status"?: string,"student_id": string,"total_xaf"?: never,"updated_at"?: string
+                  }
+                  Update: {
+                    "amount_xaf"?: number,"completed_at"?: string | null,"decided_at"?: string | null,"decided_by"?: string | null,"decision_note"?: string | null,"failure_code"?: string | null,"fee_xaf"?: number,"id"?: string,"kind"?: string,"payment_id"?: string,"provider_txn"?: string | null,"reason"?: string | null,"receipt_no"?: string | null,"requested_at"?: string,"requested_by"?: string | null,"school_id"?: string,"status"?: string,"student_id"?: string,"total_xaf"?: never,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "refunds_decided_by_fkey"
+      columns: ["decided_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "refunds_payment_id_fkey"
+      columns: ["payment_id"]
+isOneToOne: false
+      referencedRelation: "payments"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "refunds_requested_by_fkey"
+      columns: ["requested_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "refunds_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "refunds_student_id_fkey"
+      columns: ["student_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
       referencedColumns: ["id"]
     }
                   ]
@@ -505,6 +671,56 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"school_ledger": {
+                  Row: {
+                    "amount_xaf": number,"available_at": string,"charge_id": string | null,"created_at": string,"id": number,"invoice_id": string | null,"kind": string,"note": string | null,"payment_id": string | null,"payout_id": string | null,"refund_id": string | null,"school_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount_xaf": number,"available_at"?: string,"charge_id"?: string | null,"created_at"?: string,"id"?: never,"invoice_id"?: string | null,"kind": string,"note"?: string | null,"payment_id"?: string | null,"payout_id"?: string | null,"refund_id"?: string | null,"school_id": string
+                  }
+                  Update: {
+                    "amount_xaf"?: number,"available_at"?: string,"charge_id"?: string | null,"created_at"?: string,"id"?: never,"invoice_id"?: string | null,"kind"?: string,"note"?: string | null,"payment_id"?: string | null,"payout_id"?: string | null,"refund_id"?: string | null,"school_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "school_ledger_charge_id_fkey"
+      columns: ["charge_id"]
+isOneToOne: false
+      referencedRelation: "busin_charges"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "school_ledger_invoice_id_fkey"
+      columns: ["invoice_id"]
+isOneToOne: false
+      referencedRelation: "busin_invoices"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "school_ledger_payment_id_fkey"
+      columns: ["payment_id"]
+isOneToOne: false
+      referencedRelation: "payments"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "school_ledger_payout_id_fkey"
+      columns: ["payout_id"]
+isOneToOne: false
+      referencedRelation: "payouts"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "school_ledger_refund_id_fkey"
+      columns: ["refund_id"]
+isOneToOne: false
+      referencedRelation: "refunds"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "school_ledger_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"school_notices": {
                   Row: {
                     "body": string,"created_at": string,"created_by": string,"dismissed_at": string | null,"dismissed_by": string | null,"expires_at": string,"id": string,"link_path": string | null,"school_id": string,"signals": (string)[]
@@ -531,16 +747,48 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"schools": {
+                },"school_payout_accounts": {
                   Row: {
-                    "about": string | null,"accepts_open_signup": boolean,"address": string | null,"allow_field_trips": boolean,"billing_period": string | null,"campus_location": unknown,"campus_name": string | null,"city": string | null,"contact_email": string | null,"country": string | null,"created_at": string,"currency": string,"id": string,"installment_plan": string | null,"logo_path": string | null,"name": string,"open_signup_domains": (string)[],"phone": string | null,"phone_secondary": string | null,"price_xaf": number | null,"public_listing": boolean,"short_name": string | null,"status": string,"terms_accepted_at": string | null,"terms_accepted_by": string | null,"terms_version": string | null,"timezone": string,"website": string | null
+                    "account_name": string | null,"confirmed_at": string | null,"confirmed_by": string | null,"id": string,"phone": string,"proposed_at": string,"proposed_by": string | null,"provider": string,"retired_at": string | null,"school_id": string,"status": string,"usable_from": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "about"?: string | null,"accepts_open_signup"?: boolean,"address"?: string | null,"allow_field_trips"?: boolean,"billing_period"?: string | null,"campus_location"?: unknown,"campus_name"?: string | null,"city"?: string | null,"contact_email"?: string | null,"country"?: string | null,"created_at"?: string,"currency"?: string,"id"?: string,"installment_plan"?: string | null,"logo_path"?: string | null,"name": string,"open_signup_domains"?: (string)[],"phone"?: string | null,"phone_secondary"?: string | null,"price_xaf"?: number | null,"public_listing"?: boolean,"short_name"?: string | null,"status"?: string,"terms_accepted_at"?: string | null,"terms_accepted_by"?: string | null,"terms_version"?: string | null,"timezone"?: string,"website"?: string | null
+                    "account_name"?: string | null,"confirmed_at"?: string | null,"confirmed_by"?: string | null,"id"?: string,"phone": string,"proposed_at"?: string,"proposed_by"?: string | null,"provider": string,"retired_at"?: string | null,"school_id": string,"status"?: string,"usable_from"?: string | null
                   }
                   Update: {
-                    "about"?: string | null,"accepts_open_signup"?: boolean,"address"?: string | null,"allow_field_trips"?: boolean,"billing_period"?: string | null,"campus_location"?: unknown,"campus_name"?: string | null,"city"?: string | null,"contact_email"?: string | null,"country"?: string | null,"created_at"?: string,"currency"?: string,"id"?: string,"installment_plan"?: string | null,"logo_path"?: string | null,"name"?: string,"open_signup_domains"?: (string)[],"phone"?: string | null,"phone_secondary"?: string | null,"price_xaf"?: number | null,"public_listing"?: boolean,"short_name"?: string | null,"status"?: string,"terms_accepted_at"?: string | null,"terms_accepted_by"?: string | null,"terms_version"?: string | null,"timezone"?: string,"website"?: string | null
+                    "account_name"?: string | null,"confirmed_at"?: string | null,"confirmed_by"?: string | null,"id"?: string,"phone"?: string,"proposed_at"?: string,"proposed_by"?: string | null,"provider"?: string,"retired_at"?: string | null,"school_id"?: string,"status"?: string,"usable_from"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "school_payout_accounts_confirmed_by_fkey"
+      columns: ["confirmed_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "school_payout_accounts_proposed_by_fkey"
+      columns: ["proposed_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "school_payout_accounts_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"schools": {
+                  Row: {
+                    "about": string | null,"accepts_open_signup": boolean,"address": string | null,"allow_field_trips": boolean,"billing_period": string | null,"campus_location": unknown,"campus_name": string | null,"city": string | null,"contact_email": string | null,"country": string | null,"created_at": string,"currency": string,"fees_paid_by": string,"id": string,"installment_plan": string | null,"logo_path": string | null,"name": string,"open_signup_domains": (string)[],"phone": string | null,"phone_secondary": string | null,"price_xaf": number | null,"public_listing": boolean,"short_name": string | null,"status": string,"terms_accepted_at": string | null,"terms_accepted_by": string | null,"terms_version": string | null,"timezone": string,"website": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "about"?: string | null,"accepts_open_signup"?: boolean,"address"?: string | null,"allow_field_trips"?: boolean,"billing_period"?: string | null,"campus_location"?: unknown,"campus_name"?: string | null,"city"?: string | null,"contact_email"?: string | null,"country"?: string | null,"created_at"?: string,"currency"?: string,"fees_paid_by"?: string,"id"?: string,"installment_plan"?: string | null,"logo_path"?: string | null,"name": string,"open_signup_domains"?: (string)[],"phone"?: string | null,"phone_secondary"?: string | null,"price_xaf"?: number | null,"public_listing"?: boolean,"short_name"?: string | null,"status"?: string,"terms_accepted_at"?: string | null,"terms_accepted_by"?: string | null,"terms_version"?: string | null,"timezone"?: string,"website"?: string | null
+                  }
+                  Update: {
+                    "about"?: string | null,"accepts_open_signup"?: boolean,"address"?: string | null,"allow_field_trips"?: boolean,"billing_period"?: string | null,"campus_location"?: unknown,"campus_name"?: string | null,"city"?: string | null,"contact_email"?: string | null,"country"?: string | null,"created_at"?: string,"currency"?: string,"fees_paid_by"?: string,"id"?: string,"installment_plan"?: string | null,"logo_path"?: string | null,"name"?: string,"open_signup_domains"?: (string)[],"phone"?: string | null,"phone_secondary"?: string | null,"price_xaf"?: number | null,"public_listing"?: boolean,"short_name"?: string | null,"status"?: string,"terms_accepted_at"?: string | null,"terms_accepted_by"?: string | null,"terms_version"?: string | null,"timezone"?: string,"website"?: string | null
                   }
                   Relationships: [
                     
@@ -721,14 +969,14 @@ isOneToOne: false
                   ]
                 },"subscriptions": {
                   Row: {
-                    "amount_xaf": number | null,"billing_period": string | null,"created_at": string,"id": string,"installment_plan": string | null,"payment_mode": string,"period_end": string | null,"period_start": string | null,"proof_path": string | null,"review_note": string | null,"reviewed_at": string | null,"reviewed_by": string | null,"school_id": string,"semester_id": string,"status": Database["public"]['Enums']["subscription_status"],"stop_id": string,"student_id": string,"updated_at": string
+                    "amount_xaf": number | null,"billing_period": string | null,"charge_xaf": number | null,"created_at": string,"id": string,"installment_plan": string | null,"payment_method": string,"payment_mode": string,"period_end": string | null,"period_start": string | null,"proof_path": string | null,"review_note": string | null,"reviewed_at": string | null,"reviewed_by": string | null,"school_id": string,"semester_id": string,"status": Database["public"]['Enums']["subscription_status"],"stop_id": string,"student_id": string,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "amount_xaf"?: number | null,"billing_period"?: string | null,"created_at"?: string,"id"?: string,"installment_plan"?: string | null,"payment_mode"?: string,"period_end"?: string | null,"period_start"?: string | null,"proof_path"?: string | null,"review_note"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"school_id": string,"semester_id": string,"status"?: Database["public"]['Enums']["subscription_status"],"stop_id": string,"student_id": string,"updated_at"?: string
+                    "amount_xaf"?: number | null,"billing_period"?: string | null,"charge_xaf"?: number | null,"created_at"?: string,"id"?: string,"installment_plan"?: string | null,"payment_method"?: string,"payment_mode"?: string,"period_end"?: string | null,"period_start"?: string | null,"proof_path"?: string | null,"review_note"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"school_id": string,"semester_id": string,"status"?: Database["public"]['Enums']["subscription_status"],"stop_id": string,"student_id": string,"updated_at"?: string
                   }
                   Update: {
-                    "amount_xaf"?: number | null,"billing_period"?: string | null,"created_at"?: string,"id"?: string,"installment_plan"?: string | null,"payment_mode"?: string,"period_end"?: string | null,"period_start"?: string | null,"proof_path"?: string | null,"review_note"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"school_id"?: string,"semester_id"?: string,"status"?: Database["public"]['Enums']["subscription_status"],"stop_id"?: string,"student_id"?: string,"updated_at"?: string
+                    "amount_xaf"?: number | null,"billing_period"?: string | null,"charge_xaf"?: number | null,"created_at"?: string,"id"?: string,"installment_plan"?: string | null,"payment_method"?: string,"payment_mode"?: string,"period_end"?: string | null,"period_start"?: string | null,"proof_path"?: string | null,"review_note"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"school_id"?: string,"semester_id"?: string,"status"?: Database["public"]['Enums']["subscription_status"],"stop_id"?: string,"student_id"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -940,6 +1188,9 @@ isOneToOne: false
 "admin_set_campus":
 { Args: { "p_lat": number,"p_lng": number,"p_name": string }; Returns: undefined
                            },
+"admin_set_fees_paid_by":
+{ Args: { "p_who": string }; Returns: undefined
+                           },
 "admin_set_field_trips":
 { Args: { "p_allowed": boolean }; Returns: undefined
                            },
@@ -993,6 +1244,9 @@ isOneToOne: false
                            },
 "am_platform_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
+                           },
+"attach_subscription_proof":
+{ Args: { "p_path": string,"p_subscription": string }; Returns: undefined
                            },
 "can_follow_buses":
 { Args: Record<PropertyKey, never>; Returns: boolean
@@ -1095,6 +1349,16 @@ isOneToOne: false
               "as_assistant": number,"as_driver": number,"avg_delay_minutes": number,"boarded": number,"cancelled": number,"completed": number,"field_trips": number,"late": number,"minutes_on_road": number,"missed": number,"on_time": number,"trips": number,"week_start": string
             }[]
                            },
+"payment_quote":
+{ Args: { "p_provider"?: string,"p_purpose": string,"p_target": string }; Returns: {
+              "amount_xaf": number,"currency": string,"fee_xaf": number,"provider": string,"total_xaf": number
+            }[]
+                           },
+"payments_to_check":
+{ Args: { "p_limit"?: number }; Returns: {
+              "created_at": string,"id": string,"status": string
+            }[]
+                           },
 "place_import_box":
 { Args: { "p_school_id": string }; Returns: {
               "east": number,"north": number,"south": number,"west": number
@@ -1170,6 +1434,11 @@ isOneToOne: false
 "platform_update_lead":
 { Args: { "p_lead_id": string,"p_note"?: string,"p_school_id"?: string,"p_status": string }; Returns: undefined
                            },
+"price_breakdown":
+{ Args: { "p_price"?: number }; Returns: {
+              "busin_charge": number,"method": string,"school_receives": number,"student_pays": number,"transaction_cost": number
+            }[]
+                           },
 "public_schools":
 { Args: Record<PropertyKey, never>; Returns: {
               "city": string,"country": string,"id": string,"logo_path": string,"name": string,"short_name": string
@@ -1199,6 +1468,11 @@ isOneToOne: false
 "route_waypoints":
 { Args: { "p_extra_afters"?: (number)[],"p_extra_lats"?: (number)[],"p_extra_lngs"?: (number)[],"p_extra_names"?: (string)[],"p_stop_ids"?: (string)[] }; Returns: {
               "id": string,"kind": string,"lat": number,"lng": number,"name": string,"route_hash": string,"seq": number
+            }[]
+                           },
+"school_balance":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "available_xaf": number,"on_hold_xaf": number,"owed_xaf": number
             }[]
                            },
 "school_leaderboard":
@@ -1231,6 +1505,9 @@ isOneToOne: false
 "set_streak_opt_in":
 { Args: { "p_on": boolean }; Returns: undefined
                            },
+"settle_payment":
+{ Args: { "p_amount"?: string,"p_currency"?: string,"p_failure_code"?: string,"p_failure_message"?: string,"p_id": string,"p_provider_txn"?: string,"p_status": string }; Returns: Json
+                           },
 "staff_day_keys":
 { Args: Record<PropertyKey, never>; Returns: {
               "avatar_url": string,"day": string,"day_key": string,"full_name": string,"matricule": string,"stop_id": string,"student_id": string
@@ -1238,6 +1515,11 @@ isOneToOne: false
                            },
 "start_field_trip":
 { Args: { "p_bus_id": string,"p_direction": Database["public"]['Enums']["trip_direction"],"p_other_id"?: string,"p_role": string }; Returns: string
+                           },
+"start_payment":
+{ Args: { "p_phone": string,"p_provider": string,"p_purpose": string,"p_target": string }; Returns: {
+              "amount_xaf": number,"currency": string,"fee_xaf": number,"id": string,"provider": string,"total_xaf": number
+            }[]
                            },
 "start_trip":
 { Args: { "p_trip_id": string }; Returns: undefined

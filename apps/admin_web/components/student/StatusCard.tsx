@@ -24,6 +24,7 @@ export function StatusCard({
   proofUrl,
   requestAgainHref,
   parts = null,
+  payment = null,
 }: {
   copy: StudentCopy["subscription"];
   subscription: SubscriptionRow;
@@ -33,10 +34,13 @@ export function StatusCard({
   requestAgainHref: string | null;
   /** Paid in installments (ADR 0022): the parts, shown under the stop. */
   parts?: ReactNode;
+  /** A pending request made to pay by mobile money (ADR 0029): paying it, or where its payment stands. */
+  payment?: ReactNode;
 }) {
   const status = subscription.status;
-  const title = { pending: copy.pendingTitle, approved: copy.approvedTitle, rejected: copy.rejectedTitle, revoked: copy.revokedTitle, expired: copy.expiredTitle }[status];
-  const body = status === "pending" ? copy.pendingBody : status === "approved" ? format(copy.approvedBody, { stop: stopName }) : status === "expired" ? copy.expiredBody : null;
+  const awaitingPayment = status === "pending" && subscription.payment_method === "mobile_money";
+  const title = awaitingPayment ? copy.pay.awaitingTitle : { pending: copy.pendingTitle, approved: copy.approvedTitle, rejected: copy.rejectedTitle, revoked: copy.revokedTitle, expired: copy.expiredTitle }[status];
+  const body = awaitingPayment ? copy.pay.awaitingBody : status === "pending" ? copy.pendingBody : status === "approved" ? format(copy.approvedBody, { stop: stopName }) : status === "expired" ? copy.expiredBody : null;
   const { reached, failed } = stageOf(status);
   const stages = [copy.stages.sent, copy.stages.checking, copy.stages.decided];
 
@@ -83,6 +87,7 @@ export function StatusCard({
           <p className="m-0 max-w-40 text-xs text-muted">{copy.proofUnavailable}</p>
         ) : null}
       </div>
+      {payment}
       {parts}
       {status === "approved" ? (
         <Link href="/app/code" className="inline-flex h-14 items-center justify-center gap-2 rounded-sm bg-accent px-5 font-semibold text-on-accent no-underline focus-visible:outline-3 focus-visible:outline-focus">

@@ -16,15 +16,19 @@ import type { StudentCopy } from "@/lib/i18n/student";
 import { prepareProof } from "@/lib/student/proof-image";
 import type { LatLng } from "@/lib/geo";
 import { closestStop, proofPath, stopsWithDistance, subscribeProblem, uploadProblem, type RankedStop, type SubscribeProblem } from "@/lib/student/subscription";
+import { linesFromBreakdown, normalizeCameroonPhone, receiptPrice, type BreakdownRow, type PriceLines, type Provider } from "@/lib/student/mobile-money";
+import { startMobileMoneyPayment } from "@/lib/student/payments";
 import { setPaymentPreference } from "@/lib/student/settings";
 import { browserClient } from "@/lib/supabase/browser";
 import { Contour } from "@/components/ui/Contour";
 
+import { MobileMoneyNumber, PriceSummary, effectiveOperator } from "./MobileMoneyFields";
 import { Sheet } from "./Sheet";
 
 export type StopOption = { id: string; name: string; position: LatLng | null };
 export type Billing = { period: BillingPeriod; price: number; plan: InstallmentPlan | null; currency: string };
 type Mode = "full" | "installments";
+type Method = "mobile" | "receipt";
 
 /** A row of exclusive choices, as the app's segmented control: one radio group, the chosen one raised. */
 function Choices<T extends string>({ label, value, options, onChange, disabled }: { label: string; value: T | null; options: { value: T; label: string }[]; onChange: (value: T) => void; disabled?: boolean }) {
@@ -94,6 +98,10 @@ function PickerField({ label, value, placeholder, icon, onClick, disabled }: { l
  * The request form, as in the app: a stop, a photo of the payment receipt, and Send. Nothing is sent until both are
  * chosen. The photo goes straight from the browser to the student's own folder in the private bucket, then the request
  * names it; the server checks the rest (the semester is open, the photo exists, one live request per semester).
+ *
+ * Where the school takes mobile money (ADR 0029), the student first chooses how they pay, mobile money by default: then
+ * there is no photo but their number, with its network and what paying comes to. Send makes the request without a
+ * receipt, then starts the payment through the server; the subscription page follows it from there (and after a reload).
  */
 export function SubscribeForm({
   copy,
@@ -110,6 +118,9 @@ export function SubscribeForm({
   today,
   semesterStart,
   semesterEnd,
+  breakdown = [],
+  operators = [],
+  phone: initialPhone = "",
 }: {
   copy: StudentCopy["subscription"];
   semesterId: string;
@@ -131,6 +142,12 @@ export function SubscribeForm({
   today: string;
   semesterStart: string;
   semesterEnd: string;
+  /** What each way of paying comes to (`price_breakdown`): a receipt, and each network when mobile money is offered. */
+  breakdown?: BreakdownRow[];
+  /** The networks the school takes mobile money with; none: receipts only, as before. */
+  operators?: Provider[];
+  /** The student's number, written the local way, to start the mobile money field with. */
+  phone?: string;
 }) {
   const router = useRouter();
   const monthly = billing?.period === "month";
@@ -138,6 +155,15 @@ export function SubscribeForm({
   // Installments only while the parts can be two weeks apart before the semester ends (ADR 0022); later, in full.
   const offers = plan !== null && installmentsFit(plan, today, semesterStart, semesterEnd);
   const tooLate = plan !== null && !offers;
+  // What a receipt pays: the school's price, with BusIn's charge when the school passes it on.
+  const price = receiptPrice(breakdown) ?? billing?.price ?? 0;
+  const mobileOffered = operators.length > 0;
+  const [method, setMethod] = useState<Method>(mobileOffered ? "mobile" : "receipt");
+  const mobile = mobileOffered && method === "mobile";
+  const [phone, setPhone] = useState(initialPhone);
+  const [chosen, setChosen] = useState<Provider | null>(null);
+  const [stage, setStage] = useState<"sending" | "asking" | null>(null);
+  const [next, setNext] = useState("/app/subscription");
   const [month, setMonth] = useState<string | null>(initialMonth && months.includes(initialMonth) ? initialMonth : (months[0] ?? null));
   // The saved way of paying, or In full: the student may switch.
   const [mode, setMode] = useState<Mode>(preference ?? "full");
@@ -152,8 +178,8 @@ export function SubscribeForm({
       .join(", ");
   };
   const monthName = (day: string) => new Intl.DateTimeFormat(locale, { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${day}T00:00:00Z`));
-  const done = () => {
-    router.replace("/app/subscription");
+  const done = (to = next) => {
+    router.replace(to);
     router.refresh();
   };
   const fileInput = useRef<HTMLInputElement>(null);
@@ -185,6 +211,7 @@ export function SubscribeForm({
   };
 
   const submit = async () => {
+    if (mobile) return submitMobile();
     if (!stop || !proof || !billing) return;
     if (!navigator.onLine) {
       setProblem("offline");
@@ -224,6 +251,59 @@ export function SubscribeForm({
     done();
   };
 
+  // Mobile money: the request without a receipt, then the payment. Whatever starting answers, the request exists: the
+  // subscription page shows where it stands, and a refusal is handed over in the address to be said there.
+  const submitMobile = async () => {
+    if (!stop || !billing || !normalizeCameroonPhone(phone)) return;
+    if (!navigator.onLine) {
+      setProblem("offline");
+      return;
+    }
+    setBusy(true);
+    setStage("sending");
+    setProblem(null);
+    const paying: Mode = offers ? mode : "full";
+    const { data, error } = await browserClient()
+      .from("subscriptions")
+      .insert({
+        school_id: schoolId,
+        student_id: studentId,
+        semester_id: semesterId,
+        stop_id: stop.id,
+        payment_mode: paying,
+        payment_method: "mobile_money",
+        ...(monthly && month ? { period_start: month } : {}),
+      })
+      .select("id")
+      .single();
+    if (error || !data) {
+      setBusy(false);
+      setStage(null);
+      setProblem(error ? subscribeProblem(error) : "failed");
+      return;
+    }
+    setStage("asking");
+    const started = await startMobileMoneyPayment({ purpose: "subscription", target: data.id, phone, provider: chosen });
+    const to = started.ok ? "/app/subscription" : `/app/subscription?pay_error=${started.error}`;
+    if (offers && preference === null && paying === "installments") {
+      setNext(to);
+      setAsking(paying);
+      return;
+    }
+    done(to);
+  };
+
+  const operator = effectiveOperator(phone, chosen);
+  const fullLines: Partial<Record<Provider, PriceLines>> = {};
+  for (const p of operators) {
+    const l = linesFromBreakdown(breakdown, p);
+    if (l) fullLines[p] = l;
+  }
+  const installmentsNow = offers && mode === "installments" && plan;
+  const phoneOk = normalizeCameroonPhone(phone) !== null;
+  const operatorOff = operator !== null && !operators.includes(operator);
+  const ready = Boolean(stop) && Boolean(billing) && !(monthly && !month) && (mobile ? phoneOk && !operatorOff : Boolean(proof));
+
   const stopRow = (r: RankedStop<StopOption>, suggested: boolean) => (
     <li key={r.stop.id}>
       <button
@@ -252,10 +332,10 @@ export function SubscribeForm({
     <section className="flex flex-col gap-4 relative rounded-lg bg-surface p-5 shadow-soft" aria-labelledby="subscribe-intro">
       <Contour radius={28} inset={10} />
       <p id="subscribe-intro" className="m-0 text-muted">
-        {copy.intro}
+        {mobileOffered ? copy.pay.introMobile : copy.intro}
       </p>
       {billing ? (
-        <p className="m-0 text-lg font-bold">{format(monthly ? copy.priceMonth : copy.priceSemester, { price: money(billing.price) })}</p>
+        <p className="m-0 text-lg font-bold">{format(monthly ? copy.priceMonth : copy.priceSemester, { price: money(price) })}</p>
       ) : (
         <Notice tone="warn">{copy.billingNotSet}</Notice>
       )}
@@ -275,12 +355,40 @@ export function SubscribeForm({
             disabled={busy}
           />
           <p className="m-0 text-sm text-muted" data-testid="payment-note">
-            {mode === "installments" ? format(copy.installmentsNote, { parts: schedule(plan!, billing.price) }) : format(copy.fullNote, { amount: money(billing.price) })}
+            {mode === "installments" ? format(copy.installmentsNote, { parts: schedule(plan!, price) }) : format(copy.fullNote, { amount: money(price) })}
           </p>
         </div>
       ) : null}
       {tooLate && billing ? <Notice tone="info">{format(copy.installmentsTooLate, { days: minDaysFor(plan!) })}</Notice> : null}
       <PickerField label={copy.stopLabel} value={stop?.name ?? null} placeholder={copy.stopHint} icon={Location01Icon} onClick={() => setPicking(true)} disabled={busy} />
+      {mobileOffered && billing ? (
+        <Choices<Method>
+          label={copy.pay.methodLabel}
+          value={method}
+          options={[
+            { value: "mobile", label: copy.pay.methodMobile },
+            { value: "receipt", label: copy.pay.methodReceipt },
+          ]}
+          onChange={setMethod}
+          disabled={busy}
+        />
+      ) : null}
+      {mobile ? (
+        <div className="flex flex-col gap-3">
+          <MobileMoneyNumber copy={copy.pay} value={phone} onChange={setPhone} chosen={chosen} onChoose={setChosen} operators={operators} disabled={busy} />
+          {installmentsNow ? (
+            <>
+              <dl className="m-0 flex items-baseline justify-between gap-3 rounded-md bg-surface-2 p-4 text-sm" data-testid="price-lines">
+                <dt className="font-bold">{copy.pay.partNow}</dt>
+                <dd className="m-0 font-bold tabular-nums">{money(splitAmount(price, installmentsNow)[0])}</dd>
+              </dl>
+              <p className="m-0 text-sm text-muted">{copy.pay.feeLater}</p>
+            </>
+          ) : (
+            <PriceSummary copy={copy.pay} amountLabel={copy.pay.price} operator={operator} lines={fullLines} locale={locale} currency={billing?.currency ?? "XAF"} />
+          )}
+        </div>
+      ) : (
       <div className="flex flex-col gap-2">
         <PickerField label={copy.proofLabel} value={proof ? copy.proofAdded : null} placeholder={copy.proofHint} icon={Camera01Icon} onClick={() => fileInput.current?.click()} disabled={busy} />
         <input
@@ -306,12 +414,13 @@ export function SubscribeForm({
           {copy.proofPrivacy}
         </p>
       </div>
+      )}
       {problem ? <Notice tone="bad">{copy.errors[problem]}</Notice> : null}
-      <Button type="button" className="h-14 w-full text-base" disabled={!stop || !proof || busy || !billing || (monthly && !month)} onClick={submit}>
-        {busy ? copy.sending : copy.submit}
+      <Button type="button" className="h-14 w-full text-base" disabled={!ready || busy} onClick={submit}>
+        {busy ? (stage === "asking" ? copy.pay.asking : stage === "sending" ? copy.pay.sending : copy.sending) : mobile ? copy.pay.submit : copy.submit}
       </Button>
 
-      <Sheet open={asking !== null} onClose={done} label={copy.preference.title} placement="bottom">
+      <Sheet open={asking !== null} onClose={() => done()} label={copy.preference.title} placement="bottom">
         <div className="relative flex flex-col gap-4 px-7 pt-6 pb-2" data-testid="preference-sheet">
           <h2 className="m-0 text-xl font-extrabold tracking-tight">{copy.preference.title}</h2>
           <p className="m-0 text-muted">{format(copy.preference.body, { mode: asking === "installments" ? copy.paymentInstallments : copy.paymentFull })}</p>
@@ -324,7 +433,7 @@ export function SubscribeForm({
           >
             {copy.preference.save}
           </Button>
-          <Button variant="ghost" className="h-12 w-full" onClick={done}>
+          <Button variant="ghost" className="h-12 w-full" onClick={() => done()}>
             {copy.preference.notNow}
           </Button>
         </div>

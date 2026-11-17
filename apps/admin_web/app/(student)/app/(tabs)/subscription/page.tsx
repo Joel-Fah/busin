@@ -8,6 +8,9 @@ import { LiveSubscriptions } from "@/components/student/LiveSubscriptions";
 import { PushOptIn } from "@/components/student/PushOptIn";
 import { RequestHistory } from "@/components/student/RequestHistory";
 import { InstallmentParts } from "@/components/student/InstallmentParts";
+import { MobileMoneyPay } from "@/components/student/MobileMoneyPay";
+import { PaymentReceipts } from "@/components/student/PaymentReceipts";
+import { ReceiptInstead } from "@/components/student/ReceiptInstead";
 import { StatusCard } from "@/components/student/StatusCard";
 import { SubscribeForm } from "@/components/student/SubscribeForm";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -18,6 +21,7 @@ import { firstName, greetingFor } from "@/lib/overview";
 import { requireStudent } from "@/lib/student/session";
 import { schoolBilling, type InstallmentRow } from "@/lib/billing";
 import { parsePoint } from "@/lib/geo";
+import { PAYMENT_COLUMNS, isStartError, latestByItem, offeredOperators, prefillPhone, receiptsOf, type BreakdownRow, type PaymentRow } from "@/lib/student/mobile-money";
 import { buildRequestHistory, isLive, liveRequests, monthChoices, subscriptionToShow, type ReceiptRow, type SubscriptionEvent, type SubscriptionRow } from "@/lib/student/subscription";
 import { createClient } from "@/lib/supabase/server";
 import { todayInZone } from "@/lib/zoned";
@@ -25,7 +29,7 @@ import { todayInZone } from "@/lib/zoned";
 export const metadata: Metadata = { title: "Subscription" };
 export const instant = false;
 
-type SearchParams = Promise<{ again?: string | string[]; month?: string | string[] }>;
+type SearchParams = Promise<{ again?: string | string[]; month?: string | string[]; pay_error?: string | string[] }>;
 
 function Loading() {
   return (
@@ -45,7 +49,7 @@ export default function SubscriptionPage({ searchParams }: { searchParams: Searc
 }
 
 const SEMESTER_COLUMNS = "id, name, year, start_date, end_date";
-const SUBSCRIPTION_COLUMNS = "id, semester_id, stop_id, status, proof_path, review_note, created_at, payment_mode, period_start, period_end, amount_xaf, installment_plan";
+const SUBSCRIPTION_COLUMNS = "id, semester_id, stop_id, status, proof_path, review_note, created_at, payment_mode, period_start, period_end, amount_xaf, installment_plan, payment_method";
 
 /**
  * The first tab, as in the app: a banner that greets the student and names the semester (the current one, else the next),
@@ -59,13 +63,18 @@ async function Subscription({ searchParams }: { searchParams: SearchParams }) {
   const now = new Date();
   const today = todayInZone(student.schoolTimezone, now);
 
-  const [current, mine, school, me] = await Promise.all([
+  const [current, mine, school, me, prices] = await Promise.all([
     supabase.from("semesters").select(SEMESTER_COLUMNS).lte("start_date", today).gte("end_date", today).order("start_date", { ascending: false }).limit(1).maybeSingle(),
     supabase.from("subscriptions").select(SUBSCRIPTION_COLUMNS).eq("student_id", student.userId).order("created_at", { ascending: false }).limit(20),
     // The school's billing and the student's preferred way of paying (ADR 0022).
     supabase.from("schools").select("billing_period, price_xaf, installment_plan, currency").eq("id", student.schoolId).maybeSingle(),
     supabase.from("profiles").select("payment_preference").eq("id", student.userId).maybeSingle(),
+    // What each way of paying comes to; a row per network only where the school takes mobile money (ADR 0029).
+    supabase.rpc("price_breakdown", {}),
   ]);
+  const breakdown = (prices.data ?? []) as BreakdownRow[];
+  const operators = offeredOperators(breakdown);
+  const phone = prefillPhone(student.phone);
   const billing = schoolBilling(school.data);
   const preference = me.data?.payment_preference === "full" || me.data?.payment_preference === "installments" ? me.data.payment_preference : null;
   let semester = current.data;
@@ -103,7 +112,7 @@ async function Subscription({ searchParams }: { searchParams: SearchParams }) {
 
   const rows = (mine.data ?? []) as SubscriptionRow[];
   const subscription = subscriptionToShow(rows, semester.id, today);
-  const { again, month: askedMonth } = await searchParams;
+  const { again, month: askedMonth, pay_error: payError } = await searchParams;
   const ofSemester = rows.filter((r) => r.semester_id === semester.id);
   // With monthly billing: the months on offer, a request for a later month, and asking for the next from a running one.
   const live = liveRequests(ofSemester, today);
@@ -140,6 +149,14 @@ async function Subscription({ searchParams }: { searchParams: SearchParams }) {
   const receiptPaths = (receipts ?? []).flatMap((r) => (r.proof_path ? [r.proof_path] : []));
   const { data: signed } = receiptPaths.length ? await supabase.storage.from("proofs").createSignedUrls(receiptPaths, 600) : { data: [] };
   const receiptUrls = Object.fromEntries((signed ?? []).flatMap((s) => (s.path && s.signedUrl ? [[s.path, s.signedUrl]] : [])));
+  // Mobile money payments of this semester's requests and parts (ADR 0029): the latest of each, and the receipts.
+  const { data: paid } = ofSemester.length
+    ? await supabase.from("payments").select(PAYMENT_COLUMNS).eq("paid_by", student.userId).in("subscription_id", ofSemester.map((r) => r.id)).order("created_at", { ascending: false }).limit(50)
+    : { data: [] };
+  const payments = (paid ?? []) as PaymentRow[];
+  const latest = latestByItem(payments);
+  const awaitingPayment = !showForm && subscription?.status === "pending" && subscription.payment_method === "mobile_money";
+  const partOf = Object.fromEntries((parts ?? []).map((p) => [p.id, p.seq]));
   const history = buildRequestHistory(ofSemester, (events?.data ?? []) as SubscriptionEvent[], (receipts ?? []) as ReceiptRow[]);
   const known = Object.fromEntries(rows.map((r) => [r.id, r.status]));
 
@@ -164,6 +181,9 @@ async function Subscription({ searchParams }: { searchParams: SearchParams }) {
             today={today}
             semesterStart={semester.start_date}
             semesterEnd={semester.end_date}
+            breakdown={breakdown}
+            operators={operators}
+            phone={phone}
           />
           {askMonth ? (
             <Link href="/app/subscription" className="self-center text-sm font-semibold text-fg">
@@ -179,6 +199,24 @@ async function Subscription({ searchParams }: { searchParams: SearchParams }) {
           sentOn={dateOf(subscription!.created_at)}
           proofUrl={proof?.data?.signedUrl ?? null}
           requestAgainHref={isLive(subscription!.status) ? null : "/app/subscription?again=1"}
+          payment={
+            awaitingPayment ? (
+              <MobileMoneyPay
+                key={latest.subscription[subscription!.id]?.id ?? "none"}
+                copy={c.pay}
+                purpose="subscription"
+                target={subscription!.id}
+                initialPayment={latest.subscription[subscription!.id] ?? null}
+                initialError={isStartError(payError) ? payError : operators.length === 0 && !latest.subscription[subscription!.id] ? "mobile_money_off" : null}
+                phone={phone}
+                operators={operators}
+                amountLabel={subscription!.payment_mode === "installments" ? c.pay.partNow : c.pay.price}
+                locale={locale}
+                currency={billing?.currency ?? "XAF"}
+                alternative={<ReceiptInstead copy={c.pay} subscriptionId={subscription!.id} schoolId={student.schoolId} studentId={student.userId} />}
+              />
+            ) : null
+          }
           parts={
             parts?.length ? (
               <InstallmentParts
@@ -190,6 +228,7 @@ async function Subscription({ searchParams }: { searchParams: SearchParams }) {
                 schoolId={student.schoolId}
                 studentId={student.userId}
                 canSend={isLive(subscription!.status)}
+                pay={subscription!.status === "approved" ? { copy: c.pay, operators, payments: latest.installment, phone } : null}
               />
             ) : null
           }
@@ -208,6 +247,7 @@ async function Subscription({ searchParams }: { searchParams: SearchParams }) {
       <PushOptIn copy={s.push} locale={locale} compact />
       {/* My area, offered once to a student who never added it, when the notification offer is not showing (ADR 0023). */}
       <AreaOffer copy={s.area} />
+      <PaymentReceipts copy={c.pay} receipts={receiptsOf(payments)} partOf={partOf} timeOf={timeOf} locale={locale} />
       <RequestHistory copy={c} history={history} dateOf={dateOf} timeOf={timeOf} receiptUrls={receiptUrls} />
     </main>
   );

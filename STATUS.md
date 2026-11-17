@@ -46,7 +46,10 @@ school portal, platform console, legal texts).
 - Done: slice 2, the pawaPay client and the `payments`, `pawapay-callback` and `payments-reconcile` functions (#532),
   setup guide [docs/guides/payments-setup.md](docs/guides/payments-setup.md). Sending payouts and refunds comes with
   slices 4 and 5, where their database side is built.
-- Next: slice 3, paying in the student app and the student web app.
+- Done: slice 3, paying by mobile money in the student app and the student web app (#533), beside the receipt.
+- Next: slice 4, refunds (student requests, the school's decisions, sending refunds and automatic ones, the ledger).
+- Later: the operators' official acceptance marks (text badges for now); showing part 1's fee before the request is
+  sent; the Next.js security advisory the dev server printed for 16.4.3 (an upgrade is its own issue and PR).
 - Owner: ask pawaPay for a sandbox account and key, the intermediary merchant schedule, the Cameroon launch
   requirements, refund rates, whether VAT applies to its 1%, and written confirmation on the student's service fee.
   Decide the per-student charge (BusIn's margin; it can change later). The key goes in `supabase/functions/.env`
