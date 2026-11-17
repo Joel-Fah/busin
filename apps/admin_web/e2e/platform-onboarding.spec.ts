@@ -2,7 +2,7 @@ import { randomBytes } from "node:crypto";
 
 import { expect, test } from "@playwright/test";
 
-import { createUser, deleteSchool, deleteUser, serviceClient, setPlatformAdmin, signInBrowser, signUpAs, type TestUser } from "./support";
+import { createUser, deleteSchool, deleteUser, searchAndChoose, serviceClient, setPlatformAdmin, signInBrowser, signUpAs, type TestUser } from "./support";
 
 // School onboarding from the platform console (ADR 0027, slice 4).
 const tag = randomBytes(3).toString("hex");
@@ -36,7 +36,7 @@ test("a school is created with its domain and its first administrator invited", 
   await page.getByLabel("Name", { exact: true }).fill(schoolName);
   await page.getByLabel("Short name").fill("EOS");
   await page.getByLabel("City").fill("Lagos");
-  await page.getByLabel("Time zone").fill("Africa/Lagos");
+  await searchAndChoose(page, "Time zone", "Lagos", /^Africa\/Lagos/);
   const domains = page.getByLabel("Student email domains");
   await domains.fill(domain);
   await domains.press("Enter");
@@ -58,10 +58,11 @@ test("the same name is refused, and the form keeps what was typed", async ({ con
   await page.goto("/platform/schools/new");
   await page.getByLabel("Name", { exact: true }).fill(schoolName.toUpperCase());
   await page.getByLabel("Short name").fill("DUP");
-  await page.getByLabel("Time zone").fill("Africa/Lagos");
+  await searchAndChoose(page, "Time zone", "Lagos", /^Africa\/Lagos/);
   await page.getByRole("button", { name: "Create the school" }).click();
   await expect(page.getByText("A school with this name already exists.")).toBeVisible();
   await expect(page.getByLabel("Short name")).toHaveValue("DUP");
+  await expect(page.getByRole("combobox", { name: "Time zone" })).toHaveText("Africa/Lagos");
 });
 
 test("the invited administrator's first sign-in opens the new school's portal", async ({ browser }) => {
@@ -89,4 +90,76 @@ test("a school is switched off after a confirmation, and back on", async ({ cont
   await page.getByRole("button", { name: "Switch on" }).click();
   await page.getByRole("dialog", { name: `Switch ${schoolName} back on?` }).getByRole("button", { name: "Switch on" }).click();
   await expect(page.getByText("School switched back on.")).toBeVisible();
+});
+
+test("on a phone, the country and time zone lists open on screen, above the navigation, and pick by search and keys", async ({ browser }) => {
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
+  await signInBrowser(context, owner);
+  const page = await context.newPage();
+  await page.goto("/platform/schools/new");
+  const open = page.locator("[popover]:popover-open");
+
+  // The panel is wholly on screen, and nothing (the floating navigation, the header) covers its middle.
+  const onTop = async () => {
+    await expect(open).toBeVisible();
+    const box = (await open.boundingBox())!;
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.y).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(390);
+    expect(box.y + box.height).toBeLessThanOrEqual(844);
+    const covered = await open.evaluate((el) => {
+      const r = el.getBoundingClientRect();
+      const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+      return !hit || !el.contains(hit);
+    });
+    expect(covered).toBe(false);
+  };
+
+  const country = page.getByRole("combobox", { name: "Country" });
+  await country.click();
+  await onTop();
+  await page.getByRole("searchbox").fill("nigeria");
+  await page.keyboard.press("Enter");
+  await expect(country).toHaveText("Nigeria");
+  await expect(page.locator('input[type="hidden"][name="country"]')).toHaveValue("Nigeria");
+
+  // The time zone is picked from the list too, never a free text box with the browser's own suggestions.
+  await expect(page.locator("datalist")).toHaveCount(0);
+  const zone = page.getByRole("combobox", { name: "Time zone" });
+  await expect(zone).toHaveText("Choose a time zone");
+  await zone.scrollIntoViewIfNeeded();
+  await zone.click();
+  await onTop();
+  // The long list scrolls inside the panel.
+  expect(await page.getByRole("listbox", { name: "Time zone" }).evaluate((el) => el.scrollHeight > el.clientHeight)).toBe(true);
+  // Searched in the middle of a name, with spaces for underscores; picked with the keys.
+  await page.getByRole("searchbox").fill("new york");
+  await expect(page.getByRole("option")).toHaveCount(1);
+  // The shorter panel stays on its side, touching the field, not floating where the full list ended.
+  await expect
+    .poll(async () => {
+      const [p, f] = [(await open.boundingBox())!, (await zone.boundingBox())!];
+      return (await open.getAttribute("data-side")) === "top" ? f.y - (p.y + p.height) : p.y - (f.y + f.height);
+    })
+    .toBeLessThanOrEqual(12);
+  await page.keyboard.press("Enter");
+  await expect(open).toHaveCount(0);
+  await expect(zone).toHaveText("America/New York");
+  await expect(zone).toBeFocused();
+  await expect(page.locator('input[type="hidden"][name="timezone"]')).toHaveValue("America/New_York");
+
+  // Escape and a tap outside both close it, keeping the choice.
+  await zone.press("ArrowDown");
+  await expect(page.getByRole("option", { name: /America\/New York/ })).toHaveAttribute("aria-selected", "true");
+  await page.keyboard.press("Escape");
+  await expect(open).toHaveCount(0);
+  await zone.click();
+  await expect(open).toBeVisible();
+  await page.mouse.click(5, 5);
+  await expect(open).toHaveCount(0);
+  await expect(page.locator('input[type="hidden"][name="timezone"]')).toHaveValue("America/New_York");
+
+  // No sideways scroll on a phone.
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  await context.close();
 });

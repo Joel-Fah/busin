@@ -5,6 +5,7 @@ import {
   ArrowLeft01Icon,
   Bus01Icon,
   Calendar02Icon,
+  Clock01Icon,
   Copy01Icon,
   Delete02Icon,
   Edit02Icon,
@@ -42,6 +43,7 @@ import { DateTimePicker } from "@/components/ui/DateTimePicker";
 import { TimePicker } from "@/components/ui/TimePicker";
 import { Input } from "@/components/ui/Input";
 import { DomainsTagInput } from "@/components/ui/TagInput";
+import { SearchSelect } from "@/components/ui/SearchSelect";
 import { Select } from "@/components/ui/Select";
 import { ListSkeleton } from "@/components/ui/ListSkeleton";
 import { Notice } from "@/components/ui/Notice";
@@ -50,6 +52,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { DataTable, Head, TableCard, Td, Th, Tr } from "@/components/ui/Table";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { requireAdmin } from "@/lib/auth";
+import { timeZoneOptions, timeZones } from "@/lib/platform-onboarding";
 import { landingCatalogues } from "@/lib/i18n/landing";
 import { AA_TEXT, contrastRatio } from "@/lib/ui/contrast";
 import { RADIUS, innerRadius } from "@/lib/ui/radius";
@@ -136,6 +139,8 @@ const BENTO = [
     focus: "50% 74%",
   },
 ] as const;
+
+const GUIDE_ZONES = timeZoneOptions(timeZones());
 
 const SURFACE_TOKENS = ["bg", "surface", "surface-2", "line", "fg", "muted", "brand", "accent", "link"];
 const STATE_TOKENS = ["ok", "warn", "bad", "info"];
@@ -575,6 +580,32 @@ async function Styleguide() {
           <CountrySelect id="guide-country-saved" name="guideCountrySaved" label="A saved country" defaultValue="France" locale={locale} />
         </div>
         <p className="mt-3 max-w-2xl text-sm text-muted">{note("Country")}</p>
+
+        <h3 className="mt-8 mb-3 text-lg font-bold">Long list</h3>
+        <div className="grid max-w-3xl gap-4 sm:grid-cols-2">
+          <SearchSelect
+            id="guide-zone"
+            name="guideZone"
+            label="Time zone"
+            icon={Clock01Icon}
+            options={GUIDE_ZONES}
+            placeholder="Choose a time zone"
+            searchLabel="Search a city or a time zone"
+            noneText="No time zone matches."
+            hint="Dates and trips follow it."
+          />
+          <SearchSelect
+            id="guide-zone-saved"
+            name="guideZoneSaved"
+            label="A saved time zone"
+            icon={Clock01Icon}
+            options={GUIDE_ZONES}
+            defaultValue="Africa/Douala"
+            searchLabel="Search a city or a time zone"
+            noneText="No time zone matches."
+          />
+        </div>
+        <p className="mt-3 max-w-2xl text-sm text-muted">{note("Long list")}</p>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">School logo</h3>
         <div className="flex flex-wrap items-end gap-6">

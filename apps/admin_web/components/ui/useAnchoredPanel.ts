@@ -31,7 +31,8 @@ export function useAnchoredPanel<A extends HTMLElement = HTMLElement, P extends 
       // Already shown, or the browser has no popover support; the panel is still positioned below.
     }
 
-    const place = () => {
+    let side: Side | undefined;
+    const place = (keepSide = false) => {
       const a = anchor.getBoundingClientRect();
       if (matchWidth) panel.style.minWidth = `${a.width}px`;
       const p = panel.getBoundingClientRect();
@@ -39,19 +40,30 @@ export function useAnchoredPanel<A extends HTMLElement = HTMLElement, P extends 
         anchor: a,
         panel: { width: p.width, height: p.height },
         viewport: { width: window.innerWidth, height: window.innerHeight },
-        preferred,
+        preferred: keepSide && side ? side : preferred,
       });
+      side = result.side;
       panel.style.left = `${result.left}px`;
       panel.style.top = `${result.top}px`;
       panel.dataset.side = result.side;
     };
+    const onMove = () => place();
 
     place();
-    window.addEventListener("resize", place);
-    window.addEventListener("scroll", place, true);
+    window.addEventListener("resize", onMove);
+    window.addEventListener("scroll", onMove, true);
+    // The panel can change size while open (a search narrows its list, a calendar changes month). It stays on the
+    // side it opened on and keeps touching its trigger, instead of floating where the taller panel ended.
+    let first = true;
+    const sized = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(() => {
+      if (first) first = false;
+      else place(true);
+    });
+    sized?.observe(panel);
     return () => {
-      window.removeEventListener("resize", place);
-      window.removeEventListener("scroll", place, true);
+      sized?.disconnect();
+      window.removeEventListener("resize", onMove);
+      window.removeEventListener("scroll", onMove, true);
       try {
         panel.hidePopover();
       } catch {

@@ -74,6 +74,11 @@ email after erasure), and #496 (needs an Android build-tool upgrade, its own PR)
   roles migration of 2026-11-14 refused), test the ops screen on a device, and apply the migration live with the next
   approved database update.
 
+## Handoff: time zone dropdown on the new school page (2026-11-17)
+
+- `phase-6/new-school-dropdown` (#544): the time zone is picked from a searchable list like the country, on desktop
+  and phone, in both themes. Owner: open the console's New school on a phone and pick a country and a time zone.
+
 ## Handoff: rich text notices (2026-11-17)
 
 - The platform's notices to a school are written with formatting and shown laid out in the portal, on
