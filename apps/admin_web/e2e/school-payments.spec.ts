@@ -205,6 +205,16 @@ test("Payments: the tiles show the balance, and the open invoice offers mobile m
   await expect(invoices.getByText("Mobile money is not available right now.")).toBeVisible();
 });
 
+test("Payments: each figure takes its state colour, and what came in this month has its trend", async ({ page, context }) => {
+  await signInBrowser(context, admin);
+  await page.goto("/payments");
+  await expect(page.getByTestId("tile-available")).toHaveAttribute("data-tone", "ok");
+  await expect(page.getByTestId("tile-on-hold")).toHaveAttribute("data-tone", "warn");
+  await expect(page.getByTestId("tile-collected")).toHaveAttribute("data-tone", "ok");
+  await expect(page.getByTestId("trend-collected")).toBeVisible();
+  await expect(page.getByTestId("trend-collected")).toHaveText(/last month/);
+});
+
 test("refunds: approving part of one, and declining another with a reason", async ({ page, context }) => {
   await signInBrowser(context, admin);
   await page.goto("/payments");

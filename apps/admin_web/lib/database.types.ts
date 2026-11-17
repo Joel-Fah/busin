@@ -1405,6 +1405,9 @@ isOneToOne: false
 "platform_delete_infra_cost":
 { Args: { "p_id": string }; Returns: undefined
                            },
+"platform_delete_wallet_movement":
+{ Args: { "p_id": string }; Returns: undefined
+                           },
 "platform_follow_ups":
 { Args: Record<PropertyKey, never>; Returns: {
               "channel": string,"created_at": string,"follow_up_on": string,"id": string,"note": string,"school_id": string,"school_name": string
@@ -1442,7 +1445,7 @@ isOneToOne: false
                            },
 "platform_payment_alerts":
 { Args: Record<PropertyKey, never>; Returns: {
-              "amount_xaf": number,"at": string,"code": string,"id": string,"kind": string,"school_id": string,"school_name": string,"status": string
+              "admins": number,"amount_xaf": number,"at": string,"code": string,"id": string,"kind": string,"school_id": string,"school_name": string,"status": string
             }[]
                            },
 "platform_payment_settings":
@@ -1496,6 +1499,11 @@ isOneToOne: false
                            },
 "platform_update_lead":
 { Args: { "p_lead_id": string,"p_note"?: string,"p_school_id"?: string,"p_status": string }; Returns: undefined
+                           },
+"platform_wallet_movements":
+{ Args: { "p_limit"?: number }; Returns: {
+              "amount_xaf": number,"happened_at": string,"id": string,"kind": string,"note": string
+            }[]
                            },
 "price_breakdown":
 { Args: { "p_fees_paid_by"?: string,"p_price"?: number }; Returns: {

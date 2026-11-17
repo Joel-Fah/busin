@@ -90,7 +90,7 @@ select throws_ok($$select public.platform_confirm_payout_account(current_setting
 set local "request.jwt.claims" = '{"sub":"c8000000-0000-4000-8000-0000000000f1","role":"authenticated"}';
 select lives_ok($$select public.platform_confirm_payout_account(current_setting('test.acc3')::uuid)$$, 'the platform confirms for a school with one administrator');
 reset role;
-select is((select count(*)::int from public.platform_audit where action = 'payout_account.confirmed'), 1, 'in the platform audit');
+select is((select count(*)::int from public.platform_audit where action = 'payout_account.confirmed' and school_id = 'c7000000-0000-4000-8000-0000000000b2'), 1, 'in the platform audit');
 
 -- ---------------------------------------------------------------- invoices
 insert into public.school_ledger (school_id, kind, amount_xaf, note) values ('c7000000-0000-4000-8000-0000000000c3', 'adjustment', -700, 'test: a charge');

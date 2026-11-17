@@ -53,7 +53,12 @@ school portal, platform console, legal texts). The local database has the paymen
 - Done: slice 7, the legal texts (#541): students' terms, privacy and acceptable use, a payments and refunds policy
   (`/legal/payments` and in the student apps), school terms version 2026-11-17 with pawaPay's sub-merchant terms (schools
   accept again once this is live), store answers. Built on #525 and #527, merged into this branch.
-- Next: slice 6, the console pages (`/platform/payments`, settings, a school's payments), being built.
+- Done: slice 6, the console pages (#540): `/platform/payments` (margin, held, wallet against the books, owed, needs a
+  look, months, operators, top schools, infrastructure costs, wallet movements), settings with an estimate, and a
+  Payments card on a school's page. Money in state colours with trends; long amounts written short with the exact
+  amount on hover.
+- All seven slices are built. Next: the owner's tests, then the pawaPay sandbox run once the key is in, then a review
+  of the whole branch before it goes to `dev`.
 - Owner: have a lawyer read the payment parts of the texts and pawaPay's merchant terms in full before release.
 - Later: the operators' official acceptance marks (text badges for now); showing part 1's fee before the request is
   sent.

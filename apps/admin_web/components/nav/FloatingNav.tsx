@@ -17,6 +17,7 @@ import {
   Ticket03Icon,
   UserMultiple02Icon,
   UserSearch01Icon,
+  Wallet01Icon,
 } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 import { gsap } from "gsap";
@@ -31,7 +32,7 @@ import { INTRO_DONE_EVENT } from "@/lib/intro";
 import { NAV_DOCK_ID } from "./NavDock";
 
 /** The school portal's tabs, then the platform console's (ADR 0027). */
-export type NavKey = "overview" | "subscriptions" | "people" | "trips" | "scans" | "insights" | "platform" | "platformSchools" | "platformLeads" | "platformHealth" | "platformLookup";
+export type NavKey = "overview" | "subscriptions" | "people" | "trips" | "scans" | "insights" | "platform" | "platformSchools" | "platformLeads" | "platformPayments" | "platformHealth" | "platformLookup";
 
 const ICONS: Record<NavKey, IconSvgElement> = {
   overview: GeometricShapes01Icon,
@@ -43,6 +44,7 @@ const ICONS: Record<NavKey, IconSvgElement> = {
   platform: DashboardSquare01Icon,
   platformSchools: School01Icon,
   platformLeads: InboxIcon,
+  platformPayments: Wallet01Icon,
   platformHealth: Activity01Icon,
   platformLookup: UserSearch01Icon,
 };
@@ -57,6 +59,7 @@ const HREFS: Record<NavKey, string> = {
   platform: "/platform",
   platformSchools: "/platform/schools",
   platformLeads: "/platform/leads",
+  platformPayments: "/platform/payments",
   platformHealth: "/platform/health",
   platformLookup: "/platform/lookup",
 };

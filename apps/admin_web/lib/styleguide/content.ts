@@ -349,7 +349,7 @@ export const COMPONENT_NOTES: { name: string; note: string }[] = [
   },
   {
     name: "Figures with bars",
-    note: "Figures that compare, such as money by month: a real table whose every figure carries a thin bar scaled to the largest figure in the table, one quiet hue for all bars because the column heading names the measure. The current row takes the accent and says why in words. Numbers stay readable as text; the bars are hidden from screen readers.",
+    note: "Figures that compare, such as money by month: a real table whose every figure carries a thin bar scaled to the largest figure in the table. Money takes its state colour: money in green (ok), money out red (bad), waiting or owed amber (warn), payouts blue (info), and a figure that can go either way, like a margin, the colour of its sign, in its text too. A dot beside each heading repeats the colour and the heading names the measure, so colour is never the only sign. The current row is full strength and says why in words; the others are softer. A trend (TrendChip) compares this month with the last: an arrow, the percentage and words, green when the change is good news for that figure and red when it is not. An amount from 100,000 XAF is written short in the reader's language (120K XAF, 1.2M XAF; 120 k XAF, 1,2 M XAF) with the exact amount in the tooltip on hover and focus, and read whole by screen readers (Amount, and the full figures of a BarTable row). Numbers stay readable as text; the bars are hidden from screen readers.",
   },
   {
     name: "Price breakdown",

@@ -9,6 +9,7 @@ import { LevelChip } from "@/components/platform/LevelChip";
 import { SignalTile } from "@/components/platform/SignalTile";
 import { OutreachHistory } from "@/components/platform/OutreachHistory";
 import { ReachOut } from "@/components/platform/ReachOut";
+import { SchoolPaymentsCard } from "@/components/platform/SchoolPaymentsCard";
 import { SchoolStatusSwitch } from "@/components/platform/SchoolStatusSwitch";
 import { SchoolLogo } from "@/components/SchoolLogo";
 import { BackLink } from "@/components/ui/BackLink";
@@ -24,16 +25,19 @@ import { StickyHeader } from "@/components/ui/StickyHeader";
 import { requirePlatformAdmin } from "@/lib/auth";
 import { supabaseConfig } from "@/lib/env";
 import { en, fr, format } from "@/lib/i18n/messages";
+import { platformPaymentsCatalogues } from "@/lib/i18n/platform-payments";
 import { getMessages } from "@/lib/i18n/server";
 import { isUuid } from "@/lib/ids";
 import { siteUrl } from "@/lib/landing/site";
 import { AREAS, parseSchoolDetail } from "@/lib/platform-health";
 import { messageCopy, parseContacts, parseSchoolOutreach } from "@/lib/platform-outreach";
+import { parseSchoolPayments, parseSettings } from "@/lib/platform-payments";
 import { isOnboardingDone, isOnboardingError } from "@/lib/platform-onboarding";
 import { isOutreachDone, isOutreachError } from "@/lib/platform-outreach-errors";
 import { logoUrl } from "@/lib/school";
 import { createClient } from "@/lib/supabase/server";
 
+import { confirmPayoutAccount, saveSchoolPaymentTerms } from "../../payments/actions";
 import { completeFollowUp, inviteSchoolAdmin, logOutreach, sendNotice, setSchoolStatus } from "./actions";
 
 export const metadata: Metadata = { title: "School" };
@@ -70,12 +74,14 @@ async function School({ params, searchParams }: { params: Params; searchParams: 
   const { locale, t } = await getMessages();
   const p = t.platform;
   const supabase = await createClient();
-  const [{ data, error }, contactsResult, outreachResult, invitesResult] = await Promise.all([
+  const [{ data, error }, contactsResult, outreachResult, invitesResult, paymentsResult, settingsResult] = await Promise.all([
     supabase.rpc("platform_school", { p_school_id: id }),
     // Each view of the contacts is recorded in the platform audit (ADR 0027).
     supabase.rpc("platform_school_contacts", { p_school_id: id }),
     supabase.rpc("platform_school_outreach", { p_school_id: id }),
     supabase.rpc("platform_school_invites", { p_school_id: id }),
+    supabase.rpc("platform_school_payments", { p_school: id }),
+    supabase.rpc("platform_payment_settings"),
   ]);
   const invites = invitesResult.data ?? [];
   if (error) {
@@ -100,6 +106,8 @@ async function School({ params, searchParams }: { params: Params; searchParams: 
   // What a message may be about: the signals at Watch or worse, and any paused ones (they may still need a word).
   const talkable = school.signals.filter((s) => (s.value !== null && s.level > 0) || outreach.snoozed[s.signal]);
   const today = new Date().toISOString().slice(0, 10);
+  const payments = paymentsResult.error ? null : parseSchoolPayments(paymentsResult.data);
+  const platformSettings = settingsResult.error ? null : parseSettings(settingsResult.data).settings;
   const shortNames = Object.fromEntries(Object.entries(p.health.signals).map(([key, c]) => [key, c.short]));
 
   return (
@@ -228,6 +236,19 @@ async function School({ params, searchParams }: { params: Params; searchParams: 
               ) : null}
             </section>
           </Card>
+          {payments ? (
+            <SchoolPaymentsCard
+              schoolId={school.id}
+              schoolName={school.name}
+              payments={payments}
+              platformCharges={platformSettings ? { semester: platformSettings.charge_semester_xaf, month: platformSettings.charge_month_xaf } : null}
+              locale={locale}
+              now={new Date().toISOString()}
+              copy={platformPaymentsCatalogues[locale]}
+              dateText={t.pickers.date}
+              actions={{ save: saveSchoolPaymentTerms, confirm: confirmPayoutAccount }}
+            />
+          ) : null}
           <Card className="p-6!">
             <h2 className="mb-3 text-base font-bold">{o.history}</h2>
             <OutreachHistory

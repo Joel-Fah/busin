@@ -1,14 +1,18 @@
 import type { Metadata } from "next";
 import { Download04Icon } from "@hugeicons/core-free-icons";
 import Link from "next/link";
-import { Suspense } from "react";
+import { Suspense, type ReactNode } from "react";
 
 import { InvoicePay } from "@/components/payments/InvoicePay";
 import { PayoutAccount } from "@/components/payments/PayoutAccount";
 import { RefundDecision } from "@/components/payments/RefundDecision";
 import { Avatar } from "@/components/ui/Avatar";
 import { BackLink } from "@/components/ui/BackLink";
+import { Amount } from "@/components/ui/Amount";
 import { BarTable } from "@/components/ui/BarTable";
+import { TrendChip } from "@/components/ui/TrendChip";
+import { shownAmount } from "@/lib/money-format";
+import { TONE_BAR, TONE_TEXT, trend, type Tone, type ToneRule } from "@/lib/money-tones";
 import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
@@ -145,6 +149,10 @@ async function Payments({ searchParams }: { searchParams: SearchParams }) {
   const active = activeRes.data;
   const now = new Date();
   const readiness = payoutReadiness(summary, Boolean(proposal), now);
+  // What came in this month and last (mobile money and approved receipts), for the trend.
+  const [lastMonthFigures, thisMonthFigures] = [summary.months.at(-2), summary.months.at(-1)];
+  const collectedNow = (thisMonthFigures?.mobile_money ?? 0) + (thisMonthFigures?.receipts ?? 0);
+  const collectedBefore = (lastMonthFigures?.mobile_money ?? 0) + (lastMonthFigures?.receipts ?? 0);
   const readinessText = (() => {
     switch (readiness.kind) {
       case "off":
@@ -206,9 +214,17 @@ async function Payments({ searchParams }: { searchParams: SearchParams }) {
       {summary.mobileMoney ? null : <Notice tone="info">{p.page.mobileMoneyOff}</Notice>}
 
       <section aria-label={p.tiles.label} className="grid grid-cols-[minmax(0,1fr)] gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <MoneyTile testId="tile-available" label={p.tiles.available} value={money(summary.balance.available)} hint={p.tiles.availableHint} />
-        <MoneyTile testId="tile-on-hold" label={p.tiles.onHold} value={money(summary.balance.onHold)} hint={format(p.tiles.onHoldHint, { days: summary.holdDays })} />
-        {summary.balance.owed > 0 ? <MoneyTile testId="tile-owed" label={p.tiles.owed} value={money(summary.balance.owed)} hint={p.tiles.owedHint} tone="warn" /> : null}
+        <MoneyTile testId="tile-available" label={p.tiles.available} value={<Amount value={summary.balance.available} locale={locale} />} hint={p.tiles.availableHint} tone="ok" />
+        <MoneyTile testId="tile-on-hold" label={p.tiles.onHold} value={<Amount value={summary.balance.onHold} locale={locale} />} hint={format(p.tiles.onHoldHint, { days: summary.holdDays })} tone="warn" />
+        {summary.balance.owed > 0 ? <MoneyTile testId="tile-owed" label={p.tiles.owed} value={<Amount value={summary.balance.owed} locale={locale} />} hint={p.tiles.owedHint} tone="bad" /> : null}
+        <MoneyTile
+          testId="tile-collected"
+          label={p.tiles.collected}
+          value={<Amount value={collectedNow} locale={locale} />}
+          hint={p.tiles.collectedHint}
+          tone="ok"
+          trend={<TrendChip testId="trend-collected" trend={trend(collectedNow, collectedBefore)} words={p.tiles.trend} />}
+        />
         <Card className="flex min-h-40 flex-col gap-3 p-7!">
           <div data-testid="tile-payout" className="flex flex-col gap-3">
             <span className="flex items-center justify-between gap-3">
@@ -269,13 +285,14 @@ async function Payments({ searchParams }: { searchParams: SearchParams }) {
             <BarTable
               caption={p.months.caption}
               rowHeading={p.months.month}
-              columns={columns.map((c) => ({ key: c, label: p.months.columns[c] }))}
+              columns={columns.map((c) => ({ key: c, label: p.months.columns[c], tone: SCHOOL_MONTH_TONES[c] }))}
               highlight={thisMonth ? { key: thisMonth, label: p.months.thisMonth } : undefined}
               rows={[...summary.months].reverse().map((m) => ({
                 key: m.month,
                 label: monthName(m.month),
                 values: Object.fromEntries(columns.map((c) => [c, m[c]])),
-                display: Object.fromEntries(columns.map((c) => [c, money(m[c])])),
+                display: Object.fromEntries(columns.map((c) => [c, shownAmount(m[c], locale).text])),
+                full: Object.fromEntries(columns.map((c) => [c, money(m[c])])),
               }))}
             />
           </div>
@@ -539,12 +556,27 @@ type PaymentRow = {
 };
 
 /** A figure of the balance: a quiet label, a large amount, and what it means. */
-function MoneyTile({ label, value, hint, tone, testId }: { label: string; value: string; hint: string; tone?: "warn"; testId: string }) {
+/** A figure in its state colour (money available is good, on hold is waiting, owed is bad), with its words. */
+/** Each month's measure in its state colour: money in, money out, what goes to BusIn, payouts. */
+const SCHOOL_MONTH_TONES: Record<string, ToneRule> = {
+  mobile_money: "ok",
+  receipts: "ok",
+  refunds: "bad",
+  charges: "warn",
+  payouts: "info",
+  transfer_costs: "bad",
+};
+
+function MoneyTile({ label, value, hint, tone = "neutral", trend, testId }: { label: string; value: ReactNode; hint: string; tone?: Tone; trend?: ReactNode; testId: string }) {
   return (
-    <Card className={`flex min-h-40 flex-col justify-between gap-3 p-7! ${tone === "warn" ? "bg-warn-bg!" : ""}`}>
-      <div data-testid={testId} className="flex flex-1 flex-col justify-between gap-3">
-        <span className="text-sm font-semibold text-muted">{label}</span>
-        <span className="text-3xl font-extrabold tracking-tight tabular-nums sm:text-4xl">{value}</span>
+    <Card className={`flex min-h-40 flex-col justify-between gap-3 p-7! ${tone === "bad" ? "bg-bad-bg!" : ""}`}>
+      <div data-testid={testId} data-tone={tone} className="flex flex-1 flex-col justify-between gap-3">
+        <span className="flex items-center gap-2 text-sm font-semibold text-muted">
+          <span aria-hidden className={`size-2 rounded-full ${TONE_BAR[tone]}`} />
+          {label}
+        </span>
+        <span className={`text-3xl font-extrabold tracking-tight tabular-nums sm:text-4xl ${TONE_TEXT[tone]}`}>{value}</span>
+        {trend}
         <span className="text-sm text-muted">{hint}</span>
       </div>
     </Card>

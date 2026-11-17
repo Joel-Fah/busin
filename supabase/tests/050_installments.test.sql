@@ -100,7 +100,7 @@ select results_eq($$select kind from private.notification_outbox where kind like
   $$values ('installment_rejected'), ('installment_paid'), ('installment_paid')$$, 'and the student is told each time');
 
 -- ---------------------------------------------------------------- every receipt stays
-select results_eq($$select seq::int, decision, note, proof_path is not null from public.installment_receipts order by seq, sent_at$$,
+select results_eq($$select seq::int, decision, note, proof_path is not null from public.installment_receipts where school_id = '10000000-0000-4000-8000-000000000001' order by seq, sent_at$$,
   $$values (2, 'rejected', 'The amount on the receipt is wrong', true), (2, 'paid', null, true), (3, 'paid', null, false)$$,
   'both receipts of part 2 are kept with their decisions, and part 3 paid at the office has one without a proof');
 set local role authenticated;

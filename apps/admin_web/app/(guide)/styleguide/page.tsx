@@ -20,7 +20,9 @@ import {
 
 import { PlanParts } from "@/components/billing/PlanParts";
 import { PriceBreakdown } from "@/components/billing/PriceBreakdown";
+import { Amount } from "@/components/ui/Amount";
 import { BarTable } from "@/components/ui/BarTable";
+import { TrendChip } from "@/components/ui/TrendChip";
 import { BusStopScene } from "@/components/landing/BusStopScene";
 import { getMessages } from "@/lib/i18n/server";
 import { SchoolLogo } from "@/components/SchoolLogo";
@@ -141,6 +143,8 @@ const BENTO = [
 
 const SURFACE_TOKENS = ["bg", "surface", "surface-2", "line", "fg", "muted", "brand", "accent", "link"];
 const STATE_TOKENS = ["ok", "warn", "bad", "info"];
+
+const TREND_WORDS = { up: "Up {percent}% on last month", down: "Down {percent}% on last month", flat: "Same as last month", fromNothing: "Was 0 last month" };
 
 export default function StyleguidePage() {
   return (
@@ -823,16 +827,37 @@ async function Styleguide() {
           caption="Money by month, in XAF"
           rowHeading="Month"
           columns={[
-            { key: "in", label: "Mobile money" },
-            { key: "refunds", label: "Refunds" },
-            { key: "out", label: "Payouts" },
+            { key: "in", label: "Mobile money", tone: "ok" },
+            { key: "refunds", label: "Refunds", tone: "bad" },
+            { key: "out", label: "Payouts", tone: "info" },
+            { key: "margin", label: "Margin", tone: "signed" },
           ]}
           highlight={{ key: "nov", label: "This month" }}
           rows={[
-            { key: "nov", label: "November 2026", values: { in: 420000, refunds: 15000, out: 300000 }, display: { in: "420,000 XAF", refunds: "15,000 XAF", out: "300,000 XAF" } },
-            { key: "oct", label: "October 2026", values: { in: 610000, refunds: 0, out: 580000 }, display: { in: "610,000 XAF", refunds: "0 XAF", out: "580,000 XAF" } },
+            {
+              key: "nov",
+              label: "November 2026",
+              values: { in: 420000, refunds: 15000, out: 300000, margin: -4000 },
+              display: { in: "420K XAF", refunds: "15,000 XAF", out: "300K XAF", margin: "-4,000 XAF" },
+              full: { in: "420,000 XAF", refunds: "15,000 XAF", out: "300,000 XAF", margin: "-4,000 XAF" },
+            },
+            {
+              key: "oct",
+              label: "October 2026",
+              values: { in: 610000, refunds: 0, out: 580000, margin: 12000 },
+              display: { in: "610K XAF", refunds: "0 XAF", out: "580K XAF", margin: "12,000 XAF" },
+              full: { in: "610,000 XAF", refunds: "0 XAF", out: "580,000 XAF", margin: "12,000 XAF" },
+            },
           ]}
         />
+        <div className="mt-3 flex flex-wrap gap-4">
+          <TrendChip trend={{ direction: "up", percent: 20, tone: "ok" }} words={TREND_WORDS} />
+          <TrendChip trend={{ direction: "down", percent: 8, tone: "bad" }} words={TREND_WORDS} />
+          <TrendChip trend={{ direction: "flat", percent: 0, tone: "neutral" }} words={TREND_WORDS} />
+          <span className="text-sm">
+            Amount: <Amount value={1234567} locale="en" className="font-bold" /> (hover for the exact amount)
+          </span>
+        </div>
         <p className="mt-3 max-w-2xl text-sm text-muted">{note("Figures with bars")}</p>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Price breakdown</h3>

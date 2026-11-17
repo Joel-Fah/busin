@@ -24,6 +24,9 @@ const en = {
     onHoldHint: "Available {days} days after each payment.",
     owed: "Owed to BusIn",
     owedHint: "Taken from your next payments, or invoiced on the 1st of the month.",
+    collected: "Collected this month",
+    collectedHint: "By mobile money and by receipts you approved.",
+    trend: { up: "Up {percent}% on last month", down: "Down {percent}% on last month", flat: "Same as last month", fromNothing: "Was 0 last month" },
     payout: "Next payout",
   },
   readiness: {
@@ -306,6 +309,9 @@ const fr: PaymentsCopy = {
     onHoldHint: "Disponible {days} jours après chaque paiement.",
     owed: "Dû à BusIn",
     owedHint: "Pris sur vos prochains paiements, ou facturé le 1er du mois.",
+    collected: "Encaissé ce mois-ci",
+    collectedHint: "Par mobile money et par les reçus que vous avez approuvés.",
+    trend: { up: "+{percent} % par rapport au mois dernier", down: "-{percent} % par rapport au mois dernier", flat: "Comme le mois dernier", fromNothing: "0 le mois dernier" },
     payout: "Prochain virement",
   },
   readiness: {

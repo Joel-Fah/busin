@@ -143,6 +143,18 @@ export function restorePayoutAccounts(proposers: string[], active: string[]): vo
 }
 
 /**
+ * Removes what a platform admin entered in the console's private payment tables (infrastructure costs and wallet
+ * movements, ADR 0029), so a test leaves the books as it found them. The id is a generated UUID.
+ */
+export function deletePlatformPaymentRowsBy(userId: string): void {
+  if (!/^[0-9a-f-]{36}$/.test(userId)) throw new Error("a user id is a UUID");
+  sql(`
+    delete from private.infra_costs where created_by = '${userId}';
+    delete from private.wallet_movements where created_by = '${userId}';
+  `);
+}
+
+/**
  * Creates a user that looks like a Google sign-up. The Auth admin API marks every user it
  * creates as an email sign-up, which the sign-up trigger rightly refuses, so the row is
  * inserted directly. A password is set only so the test can open a real session.
