@@ -31,6 +31,11 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: time zone dropdown on the new school page (2026-11-17)
+
+- `phase-6/new-school-dropdown` (#544): the time zone is picked from a searchable list like the country, on desktop
+  and phone, in both themes. Owner: open the console's New school on a phone and pick a country and a time zone.
+
 ## Handoff: rich text notices (2026-11-17)
 
 - The platform's notices to a school are written with formatting and shown laid out in the portal, on
