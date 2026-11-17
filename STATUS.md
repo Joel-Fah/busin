@@ -31,6 +31,13 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: Next.js security patch (2026-11-17)
+
+- Next.js 16.4.6 on `phase-6/next-16-4-6` (#534), PR into `dev` for the owner to merge. After merging, redeploy the
+  portal so the hosted site gets the fix.
+- Known and left: `@grpc/grpc-js` advisory through firebase's Firestore, not loaded by the portal; revisit when a
+  firebase release moves to a fixed grpc.
+
 ## Handoff: platform console and account deletion on `dev` and live (2026-11-16)
 
 Merged into `dev` (owner approved): #510 to #517 (platform console) and #519 (account deletion). Live database (owner
