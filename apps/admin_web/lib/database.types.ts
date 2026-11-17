@@ -507,14 +507,14 @@ isOneToOne: false
                   ]
                 },"school_notices": {
                   Row: {
-                    "body": string,"created_at": string,"created_by": string,"dismissed_at": string | null,"dismissed_by": string | null,"expires_at": string,"id": string,"link_path": string | null,"school_id": string,"signals": (string)[]
+                    "body": string,"body_doc": Json | null,"created_at": string,"created_by": string,"dismissed_at": string | null,"dismissed_by": string | null,"expires_at": string,"id": string,"link_path": string | null,"school_id": string,"signals": (string)[]
                   }
                   ComputedFields: never
                   Insert: {
-                    "body": string,"created_at"?: string,"created_by": string,"dismissed_at"?: string | null,"dismissed_by"?: string | null,"expires_at"?: string,"id"?: string,"link_path"?: string | null,"school_id": string,"signals"?: (string)[]
+                    "body": string,"body_doc"?: Json | null,"created_at"?: string,"created_by": string,"dismissed_at"?: string | null,"dismissed_by"?: string | null,"expires_at"?: string,"id"?: string,"link_path"?: string | null,"school_id": string,"signals"?: (string)[]
                   }
                   Update: {
-                    "body"?: string,"created_at"?: string,"created_by"?: string,"dismissed_at"?: string | null,"dismissed_by"?: string | null,"expires_at"?: string,"id"?: string,"link_path"?: string | null,"school_id"?: string,"signals"?: (string)[]
+                    "body"?: string,"body_doc"?: Json | null,"created_at"?: string,"created_by"?: string,"dismissed_at"?: string | null,"dismissed_by"?: string | null,"expires_at"?: string,"id"?: string,"link_path"?: string | null,"school_id"?: string,"signals"?: (string)[]
                   }
                   Relationships: [
                     {
@@ -1159,7 +1159,7 @@ isOneToOne: false
             }[]
                            },
 "platform_send_notice":
-{ Args: { "p_body": string,"p_follow_up_on"?: string,"p_link_path"?: string,"p_school_id": string,"p_signals"?: (string)[],"p_snooze_days"?: number }; Returns: string
+{ Args: { "p_body": string,"p_body_doc"?: Json,"p_follow_up_on"?: string,"p_link_path"?: string,"p_school_id": string,"p_signals"?: (string)[],"p_snooze_days"?: number }; Returns: string
                            },
 "platform_set_school_status":
 { Args: { "p_active": boolean,"p_school_id": string }; Returns: undefined

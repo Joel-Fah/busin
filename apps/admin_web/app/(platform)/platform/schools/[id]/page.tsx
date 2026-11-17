@@ -180,6 +180,7 @@ async function School({ params, searchParams }: { params: Params; searchParams: 
                   copy={{ en: messageCopy(en), fr: messageCopy(fr) }}
                   language={locale}
                   text={o}
+                  editorText={t.richText}
                   titles={shortNames}
                   closeLabel={t.help.close}
                   dateText={t.pickers.date}

@@ -7,6 +7,7 @@
 import { format } from "@/lib/i18n/format";
 import type { Locale, Messages } from "@/lib/i18n/messages";
 import { signalSentence, type Signal, type SignalKey } from "@/lib/platform-health";
+import { docToPlainText, MAX_TEXT, type RichDoc, type RichListItem } from "@/lib/rich-text";
 
 export const CHANNELS = ["email", "whatsapp", "call", "notice", "meeting", "other"] as const;
 export type Channel = (typeof CHANNELS)[number];
@@ -50,19 +51,37 @@ export function signalPath(signal: Pick<Signal, "signal" | "detail">): string {
   return PATHS[signal.signal];
 }
 
-export type ReadyMessage = { subject: string; body: string; notice: string; link: string | null };
+export type ReadyMessage = { subject: string; body: string; notice: string; noticeDoc: RichDoc; link: string | null };
 
-/** What the message needs from one language's catalogue: passed in, so a page sends only this to the browser. */
-export type MessageCopy = { health: Messages["platform"]["health"]; message: Messages["platform"]["outreach"]["message"] };
+/**
+ * What the message needs from one language's catalogue: passed in, so a page sends only this to the browser. `notice`
+ * is the school portal's own words around a notice, for the preview of how the school will see it.
+ */
+export type MessageCopy = {
+  health: Messages["platform"]["health"];
+  message: Messages["platform"]["outreach"]["message"];
+  notice: Pick<Messages["notices"], "from" | "open" | "dismiss" | "showMore" | "showLess" | "newTab">;
+};
 
 export function messageCopy(t: Messages): MessageCopy {
-  return { health: t.platform.health, message: t.platform.outreach.message };
+  const { from, open, dismiss, showMore, showLess, newTab } = t.notices;
+  return { health: t.platform.health, message: t.platform.outreach.message, notice: { from, open, dismiss, showMore, showLess, newTab } };
+}
+
+/** The ready notice as rich text: the intro, then one bullet per point. */
+function noticeDocOf(intro: string, points: string[]): RichDoc {
+  const items: RichListItem[] = points.map((text) => ({ type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", text }] }] }));
+  return {
+    type: "doc",
+    content: [{ type: "paragraph", content: [{ type: "text", text: intro }] }, ...(items.length > 0 ? [{ type: "bulletList" as const, content: items }] : [])],
+  };
 }
 
 /**
  * The message for a school about the chosen signals, in the chosen language: a greeting, one line per signal (what we
- * see, what helps, and the page that fixes it), and a closing. `notice` is the shorter text for the in-portal notice,
- * whose button leads to `link` (the first signal's page).
+ * see, what helps, and the page that fixes it), and a closing. `noticeDoc` is the shorter rich text for the in-portal
+ * notice (the intro, then one bullet per signal), `notice` its plain text; its button leads to `link` (the first
+ * signal's page).
  */
 export function readyMessage(schoolName: string, signals: Signal[], copy: MessageCopy, language: Locale, siteUrl: string): ReadyMessage {
   const t = copy;
@@ -83,11 +102,15 @@ export function readyMessage(schoolName: string, signals: Signal[], copy: Messag
     "",
     m.signature,
   ].join("\n");
-  const notice = [m.noticeIntro, ...signals.map((signal) => `${signalSentence(signal, t.health, language)}. ${m.tips[signal.signal]}`)].join("\n");
+  const points = signals.map((signal) => `${signalSentence(signal, t.health, language)}. ${m.tips[signal.signal]}`);
+  // Every signal fits in practice; the last ones are left out if the notice would pass the limit.
+  let noticeDoc = noticeDocOf(m.noticeIntro, points);
+  for (let n = points.length - 1; n >= 0 && docToPlainText(noticeDoc).length > MAX_TEXT; n--) noticeDoc = noticeDocOf(m.noticeIntro, points.slice(0, n));
   return {
     subject: format(m.subject, { school: schoolName }),
     body,
-    notice: notice.slice(0, 600),
+    notice: docToPlainText(noticeDoc),
+    noticeDoc,
     link: signals.length > 0 ? signalPath(signals[0]) : null,
   };
 }

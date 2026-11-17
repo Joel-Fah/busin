@@ -2,8 +2,10 @@
 
 import { useMemo, useState } from "react";
 import {
+  ArrowRight01Icon,
   Call02Icon,
   Calendar02Icon,
+  Cancel01Icon,
   Mail01Icon,
   Megaphone01Icon,
   Message01Icon,
@@ -12,9 +14,11 @@ import {
   WhatsappIcon,
 } from "@hugeicons/core-free-icons";
 
+import { NoticeCard } from "@/components/overview/NoticeCard";
 import { Button } from "@/components/ui/Button";
 import { DatePicker, type DatePickerText } from "@/components/ui/DatePicker";
 import { Icon } from "@/components/ui/Icon";
+import { RichTextEditor } from "@/components/ui/RichTextEditor";
 import { Select } from "@/components/ui/Select";
 import { SideSheet } from "@/components/ui/SideSheet";
 import { Textarea } from "@/components/ui/Textarea";
@@ -22,6 +26,7 @@ import { format } from "@/lib/i18n/format";
 import type { Locale, Messages } from "@/lib/i18n/messages";
 import type { Signal } from "@/lib/platform-health";
 import { CHANNELS, SNOOZE_DAYS, mailtoHref, readyMessage, whatsappHref, type Contact, type MessageCopy } from "@/lib/platform-outreach";
+import { MAX_TEXT, type RichDoc } from "@/lib/rich-text";
 
 type Props = {
   schoolId: string;
@@ -35,6 +40,8 @@ type Props = {
   copy: Record<Locale, MessageCopy>;
   language: Locale;
   text: Messages["platform"]["outreach"];
+  /** The notice editor's toolbar and count, in the console's language. */
+  editorText: Messages["richText"];
   /** Short names of the signals, by key. */
   titles: Record<string, string>;
   closeLabel: string;
@@ -71,11 +78,14 @@ export function ReachOut(props: Props) {
 
   const picked = useMemo(() => signals.filter((s) => chosen.has(s.signal)), [signals, chosen]);
   const ready = useMemo(() => readyMessage(schoolName, picked, copy[language], language, siteUrl), [schoolName, picked, copy, language, siteUrl]);
-  // The texts follow the choices until edited; a new choice writes them again.
-  const [edited, setEdited] = useState<{ key: string; body: string; notice: string } | null>(null);
+  // The texts follow the choices until edited; a new choice writes them again (the notice editor starts afresh).
+  const [edited, setEdited] = useState<{ key: string; body: string } | null>(null);
+  const [noticeEdit, setNoticeEdit] = useState<{ key: string; doc: RichDoc; text: string } | null>(null);
   const key = `${language}:${[...chosen].sort().join(",")}`;
   const body = edited?.key === key ? edited.body : ready.body;
-  const notice = edited?.key === key ? edited.notice : ready.notice;
+  const notice = noticeEdit?.key === key ? noticeEdit : { doc: ready.noticeDoc, text: ready.notice };
+  const noticeOk = notice.text.length > 0 && notice.text.length <= MAX_TEXT;
+  const noticeCopy = copy[language].notice;
 
   const toggle = (signal: string) =>
     setChosen((current) => {
@@ -224,7 +234,7 @@ export function ReachOut(props: Props) {
             icon={Message01Icon}
             rows={9}
             value={body}
-            onChange={(event) => setEdited({ key, body: event.currentTarget.value, notice })}
+            onChange={(event) => setEdited({ key, body: event.currentTarget.value })}
           />
           <section aria-label={text.sendWith} className="flex flex-col gap-2">
             <p className="m-0 text-sm font-semibold">{text.sendWith}</p>
@@ -236,19 +246,42 @@ export function ReachOut(props: Props) {
               {hidden}
               <input type="hidden" name="link" value={ready.link ?? ""} />
               <p className="m-0 text-sm text-muted">{text.noticeHint}</p>
-              <Textarea
+              <RichTextEditor
+                key={key}
                 id="reach-notice"
-                name="notice"
+                name="notice_doc"
                 label={text.noticeLabel}
-                icon={Megaphone01Icon}
-                rows={4}
-                maxLength={600}
-                value={notice}
-                onChange={(event) => setEdited({ key, body, notice: event.currentTarget.value })}
+                text={props.editorText}
+                initial={ready.noticeDoc}
+                placeholder={text.noticePlaceholder}
+                onChange={(doc, plain) => setNoticeEdit({ key, doc, text: plain })}
               />
+              <section aria-label={text.preview} className="flex flex-col gap-2" data-testid="notice-preview">
+                <p className="m-0 text-sm font-semibold">{text.preview}</p>
+                {/* A preview: its links and buttons are drawn but lead nowhere. */}
+                <NoticeCard
+                  preview
+                  title={noticeCopy.from}
+                  doc={notice.doc}
+                  text={notice.text}
+                  labels={noticeCopy}
+                  actions={
+                    <>
+                      {ready.link ? (
+                        <Button type="button" variant="secondary" icon={ArrowRight01Icon} disabled>
+                          {noticeCopy.open}
+                        </Button>
+                      ) : null}
+                      <Button type="button" variant="ghost" icon={Cancel01Icon} disabled>
+                        {noticeCopy.dismiss}
+                      </Button>
+                    </>
+                  }
+                />
+              </section>
               {pauseAndFollowUp("notice")}
               <div>
-                <Button type="submit" icon={Megaphone01Icon}>
+                <Button type="submit" icon={Megaphone01Icon} disabled={!noticeOk}>
                   {text.sendNoticeButton}
                 </Button>
               </div>

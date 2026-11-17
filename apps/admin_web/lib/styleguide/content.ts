@@ -303,6 +303,10 @@ export const COMPONENT_NOTES: { name: string; note: string }[] = [
     note: "A short message in a tone. Successes are announced politely (status), failures at once (alert). Say what happened, then what to do; the tone is never the only signal.",
   },
   {
+    name: "Rich text",
+    note: "Where people write more than a line for others to read (the platform's notices to a school), RichTextEditor offers bold, italic, underline, strikethrough, a large and a small heading, bulleted and numbered lists, a quote, links and line breaks (Shift+Enter), with undo, redo and a character count. Its toolbar wraps on a phone, is one tab stop (arrows move along it), names every button and its shortcut, and shows which styles are on. A link is an https:// address or a page of the portal, typed in a small field under the toolbar; anything else is refused. The editor keeps a JSON document, never HTML, and RichText draws it with a whitelist: anything it does not know is left out. In prose a link is coloured and bold, never underlined (an external one carries a small icon and opens in a new tab); underline is only a style the writer chose. A quote is a tinted, rounded block, never a rule down one side. Long text in a card is kept to about eight lines with Show more.",
+  },
+  {
     name: "Empty and loading states",
     note: "An empty list says so with the thread around it and, where it helps, an illustration; it is not a card. While a list loads, a shimmer in the same shapes holds its place, so nothing jumps when the content arrives.",
   },
