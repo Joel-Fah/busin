@@ -1,5 +1,5 @@
 /** The refusals of the outreach functions the console explains; anything else is "generic". */
-export const OUTREACH_ERRORS = ["bad_body", "bad_link", "bad_channel", "bad_follow_up", "no_school", "generic"] as const;
+export const OUTREACH_ERRORS = ["bad_body", "bad_text_link", "bad_link", "bad_channel", "bad_follow_up", "no_school", "generic"] as const;
 export type OutreachError = (typeof OUTREACH_ERRORS)[number];
 
 export function outreachErrorKey(message: string | null | undefined): OutreachError {

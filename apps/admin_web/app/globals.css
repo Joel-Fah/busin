@@ -373,3 +373,81 @@ a {
   height: 1.125rem;
   accent-color: var(--accent);
 }
+
+/*
+  The content of the rich text editor (components/ui/RichTextEditor.tsx), drawn like the RichText renderer so what is
+  written looks like what the school will read. No one-sided rule on quotes and no underline on links.
+*/
+.rich-editor .tiptap {
+  min-height: 8rem;
+  outline: none;
+  overflow-wrap: anywhere;
+}
+
+.rich-editor .tiptap > * + *,
+.rich-editor .tiptap blockquote > * + * {
+  margin-top: 0.5rem;
+}
+
+.rich-editor .tiptap h2 {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.rich-editor .tiptap h3 {
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.rich-editor .tiptap ul,
+.rich-editor .tiptap ol {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.rich-editor .tiptap ul {
+  list-style: disc;
+}
+
+.rich-editor .tiptap ol {
+  list-style: decimal;
+}
+
+.rich-editor .tiptap li {
+  padding-left: 0.25rem;
+}
+
+.rich-editor .tiptap li + li,
+.rich-editor .tiptap li > * + * {
+  margin-top: 0.25rem;
+}
+
+.rich-editor .tiptap li::marker {
+  color: var(--muted);
+}
+
+.rich-editor .tiptap blockquote {
+  margin: 0;
+  padding: 0.625rem 0.875rem;
+  border-radius: var(--r-xs);
+  background: color-mix(in srgb, var(--fg) 6%, transparent);
+  font-style: italic;
+}
+
+.rich-editor .tiptap a {
+  color: var(--link);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.rich-editor .tiptap u {
+  text-decoration-thickness: 1px;
+}
+
+.rich-editor .tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  color: var(--muted);
+  pointer-events: none;
+}

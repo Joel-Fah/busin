@@ -83,7 +83,7 @@ import {
   type SectionId,
 } from "@/lib/styleguide/content";
 
-import { MenuDemo, MenuPlacementDemo, ModalDemo, SheetDemo, TabsDemo, ToastDemo, UnsavedDemo } from "./Demos";
+import { MenuDemo, MenuPlacementDemo, ModalDemo, RichTextDemo, SheetDemo, TabsDemo, ToastDemo, UnsavedDemo } from "./Demos";
 import { ExportLinks } from "./ExportLinks";
 import { Pair, Section } from "./Section";
 import { SectionRail } from "./SectionRail";
@@ -698,6 +698,12 @@ async function Styleguide() {
           <Notice tone="info">Distances are approximate.</Notice>
         </div>
         <p className="mt-3 max-w-2xl text-sm text-muted">{note("Notices")}</p>
+
+        <h3 id="rich-text" className="mt-8 mb-3 text-lg font-bold">
+          Rich text
+        </h3>
+        <RichTextDemo text={t.richText} notice={t.notices} />
+        <p className="mt-3 max-w-2xl text-sm text-muted">{note("Rich text")}</p>
 
         <h3 className="mt-8 mb-3 text-lg font-bold">Empty and loading states</h3>
         <div className="grid gap-6 lg:grid-cols-2">

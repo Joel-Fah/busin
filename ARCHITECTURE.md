@@ -127,6 +127,7 @@ Clients receive only public values (Supabase URL, publishable key) through `--da
 | Tailwind CSS / PostCSS | 4.3.4 / 8.5.32 | Portal styling ([ADR 0009](docs/decisions/0009-design-system.md)) |
 | GSAP / Hugeicons | 3.15.0 / react 1.1.10, free icons 4.4.0 | Portal animation and icons |
 | Plus Jakarta Sans | 5.3.0 (`@fontsource-variable`) | Portal typeface, open licence |
+| TipTap | 3.32.2 (`@tiptap/react`, `pm`, `core`, `starter-kit`, `extensions`) | Portal rich text editor (MIT). Stores a JSON document, drawn by our own whitelist renderer, never HTML |
 | Vitest / Playwright | 5.0 / 1.64 | Unit and browser tests for the portal |
 | Supabase CLI | 2.122.0 | Dev dependency, run with `npx supabase` |
 | Postgres | CLI default (17) | Extensions: PostGIS, pg_cron, pgTAP |
