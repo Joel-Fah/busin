@@ -2258,6 +2258,21 @@ class BusinL10nFr extends BusinL10n {
       'Vous êtes sur un trajet en cours. Terminez-le, puis redemandez.';
 
   @override
+  String opsStaffRequestsLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Vous pouvez encore demander $count fois.',
+      one: 'Vous pouvez encore demander 1 fois.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get opsStaffRequestsUsedUp =>
+      'Vous avez utilisé toutes vos demandes d’accès du personnel. Demandez à l’administrateur de votre école de vous inviter : l’application s’ouvre dès qu’il le fait.';
+
+  @override
   String get opsTripReminderTitle => 'Votre trajet est-il terminé ?';
 
   @override

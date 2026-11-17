@@ -1275,6 +1275,8 @@ export const en = {
       newAccount: 'Not at your school yet',
       liveSubscription: 'Live subscription',
       liveHint: 'Their subscription must end before they can be staff.',
+      lastRequest: 'Last request',
+      lastHint: 'This is their third and last request. If you decline it, only an invite lets them in: Add staff by email with their address.',
       presets: ['We do not know you as a member of our staff.', 'Please sign in with the email your school gave you.'] as string[],
     },
     invite: {
@@ -1282,7 +1284,8 @@ export const en = {
       title: 'Add staff by email',
       subtitle: 'For staff and administrators, with any email address, including a personal one.',
       email: 'Email',
-      emailHint: 'The Google account they will sign in with. An account already at your school gets the role straight away.',
+      emailHint:
+        'The Google account they will sign in with. An account already at your school gets the role straight away, and so does someone who used their 3 staff requests in the ops app.',
       role: 'Role',
       roleHint: 'Staff scan boardings and run trips in the ops app. Administrators also use this portal.',
       submit: 'Add',
@@ -1304,9 +1307,11 @@ export const en = {
         invalid_role: 'Choose staff or administrator.',
         self: 'You cannot change your own role.',
         other_school: 'That email belongs to another school, or another school has already invited it.',
-        student_account: 'That email is a student\'s account here, and a student\'s account is never turned into staff. Use a Google account that was never a student\'s.',
+        student_account:
+          'That email is a student\'s account. If they are a student of your school, change their role on their page in People. Otherwise they ask for staff access in the ops app and you approve it here; an invite lets them in only once they have used their 3 requests, and only as staff.',
         account_not_active: 'That account is not active. Restore it before changing its role.',
         last_admin: 'A school must keep at least one administrator.',
+        live_subscription: 'That person has a subscription still running or waiting. It must end before they can be staff.',
         generic: 'That did not work. Try again.',
       },
     },
@@ -3203,6 +3208,8 @@ export const fr: Messages = {
       newAccount: 'Pas encore dans votre école',
       liveSubscription: 'Abonnement en cours',
       liveHint: 'Son abonnement doit se terminer avant de devenir personnel.',
+      lastRequest: 'Dernière demande',
+      lastHint: 'C’est sa troisième et dernière demande. Si vous la refusez, seule une invitation la fait entrer : Ajouter du personnel par e-mail, avec son adresse.',
       presets: ['Nous ne vous connaissons pas comme membre de notre personnel.', 'Connectez-vous avec l’e-mail que votre école vous a donné.'] as string[],
     },
     invite: {
@@ -3210,7 +3217,8 @@ export const fr: Messages = {
       title: 'Ajouter du personnel par e-mail',
       subtitle: "Pour le personnel et les administrateurs, avec n'importe quelle adresse, y compris personnelle.",
       email: 'E-mail',
-      emailHint: "Le compte Google avec lequel la personne se connectera. Un compte déjà dans votre école reçoit le rôle tout de suite.",
+      emailHint:
+        "Le compte Google avec lequel la personne se connectera. Un compte déjà dans votre école reçoit le rôle tout de suite, tout comme une personne qui a utilisé ses 3 demandes d'accès du personnel dans l'app ops.",
       role: 'Rôle',
       roleHint: "Le personnel scanne les embarquements et conduit les trajets dans l'app ops. Les administrateurs utilisent aussi ce portail.",
       submit: 'Ajouter',
@@ -3232,9 +3240,11 @@ export const fr: Messages = {
         invalid_role: 'Choisissez personnel ou administrateur.',
         self: 'Vous ne pouvez pas changer votre propre rôle.',
         other_school: "Cet e-mail appartient à une autre école, ou une autre école l'a déjà invité.",
-        student_account: "Cet e-mail est un compte d'étudiant ici, et un compte d'étudiant n'est jamais transformé en compte du personnel. Utilisez un compte Google qui n'a jamais été celui d'un étudiant.",
+        student_account:
+          "Cet e-mail est un compte d'étudiant. Si c'est un étudiant de votre école, changez son rôle sur sa page dans Personnes. Sinon, la personne demande l'accès du personnel dans l'app ops et vous l'approuvez ici ; une invitation ne la fait entrer qu'après ses 3 demandes, et seulement comme personnel.",
         account_not_active: "Ce compte n'est pas actif. Rétablissez-le avant de changer son rôle.",
         last_admin: "Une école doit garder au moins un administrateur.",
+        live_subscription: "Cette personne a un abonnement en cours ou en attente. Il doit se terminer avant qu'elle devienne personnel.",
         generic: "Cela n'a pas marché. Réessayez.",
       },
     },

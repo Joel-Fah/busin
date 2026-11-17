@@ -58,6 +58,22 @@ account (an admin of ICT University) was added to `private.platform_admins` on t
 Skipped from the light list: Lookup showing an erased account (it would mean keeping something derived from the
 email after erasure), and #496 (needs an Android build-tool upgrade, its own PR). #441 was fixed in #511.
 
+## Handoff: staff access asked at most 3 times (2026-11-17)
+
+- Done on `phase-6/staff-request-limit` (#543), merged into `dev` with #547. Migration
+  `20261117170000_staff_request_limit.sql` (applied to the local database by hand): `profiles.staff_request_count`
+  (no column grant), `request_staff_access` counts each new request and refuses the fourth (`55000 requests_used_up`);
+  changing the school of a waiting request or withdrawing it does not count. `my_staff_request` and
+  `admin_staff_requests` return `requests_left`. Inviting the email of a student account that used its 3 requests now
+  makes it verified staff (same guards as an approval); any invite applied sets the count back to 0. An approval keeps
+  the count.
+- Ops app: "You can ask N more times" after a first request; with none left, no ask button and "Ask your school's
+  administrator to invite you". Portal: a "Last request" chip and hint on the third request; new invite error
+  `live_subscription`; the `student_account` invite error explains the way in.
+- Owner: approve the change to the invite rule (a used-up student account is converted by an invite, which the
+  roles migration of 2026-11-14 refused), test the ops screen on a device, and apply the migration live with the next
+  approved database update.
+
 ## Handoff: rich text notices (2026-11-17)
 
 - The platform's notices to a school are written with formatting and shown laid out in the portal, on

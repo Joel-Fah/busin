@@ -131,11 +131,14 @@ abstract interface class StaffAccessRepository {
   /// The schools the account may ask: its own when it belongs to one, else every active school, by name.
   Future<List<OpenSchool>> listSchools();
 
-  /// The account's own request (the school asked, or the last decline with its note), or null for a staff account.
+  /// The account's own request (the school asked, or the last decline with its note, and how many requests are left),
+  /// or null for a staff account.
   Future<JoinRequest?> myRequest();
 
   /// Asks [schoolId] for staff access, or withdraws the request when it is null. [NotAllowed] with reason `too_many`
-  /// when asked again within 30 seconds, `not_your_school` for another school than the student's own.
+  /// when asked again within 30 seconds, `not_your_school` for another school than the student's own. [Conflict] with
+  /// reason `requests_used_up` once the account has sent its 3 requests (issue #543): only an administrator lets it in
+  /// then. Changing the school of a request still waiting, or withdrawing it, does not use a request.
   Future<void> requestStaffAccess(String? schoolId);
 }
 

@@ -14,6 +14,7 @@ let plainStudent: TestUser;
 let toStaff: TestUser;
 let asker: TestUser;
 let declined: TestUser;
+let lastAsker: TestUser;
 
 const nameOf = (label: string) => `E2E ${label}`;
 
@@ -26,13 +27,14 @@ test.beforeAll(async () => {
   toStaff = await createUser(`tostaff-${tag}`, "student");
   asker = await createUser(`asker-${tag}`, "student");
   declined = await createUser(`declined-${tag}`, "student");
+  lastAsker = await createUser(`lastask-${tag}`, "student");
 });
 
 test.afterAll(async () => {
   // Audit rows point at the acting admin, so they go before the users do.
   await serviceClient().from("audit_log").delete().eq("actor_id", admin?.id ?? "");
-  await serviceClient().from("audit_log").delete().in("actor_id", [asker?.id, declined?.id].filter(Boolean) as string[]);
-  for (const user of [admin, staff, promote, suspend, plainStudent, toStaff, asker, declined]) {
+  await serviceClient().from("audit_log").delete().in("actor_id", [asker?.id, declined?.id, lastAsker?.id].filter(Boolean) as string[]);
+  for (const user of [admin, staff, promote, suspend, plainStudent, toStaff, asker, declined, lastAsker]) {
     if (user) await deleteUser(user);
   }
 });
@@ -141,6 +143,23 @@ test.describe("administrator managing people", () => {
     await expect(page.getByRole("status")).toContainText("Staff access granted.");
     const { data } = await serviceClient().from("profiles").select("role, status").eq("id", asker.id).single();
     expect(data).toEqual({ role: "staff", status: "verified" });
+  });
+
+  test("a third staff request is marked as the last one, with the way in left after a decline (issue #543)", async ({ page }) => {
+    const db = serviceClient();
+    await db.from("profiles").update({ staff_request_count: 2 }).eq("id", lastAsker.id);
+    const { error } = await (await userClient(lastAsker)).rpc("request_staff_access", { p_school_id: SEED.schoolId });
+    if (error) throw new Error(error.message);
+    await page.goto("/people?role=verify");
+    const row = page.getByRole("region", { name: "Staff access requests" }).getByRole("row").filter({ hasText: nameOf(`lastask-${tag}`) });
+    await expect(row).toContainText("Last request");
+    await expect(row).toContainText("only an invite lets them in");
+    // Once declined, the person cannot ask a fourth time.
+    await row.getByRole("button", { name: "Decline" }).click();
+    await page.getByRole("dialog", { name: "Decline this staff request?" }).getByRole("button", { name: "Decline the request" }).click();
+    await expect(page.getByRole("status")).toContainText("Staff request declined.");
+    const fourth = await (await userClient(lastAsker)).rpc("request_staff_access", { p_school_id: SEED.schoolId });
+    expect(fourth.error?.message).toBe("requests_used_up");
   });
 
   test("a declined staff request leaves the account as it was, with the note for the person", async ({ page }) => {

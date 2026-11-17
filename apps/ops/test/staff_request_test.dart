@@ -1,5 +1,6 @@
 import 'package:busin_core/busin_core.dart';
 import 'package:busin_ops/src/app.dart';
+import 'package:busin_ops/src/screens/staff_request_panel.dart';
 import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -64,6 +65,68 @@ void main() {
     expect(find.text('Test School declined your request.'), findsOneWidget);
     expect(find.text('Their note: We did not invite you.'), findsOneWidget);
     expect(find.text('Ask again'), findsOneWidget);
+  });
+
+  group('at most 3 requests (issue #543)', () {
+    testWidgets('an account that never asked is not told about a count', (tester) async {
+      await open(tester, FakeStaffAccess(request: const JoinRequest(requestsLeft: 3), requestsLeft: 3));
+      expect(find.text('Ask Test School for staff access'), findsOneWidget);
+      expect(find.textContaining('more time'), findsNothing);
+    });
+
+    testWidgets('after a decline it says how many more times the person can ask', (tester) async {
+      await open(
+        tester,
+        FakeStaffAccess(
+          request: JoinRequest(declinedAt: DateTime.utc(2026, 11, 15), declinedSchoolName: 'Test School', requestsLeft: 2),
+          requestsLeft: 2,
+        ),
+      );
+      expect(find.text('Ask again'), findsOneWidget);
+      expect(find.text('You can ask 2 more times.'), findsOneWidget);
+    });
+
+    testWidgets('with none left there is no ask button, only the way in through an administrator', (tester) async {
+      await open(
+        tester,
+        FakeStaffAccess(
+          request: JoinRequest(declinedAt: DateTime.utc(2026, 11, 15), declinedSchoolName: 'Test School', requestsLeft: 0),
+          requestsLeft: 0,
+        ),
+      );
+      expect(find.text('Test School declined your request.'), findsOneWidget);
+      expect(find.textContaining("Ask your school's administrator to invite you"), findsOneWidget);
+      expect(find.text('Ask again'), findsNothing);
+      expect(find.text('Ask Test School for staff access'), findsNothing);
+      expect(find.descendant(of: find.byType(StaffRequestPanel), matching: find.byType(BusinButton)), findsNothing);
+    });
+
+    testWidgets('withdrawing the last request leaves the administrator as the only way in', (tester) async {
+      final staffAccess = FakeStaffAccess(request: const JoinRequest(requestsLeft: 1), requestsLeft: 1);
+      await open(tester, staffAccess);
+      expect(find.text('You can ask 1 more time.'), findsOneWidget);
+      await tester.tap(find.text('Ask Test School for staff access'));
+      await settle(tester);
+      expect(find.textContaining('Your request is with Test School'), findsOneWidget);
+      BusinToast.dismiss();
+      await settle(tester, 3);
+
+      await tester.tap(find.text('Withdraw the request'));
+      await settle(tester);
+      expect(find.textContaining("Ask your school's administrator to invite you"), findsOneWidget);
+      expect(find.descendant(of: find.byType(StaffRequestPanel), matching: find.byType(BusinButton)), findsNothing);
+    });
+
+    testWidgets('a refusal from the server (requests used up) says to ask for an invite', (tester) async {
+      final staffAccess = FakeStaffAccess(request: const JoinRequest(requestsLeft: 1), requestsLeft: 1)
+        ..error = const Conflict('database 55000', reason: 'requests_used_up');
+      await open(tester, staffAccess);
+      await tester.tap(find.text('Ask Test School for staff access'));
+      await settle(tester, 3);
+      expect(find.textContaining("Ask your school's administrator to invite you"), findsOneWidget);
+      BusinToast.dismiss();
+      await settle(tester, 3);
+    });
   });
 
   testWidgets('asking again too soon says so', (tester) async {
