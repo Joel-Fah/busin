@@ -18,7 +18,8 @@ export type Kind =
   | "payment_failed"
   | "refund_completed"
   | "refund_failed"
-  | "refund_declined";
+  | "refund_declined"
+  | "trip_still_running";
 
 const KINDS: readonly Kind[] = [
   "subscription_approved",
@@ -36,6 +37,7 @@ const KINDS: readonly Kind[] = [
   "refund_completed",
   "refund_failed",
   "refund_declined",
+  "trip_still_running",
 ];
 
 /** One claimed notification, as claim_notifications returns it. */
@@ -116,6 +118,21 @@ const TEXT: Record<Kind, Record<Locale, { title: string; body: string }>> = {
     en: { title: "Refund delayed", body: "Your refund could not be sent yet. BusIn will try again; open the app to see where it stands." },
     fr: { title: "Remboursement retardé", body: "Votre remboursement n’a pas encore pu être envoyé. BusIn va réessayer ; ouvrez l’application pour suivre." },
   },
+  // A trip the person runs looks forgotten (silent for 30 minutes, or 3 hours long). Sent to the ops app with an End
+  // trip button (see ACTIONS).
+  trip_still_running: {
+    en: { title: "Is your trip over?", body: "Your trip is still running. If it is over, end it so students see the bus has stopped." },
+    fr: { title: "Votre trajet est-il terminé ?", body: "Votre trajet est toujours en cours. S'il est terminé, arrêtez-le pour que les étudiants voient que le bus s'est arrêté." },
+  },
+};
+
+/**
+ * A button some notifications carry, by kind. Android shows a button only on a notification the app draws itself, so
+ * these kinds go to Android phones as a data message (title, body and the button's words in it) that the app shows
+ * with the button; elsewhere they are ordinary notifications.
+ */
+const ACTIONS: Partial<Record<Kind, Record<Locale, string>>> = {
+  trip_still_running: { en: "End trip", fr: "Terminer le trajet" },
 };
 
 export function isKind(value: string): value is Kind {
@@ -152,6 +169,17 @@ export function buildMessage(token: string, kind: Kind, refId: string | null, lo
           notification: base ? { icon: `${base}/app-icons/icon-192.png`, badge: `${base}/app-icons/badge-96.png` } : {},
           ...(base ? { fcm_options: { link: `${base}${webRoute(kind)}` } } : {}),
         },
+      },
+    };
+  }
+  const action = ACTIONS[kind]?.[locale];
+  if (action && platform === "android") {
+    return {
+      message: {
+        token,
+        // No notification block: the app draws it, with the button. High priority so it wakes the app to do so.
+        data: { ...data, title: text.title, body: text.body, action },
+        android: { priority: "HIGH" },
       },
     };
   }

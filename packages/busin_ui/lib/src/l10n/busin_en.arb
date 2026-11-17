@@ -1371,5 +1371,13 @@
   "@refundReceiptNo": {"placeholders": {"number": {"type": "String"}}},
   "pushForegroundRefund": "News about your refund.",
   "legalPayments": "Payments and refunds",
-  "legalPaymentsBody": "Paying in the app, fees and refunds"
+  "legalPaymentsBody": "Paying in the app, fees and refunds",
+  "opsStaffRequestsLeft": "{count, plural, =1{You can ask 1 more time.} other{You can ask {count} more times.}}",
+  "@opsStaffRequestsLeft": {"placeholders": {"count": {"type": "int"}}},
+  "opsStaffRequestsUsedUp": "You have used all your requests for staff access. Ask your school's administrator to invite you: the app opens as soon as they do.",
+  "opsTripReminderTitle": "Is your trip over?",
+  "opsTripReminderBody": "Your trip is still running. If it is over, end it so students see the bus has stopped.",
+  "opsTripReminderAction": "End trip",
+  "opsTripEndedFromReminder": "Trip ended.",
+  "opsTripEndFromReminderFailed": "The trip could not be ended. Open it to try again."
 }

@@ -331,6 +331,10 @@ export const COMPONENT_NOTES: { name: string; note: string }[] = [
     note: "A country is always picked from the known list, never typed: a searchable dropdown (names in English and French, two-letter codes), each with its SVG flag. It starts on the saved country, else Cameroon. The English name is stored, so a value reads the same whatever language chose it.",
   },
   {
+    name: "Long list",
+    note: "A choice from a long list that is not a country (a time zone) opens the same panel: a search box that matches anywhere in a name (spaces stand for underscores) and the list, worked with the arrow keys, Enter and Escape, with a quiet detail at the end of each row (the offset from UTC). Only what is in the list can be chosen. Never use the browser's own suggestions (a datalist): they ignore the theme, cannot be searched in the middle of a name and differ on every phone. A panel that shrinks while searching stays on its side, touching its field.",
+  },
+  {
     name: "School logo",
     note: "A school's logo is its own: it keeps its proportions, fitted in a white plate of fixed height that lets a wide logo be up to two and a half times as wide, centred, never cropped, stretched or shown at its file size. Without a logo, initials or an icon fill a square plate.",
   },

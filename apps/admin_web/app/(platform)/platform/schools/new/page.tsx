@@ -8,7 +8,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { requirePlatformAdmin } from "@/lib/auth";
 import { isUuid } from "@/lib/ids";
 import { getMessages } from "@/lib/i18n/server";
-import { timeZones } from "@/lib/platform-onboarding";
+import { timeZoneOptions, timeZones } from "@/lib/platform-onboarding";
 import { createClient } from "@/lib/supabase/server";
 
 import { createSchool } from "./actions";
@@ -46,7 +46,7 @@ async function NewSchool({ searchParams }: { searchParams: SearchParams }) {
     <>
       <BackLink href="/platform/schools">{t.platform.school.back}</BackLink>
       <PageHeader title={o.title} />
-      <NewSchoolForm action={createSchool} text={o} locale={locale} timeZones={timeZones()} initial={initial} leadId={initial && isUuid(leadId) ? leadId : undefined} />
+      <NewSchoolForm action={createSchool} text={o} locale={locale} timeZones={timeZoneOptions(timeZones())} initial={initial} leadId={initial && isUuid(leadId) ? leadId : undefined} />
     </>
   );
 }

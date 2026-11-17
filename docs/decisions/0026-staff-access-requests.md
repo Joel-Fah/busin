@@ -33,3 +33,12 @@ refused. The only way out was a manual change in the database.
 - A sign-in with an email that no school accepts is still refused before any account exists (the server cannot tell
   which app it came from), and the ops app says to ask the school for an invite. Inviting stays the direct path.
 - Installed ops apps from before this change show the old dead end until updated; the request needs the new build.
+
+## Addendum: at most 3 requests (issue #543, the owner's rule, 2026-11-17)
+- An account sends at most 3 staff requests in all (any school). Changing the school of a waiting request, or
+  withdrawing it, does not use one. The fourth is refused (`requests_used_up`); the app then says to ask the school's
+  administrator for an invite.
+- After that only an administrator lets the account in: approving a request still waiting, or inviting the email. An
+  invite now makes such an account verified staff at once (same guards as an approval); any other student account is
+  still refused by an invite. An applied invite sets the count back to 0; an approval leaves it.
+- Details in `supabase/migrations/20261117170000_staff_request_limit.sql`.

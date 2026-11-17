@@ -307,6 +307,13 @@ export async function chooseOption(page: Page, label: string | RegExp, option: s
   await page.getByRole("option", { name: option }).click();
 }
 
+/** Picks from a dropdown with a search box (SearchSelect, CountrySelect): open it, search, choose by name. */
+export async function searchAndChoose(page: Page, label: string | RegExp, search: string, option: string | RegExp): Promise<void> {
+  await page.getByRole("combobox", { name: label }).click();
+  await page.getByRole("searchbox").fill(search);
+  await page.getByRole("option", { name: option }).click();
+}
+
 /**
  * Sets the value a custom picker will submit (its hidden field), for tests that are about what the
  * server does with a date, not about the picker. The picker itself is tested on its own.

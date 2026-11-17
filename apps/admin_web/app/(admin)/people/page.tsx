@@ -25,6 +25,7 @@ import { getMessages } from "@/lib/i18n/server";
 import { PAGE_SIZE, PAGE_SIZES, first, lastPage, pageRange, parsePage, parsePageSize, sizeParam } from "@/lib/pagination";
 import {
   accountTone,
+  isLastStaffRequest,
   isPeopleDone,
   isPeopleErrorKey,
   parseRoleFilter,
@@ -234,6 +235,7 @@ async function PeopleList({ searchParams }: { searchParams: SearchParams }) {
                           <span className="mt-1 flex flex-wrap gap-1.5">
                             <Chip tone={r.student_here ? "info" : "neutral"}>{r.student_here ? t.people.staffRequests.studentHere : t.people.staffRequests.newAccount}</Chip>
                             {r.live_subscription ? <Chip tone="warn">{t.people.staffRequests.liveSubscription}</Chip> : null}
+                            {isLastStaffRequest(r.requests_left) ? <Chip tone="warn">{t.people.staffRequests.lastRequest}</Chip> : null}
                           </span>
                         </div>
                       </div>
@@ -241,6 +243,7 @@ async function PeopleList({ searchParams }: { searchParams: SearchParams }) {
                     <Td className="text-muted">{formatDate(r.requested_at, locale, admin.schoolTimezone)}</Td>
                     <Td>
                       {r.live_subscription ? <p className="m-0 mb-2 text-xs text-muted">{t.people.staffRequests.liveHint}</p> : null}
+                      {isLastStaffRequest(r.requests_left) ? <p className="m-0 mb-2 text-xs text-muted">{t.people.staffRequests.lastHint}</p> : null}
                       <JoinRequestActions
                         id={r.id}
                         copy={{

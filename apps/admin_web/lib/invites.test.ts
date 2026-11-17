@@ -25,6 +25,9 @@ describe("roles", () => {
 describe("inviteErrorKey", () => {
   it("maps the database answers", () => {
     expect(inviteErrorKey("55000", "other_school")).toBe("other_school");
+    // Inviting someone who used their 3 staff requests (issue #543) is refused while their subscription runs.
+    expect(inviteErrorKey("55000", "live_subscription")).toBe("live_subscription");
+    expect(inviteErrorKey("55000", "student_account")).toBe("student_account");
     expect(inviteErrorKey("22023", "invalid_role")).toBe("invalid_role");
     expect(inviteErrorKey("22023", "invalid_email")).toBe("invalid_email");
     expect(inviteErrorKey("42501", "You cannot change your own role")).toBe("self");
@@ -33,6 +36,7 @@ describe("inviteErrorKey", () => {
 
   it("reads only known keys back from the address", () => {
     expect(parseInviteError("other_school")).toBe("other_school");
+    expect(parseInviteError("live_subscription")).toBe("live_subscription");
     expect(parseInviteError("<script>")).toBeNull();
     expect(parseInviteDone(["applied"])).toBe("applied");
     expect(parseInviteDone("nope")).toBeNull();

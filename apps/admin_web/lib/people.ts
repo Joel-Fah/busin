@@ -155,6 +155,14 @@ export function isPeopleErrorKey(value: string | undefined): value is PeopleErro
 
 export type PeopleDone = "role" | "suspended" | "restored" | "verified" | "declined" | "withdrawn" | "staffApproved" | "staffDeclined";
 
+/**
+ * Whether a staff access request is the person's last one (issue #543): an account sends at most 3, so when none are
+ * left, declining it leaves only an invite (Add staff by email) to let them in. An unknown count is not the last.
+ */
+export function isLastStaffRequest(requestsLeft: number | null | undefined): boolean {
+  return typeof requestsLeft === "number" && requestsLeft <= 0;
+}
+
 export function isPeopleDone(value: string | undefined): value is PeopleDone {
   return ["role", "suspended", "restored", "verified", "declined", "withdrawn", "staffApproved", "staffDeclined"].includes(value ?? "");
 }

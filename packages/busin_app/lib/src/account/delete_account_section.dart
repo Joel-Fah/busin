@@ -185,3 +185,30 @@ class _ConfirmSheet extends StatelessWidget {
     );
   }
 }
+
+/// "Delete my account" as a quiet text button, for the screens where an account waits or is blocked (a student waiting
+/// for a school, a student account in the staff app, a suspended account): it opens [DeleteAccountSection] in a sheet,
+/// so deleting is possible from wherever the person is stuck (ADR 0028).
+class DeleteAccountLink extends StatelessWidget {
+  const DeleteAccountLink({super.key, required this.repository});
+
+  final AccountDeletionRepository repository;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = BusinL10n.of(context);
+    return TextButton(
+      onPressed: () => showBusinSheet<void>(
+        context,
+        isScrollControlled: true,
+        builder: (sheet) => SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(BusinSpace.x4, 0, BusinSpace.x4, BusinSpace.x4),
+            child: DeleteAccountSection(repository: repository),
+          ),
+        ),
+      ),
+      child: Text(l10n.accountDeleteOpen),
+    );
+  }
+}

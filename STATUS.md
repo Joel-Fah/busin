@@ -31,25 +31,6 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
-## To do: owner's list (2026-11-17), not started
-
-Each gets its own issue and a branch from `dev` (not the payments branch).
-
-- [ ] **Ops: trips left running, in steps.** Today `private.end_stale_trips` ends a trip that started on an earlier
-      school day (hourly job), and the portal flags one overdue after 3 hours or 30 minutes without a position; nobody
-      on the trip is told. Plan:
-  - Reminder push to whoever runs the trip, with an "End trip" action in the notification, when the bus has been
-    silent for 30 minutes or 3 hours after the start (the portal's overdue rules).
-  - A second reminder an hour later if it still runs.
-  - Automatic end at the end of the school day, as today (sooner than 24 hours, and never cuts a trip still running
-    that day). Owner to confirm these intervals.
-- [ ] **Ops: staff access asked at most 3 times.** Today the only limit is one request every 30 seconds
-      (`request_staff_access`). After 3 declined requests, the account cannot ask again; only the school's
-      administrator can let it in (for example by inviting the email).
-- [ ] **Platform: the dropdown on the new school page** (`/platform/schools/new`): to reproduce first; ask the owner
-      which one (country or time zone) and what goes wrong.
-- [ ] **Platform: the lookup result card on a phone** (`/platform/lookup`): the header is too packed; give it room.
-
 ## Handoff: payments, in progress on `phase-6/payments` (2026-11-17)
 
 Mobile money through pawaPay (ADR 0029, proposed), kept on its own branch: nothing goes to `dev` or live until the
@@ -76,6 +57,8 @@ school portal, platform console, legal texts). The local database has the paymen
   look, months, operators, top schools, infrastructure costs, wallet movements), settings with an estimate, and a
   Payments card on a school's page. Money in state colours with trends; long amounts written short with the exact
   amount on hover.
+- `dev` (release #554) merged into this branch (2026-11-17): it now has the time zone list, the lookup card, trip
+  reminders and the staff request limit. All suites pass after the merge.
 - All seven slices are built. Next: the owner's tests, then the pawaPay sandbox run once the key is in, then a review
   of the whole branch before it goes to `dev`.
 - Owner: have a lawyer read the payment parts of the texts and pawaPay's merchant terms in full before release.
@@ -85,10 +68,76 @@ school portal, platform console, legal texts). The local database has the paymen
   requirements, and written confirmation on the student's fee. Decide the per-student charge (BusIn's margin; it can
   change later). The key goes in `supabase/functions/.env` locally (see the setup guide), never in an app.
 
+## Handoff: released to `main` (2026-11-17, #554)
+
+- Live: the Next.js 16.4.6 patch, rich text notices, trip reminders with an End trip action, staff access asked at most
+  3 times, the console's time zone list and lookup card, release signing, store docs, Delete my account where an
+  account is stuck, and the nightly clearing of old rows. Live database: migrations `20261116190000`,
+  `20261117090000`, `20261117170000` and `20261117180000` applied (owner approved, dry run first); `send-push`
+  redeployed.
+- Not released: payments (`phase-6/payments`, being tested) and the public legal pages (#525, waiting for the owner's
+  review).
+- Owner: build the ops app (trip reminders, the staff request limit) and the student app (Delete my account on the
+  waiting and blocked screens) and try them on a phone; the redeployed `send-push` sends trip reminders to Android as
+  data messages, which only the new ops build draws with its button.
+
+## Handoff: release signing and store docs (2026-11-16, #521, #522)
+
+- Release signing: both apps read `android/key.properties` (never in git) and sign release builds with the upload key,
+  else the debug key (checked with `signingReport` both ways). `npm run build:release -- <student|ops> [appbundle|apk]`
+  builds against production and says which key signed it. Guide: `docs/guides/release-signing.md` (owner: make the two
+  upload keys). A full app bundle build was not run here.
+- Store docs: `docs/store/data-safety.md` (Data safety and app content answers for both apps, from the code) and
+  `docs/store/listings.md` (titles and descriptions in EN and FR, within Play's limits). Still to make: screenshots, the
+  feature graphic, a support email, and the reviewer demo accounts.
+- Delete account from where an account is stuck: a "Delete my account" button opens the deletion card in a sheet on the
+  student app's choose-school, waiting and blocked screens, and the ops app's blocked screen (ADR 0028's gap closed).
+- Housekeeping: `busin-prune-old-rows` (03:10 UTC) clears pushes sent over 30 days ago and failed over 90, "bus near"
+  markers over 30 days, and usage counters over 90 days (migration `20261116190000_prune_old_rows`, local only; hosted
+  with the owner's go). The Health page names it and the deletion job.
+
+Distributed for testing (2026-11-16, built from `dev` at `3a21456`, production, debug-signed like the earlier test
+builds): BusIn Ops 0.1.0 (3) and BusIn (student) 0.1.0 (2) to the BusIn Inders group on App Distribution, with release
+notes. They include account deletion in the profile; the deletion on blocked screens (#528) comes with the next builds.
+
+Released to `main` (2026-11-17, #530, owner's request): the platform console and account deletion, deployed by
+Vercel (checked: `/delete-account` answers, `/platform` asks to sign in). Closed #501 to #509, #518, #441. The owner's
+account (an admin of ICT University) was added to `private.platform_admins` on the live project (owner's request), so
+`/platform` opens for it. Owner: give Google Play the `/delete-account` link when the time comes. Not in this release: #525 to #529 (review the legal texts before #525).
+
+Skipped from the light list: Lookup showing an erased account (it would mean keeping something derived from the
+email after erasure), and #496 (needs an Android build-tool upgrade, its own PR). #441 was fixed in #511.
+
+## Handoff: staff access asked at most 3 times (2026-11-17)
+
+- Done on `phase-6/staff-request-limit` (#543), merged into `dev` with #547. Migration
+  `20261117170000_staff_request_limit.sql` (applied to the local database by hand): `profiles.staff_request_count`
+  (no column grant), `request_staff_access` counts each new request and refuses the fourth (`55000 requests_used_up`);
+  changing the school of a waiting request or withdrawing it does not count. `my_staff_request` and
+  `admin_staff_requests` return `requests_left`. Inviting the email of a student account that used its 3 requests now
+  makes it verified staff (same guards as an approval); any invite applied sets the count back to 0. An approval keeps
+  the count.
+- Ops app: "You can ask N more times" after a first request; with none left, no ask button and "Ask your school's
+  administrator to invite you". Portal: a "Last request" chip and hint on the third request; new invite error
+  `live_subscription`; the `student_account` invite error explains the way in.
+- Owner: approve the change to the invite rule (a used-up student account is converted by an invite, which the
+  roles migration of 2026-11-14 refused), test the ops screen on a device, and apply the migration live with the next
+  approved database update.
+
+## Handoff: time zone dropdown on the new school page (2026-11-17)
+
+- `phase-6/new-school-dropdown` (#544): the time zone is picked from a searchable list like the country, on desktop
+  and phone, in both themes. Owner: open the console's New school on a phone and pick a country and a time zone.
+
+## Handoff: lookup result on a phone (2026-11-17)
+
+- `phase-6/lookup-card-phone` (#545): on a phone the lookup result's header stacks (avatar, name, email, chips);
+  desktop unchanged. Owner: look up an account in the console on a phone.
+
 ## Handoff: rich text notices (2026-11-17)
 
-- The platform's notices to a school are written with formatting and shown laid out in the portal (#537), merged into
-  `dev` with #538 after the Next.js patch (#535).
+- The platform's notices to a school are written with formatting and shown laid out in the portal (#537, merged with
+  #538, live).
 - Owner: try it from a school's page in the console (Reach out, then In the portal), and on that school's portal
   overview. The migration `20261117090000_rich_notices.sql` goes live with the next approved database update.
 
@@ -98,20 +147,21 @@ school portal, platform console, legal texts). The local database has the paymen
 - Known and left: `@grpc/grpc-js` advisory through firebase's Firestore, not loaded by the portal; revisit when a
   firebase release moves to a fixed grpc.
 
-## Handoff: light work before the stores (2026-11-16, stacked branches from `phase-6/public-legal-pages`)
+## Handoff: trip reminders (2026-11-17, `phase-6/trip-reminders`, #542)
+
+- Whoever runs a trip that looks forgotten (silent 30 minutes, or 3 hours long) gets a push with an End trip button,
+  a second one an hour later; the end of the school day still ends it.
+- Owner: build the ops app and try it on a phone (start a trip, stop sharing the position for 30 minutes, or set the
+  trip's start back in the local database), with the app open, in the background and closed. The migration goes live
+  with the next approved database update.
+
+## Handoff: public legal pages (2026-11-16, #525, on the payments branch only)
 
 - Public legal pages: `/legal/terms`, `/legal/privacy`, `/legal/acceptable-use` (`/privacy` and `/terms` redirect), the
   same texts as the apps, linked from the landing footer (no more "Soon"). The texts now say people delete their own
   account (7 days, the school keeps its records anonymised), in the apps and on the web; dated 16 November 2026.
   Owner: these texts are still the plain-language draft; review them before `dev` goes to `main`, since they become
   public then.
-- Release signing: both apps read `android/key.properties` (never in git) and sign release builds with the upload key,
-  else the debug key (checked with `signingReport` both ways). `npm run build:release -- <student|ops> [appbundle|apk]`
-  builds against production and says which key signed it. Guide: `docs/guides/release-signing.md` (owner: make the two
-  upload keys). A full app bundle build was not run here.
-- Store docs: `docs/store/data-safety.md` (Data safety and app content answers for both apps, from the code) and
-  `docs/store/listings.md` (titles and descriptions in EN and FR, within Play's limits). Still to make: screenshots, the
-  feature graphic, a support email, and the reviewer demo accounts.
 
 ## Handoff: platform console and account deletion on `dev` and live (2026-11-16)
 
@@ -137,8 +187,7 @@ function tests 33, E2E account deletion.
 
 Owner: device-test the deletion in both apps (ask, see the date, keep the account); on the hosted project, follow
 `docs/guides/account-deletion.md` (migration, function secret, deploy, the two Vault values), then give Google Play the
-`/delete-account` link. Not covered: an account blocked before the apps' main screens (a student waiting for a school, a
-student account in the ops app) asks from the website (`/app` or `/delete-account`) for now.
+`/delete-account` link. An account blocked before the apps' main screens can delete itself there too (added after).
 
 ## Handoff: account deletion, slice 2, the web (2026-11-16, branch `phase-6/account-deletion`)
 

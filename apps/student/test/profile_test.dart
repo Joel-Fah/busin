@@ -244,7 +244,10 @@ void main() {
       final handle = tester.ensureSemantics();
       final auth = FakeAuthService(signedInAs: 'u1');
       await openProfile(tester, auth, FakeProfileRepository({'u1': profile()}));
-      await tester.ensureVisible(find.text('Sign out'));
+      await tester.scrollUntilVisible(find.text('Sign out'), 300, scrollable: find.byType(Scrollable).first);
+      // Clear of the floating bottom bar before tapping.
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, -300));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Sign out'));
       await tester.pumpAndSettle();
       expect(find.text('Sign out of BusIn?'), findsOneWidget);
