@@ -81,6 +81,8 @@ describe("reviewErrorKey", () => {
 
   it("tells the new refusals apart by the database's short message", () => {
     expect(reviewErrorKey("22023", "proof_required")).toBe("proof_required");
+    expect(reviewErrorKey("55000", "payment_in_progress")).toBe("payment_in_progress");
+    expect(revokeErrorKey("55000", "payment_in_progress")).toBe("payment_in_progress");
     expect(reviewErrorKey("55000", "semester_ended")).toBe("semester_ended");
     expect(reviewErrorKey("55000", "Only pending subscriptions can be reviewed")).toBe("already_reviewed");
     expect(reinstateErrorKey("55000", "semester_ended")).toBe("semester_ended");

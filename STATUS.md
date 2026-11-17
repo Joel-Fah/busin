@@ -46,8 +46,11 @@ school portal, platform console, legal texts). The local database has the paymen
   [docs/guides/payments-setup.md](docs/guides/payments-setup.md); slice 3, paying in the student app and the student
   web app (#533); slice 4, refunds (#536): students ask with a reason, the school decides or refunds on its own (its
   screens come in slice 5), the reconciler sends refunds, one per payment.
-- Next: slice 5, the school portal: the Payments tab (balance, on hold, owed), who pays the fees beside the price with
-  the breakdown, refunds to decide, the payout number with a second administrator, payouts, invoices, CSV export.
+- Done: slice 5, the school portal (#539): `/payments`, the fees choice with the breakdown on Billing, refunds to
+  decide, the payout number with a second administrator, weekly payouts, monthly invoices, the ledger CSV.
+- Done: slice 6, the database side of the platform console (#540): settings, each school's switch and terms,
+  infrastructure costs, BusIn's money and margin, the daily wallet reading, alerts.
+- Next: slice 6, the console pages (`/platform/payments`, settings, a school's payments), then slice 7, the legal texts.
 - Later: the operators' official acceptance marks (text badges for now); showing part 1's fee before the request is
   sent.
 - Owner: ask pawaPay for a sandbox account and key, the intermediary merchant schedule, the Cameroon launch

@@ -683,6 +683,17 @@ void main() {
       expect(payment.status, PaymentStatus.accepted);
     });
 
+    test('following a payment reads named columns only (the table grants no others), and polls while followed', () async {
+      final h = Harness((_) async => json(paymentRow()));
+      final first = await h.repos.payments.watch(_id).first;
+      expect(first.status, PaymentStatus.accepted);
+      final reads = h.requests.where((r) => r.url.path == '/rest/v1/payments').toList();
+      expect(reads, isNotEmpty);
+      expect(reads.first.url.queryParameters['select'], isNot(contains('*')));
+      expect(reads.first.url.queryParameters['select'], isNot(contains('failure_message')));
+      expect(reads.first.url.queryParameters['id'], 'eq.$_id');
+    });
+
     test('a refusal from the function keeps its short code', () async {
       Future<RepositoryException> refused(int status, Object body) async {
         final h = Harness((_) async => json(body, status: status));

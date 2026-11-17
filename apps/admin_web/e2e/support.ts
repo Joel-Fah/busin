@@ -99,6 +99,49 @@ export function deletePaymentsOf(userId: string): void {
   `);
 }
 
+/** Reads one value with SQL in the local database container (school payment settings live in the private schema). */
+function sqlValue(statement: string): string {
+  return execFileSync("docker", ["exec", "-i", "supabase_db_busin", "psql", "-U", "postgres", "-tAc", statement], { encoding: "utf8" }).trim();
+}
+
+/** A school's balance as the portal shows it (`private.school_balance`). The id is a generated or seed UUID. */
+export function schoolBalance(schoolId: string): { available: number; onHold: number; owed: number } {
+  if (!/^[0-9a-f-]{36}$/.test(schoolId)) throw new Error("a school id is a UUID");
+  const [available, onHold, owed] = sqlValue(`select available_xaf || ',' || on_hold_xaf || ',' || owed_xaf from private.school_balance('${schoolId}')`).split(",").map(Number);
+  return { available, onHold, owed };
+}
+
+/**
+ * Removes the ledger lines a test wrote with its own note (ledger lines are never edited, but a test database may lose
+ * the ones a test added). The note holds letters, digits and dashes only.
+ */
+export function deleteLedgerRowsByNote(note: string): void {
+  if (!/^[a-z0-9-]+$/.test(note)) throw new Error("a test note has letters, digits and dashes only");
+  sql(`delete from public.school_ledger where note = '${note}';`);
+}
+
+/**
+ * The payout numbers a school has in use now, so a test that confirms another can put them back with
+ * restorePayoutAccounts after removing the ones its administrators proposed.
+ */
+export function activePayoutAccounts(schoolId: string): string[] {
+  if (!/^[0-9a-f-]{36}$/.test(schoolId)) throw new Error("a school id is a UUID");
+  return sqlValue(`select coalesce(string_agg(id::text, ','), '') from public.school_payout_accounts where school_id = '${schoolId}' and status = 'active'`)
+    .split(",")
+    .filter(Boolean);
+}
+
+/** Removes the payout numbers the given users proposed, and makes the numbers that were in use before active again. */
+export function restorePayoutAccounts(proposers: string[], active: string[]): void {
+  for (const id of [...proposers, ...active]) if (!/^[0-9a-f-]{36}$/.test(id)) throw new Error("ids are UUIDs");
+  const list = (ids: string[]) => ids.map((id) => `'${id}'`).join(", ");
+  sql(`
+    ${proposers.length ? `delete from public.payouts where account_id in (select id from public.school_payout_accounts where proposed_by in (${list(proposers)}));
+    delete from public.school_payout_accounts where proposed_by in (${list(proposers)});` : ""}
+    ${active.length ? `update public.school_payout_accounts set status = 'active', retired_at = null where id in (${list(active)});` : ""}
+  `);
+}
+
 /**
  * Creates a user that looks like a Google sign-up. The Auth admin API marks every user it
  * creates as an email sign-up, which the sign-up trigger rightly refuses, so the row is

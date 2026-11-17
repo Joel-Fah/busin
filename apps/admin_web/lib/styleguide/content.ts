@@ -347,6 +347,14 @@ export const COMPONENT_NOTES: { name: string; note: string }[] = [
     name: "Installment plan",
     note: "The parts of a plan side by side, each as wide as its share, with its percent and, when a price is known, its amount. Shown where a school chooses its plan and on a subscription paid in parts.",
   },
+  {
+    name: "Figures with bars",
+    note: "Figures that compare, such as money by month: a real table whose every figure carries a thin bar scaled to the largest figure in the table, one quiet hue for all bars because the column heading names the measure. The current row takes the accent and says why in words. Numbers stay readable as text; the bars are hidden from screen readers.",
+  },
+  {
+    name: "Price breakdown",
+    note: "What a price means per way of paying: what the student pays, BusIn's charge, the transfer cost and what the school receives, figures right-aligned and the last column bold. Worked out by the database as the price is typed, never by the portal.",
+  },
 ];
 
 export const NEVER = [

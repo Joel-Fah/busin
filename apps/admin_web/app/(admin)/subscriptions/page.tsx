@@ -21,6 +21,7 @@ import { requireAdmin } from "@/lib/auth";
 import { partsAttention } from "@/lib/billing";
 import { chipText, filterText } from "@/lib/filter-text";
 import { format, type Locale } from "@/lib/i18n/messages";
+import { paymentsCatalogues } from "@/lib/i18n/payments";
 import { getMessages } from "@/lib/i18n/server";
 import { PAGE_SIZES, lastPage, sizeParam } from "@/lib/pagination";
 import { searchFilter } from "@/lib/people";
@@ -95,7 +96,7 @@ async function SubscriptionsList({ searchParams }: { searchParams: SearchParams 
     supabase
       .from("subscriptions")
       .select(
-        `id, status, created_at, period_start, ${parts},
+        `id, status, created_at, period_start, payment_method, ${parts},
          ${studentJoin}(full_name, email, matricule),
          semester:semesters!subscriptions_semester_id_school_id_fkey(name, year),
          stop:stops!subscriptions_stop_id_school_id_fkey(name)`,
@@ -264,6 +265,7 @@ async function SubscriptionsList({ searchParams }: { searchParams: SearchParams 
                       <Td>
                         <span className="flex flex-wrap gap-1.5">
                           <Chip tone={statusTone(row.status)}>{t.status[row.status]}</Chip>
+                          {row.payment_method === "mobile_money" ? <Chip tone="info">{paymentsCatalogues[locale].subscription.chip}</Chip> : null}
                           {attention ? (
                             <Chip tone={attention.kind === "overdue" ? "bad" : "warn"}>
                               {format(attention.kind === "overdue" ? t.subscriptions.partOverdue : t.subscriptions.partToCheck, { n: attention.seq })}

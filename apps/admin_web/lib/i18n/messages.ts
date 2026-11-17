@@ -116,6 +116,7 @@ export const en = {
       semesters: { title: 'Semesters', body: 'The periods students subscribe for.' },
       school: { title: 'School profile', body: 'Your logo, contacts, faculties and departments, who may join, and the terms for schools.' },
       billing: { title: 'Billing', body: 'What students pay for the bus, per semester or per month, and whether they may pay in installments.' },
+      payments: { title: 'Payments', body: 'Your balance, payouts to your mobile money number, refunds to decide and BusIn invoices.' },
     },
   },
   overview: {
@@ -391,6 +392,7 @@ export const en = {
       not_revoked: 'Only a revoked subscription can be reinstated.',
       live_exists: 'The student already has a live subscription for this semester. Deal with that one first.',
       period_ended: 'That month has already ended, so this cannot be approved or given back.',
+      payment_in_progress: 'A mobile money payment for this request is going through now. Wait for it to finish, then decide.',
       generic: 'The decision could not be saved. Try again.',
     },
   },
@@ -2042,6 +2044,7 @@ export const fr: Messages = {
       semesters: { title: 'Semestres', body: "Les périodes pour lesquelles les étudiants s'abonnent." },
       school: { title: "Profil de l'école", body: "Votre logo, vos contacts, vos facultés et départements, qui peut rejoindre, et les conditions pour les écoles." },
       billing: { title: 'Facturation', body: "Ce que les étudiants paient pour le bus, par semestre ou par mois, et s'ils peuvent payer en plusieurs fois." },
+      payments: { title: 'Paiements', body: 'Votre solde, les virements vers votre numéro mobile money, les remboursements à décider et les factures BusIn.' },
     },
   },
   overview: {
@@ -2317,6 +2320,7 @@ export const fr: Messages = {
       not_revoked: 'Seul un abonnement révoqué peut être rétabli.',
       live_exists: "L'étudiant a déjà un abonnement en cours pour ce semestre. Traitez d'abord celui-là.",
       period_ended: 'Ce mois est déjà terminé : impossible de l’approuver ou de le rétablir.',
+      payment_in_progress: 'Un paiement mobile money de cette demande est en cours. Attendez qu’il se termine, puis décidez.',
       generic: "La décision n'a pas pu être enregistrée. Réessayez.",
     },
   },

@@ -18,9 +18,12 @@ import { ListSkeleton } from "@/components/ui/ListSkeleton";
 import { Notice } from "@/components/ui/Notice";
 
 import { PlanParts } from "@/components/billing/PlanParts";
+import { RefundPayment } from "@/components/payments/RefundPayment";
 import { requireAdmin } from "@/lib/auth";
 import { formatAmount, isInstallmentPlan, planPercents, type InstallmentRow } from "@/lib/billing";
 import { format } from "@/lib/i18n/messages";
+import { paymentsCatalogues } from "@/lib/i18n/payments";
+import { canRefund, isOpenPayment, isProvider, paymentStage, refundGroup, stageTone } from "@/lib/payments";
 import { REASON_MIN } from "@/lib/reasons";
 import { getMessages } from "@/lib/i18n/server";
 import { createClient } from "@/lib/supabase/server";
@@ -37,6 +40,7 @@ import {
   type SubscriptionOperation,
 } from "@/lib/subscriptions";
 
+import { refundPayment } from "../../payments/actions";
 import { approveSubscription, markInstallmentPaid, reinstateSubscription, rejectInstallment, rejectSubscription, revokeSubscription } from "../actions";
 
 export const metadata: Metadata = { title: "Subscription" };
@@ -70,7 +74,7 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
     .from("subscriptions")
     .select(
       `id, status, created_at, proof_path, review_note, reviewed_at, student_id, semester_id,
-       period_start, period_end, payment_mode, amount_xaf, installment_plan,
+       period_start, period_end, payment_mode, amount_xaf, installment_plan, payment_method,
        student:profiles!subscriptions_student_id_school_id_fkey(full_name, email, matricule, status),
        semester:semesters!subscriptions_semester_id_school_id_fkey(name, year),
        stop:stops!subscriptions_stop_id_school_id_fkey(name),
@@ -183,6 +187,20 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
   }
   const supersededBy = live && live.id !== row.id ? live : null;
 
+  // Mobile money payments for this request and its parts (ADR 0029), the newest first, with their refunds.
+  const { data: paymentRows } = await supabase
+    .from("payments")
+    .select("id, purpose, amount_xaf, total_xaf, provider, status, outcome, receipt_no, created_at, completed_at, part:subscription_installments!payments_installment_id_fkey(seq), refunds(status, amount_xaf)")
+    .eq("subscription_id", row.id)
+    .neq("purpose", "invoice")
+    .order("created_at", { ascending: false })
+    .limit(20);
+  const momoPayments = paymentRows ?? [];
+  const momo = row.payment_method === "mobile_money";
+  const paymentRunning = momoPayments.some((p) => p.purpose === "subscription" && isOpenPayment(p.status));
+  const lastRequestPayment = momoPayments.find((p) => p.purpose === "subscription");
+  const pm = paymentsCatalogues[locale];
+
   // How many requests the student has made so far, by state.
   const { data: everything } = await supabase.from("subscriptions").select("status").eq("student_id", row.student_id).limit(200);
   const allStatuses = (everything ?? []).map((s) => s.status);
@@ -250,7 +268,7 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
       {supersededBy ? (
         <Notice tone="warn" className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <span>{format(t.subscriptions.detail.superseded, { status: t.status[supersededBy.status].toLowerCase() })}</span>
-          <Link href={`/subscriptions/${supersededBy.id}`} className="font-semibold">
+          <Link href={`/subscriptions/${supersededBy.id}`} className="font-semibold no-underline">
             {t.subscriptions.detail.supersededOpen}
           </Link>
         </Notice>
@@ -309,6 +327,12 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
                 <input type="hidden" name="id" value={row.id} />
                 {row.proof_path ? (
                   <p className="text-sm text-muted">{t.subscriptions.detail.approveHint}</p>
+                ) : momo ? (
+                  <div className="flex flex-col gap-2" data-testid="momo-state">
+                    <Chip tone="warn">{pm.subscription.waiting}</Chip>
+                    <Notice tone="info">{paymentRunning ? pm.subscription.inProgress : pm.subscription.waitingHint}</Notice>
+                    {!paymentRunning && lastRequestPayment?.status === "failed" ? <p className="text-sm text-muted">{pm.subscription.failedLast}</p> : null}
+                  </div>
                 ) : (
                   <Notice tone="warn">{t.subscriptions.detail.approveNeedsProof}</Notice>
                 )}
@@ -390,6 +414,58 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
               ) : null}
             </Card>
           )}
+          {momoPayments.length > 0 ? (
+            <Card className="flex flex-col gap-4">
+              <div data-testid="momo-payments" className="flex flex-col gap-4">
+                <div className="flex flex-wrap items-center gap-3">
+                  <h2 className="text-xl font-bold">{pm.subscription.title}</h2>
+                  {momoPayments.some((p) => p.status === "completed" && p.outcome === "applied") ? <Chip tone="ok">{pm.subscription.paid}</Chip> : null}
+                </div>
+                <ul className="m-0 flex list-none flex-col gap-3 p-0">
+                  {momoPayments.map((payment) => {
+                    const refunds = payment.refunds ?? [];
+                    const stage = paymentStage(payment, refunds);
+                    const what = payment.purpose === "installment" ? format(pm.list.part, { n: payment.part?.seq ?? "" }) : pm.list.request;
+                    const live = refunds.find((r) => r.status !== "declined" && r.status !== "failed");
+                    return (
+                      <li key={payment.id} className="flex flex-col gap-2 rounded-md bg-surface-2 p-4">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <p className="m-0 font-semibold">
+                            {format(pm.subscription.paymentLine, {
+                              what,
+                              amount: formatAmount(payment.amount_xaf, locale),
+                              date: dateTime(payment.completed_at ?? payment.created_at),
+                            })}
+                          </p>
+                          <Chip tone={stageTone(stage)}>{pm.list.filters[stage]}</Chip>
+                        </div>
+                        <p className="m-0 text-sm text-muted">
+                          {isProvider(payment.provider) ? pm.operators[payment.provider] : payment.provider}
+                          {payment.receipt_no ? ` · ${format(pm.subscription.receipt, { number: payment.receipt_no })}` : ""}
+                        </p>
+                        {live ? (
+                          <p className="m-0 text-sm">
+                            {format(pm.subscription.refundState, { status: pm.refunds.statuses[refundGroup(live.status)].toLowerCase(), amount: formatAmount(live.amount_xaf, locale) })}
+                          </p>
+                        ) : null}
+                        {canRefund(payment, refunds) ? (
+                          <div>
+                            <RefundPayment
+                              payment={{ id: payment.id, amount: payment.amount_xaf, amountText: formatAmount(payment.amount_xaf, locale) }}
+                              copy={pm.subscription}
+                              errors={pm.errors}
+                              reasonText={reasonText}
+                              action={refundPayment}
+                            />
+                          </div>
+                        ) : null}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            </Card>
+          ) : null}
           {parts.length > 0 ? (
             <Card className="flex flex-col gap-4" data-testid="parts">
               <div>
@@ -536,7 +612,7 @@ async function SubscriptionDetail({ params, searchParams }: { params: Params; se
               </ol>
               {request.id !== row.id ? (
                 <p className="mt-3">
-                  <Link href={`/subscriptions/${request.id}?past=1`} className="text-sm font-semibold">
+                  <Link href={`/subscriptions/${request.id}?past=1`} className="text-sm font-semibold no-underline">
                     {t.subscriptions.detail.history.open}
                   </Link>
                 </p>

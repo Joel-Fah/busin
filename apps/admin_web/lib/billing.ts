@@ -121,3 +121,18 @@ export function installmentErrorKey(code: string | undefined, message?: string):
   if (code === "P0002") return "not_found";
   return "generic";
 }
+
+/** The database's price breakdown rows (`price_breakdown`), in the order a school reads them: the receipt, then each operator. */
+export function breakdownLines(rows: { method: string; student_pays: number; busin_charge: number; transaction_cost: number; school_receives: number }[]): {
+  method: string;
+  studentPays: number;
+  businCharge: number;
+  transactionCost: number;
+  schoolReceives: number;
+}[] {
+  const order = ["receipt", "MTN_MOMO_CMR", "ORANGE_CMR"];
+  const rank = (method: string) => (order.includes(method) ? order.indexOf(method) : order.length);
+  return [...rows]
+    .sort((a, b) => rank(a.method) - rank(b.method))
+    .map((r) => ({ method: r.method, studentPays: r.student_pays, businCharge: r.busin_charge, transactionCost: r.transaction_cost, schoolReceives: r.school_receives }));
+}

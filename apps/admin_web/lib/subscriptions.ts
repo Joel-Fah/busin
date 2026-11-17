@@ -62,13 +62,14 @@ export type ReviewErrorKey =
   | "semester_ended"
   | "period_ended"
   | "account_suspended"
+  | "payment_in_progress"
   | "generic";
 
 /** Maps the database error of `admin_review_subscription` to a message key. The short messages tell the refusals apart. */
 export function reviewErrorKey(code: string | undefined, message?: string): ReviewErrorKey {
   switch (code) {
     case "55000":
-      return message === "semester_ended" || message === "period_ended" || message === "account_suspended" ? message : "already_reviewed";
+      return message === "semester_ended" || message === "period_ended" || message === "account_suspended" || message === "payment_in_progress" ? message : "already_reviewed";
     case "22023":
       return message === "proof_required" ? "proof_required" : "invalid";
     case "P0002":
@@ -82,7 +83,7 @@ export function reviewErrorKey(code: string | undefined, message?: string): Revi
 export function revokeErrorKey(code: string | undefined, message?: string): ReviewErrorKey {
   switch (code) {
     case "55000":
-      return message === "account_suspended" ? "account_suspended" : "not_approved";
+      return message === "account_suspended" || message === "payment_in_progress" ? message : "not_approved";
     case "22023":
       return "invalid";
     case "P0002":
@@ -121,6 +122,7 @@ const REVIEW_ERRORS: readonly string[] = [
   "semester_ended",
   "period_ended",
   "account_suspended",
+  "payment_in_progress",
   "generic",
 ];
 

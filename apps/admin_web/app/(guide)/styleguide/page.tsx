@@ -19,6 +19,8 @@ import {
 } from "@hugeicons/core-free-icons";
 
 import { PlanParts } from "@/components/billing/PlanParts";
+import { PriceBreakdown } from "@/components/billing/PriceBreakdown";
+import { BarTable } from "@/components/ui/BarTable";
 import { BusStopScene } from "@/components/landing/BusStopScene";
 import { getMessages } from "@/lib/i18n/server";
 import { SchoolLogo } from "@/components/SchoolLogo";
@@ -815,6 +817,34 @@ async function Styleguide() {
           <PlanParts percents={[40, 30, 30]} amounts={["12,000 XAF", "9,000 XAF", "9,000 XAF"]} label="Installments: 40%, 30%, 30%" />
         </div>
         <p className="mt-3 max-w-2xl text-sm text-muted">{note("Installment plan")}</p>
+
+        <h3 className="mt-8 mb-3 text-lg font-bold">Figures with bars</h3>
+        <BarTable
+          caption="Money by month, in XAF"
+          rowHeading="Month"
+          columns={[
+            { key: "in", label: "Mobile money" },
+            { key: "refunds", label: "Refunds" },
+            { key: "out", label: "Payouts" },
+          ]}
+          highlight={{ key: "nov", label: "This month" }}
+          rows={[
+            { key: "nov", label: "November 2026", values: { in: 420000, refunds: 15000, out: 300000 }, display: { in: "420,000 XAF", refunds: "15,000 XAF", out: "300,000 XAF" } },
+            { key: "oct", label: "October 2026", values: { in: 610000, refunds: 0, out: 580000 }, display: { in: "610,000 XAF", refunds: "0 XAF", out: "580,000 XAF" } },
+          ]}
+        />
+        <p className="mt-3 max-w-2xl text-sm text-muted">{note("Figures with bars")}</p>
+
+        <h3 className="mt-8 mb-3 text-lg font-bold">Price breakdown</h3>
+        <PriceBreakdown
+          caption="Price breakdown per way of paying"
+          labels={{ method: "Way of paying", studentPays: "Student pays", businCharge: "BusIn's charge", transactionCost: "Transfer cost", schoolReceives: "You receive" }}
+          rows={[
+            { method: "Receipt", studentPays: "20,700 XAF", businCharge: "700 XAF", transactionCost: "0 XAF", schoolReceives: "20,000 XAF" },
+            { method: "MTN Mobile Money", studentPays: "21,160 XAF", businCharge: "700 XAF", transactionCost: "418 XAF", schoolReceives: "20,000 XAF" },
+          ]}
+        />
+        <p className="mt-3 max-w-2xl text-sm text-muted">{note("Price breakdown")}</p>
       </Section>
 
       <Section {...sectionProps("rules")}>

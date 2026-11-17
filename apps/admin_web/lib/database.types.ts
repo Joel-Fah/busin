@@ -1387,6 +1387,12 @@ isOneToOne: false
               "east": number,"north": number,"south": number,"west": number
             }[]
                            },
+"platform_add_infra_cost":
+{ Args: { "p_amount_xaf": number,"p_label": string,"p_month": string,"p_note"?: string }; Returns: string
+                           },
+"platform_add_wallet_movement":
+{ Args: { "p_amount_xaf": number,"p_kind": string,"p_note"?: string }; Returns: undefined
+                           },
 "platform_complete_follow_up":
 { Args: { "p_outreach_id": string }; Returns: undefined
                            },
@@ -1396,9 +1402,17 @@ isOneToOne: false
 "platform_create_school":
 { Args: { "p_city"?: string,"p_country"?: string,"p_domains"?: (string)[],"p_name": string,"p_short_name"?: string,"p_timezone"?: string }; Returns: string
                            },
+"platform_delete_infra_cost":
+{ Args: { "p_id": string }; Returns: undefined
+                           },
 "platform_follow_ups":
 { Args: Record<PropertyKey, never>; Returns: {
               "channel": string,"created_at": string,"follow_up_on": string,"id": string,"note": string,"school_id": string,"school_name": string
+            }[]
+                           },
+"platform_infra_costs":
+{ Args: { "p_from"?: string }; Returns: {
+              "amount_xaf": number,"created_at": string,"id": string,"label": string,"month": string,"note": string
             }[]
                            },
 "platform_invite_school_admin":
@@ -1426,6 +1440,17 @@ isOneToOne: false
 "platform_overview":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
+"platform_payment_alerts":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "amount_xaf": number,"at": string,"code": string,"id": string,"kind": string,"school_id": string,"school_name": string,"status": string
+            }[]
+                           },
+"platform_payment_settings":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"platform_payments_overview":
+{ Args: { "p_months"?: number }; Returns: Json
+                           },
 "platform_schedule_deletion":
 { Args: { "p_schedule": boolean,"p_user_id": string }; Returns: string
                            },
@@ -1443,6 +1468,9 @@ isOneToOne: false
 "platform_school_outreach":
 { Args: { "p_school_id": string }; Returns: Json
                            },
+"platform_school_payments":
+{ Args: { "p_school": string }; Returns: Json
+                           },
 "platform_schools":
 { Args: Record<PropertyKey, never>; Returns: {
               "created_at": string,"id": string,"last_admin_action_at": string,"last_outreach_at": string,"level": number,"logo_path": string,"name": string,"reasons": Json,"score": number,"short_name": string,"snoozed": Json,"staff": number,"status": string,"students": number
@@ -1450,6 +1478,15 @@ isOneToOne: false
                            },
 "platform_send_notice":
 { Args: { "p_body": string,"p_body_doc"?: Json,"p_follow_up_on"?: string,"p_link_path"?: string,"p_school_id": string,"p_signals"?: (string)[],"p_snooze_days"?: number }; Returns: string
+                           },
+"platform_set_payment_settings":
+{ Args: { "p_settings": Json }; Returns: undefined
+                           },
+"platform_set_provider_rate":
+{ Args: { "p_fixed_xaf"?: number,"p_operation": string,"p_percent": number,"p_provider": string }; Returns: undefined
+                           },
+"platform_set_school_payment_terms":
+{ Args: { "p_charge_month_xaf"?: number,"p_charge_semester_xaf"?: number,"p_charges_from"?: string,"p_enabled": boolean,"p_school": string }; Returns: undefined
                            },
 "platform_set_school_status":
 { Args: { "p_active": boolean,"p_school_id": string }; Returns: undefined
@@ -1461,7 +1498,7 @@ isOneToOne: false
 { Args: { "p_lead_id": string,"p_note"?: string,"p_school_id"?: string,"p_status": string }; Returns: undefined
                            },
 "price_breakdown":
-{ Args: { "p_price"?: number }; Returns: {
+{ Args: { "p_fees_paid_by"?: string,"p_price"?: number }; Returns: {
               "busin_charge": number,"method": string,"school_receives": number,"student_pays": number,"transaction_cost": number
             }[]
                            },
@@ -1475,6 +1512,9 @@ isOneToOne: false
                            },
 "record_qr_scan":
 { Args: { "p_accuracy"?: number,"p_client_id"?: string,"p_code": string,"p_lat"?: number,"p_lng"?: number,"p_scanned_at"?: string,"p_stop_id"?: string,"p_trip_id": string }; Returns: Json
+                           },
+"record_wallet_balance":
+{ Args: { "p_balance_xaf": number }; Returns: undefined
                            },
 "refunds_to_send":
 { Args: { "p_limit"?: number }; Returns: {
@@ -1582,6 +1622,9 @@ isOneToOne: false
                            },
 "unregister_device_token":
 { Args: { "p_token": string }; Returns: undefined
+                           },
+"wallet_snapshot_due":
+{ Args: Record<PropertyKey, never>; Returns: boolean
                            }
           }
           Enums: {

@@ -1,16 +1,17 @@
 "use client";
 
 import { Coins01Icon } from "@hugeicons/core-free-icons";
-import { useState } from "react";
+import { useState, type ComponentProps } from "react";
 
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Radio } from "@/components/ui/Choice";
 import { Input } from "@/components/ui/Input";
 import { Notice } from "@/components/ui/Notice";
-import { INSTALLMENT_PLANS, formatAmount, planPercents, splitAmount, type BillingField, type BillingPeriod, type InstallmentPlan, type SchoolBilling } from "@/lib/billing";
+import { INSTALLMENT_PLANS, MAX_PRICE, formatAmount, planPercents, splitAmount, type BillingField, type BillingPeriod, type InstallmentPlan, type SchoolBilling } from "@/lib/billing";
 import { format, type Messages } from "@/lib/i18n/messages";
 
+import { FeesAndBreakdown } from "./FeesAndBreakdown";
 import { PlanParts } from "./PlanParts";
 
 /**
@@ -23,12 +24,15 @@ export function BillingForm({
   locale,
   action,
   error,
+  fees,
 }: {
   copy: Messages["billing"];
   current: SchoolBilling | null;
   locale: string;
   action: (formData: FormData) => Promise<void>;
   error: BillingField | "generic" | null;
+  /** Who pays the fees and the price breakdown (ADR 0029), beside the price. */
+  fees?: Omit<ComponentProps<typeof FeesAndBreakdown>, "price" | "period" | "locale">;
 }) {
   const [period, setPeriod] = useState<BillingPeriod>(current?.period ?? "semester");
   const [price, setPrice] = useState(current ? String(current.price) : "");
@@ -83,6 +87,8 @@ export function BillingForm({
           className="max-w-xs"
         />
       </Card>
+
+      {fees ? <FeesAndBreakdown {...fees} price={valid && amount <= MAX_PRICE ? amount : null} period={period} locale={locale} /> : null}
 
       <Card className="flex flex-col gap-4">
         <h2 className="text-xl font-bold">{copy.payment.title}</h2>

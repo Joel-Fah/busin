@@ -449,15 +449,49 @@ class SupabasePaymentsRepository implements PaymentsRepository {
       });
 
   @override
-  Stream<Payment> watch(String paymentId) {
-    // Filtered to the one row on the server; Row Level Security lets only its payer (or the school's admin) read it.
-    return _client
-        .from('payments')
-        .stream(primaryKey: ['id'])
-        .eq('id', paymentId)
-        .expand((rows) => rows)
-        .map(Payment.fromJson)
-        .handleError((Object error) => throw mapError(error));
+  Stream<Payment> watch(String paymentId, {Duration every = const Duration(seconds: 4)}) {
+    // The payments table grants named columns only, so this reads them itself instead of `.stream()` (which reads every
+    // column): now, whenever Realtime says the row changed, and every few seconds while someone follows it, in case a
+    // Realtime message is missed on a weak network. Row Level Security lets only its payer (or the school's admin) read it.
+    RealtimeChannel? channel;
+    Timer? timer;
+    Payment? last;
+    late final StreamController<Payment> controller;
+    Future<void> read() async {
+      try {
+        final now = await _read(paymentId);
+        if (now != last && !controller.isClosed) {
+          last = now;
+          controller.add(now);
+        }
+      } on Object catch (error) {
+        if (!controller.isClosed) controller.addError(mapError(error));
+      }
+    }
+
+    controller = StreamController<Payment>(
+      onListen: () {
+        read();
+        channel = _client
+            .channel('payment-$paymentId')
+            .onPostgresChanges(
+              event: PostgresChangeEvent.update,
+              schema: 'public',
+              table: 'payments',
+              filter: PostgresChangeFilter(type: PostgresChangeFilterType.eq, column: 'id', value: paymentId),
+              callback: (_) => read(),
+            )
+            .subscribe();
+        timer = Timer.periodic(every, (_) => read());
+      },
+      onCancel: () async {
+        timer?.cancel();
+        final c = channel;
+        channel = null;
+        if (c != null) await _client.removeChannel(c);
+      },
+    );
+    return controller.stream;
   }
 
   @override
