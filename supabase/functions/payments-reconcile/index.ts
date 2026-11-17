@@ -4,7 +4,8 @@
 // status is asked from pawaPay and applied once through settle_payment; one pawaPay has never heard of is failed after
 // 15 minutes. Refunds waiting are sent (their id is pawaPay's idempotency key, so sending twice is safe), and those
 // sent are checked, through settle_refund. Payouts planned on Monday (private.plan_payouts) are sent and checked the
-// same way, through settle_payout.
+// same way, through settle_payout. Once a day it also records pawaPay's wallet balance beside what the books say it
+// should hold (platform console, ADR 0029).
 //
 // Secrets: PAYMENTS_RECONCILE_SECRET (sent in the x-reconcile-secret header), PAWAPAY_API_TOKEN, PAWAPAY_BASE_URL.
 
@@ -93,5 +94,12 @@ Deno.serve(async (request) => {
     }
     payouts++;
   }
-  return json({ checked: ids.length, settled, unanswered, refunds, payouts });
+  // The wallet against the books, once a day.
+  let wallet: number | null = null;
+  const { data: snapshotDue } = await service.rpc("wallet_snapshot_due");
+  if (snapshotDue === true) {
+    wallet = await client.walletXaf();
+    if (wallet !== null) await service.rpc("record_wallet_balance", { p_balance_xaf: wallet });
+  }
+  return json({ checked: ids.length, settled, unanswered, refunds, payouts, wallet: wallet !== null });
 });

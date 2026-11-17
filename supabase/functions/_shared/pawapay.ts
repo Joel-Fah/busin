@@ -183,6 +183,24 @@ export function settleArgs(id: string, state: DepositState) {
   };
 }
 
+/**
+ * The XAF balance of BusIn's Cameroon wallets from GET /v2/wallet-balances, in whole francs (a wallet per operator, or
+ * one shared, are added up). Null when the answer cannot be read.
+ */
+export function readWalletXaf(httpStatus: number, body: unknown): number | null {
+  const json = asObject(body);
+  if (httpStatus !== 200 || !json || !Array.isArray(json.balances)) return null;
+  let total = 0;
+  for (const raw of json.balances) {
+    const w = asObject(raw);
+    if (!w || w.currency !== "XAF" || (w.country !== undefined && w.country !== "CMR")) continue;
+    const value = Number(w.balance);
+    if (!Number.isFinite(value)) return null;
+    total += value;
+  }
+  return Math.floor(total);
+}
+
 // ---------------------------------------------------------------- calling pawaPay
 
 export type Fetch = (url: string, init: RequestInit) => Promise<Response>;
@@ -194,6 +212,7 @@ export type PawaPayClient = {
   refundStatus(id: string): Promise<DepositState | null>;
   initiatePayout(input: PayoutInput): Promise<Initiation>;
   payoutStatus(id: string): Promise<DepositState | null>;
+  walletXaf(): Promise<number | null>;
   predictProvider(phone: string): Promise<{ provider: string; phoneNumber: string } | null>;
   publicKeys(): Promise<{ id: string; key: string }[]>;
 };
@@ -251,6 +270,10 @@ export function pawaPay(options: { baseUrl: string; token: string; fetch: Fetch;
     async payoutStatus(id) {
       const { status, json } = await call("GET", `/v2/payouts/${encodeURIComponent(id)}`);
       return readDepositStatus(status, json);
+    },
+    async walletXaf() {
+      const { status, json } = await call("GET", "/v2/wallet-balances?country=CMR");
+      return readWalletXaf(status, json);
     },
     async predictProvider(phone) {
       const { status, json } = await call("POST", "/v2/predict-provider", { phoneNumber: phone });

@@ -232,3 +232,19 @@ test("a payout goes to the school's number with a whole amount, and is checked a
   assert.equal(state?.found && state.status, "ENQUEUED");
   assert.deepEqual(urls, ["https://api.sandbox.pawapay.io/v2/payouts", "https://api.sandbox.pawapay.io/v2/payouts/o1"]);
 });
+
+test("the wallet balance adds up BusIn's XAF wallets in Cameroon, in whole francs", async () => {
+  const { readWalletXaf } = await import("./pawapay.ts");
+  assert.equal(
+    readWalletXaf(200, {
+      balances: [
+        { country: "CMR", balance: "150000.0", currency: "XAF", provider: "MTN_MOMO_CMR" },
+        { country: "CMR", balance: "50500.5", currency: "XAF", provider: "ORANGE_CMR" },
+        { country: "ZMB", balance: "999", currency: "ZMW", provider: "" },
+      ],
+    }),
+    200500,
+  );
+  assert.equal(readWalletXaf(401, { failureReason: {} }), null);
+  assert.equal(readWalletXaf(200, { balances: [{ country: "CMR", balance: "x", currency: "XAF" }] }), null);
+});
