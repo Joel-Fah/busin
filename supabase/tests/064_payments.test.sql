@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(67);
+select plan(68);
 
 -- Mobile money payments (ADR 0029): opening a payment, settling it once, approving the request, the school's ledger,
 -- BusIn's charge, refunds of what cannot be applied, and who reads what.
@@ -39,6 +39,7 @@ insert into private.school_payment_terms (school_id, enabled) values ('e0000000-
 -- Example rates: pawaPay 1 percent, then MTN 1 percent and Orange 1.5 percent each way; no margin, for round numbers.
 update private.payment_settings set fee_buffer_percent = 0;
 update private.provider_rates set mmo_percent = 1.00 where provider = 'MTN_MOMO_CMR' and operation in ('deposit', 'payout');
+update private.provider_rates set mmo_percent = null where provider = 'ORANGE_CMR';
 set local role authenticated;
 
 -- Ana pays in full (asking as a student), Ben in installments, Cy in full.
@@ -207,6 +208,15 @@ update private.payment_settings set costs_paid_by = 'school';
 set local role authenticated;
 select is((select fee_xaf from public.payment_quote('invoice', 'e5000000-0000-4000-8000-0000000000a1', 'MTN_MOMO_CMR')), 0,
   'when the school bears the costs, nobody pays a fee on top');
+
+-- The published Cameroon rates, with the default margin: MTN 1.75 percent in and 1.30 out, Orange 1.77 in and 1.00 out.
+reset role;
+update private.payment_settings set costs_paid_by = 'student', fee_buffer_percent = 0.20;
+update private.provider_rates set mmo_percent = case
+  when provider = 'MTN_MOMO_CMR' and operation = 'deposit' then 0.75 when provider = 'MTN_MOMO_CMR' and operation = 'payout' then 0.30
+  when provider = 'ORANGE_CMR' and operation = 'deposit' then 0.77 else 0 end where operation <> 'refund';
+select results_eq($$select private.service_fee('MTN_MOMO_CMR', 20000, true), private.service_fee('ORANGE_CMR', 20000, true)$$,
+  $$values (662, 605)$$, 'a 20,000 XAF pass costs the student 662 XAF with MTN and 605 XAF with Orange');
 
 select * from finish();
 rollback;

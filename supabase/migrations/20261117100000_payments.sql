@@ -38,8 +38,10 @@ create table private.payment_settings (
 insert into private.payment_settings default values;
 revoke all on private.payment_settings from public, anon, authenticated;
 
--- What each operator takes on top of pawaPay's share, by kind of transaction. Not set (null) until the platform enters
--- the rates pawaPay gives; no payment starts with that operator until then.
+-- What each operator takes on top of pawaPay's share, by kind of transaction. A rate not set (null) stops payments with
+-- that operator. Started from pawaPay's published Cameroon rates (pawapay.io/fees, Enterprise plan, 2026-11-17):
+-- collections MTN 0.75%, Orange 0.77%; payouts MTN 0.30%, Orange none. Refund rates are not published: left unset
+-- until pawaPay gives them. pawaPay's own fee is before tax; if VAT applies to it, raise `pawapay_percent`.
 create table private.provider_rates (
   provider text not null check (provider in ('MTN_MOMO_CMR', 'ORANGE_CMR')),
   operation text not null check (operation in ('deposit', 'payout', 'refund')),
@@ -50,6 +52,12 @@ create table private.provider_rates (
 );
 insert into private.provider_rates (provider, operation)
 select p, o from unnest(array['MTN_MOMO_CMR', 'ORANGE_CMR']) p, unnest(array['deposit', 'payout', 'refund']) o;
+update private.provider_rates set mmo_percent = case
+  when provider = 'MTN_MOMO_CMR' and operation = 'deposit' then 0.75
+  when provider = 'MTN_MOMO_CMR' and operation = 'payout' then 0.30
+  when provider = 'ORANGE_CMR' and operation = 'deposit' then 0.77
+  when provider = 'ORANGE_CMR' and operation = 'payout' then 0.00 end
+where operation in ('deposit', 'payout');
 revoke all on private.provider_rates from public, anon, authenticated;
 
 -- Per school: whether its students can pay by mobile money, and from when BusIn charges it per paying student.
