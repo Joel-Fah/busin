@@ -92,4 +92,23 @@ void main() {
     expect(fake.scheduled, isNull);
     await tester.pumpAndSettle(const Duration(seconds: 5));
   });
+
+  testWidgets('the link opens the same card in a sheet, from a screen where the account is stuck', (tester) async {
+    final fake = FakeDeletion();
+    await tester.pumpWidget(MaterialApp(
+      theme: BusinTheme.light(),
+      localizationsDelegates: businLocalizationsDelegates,
+      supportedLocales: businSupportedLocales,
+      home: Scaffold(body: Center(child: DeleteAccountLink(repository: fake))),
+    ));
+    await tester.tap(find.text('Delete my account'));
+    await tester.pumpAndSettle();
+    expect(find.text('Your account and what identifies you are erased 7 days after you ask. You can cancel until then.'), findsOneWidget);
+    await tester.tap(find.widgetWithText(BusinButton, 'Delete my account'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete in 7 days'));
+    await tester.pumpAndSettle();
+    expect(fake.requests, 1);
+    expect(find.textContaining('Your account will be deleted on'), findsOneWidget);
+  });
 }
