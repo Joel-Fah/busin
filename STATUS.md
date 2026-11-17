@@ -79,6 +79,11 @@ email after erasure), and #496 (needs an Android build-tool upgrade, its own PR)
 - `phase-6/new-school-dropdown` (#544): the time zone is picked from a searchable list like the country, on desktop
   and phone, in both themes. Owner: open the console's New school on a phone and pick a country and a time zone.
 
+## Handoff: lookup result on a phone (2026-11-17)
+
+- `phase-6/lookup-card-phone` (#545): on a phone the lookup result's header stacks (avatar, name, email, chips);
+  desktop unchanged. Owner: look up an account in the console on a phone.
+
 ## Handoff: rich text notices (2026-11-17)
 
 - The platform's notices to a school are written with formatting and shown laid out in the portal, on
