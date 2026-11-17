@@ -752,7 +752,7 @@ $$;
 alter table private.notification_outbox drop constraint notification_outbox_kind_check;
 alter table private.notification_outbox add constraint notification_outbox_kind_check
   check (kind in ('subscription_approved', 'subscription_rejected', 'subscription_revoked', 'subscription_restored', 'school_notice', 'bus_near_stop',
-                  'crew_assigned', 'installment_paid', 'installment_rejected', 'installment_due',
+                  'crew_assigned', 'installment_paid', 'installment_rejected', 'installment_due', 'trip_still_running',
                   'payment_completed', 'payment_failed', 'refund_completed', 'refund_failed'));
 
 -- ---------------------------------------------------------------- BusIn's charge, when a subscription is approved

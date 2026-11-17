@@ -14,8 +14,11 @@ create unique index refunds_one_per_payment on public.refunds (payment_id) where
 alter table private.notification_outbox drop constraint notification_outbox_kind_check;
 alter table private.notification_outbox add constraint notification_outbox_kind_check
   check (kind in ('subscription_approved', 'subscription_rejected', 'subscription_revoked', 'subscription_restored', 'school_notice', 'bus_near_stop',
-                  'crew_assigned', 'installment_paid', 'installment_rejected', 'installment_due',
+                  'crew_assigned', 'installment_paid', 'installment_rejected', 'installment_due', 'trip_still_running',
                   'payment_completed', 'payment_failed', 'refund_completed', 'refund_failed', 'refund_declined'));
+
+-- (The list keeps 'trip_still_running' from the trip reminders built on dev, so whichever migration runs last keeps
+-- both.)
 
 -- Takes an approved refund's amount from the school's balance: from the payment's credit while it is on hold.
 create function private.reserve_refund(p_refund public.refunds) returns void
