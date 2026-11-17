@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(78);
+select plan(79);
 
 -- Mobile money payments (ADR 0029): opening a payment, settling it once, approving the request, the school's ledger,
 -- BusIn's charge, refunds of what cannot be applied, and who reads what.
@@ -181,6 +181,16 @@ select is(public.settle_payment(current_setting('test.pay6')::uuid, 'COMPLETED',
 select is((select status from public.subscription_installments where id = current_setting('test.part2')::uuid), 'paid', 'a later part is paid in the app');
 select is((select payment_id::text from public.installment_receipts where installment_id = current_setting('test.part2')::uuid), current_setting('test.pay6'),
   'and its receipt line points to the payment');
+
+-- ---------------------------------------------------------------- a receipt instead
+reset role;
+insert into storage.objects (bucket_id, name, owner) values
+  ('proofs', 'e0000000-0000-4000-8000-0000000000a1/e1000000-0000-4000-8000-0000000000a2/r.jpg', 'e1000000-0000-4000-8000-0000000000a2');
+set local role authenticated;
+set local "request.jwt.claims" = '{"sub":"e1000000-0000-4000-8000-0000000000a2","role":"authenticated"}';
+select throws_ok($$select public.attach_subscription_proof(current_setting('test.subA')::uuid, 'e0000000-0000-4000-8000-0000000000a1/e1000000-0000-4000-8000-0000000000a2/r.jpg')$$,
+  '55000', 'not_pending', 'a request already paid takes no receipt');
+reset role;
 
 -- ---------------------------------------------------------------- limits and the ledger
 select throws_ok($$update public.school_ledger set amount_xaf = 1$$, '55000', 'ledger_append_only', 'the ledger is never edited');

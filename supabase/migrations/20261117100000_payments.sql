@@ -1197,3 +1197,42 @@ as $$
                  and r.status in ('queued', 'accepted', 'processing', 'in_reconciliation', 'needs_attention')) then 'payment_in_progress'
   end;
 $$;
+
+-- ---------------------------------------------------------------- paying by receipt after all
+-- A request made to pay by mobile money whose payment did not go through: the student sends a receipt for it instead,
+-- and it waits for the school like any other. Refusals: 42501 not a student, P0002 not theirs, 55000 not pending or a
+-- payment in progress, 22023 proof_required or proof_missing.
+create function public.attach_subscription_proof(p_subscription uuid, p_path text)
+returns void
+language plpgsql security definer
+set search_path = ''
+as $$
+declare
+  v_uid uuid := (select auth.uid());
+  v_school uuid := private.my_school_id();
+  v_sub public.subscriptions;
+begin
+  if private.my_role() is distinct from 'student' then
+    raise exception 'Students only' using errcode = '42501';
+  end if;
+  select * into v_sub from public.subscriptions where id = p_subscription and student_id = v_uid and school_id = v_school for update;
+  if not found then
+    raise exception 'Subscription not found' using errcode = 'P0002';
+  end if;
+  if v_sub.status <> 'pending' then
+    raise exception 'not_pending' using errcode = '55000';
+  end if;
+  if private.has_open_payment(v_sub.id, null) then
+    raise exception 'payment_in_progress' using errcode = '55000';
+  end if;
+  if p_path is null or p_path not like v_school::text || '/' || v_uid::text || '/%' then
+    raise exception 'proof_required' using errcode = '22023';
+  end if;
+  if not exists (select 1 from storage.objects o where o.bucket_id = 'proofs' and o.name = p_path) then
+    raise exception 'proof_missing' using errcode = '22023';
+  end if;
+  update public.subscriptions set proof_path = p_path, payment_method = 'receipt', updated_at = now() where id = v_sub.id;
+end;
+$$;
+revoke execute on function public.attach_subscription_proof(uuid, text) from public, anon;
+grant execute on function public.attach_subscription_proof(uuid, text) to authenticated;
