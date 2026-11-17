@@ -31,6 +31,11 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: lookup result on a phone (2026-11-17)
+
+- `phase-6/lookup-card-phone` (#545): on a phone the lookup result's header stacks (avatar, name, email, chips);
+  desktop unchanged. Owner: look up an account in the console on a phone.
+
 ## Handoff: rich text notices (2026-11-17)
 
 - The platform's notices to a school are written with formatting and shown laid out in the portal, on
