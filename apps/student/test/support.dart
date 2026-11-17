@@ -819,6 +819,7 @@ List<Override> overridesFor(
     copyWaitProvider.overrideWithValue(copyWait),
     authServiceProvider.overrideWithValue(auth),
     profileRepositoryProvider.overrideWithValue(profiles),
+    accountDeletionRepositoryProvider.overrideWithValue(FakeAccountDeletion()),
     joinRepositoryProvider.overrideWithValue(join ?? FakeJoin(profiles)),
     notificationPreferencesRepositoryProvider.overrideWithValue(notificationPreferences ?? FakeNotificationPreferences()),
     reminderSchedulerProvider.overrideWithValue(reminders ?? FakeReminderScheduler()),
@@ -1088,4 +1089,23 @@ class FakeInstallments implements InstallmentsRepository {
       ];
     }
   }
+}
+
+/// Deleting one's own account (ADR 0028): nothing scheduled, and asking or cancelling is remembered.
+class FakeAccountDeletion implements AccountDeletionRepository {
+  FakeAccountDeletion({this.scheduled});
+
+  ScheduledDeletion? scheduled;
+
+  @override
+  Future<ScheduledDeletion?> mine() async => scheduled;
+
+  @override
+  Future<DateTime> request() async {
+    scheduled = ScheduledDeletion(dueAt: DateTime.now().toUtc().add(const Duration(days: 7)), byPlatform: false);
+    return scheduled!.dueAt;
+  }
+
+  @override
+  Future<void> cancel() async => scheduled = null;
 }

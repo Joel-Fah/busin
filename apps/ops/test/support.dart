@@ -445,6 +445,7 @@ List<Override> overridesFor({
       introEnabledProvider.overrideWithValue(false),
       appConfigProvider.overrideWithValue(const AppConfig(supabaseUrl: 'http://127.0.0.1:54321', publishableKey: 'test', googleServerClientId: 'test', environment: 'test')),
       profileRepositoryProvider.overrideWithValue(profileRepository ?? FakeProfiles(profiles)),
+      accountDeletionRepositoryProvider.overrideWithValue(FakeAccountDeletion()),
       schoolRepositoryProvider.overrideWithValue(schools ?? FakeSchools()),
       staffAccessRepositoryProvider.overrideWithValue(staffAccess ?? FakeStaffAccess()),
       opsSnapshotStoreProvider.overrideWithValue(snapshots ?? MemoryOpsSnapshotStore()),
@@ -453,3 +454,22 @@ List<Override> overridesFor({
       busesRepositoryProvider.overrideWithValue(buses ?? FakeBuses()),
       nowProvider.overrideWithValue(() => morning),
     ];
+
+/// Deleting one's own account (ADR 0028): nothing scheduled, and asking or cancelling is remembered.
+class FakeAccountDeletion implements AccountDeletionRepository {
+  FakeAccountDeletion({this.scheduled});
+
+  ScheduledDeletion? scheduled;
+
+  @override
+  Future<ScheduledDeletion?> mine() async => scheduled;
+
+  @override
+  Future<DateTime> request() async {
+    scheduled = ScheduledDeletion(dueAt: DateTime.now().toUtc().add(const Duration(days: 7)), byPlatform: false);
+    return scheduled!.dueAt;
+  }
+
+  @override
+  Future<void> cancel() async => scheduled = null;
+}

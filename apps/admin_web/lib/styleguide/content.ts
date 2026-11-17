@@ -178,6 +178,8 @@ export const NAV_RULES = [
   "The bar slides in from below when the dashboard loads, once, after the logo intro. It does not replay between pages.",
   "A page can fill the space above the tabs (the dock). The bar grows upward and the tabs stay in place.",
   "A small accent count sits on a tab's icon when something waits there: subscription requests to review, students to verify. Above nine it reads 9+. On small screens the Menu button shows the total. The exact number is the tab's description for assistive technology, so its name stays the page's name.",
+  "A detail page's header (StickyHeader) follows the same idea as the list toolbars: as the page scrolls, it morphs into a compact glass bar at the top (small picture, one-line title, its chips and its main action), so what the page is about stays in view; back at the top it returns to its roomy layout. The parts glide between the two, instantly for reduced motion.",
+  "The platform console (/platform, ADR 0027) uses the same bar with its own tabs: the logo leads to the console's overview and the profile picture to the console account page, which has the way back to the school's portal. School tabs never show in the console, and console tabs never show in a school's portal.",
 ];
 
 export const NAV_HELP =

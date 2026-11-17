@@ -3,6 +3,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 
+import { DeleteAccount } from "@/components/DeleteAccount";
+import { isDeletionError, parseScheduled } from "@/lib/account-deletion";
+import { cancelAccountDeletion, requestAccountDeletion } from "@/lib/account-deletion-actions";
+import { deletionCatalogues } from "@/lib/i18n/account-deletion";
 import { FlashToast } from "@/components/FlashToast";
 import { InstallCard } from "@/components/student/InstallCard";
 import { LanguageChoice } from "@/components/student/LanguageChoice";
@@ -23,7 +27,7 @@ import { Contour } from "@/components/ui/Contour";
 export const metadata: Metadata = { title: "Profile" };
 export const instant = false;
 
-type SearchParams = Promise<{ saved?: string | string[] }>;
+type SearchParams = Promise<{ saved?: string | string[]; deletion?: string | string[]; deletion_error?: string | string[] }>;
 
 export default function ProfilePage({ searchParams }: { searchParams: SearchParams }) {
   return (
@@ -40,17 +44,21 @@ async function Profile({ searchParams }: { searchParams: SearchParams }) {
   const p = s.profile;
   const m = s.me;
   const supabase = await createClient();
-  const [{ data: extra }, { data: school }] = await Promise.all([
+  const [{ data: extra }, { data: school }, { data: deletionRows }] = await Promise.all([
     supabase.from("profiles").select("created_at, department_id, program_id").eq("id", student.userId).maybeSingle(),
     // Whether the school offers installments: then the student can keep a preferred way of paying (ADR 0022).
     supabase.from("schools").select("billing_period, installment_plan").eq("id", student.schoolId).maybeSingle(),
+    supabase.rpc("my_account_deletion"),
   ]);
   const offersInstallments = school?.billing_period === "semester" && Boolean(school.installment_plan);
   const [department, program] = await Promise.all([
     extra?.department_id ? supabase.from("departments").select("name").eq("id", extra.department_id).maybeSingle() : { data: null },
     extra?.program_id ? supabase.from("programs").select("name").eq("id", extra.program_id).maybeSingle() : { data: null },
   ]);
-  const { saved } = await searchParams;
+  const { saved, deletion: deletionDone, deletion_error } = await searchParams;
+  const d = deletionCatalogues[locale];
+  const deletion = Array.isArray(deletionDone) ? deletionDone[0] : deletionDone;
+  const deletionError = Array.isArray(deletion_error) ? deletion_error[0] : deletion_error;
   const rows: [string, string | null | undefined][] = [
     [s.fields.matricule, student.matricule],
     [s.fields.phone, student.phone ? displayPhone(student.phone) : null],
@@ -62,6 +70,7 @@ async function Profile({ searchParams }: { searchParams: SearchParams }) {
   return (
     <StudentPage lang={locale} title={p.title}>
       {saved === "1" ? <FlashToast message={m.saved} /> : null}
+      {deletion === "requested" || deletion === "cancelled" ? <FlashToast message={d.done[deletion]} /> : null}
       <Card className="flex items-center gap-4 p-5">
         <Avatar name={student.fullName || student.email} url={student.avatarUrl} size={56} />
         <div className="min-w-0">
@@ -120,6 +129,15 @@ async function Profile({ searchParams }: { searchParams: SearchParams }) {
 
       {since ? <p className="m-0 text-center text-sm text-muted">{format(m.memberSince, { date: since })}</p> : null}
       <SignOutForm label={p.signOut} />
+      <DeleteAccount
+        scheduled={parseScheduled(deletionRows)}
+        back="/app/profile"
+        copy={d}
+        locale={locale}
+        error={isDeletionError(deletionError) ? deletionError : null}
+        request={requestAccountDeletion}
+        cancel={cancelAccountDeletion}
+      />
       <p className="m-0 text-center text-xs text-muted">{m.credits}</p>
     </StudentPage>
   );

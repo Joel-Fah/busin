@@ -37,7 +37,7 @@ npm run web            # open http://127.0.0.1:3000
 
 Other handy commands: `npm run backend:stop`, `npm run backend:reset` (rebuild the database from the migrations and seed), `npm run backend:test` (database tests). `backend:start` leaves out services the portal does not need (Studio, Storage, Realtime, Edge Functions) to keep the download small; add them back when a feature needs them, for example Storage to show payment proofs.
 
-To sign in, either set up Google ([Google sign-in guide](google-sign-in.md)) or, for local work only, run `npm run dev:user` and use http://127.0.0.1:3000/dev/login.
+To sign in, either set up Google ([Google sign-in guide](google-sign-in.md)) or, for local work only, run `npm run dev:user` and use http://127.0.0.1:3000/dev/login. For the platform console (ADR 0027), `npm run dev:platform` makes an account that opens only `/platform`, and `npm run dev:user -- <email> admin --platform` a school admin who also opens it.
 
 ## Demo data
 

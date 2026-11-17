@@ -21,6 +21,7 @@ class SupabaseRepositories {
         schools = SupabaseSchoolRepository(client),
         joining = SupabaseJoinRepository(client),
         staffAccess = SupabaseStaffAccessRepository(client),
+        accountDeletion = SupabaseAccountDeletionRepository(client),
         streaks = SupabaseStreaksRepository(client),
         areas = SupabaseAreaRepository(client),
         installments = SupabaseInstallmentsRepository(client),
@@ -41,6 +42,7 @@ class SupabaseRepositories {
   final SchoolRepository schools;
   final JoinRepository joining;
   final StaffAccessRepository staffAccess;
+  final AccountDeletionRepository accountDeletion;
   final StreaksRepository streaks;
   final AreaRepository areas;
   final InstallmentsRepository installments;

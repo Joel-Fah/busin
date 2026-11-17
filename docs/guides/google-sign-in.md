@@ -73,6 +73,7 @@ For quick local work there is a second, development-only way in. It works only o
 
 ```bash
 npm run dev:user        # creates or resets a local admin and prints its email and password
+npm run dev:platform    # a local account that opens only the platform console (ADR 0027)
 npm run web
 ```
 

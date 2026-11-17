@@ -4,14 +4,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import {
+  Activity01Icon,
   Analytics01Icon,
   Cancel01Icon,
+  DashboardSquare01Icon,
   GeometricShapes01Icon,
+  InboxIcon,
   Menu03Icon,
   Navigation03Icon,
   ReceiptTextIcon,
+  School01Icon,
   Ticket03Icon,
   UserMultiple02Icon,
+  UserSearch01Icon,
 } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 import { gsap } from "gsap";
@@ -25,7 +30,8 @@ import { INTRO_DONE_EVENT } from "@/lib/intro";
 
 import { NAV_DOCK_ID } from "./NavDock";
 
-export type NavKey = "overview" | "subscriptions" | "people" | "trips" | "scans" | "insights";
+/** The school portal's tabs, then the platform console's (ADR 0027). */
+export type NavKey = "overview" | "subscriptions" | "people" | "trips" | "scans" | "insights" | "platform" | "platformSchools" | "platformLeads" | "platformHealth" | "platformLookup";
 
 const ICONS: Record<NavKey, IconSvgElement> = {
   overview: GeometricShapes01Icon,
@@ -34,6 +40,11 @@ const ICONS: Record<NavKey, IconSvgElement> = {
   trips: Navigation03Icon,
   scans: ReceiptTextIcon,
   insights: Analytics01Icon,
+  platform: DashboardSquare01Icon,
+  platformSchools: School01Icon,
+  platformLeads: InboxIcon,
+  platformHealth: Activity01Icon,
+  platformLookup: UserSearch01Icon,
 };
 
 const HREFS: Record<NavKey, string> = {
@@ -43,7 +54,15 @@ const HREFS: Record<NavKey, string> = {
   trips: "/trips",
   scans: "/scans",
   insights: "/insights",
+  platform: "/platform",
+  platformSchools: "/platform/schools",
+  platformLeads: "/platform/leads",
+  platformHealth: "/platform/health",
+  platformLookup: "/platform/lookup",
 };
+
+/** Home pages: lit only on their own address, not on the pages below them. */
+const EXACT = new Set(["/", "/platform"]);
 
 type Props = {
   /** Tabs in the order they appear on a wide screen. */
@@ -56,6 +75,8 @@ type Props = {
   text: { primary: string; menu: string; closeMenu: string; profile: string; profileTab: string; home: string; current: string; waiting: string; attention: string };
   /** Things waiting for the admin, by tab (pending subscriptions, students to verify, trips running too long). Zero or missing shows nothing. */
   counts?: Partial<Record<NavKey, number>>;
+  /** Where the logo leads: the school overview, or the console's for the platform console. */
+  homeHref?: string;
 };
 
 /** A small count on a tab's icon, "9+" above nine. Seen only: the exact number is read after the label (WaitingText). */
@@ -86,7 +107,7 @@ function WaitingText({ id, count, label }: { id: string; count: number; label: s
 
 function isActive(pathname: string, key: NavKey): boolean {
   const href = HREFS[key];
-  return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
+  return EXACT.has(href) ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
 }
 
 const TAB =
@@ -101,7 +122,7 @@ const TAB_OFF = "text-muted hover:text-fg";
  * label. Smaller screens show the current page and a menu button that opens the tabs upward in
  * place. A dock above the tabs (see NavDock) lets a page add its own content to the bar.
  */
-export function FloatingNav({ keys, labels, groups, profile, text, counts = {} }: Props) {
+export function FloatingNav({ keys, labels, groups, profile, text, counts = {}, homeHref = "/" }: Props) {
   const waitingTotal = keys.reduce((sum, key) => sum + (counts[key] ?? 0), 0);
   const pathname = usePathname();
   const barRef = useRef<HTMLElement>(null);
@@ -232,7 +253,7 @@ export function FloatingNav({ keys, labels, groups, profile, text, counts = {} }
         <div ref={rowRef} className="relative flex items-center gap-2 p-2.5">
           <span ref={indicatorRef} data-testid="nav-indicator" aria-hidden className="pointer-events-none absolute top-0 left-0 rounded-sm bg-[color-mix(in_srgb,var(--fg)_9%,transparent)] opacity-0" />
           <Link
-            href="/"
+            href={homeHref}
             aria-label={text.home}
             data-tip={text.home}
             className="flex h-14 shrink-0 items-center rounded-sm px-3 text-brand focus-visible:outline-3 focus-visible:outline-focus"

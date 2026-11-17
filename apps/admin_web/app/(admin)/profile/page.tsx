@@ -1,38 +1,56 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { Building03Icon, Bus01Icon, Calendar02Icon, Coins01Icon, FlagTriangleRightIcon } from "@hugeicons/core-free-icons";
+import { Building03Icon, Bus01Icon, Calendar02Icon, Coins01Icon, DashboardSquare01Icon, FlagTriangleRightIcon } from "@hugeicons/core-free-icons";
 
+import { DeleteAccount } from "@/components/DeleteAccount";
+import { isDeletionError, parseScheduled } from "@/lib/account-deletion";
+import { cancelAccountDeletion, requestAccountDeletion } from "@/lib/account-deletion-actions";
+import { deletionCatalogues } from "@/lib/i18n/account-deletion";
+import { FlashToast } from "@/components/FlashToast";
 import { LanguageSwitch } from "@/components/LanguageSwitch";
 import { SignOutButton } from "@/components/SignOutButton";
 import { Avatar } from "@/components/ui/Avatar";
+import { ButtonLink } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { requireAdmin } from "@/lib/auth";
+import { platformContext, requireAdmin } from "@/lib/auth";
 import { getMessages } from "@/lib/i18n/server";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Your profile" };
 
 // Depends on who is signed in, so it cannot be an instant navigation.
 export const instant = false;
 
-export default function ProfilePage() {
+type SearchParams = Promise<{ deletion?: string | string[]; deletion_error?: string | string[] }>;
+
+export default function ProfilePage({ searchParams }: { searchParams: SearchParams }) {
   return (
     <Suspense fallback={<section aria-busy="true" />}>
-      <Profile />
+      <Profile searchParams={searchParams} />
     </Suspense>
   );
 }
 
-async function Profile() {
+async function Profile({ searchParams }: { searchParams: SearchParams }) {
   const admin = await requireAdmin();
+  const query = await searchParams;
+  const supabase = await createClient();
+  const { data: deletionRows } = await supabase.rpc("my_account_deletion");
+  // A platform admin (ADR 0027) also gets the way into the console here; nobody else sees that it exists.
+  const platform = await platformContext();
   const { locale, t } = await getMessages();
   const name = admin.fullName || admin.email;
+  const d = deletionCatalogues[locale];
+  const deletion = Array.isArray(query.deletion) ? query.deletion[0] : query.deletion;
+  const deletionError = Array.isArray(query.deletion_error) ? query.deletion_error[0] : query.deletion_error;
 
   return (
     <>
+      {deletion === "requested" || deletion === "cancelled" ? <FlashToast message={d.done[deletion]} /> : null}
       <PageHeader title={t.profile.title} subtitle={t.profile.subtitle} />
 
       <section aria-labelledby="setup" className="flex flex-col gap-4">
@@ -87,6 +105,15 @@ async function Profile() {
         </Card>
 
         <div className="flex flex-col gap-6">
+          {platform ? (
+            <Card>
+              <h2 className="text-xl font-bold">{t.platform.entry.title}</h2>
+              <p className="mt-1 mb-4 text-sm text-muted">{t.platform.entry.body}</p>
+              <ButtonLink href="/platform" variant="secondary" icon={DashboardSquare01Icon}>
+                {t.platform.entry.open}
+              </ButtonLink>
+            </Card>
+          ) : null}
           <Card>
             <h2 className="text-xl font-bold">{t.profile.appearance}</h2>
             <p className="mt-1 mb-4 text-sm text-muted">{t.profile.appearanceHint}</p>
@@ -103,6 +130,15 @@ async function Profile() {
             <p className="mt-1 mb-4 text-sm text-muted">{t.profile.sessionHint}</p>
             <SignOutButton label={t.nav.signOut} />
           </Card>
+          <DeleteAccount
+            scheduled={parseScheduled(deletionRows)}
+            back="/profile"
+            copy={d}
+            locale={locale}
+            error={isDeletionError(deletionError) ? deletionError : null}
+            request={requestAccountDeletion}
+            cancel={cancelAccountDeletion}
+          />
         </div>
       </div>
     </>

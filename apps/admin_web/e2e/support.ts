@@ -105,6 +105,52 @@ export async function createUser(
   return { id, email, password };
 }
 
+/**
+ * Signs up an exact email as Google would, and leaves the rest to the sign-up rules (an invite, a school domain). For
+ * the test of an invited person's first sign-in. The email is checked to hold only safe characters.
+ */
+export async function signUpAs(email: string): Promise<TestUser> {
+  if (!/^[a-z0-9._+-]+@[a-z0-9.-]+$/.test(email)) throw new Error("a test email has letters, digits and . _ + - only");
+  const id = randomUUID();
+  const password = randomBytes(16).toString("hex");
+  sql(`
+    insert into auth.users (
+      instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+      raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+      confirmation_token, recovery_token, email_change_token_new, email_change
+    ) values (
+      '00000000-0000-0000-0000-000000000000', '${id}', 'authenticated', 'authenticated',
+      '${email}', extensions.crypt('${password}', extensions.gen_salt('bf')), now(),
+      '{"provider":"google","providers":["google"]}',
+      '{"full_name":"E2E invited"}', now(), now(), '', '', '', ''
+    );
+    insert into auth.identities (id, user_id, provider_id, provider, identity_data, last_sign_in_at, created_at, updated_at)
+    values (gen_random_uuid(), '${id}', '${id}', 'google', '{"sub":"${id}","email":"${email}"}', now(), now(), now());
+  `);
+  return { id, email, password };
+}
+
+/** Removes a school a test created, with its accounts and the rows that point at it. The id is a generated UUID. */
+export function deleteSchool(schoolId: string): void {
+  if (!/^[0-9a-f-]{36}$/.test(schoolId)) throw new Error("a school id is a UUID");
+  sql(`
+    delete from public.audit_log where school_id = '${schoolId}';
+    delete from auth.users where id in (select id from public.profiles where school_id = '${schoolId}');
+    delete from public.staff_invites where school_id = '${schoolId}';
+    delete from public.schools where id = '${schoolId}';
+  `);
+}
+
+/** Lists or unlists a user as a platform admin (ADR 0027), as the owner does with SQL. The id is a generated UUID. */
+export function setPlatformAdmin(userId: string, on: boolean): void {
+  if (!/^[0-9a-f-]{36}$/.test(userId)) throw new Error("a user id is a UUID");
+  sql(
+    on
+      ? `insert into private.platform_admins (user_id, note) values ('${userId}', 'e2e') on conflict do nothing;`
+      : `delete from private.platform_admins where user_id = '${userId}';`,
+  );
+}
+
 /** Removes a user and anything the tests created for them. */
 export async function deleteUser(user: TestUser): Promise<void> {
   const admin = serviceClient();

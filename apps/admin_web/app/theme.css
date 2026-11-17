@@ -381,6 +381,65 @@ dialog,
   animation, and these rules are the compact layout. On narrow screens it keeps wrapping, because one
   row would not fit.
 */
+/*
+  A detail page's header (StickyHeader): roomy at the top of the page; stuck, a compact glass bar with a small picture,
+  a one-line title and its chips. What only the roomy header shows (data `extra`) steps aside.
+*/
+.sticky-header {
+  border-radius: var(--r-lg);
+  padding: 0;
+  transition:
+    background-color var(--dur) var(--ease-soft),
+    box-shadow var(--dur) var(--ease-soft),
+    padding var(--dur) var(--ease-soft);
+}
+
+.sticky-header[data-stuck='true'] {
+  gap: 0.75rem;
+  padding: 0.5rem 1rem 0.5rem 0.5rem;
+  background: var(--glass);
+  box-shadow: var(--shadow-float);
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(var(--glass-blur));
+}
+
+.sticky-header[data-stuck='true'] .sticky-header-media > * {
+  height: 2.75rem;
+  min-width: 2.75rem;
+  max-width: 7rem;
+  padding: 0.25rem;
+  border-radius: var(--r-sm);
+}
+
+.sticky-header[data-stuck='true'] .sticky-header-title h1 {
+  font-size: 1.25rem;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Stuck, the title and its chips share one row when there is room, and the chips go under the title on a phone. */
+.sticky-header[data-stuck='true'] > .min-w-0 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 0.75rem;
+  row-gap: 0.125rem;
+}
+
+.sticky-header[data-stuck='true'] .sticky-header-title {
+  flex: 0 1 auto;
+}
+
+.sticky-header[data-stuck='true'] .sticky-header-meta {
+  margin-top: 0;
+}
+
+.sticky-header[data-stuck='true'] .sticky-header-extra {
+  display: none;
+}
+
 .sticky-toolbar {
   border-radius: var(--r-lg);
   padding: 0;

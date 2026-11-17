@@ -1,7 +1,7 @@
 "use client";
 
 import { Mail01Icon, Message01Icon, School01Icon, UserIcon } from "@hugeicons/core-free-icons";
-import { createContext, useContext, useState, useTransition, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useState, useTransition, type ReactNode } from "react";
 
 import { submitInterest } from "@/app/(landing)/landing/actions";
 import { Button } from "@/components/ui/Button";
@@ -17,12 +17,23 @@ const OpenInterest = createContext<(kind: InterestKind) => void>(() => {});
 
 /** Holds the one interest form of the page; any InterestButton below it opens it for its kind of request. */
 export function InterestProvider({ copy, locale, children }: { copy: LandingCopy["form"]; locale: Locale; children: ReactNode }) {
-  const [kind, setKind] = useState<InterestKind | null>(null);
+  // Each opening is numbered: a form closing (it waits for its motion before leaving) only removes itself, so a click
+  // during that wait opens a fresh form instead of being lost.
+  const [form, setForm] = useState<{ kind: InterestKind; n: number } | null>(null);
+  const open = useCallback((kind: InterestKind) => setForm((current) => ({ kind, n: (current?.n ?? 0) + 1 })), []);
   return (
-    <OpenInterest.Provider value={setKind}>
+    <OpenInterest.Provider value={open}>
       {children}
       {/* Mounted again for each opening, so the fields start empty. */}
-      {kind ? <InterestForm key={kind} kind={kind} copy={copy} locale={locale} onClose={() => setKind(null)} /> : null}
+      {form ? (
+        <InterestForm
+          key={`${form.kind}-${form.n}`}
+          kind={form.kind}
+          copy={copy}
+          locale={locale}
+          onClose={() => setForm((current) => (current?.n === form.n ? null : current))}
+        />
+      ) : null}
     </OpenInterest.Provider>
   );
 }

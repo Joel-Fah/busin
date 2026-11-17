@@ -1,5 +1,6 @@
 import '../enums.dart';
 import '../models/academic.dart';
+import '../models/account_deletion.dart';
 import '../models/billing.dart';
 import '../models/installment.dart';
 import 'dart:typed_data';
@@ -136,6 +137,19 @@ abstract interface class StaffAccessRepository {
   /// Asks [schoolId] for staff access, or withdraws the request when it is null. [NotAllowed] with reason `too_many`
   /// when asked again within 30 seconds, `not_your_school` for another school than the student's own.
   Future<void> requestStaffAccess(String? schoolId);
+}
+
+/// Deleting one's own account (ADR 0028): asked from the profile, done 7 days later unless cancelled.
+abstract interface class AccountDeletionRepository {
+  /// The scheduled deletion of the signed-in account, or null when none is.
+  Future<ScheduledDeletion?> mine();
+
+  /// Asks for the deletion and returns when it will happen (asking again keeps the first date). [Conflict] with reason
+  /// `last_admin` for the last administrator of a school, `active_trip` for someone on a running trip.
+  Future<DateTime> request();
+
+  /// Cancels the scheduled deletion.
+  Future<void> cancel();
 }
 
 abstract interface class StopsRepository {

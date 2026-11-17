@@ -49,6 +49,7 @@ final repositoriesProvider = Provider<SupabaseRepositories>((ref) => SupabaseRep
 
 final academicRepositoryProvider = Provider<AcademicRepository>((ref) => ref.watch(repositoriesProvider).academic);
 final profileRepositoryProvider = Provider<ProfileRepository>((ref) => ref.watch(repositoriesProvider).profiles);
+final accountDeletionRepositoryProvider = Provider<AccountDeletionRepository>((ref) => ref.watch(repositoriesProvider).accountDeletion);
 final joinRepositoryProvider = Provider<JoinRepository>((ref) => ref.watch(repositoriesProvider).joining);
 
 /// The signed-in user's id, or null. Everything that holds user data watches this, so it resets on sign-out.

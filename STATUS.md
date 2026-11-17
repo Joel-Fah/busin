@@ -14,7 +14,7 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 | 3 Student app | Lightweight student app | **Done, signed off by the owner on a device (2026-11-11) and merged into `dev`.** Sign-in, subscribe with proof, live approval, rotating code, history, live bus, push, EN and FR, light and dark, plus the ideas round (school join, notifications and reminders, on-board card, streaks and leaderboard, bus near my stop, My area with OpenStreetMap place search). Still open: a hosted Supabase project, iOS configuration, Firebase for push |
 | 4 Ops app | Scanner and driver mode | **Signed off by the owner (2026-11-11) after device testing, and merged into `dev`.** Owner decisions: day keys for offline checks (ADR 0014), any staff phone scans and the trip's assignee shares the position, the assignee starts and ends the trip (any staff when none). Slices: day keys (#249), trip control, shared app package, ops shell, scanner with offline queue, driver mode, then the owner's test on a real run |
 | 5 Insights | Density map, pickup and route suggestions | **Feature complete and merged into `dev`, waiting for the owner's check.** Stop load (#261), proximity (#265), students nearer another stop (#287), the graph view (#289), stop suggestions (#291). Route optimization (OR-Tools) and the weekly summary stay for later, as agreed |
-| 6 Scale | More schools, payments, hardware tracker | Not started |
+| 6 Scale | More schools, payments, hardware tracker | **Started (2026-11-16): the platform console** (ADR 0027), in seven slices; slice 1 (access, audit, overview) on `phase-6/platform-console`, slice 2 (school health) on `phase-6/school-health`, slice 3 (reaching out) on `phase-6/outreach`, calmer console on `phase-6/console-calm`, slice 4 (onboarding) on `phase-6/onboarding`, slice 5 (leads) on `phase-6/leads`, slice 6 (health) on `phase-6/system-health`, slice 7 (lookup) on `phase-6/lookup`; version 1 complete |
 
 ## Blockers (owner)
 
@@ -31,6 +31,184 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: platform console and account deletion on `dev` and live (2026-11-16)
+
+Merged into `dev` (owner approved): #510 to #517 (platform console) and #519 (account deletion). Live database (owner
+approved): migrations `20261116110000` to `20261116180000` applied (dry run first, then up to date); `delete-accounts`
+deployed with `DELETIONS_SECRET`, and the Vault values `deletions_url` and `deletions_secret` stored (checked: refuses
+without the secret, answers with it; the nightly job `busin-erase-accounts` runs at 02:40 UTC). Versions on `dev`: ops
+0.1.0+3, student 0.1.0+2 (not yet distributed: the builds were stopped at the owner's request).
+
+Not on `main` yet: the live portal does not have the console or the deletion pages until `dev` is released. Owner:
+add your account to `private.platform_admins` on the live project when you want the console there; give Google Play the
+`/delete-account` link once `main` has it.
+
+## Handoff: account deletion, slice 3, the phone apps, complete (2026-11-16, branch `phase-6/account-deletion`)
+
+Done: `AccountDeletionRepository` (core) and its Supabase implementation; a shared `DeleteAccountSection` in `busin_app`
+(a sheet that says what is erased and kept, then the date and "Keep my account"; refusals for the last admin and a
+running trip explained) on the student app's and the ops app's profile, below Sign out. EN and FR strings in
+`busin_ui`. Account deletion is now complete in every app, on the public page and in the console.
+
+Verified: Flutter tests (ui 125, app 13, ops 87, student 407, data 49, core 98), analyze clean, Vitest 501, pgTAP 1071,
+function tests 33, E2E account deletion.
+
+Owner: device-test the deletion in both apps (ask, see the date, keep the account); on the hosted project, follow
+`docs/guides/account-deletion.md` (migration, function secret, deploy, the two Vault values), then give Google Play the
+`/delete-account` link. Not covered: an account blocked before the apps' main screens (a student waiting for a school, a
+student account in the ops app) asks from the website (`/app` or `/delete-account`) for now.
+
+## Handoff: account deletion, slice 2, the web (2026-11-16, branch `phase-6/account-deletion`)
+
+Done: "Delete my account" on the admin portal's profile, the student web app's profile and the console's account page
+(a confirmation that says what is erased and what the school keeps; once asked, the date and "Keep my account"); the
+public page `/delete-account` (steps, what is erased and kept, a form for someone who lost access, linked from the
+landing footer); the console's Lookup shows a scheduled deletion and schedules or cancels one after a confirmation;
+Leads has a "Deletion requests" tab; People hides erased accounts. The copy is one shared EN/FR file.
+
+Also fixed: the BusIn reminder on a school's overview squeezed its text on a phone (slice 3); the school overview could
+scroll sideways on a phone when a list row was long (its grids had no width cap).
+
+Verified: Vitest 501, E2E (account deletion 5, lookup, leads, people, shell, portal, student profile, landing), pgTAP,
+tsc, lint, check.
+
+Next: slice 3, the student and ops apps.
+
+## Handoff: account deletion, slice 1, the backend (2026-11-16, branch `phase-6/account-deletion`, on `phase-6/lookup`)
+
+Owner decisions: records kept but anonymised, a 7-day wait that can be cancelled, asked from every app, a public page and
+the platform console. Done (ADR 0028, migration `20261116180000_account_deletion`): ask, cancel and see a deletion;
+guards for the last admin and running trips; the platform schedules or cancels; the nightly `delete-accounts` Edge
+Function (proof files, soft-deleted sign-in, emptied profile); `deletion` leads from the public page; Lookup shows a
+scheduled deletion. `npm run dev:erase -- <email>` runs it locally. Guide: `docs/guides/account-deletion.md`.
+
+Verified: pgTAP 1071 (new 062), function tests 33 (new erase), a local end-to-end erasure and a fresh sign-up with the
+same email.
+
+Next: slice 2 (web: portal and student web profile, `/delete-account`, the console's Lookup and Leads, People hides
+deleted accounts), slice 3 (student and ops apps).
+
+## Handoff: platform console, slice 7, account lookup, version 1 complete (2026-11-16, branch `phase-6/lookup`)
+
+Done (migration `20261116170000_account_lookup`, ADR 0027 point 11): a Lookup tab finds one account by its exact email
+and shows where it stands (school, role, status, last sign-in, requests, invites, subscriptions, devices). Read only;
+each lookup is audited (never the email typed) and limited to 30 an hour; the email never goes into the address.
+
+The platform console's version 1 is complete: Console (totals, Needs you), Schools (health, reaching out, onboarding),
+Leads, Health, Lookup. Branches, stacked in order on `dev`: `phase-6/platform-console`, `phase-6/school-health`,
+`phase-6/outreach`, `phase-6/console-calm`, `phase-6/onboarding`, `phase-6/leads`, `phase-6/system-health`,
+`phase-6/lookup`.
+
+Verified: pgTAP 1044 (new 061), Vitest 496, E2E (lookup, system, leads, onboarding, outreach, health, platform, shell:
+50), tsc, lint, check. One full pgTAP run ended with a container error and no failing test; three runs after it passed.
+
+Opened (owner approved, 2026-11-16): issues #501 to #509; PRs into `dev`, to merge in this order: #510, #511, #512,
+#513, #514, #515 (also closes #507, the dialog fix), #516, #517.
+
+Owner: review and merge the PRs in order; then, with your go, apply the migrations `20261116110000` to
+`20261116170000` to the hosted project and add your row to `private.platform_admins`; check `PLAN_LIMITS`.
+
+## Handoff: platform console, slice 6, usage, costs and health (2026-11-16, branch `phase-6/system-health`, on slice 5)
+
+Done (migration `20261116160000_system_health`, ADR 0027 point 10): a Health tab with the plan limits as meters
+(database, file storage, active accounts, map directions; amber at 80%, red at 95%; limits in `PLAN_LIMITS`), the
+scheduled jobs in words with their last run and failures, push notifications and devices, place searches, and buses
+gone quiet; "Needs you" says how many things to check. Locally it already shows `busin-send-push` failing at startup
+now and then (Docker sleeping), which is local only.
+
+Verified: pgTAP 1031 (new 060), Vitest 492, E2E (system, leads, onboarding, outreach, health, platform, shell: 47), tsc,
+lint, check.
+
+Owner: check `PLAN_LIMITS` in `apps/admin_web/lib/platform-system.ts` matches the plans you are on (Supabase Free, Mapbox
+free tier assumed).
+
+Next: slice 7, account lookup (the last slice of version 1).
+
+## Handoff: platform console, slice 5, leads (2026-11-16, branch `phase-6/leads`, on slice 4)
+
+Done (migration `20261116150000_leads`, ADR 0027 point 9): a Leads tab lists the landing page's requests (Schools,
+Notify me) with status tabs; each lead can be marked contacted, dismissed or back to new, carry a note, and a school
+lead becomes a school through the prefilled New school form (the lead then links to it). New school leads show in
+"Needs you"; Notify me has "Copy these emails" for the app launch.
+
+Also fixed (found by the tests, on `main` already): a dialog or side sheet reopened during its closing motion closed
+anyway and its button did nothing (Modal, SideSheet), and the landing's interest form lost a click made while it was
+closing; the styleguide test still expected a student to get "no access" since students go to `/app` (ADR 0021).
+
+Verified: pgTAP 1023 (new 059), Vitest 486, E2E (leads, onboarding, outreach, health, platform, shell, landing,
+landing-interest, styleguide, components, people, subscriptions), tsc, lint, check.
+
+Next: slice 6, usage, costs and system health.
+
+## Handoff: platform console, slice 4, school onboarding (2026-11-16, branch `phase-6/onboarding`, on the calmer console)
+
+Done (migration `20261116140000_school_onboarding`, ADR 0027 point 8): "New school" on the Schools tab creates a school
+(name, short name, country, city, time zone, student email domains) and invites its first administrator; their first
+Google sign-in makes them its administrator, and they set up the rest in their portal. A school's page lists its open
+administrator invites, invites more, and switches the school off or on after a confirmation (switched off: no new
+sign-ups, joins, invites or staff requests, off the landing page, not scored; people already in keep access).
+
+Verified: pgTAP 1009 (new 058), Vitest 481, E2E (onboarding, outreach, health, platform, shell, invites, landing: 59),
+tsc, lint, check.
+
+Next: slice 5, leads from the landing page (with "create the school" from a lead).
+
+## Handoff: platform console, a calmer console (2026-11-16, branch `phase-6/console-calm`, on slice 3)
+
+Owner feedback: the console read as text everywhere. Now: signals are tiles (short name, value in large type, level,
+missing items as small chips) with the sentence and thresholds behind an information tip; the schools list and "Needs
+you" show signal chips ("Answer time 4.6 days") with the sentence as a tip; overview tiles show short "number label"
+breakdowns; explanations moved to each page's help sheet; writing a message and logging a contact open in side panels;
+recent administrator actions are folded, with readable names.
+
+## Handoff: platform console, slice 3, reaching out (2026-11-16, branch `phase-6/outreach`, on slice 2)
+
+Done (migration `20261116130000_outreach`, ADR 0027 point 7): the school page shows the contacts (school and
+administrators, each view audited) and writes a ready message about the chosen signals, in English or French, that
+opens in your own email or WhatsApp, or goes to the school's administrators as a notice on their overview (they open its
+page or dismiss it). Each contact can be logged, pausing its signals (7 days by default) and setting a follow-up, which
+shows in "Needs you" until marked done. The schools list and "Needs you" say when a school was last contacted. Also, the
+school page header now morphs into a compact sticky bar while scrolling (owner's request), sharing one hook
+(`useStickyMorph`) with the list toolbars.
+
+Verified: pgTAP 987 (new 057), Vitest 475, E2E (platform, health, outreach, shell, portal, subscriptions, trips: 104),
+tsc, lint, check.
+
+Next: slice 4, school onboarding.
+
+## Handoff: platform console, slice 2, school health (2026-11-16, branch `phase-6/school-health`, on slice 1)
+
+Done (migration `20261116120000_school_health`, ADR 0027 point 6): fourteen health signals per school with levels OK,
+Watch, Needs help, Critical (thresholds in `private.health_rules`), a weighted score, the missing profile and setup
+items named, a 14-day grace for new schools, and a nightly record (`busin-school-health`, 02:20 UTC). Console: a
+Schools tab (filter by level, the two main reasons in plain words), a school page (every signal with its thresholds,
+the 30-day trend, details, recent administrator actions as kind and time only), and "Needs you" on the overview.
+Also fixed a race in the shell E2E (the profile tile click could catch the overview's hidden link).
+
+Verified: pgTAP 960 (new 056), Vitest 464, platform, platform-health, shell and portal E2E (51), tsc, lint, check.
+
+Next: slice 3, reaching out (contacts, ready messages, in-portal notice, outreach log with snooze and follow-ups).
+
+## Handoff: platform console, slice 1 (2026-11-16, branch `phase-6/platform-console`)
+
+Done (ADR 0027, migration `20261116110000_platform_console`): the platform console at `/platform`, in the admin portal.
+Platform admins are listed in `private.platform_admins` (not a role; added by SQL only, read live). `platform_overview()`
+gives platform totals (schools, people, new accounts, waiting, this semester's subscriptions, today's trips and
+boardings, buses live) and one row of counts per school. Everyone else gets "not found". Platform actions will be logged
+in `platform_audit`. The console's own tabs and account page; the school profile shows the way in to listed accounts.
+Locally: `npm run dev:platform` makes a local account (development sign-in) that opens only the console and lands
+on it; `npm run dev:user -- <email> admin --platform` makes a school admin who also opens it.
+
+Verified: pgTAP 936 (new 055), Vitest 452, platform E2E (5), shell and portal E2E, tsc, lint, `npm run check`.
+
+Next slices (plan approved 2026-11-15): school health signals and levels with a nightly record; reaching out (contacts,
+ready messages, in-portal notice, outreach log); school onboarding; leads; usage, costs and health; account lookup.
+
+Owner: the GitHub issues for the seven slices were not created (the tool permission was refused); approve creating them,
+then the PR into `dev`. On the hosted project, later: the migration, then your own row with
+`insert into private.platform_admins (user_id, note) select id, 'owner' from auth.users where email = '<your email>';`
+(each needs your go). Keep 2-step verification on that Google account.
+
 ## Handoff: staff access requests (2026-11-15, branch `phase-5/staff-requests`)
 
 Done (#498, ADR 0026, migration `20261116100000_staff_requests`): a student account in the ops app can ask a school for
@@ -38,8 +216,10 @@ staff access; the school's admins approve or decline on People, To verify (a dec
 email is not blocked); admins can switch a verified member between student and staff, with guards. Also on the live
 database (owner's request, before this change): developerace0@gmail.com made verified staff of ICT University, audited.
 
-To ship: push the branch and open its PR into `dev`, then the hosted migration `20261116100000_staff_requests`, then
-`main`, and new ops builds (older ones keep the dead end). Each needs the owner's go.
+Shipped on 2026-11-15 (owner approved): migration `20261116100000_staff_requests` on the live database, BusIn Ops
+0.1.0 (2) on App Distribution (group BusIn Inders), and `dev` released to `main` (#500, deployed by Vercel). Phones
+holding an earlier ops build with a different version code or signature must uninstall it first (done on the test
+tablet).
 
 What to test (local):
 - **Ops app, a student account:** "Ask for staff access", pick the school, see it waiting, withdraw, ask again.

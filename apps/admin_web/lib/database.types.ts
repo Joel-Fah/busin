@@ -181,17 +181,23 @@ isOneToOne: false
                   ]
                 },"interest_requests": {
                   Row: {
-                    "created_at": string,"email": string,"id": string,"kind": string,"locale": string,"message": string | null,"name": string | null,"organisation": string | null
+                    "created_at": string,"email": string,"handled_at": string | null,"id": string,"kind": string,"locale": string,"message": string | null,"name": string | null,"note": string | null,"organisation": string | null,"school_id": string | null,"status": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"email": string,"id"?: string,"kind": string,"locale"?: string,"message"?: string | null,"name"?: string | null,"organisation"?: string | null
+                    "created_at"?: string,"email": string,"handled_at"?: string | null,"id"?: string,"kind": string,"locale"?: string,"message"?: string | null,"name"?: string | null,"note"?: string | null,"organisation"?: string | null,"school_id"?: string | null,"status"?: string
                   }
                   Update: {
-                    "created_at"?: string,"email"?: string,"id"?: string,"kind"?: string,"locale"?: string,"message"?: string | null,"name"?: string | null,"organisation"?: string | null
+                    "created_at"?: string,"email"?: string,"handled_at"?: string | null,"id"?: string,"kind"?: string,"locale"?: string,"message"?: string | null,"name"?: string | null,"note"?: string | null,"organisation"?: string | null,"school_id"?: string | null,"status"?: string
                   }
                   Relationships: [
-                    
+                    {
+      foreignKeyName: "interest_requests_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    }
                   ]
                 },"live_positions": {
                   Row: {
@@ -265,16 +271,62 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"profiles": {
+                },"platform_audit": {
                   Row: {
-                    "avatar_url": string | null,"created_at": string,"department": string | null,"department_id": string | null,"email": string,"full_name": string,"id": string,"join_decline_note": string | null,"join_declined_at": string | null,"join_declined_school": string | null,"join_requested_at": string | null,"matricule": string | null,"payment_preference": string | null,"phone": string | null,"program": string | null,"program_id": string | null,"role": Database["public"]['Enums']["user_role"],"school_id": string | null,"staff_decline_note": string | null,"staff_declined_at": string | null,"staff_declined_school": string | null,"staff_request_school": string | null,"staff_requested_at": string | null,"status": Database["public"]['Enums']["account_status"],"streak_opt_in": boolean,"streak_opt_in_at": string | null,"updated_at": string
+                    "action": string,"actor_id": string,"created_at": string,"details": NonNullable<Json>,"id": number,"school_id": string | null,"target_id": string | null,"target_type": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "avatar_url"?: string | null,"created_at"?: string,"department"?: string | null,"department_id"?: string | null,"email": string,"full_name"?: string,"id": string,"join_decline_note"?: string | null,"join_declined_at"?: string | null,"join_declined_school"?: string | null,"join_requested_at"?: string | null,"matricule"?: string | null,"payment_preference"?: string | null,"phone"?: string | null,"program"?: string | null,"program_id"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"school_id"?: string | null,"staff_decline_note"?: string | null,"staff_declined_at"?: string | null,"staff_declined_school"?: string | null,"staff_request_school"?: string | null,"staff_requested_at"?: string | null,"status"?: Database["public"]['Enums']["account_status"],"streak_opt_in"?: boolean,"streak_opt_in_at"?: string | null,"updated_at"?: string
+                    "action": string,"actor_id": string,"created_at"?: string,"details"?: NonNullable<Json>,"id"?: never,"school_id"?: string | null,"target_id"?: string | null,"target_type"?: string | null
                   }
                   Update: {
-                    "avatar_url"?: string | null,"created_at"?: string,"department"?: string | null,"department_id"?: string | null,"email"?: string,"full_name"?: string,"id"?: string,"join_decline_note"?: string | null,"join_declined_at"?: string | null,"join_declined_school"?: string | null,"join_requested_at"?: string | null,"matricule"?: string | null,"payment_preference"?: string | null,"phone"?: string | null,"program"?: string | null,"program_id"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"school_id"?: string | null,"staff_decline_note"?: string | null,"staff_declined_at"?: string | null,"staff_declined_school"?: string | null,"staff_request_school"?: string | null,"staff_requested_at"?: string | null,"status"?: Database["public"]['Enums']["account_status"],"streak_opt_in"?: boolean,"streak_opt_in_at"?: string | null,"updated_at"?: string
+                    "action"?: string,"actor_id"?: string,"created_at"?: string,"details"?: NonNullable<Json>,"id"?: never,"school_id"?: string | null,"target_id"?: string | null,"target_type"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "platform_audit_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"platform_outreach": {
+                  Row: {
+                    "channel": string,"created_at": string,"created_by": string,"follow_up_done_at": string | null,"follow_up_on": string | null,"id": string,"note": string | null,"notice_id": string | null,"school_id": string,"signals": (string)[],"snooze_until": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "channel": string,"created_at"?: string,"created_by": string,"follow_up_done_at"?: string | null,"follow_up_on"?: string | null,"id"?: string,"note"?: string | null,"notice_id"?: string | null,"school_id": string,"signals"?: (string)[],"snooze_until"?: string | null
+                  }
+                  Update: {
+                    "channel"?: string,"created_at"?: string,"created_by"?: string,"follow_up_done_at"?: string | null,"follow_up_on"?: string | null,"id"?: string,"note"?: string | null,"notice_id"?: string | null,"school_id"?: string,"signals"?: (string)[],"snooze_until"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "platform_outreach_notice_id_fkey"
+      columns: ["notice_id"]
+isOneToOne: false
+      referencedRelation: "school_notices"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "platform_outreach_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"profiles": {
+                  Row: {
+                    "avatar_url": string | null,"created_at": string,"deleted_at": string | null,"deletion_by": string | null,"deletion_due_at": string | null,"deletion_requested_at": string | null,"department": string | null,"department_id": string | null,"email": string,"full_name": string,"id": string,"join_decline_note": string | null,"join_declined_at": string | null,"join_declined_school": string | null,"join_requested_at": string | null,"matricule": string | null,"payment_preference": string | null,"phone": string | null,"program": string | null,"program_id": string | null,"role": Database["public"]['Enums']["user_role"],"school_id": string | null,"staff_decline_note": string | null,"staff_declined_at": string | null,"staff_declined_school": string | null,"staff_request_school": string | null,"staff_requested_at": string | null,"status": Database["public"]['Enums']["account_status"],"streak_opt_in": boolean,"streak_opt_in_at": string | null,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "avatar_url"?: string | null,"created_at"?: string,"deleted_at"?: string | null,"deletion_by"?: string | null,"deletion_due_at"?: string | null,"deletion_requested_at"?: string | null,"department"?: string | null,"department_id"?: string | null,"email": string,"full_name"?: string,"id": string,"join_decline_note"?: string | null,"join_declined_at"?: string | null,"join_declined_school"?: string | null,"join_requested_at"?: string | null,"matricule"?: string | null,"payment_preference"?: string | null,"phone"?: string | null,"program"?: string | null,"program_id"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"school_id"?: string | null,"staff_decline_note"?: string | null,"staff_declined_at"?: string | null,"staff_declined_school"?: string | null,"staff_request_school"?: string | null,"staff_requested_at"?: string | null,"status"?: Database["public"]['Enums']["account_status"],"streak_opt_in"?: boolean,"streak_opt_in_at"?: string | null,"updated_at"?: string
+                  }
+                  Update: {
+                    "avatar_url"?: string | null,"created_at"?: string,"deleted_at"?: string | null,"deletion_by"?: string | null,"deletion_due_at"?: string | null,"deletion_requested_at"?: string | null,"department"?: string | null,"department_id"?: string | null,"email"?: string,"full_name"?: string,"id"?: string,"join_decline_note"?: string | null,"join_declined_at"?: string | null,"join_declined_school"?: string | null,"join_requested_at"?: string | null,"matricule"?: string | null,"payment_preference"?: string | null,"phone"?: string | null,"program"?: string | null,"program_id"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"school_id"?: string | null,"staff_decline_note"?: string | null,"staff_declined_at"?: string | null,"staff_declined_school"?: string | null,"staff_request_school"?: string | null,"staff_requested_at"?: string | null,"status"?: Database["public"]['Enums']["account_status"],"streak_opt_in"?: boolean,"streak_opt_in_at"?: string | null,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -427,6 +479,52 @@ isOneToOne: false
                   Relationships: [
                     {
       foreignKeyName: "school_domains_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"school_health_daily": {
+                  Row: {
+                    "day": string,"level": number,"school_id": string,"score": number,"signals": NonNullable<Json>
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "day": string,"level": number,"school_id": string,"score": number,"signals"?: NonNullable<Json>
+                  }
+                  Update: {
+                    "day"?: string,"level"?: number,"school_id"?: string,"score"?: number,"signals"?: NonNullable<Json>
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "school_health_daily_school_id_fkey"
+      columns: ["school_id"]
+isOneToOne: false
+      referencedRelation: "schools"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"school_notices": {
+                  Row: {
+                    "body": string,"created_at": string,"created_by": string,"dismissed_at": string | null,"dismissed_by": string | null,"expires_at": string,"id": string,"link_path": string | null,"school_id": string,"signals": (string)[]
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "body": string,"created_at"?: string,"created_by": string,"dismissed_at"?: string | null,"dismissed_by"?: string | null,"expires_at"?: string,"id"?: string,"link_path"?: string | null,"school_id": string,"signals"?: (string)[]
+                  }
+                  Update: {
+                    "body"?: string,"created_at"?: string,"created_by"?: string,"dismissed_at"?: string | null,"dismissed_by"?: string | null,"expires_at"?: string,"id"?: string,"link_path"?: string | null,"school_id"?: string,"signals"?: (string)[]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "school_notices_dismissed_by_fkey"
+      columns: ["dismissed_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "school_notices_school_id_fkey"
       columns: ["school_id"]
 isOneToOne: false
       referencedRelation: "schools"
@@ -893,8 +991,14 @@ isOneToOne: false
 "admin_verify_member":
 { Args: { "p_user_id": string }; Returns: undefined
                            },
+"am_platform_admin":
+{ Args: Record<PropertyKey, never>; Returns: boolean
+                           },
 "can_follow_buses":
 { Args: Record<PropertyKey, never>; Returns: boolean
+                           },
+"cancel_account_deletion":
+{ Args: Record<PropertyKey, never>; Returns: undefined
                            },
 "claim_notifications":
 { Args: { "p_limit"?: number }; Returns: {
@@ -910,11 +1014,22 @@ isOneToOne: false
 "custom_access_token_hook":
 { Args: { "event": Json }; Returns: Json
                            },
+"dismiss_school_notice":
+{ Args: { "p_notice_id": string }; Returns: undefined
+                           },
 "drop_device_token":
 { Args: { "p_token": string }; Returns: undefined
                            },
+"due_account_deletions":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "files": (string)[],"user_id": string
+            }[]
+                           },
 "end_trip":
 { Args: { "p_trip_id": string }; Returns: undefined
+                           },
+"erase_account":
+{ Args: { "p_user_id": string }; Returns: undefined
                            },
 "field_trip_options":
 { Args: Record<PropertyKey, never>; Returns: Json
@@ -933,6 +1048,11 @@ isOneToOne: false
 "list_staff_request_schools":
 { Args: Record<PropertyKey, never>; Returns: {
               "city": string,"country": string,"id": string,"logo_path": string,"name": string,"short_name": string
+            }[]
+                           },
+"my_account_deletion":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "due_at": string,"requested_at": string,"requested_by": string
             }[]
                            },
 "my_area":
@@ -980,6 +1100,76 @@ isOneToOne: false
               "east": number,"north": number,"south": number,"west": number
             }[]
                            },
+"platform_complete_follow_up":
+{ Args: { "p_outreach_id": string }; Returns: undefined
+                           },
+"platform_create_school":
+{ Args: { "p_city"?: string,"p_country"?: string,"p_domains"?: (string)[],"p_name": string,"p_short_name"?: string,"p_timezone"?: string }; Returns: string
+                           },
+"platform_follow_ups":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "channel": string,"created_at": string,"follow_up_on": string,"id": string,"note": string,"school_id": string,"school_name": string
+            }[]
+                           },
+"platform_invite_school_admin":
+{ Args: { "p_email": string,"p_school_id": string }; Returns: string
+                           },
+"platform_lead":
+{ Args: { "p_lead_id": string }; Returns: {
+              "email": string,"id": string,"kind": string,"name": string,"organisation": string,"status": string
+            }[]
+                           },
+"platform_lead_counts":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"platform_leads":
+{ Args: { "p_kind"?: string,"p_limit"?: number,"p_offset"?: number,"p_status"?: string }; Returns: {
+              "created_at": string,"email": string,"handled_at": string,"id": string,"kind": string,"locale": string,"message": string,"name": string,"note": string,"organisation": string,"school_id": string,"school_name": string,"status": string,"total": number
+            }[]
+                           },
+"platform_log_outreach":
+{ Args: { "p_channel": string,"p_follow_up_on"?: string,"p_note"?: string,"p_school_id": string,"p_signals"?: (string)[],"p_snooze_days"?: number }; Returns: string
+                           },
+"platform_lookup_account":
+{ Args: { "p_email": string }; Returns: Json
+                           },
+"platform_overview":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"platform_schedule_deletion":
+{ Args: { "p_schedule": boolean,"p_user_id": string }; Returns: string
+                           },
+"platform_school":
+{ Args: { "p_school_id": string }; Returns: Json
+                           },
+"platform_school_contacts":
+{ Args: { "p_school_id": string }; Returns: Json
+                           },
+"platform_school_invites":
+{ Args: { "p_school_id": string }; Returns: {
+              "created_at": string,"email": string,"expires_at": string,"role": Database["public"]['Enums']["user_role"]
+            }[]
+                           },
+"platform_school_outreach":
+{ Args: { "p_school_id": string }; Returns: Json
+                           },
+"platform_schools":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "created_at": string,"id": string,"last_admin_action_at": string,"last_outreach_at": string,"level": number,"logo_path": string,"name": string,"reasons": Json,"score": number,"short_name": string,"snoozed": Json,"staff": number,"status": string,"students": number
+            }[]
+                           },
+"platform_send_notice":
+{ Args: { "p_body": string,"p_follow_up_on"?: string,"p_link_path"?: string,"p_school_id": string,"p_signals"?: (string)[],"p_snooze_days"?: number }; Returns: string
+                           },
+"platform_set_school_status":
+{ Args: { "p_active": boolean,"p_school_id": string }; Returns: undefined
+                           },
+"platform_system_health":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"platform_update_lead":
+{ Args: { "p_lead_id": string,"p_note"?: string,"p_school_id"?: string,"p_status": string }; Returns: undefined
+                           },
 "public_schools":
 { Args: Record<PropertyKey, never>; Returns: {
               "city": string,"country": string,"id": string,"logo_path": string,"name": string,"short_name": string
@@ -993,6 +1183,9 @@ isOneToOne: false
                            },
 "register_device_token":
 { Args: { "p_locale"?: string,"p_platform": string,"p_token": string }; Returns: undefined
+                           },
+"request_account_deletion":
+{ Args: Record<PropertyKey, never>; Returns: string
                            },
 "request_school":
 { Args: { "p_school_id": string }; Returns: undefined

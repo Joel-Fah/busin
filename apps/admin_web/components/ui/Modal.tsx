@@ -25,14 +25,32 @@ export function Modal({ open, onClose, title, description, actions, children }: 
   const ref = useRef<HTMLDialogElement>(null);
   useScrollLock(open);
 
+  // The closing animation, so opening again during it cancels it instead of being lost (the dialog would then close at
+  // its end while the page thinks it is open, and its button would do nothing).
+  const closing = useRef<gsap.core.Tween | null>(null);
+
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
-    if (open && !dialog.open) {
-      dialog.showModal();
+    if (open && closing.current) {
+      closing.current.kill();
+      closing.current = null;
+    }
+    if (open && (!dialog.open || gsap.getProperty(dialog, "opacity") !== 1)) {
+      if (!dialog.open) dialog.showModal();
       gsap.fromTo(dialog, { y: 24, opacity: 0, scale: 0.96 }, { y: 0, opacity: 1, scale: 1, duration: calm() ? 0 : 0.4, ease: "back.out(1.4)" });
-    } else if (!open && dialog.open) {
-      gsap.to(dialog, { y: 12, opacity: 0, scale: 0.98, duration: calm() ? 0 : 0.22, ease: "power2.in", onComplete: () => dialog.close() });
+    } else if (!open && dialog.open && !closing.current) {
+      closing.current = gsap.to(dialog, {
+        y: 12,
+        opacity: 0,
+        scale: 0.98,
+        duration: calm() ? 0 : 0.22,
+        ease: "power2.in",
+        onComplete: () => {
+          closing.current = null;
+          dialog.close();
+        },
+      });
     }
   }, [open]);
 

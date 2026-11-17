@@ -57,6 +57,9 @@ export function LandingFooter({ copy, nav, invite, locale, t }: Props) {
           <Link href="/credits" className="w-fit font-semibold text-fg no-underline hover:text-accent">
             {copy.legal.credits}
           </Link>
+          <Link href="/delete-account" className="w-fit font-semibold text-fg no-underline hover:text-accent">
+            {copy.legal.deleteAccount}
+          </Link>
         </nav>
       </div>
       <p className="m-0 mt-6 px-2 text-sm text-muted">

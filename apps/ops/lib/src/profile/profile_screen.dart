@@ -180,6 +180,9 @@ class OpsProfileScreen extends ConsumerWidget {
                   await ref.read(signOutProvider)();
                 },
               ),
+              const SizedBox(height: BusinSpace.x6),
+              // Deleting the account (ADR 0028), after signing out: rarely used, never in the way.
+              DeleteAccountSection(repository: ref.watch(accountDeletionRepositoryProvider)),
             ],
           ),
         ),

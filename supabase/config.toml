@@ -434,3 +434,8 @@ enabled = true
 # so the platform's own JWT check is off for it. The function refuses any call without the secret.
 [functions.send-push]
 verify_jwt = false
+
+# The nightly scheduler calls this with a shared secret in the x-deletions-secret header (ADR 0028), not with a user
+# session, so the platform's JWT check is off for it. The function refuses any call without the secret.
+[functions.delete-accounts]
+verify_jwt = false

@@ -3,6 +3,7 @@
 library;
 
 export 'src/account/account_watcher.dart';
+export 'src/account/delete_account_section.dart';
 export 'src/async/held.dart';
 export 'src/auth/auth_service.dart';
 export 'src/auth/secure_session_storage.dart';
