@@ -1290,5 +1290,10 @@
   "accountDeleteRequested": "Your account will be deleted in 7 days.",
   "accountDeleteCancelled": "Deletion cancelled. Your account stays.",
   "accountDeleteLastAdmin": "You are the last administrator of your school. Make someone else an administrator first.",
-  "accountDeleteActiveTrip": "You are on a running trip. End it first, then ask again."
+  "accountDeleteActiveTrip": "You are on a running trip. End it first, then ask again.",
+  "opsTripReminderTitle": "Is your trip over?",
+  "opsTripReminderBody": "Your trip is still running. If it is over, end it so students see the bus has stopped.",
+  "opsTripReminderAction": "End trip",
+  "opsTripEndedFromReminder": "Trip ended.",
+  "opsTripEndFromReminderFailed": "The trip could not be ended. Open it to try again."
 }

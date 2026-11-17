@@ -3852,6 +3852,36 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'You are on a running trip. End it first, then ask again.'**
   String get accountDeleteActiveTrip;
+
+  /// No description provided for @opsTripReminderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Is your trip over?'**
+  String get opsTripReminderTitle;
+
+  /// No description provided for @opsTripReminderBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your trip is still running. If it is over, end it so students see the bus has stopped.'**
+  String get opsTripReminderBody;
+
+  /// No description provided for @opsTripReminderAction.
+  ///
+  /// In en, this message translates to:
+  /// **'End trip'**
+  String get opsTripReminderAction;
+
+  /// No description provided for @opsTripEndedFromReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip ended.'**
+  String get opsTripEndedFromReminder;
+
+  /// No description provided for @opsTripEndFromReminderFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The trip could not be ended. Open it to try again.'**
+  String get opsTripEndFromReminderFailed;
 }
 
 class _BusinL10nDelegate extends LocalizationsDelegate<BusinL10n> {

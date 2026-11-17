@@ -822,5 +822,10 @@
   "accountDeleteRequested": "Votre compte sera supprimé dans 7 jours.",
   "accountDeleteCancelled": "Suppression annulée. Votre compte reste.",
   "accountDeleteLastAdmin": "Vous êtes le dernier administrateur de votre école. Nommez d'abord quelqu'un d'autre administrateur.",
-  "accountDeleteActiveTrip": "Vous êtes sur un trajet en cours. Terminez-le, puis redemandez."
+  "accountDeleteActiveTrip": "Vous êtes sur un trajet en cours. Terminez-le, puis redemandez.",
+  "opsTripReminderTitle": "Votre trajet est-il terminé ?",
+  "opsTripReminderBody": "Votre trajet est toujours en cours. S'il est terminé, arrêtez-le pour que les étudiants voient que le bus s'est arrêté.",
+  "opsTripReminderAction": "Terminer le trajet",
+  "opsTripEndedFromReminder": "Trajet terminé.",
+  "opsTripEndFromReminderFailed": "Le trajet n'a pas pu être terminé. Ouvrez-le pour réessayer."
 }

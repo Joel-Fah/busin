@@ -2256,4 +2256,21 @@ class BusinL10nFr extends BusinL10n {
   @override
   String get accountDeleteActiveTrip =>
       'Vous êtes sur un trajet en cours. Terminez-le, puis redemandez.';
+
+  @override
+  String get opsTripReminderTitle => 'Votre trajet est-il terminé ?';
+
+  @override
+  String get opsTripReminderBody =>
+      'Votre trajet est toujours en cours. S\'il est terminé, arrêtez-le pour que les étudiants voient que le bus s\'est arrêté.';
+
+  @override
+  String get opsTripReminderAction => 'Terminer le trajet';
+
+  @override
+  String get opsTripEndedFromReminder => 'Trajet terminé.';
+
+  @override
+  String get opsTripEndFromReminderFailed =>
+      'Le trajet n\'a pas pu être terminé. Ouvrez-le pour réessayer.';
 }
