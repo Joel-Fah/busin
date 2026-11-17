@@ -18,6 +18,13 @@ const nextConfig: NextConfig = {
   experimental: { inlineCss: true },
   // The development indicator sits bottom-left by default, over the sidebar sign-out button.
   devIndicators: { position: "bottom-right" },
+  // Short addresses for the legal pages (the app stores ask for a privacy policy link).
+  async redirects() {
+    return [
+      { source: "/privacy", destination: "/legal/privacy", permanent: true },
+      { source: "/terms", destination: "/legal/terms", permanent: true },
+    ];
+  },
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },
