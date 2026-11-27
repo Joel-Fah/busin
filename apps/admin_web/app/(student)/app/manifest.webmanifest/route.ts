@@ -1,3 +1,5 @@
+import { APPLE_TOUCH_ICON_180 } from "@/lib/student/apple-icon";
+
 /**
  * The web app manifest of the student web app (ADR 0021). Scoped to /app/ so the portal is never part of the installed
  * app. The icon is the teal mark on white, to tell it apart from the installed mobile app.
@@ -16,6 +18,8 @@ export function GET() {
     theme_color: "#f4f8f8",
     categories: ["education", "travel"],
     icons: [
+      // The iPhone's size inline as well, for iOS versions that take the Home Screen icon from the manifest (issue #573).
+      { src: APPLE_TOUCH_ICON_180, sizes: "180x180", type: "image/png", purpose: "any" },
       { src: "/app-icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
       { src: "/app-icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
       { src: "/app-icons/maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
