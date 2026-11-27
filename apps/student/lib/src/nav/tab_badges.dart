@@ -34,6 +34,6 @@ Set<int> tabsForStatus(SubscriptionStatus status) => switch (status) {
 Set<int> tabsForPush(String kind) => switch (kind) {
       'subscription_approved' || 'subscription_restored' || 'subscription_revoked' => {StudentTabs.subscription, StudentTabs.code},
       'subscription_rejected' || 'installment_paid' || 'installment_rejected' || 'installment_due' => {StudentTabs.subscription},
-      'bus_near_stop' => {StudentTabs.bus},
+      'bus_near_stop' || 'trip_started' || 'bus_at_stop' || 'bus_left_stop' || 'bus_at_campus' => {StudentTabs.bus},
       _ => const {},
     };

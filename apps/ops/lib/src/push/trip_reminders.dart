@@ -6,6 +6,12 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 /// server sends these as data messages and this file draws them: in the background (the app closed) with the words
 /// the server sent, and in the foreground with the app's own.
 const tripReminderKind = 'trip_still_running';
+
+/// The bus reached the campus (issue #557): the same notification, with the same End trip button.
+const tripAtCampusKind = 'trip_at_campus';
+
+/// The notifications that offer to end a trip.
+const tripEndingKinds = {tripReminderKind, tripAtCampusKind};
 const endTripActionId = 'end_trip';
 
 /// What the person chose on a reminder: the trip, and whether they pressed End trip (or only opened it).
@@ -82,12 +88,12 @@ class LocalTripReminderNotifications implements TripReminderNotifications {
 }
 
 /// Firebase calls this, in a background isolate, for a data message while the app is not in front. It draws a trip
-/// reminder with the words the server sent; anything else is left alone.
+/// reminder or the campus arrival with the words the server sent; anything else is left alone.
 @pragma('vm:entry-point')
 Future<void> opsBackgroundMessage(RemoteMessage message) async {
   final data = message.data;
   final tripId = data['ref_id'];
-  if (data['kind'] != tripReminderKind || tripId is! String || tripId.isEmpty) return;
+  if (!tripEndingKinds.contains(data['kind']) || tripId is! String || tripId.isEmpty) return;
   await LocalTripReminderNotifications().show(
     tripId: tripId,
     title: (data['title'] as String?) ?? 'BusIn Ops',

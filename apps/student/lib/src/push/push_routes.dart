@@ -5,6 +5,7 @@ String? routeForPush(PushMessage message) => switch (message.kind) {
       'subscription_approved' || 'subscription_rejected' || 'subscription_revoked' || 'subscription_restored' => '/subscription',
       // Installments (ADR 0022): the parts are on the subscription tab.
       'installment_paid' || 'installment_rejected' || 'installment_due' => '/subscription',
-      'bus_near_stop' => '/bus',
+      // The bus: near, at or leaving the student's stop, at the campus, or a trip to school started.
+      'bus_near_stop' || 'trip_started' || 'bus_at_stop' || 'bus_left_stop' || 'bus_at_campus' => '/bus',
       _ => null,
     };

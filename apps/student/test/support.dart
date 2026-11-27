@@ -645,6 +645,20 @@ class FakeLive implements LivePositionsRepository {
 
   @override
   Future<PositionHolder?> positionHolder(String tripId) async => null;
+
+  /// The school's route and each trip's trail, as the map would draw them.
+  RouteLine? route;
+  final Map<String, List<GeoPoint>> trails = {};
+  final List<String> trailAsked = [];
+
+  @override
+  Future<RouteLine?> schoolRoute() async => route;
+
+  @override
+  Future<List<GeoPoint>> tripTrail(String tripId) async {
+    trailAsked.add(tripId);
+    return trails[tripId] ?? const [];
+  }
 }
 
 /// Stands in for the native map: shows the scene as text and remembers every scene and recenter request.
@@ -670,7 +684,10 @@ class FakeMapSurface {
           child: Text(
             'map stops=${scene.stops.length} mine=${scene.myStopId ?? '-'} bus=${bus == null ? '-' : '${bus.latitude},${bus.longitude}'}'
             '${scene.me == null ? '' : ' me=${scene.me!.latitude},${scene.me!.longitude}'}'
-            '${scene.focusMe == 0 ? '' : ' focus=${scene.focusMe}'}',
+            '${scene.focusMe == 0 ? '' : ' focus=${scene.focusMe}'}'
+            '${scene.route.isEmpty ? '' : ' route=${scene.route.length}'}'
+            '${scene.trail.isEmpty ? '' : ' trail=${scene.trail.length}'}'
+            '${scene.campus == null ? '' : ' campus=${scene.campusName}'}',
           ),
         );
       };

@@ -810,6 +810,44 @@ class BusinL10nEn extends BusinL10n {
       'What the bus does appears here while you follow it.';
 
   @override
+  String get busLegendOpen => 'What the map shows';
+
+  @override
+  String get busLegendTitle => 'Reading the map';
+
+  @override
+  String get busLegendMyStop => 'Your stop. It pings so you spot it quickly.';
+
+  @override
+  String get busLegendStop => 'The other stops, with their names.';
+
+  @override
+  String get busLegendBus =>
+      'The bus, live. It moves smoothly between the positions it sends every few seconds.';
+
+  @override
+  String get busLegendMe =>
+      'You, while Show me is on. Your position stays on your phone.';
+
+  @override
+  String get busLegendCampus => 'The campus, where the route ends.';
+
+  @override
+  String get busLegendRoute => 'The planned route, along the roads.';
+
+  @override
+  String get busLegendTrail => 'Where the bus has driven on this trip.';
+
+  @override
+  String get busLegendHow =>
+      'The card at the bottom says when the bus should reach your stop. Open its updates to see what the bus did, stop by stop. A notification tells you when it is near your stop.';
+
+  @override
+  String busUpdatesToggle(int count) {
+    return 'Live updates, $count';
+  }
+
+  @override
   String get busMeShow => 'Show me';
 
   @override
@@ -1144,6 +1182,20 @@ class BusinL10nEn extends BusinL10n {
       'When your bus is about this far from your stop.';
 
   @override
+  String get notificationsTripStarted => 'When a bus leaves for school';
+
+  @override
+  String get notificationsTripStartedHint =>
+      'Once a day, when the first bus to school starts its trip.';
+
+  @override
+  String get notificationsStopAlerts => 'At my stop and on campus';
+
+  @override
+  String get notificationsStopAlertsHint =>
+      'When the bus is at your stop, when it leaves it, and a welcome when you arrive on campus.';
+
+  @override
   String notificationsBusNearMinutes(int minutes) {
     return '$minutes min';
   }
@@ -1289,6 +1341,19 @@ class BusinL10nEn extends BusinL10n {
       'Your bus is a few minutes from your stop.';
 
   @override
+  String get pushForegroundTripStarted =>
+      'A bus to school has started its trip.';
+
+  @override
+  String get pushForegroundAtStop => 'The bus is at your stop.';
+
+  @override
+  String get pushForegroundLeftStop => 'The bus has left your stop.';
+
+  @override
+  String get pushForegroundAtCampus => 'Welcome to campus.';
+
+  @override
   String get areaTitle => 'My area';
 
   @override
@@ -1398,6 +1463,20 @@ class BusinL10nEn extends BusinL10n {
   @override
   String get sampleBusNearBody =>
       'It is a few minutes from your stop. Open BusIn to follow it.';
+
+  @override
+  String get sampleTripStartedTitle => 'Your bus is on its way';
+
+  @override
+  String get sampleTripStartedBody =>
+      'A bus to school has started its trip. Open BusIn to follow it.';
+
+  @override
+  String get sampleAtStopTitle => 'The bus is at your stop';
+
+  @override
+  String get sampleAtStopBody =>
+      'Your bus has reached your stop. Head there now if you are not on it yet.';
 
   @override
   String get areaOsmCredit => 'Places from OpenStreetMap contributors';
@@ -2238,6 +2317,13 @@ class BusinL10nEn extends BusinL10n {
   @override
   String get opsTripReminderBody =>
       'Your trip is still running. If it is over, end it so students see the bus has stopped.';
+
+  @override
+  String get opsTripAtCampusTitle => 'You are at the campus';
+
+  @override
+  String get opsTripAtCampusBody =>
+      'Your trip has reached the campus. If everyone is off, end the trip.';
 
   @override
   String get opsTripReminderAction => 'End trip';

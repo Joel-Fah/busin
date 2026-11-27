@@ -31,6 +31,56 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: four owner updates merged into `dev` (2026-11-27, #559 to #562)
+
+- On `dev`, not live: the whole-button tap area, the campus on the school profile, the student bus map, the stop alerts.
+- Live database still needs (owner's approval): `20261127100000_trip_trail.sql` and `20261127110000_stop_alerts.sql`,
+  then a redeploy of `send-push`. Until then a build against production must come from `main`.
+- Payments stay on `phase-6/payments`; merge `dev` into it before going back to it (expect conflicts in the strings and
+  the notification kinds, both sides kept).
+
+## Handoff: stop alerts (2026-11-27, #557, on #556)
+
+- Pushes when a trip to school starts (once a day), when the bus is at the student's stop and when it leaves it, a
+  welcome on campus, and the crew asked to end the trip at the campus (End trip button). Other stops only in the feed,
+  highlighted. Two new settings in Notifications. A dot on My bus for a running trip not looked at yet.
+- Migration `20261127110000_stop_alerts.sql` (local only; hosted with the next approved database update), then
+  redeploy `send-push` (new kinds and texts). The campus must be set (portal, #558 / #560) for the campus alerts.
+- Owner: run a real trip with the ops app and a student phone: start, reach the stop, leave it, reach the campus.
+
+## Handoff: student bus map (2026-11-27, #556)
+
+- My bus: simple colour-coded markers with names, the bus gliding and followed by the camera, the planned road route and
+  the trip's trail, a legend, the updates folded into the bus card on a phone. Checked on the owner's tablet (local
+  backend, simulated bus) in portrait and landscape. Migration `20261127100000_trip_trail.sql` (local only; hosted with
+  the next approved database update).
+- Owner: try it on a phone; set or redraw the route in the portal (Stops, Route) so the line follows the roads (the map
+  draws no route until it is drawn).
+
+## Handoff: campus on the school profile (2026-11-27, `phase-6/campus-on-profile`, #558)
+
+- The school profile has a Campus card: name and coordinates, an empty state when not set, and Set or Change with the
+  same map picker and server action as the route editor. Owner: on `/school`, set the campus by clicking the map, in
+  both themes and on a phone.
+
+## Handoff: whole button takes the tap (2026-11-27, #555)
+
+- A stretched button or card now reacts anywhere inside its contour, in every app (shared design system). Owner: tap
+  the edges of wide buttons (sign-in, Show the bus, sheets) on a phone.
+
+## Handoff: released to `main` (2026-11-17, #554)
+
+- Live: the Next.js 16.4.6 patch, rich text notices, trip reminders with an End trip action, staff access asked at most
+  3 times, the console's time zone list and lookup card, release signing, store docs, Delete my account where an
+  account is stuck, and the nightly clearing of old rows. Live database: migrations `20261116190000`,
+  `20261117090000`, `20261117170000` and `20261117180000` applied (owner approved, dry run first); `send-push`
+  redeployed.
+- Not released: payments (`phase-6/payments`, being tested) and the public legal pages (#525, waiting for the owner's
+  review).
+- Owner: build the ops app (trip reminders, the staff request limit) and the student app (Delete my account on the
+  waiting and blocked screens) and try them on a phone; the redeployed `send-push` sends trip reminders to Android as
+  data messages, which only the new ops build draws with its button.
+
 ## Handoff: release signing and store docs (2026-11-16, #521, #522)
 
 - Release signing: both apps read `android/key.properties` (never in git) and sign release builds with the upload key,
@@ -86,8 +136,8 @@ email after erasure), and #496 (needs an Android build-tool upgrade, its own PR)
 
 ## Handoff: rich text notices (2026-11-17)
 
-- The platform's notices to a school are written with formatting and shown laid out in the portal, on
-  `phase-6/rich-notices` (#537), stacked on the Next.js patch (#535): merge #535 first.
+- The platform's notices to a school are written with formatting and shown laid out in the portal (#537, merged with
+  #538, live).
 - Owner: try it from a school's page in the console (Reach out, then In the portal), and on that school's portal
   overview. The migration `20261117090000_rich_notices.sql` goes live with the next approved database update.
 

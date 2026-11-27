@@ -11,6 +11,7 @@ import '../models/field_trip.dart';
 import '../models/joining.dart';
 import '../models/position_holder.dart';
 import '../models/live_position.dart';
+import '../models/route_line.dart';
 import '../models/notification_preferences.dart';
 import '../models/profile.dart';
 import '../models/rider_key.dart';
@@ -351,6 +352,13 @@ abstract interface class LivePositionsRepository {
   /// Whether this person may follow buses live: an approved subscription covering today, or staff. The database
   /// decides (and enforces it on the positions themselves); this is how an app learns the answer.
   Future<bool> canFollowBuses();
+
+  /// The school's route for the map: the road line to the campus and the campus, or null when the school has neither.
+  Future<RouteLine?> schoolRoute();
+
+  /// Where the bus has been on this running trip (thinned, simplified), oldest first. Empty for a trip that has ended,
+  /// or for someone who may not follow buses.
+  Future<List<GeoPoint>> tripTrail(String tripId);
 
   /// Sends the bus position from the phone on board (ops driver mode). Returns false when the server dropped it (too
   /// soon after the last one, or too imprecise). [NotAllowed] for anyone but the person sharing this trip's bus.

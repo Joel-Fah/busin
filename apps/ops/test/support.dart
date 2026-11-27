@@ -371,6 +371,12 @@ class FakeLive implements LivePositionsRepository {
 
   @override
   dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
+
+  @override
+  Future<RouteLine?> schoolRoute() async => null;
+
+  @override
+  Future<List<GeoPoint>> tripTrail(String tripId) async => const [];
 }
 
 class FakePositions implements LocationFeed {

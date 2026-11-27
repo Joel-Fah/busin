@@ -110,6 +110,8 @@ class SupabaseNotificationPreferencesRepository implements NotificationPreferenc
           'p_bus_near_on': p.busNearOn,
           'p_bus_near_minutes': p.busNearMinutes,
           'p_boarding_messages_on': p.boardingMessagesOn,
+          'p_trip_started_on': p.tripStartedOn,
+          'p_stop_alerts_on': p.stopAlertsOn,
         });
       });
 }
@@ -729,6 +731,18 @@ class SupabaseLivePositionsRepository implements LivePositionsRepository {
 
   @override
   Future<bool> canFollowBuses() => guarded(() async => (await _client.rpc<dynamic>('can_follow_buses')) == true);
+
+  @override
+  Future<RouteLine?> schoolRoute() => guarded(() async {
+        final rows = await _client.rpc<List<dynamic>>('school_route');
+        if (rows.isEmpty) return null;
+        final route = RouteLine.fromRow(Map<String, dynamic>.from(rows.first as Map));
+        return route.isEmpty ? null : route;
+      });
+
+  @override
+  Future<List<GeoPoint>> tripTrail(String tripId) =>
+      guarded(() async => lineFromGeoJson(await _client.rpc<dynamic>('trip_trail', params: {'p_trip_id': tripId})));
 
   @override
   Future<bool> publish({
