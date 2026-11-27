@@ -31,6 +31,15 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: trips end by themselves (2026-11-27, #575)
+
+- Built, not live: a running trip ends an hour after its second "still running" reminder if still overdue (field trips
+  too), and 15 minutes after a trip to school reached the campus; the crew gets "Your trip was ended", the audit log
+  says why (`reminded`, `at_campus`). Job `busin-end-overdue-trips` every ten minutes. The midnight net stays.
+- No app rebuild: a phone still sharing is refused at its next position and stops; the notice is a plain notification.
+- To go live (owner approval): apply `20261127130000_trip_auto_end.sql` to the live database and redeploy `send-push`.
+  The trip running since this morning would then end within ten minutes.
+
 ## Handoff: iPhone Home Screen icon (2026-11-27, #573)
 
 - The 180 px icon is now inline in every student web page and in the manifest, so iOS needs no separate request (it
