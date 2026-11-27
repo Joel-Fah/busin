@@ -40,6 +40,17 @@ H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in conf
 - Owner: try it on a phone; set or redraw the route in the portal (Stops, Route) so the line follows the roads (the map
   draws no route until it is drawn).
 
+## Handoff: campus on the school profile (2026-11-27, `phase-6/campus-on-profile`, #558)
+
+- The school profile has a Campus card: name and coordinates, an empty state when not set, and Set or Change with the
+  same map picker and server action as the route editor. Owner: on `/school`, set the campus by clicking the map, in
+  both themes and on a phone.
+
+## Handoff: whole button takes the tap (2026-11-27, #555)
+
+- A stretched button or card now reacts anywhere inside its contour, in every app (shared design system). Owner: tap
+  the edges of wide buttons (sign-in, Show the bus, sheets) on a phone.
+
 ## Handoff: released to `main` (2026-11-17, #554)
 
 - Live: the Next.js 16.4.6 patch, rich text notices, trip reminders with an End trip action, staff access asked at most
