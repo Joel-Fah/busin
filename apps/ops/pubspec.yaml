@@ -1,7 +1,7 @@
 name: busin_ops
 description: BusIn ops app for staff (Android). Starts and ends trips, scans boarding codes (offline too) and shares the bus position.
 publish_to: none
-version: 0.1.0+3
+version: 0.1.0+4
 resolution: workspace
 
 environment:
