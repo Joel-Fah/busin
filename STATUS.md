@@ -31,11 +31,11 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
-## Handoff: optional gender (2026-11-27, #564)
+## Handoff: optional gender, released (2026-11-27, #565, #566)
 
-- Students may give their gender (male or female, or leave it empty) at setup and change or clear it in their profile,
-  in the app and on the web. Only they and their school's admins see it (portal, the student's page). The privacy text
-  says so. Migration `20261127120000_student_gender.sql` (local only; hosted with the owner's go, before a release).
+- Live: students may give their gender (or not) at setup and in their profile; only they and their school's admins see
+  it. Live database up to date (`20261127120000`). Both apps built from `main` against production (split APKs in each
+  app's `build/app/outputs/flutter-apk/`). Payments stay on `phase-6/payments`.
 
 ## Handoff: released to `main` (2026-11-27, #563)
 
