@@ -31,6 +31,15 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: stop alerts (2026-11-27, #557, on #556)
+
+- Pushes when a trip to school starts (once a day), when the bus is at the student's stop and when it leaves it, a
+  welcome on campus, and the crew asked to end the trip at the campus (End trip button). Other stops only in the feed,
+  highlighted. Two new settings in Notifications. A dot on My bus for a running trip not looked at yet.
+- Migration `20261127110000_stop_alerts.sql` (local only; hosted with the next approved database update), then
+  redeploy `send-push` (new kinds and texts). The campus must be set (portal, #558 / #560) for the campus alerts.
+- Owner: run a real trip with the ops app and a student phone: start, reach the stop, leave it, reach the campus.
+
 ## Handoff: student bus map (2026-11-27, #556)
 
 - My bus: simple colour-coded markers with names, the bus gliding and followed by the camera, the planned road route and

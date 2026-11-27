@@ -51,6 +51,9 @@ void main() {
       expect(routeForPush(const PushMessage(kind: 'subscription_revoked', refId: 'x')), '/subscription');
       expect(routeForPush(const PushMessage(kind: 'subscription_restored', refId: 'x')), '/subscription');
       expect(routeForPush(const PushMessage(kind: 'bus_near_stop', refId: 'trip')), '/bus');
+      for (final kind in ['trip_started', 'bus_at_stop', 'bus_left_stop', 'bus_at_campus']) {
+        expect(routeForPush(PushMessage(kind: kind, refId: 'trip')), '/bus', reason: kind);
+      }
     });
     test('a kind this version does not know goes nowhere', () => expect(routeForPush(const PushMessage(kind: 'something_new')), isNull));
   });

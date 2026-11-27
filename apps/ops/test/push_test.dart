@@ -151,6 +151,7 @@ void main() {
   group('trips left running', () {
     test('a reminder opens its trip; End trip is told apart from opening it', () {
       expect(opsRouteForPush(const PushMessage(kind: tripReminderKind, refId: 't1')), Routes.trip('t1'));
+      expect(opsRouteForPush(const PushMessage(kind: tripAtCampusKind, refId: 't1')), Routes.trip('t1'));
       expect(reminderChoice(const NotificationResponse(notificationResponseType: NotificationResponseType.selectedNotificationAction, actionId: endTripActionId, payload: 't1')),
           (tripId: 't1', end: true));
       expect(reminderChoice(const NotificationResponse(notificationResponseType: NotificationResponseType.selectedNotification, payload: 't1')), (tripId: 't1', end: false));
@@ -193,6 +194,15 @@ void main() {
       await open(tester, prefs: {pushAskedKey: true}, trips: trips, reminders: reminders);
       expect(trips.ended, ['t1']);
       await settle(tester, 40);
+    });
+  
+    testWidgets('reaching the campus is drawn the same way, with its own words and the End trip button', (tester) async {
+      final reminders = FakeReminders();
+      final (push, _, _) = await open(tester, prefs: {pushAskedKey: true}, reminders: reminders);
+      push.arrived.add(const PushMessage(kind: tripAtCampusKind, refId: 't1'));
+      await settle(tester, 4);
+      expect(reminders.shown.single.title, 'You are at the campus');
+      expect(reminders.shown.single.action, 'End trip');
     });
   });
 }

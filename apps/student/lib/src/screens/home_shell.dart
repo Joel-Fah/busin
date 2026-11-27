@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 import '../boarding/boarding_binder.dart';
+import '../nav/bus_news.dart';
 import '../nav/tab_badges.dart';
 import '../offline/offline_banner.dart';
 import '../offline/offline_binder.dart';
@@ -29,6 +30,8 @@ class HomeShell extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Keep the phone's reminders in step with the preferences, the semester and the language while the student is in.
     ref.watch(reminderSyncProvider);
+    // A dot on My bus for a trip the student has not looked at.
+    ref.watch(busTabNewsProvider);
     final l10n = BusinL10n.of(context);
     final p = BusinPalette.of(context);
     // A dot on a tab with news waiting (a decision, a code ready, the bus near the stop); the tab on screen has none.

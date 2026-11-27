@@ -20,6 +20,8 @@ void main() {
     expect(tabsForStatus(SubscriptionStatus.rejected), {StudentTabs.subscription});
     expect(tabsForPush('installment_rejected'), {StudentTabs.subscription});
     expect(tabsForPush('bus_near_stop'), {StudentTabs.bus});
+    expect(tabsForPush('trip_started'), {StudentTabs.bus});
+    expect(tabsForPush('bus_at_campus'), {StudentTabs.bus});
     expect(tabsForPush('school_notice'), isEmpty);
   });
 

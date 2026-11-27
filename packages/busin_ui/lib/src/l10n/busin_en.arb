@@ -651,6 +651,10 @@
   "notificationsEveningHint": "Almost time to head back to the bus.",
   "notificationsBusNear": "Bus near my stop",
   "notificationsBusNearHint": "When your bus is about this far from your stop.",
+  "notificationsTripStarted": "When a bus leaves for school",
+  "notificationsTripStartedHint": "Once a day, when the first bus to school starts its trip.",
+  "notificationsStopAlerts": "At my stop and on campus",
+  "notificationsStopAlertsHint": "When the bus is at your stop, when it leaves it, and a welcome when you arrive on campus.",
   "notificationsBusNearMinutes": "{minutes} min",
   "@notificationsBusNearMinutes": {
     "placeholders": {
@@ -743,6 +747,10 @@
     }
   },
   "pushForegroundBusNear": "Your bus is a few minutes from your stop.",
+  "pushForegroundTripStarted": "A bus to school has started its trip.",
+  "pushForegroundAtStop": "The bus is at your stop.",
+  "pushForegroundLeftStop": "The bus has left your stop.",
+  "pushForegroundAtCampus": "Welcome to campus.",
   "areaTitle": "My area",
   "areaHint": "Roughly where you live, to help your school place stops. Optional.",
   "areaLaterHint": "Add it when you are home.",
@@ -777,6 +785,10 @@
   "notificationsSampleSent": "We sent you an example, so you can see how it looks.",
   "sampleBusNearTitle": "Your bus is almost here",
   "sampleBusNearBody": "It is a few minutes from your stop. Open BusIn to follow it.",
+  "sampleTripStartedTitle": "Your bus is on its way",
+  "sampleTripStartedBody": "A bus to school has started its trip. Open BusIn to follow it.",
+  "sampleAtStopTitle": "The bus is at your stop",
+  "sampleAtStopBody": "Your bus has reached your stop. Head there now if you are not on it yet.",
   "areaOsmCredit": "Places from OpenStreetMap contributors",
   "placeKindArea": "Neighbourhood",
   "placeKindVillage": "Village or locality",
@@ -1308,6 +1320,8 @@
   "opsStaffRequestsUsedUp": "You have used all your requests for staff access. Ask your school's administrator to invite you: the app opens as soon as they do.",
   "opsTripReminderTitle": "Is your trip over?",
   "opsTripReminderBody": "Your trip is still running. If it is over, end it so students see the bus has stopped.",
+  "opsTripAtCampusTitle": "You are at the campus",
+  "opsTripAtCampusBody": "Your trip has reached the campus. If everyone is off, end the trip.",
   "opsTripReminderAction": "End trip",
   "opsTripEndedFromReminder": "Trip ended.",
   "opsTripEndFromReminderFailed": "The trip could not be ended. Open it to try again."

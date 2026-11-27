@@ -152,7 +152,8 @@ class BusUpdateLog extends Notifier<Map<String, List<BusUpdate>>> {
   }
 }
 
-const keptUpdates = 5;
+/// Enough for a whole trip's stops to stay listed.
+const keptUpdates = 25;
 
 final busUpdateLogProvider = NotifierProvider<BusUpdateLog, Map<String, List<BusUpdate>>>(BusUpdateLog.new);
 

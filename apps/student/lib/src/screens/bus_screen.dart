@@ -16,6 +16,7 @@ import '../bus/map_scene.dart';
 import '../bus/my_location.dart';
 import '../bus/show_me.dart';
 import '../bus/update_strip.dart';
+import '../nav/bus_news.dart';
 import '../qr/qr_providers.dart';
 import '../router.dart';
 import '../subscription/subscription_providers.dart';
@@ -158,6 +159,8 @@ class _BusScreenState extends ConsumerState<BusScreen> {
             ),
           );
         }
+        // These trips are seen: no dot on the tab for them.
+        if (_active ?? true) ref.read(busTabNewsProvider.notifier).seen(buses.map((b) => b.trip.id));
         return _Tracking(buses: buses, recenter: _recenter, busInView: _busInView, active: _active ?? true, ended: ended);
       },
     );

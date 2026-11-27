@@ -36,6 +36,8 @@ class NotificationPreferences extends ValueObject {
     this.busNearOn = true,
     this.busNearMinutes = 5,
     this.boardingMessagesOn = true,
+    this.tripStartedOn = true,
+    this.stopAlertsOn = true,
   });
 
   factory NotificationPreferences.fromJson(Map<String, dynamic> json) => NotificationPreferences(
@@ -47,6 +49,9 @@ class NotificationPreferences extends ValueObject {
         busNearOn: reqBool(json, 'bus_near_on'),
         busNearMinutes: reqInt(json, 'bus_near_minutes'),
         boardingMessagesOn: reqBool(json, 'boarding_messages_on'),
+        // Missing from an older server: on, as the database defaults them.
+        tripStartedOn: json['trip_started_on'] as bool? ?? true,
+        stopAlertsOn: json['stop_alerts_on'] as bool? ?? true,
       );
 
   /// Weekdays as DateTime.monday (1) ... DateTime.sunday (7).
@@ -60,6 +65,12 @@ class NotificationPreferences extends ValueObject {
   /// How long before the bus reaches the stop the student is told, 1 to 30.
   final int busNearMinutes;
   final bool boardingMessagesOn;
+
+  /// A bus to school started its trip (once a day).
+  final bool tripStartedOn;
+
+  /// The bus at the student's stop, leaving it, and at the campus.
+  final bool stopAlertsOn;
 
   /// Monday is bit 0, Sunday bit 6, as stored.
   static int maskOf(Set<int> days) => days.fold(0, (mask, day) => mask | (1 << (day - 1)));
@@ -75,6 +86,8 @@ class NotificationPreferences extends ValueObject {
     bool? busNearOn,
     int? busNearMinutes,
     bool? boardingMessagesOn,
+    bool? tripStartedOn,
+    bool? stopAlertsOn,
   }) =>
       NotificationPreferences(
         ridingDays: ridingDays ?? this.ridingDays,
@@ -85,8 +98,10 @@ class NotificationPreferences extends ValueObject {
         busNearOn: busNearOn ?? this.busNearOn,
         busNearMinutes: busNearMinutes ?? this.busNearMinutes,
         boardingMessagesOn: boardingMessagesOn ?? this.boardingMessagesOn,
+        tripStartedOn: tripStartedOn ?? this.tripStartedOn,
+        stopAlertsOn: stopAlertsOn ?? this.stopAlertsOn,
       );
 
   @override
-  List<Object?> get props => [ridingDays.toList()..sort(), morningOn, morningTime, eveningOn, eveningTime, busNearOn, busNearMinutes, boardingMessagesOn];
+  List<Object?> get props => [ridingDays.toList()..sort(), morningOn, morningTime, eveningOn, eveningTime, busNearOn, busNearMinutes, boardingMessagesOn, tripStartedOn, stopAlertsOn];
 }

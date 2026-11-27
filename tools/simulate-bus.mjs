@@ -114,9 +114,9 @@ const tick = () => {
   const next = path[(i + 1) % path.length];
   const speed = metres(here, next) / everySeconds;
   psql(`
-    insert into public.live_positions (bus_id, school_id, location, speed_mps, heading_deg, source, recorded_at)
-    values ('${busId}', '${schoolId}', extensions.st_point(${here[1]}, ${here[0]})::extensions.geography, ${speed.toFixed(2)}, ${bearing(here, next).toFixed(0)}, 'device', now())
-    on conflict (bus_id) do update set location = excluded.location, speed_mps = excluded.speed_mps,
+    insert into public.live_positions (bus_id, school_id, trip_id, location, speed_mps, heading_deg, source, recorded_at)
+    values ('${busId}', '${schoolId}', ${tripId ? `'${tripId}'` : "null"}, extensions.st_point(${here[1]}, ${here[0]})::extensions.geography, ${speed.toFixed(2)}, ${bearing(here, next).toFixed(0)}, 'device', now())
+    on conflict (bus_id) do update set trip_id = excluded.trip_id, location = excluded.location, speed_mps = excluded.speed_mps,
       heading_deg = excluded.heading_deg, source = excluded.source, recorded_at = excluded.recorded_at;`);
   if (tripId && i % Math.max(1, Math.round(30 / everySeconds)) === 0) {
     psql(`insert into public.trip_positions (trip_id, school_id, location, speed_mps)

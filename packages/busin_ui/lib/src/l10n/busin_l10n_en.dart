@@ -1182,6 +1182,20 @@ class BusinL10nEn extends BusinL10n {
       'When your bus is about this far from your stop.';
 
   @override
+  String get notificationsTripStarted => 'When a bus leaves for school';
+
+  @override
+  String get notificationsTripStartedHint =>
+      'Once a day, when the first bus to school starts its trip.';
+
+  @override
+  String get notificationsStopAlerts => 'At my stop and on campus';
+
+  @override
+  String get notificationsStopAlertsHint =>
+      'When the bus is at your stop, when it leaves it, and a welcome when you arrive on campus.';
+
+  @override
   String notificationsBusNearMinutes(int minutes) {
     return '$minutes min';
   }
@@ -1327,6 +1341,19 @@ class BusinL10nEn extends BusinL10n {
       'Your bus is a few minutes from your stop.';
 
   @override
+  String get pushForegroundTripStarted =>
+      'A bus to school has started its trip.';
+
+  @override
+  String get pushForegroundAtStop => 'The bus is at your stop.';
+
+  @override
+  String get pushForegroundLeftStop => 'The bus has left your stop.';
+
+  @override
+  String get pushForegroundAtCampus => 'Welcome to campus.';
+
+  @override
   String get areaTitle => 'My area';
 
   @override
@@ -1436,6 +1463,20 @@ class BusinL10nEn extends BusinL10n {
   @override
   String get sampleBusNearBody =>
       'It is a few minutes from your stop. Open BusIn to follow it.';
+
+  @override
+  String get sampleTripStartedTitle => 'Your bus is on its way';
+
+  @override
+  String get sampleTripStartedBody =>
+      'A bus to school has started its trip. Open BusIn to follow it.';
+
+  @override
+  String get sampleAtStopTitle => 'The bus is at your stop';
+
+  @override
+  String get sampleAtStopBody =>
+      'Your bus has reached your stop. Head there now if you are not on it yet.';
 
   @override
   String get areaOsmCredit => 'Places from OpenStreetMap contributors';
@@ -2276,6 +2317,13 @@ class BusinL10nEn extends BusinL10n {
   @override
   String get opsTripReminderBody =>
       'Your trip is still running. If it is over, end it so students see the bus has stopped.';
+
+  @override
+  String get opsTripAtCampusTitle => 'You are at the campus';
+
+  @override
+  String get opsTripAtCampusBody =>
+      'Your trip has reached the campus. If everyone is off, end the trip.';
 
   @override
   String get opsTripReminderAction => 'End trip';
