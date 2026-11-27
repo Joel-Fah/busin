@@ -110,6 +110,8 @@ class SupabaseNotificationPreferencesRepository implements NotificationPreferenc
           'p_bus_near_on': p.busNearOn,
           'p_bus_near_minutes': p.busNearMinutes,
           'p_boarding_messages_on': p.boardingMessagesOn,
+          'p_trip_started_on': p.tripStartedOn,
+          'p_stop_alerts_on': p.stopAlertsOn,
         });
       });
 }

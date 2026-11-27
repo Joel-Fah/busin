@@ -1207,6 +1207,20 @@ class BusinL10nFr extends BusinL10n {
       'Quand votre bus est à peu près à ce temps de votre arrêt.';
 
   @override
+  String get notificationsTripStarted => 'Quand un bus part vers l\'école';
+
+  @override
+  String get notificationsTripStartedHint =>
+      'Une fois par jour, quand le premier bus vers l\'école commence son trajet.';
+
+  @override
+  String get notificationsStopAlerts => 'À mon arrêt et au campus';
+
+  @override
+  String get notificationsStopAlertsHint =>
+      'Quand le bus est à votre arrêt, quand il le quitte, et un mot d\'accueil à votre arrivée au campus.';
+
+  @override
   String notificationsBusNearMinutes(int minutes) {
     return '$minutes min';
   }
@@ -1352,6 +1366,19 @@ class BusinL10nFr extends BusinL10n {
       'Votre bus est à quelques minutes de votre arrêt.';
 
   @override
+  String get pushForegroundTripStarted =>
+      'Un bus vers l\'école a commencé son trajet.';
+
+  @override
+  String get pushForegroundAtStop => 'Le bus est à votre arrêt.';
+
+  @override
+  String get pushForegroundLeftStop => 'Le bus a quitté votre arrêt.';
+
+  @override
+  String get pushForegroundAtCampus => 'Bienvenue sur le campus.';
+
+  @override
   String get areaTitle => 'Ma zone';
 
   @override
@@ -1463,6 +1490,20 @@ class BusinL10nFr extends BusinL10n {
   @override
   String get sampleBusNearBody =>
       'Il est à quelques minutes de votre arrêt. Ouvrez BusIn pour le suivre.';
+
+  @override
+  String get sampleTripStartedTitle => 'Votre bus est en route';
+
+  @override
+  String get sampleTripStartedBody =>
+      'Un bus vers l\'école a commencé son trajet. Ouvrez BusIn pour le suivre.';
+
+  @override
+  String get sampleAtStopTitle => 'Le bus est à votre arrêt';
+
+  @override
+  String get sampleAtStopBody =>
+      'Votre bus est arrivé à votre arrêt. Allez-y maintenant si vous n\'y êtes pas encore.';
 
   @override
   String get areaOsmCredit => 'Lieux issus des contributeurs OpenStreetMap';
@@ -2317,6 +2358,13 @@ class BusinL10nFr extends BusinL10n {
   @override
   String get opsTripReminderBody =>
       'Votre trajet est toujours en cours. S\'il est terminé, arrêtez-le pour que les étudiants voient que le bus s\'est arrêté.';
+
+  @override
+  String get opsTripAtCampusTitle => 'Vous êtes au campus';
+
+  @override
+  String get opsTripAtCampusBody =>
+      'Votre trajet est arrivé au campus. Si tout le monde est descendu, terminez le trajet.';
 
   @override
   String get opsTripReminderAction => 'Terminer le trajet';

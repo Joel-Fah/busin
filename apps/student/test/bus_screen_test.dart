@@ -57,6 +57,13 @@ Future<void> openBus(WidgetTester tester, Rig rig, {Locale locale = const Locale
 /// Only what the update strip over the map shows (the bus card's fold repeats the newest update on a phone).
 Finder inStrip(Finder finder) => find.descendant(of: find.byType(BusUpdateStrip), matching: finder);
 
+/// The app goes to the background and comes back, through every state Flutter expects on the way.
+void backAndForth(WidgetTester tester) {
+  for (final state in const [AppLifecycleState.inactive, AppLifecycleState.hidden, AppLifecycleState.paused, AppLifecycleState.hidden, AppLifecycleState.inactive, AppLifecycleState.resumed]) {
+    tester.binding.handleAppLifecycleStateChanged(state);
+  }
+}
+
 String mapText(WidgetTester tester) => tester.widget<Text>(find.descendant(of: find.byKey(const ValueKey('fake-map')), matching: find.byType(Text))).data!;
 
 void main() {
@@ -495,5 +502,37 @@ void main() {
     expect(find.text('Reading the map'), findsOneWidget);
     expect(find.text('Your stop. It pings so you spot it quickly.'), findsOneWidget);
     expect(find.text('Where the bus has driven on this trip.'), findsOneWidget);
+  });
+
+  testWidgets('a running trip not looked at yet puts a dot on My bus, until My bus is opened; a new one brings it back', (tester) async {
+    final semantics = tester.ensureSemantics();
+    final rig = Rig(active: [activeTrip('t1', 'bus1')]);
+    await openBus(tester, rig, goToBus: false);
+    expect(find.bySemanticsLabel('My bus, new'), findsOneWidget);
+
+    await tester.tap(find.text('My bus'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Profile').last);
+    await tester.pumpAndSettle();
+    expect(find.bySemanticsLabel('My bus, new'), findsNothing, reason: 'seen');
+
+    // Back from the background: the same trip says nothing; another one that started meanwhile does.
+    backAndForth(tester);
+    await tester.pumpAndSettle();
+    expect(find.bySemanticsLabel('My bus, new'), findsNothing);
+    rig.history.active.add(activeTrip('t2', 'bus2'));
+    backAndForth(tester);
+    await tester.pumpAndSettle();
+    expect(find.bySemanticsLabel('My bus, new'), findsOneWidget);
+    semantics.dispose();
+  });
+
+  testWidgets('a student who may not follow buses gets no dot', (tester) async {
+    final semantics = tester.ensureSemantics();
+    final rig = Rig(active: [activeTrip('t1', 'bus1')]);
+    rig.live.canFollow = false;
+    await openBus(tester, rig, goToBus: false);
+    expect(find.bySemanticsLabel('My bus, new'), findsNothing);
+    semantics.dispose();
   });
 }

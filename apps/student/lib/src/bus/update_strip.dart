@@ -26,7 +26,7 @@ String busUpdateText(BusinL10n l10n, BusUpdate update, {required String busLabel
 /// The tone and icon of each kind: what needs the student's attention is warm, the rest is calm. Never colour alone.
 (StatusTone, List<List<dynamic>>) busUpdateLook(BusUpdateKind kind) => switch (kind) {
       BusUpdateKind.following => (StatusTone.info, HugeIcons.strokeRoundedBus01),
-      BusUpdateKind.atStop => (StatusTone.info, HugeIcons.strokeRoundedFlag02),
+      BusUpdateKind.atStop => (StatusTone.info, HugeIcons.strokeRoundedLocation04),
       BusUpdateKind.leftStop => (StatusTone.info, HugeIcons.strokeRoundedArrowRight02),
       BusUpdateKind.stopped => (StatusTone.warn, HugeIcons.strokeRoundedPauseCircle),
       BusUpdateKind.moving => (StatusTone.ok, HugeIcons.strokeRoundedPlayCircle),
@@ -121,7 +121,7 @@ class BusUpdateFeed extends StatelessWidget {
     final l10n = BusinL10n.of(context);
     final p = BusinPalette.of(context);
     final text = Theme.of(context).textTheme;
-    final shown = updates.take(5).toList();
+    final shown = updates;
     String words(BusUpdate u) => busUpdateText(
           l10n,
           u,
@@ -159,11 +159,17 @@ class BusUpdateFeed extends StatelessWidget {
           for (final u in shown.skip(1))
             Padding(
               padding: const EdgeInsets.fromLTRB(BusinSpace.x4, BusinSpace.x3, BusinSpace.x4, 0),
+              // Where the bus has been stands out: the bus reaching a stop, in full colour and a little bolder.
               child: Row(
                 children: [
-                  HugeIcon(icon: busUpdateLook(u.kind).$2, size: 18, color: p.muted),
+                  HugeIcon(icon: busUpdateLook(u.kind).$2, size: 18, color: u.kind == BusUpdateKind.atStop ? p.accent : p.muted),
                   const SizedBox(width: BusinSpace.x3),
-                  Expanded(child: Text(words(u), style: text.bodySmall?.copyWith(color: p.muted))),
+                  Expanded(
+                    child: Text(
+                      words(u),
+                      style: u.kind == BusUpdateKind.atStop ? text.bodySmall?.copyWith(color: p.fg, fontWeight: FontWeight.w700) : text.bodySmall?.copyWith(color: p.muted),
+                    ),
+                  ),
                   Text(time(u), style: text.bodySmall?.copyWith(color: p.muted)),
                 ],
               ),

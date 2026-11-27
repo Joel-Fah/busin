@@ -2155,6 +2155,30 @@ abstract class BusinL10n {
   /// **'When your bus is about this far from your stop.'**
   String get notificationsBusNearHint;
 
+  /// No description provided for @notificationsTripStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'When a bus leaves for school'**
+  String get notificationsTripStarted;
+
+  /// No description provided for @notificationsTripStartedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Once a day, when the first bus to school starts its trip.'**
+  String get notificationsTripStartedHint;
+
+  /// No description provided for @notificationsStopAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'At my stop and on campus'**
+  String get notificationsStopAlerts;
+
+  /// No description provided for @notificationsStopAlertsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'When the bus is at your stop, when it leaves it, and a welcome when you arrive on campus.'**
+  String get notificationsStopAlertsHint;
+
   /// No description provided for @notificationsBusNearMinutes.
   ///
   /// In en, this message translates to:
@@ -2371,6 +2395,30 @@ abstract class BusinL10n {
   /// **'Your bus is a few minutes from your stop.'**
   String get pushForegroundBusNear;
 
+  /// No description provided for @pushForegroundTripStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'A bus to school has started its trip.'**
+  String get pushForegroundTripStarted;
+
+  /// No description provided for @pushForegroundAtStop.
+  ///
+  /// In en, this message translates to:
+  /// **'The bus is at your stop.'**
+  String get pushForegroundAtStop;
+
+  /// No description provided for @pushForegroundLeftStop.
+  ///
+  /// In en, this message translates to:
+  /// **'The bus has left your stop.'**
+  String get pushForegroundLeftStop;
+
+  /// No description provided for @pushForegroundAtCampus.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to campus.'**
+  String get pushForegroundAtCampus;
+
   /// No description provided for @areaTitle.
   ///
   /// In en, this message translates to:
@@ -2574,6 +2622,30 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'It is a few minutes from your stop. Open BusIn to follow it.'**
   String get sampleBusNearBody;
+
+  /// No description provided for @sampleTripStartedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your bus is on its way'**
+  String get sampleTripStartedTitle;
+
+  /// No description provided for @sampleTripStartedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A bus to school has started its trip. Open BusIn to follow it.'**
+  String get sampleTripStartedBody;
+
+  /// No description provided for @sampleAtStopTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The bus is at your stop'**
+  String get sampleAtStopTitle;
+
+  /// No description provided for @sampleAtStopBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your bus has reached your stop. Head there now if you are not on it yet.'**
+  String get sampleAtStopBody;
 
   /// No description provided for @areaOsmCredit.
   ///
@@ -3942,6 +4014,18 @@ abstract class BusinL10n {
   /// In en, this message translates to:
   /// **'Your trip is still running. If it is over, end it so students see the bus has stopped.'**
   String get opsTripReminderBody;
+
+  /// No description provided for @opsTripAtCampusTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You are at the campus'**
+  String get opsTripAtCampusTitle;
+
+  /// No description provided for @opsTripAtCampusBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your trip has reached the campus. If everyone is off, end the trip.'**
+  String get opsTripAtCampusBody;
 
   /// No description provided for @opsTripReminderAction.
   ///
