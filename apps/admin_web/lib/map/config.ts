@@ -12,6 +12,8 @@ export type MapConfig = {
   provider: MapProviderId;
   /** Where the base map comes from (a style document for MapLibre, a mapbox:// style for Mapbox). */
   styleUrl: string;
+  /** The same for a dark page (the student's My bus follows the theme). */
+  darkStyleUrl: string;
   /**
    * Mapbox public access token (starts with pk.). It is meant for the browser and is restricted to this
    * site in the Mapbox account. Empty for other providers. A secret token (sk.) is never accepted.
@@ -24,7 +26,9 @@ export type MapConfig = {
 
 // OpenFreeMap: free vector tiles with no key. Replace through MAP_STYLE_URL, for example to self-host.
 export const DEFAULT_STYLE_URL = "https://tiles.openfreemap.org/styles/liberty";
+export const DEFAULT_DARK_STYLE_URL = "https://tiles.openfreemap.org/styles/dark";
 export const DEFAULT_MAPBOX_STYLE_URL = "mapbox://styles/mapbox/streets-v12";
+export const DEFAULT_MAPBOX_DARK_STYLE_URL = "mapbox://styles/mapbox/dark-v11";
 export const DEFAULT_CENTER: LatLng = { lat: 3.848, lng: 11.502 };
 export const DEFAULT_ZOOM = 12;
 
@@ -69,6 +73,10 @@ export function resolveMapConfig(env: Env): MapConfig {
   const styleUrl =
     env.MAP_STYLE_URL && isStyleUrl(env.MAP_STYLE_URL.trim(), provider === "mapbox") ? env.MAP_STYLE_URL.trim() : fallbackStyle;
 
+  const fallbackDark = provider === "mapbox" ? DEFAULT_MAPBOX_DARK_STYLE_URL : DEFAULT_DARK_STYLE_URL;
+  const darkStyleUrl =
+    env.MAP_DARK_STYLE_URL && isStyleUrl(env.MAP_DARK_STYLE_URL.trim(), provider === "mapbox") ? env.MAP_DARK_STYLE_URL.trim() : fallbackDark;
+
   const lat = number(env.MAP_DEFAULT_LAT);
   const lng = number(env.MAP_DEFAULT_LNG);
   const fallbackCenter = lat !== null && lng !== null && isValidLatLng(lat, lng) ? { lat, lng } : DEFAULT_CENTER;
@@ -76,7 +84,7 @@ export function resolveMapConfig(env: Env): MapConfig {
   const zoom = number(env.MAP_DEFAULT_ZOOM);
   const fallbackZoom = zoom !== null && zoom >= 1 && zoom <= 20 ? zoom : DEFAULT_ZOOM;
 
-  return { provider, styleUrl, accessToken: provider === "mapbox" ? token : "", fallbackCenter, fallbackZoom };
+  return { provider, styleUrl, darkStyleUrl, accessToken: provider === "mapbox" ? token : "", fallbackCenter, fallbackZoom };
 }
 
 /** The settings for this process. */

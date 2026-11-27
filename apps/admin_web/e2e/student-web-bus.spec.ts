@@ -58,16 +58,36 @@ test("a subscriber follows the running bus live, with its arrival at their stop"
   await db.from("live_positions").upsert({ bus_id: busId, school_id: SEED.schoolId, trip_id: tripId, location: point(3.8534, 11.49596), speed_mps: 10, source: "phone", recorded_at: now });
 
   await signInBrowser(context, rider);
-  await page.goto("/app/bus");
+  // A trip runs that the student has not looked at: a dot on My bus, until they open it.
+  await page.goto("/app/subscription");
+  await expect(page.getByTestId("bus-news")).toBeVisible();
+  await page.getByRole("link", { name: /My bus/ }).click();
+  await expect(page).toHaveURL(/\/app\/bus$/);
   const status = page.getByTestId("bus-status");
-  await expect(status).toContainText(`Bus ${tag} · Going to school`);
-  await expect(status).toContainText("Estimated arrival");
-  await expect(status).toContainText(/\d+ min/);
+  await expect(status).toContainText(`Bus ${tag}`);
+  await expect(status).toContainText("Going to school");
+  await expect(status.getByLabel(/Estimated arrival: \d+ min/)).toBeVisible();
+  // The newest update shows on the closed fold, and over the map.
   await expect(page.getByTestId("bus-update")).toHaveText(`Following Bus ${tag} · Going to school`);
+  await expect(page.getByRole("status").filter({ hasText: `Following Bus ${tag}` })).toBeVisible();
   await expect(page.getByLabel("Map of the bus, your stop and the stops around")).toBeVisible();
+  await expect(page.getByTestId("bus-news")).toHaveCount(0);
+
+  // The legend explains the map.
+  await page.getByRole("button", { name: "What the map shows" }).click();
+  await expect(page.getByTestId("bus-legend")).toContainText("Where the bus has driven on this trip.");
+  await page.getByTestId("bus-legend").getByRole("button", { name: "Close" }).click();
+  await expect(page.getByTestId("bus-legend")).toBeHidden();
 
   // The bus comes within about 500 m of the stop: the position arrives through Realtime and the screen says it is near.
   await page.waitForTimeout(1500);
   await db.from("live_positions").upsert({ bus_id: busId, school_id: SEED.schoolId, trip_id: tripId, location: point(3.8444, 11.49596), speed_mps: 6, source: "phone", recorded_at: new Date().toISOString() });
   await expect(page.getByTestId("bus-update")).toHaveText(/Almost at your stop, about \d+ min away/);
+
+  // Opened, the fold lists the trip's updates, newest first.
+  await page.getByRole("button", { name: /Live updates, \d+/ }).click();
+  const list = page.getByTestId("bus-updates");
+  await expect(list).toBeVisible();
+  await expect(list).toContainText(/Almost at your stop/);
+  await expect(list).toContainText(`Following Bus ${tag}`);
 });

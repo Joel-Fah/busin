@@ -541,3 +541,25 @@ dialog,
     animation: none;
   }
 }
+
+/* My bus: the map's zoom buttons and credits stay above the bus card floating over its bottom. */
+.bus-map .maplibregl-ctrl-bottom-right,
+.bus-map .maplibregl-ctrl-bottom-left {
+  bottom: var(--bus-covered, 0px);
+}
+
+/* My bus: a newer update slides in over the old one, as in the app. */
+@keyframes bus-update-in {
+  from {
+    opacity: 0;
+    transform: translateY(-25%);
+  }
+}
+.bus-update-in {
+  animation: bus-update-in var(--dur-fast) var(--ease-soft) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bus-update-in {
+    animation: none;
+  }
+}

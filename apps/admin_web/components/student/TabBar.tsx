@@ -2,14 +2,63 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { Bus01Icon, QrCodeIcon, Ticket03Icon, UserIcon } from "@hugeicons/core-free-icons";
 import type { IconSvgElement } from "@hugeicons/react";
 
 import { Icon } from "@/components/ui/Icon";
 import { useSlidingIndicator } from "@/components/ui/useSlidingIndicator";
 import type { StudentCopy } from "@/lib/i18n/student";
+import { BUS_SEEN_EVENT, TRIP_STARTED_EVENT, hasNews, seenTrips } from "@/lib/student/bus-news";
+import { browserClient } from "@/lib/supabase/browser";
 
 type Tab = { href: string; label: string; name?: string; icon: IconSvgElement };
+
+/**
+ * Whether a trip runs that the student has not looked at on My bus, as the app's dot (bus_news.dart). Read when the app
+ * opens, each time it comes back to the front and when a "trip started" notification arrives: one small read of the
+ * running trips, only for a student who may follow buses.
+ */
+function useBusNews(): boolean {
+  const [news, setNews] = useState(false);
+  const running = useRef<string[]>([]);
+
+  useEffect(() => {
+    let stopped = false;
+    const look = () => setNews(hasNews(running.current, seenTrips()));
+    const check = async () => {
+      if (document.visibilityState !== "visible") return;
+      try {
+        const supabase = browserClient();
+        const { data: allowed } = await supabase.rpc("can_follow_buses");
+        if (allowed !== true) {
+          running.current = [];
+        } else {
+          const { data } = await supabase.from("trips").select("id").eq("status", "active").limit(20);
+          running.current = (data ?? []).map((trip) => trip.id);
+        }
+      } catch {
+        // Offline: no dot, and nothing to say about it.
+        return;
+      }
+      if (!stopped) look();
+    };
+    void check();
+    const onVisible = () => void check();
+    const onStarted = () => void check();
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener(TRIP_STARTED_EVENT, onStarted);
+    window.addEventListener(BUS_SEEN_EVENT, look);
+    return () => {
+      stopped = true;
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener(TRIP_STARTED_EVENT, onStarted);
+      window.removeEventListener(BUS_SEEN_EVENT, look);
+    };
+  }, []);
+
+  return news;
+}
 
 /**
  * The student app's four tabs, as on the phone (Subscription, Code, My bus, Profile): a floating glass bar at the bottom,
@@ -26,6 +75,7 @@ export function TabBar({ copy }: { copy: StudentCopy["nav"] }) {
   ];
   const active = tabs.find((tab) => pathname === tab.href || pathname.startsWith(`${tab.href}/`))?.href ?? (["/app/history", "/app/settings", "/app/streaks", "/app/legal"].some((page) => pathname.startsWith(page)) ? "/app/profile" : null);
   const { rowRef, indicatorRef } = useSlidingIndicator('[data-tab][aria-current="page"]', active);
+  const busNews = useBusNews() && active !== "/app/bus";
 
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-40 flex justify-center px-3">
@@ -40,13 +90,16 @@ export function TabBar({ copy }: { copy: StudentCopy["nav"] }) {
                 href={tab.href}
                 data-tab
                 aria-current={on ? "page" : undefined}
-                aria-label={tab.name}
+                aria-label={tab.href === "/app/bus" && busNews ? `${tab.name ?? tab.label}, ${copy.busNews}` : tab.name}
                 className={
                   "relative flex flex-col items-center gap-1 rounded-sm px-2 py-2 text-xs font-semibold no-underline transition-colors duration-(--dur-fast) ease-soft focus-visible:outline-3 focus-visible:outline-focus " +
                   (on ? "text-fg" : "text-muted hover:text-fg")
                 }
               >
-                <Icon icon={tab.icon} size={22} />
+                <span className="relative">
+                  <Icon icon={tab.icon} size={22} />
+                  {tab.href === "/app/bus" && busNews ? <span aria-hidden data-testid="bus-news" className="absolute -top-0.5 -right-1 size-2.5 rounded-full bg-accent ring-2 ring-surface" /> : null}
+                </span>
                 <span aria-hidden={tab.name ? true : undefined}>{tab.label}</span>
               </Link>
             );
