@@ -31,13 +31,19 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
-## Handoff: four owner updates merged into `dev` (2026-11-27, #559 to #562)
+## Handoff: optional gender (2026-11-27, #564)
 
-- On `dev`, not live: the whole-button tap area, the campus on the school profile, the student bus map, the stop alerts.
-- Live database still needs (owner's approval): `20261127100000_trip_trail.sql` and `20261127110000_stop_alerts.sql`,
-  then a redeploy of `send-push`. Until then a build against production must come from `main`.
-- Payments stay on `phase-6/payments`; merge `dev` into it before going back to it (expect conflicts in the strings and
-  the notification kinds, both sides kept).
+- Students may give their gender (male or female, or leave it empty) at setup and change or clear it in their profile,
+  in the app and on the web. Only they and their school's admins see it (portal, the student's page). The privacy text
+  says so. Migration `20261127120000_student_gender.sql` (local only; hosted with the owner's go, before a release).
+
+## Handoff: released to `main` (2026-11-27, #563)
+
+- Live: the whole-button tap area, the campus on the school profile, the student bus map, the stop alerts. Live database
+  up to date (`20261127100000`, `20261127110000`); `send-push` redeployed.
+- Owner: build both apps from `main` (`fvm flutter build apk --release --split-per-abi --dart-define-from-file=../../config/prod.json`)
+  and run a real trip: start it in ops, reach a stop, leave it, reach the campus. Set the campus first (portal, School).
+- Payments stay on `phase-6/payments`; merge `dev` into it before going back to it.
 
 ## Handoff: stop alerts (2026-11-27, #557, on #556)
 

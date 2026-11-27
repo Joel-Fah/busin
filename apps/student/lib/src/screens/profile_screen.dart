@@ -145,6 +145,11 @@ class ProfileScreen extends ConsumerWidget {
             row(HugeIcons.strokeRoundedSmartPhone01, l10n.fieldPhone, profile.phone == null ? null : PhoneNumbers.display(profile.phone!)),
             row(HugeIcons.strokeRoundedBuilding03, l10n.fieldDepartment, profile.department),
             row(HugeIcons.strokeRoundedMortarboard02, l10n.fieldProgram, profile.program),
+            row(HugeIcons.strokeRoundedUser, l10n.profileGender, switch (profile.gender) {
+              Gender.male => l10n.genderMale,
+              Gender.female => l10n.genderFemale,
+              null => null,
+            }),
           ],
         ),
       ),

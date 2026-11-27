@@ -162,6 +162,7 @@ class FakeProfileRepository implements ProfileRepository {
       updatedAt: DateTime.now().toUtc(),
       streakOptIn: old.streakOptIn,
       paymentPreference: old.paymentPreference,
+      gender: old.gender,
     );
     byId[userId] = updated;
     return updated;
@@ -177,6 +178,16 @@ class FakeProfileRepository implements ProfileRepository {
     for (final id in byId.keys.toList()) {
       byId[id] = Profile.fromJson({...byId[id]!.toJson(), 'payment_preference': preference?.name});
     }
+  }
+
+  /// The genders saved, in order (null when cleared).
+  final savedGenders = <Gender?>[];
+
+  @override
+  Future<void> setGender(String userId, Gender? gender) async {
+    if (error != null) throw error!;
+    savedGenders.add(gender);
+    byId[userId] = Profile.fromJson({...byId[userId]!.toJson(), 'gender': gender?.name});
   }
 }
 

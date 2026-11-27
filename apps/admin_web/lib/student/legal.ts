@@ -10,7 +10,7 @@ export type LegalDocument = { highlights: string[]; sections: LegalSection[] };
 export type LegalDoc = "terms" | "privacy" | "acceptable-use";
 
 /** When the texts were last changed. */
-export const LEGAL_UPDATED = "2026-11-14";
+export const LEGAL_UPDATED = "2026-11-27";
 
 const termsEn: LegalDocument = {
   highlights: [
@@ -114,7 +114,7 @@ const privacyEn: LegalDocument = {
   sections: [
     { title: 'What we keep', paragraphs: ['When you use BusIn we hold:'], bullets: [
       'Your name, email and profile picture, from your Google account.',
-      'Details you add: matricule, phone number, faculty, department, degree level and your usual stop.',
+      'Details you add: matricule, phone number, faculty, department, degree level, your usual stop and, only if you choose to give it, your gender (seen by you and your school\'s administrators, never by staff or other students; you can clear it at any time).',
       'Your subscription requests, the proof of payment you upload, and each decision with its reason.',
       'Your boardings: when, on which trip and at which stop you boarded (the stop nearest to the staff phone that scanned you).',
       'A device token, if you allow notifications, so that we can send them, and which notifications you chose.',
@@ -180,7 +180,7 @@ const privacyFr: LegalDocument = {
   sections: [
     { title: 'Ce que nous gardons', paragraphs: ['Quand vous utilisez BusIn, nous conservons :'], bullets: [
       'Votre nom, votre e-mail et votre photo de profil, issus de votre compte Google.',
-      'Les informations que vous ajoutez : matricule, téléphone, faculté, département, niveau d\'études et votre arrêt habituel.',
+      'Les informations que vous ajoutez : matricule, téléphone, faculté, département, niveau d\'études, votre arrêt habituel et, seulement si vous choisissez de l\'indiquer, votre genre (vu par vous et les administrateurs de votre école, jamais par le personnel ni les autres étudiants ; vous pouvez l\'effacer à tout moment).',
       'Vos demandes d\'abonnement, la preuve de paiement que vous envoyez, et chaque décision avec son motif.',
       'Vos embarquements : quand, sur quel trajet et à quel arrêt vous êtes monté (l\'arrêt le plus proche du téléphone du personnel qui vous a scanné).',
       'Un jeton d\'appareil, si vous autorisez les notifications, pour pouvoir les envoyer, et les notifications que vous avez choisies.',

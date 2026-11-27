@@ -4,6 +4,7 @@ import { BookOpen01Icon, Building03Icon, IdIcon, Mortarboard01Icon, UserIcon } f
 import { useActionState, useState } from "react";
 
 import { Button } from "@/components/ui/Button";
+import { RadioGroup } from "@/components/ui/Choice";
 import { Input } from "@/components/ui/Input";
 import { PhoneField } from "@/components/ui/PhoneField";
 import { Notice } from "@/components/ui/Notice";
@@ -95,6 +96,20 @@ export function SetupForm({
           />
         </>
       ) : null}
+      {/* Optional (issue #564): nothing chosen means not set. */}
+      <div className="flex flex-col gap-1">
+        <RadioGroup
+          legend={fields.gender}
+          name="gender"
+          options={[
+            { value: "", label: fields.genderNone },
+            { value: "male", label: fields.genderMale },
+            { value: "female", label: fields.genderFemale },
+          ]}
+          defaultValue={state.values.gender}
+        />
+        <p className="m-0 text-sm text-muted">{fields.genderHint}</p>
+      </div>
       <Button type="submit" className="mt-2 h-14 w-full text-base" disabled={pending}>
         {submitLabel ?? copy.save}
       </Button>

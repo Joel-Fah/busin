@@ -48,7 +48,7 @@ export async function checkAgain(): Promise<void> {
 export type SetupState = {
   problems: Partial<Record<"fullName" | "matricule" | "phone", FieldProblem>>;
   error: "failed" | null;
-  values: { fullName: string; matricule: string; phone: string; phoneCountry: string; faculty: string; department: string; program: string };
+  values: { fullName: string; matricule: string; phone: string; phoneCountry: string; faculty: string; department: string; program: string; gender: string };
 };
 
 /** Reads and checks the details form; null problems means it may be saved. */
@@ -65,6 +65,8 @@ function readDetails(formData: FormData): { values: SetupState["values"]; proble
     faculty: text("faculty"),
     department: text("department"),
     program: text("program"),
+    // Optional (issue #564): male, female, or nothing. Anything else is read as nothing.
+    gender: ["male", "female"].includes(text("gender")) ? text("gender") : "",
   };
   // The country chosen in the phone field (ADR 0024); the field always sends one.
   const country = values.phoneCountry || "CM";
@@ -91,6 +93,7 @@ async function writeDetails(profileId: string, values: SetupState["values"]): Pr
       phone: values.phone,
       department_id: UUID.test(values.department) ? values.department : null,
       program_id: UUID.test(values.program) ? values.program : null,
+      gender: values.gender === "male" || values.gender === "female" ? values.gender : null,
     })
     .eq("id", profileId);
   return !error;

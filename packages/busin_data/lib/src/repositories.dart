@@ -47,6 +47,11 @@ class SupabaseProfileRepository implements ProfileRepository {
       });
 
   @override
+  Future<void> setGender(String userId, Gender? gender) => guarded(() async {
+        await _client.from('profiles').update({'gender': gender?.name}).eq('id', userId);
+      });
+
+  @override
   Stream<Profile> watchProfile(String userId) {
     // Filtered to the person's own row on the server, which only lets them read their own.
     return _client

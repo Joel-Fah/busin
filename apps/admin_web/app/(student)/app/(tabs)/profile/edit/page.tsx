@@ -26,7 +26,7 @@ async function EditProfile() {
   const { locale, s } = await getStudentCopy();
   const supabase = await createClient();
   const [own, faculties, departments, programs] = await Promise.all([
-    supabase.from("profiles").select("department_id, program_id").eq("id", student.userId).maybeSingle(),
+    supabase.from("profiles").select("department_id, program_id, gender").eq("id", student.userId).maybeSingle(),
     supabase.from("faculties").select("id, name").order("name").limit(300),
     supabase.from("departments").select("id, faculty_id, name").order("name").limit(1000),
     supabase.from("programs").select("id, name").order("sort_order").order("name").limit(100),
@@ -56,6 +56,7 @@ async function EditProfile() {
           faculty: department?.facultyId ?? "",
           department: department?.id ?? "",
           program: own.data?.program_id ?? "",
+          gender: own.data?.gender ?? "",
         }}
       />
     </StudentPage>

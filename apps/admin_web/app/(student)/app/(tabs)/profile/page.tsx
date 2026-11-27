@@ -45,7 +45,7 @@ async function Profile({ searchParams }: { searchParams: SearchParams }) {
   const m = s.me;
   const supabase = await createClient();
   const [{ data: extra }, { data: school }, { data: deletionRows }] = await Promise.all([
-    supabase.from("profiles").select("created_at, department_id, program_id").eq("id", student.userId).maybeSingle(),
+    supabase.from("profiles").select("created_at, department_id, program_id, gender").eq("id", student.userId).maybeSingle(),
     // Whether the school offers installments: then the student can keep a preferred way of paying (ADR 0022).
     supabase.from("schools").select("billing_period, installment_plan").eq("id", student.schoolId).maybeSingle(),
     supabase.rpc("my_account_deletion"),
@@ -64,6 +64,7 @@ async function Profile({ searchParams }: { searchParams: SearchParams }) {
     [s.fields.phone, student.phone ? displayPhone(student.phone) : null],
     [s.fields.department, department.data?.name],
     [s.fields.program, program.data?.name],
+    [s.fields.genderLabel, extra?.gender === "male" ? s.fields.genderMale : extra?.gender === "female" ? s.fields.genderFemale : null],
   ];
   const since = extra?.created_at ? new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(extra.created_at)) : null;
 
