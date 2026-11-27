@@ -31,6 +31,12 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: campus on the school profile (2026-11-27, `phase-6/campus-on-profile`, #558)
+
+- The school profile has a Campus card: name and coordinates, an empty state when not set, and Set or Change with the
+  same map picker and server action as the route editor. Owner: on `/school`, set the campus by clicking the map, in
+  both themes and on a phone.
+
 ## Handoff: whole button takes the tap (2026-11-27, #555)
 
 - A stretched button or card now reacts anywhere inside its contour, in every app (shared design system). Owner: tap
