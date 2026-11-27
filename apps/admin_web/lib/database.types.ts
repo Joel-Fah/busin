@@ -1067,7 +1067,7 @@ isOneToOne: false
                            },
 "my_notification_preferences":
 { Args: Record<PropertyKey, never>; Returns: {
-              "boarding_messages_on": boolean,"bus_near_minutes": number,"bus_near_on": boolean,"evening_on": boolean,"evening_time": string,"morning_on": boolean,"morning_time": string,"riding_days": number
+              "boarding_messages_on": boolean,"bus_near_minutes": number,"bus_near_on": boolean,"evening_on": boolean,"evening_time": string,"morning_on": boolean,"morning_time": string,"riding_days": number,"stop_alerts_on": boolean,"trip_started_on": boolean
             }[]
                            },
 "my_ride_days":
@@ -1223,7 +1223,7 @@ isOneToOne: false
 { Args: { "p_label": string,"p_lat": number,"p_lng": number,"p_source": string }; Returns: undefined
                            },
 "set_notification_preferences":
-{ Args: { "p_boarding_messages_on": boolean,"p_bus_near_minutes": number,"p_bus_near_on": boolean,"p_evening_on": boolean,"p_evening_time": string,"p_morning_on": boolean,"p_morning_time": string,"p_riding_days": number }; Returns: undefined
+{ Args: { "p_boarding_messages_on": boolean,"p_bus_near_minutes": number,"p_bus_near_on": boolean,"p_evening_on": boolean,"p_evening_time": string,"p_morning_on": boolean,"p_morning_time": string,"p_riding_days": number,"p_stop_alerts_on"?: boolean,"p_trip_started_on"?: boolean }; Returns: undefined
                            },
 "set_payment_preference":
 { Args: { "p_preference": string }; Returns: undefined
@@ -1238,6 +1238,9 @@ isOneToOne: false
                            },
 "start_field_trip":
 { Args: { "p_bus_id": string,"p_direction": Database["public"]['Enums']["trip_direction"],"p_other_id"?: string,"p_role": string }; Returns: string
+                           },
+"trip_trail":
+{ Args: { "p_trip_id": string }; Returns: Json
                            },
 "start_trip":
 { Args: { "p_trip_id": string }; Returns: undefined

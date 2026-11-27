@@ -9,8 +9,9 @@ import { requireStudent } from "./session";
 export type SettingsState = { saved: boolean; error: boolean };
 
 /**
- * Saves what BusIn may tell the student: bus days (a bitmask, Monday = bit 0), bus near my stop and how many minutes
- * before, and the word when they board. Morning and evening reminders exist only in the app (ADR 0021): the web form
+ * Saves what BusIn may tell the student: bus days (a bitmask, Monday = bit 0), a bus leaving for school, bus near my
+ * stop and how many minutes before, the bus at and leaving their stop and the campus welcome, and the word when they
+ * board. Morning and evening reminders exist only in the app (ADR 0021): the web form
  * does not show them, so their saved values are passed back unchanged.
  */
 export async function saveNotifications(_previous: SettingsState, formData: FormData): Promise<SettingsState> {
@@ -32,6 +33,8 @@ export async function saveNotifications(_previous: SettingsState, formData: Form
     p_bus_near_on: formData.get("busNear") === "on",
     p_bus_near_minutes: Number.isInteger(minutes) && minutes >= 1 && minutes <= 30 ? minutes : now.bus_near_minutes,
     p_boarding_messages_on: formData.get("boarding") === "on",
+    p_trip_started_on: formData.get("tripStarted") === "on",
+    p_stop_alerts_on: formData.get("stopAlerts") === "on",
   });
   if (error) return { saved: false, error: true };
   revalidatePath("/app/settings/notifications");

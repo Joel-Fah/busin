@@ -1,12 +1,18 @@
 import { describe, expect, it } from "vitest";
 
-import { DEFAULT_CENTER, DEFAULT_MAPBOX_STYLE_URL, DEFAULT_STYLE_URL, DEFAULT_ZOOM, isPublicMapboxToken, resolveMapConfig } from "./config";
+import { DEFAULT_CENTER, DEFAULT_DARK_STYLE_URL, DEFAULT_MAPBOX_STYLE_URL, DEFAULT_STYLE_URL, DEFAULT_ZOOM, isPublicMapboxToken, resolveMapConfig } from "./config";
 
 describe("resolveMapConfig", () => {
+  it("takes a dark style for the student's map, or the free dark one", () => {
+    expect(resolveMapConfig({ MAP_DARK_STYLE_URL: "https://tiles.example.org/dark.json" }).darkStyleUrl).toBe("https://tiles.example.org/dark.json");
+    expect(resolveMapConfig({ MAP_DARK_STYLE_URL: "ftp://nope" }).darkStyleUrl).toBe(DEFAULT_DARK_STYLE_URL);
+  });
+
   it("uses safe defaults when nothing is set", () => {
     expect(resolveMapConfig({})).toEqual({
       provider: "maplibre",
       styleUrl: DEFAULT_STYLE_URL,
+      darkStyleUrl: DEFAULT_DARK_STYLE_URL,
       accessToken: "",
       fallbackCenter: DEFAULT_CENTER,
       fallbackZoom: DEFAULT_ZOOM,

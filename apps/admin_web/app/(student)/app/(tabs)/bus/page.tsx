@@ -12,6 +12,7 @@ import { parsePoint } from "@/lib/geo";
 import { getStudentCopy } from "@/lib/i18n/server";
 import { resolveMapConfig } from "@/lib/map/config";
 import type { Position, StopPoint } from "@/lib/student/bus";
+import { routeFromRow } from "@/lib/student/bus-map";
 import { requireStudent } from "@/lib/student/session";
 import { createClient } from "@/lib/supabase/server";
 import { todayInZone } from "@/lib/zoned";
@@ -62,11 +63,14 @@ async function Bus() {
     );
   }
 
-  const today = todayInZone(student.schoolTimezone);
-  const [trips, stops, semester] = await Promise.all([
+  const now = new Date();
+  const today = todayInZone(student.schoolTimezone, now);
+  const [trips, stops, semester, route] = await Promise.all([
     supabase.from("trips").select("id, bus_id, direction, started_at").eq("status", "active").order("started_at", { ascending: true }).limit(20),
     supabase.from("stops").select("id, name, location").eq("active", true).order("name").limit(500),
     supabase.from("semesters").select("id").lte("start_date", today).gte("end_date", today).order("start_date", { ascending: false }).limit(1).maybeSingle(),
+    // The planned route along roads and the campus; a failure just leaves them off the map.
+    supabase.rpc("school_route"),
   ]);
   const running = trips.data ?? [];
   const busIds = [...new Set(running.map((t) => t.bus_id))];
@@ -99,7 +103,18 @@ async function Bus() {
           <EmptyState title={c.noneTitle} body={c.noneBody} />
         </>
       ) : (
-        <BusTracker copy={c} locale={locale} map={map} trips={runningTrips} stops={stopPoints} myStop={myStop} initial={initial} />
+        <BusTracker
+          copy={c}
+          locale={locale}
+          map={map}
+          trips={runningTrips}
+          stops={stopPoints}
+          myStop={myStop}
+          initial={initial}
+          route={route.error ? null : routeFromRow(route.data?.[0])}
+          userId={student.userId}
+          renderedAt={now.getTime()}
+        />
       )}
     </StudentPage>
   );
