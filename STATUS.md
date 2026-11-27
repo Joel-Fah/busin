@@ -31,6 +31,15 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: student bus map (2026-11-27, #556)
+
+- My bus: simple colour-coded markers with names, the bus gliding and followed by the camera, the planned road route and
+  the trip's trail, a legend, the updates folded into the bus card on a phone. Checked on the owner's tablet (local
+  backend, simulated bus) in portrait and landscape. Migration `20261127100000_trip_trail.sql` (local only; hosted with
+  the next approved database update).
+- Owner: try it on a phone; set or redraw the route in the portal (Stops, Route) so the line follows the roads (the map
+  draws no route until it is drawn).
+
 ## Handoff: released to `main` (2026-11-17, #554)
 
 - Live: the Next.js 16.4.6 patch, rich text notices, trip reminders with an End trip action, staff access asked at most
