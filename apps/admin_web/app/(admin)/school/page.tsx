@@ -15,6 +15,7 @@ import { Suspense } from "react";
 
 import { FlashToast } from "@/components/FlashToast";
 import { UnsavedChangesGuard } from "@/components/UnsavedChangesGuard";
+import { CampusCard } from "@/components/school/CampusCard";
 import { LogoPicker } from "@/components/school/LogoPicker";
 import { OpenSignupFields } from "@/components/school/OpenSignupFields";
 import { Accordion } from "@/components/ui/Accordion";
@@ -33,8 +34,10 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Textarea } from "@/components/ui/Textarea";
 import { requireAdmin } from "@/lib/auth";
 import { supabaseConfig } from "@/lib/env";
+import { centroid, parsePoint } from "@/lib/geo";
 import { format } from "@/lib/i18n/messages";
 import { getMessages } from "@/lib/i18n/server";
+import { mapConfig } from "@/lib/map/config";
 import { schoolTerms } from "@/lib/legal/school-terms";
 import { first } from "@/lib/pagination";
 import { SCHOOL_LIMITS, SCHOOL_TERMS_VERSION, logoUrl, type SchoolSaveError } from "@/lib/school";
@@ -49,6 +52,9 @@ export const instant = false;
 
 type SearchParams = Promise<{ done?: string | string[]; error?: string | string[] }>;
 
+// Enough to centre the campus picker; a school has tens of stops.
+const MAX_STOPS_FOR_CENTER = 200;
+
 const ERRORS: readonly SchoolSaveError[] = ["name", "shortName", "website", "contactEmail", "phone", "phoneSecondary", "address", "city", "country", "about", "openDomains", "terms_first", "generic"];
 
 export default function SchoolPage({ searchParams }: { searchParams: SearchParams }) {
@@ -59,7 +65,7 @@ export default function SchoolPage({ searchParams }: { searchParams: SearchParam
   );
 }
 
-/** The school profile: logo, details, who may join, whether the school is shown publicly, and the terms for schools. */
+/** The school profile: logo, details, who may join, the campus, whether the school is shown publicly, and the terms for schools. */
 async function School({ searchParams }: { searchParams: SearchParams }) {
   const admin = await requireAdmin();
   const { locale, t } = await getMessages();
@@ -73,12 +79,22 @@ async function School({ searchParams }: { searchParams: SearchParams }) {
   const [{ data: school }, { data: domains }] = await Promise.all([
     supabase
       .from("schools")
-      .select("name, short_name, website, contact_email, phone, phone_secondary, address, city, country, about, logo_path, accepts_open_signup, open_signup_domains, public_listing, allow_field_trips, terms_version, terms_accepted_at")
+      .select("name, short_name, website, contact_email, phone, phone_secondary, address, city, country, about, logo_path, accepts_open_signup, open_signup_domains, public_listing, allow_field_trips, terms_version, terms_accepted_at, campus_name, campus_location")
       .eq("id", admin.schoolId)
       .maybeSingle(),
     supabase.from("school_domains").select("domain").eq("school_id", admin.schoolId).order("domain").limit(20),
   ]);
   if (!school) return <Notice tone="bad">{s.errors.generic}</Notice>;
+
+  const campusPoint = parsePoint(school.campus_location);
+  const campus = campusPoint ? { name: school.campus_name || t.route.campus, position: campusPoint } : null;
+  const map = mapConfig();
+  // With no campus yet, the picker opens over the school's stops.
+  let center = map.fallbackCenter;
+  if (!campus) {
+    const { data: stops } = await supabase.from("stops").select("location").eq("active", true).limit(MAX_STOPS_FOR_CENTER);
+    center = centroid((stops ?? []).flatMap((row) => parsePoint(row.location) ?? [])) ?? center;
+  }
 
   const accepted = Boolean(school.terms_accepted_at);
   const outdated = accepted && school.terms_version !== SCHOOL_TERMS_VERSION;
@@ -199,6 +215,14 @@ async function School({ searchParams }: { searchParams: SearchParams }) {
       </form>
       {/* The profile saves only with its button: leaving with changes asks first. */}
       <UnsavedChangesGuard formId="school-profile" copy={s.unsaved} />
+
+      <CampusCard
+        campus={campus}
+        map={{ provider: map.provider, styleUrl: map.styleUrl, accessToken: map.accessToken, center, zoom: map.fallbackZoom }}
+        copy={s.campus}
+        errors={t.route.errors}
+        mapUnavailable={t.stops.mapUnavailable}
+      />
 
       <form action={saveFieldTrips}>
         <Card className="flex flex-col gap-4">

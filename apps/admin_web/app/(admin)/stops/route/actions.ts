@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { requireAdmin } from "@/lib/auth";
+import { checkCampus } from "@/lib/campus";
 import { isUuid } from "@/lib/ids";
 import { createClient } from "@/lib/supabase/server";
 
@@ -19,13 +20,20 @@ export async function saveRouteOrder(stopIds: string[]): Promise<RouteResult> {
   return { status: "saved" };
 }
 
-/** Sets where the route ends: the campus point and its name. */
+/**
+ * Sets where the route ends: the campus point and its name. Used by the route editor and the school profile. The
+ * database checks the same rules again.
+ */
 export async function saveCampus(lat: number, lng: number, name: string): Promise<RouteResult> {
   await requireAdmin();
+  const campus = checkCampus(lat, lng, name);
+  if (!campus.ok) return { status: "error", error: campus.error };
   const supabase = await createClient();
-  const { error } = await supabase.rpc("admin_set_campus", { p_lat: lat, p_lng: lng, p_name: name.trim().slice(0, 80) });
+  const { position, name: campusName } = campus.value;
+  const { error } = await supabase.rpc("admin_set_campus", { p_lat: position.lat, p_lng: position.lng, p_name: campusName });
   if (error) return { status: "error", error: error.code === "22023" ? error.message : "failed" };
   revalidatePath("/stops/route");
+  revalidatePath("/school");
   return { status: "saved" };
 }
 

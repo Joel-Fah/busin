@@ -341,6 +341,7 @@ class _GoogleBannerState extends State<_GoogleBanner> {
               borderRadius: radius,
               clipBehavior: Clip.antiAlias,
               child: Stack(
+                fit: StackFit.passthrough,
                 children: [
                   const Positioned.fill(child: Grain(opacity: 0.5)),
                   InkWell(
