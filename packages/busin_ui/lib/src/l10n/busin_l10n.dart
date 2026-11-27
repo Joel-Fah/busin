@@ -355,6 +355,36 @@ abstract class BusinL10n {
   /// **'Student number'**
   String get fieldMatricule;
 
+  /// No description provided for @fieldGender.
+  ///
+  /// In en, this message translates to:
+  /// **'Gender (optional)'**
+  String get fieldGender;
+
+  /// No description provided for @profileGender.
+  ///
+  /// In en, this message translates to:
+  /// **'Gender'**
+  String get profileGender;
+
+  /// No description provided for @genderMale.
+  ///
+  /// In en, this message translates to:
+  /// **'Male'**
+  String get genderMale;
+
+  /// No description provided for @genderFemale.
+  ///
+  /// In en, this message translates to:
+  /// **'Female'**
+  String get genderFemale;
+
+  /// No description provided for @fieldGenderHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Only you and your school\'s administrators see it. Tap your choice again to clear it.'**
+  String get fieldGenderHint;
+
   /// No description provided for @fieldMatriculeHint.
   ///
   /// In en, this message translates to:

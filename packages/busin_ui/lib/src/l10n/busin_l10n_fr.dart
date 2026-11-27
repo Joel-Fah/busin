@@ -147,6 +147,22 @@ class BusinL10nFr extends BusinL10n {
   String get fieldMatricule => 'Matricule';
 
   @override
+  String get fieldGender => 'Genre (facultatif)';
+
+  @override
+  String get profileGender => 'Genre';
+
+  @override
+  String get genderMale => 'Homme';
+
+  @override
+  String get genderFemale => 'Femme';
+
+  @override
+  String get fieldGenderHint =>
+      'Seuls vous et les administrateurs de votre école le voient. Touchez à nouveau votre choix pour l\'effacer.';
+
+  @override
   String get fieldMatriculeHint => 'Par exemple ICT2026-0001';
 
   @override

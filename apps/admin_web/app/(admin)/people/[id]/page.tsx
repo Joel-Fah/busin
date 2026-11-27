@@ -52,7 +52,7 @@ async function PersonDetail({ params, searchParams }: { params: Params; searchPa
   const supabase = await createClient();
   const { data: person } = await supabase
     .from("profiles")
-    .select("id, full_name, email, avatar_url, phone, role, status, matricule, department, program, created_at, join_requested_at")
+    .select("id, full_name, email, avatar_url, phone, role, status, matricule, department, program, gender, created_at, join_requested_at")
     .eq("id", id)
     .maybeSingle();
   if (!person) notFound();
@@ -96,6 +96,7 @@ async function PersonDetail({ params, searchParams }: { params: Params; searchPa
               [d.matricule, person.matricule || "-", false],
               [d.department, person.department || "-", false],
               [d.program, person.program || "-", false],
+              [d.gender, person.gender === "male" ? d.genderMale : person.gender === "female" ? d.genderFemale : "-", false],
               [d.joined, joined, false],
             ].map(([label, value, wide]) => (
               <div key={String(label)} className={`min-w-0 ${wide ? "sm:col-span-2" : ""}`}>

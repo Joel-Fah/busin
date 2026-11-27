@@ -44,6 +44,16 @@ test.describe("administrator managing people", () => {
     await signInBrowser(context, admin);
   });
 
+  test("a student's gender, when given, is on their page (issue #564)", async ({ page }) => {
+    await serviceClient().from("profiles").update({ gender: "female" }).eq("id", plainStudent.id);
+    await page.goto(`/people/${plainStudent.id}`);
+    await expect(page.getByText("Gender", { exact: true })).toBeVisible();
+    await expect(page.getByText("Female", { exact: true })).toBeVisible();
+    await serviceClient().from("profiles").update({ gender: null }).eq("id", plainStudent.id);
+    await page.reload();
+    await expect(page.getByText("Female", { exact: true })).toHaveCount(0);
+  });
+
   test("lists people and filters by role", async ({ page }) => {
     await page.goto("/people");
     await expect(page.getByRole("heading", { name: "People", level: 1 })).toBeVisible();
