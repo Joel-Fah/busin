@@ -19,7 +19,8 @@ export type Kind =
   | "bus_at_stop"
   | "bus_left_stop"
   | "bus_at_campus"
-  | "trip_at_campus";
+  | "trip_at_campus"
+  | "trip_auto_ended";
 
 const KINDS: readonly Kind[] = [
   "subscription_approved",
@@ -38,6 +39,7 @@ const KINDS: readonly Kind[] = [
   "bus_left_stop",
   "bus_at_campus",
   "trip_at_campus",
+  "trip_auto_ended",
 ];
 
 /** One claimed notification, as claim_notifications returns it. */
@@ -99,6 +101,11 @@ const TEXT: Record<Kind, Record<Locale, { title: string; body: string }>> = {
   },
   // A trip the person runs looks forgotten (silent for 30 minutes, or 3 hours long). Sent to the ops app with an End
   // trip button (see ACTIONS).
+  // The trip ended by itself (issue #575): an hour after the second reminder, or 15 minutes at the campus.
+  trip_auto_ended: {
+    en: { title: "Your trip was ended", body: "BusIn ended your trip automatically, so the bus no longer shows as running. If you are still on the road, start a new trip." },
+    fr: { title: "Votre trajet a été terminé", body: "BusIn a terminé votre trajet automatiquement : le bus n'apparaît plus en route. Si vous êtes encore sur la route, commencez un nouveau trajet." },
+  },
   trip_still_running: {
     en: { title: "Is your trip over?", body: "Your trip is still running. If it is over, end it so students see the bus has stopped." },
     fr: { title: "Votre trajet est-il terminé ?", body: "Votre trajet est toujours en cours. S'il est terminé, arrêtez-le pour que les étudiants voient que le bus s'est arrêté." },
