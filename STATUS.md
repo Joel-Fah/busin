@@ -31,6 +31,12 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: campus on the school profile (2026-11-27, `phase-6/campus-on-profile`, #558)
+
+- The school profile has a Campus card: name and coordinates, an empty state when not set, and Set or Change with the
+  same map picker and server action as the route editor. Owner: on `/school`, set the campus by clicking the map, in
+  both themes and on a phone.
+
 ## Handoff: released to `main` (2026-11-17, #554)
 
 - Live: the Next.js 16.4.6 patch, rich text notices, trip reminders with an End trip action, staff access asked at most
