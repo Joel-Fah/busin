@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:busin_core/busin_core.dart';
 import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -10,6 +11,7 @@ import 'package:hugeicons/hugeicons.dart';
 import '../bus/bus_providers.dart';
 import '../bus/eta.dart';
 import '../bus/bus_updates.dart';
+import '../bus/map_legend.dart';
 import '../bus/map_scene.dart';
 import '../bus/my_location.dart';
 import '../bus/show_me.dart';
@@ -162,7 +164,7 @@ class _BusScreenState extends ConsumerState<BusScreen> {
   }
 }
 
-class _Tracking extends ConsumerWidget {
+class _Tracking extends ConsumerStatefulWidget {
   const _Tracking({required this.buses, required this.recenter, required this.busInView, required this.active, this.ended});
 
   final List<RunningBus> buses;
@@ -176,7 +178,20 @@ class _Tracking extends ConsumerWidget {
   final BusUpdate? ended;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_Tracking> createState() => _TrackingState();
+}
+
+class _TrackingState extends ConsumerState<_Tracking> {
+  /// The floating card's height on a phone, measured, so the map frames the bus above it.
+  double _cardHeight = 150;
+
+  @override
+  Widget build(BuildContext context) {
+    final buses = widget.buses;
+    final recenter = widget.recenter;
+    final busInView = widget.busInView;
+    final active = widget.active;
+    final ended = widget.ended;
     final current = ref.watch(currentBusProvider).value;
     if (current == null) return const Center(child: CircularProgressIndicator());
 
@@ -195,6 +210,9 @@ class _Tracking extends ConsumerWidget {
     // The newest of the bus's own update and "the previous trip ended".
     final end = ended;
     final update = end != null && (live == null || end.at.isAfter(live.at)) ? end : live;
+    // The planned route and campus (read once), and where this bus has been on its trip (while the tab shows).
+    final route = ref.watch(schoolRouteProvider).value;
+    final trail = active ? ref.watch(tripTrailProvider((busId: current.busId, tripId: current.trip.id))) : const <GeoPoint>[];
 
     final scene = MapScene(
       stops: stops,
@@ -204,7 +222,11 @@ class _Tracking extends ConsumerWidget {
       me: me,
       focusMe: ref.watch(focusMeProvider),
       // On a phone the details card floats over the lower part of the map.
-      coveredBottom: expanded ? 0 : 150,
+      coveredBottom: expanded ? 0 : _cardHeight + BusinSpace.x3,
+      route: route?.line ?? const [],
+      trail: trail,
+      campus: route?.campus,
+      campusName: route?.campusName,
     );
 
     // What floats over the map, top down: a status line while waiting or failing, the latest update, and the way back
@@ -239,9 +261,14 @@ class _Tracking extends ConsumerWidget {
               ),
             Padding(
               padding: const EdgeInsets.only(top: BusinSpace.x2),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+              // A wrap, so a narrow phone with large text moves a button to the next line instead of overflowing.
+              child: Wrap(
+                alignment: WrapAlignment.end,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: BusinSpace.x2,
+                runSpacing: BusinSpace.x2,
                 children: [
+                  _LegendButton(onPressed: () => showMapLegend(context)),
                   if (me != null) ...[
                     BusinButton(
                       label: l10n.busMeFind,
@@ -249,7 +276,6 @@ class _Tracking extends ConsumerWidget {
                       icon: HugeIcons.strokeRoundedUserCircle,
                       onPressed: () => ref.read(focusMeProvider.notifier).request(),
                     ),
-                    const SizedBox(width: BusinSpace.x2),
                   ],
                   BusinButton(
                     label: showMe == null ? l10n.busMeShow : l10n.busMeHide,
@@ -258,7 +284,6 @@ class _Tracking extends ConsumerWidget {
                     onPressed: () => showMe == null ? turnOnShowMe(context, ref) : ref.read(showMeProvider.notifier).turnOff(),
                   ),
                   if (scene.bus != null) ...[
-                    const SizedBox(width: BusinSpace.x2),
                     // Only when the bus is out of frame; it fades in and out so the map is not jumpy.
                     ValueListenableBuilder<bool>(
                       valueListenable: busInView,
@@ -286,6 +311,8 @@ class _Tracking extends ConsumerWidget {
         child: Stack(children: [Positioned.fill(child: ref.watch(mapSurfaceBuilderProvider)(context, scene, recenter, busInView)), ...overlays]),
       ),
     );
+    final feedUpdates = [?end, ...updates]..sort((a, b) => b.at.compareTo(a.at));
+    final feed = BusUpdateFeed(updates: feedUpdates, busLabel: current.label, direction: l10n.direction(current.trip.direction), now: now, showTitle: false);
     final card = _InfoCard(bus: current, position: position.value, myStop: myStop, me: me);
 
     if (expanded) {
@@ -309,12 +336,9 @@ class _Tracking extends ConsumerWidget {
                   ],
                   card,
                   const SizedBox(height: BusinSpace.x4),
-                  BusUpdateFeed(
-                    updates: [?end, ...updates]..sort((a, b) => b.at.compareTo(a.at)),
-                    busLabel: current.label,
-                    direction: l10n.direction(current.trip.direction),
-                    now: now,
-                  ),
+                  Text(l10n.busUpdatesTitle, style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(height: BusinSpace.x2),
+                  feed,
                 ],
               ),
             ),
@@ -329,7 +353,41 @@ class _Tracking extends ConsumerWidget {
     return Stack(
       children: [
         Positioned.fill(child: Padding(padding: EdgeInsets.fromLTRB(BusinSpace.x3, BusinSpace.x2, BusinSpace.x3, inset), child: map)),
-        Positioned(left: BusinSpace.x5, right: BusinSpace.x5, bottom: inset + BusinSpace.x3, child: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 520), child: card))),
+        Positioned(
+          left: BusinSpace.x5,
+          right: BusinSpace.x5,
+          bottom: inset + BusinSpace.x3,
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 520),
+              child: _SizeReporter(
+                onSize: (size) {
+                  if ((size.height - _cardHeight).abs() > 1) setState(() => _cardHeight = size.height);
+                },
+                child: _InfoCard(
+                  bus: current,
+                  position: position.value,
+                  myStop: myStop,
+                  me: me,
+                  updates: feed,
+                  updateCount: feedUpdates.length,
+                  latest: feedUpdates.firstOrNull == null
+                      ? null
+                      : (
+                          text: busUpdateText(
+                            l10n,
+                            feedUpdates.first,
+                            busLabel: feedUpdates.first.kind == BusUpdateKind.tripEnded ? (feedUpdates.first.stopName ?? '') : current.label,
+                            direction: l10n.direction(current.trip.direction),
+                            now: now,
+                          ),
+                          icon: busUpdateLook(feedUpdates.first.kind).$2,
+                        ),
+                ),
+              ),
+            ),
+          ),
+        ),
         if (buses.length > 1)
           Positioned(top: BusinSpace.x2 + BusinSpace.x3, left: BusinSpace.x5, right: BusinSpace.x5, child: _BusPills(buses: buses, selectedId: current.busId)),
       ],
@@ -394,7 +452,7 @@ class _BusPills extends ConsumerWidget {
 /// The bus's details: a 3D bus, its name (or plate) and direction, the estimated arrival at the student's stop when it can be
 /// worked out, how fresh the position is, and the student's stop.
 class _InfoCard extends ConsumerWidget {
-  const _InfoCard({required this.bus, required this.position, required this.myStop, this.me});
+  const _InfoCard({required this.bus, required this.position, required this.myStop, this.me, this.updates, this.updateCount = 0, this.latest});
 
   final RunningBus bus;
   final LivePosition? position;
@@ -402,6 +460,13 @@ class _InfoCard extends ConsumerWidget {
 
   /// Where the student is, while they use Show me.
   final GeoPoint? me;
+
+  /// On a phone: the live updates, folded under the details (on a wide screen they sit in the side panel instead).
+  final Widget? updates;
+  final int updateCount;
+
+  /// The newest update, shown on the closed fold so it rarely needs opening.
+  final ({String text, List<List<dynamic>> icon})? latest;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -428,7 +493,8 @@ class _InfoCard extends ConsumerWidget {
     final status = stale ? l10n.busStale('$staleMinutes') : [l10n.direction(bus.trip.direction), ?updated, if (kmh != null) l10n.busSpeed('$kmh')].join(' · ');
 
     return BusinCard(
-      padding: const EdgeInsets.fromLTRB(BusinSpace.x4, BusinSpace.x3, BusinSpace.x4, BusinSpace.x3),
+      // Room inside the thread, so the text never touches it.
+      padding: const EdgeInsets.fromLTRB(BusinSpace.x5, BusinSpace.x4, BusinSpace.x5, BusinSpace.x4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
@@ -485,9 +551,168 @@ class _InfoCard extends ConsumerWidget {
               ],
             ),
           ],
+          if (updates != null) ...[
+            const SizedBox(height: BusinSpace.x2),
+            _UpdatesFold(count: updateCount, latest: latest, child: updates!),
+          ],
         ],
       ),
     );
+  }
+}
+
+/// The live updates folded into the bus card on a phone: a row with their number that opens and closes smoothly. Open,
+/// they scroll inside a bounded height so the map stays visible.
+class _UpdatesFold extends StatefulWidget {
+  const _UpdatesFold({required this.count, required this.child, this.latest});
+
+  final int count;
+  final Widget child;
+  final ({String text, List<List<dynamic>> icon})? latest;
+
+  @override
+  State<_UpdatesFold> createState() => _UpdatesFoldState();
+}
+
+class _UpdatesFoldState extends State<_UpdatesFold> {
+  bool _open = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = BusinL10n.of(context);
+    final p = BusinPalette.of(context);
+    final text = Theme.of(context).textTheme;
+    final duration = BusinMotion.of(context, BusinMotion.normal);
+    final screen = MediaQuery.sizeOf(context).height;
+    final latest = widget.latest;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Semantics(
+          button: true,
+          expanded: _open,
+          excludeSemantics: true,
+          label: l10n.busUpdatesToggle(widget.count),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(BusinRadius.sm),
+            onTap: () {
+              BusinHaptics.selection();
+              setState(() => _open = !_open);
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: BusinSpace.x2),
+              child: Row(
+                children: [
+                  HugeIcon(icon: !_open && latest != null ? latest.icon : HugeIcons.strokeRoundedNotification03, size: 18, color: p.muted),
+                  const SizedBox(width: BusinSpace.x2),
+                  // Closed: the newest update itself, trimmed to one line. Open: the list's title.
+                  Expanded(
+                    child: AnimatedSwitcher(
+                      duration: BusinMotion.of(context, BusinMotion.fast),
+                      // Start-aligned, as the rest of the card (the switcher centres by default).
+                      layoutBuilder: (current, previous) => Stack(alignment: AlignmentDirectional.centerStart, children: [...previous, ?current]),
+                      child: Text(
+                        !_open && latest != null ? latest.text : l10n.busUpdatesTitle,
+                        key: ValueKey(!_open && latest != null ? latest.text : ''),
+                        style: text.labelLarge,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                  if (widget.count > 0)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: BusinSpace.x2, vertical: 2),
+                      decoration: BoxDecoration(color: p.surface2, borderRadius: BorderRadius.circular(BusinRadius.sm)),
+                      child: Text('${widget.count}', style: text.labelSmall),
+                    ),
+                  const SizedBox(width: BusinSpace.x2),
+                  AnimatedRotation(
+                    turns: _open ? 0.5 : 0,
+                    duration: duration,
+                    curve: BusinMotion.soft,
+                    child: HugeIcon(icon: HugeIcons.strokeRoundedArrowUp01, size: 18, color: p.muted),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        AnimatedSize(
+          duration: duration,
+          curve: BusinMotion.soft,
+          alignment: Alignment.topCenter,
+          child: _open
+              ? ConstrainedBox(
+                  constraints: BoxConstraints(maxHeight: screen * 0.32),
+                  child: SingleChildScrollView(padding: const EdgeInsets.only(top: BusinSpace.x2), child: widget.child),
+                )
+              : const SizedBox(width: double.infinity),
+        ),
+      ],
+    );
+  }
+}
+
+/// The map's info button: a round button that opens the legend.
+class _LegendButton extends StatelessWidget {
+  const _LegendButton({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = BusinPalette.of(context);
+    final label = BusinL10n.of(context).busLegendOpen;
+    return Tooltip(
+      message: label,
+      child: Semantics(
+        button: true,
+        label: label,
+        excludeSemantics: true,
+        child: Material(
+          color: p.surface2,
+          shape: const CircleBorder(),
+          elevation: 2,
+          shadowColor: Colors.black26,
+          child: InkWell(
+            customBorder: const CircleBorder(),
+            onTap: onPressed,
+            child: SizedBox(width: 48, height: 48, child: Center(child: HugeIcon(icon: HugeIcons.strokeRoundedInformationCircle, size: 22, color: p.fg))),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Tells [onSize] the size of its child after each layout where it changed.
+class _SizeReporter extends SingleChildRenderObjectWidget {
+  const _SizeReporter({required this.onSize, super.child});
+
+  final ValueChanged<Size> onSize;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => _RenderSizeReporter(onSize);
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderSizeReporter renderObject) => renderObject.onSize = onSize;
+}
+
+class _RenderSizeReporter extends RenderProxyBox {
+  _RenderSizeReporter(this.onSize);
+
+  ValueChanged<Size> onSize;
+  Size? _reported;
+
+  @override
+  void performLayout() {
+    super.performLayout();
+    if (size == _reported) return;
+    _reported = size;
+    final now = size;
+    WidgetsBinding.instance.addPostFrameCallback((_) => onSize(now));
   }
 }
 

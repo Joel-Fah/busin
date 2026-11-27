@@ -37,10 +37,20 @@ class DeviceMyLocationFeed implements MyLocationFeed {
     }
   }
 
+  /// The phone's last known position first, so the student appears at once (indoors a precise fix can take minutes or
+  /// never come), then precise positions as they arrive.
   @override
-  Stream<GeoPoint> watch() => _geo
-      .getPositionStream(locationSettings: const LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 10))
-      .map((p) => GeoPoint(p.latitude, p.longitude));
+  Stream<GeoPoint> watch() async* {
+    try {
+      final last = await _geo.getLastKnownPosition();
+      if (last != null) yield GeoPoint(last.latitude, last.longitude);
+    } on Object {
+      // No last position: wait for the first fix.
+    }
+    yield* _geo
+        .getPositionStream(locationSettings: const LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 10))
+        .map((p) => GeoPoint(p.latitude, p.longitude));
+  }
 
   @override
   Future<void> openSettings() async {

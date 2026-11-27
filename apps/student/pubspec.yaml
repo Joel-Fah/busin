@@ -49,7 +49,6 @@ flutter:
   uses-material-design: true
   assets:
     # 3D bus and pin for the map (thiings.co, free licence: attribution required, see docs/decisions/0011).
-    - assets/map/
     # Banners of the legal pages: Pexels photos (free licence, no attribution required): pexels.com/photo/5965930, 8771745 and 17121049.
     - assets/legal/
 

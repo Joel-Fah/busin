@@ -105,13 +105,16 @@ class _BusUpdateStripState extends State<BusUpdateStrip> {
 /// On a wide screen, beside the map: the newest update stands out and the few before it follow, each with its time.
 /// Only what happened while the tab was open; nothing is stored.
 class BusUpdateFeed extends StatelessWidget {
-  const BusUpdateFeed({super.key, required this.updates, required this.busLabel, required this.direction, required this.now});
+  const BusUpdateFeed({super.key, required this.updates, required this.busLabel, required this.direction, required this.now, this.showTitle = true});
 
   /// Newest first.
   final List<BusUpdate> updates;
   final String busLabel;
   final String direction;
   final DateTime now;
+
+  /// Off where the screen already titles the feed (the side panel, the fold in the bus card).
+  final bool showTitle;
 
   @override
   Widget build(BuildContext context) {
@@ -131,8 +134,7 @@ class BusUpdateFeed extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(l10n.busUpdatesTitle, style: text.titleMedium),
-        const SizedBox(height: BusinSpace.x2),
+        if (showTitle) ...[Text(l10n.busUpdatesTitle, style: text.titleMedium), const SizedBox(height: BusinSpace.x2)],
         if (shown.isEmpty)
           Text(l10n.busUpdatesEmpty, style: text.bodySmall?.copyWith(color: p.muted))
         else ...[

@@ -17,6 +17,7 @@ export 'src/models/joining.dart';
 export 'src/models/field_trip.dart';
 export 'src/models/installment.dart';
 export 'src/models/live_position.dart';
+export 'src/models/route_line.dart';
 export 'src/models/position_holder.dart';
 export 'src/models/notification_preferences.dart';
 export 'src/models/profile.dart';

@@ -1519,6 +1519,72 @@ abstract class BusinL10n {
   /// **'What the bus does appears here while you follow it.'**
   String get busUpdatesEmpty;
 
+  /// No description provided for @busLegendOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'What the map shows'**
+  String get busLegendOpen;
+
+  /// No description provided for @busLegendTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading the map'**
+  String get busLegendTitle;
+
+  /// No description provided for @busLegendMyStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Your stop. It pings so you spot it quickly.'**
+  String get busLegendMyStop;
+
+  /// No description provided for @busLegendStop.
+  ///
+  /// In en, this message translates to:
+  /// **'The other stops, with their names.'**
+  String get busLegendStop;
+
+  /// No description provided for @busLegendBus.
+  ///
+  /// In en, this message translates to:
+  /// **'The bus, live. It moves smoothly between the positions it sends every few seconds.'**
+  String get busLegendBus;
+
+  /// No description provided for @busLegendMe.
+  ///
+  /// In en, this message translates to:
+  /// **'You, while Show me is on. Your position stays on your phone.'**
+  String get busLegendMe;
+
+  /// No description provided for @busLegendCampus.
+  ///
+  /// In en, this message translates to:
+  /// **'The campus, where the route ends.'**
+  String get busLegendCampus;
+
+  /// No description provided for @busLegendRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'The planned route, along the roads.'**
+  String get busLegendRoute;
+
+  /// No description provided for @busLegendTrail.
+  ///
+  /// In en, this message translates to:
+  /// **'Where the bus has driven on this trip.'**
+  String get busLegendTrail;
+
+  /// No description provided for @busLegendHow.
+  ///
+  /// In en, this message translates to:
+  /// **'The card at the bottom says when the bus should reach your stop. Open its updates to see what the bus did, stop by stop. A notification tells you when it is near your stop.'**
+  String get busLegendHow;
+
+  /// No description provided for @busUpdatesToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Live updates, {count}'**
+  String busUpdatesToggle(int count);
+
   /// No description provided for @busMeShow.
   ///
   /// In en, this message translates to:
