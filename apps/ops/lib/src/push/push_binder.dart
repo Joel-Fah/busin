@@ -15,7 +15,7 @@ import 'trip_reminders.dart';
 /// Where a tapped notification takes a staff member: a trip they were put on opens that trip. Null for a kind this
 /// version does not know.
 String? opsRouteForPush(PushMessage message) => switch (message.kind) {
-      'crew_assigned' || tripReminderKind => message.refId == null ? Routes.today : Routes.trip(message.refId!),
+      'crew_assigned' || tripReminderKind || tripAtCampusKind => message.refId == null ? Routes.today : Routes.trip(message.refId!),
       _ => null,
     };
 
@@ -118,11 +118,17 @@ class _OpsPushBinderState extends ConsumerState<OpsPushBinder> {
   void _arrived(PushMessage message) {
     if (!mounted) return;
     // A reminder while the app is open: drawn here, in the app's language, with its button.
-    if (message.kind == tripReminderKind && message.refId != null) {
+    if (tripEndingKinds.contains(message.kind) && message.refId != null) {
       final l10n = BusinL10n.of(context);
+      final campus = message.kind == tripAtCampusKind;
       unawaited(ref
           .read(tripReminderNotificationsProvider)
-          .show(tripId: message.refId!, title: l10n.opsTripReminderTitle, body: l10n.opsTripReminderBody, action: l10n.opsTripReminderAction)
+          .show(
+            tripId: message.refId!,
+            title: campus ? l10n.opsTripAtCampusTitle : l10n.opsTripReminderTitle,
+            body: campus ? l10n.opsTripAtCampusBody : l10n.opsTripReminderBody,
+            action: l10n.opsTripReminderAction,
+          )
           .catchError((Object _) {}));
       return;
     }

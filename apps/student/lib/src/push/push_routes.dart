@@ -7,6 +7,7 @@ String? routeForPush(PushMessage message) => switch (message.kind) {
       'installment_paid' || 'installment_rejected' || 'installment_due' => '/subscription',
       // Mobile money (ADR 0029): the payment and its receipt are on the subscription tab.
       'payment_completed' || 'payment_failed' || 'refund_completed' || 'refund_failed' || 'refund_declined' => '/subscription',
-      'bus_near_stop' => '/bus',
+      // The bus: near, at or leaving the student's stop, at the campus, or a trip to school started.
+      'bus_near_stop' || 'trip_started' || 'bus_at_stop' || 'bus_left_stop' || 'bus_at_campus' => '/bus',
       _ => null,
     };

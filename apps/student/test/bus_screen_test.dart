@@ -2,6 +2,7 @@ import 'package:busin_core/busin_core.dart';
 import 'package:busin_student/src/app.dart';
 import 'package:busin_student/src/bus/bus_providers.dart';
 import 'package:busin_student/src/bus/my_location.dart';
+import 'package:busin_student/src/bus/update_strip.dart';
 import 'package:busin_ui/busin_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -53,6 +54,16 @@ Future<void> openBus(WidgetTester tester, Rig rig, {Locale locale = const Locale
   }
 }
 
+/// Only what the update strip over the map shows (the bus card's fold repeats the newest update on a phone).
+Finder inStrip(Finder finder) => find.descendant(of: find.byType(BusUpdateStrip), matching: finder);
+
+/// The app goes to the background and comes back, through every state Flutter expects on the way.
+void backAndForth(WidgetTester tester) {
+  for (final state in const [AppLifecycleState.inactive, AppLifecycleState.hidden, AppLifecycleState.paused, AppLifecycleState.hidden, AppLifecycleState.inactive, AppLifecycleState.resumed]) {
+    tester.binding.handleAppLifecycleStateChanged(state);
+  }
+}
+
 String mapText(WidgetTester tester) => tester.widget<Text>(find.descendant(of: find.byKey(const ValueKey('fake-map')), matching: find.byType(Text))).data!;
 
 void main() {
@@ -98,7 +109,7 @@ void main() {
 
     rig.live.emit(position('bus1', 3.85, 11.5, at: noon.subtract(const Duration(seconds: 12)), speed: 10));
     await tester.pumpAndSettle();
-    expect(mapText(tester), 'map stops=3 mine=- bus=3.85,11.5');
+    expect(mapText(tester), 'map stops=3 mine=- bus=3.85,11.5 trail=1');
     expect(find.textContaining('Updated 12 s ago'), findsOneWidget);
     expect(find.textContaining('36 km/h'), findsOneWidget);
     expect(find.text('Waiting for the bus to share its location.'), findsNothing);
@@ -106,7 +117,7 @@ void main() {
 
     rig.live.emit(position('bus1', 3.86, 11.51, at: noon, speed: 5));
     await tester.pumpAndSettle();
-    expect(mapText(tester), 'map stops=3 mine=- bus=3.86,11.51');
+    expect(mapText(tester), 'map stops=3 mine=- bus=3.86,11.51 trail=2');
     expect(find.textContaining('18 km/h'), findsOneWidget);
   });
 
@@ -302,20 +313,20 @@ void main() {
     rig.live.emit(position('bus1', 3.90, 11.5, at: noon, speed: 9));
     await tester.pump();
     await tester.pumpAndSettle();
-    expect(find.text('Following DEMO-101 · Going to school'), findsOneWidget);
+    expect(inStrip(find.text('Following DEMO-101 · Going to school')), findsOneWidget);
 
     // At the stops: the update is replaced, not added.
     rig.clock.now = noon.add(const Duration(seconds: 40));
     rig.live.emit(position('bus1', 3.85, 11.5, at: rig.clock.now, speed: 1));
     await tester.pump();
     await tester.pumpAndSettle();
-    expect(find.textContaining('Following'), findsNothing);
-    expect(find.textContaining(RegExp(r'^At ')), findsOneWidget);
+    expect(inStrip(find.textContaining('Following')), findsNothing);
+    expect(inStrip(find.textContaining(RegExp(r'^At '))), findsOneWidget);
 
     // Hidden until the next update.
     await tester.tap(find.byTooltip('Hide this update'));
     await tester.pumpAndSettle();
-    expect(find.textContaining(RegExp(r'^At ')), findsNothing);
+    expect(inStrip(find.textContaining(RegExp(r'^At '))), findsNothing);
 
     // The trip ends: noticed at the next check of the running trips (once a minute).
     rig.history.active.clear();
@@ -420,13 +431,13 @@ void main() {
     rig.live.emit(position('bus1', 3.90, 11.5, at: noon, speed: 9));
     await tester.pump();
     await tester.pumpAndSettle();
-    expect(find.text('Following DEMO-101 · Going to school'), findsOneWidget);
+    expect(inStrip(find.text('Following DEMO-101 · Going to school')), findsOneWidget);
 
     await tester.tap(find.text('Profile'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('My bus'));
     await tester.pumpAndSettle();
-    expect(find.text('Following DEMO-101 · Going to school'), findsOneWidget, reason: 'kept while the trip runs');
+    expect(inStrip(find.text('Following DEMO-101 · Going to school')), findsOneWidget, reason: 'kept while the trip runs');
   });
 
   testWidgets('Find me moves the map to the student while Show me is on', (tester) async {
@@ -444,5 +455,84 @@ void main() {
     await tester.tap(find.text('Find me'));
     await tester.pumpAndSettle();
     expect(mapText(tester), contains('focus=1'));
+  });
+
+  testWidgets('the map draws the planned route, the campus and where the bus has been on this trip', (tester) async {
+    final rig = Rig(active: [activeTrip('t1', 'bus1')]);
+    rig.live.route = RouteLine(line: [GeoPoint(3.84, 11.49), GeoPoint(3.85, 11.5), GeoPoint(3.86, 11.52)], campus: GeoPoint(3.86, 11.52), campusName: 'Main campus');
+    rig.live.trails['t1'] = [GeoPoint(3.84, 11.49), GeoPoint(3.845, 11.495)];
+    await openBus(tester, rig);
+    expect(rig.live.trailAsked, ['t1']);
+    expect(mapText(tester), contains('route=3'));
+    expect(mapText(tester), contains('campus=Main campus'));
+    expect(mapText(tester), contains('trail=2'));
+
+    rig.live.emit(position('bus1', 3.85, 11.5, at: noon, speed: 8));
+    await tester.pumpAndSettle();
+    expect(mapText(tester), contains('trail=3'), reason: 'each new position extends the trail');
+    rig.live.emit(position('bus1', 3.85001, 11.50001, at: noon.add(const Duration(seconds: 3)), speed: 0));
+    await tester.pumpAndSettle();
+    expect(mapText(tester), contains('trail=3'), reason: 'a bus standing still does not pile points up');
+  });
+
+  testWidgets('on a phone the live updates fold into the bus card and open on a tap', (tester) async {
+    final rig = Rig(active: [activeTrip('t1', 'bus1')]);
+    await openBus(tester, rig, size: const Size(420, 900));
+    rig.live.emit(position('bus1', 3.90, 11.5, at: noon, speed: 9));
+    await tester.pumpAndSettle();
+    expect(inStrip(find.text('Following DEMO-101 · Going to school')), findsOneWidget, reason: 'the latest one stays at the top of the map');
+
+    // Closed, the fold shows the newest update itself (as the strip at the top of the map does).
+    expect(find.text('Following DEMO-101 · Going to school'), findsNWidgets(2));
+    expect(find.text('Live updates'), findsNothing);
+    await tester.tap(find.text('Following DEMO-101 · Going to school').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Live updates'), findsOneWidget, reason: 'open, the list has its title');
+    expect(find.text('Following DEMO-101 · Going to school'), findsNWidgets(2), reason: 'the strip and the opened list');
+    await tester.tap(find.text('Live updates'));
+    await tester.pumpAndSettle();
+    expect(find.text('Live updates'), findsNothing);
+  });
+
+  testWidgets('the info button explains the map', (tester) async {
+    final rig = Rig(active: [activeTrip('t1', 'bus1')]);
+    await openBus(tester, rig);
+    await tester.tap(find.byTooltip('What the map shows'));
+    await tester.pumpAndSettle();
+    expect(find.text('Reading the map'), findsOneWidget);
+    expect(find.text('Your stop. It pings so you spot it quickly.'), findsOneWidget);
+    expect(find.text('Where the bus has driven on this trip.'), findsOneWidget);
+  });
+
+  testWidgets('a running trip not looked at yet puts a dot on My bus, until My bus is opened; a new one brings it back', (tester) async {
+    final semantics = tester.ensureSemantics();
+    final rig = Rig(active: [activeTrip('t1', 'bus1')]);
+    await openBus(tester, rig, goToBus: false);
+    expect(find.bySemanticsLabel('My bus, new'), findsOneWidget);
+
+    await tester.tap(find.text('My bus'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Profile').last);
+    await tester.pumpAndSettle();
+    expect(find.bySemanticsLabel('My bus, new'), findsNothing, reason: 'seen');
+
+    // Back from the background: the same trip says nothing; another one that started meanwhile does.
+    backAndForth(tester);
+    await tester.pumpAndSettle();
+    expect(find.bySemanticsLabel('My bus, new'), findsNothing);
+    rig.history.active.add(activeTrip('t2', 'bus2'));
+    backAndForth(tester);
+    await tester.pumpAndSettle();
+    expect(find.bySemanticsLabel('My bus, new'), findsOneWidget);
+    semantics.dispose();
+  });
+
+  testWidgets('a student who may not follow buses gets no dot', (tester) async {
+    final semantics = tester.ensureSemantics();
+    final rig = Rig(active: [activeTrip('t1', 'bus1')]);
+    rig.live.canFollow = false;
+    await openBus(tester, rig, goToBus: false);
+    expect(find.bySemanticsLabel('My bus, new'), findsNothing);
+    semantics.dispose();
   });
 }

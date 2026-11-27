@@ -24,6 +24,7 @@ class Profile extends ValueObject {
     this.programId,
     this.streakOptIn = false,
     this.paymentPreference,
+    this.gender,
   });
 
   factory Profile.fromJson(Map<String, dynamic> json) => Profile(
@@ -42,6 +43,7 @@ class Profile extends ValueObject {
         programId: optString(json, 'program_id'),
         streakOptIn: json['streak_opt_in'] == true,
         paymentPreference: PaymentMode.tryParse(json['payment_preference']),
+        gender: Gender.tryParse(json['gender']),
         createdAt: reqTimestamp(json, 'created_at'),
         updatedAt: reqTimestamp(json, 'updated_at'),
       );
@@ -71,6 +73,9 @@ class Profile extends ValueObject {
 
   /// How the student prefers to pay (ADR 0022), used to fill in a request. Null until they choose.
   final PaymentMode? paymentPreference;
+
+  /// Optional, given by the student (Google does not share it). Seen by the person and their school's admins only.
+  final Gender? gender;
 
   bool get isVerified => status == AccountStatus.verified;
 
@@ -110,6 +115,7 @@ class Profile extends ValueObject {
         'updated_at': updatedAt.toUtc().toIso8601String(),
         'streak_opt_in': streakOptIn,
         'payment_preference': paymentPreference?.name,
+        'gender': gender?.name,
       };
 
   /// The only fields a user may change on their own profile.
@@ -146,5 +152,15 @@ class Profile extends ValueObject {
         createdAt,
         updatedAt,
         paymentPreference,
+        gender,
       ];
+}
+
+/// A student's gender, when they choose to give it (issue #564). Not set is null.
+enum Gender {
+  male,
+  female;
+
+  /// Null for nothing, or for a value this version does not know.
+  static Gender? tryParse(Object? raw) => values.where((v) => v.name == raw).firstOrNull;
 }

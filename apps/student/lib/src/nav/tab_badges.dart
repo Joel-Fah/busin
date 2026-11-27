@@ -36,6 +36,6 @@ Set<int> tabsForPush(String kind) => switch (kind) {
       // Mobile money (ADR 0029): a failed payment or a refund is on the subscription tab.
       'payment_failed' || 'refund_completed' || 'refund_failed' || 'refund_declined' => {StudentTabs.subscription},
       'subscription_rejected' || 'installment_paid' || 'installment_rejected' || 'installment_due' => {StudentTabs.subscription},
-      'bus_near_stop' => {StudentTabs.bus},
+      'bus_near_stop' || 'trip_started' || 'bus_at_stop' || 'bus_left_stop' || 'bus_at_campus' => {StudentTabs.bus},
       _ => const {},
     };

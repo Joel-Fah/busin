@@ -54,7 +54,7 @@ test("a message carries wording in the phone's language and only ids as data", (
 });
 
 test("no personal text is ever put in a notification", () => {
-  for (const kind of ["subscription_approved", "subscription_rejected", "subscription_revoked", "subscription_restored", "school_notice", "bus_near_stop", "crew_assigned", "installment_paid", "installment_rejected", "installment_due", "payment_completed", "payment_failed", "refund_completed", "refund_failed", "refund_declined", "trip_still_running"] as const) {
+  for (const kind of ["subscription_approved", "subscription_rejected", "subscription_revoked", "subscription_restored", "school_notice", "bus_near_stop", "crew_assigned", "installment_paid", "installment_rejected", "installment_due", "payment_completed", "payment_failed", "refund_completed", "refund_failed", "refund_declined", "trip_still_running", "trip_started", "bus_at_stop", "bus_left_stop", "bus_at_campus", "trip_at_campus", "trip_auto_ended"] as const) {
     for (const locale of ["en", "fr"] as const) {
       const message = buildMessage(token(1), kind, "x", locale).message as { notification?: { title: string; body: string }; data: Record<string, string> };
       // A kind the app draws itself carries its words in the data.
@@ -218,4 +218,25 @@ test("a trip still running goes to an Android phone as a data message the app dr
   const ios = buildMessage(token(1), "trip_still_running", "trip-1", "en", "ios") as { message: { notification: { title: string } } };
   assert.equal(ios.message.notification.title, "Is your trip over?");
   assert.equal(isKind("trip_still_running"), true);
+});
+
+test("the campus alert reaches the crew's Android phone as a data message with its End trip button", () => {
+  const android = buildMessage("token-1", "trip_at_campus", "trip-9", "en", "android") as { message: Record<string, unknown> };
+  const data = android.message.data as Record<string, string>;
+  assert.equal(data.kind, "trip_at_campus");
+  assert.equal(data.action, "End trip");
+  assert.equal(android.message.notification, undefined);
+});
+
+test("stop alerts open My bus on the web", () => {
+  for (const kind of ["trip_started", "bus_at_stop", "bus_left_stop", "bus_at_campus"] as const) assert.equal(webRoute(kind), "/app/bus");
+});
+
+test("a trip ended by itself reaches the crew as a plain notification the installed apps already show", () => {
+  const android = buildMessage("token-1", "trip_auto_ended", "trip-3", "fr", "android") as { message: { notification?: { title: string }; data: Record<string, string> } };
+  // No button and no new app code: the system draws it from the notification block.
+  assert.equal(android.message.notification?.title, "Votre trajet a été terminé");
+  assert.equal(android.message.data.kind, "trip_auto_ended");
+  assert.equal(android.message.data.action, undefined);
+  assert.equal(isKind("trip_auto_ended"), true);
 });

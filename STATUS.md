@@ -57,6 +57,8 @@ school portal, platform console, legal texts). The local database has the paymen
   look, months, operators, top schools, infrastructure costs, wallet movements), settings with an estimate, and a
   Payments card on a school's page. Money in state colours with trends; long amounts written short with the exact
   amount on hover.
+- `dev` merged in again on 2026-11-27 (up to release #577: bus map, stop alerts, gender, web My bus, trips ending by
+  themselves); all suites pass.
 - `dev` (release #554) merged into this branch (2026-11-17): it now has the time zone list, the lookup card, trip
   reminders and the staff request limit. All suites pass after the merge.
 - All seven slices are built. Next: the owner's tests, then the pawaPay sandbox run once the key is in, then a review
@@ -67,6 +69,77 @@ school portal, platform console, legal texts). The local database has the paymen
 - Owner: ask pawaPay for a sandbox account and key, the intermediary merchant schedule, the Cameroon launch
   requirements, and written confirmation on the student's fee. Decide the per-student charge (BusIn's margin; it can
   change later). The key goes in `supabase/functions/.env` locally (see the setup guide), never in an app.
+
+## Handoff: trips end by themselves (2026-11-27, #575)
+
+- Built, not live: a running trip ends an hour after its second "still running" reminder if still overdue (field trips
+  too), and 15 minutes after a trip to school reached the campus; the crew gets "Your trip was ended", the audit log
+  says why (`reminded`, `at_campus`). Job `busin-end-overdue-trips` every ten minutes. The midnight net stays.
+- No app rebuild: a phone still sharing is refused at its next position and stops; the notice is a plain notification.
+- To go live (owner approval): apply `20261127130000_trip_auto_end.sql` to the live database and redeploy `send-push`.
+  The trip running since this morning would then end within ten minutes.
+
+## Handoff: iPhone Home Screen icon (2026-11-27, #573)
+
+- The 180 px icon is now inline in every student web page and in the manifest, so iOS needs no separate request (it
+  fetches the icon without the page's cookies and drew a "B" when that failed); copies also at `/app/apple-touch-icon.png`
+  and `/app/apple-touch-icon-precomposed.png` (they returned a 404 page). The icon is 32 colours, 3.4 KB, same look.
+- Owner, after release, on the iPhone: delete the old BusIn tile; Settings, Apps, Safari, Advanced, Website Data, remove
+  the BusIn site (iOS keeps the letter it drew); open the site in Safari, Share, Add to Home Screen. The dialog should
+  show the BusIn icon before adding.
+
+## Handoff: student web My bus as in the app (2026-11-27, #570)
+
+- On `dev` once merged (not live yet): the student web app's My bus now matches the student app: the same map (grey
+  stops with names, own stop orange and pinging, the bus blue, pinging and gliding, Show me green, the campus teal, the
+  planned road route and the trip's dashed trail), the camera following the bus until the map is touched, the legend,
+  the bus card floating over the map with the updates folded in (newest showing), a dot on My bus for a trip not looked
+  at, the two new notification switches, and the bus notifications said while a page is open. Light and dark map.
+- Released 2026-11-27 (App Distribution): student 0.1.0 (3) and ops 0.1.0 (4) to `busin-inders`.
+- Next: release to `main` when the owner approves (web only, no migration).
+
+## Handoff: optional gender, released (2026-11-27, #565, #566)
+
+- Live: students may give their gender (or not) at setup and in their profile; only they and their school's admins see
+  it. Live database up to date (`20261127120000`). Both apps built from `main` against production (split APKs in each
+  app's `build/app/outputs/flutter-apk/`). Payments stay on `phase-6/payments`.
+
+## Handoff: released to `main` (2026-11-27, #563)
+
+- Live: the whole-button tap area, the campus on the school profile, the student bus map, the stop alerts. Live database
+  up to date (`20261127100000`, `20261127110000`); `send-push` redeployed.
+- Owner: build both apps from `main` (`fvm flutter build apk --release --split-per-abi --dart-define-from-file=../../config/prod.json`)
+  and run a real trip: start it in ops, reach a stop, leave it, reach the campus. Set the campus first (portal, School).
+- Payments stay on `phase-6/payments`; merge `dev` into it before going back to it.
+
+## Handoff: stop alerts (2026-11-27, #557, on #556)
+
+- Pushes when a trip to school starts (once a day), when the bus is at the student's stop and when it leaves it, a
+  welcome on campus, and the crew asked to end the trip at the campus (End trip button). Other stops only in the feed,
+  highlighted. Two new settings in Notifications. A dot on My bus for a running trip not looked at yet.
+- Migration `20261127110000_stop_alerts.sql` (local only; hosted with the next approved database update), then
+  redeploy `send-push` (new kinds and texts). The campus must be set (portal, #558 / #560) for the campus alerts.
+- Owner: run a real trip with the ops app and a student phone: start, reach the stop, leave it, reach the campus.
+
+## Handoff: student bus map (2026-11-27, #556)
+
+- My bus: simple colour-coded markers with names, the bus gliding and followed by the camera, the planned road route and
+  the trip's trail, a legend, the updates folded into the bus card on a phone. Checked on the owner's tablet (local
+  backend, simulated bus) in portrait and landscape. Migration `20261127100000_trip_trail.sql` (local only; hosted with
+  the next approved database update).
+- Owner: try it on a phone; set or redraw the route in the portal (Stops, Route) so the line follows the roads (the map
+  draws no route until it is drawn).
+
+## Handoff: campus on the school profile (2026-11-27, `phase-6/campus-on-profile`, #558)
+
+- The school profile has a Campus card: name and coordinates, an empty state when not set, and Set or Change with the
+  same map picker and server action as the route editor. Owner: on `/school`, set the campus by clicking the map, in
+  both themes and on a phone.
+
+## Handoff: whole button takes the tap (2026-11-27, #555)
+
+- A stretched button or card now reacts anywhere inside its contour, in every app (shared design system). Owner: tap
+  the edges of wide buttons (sign-in, Show the bus, sheets) on a phone.
 
 ## Handoff: released to `main` (2026-11-17, #554)
 

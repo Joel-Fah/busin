@@ -32,7 +32,7 @@ async function Notifications() {
       {error || !now ? (
         <Notice tone="bad">{s.notifications.failed}</Notice>
       ) : (
-        <NotificationSettings copy={s.notifications} initial={{ ridingDays: now.riding_days, busNearOn: now.bus_near_on, busNearMinutes: now.bus_near_minutes, boardingOn: now.boarding_messages_on }} />
+        <NotificationSettings copy={s.notifications} initial={{ ridingDays: now.riding_days, busNearOn: now.bus_near_on, busNearMinutes: now.bus_near_minutes, boardingOn: now.boarding_messages_on, tripStartedOn: now.trip_started_on, stopAlertsOn: now.stop_alerts_on }} />
       )}
     </StudentPage>
   );

@@ -78,6 +78,9 @@ test("a verified student gives the details the school needs before the tabs", as
   await page.getByLabel("Full name").fill("Amara Ngono");
   await page.getByLabel("Student number").fill(`ICT2026-${tag}`);
   await page.getByLabel("Phone number").fill("+237 677 12 34 56");
+  // Optional (issue #564): not set unless chosen.
+  await expect(page.getByLabel("Not set")).toBeChecked();
+  await page.getByLabel("Female", { exact: true }).check();
   await page.getByRole("button", { name: "Save and continue" }).click();
   // My area is offered once, right after setup (ADR 0023); "Not now" goes on to the subscription.
   await expect(page).toHaveURL(/\/app\/settings\/area\?intro=1$/);
@@ -86,6 +89,6 @@ test("a verified student gives the details the school needs before the tabs", as
   await expect(page).toHaveURL(/\/app\/subscription$/);
   await expect(page.getByTestId("area-offer")).toHaveCount(0);
 
-  const { data } = await serviceClient().from("profiles").select("full_name, matricule, phone").eq("id", newcomer.id).single();
-  expect(data).toEqual({ full_name: "Amara Ngono", matricule: `ICT2026-${tag}`, phone: "+237677123456" });
+  const { data } = await serviceClient().from("profiles").select("full_name, matricule, phone, gender").eq("id", newcomer.id).single();
+  expect(data).toEqual({ full_name: "Amara Ngono", matricule: `ICT2026-${tag}`, phone: "+237677123456", gender: "female" });
 });

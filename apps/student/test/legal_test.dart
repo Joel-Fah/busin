@@ -151,6 +151,9 @@ void main() {
     testWidgets('in French the profile and the page speak French', (tester) async {
       await openProfile(tester, locale: const Locale('fr'));
       await tester.scrollUntilVisible(find.text('Politique de confidentialité'), 300, scrollable: find.byType(Scrollable).first);
+      // Clear of the floating bottom bar before tapping.
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, -300));
+      await tester.pumpAndSettle();
       expect(find.text('Conditions d’utilisation'), findsOneWidget);
       await tester.tap(find.text('Politique de confidentialité'));
       await tester.pump(const Duration(milliseconds: 800));

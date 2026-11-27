@@ -25,7 +25,7 @@ async function Tabs({ children }: { children: React.ReactNode }) {
   return (
     <>
       <SessionOwner userId={student.userId} />
-      <PushBinder locale={locale} busNear={s.push.busNear} />
+      <PushBinder locale={locale} copy={s.push} />
       <OfflineBanner text={s.offline.banner} />
       {children}
       <TabBar copy={s.nav} />

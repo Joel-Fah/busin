@@ -7,6 +7,7 @@ import '../auth/access.dart';
 import '../providers.dart';
 import '../subscription/subscription_providers.dart';
 import 'bus_updates.dart';
+import 'eta.dart';
 
 final busesRepositoryProvider = Provider<BusesRepository>((ref) => ref.watch(repositoriesProvider).buses);
 final livePositionsRepositoryProvider = Provider<LivePositionsRepository>((ref) => ref.watch(repositoriesProvider).livePositions);
@@ -151,7 +152,8 @@ class BusUpdateLog extends Notifier<Map<String, List<BusUpdate>>> {
   }
 }
 
-const keptUpdates = 5;
+/// Enough for a whole trip's stops to stay listed.
+const keptUpdates = 25;
 
 final busUpdateLogProvider = NotifierProvider<BusUpdateLog, Map<String, List<BusUpdate>>>(BusUpdateLog.new);
 
@@ -204,3 +206,61 @@ class FocusMe extends Notifier<int> {
 }
 
 final focusMeProvider = NotifierProvider<FocusMe, int>(FocusMe.new);
+
+/// The school's planned route along roads and its campus, for the map. Read once while the person stays signed in (it
+/// changes only when the school redraws it). A failure just leaves the route off the map.
+final schoolRouteProvider = FutureProvider.autoDispose<RouteLine?>((ref) async {
+  if (ref.watch(accessProvider) is! Allowed) return null;
+  ref.keepAlive();
+  try {
+    return await ref.watch(livePositionsRepositoryProvider).schoolRoute();
+  } on Object {
+    return null;
+  }
+});
+
+/// Where the followed bus has been on its trip: what the server kept so far, then each new position as it arrives,
+/// while My bus shows it. A failure starts the trail from the positions seen here.
+class TripTrail extends Notifier<List<GeoPoint>> {
+  TripTrail(this.key);
+
+  final ({String busId, String tripId}) key;
+
+  /// A new point only this far from the last one, so a bus standing at a stop does not pile points up.
+  static const _minStepMetres = 15.0;
+
+  /// Never more than this many points: the oldest go first (a very long trip).
+  static const maxPoints = 600;
+
+  @override
+  List<GeoPoint> build() {
+    ref.listen(busPositionProvider(key.busId), (_, next) {
+      final position = next.value;
+      if (position != null && (position.tripId == null || position.tripId == key.tripId)) add(position.location);
+    });
+    _load();
+    return const [];
+  }
+
+  Future<void> _load() async {
+    List<GeoPoint> kept;
+    try {
+      kept = await ref.read(livePositionsRepositoryProvider).tripTrail(key.tripId);
+    } on Object {
+      return;
+    }
+    if (!ref.mounted || kept.isEmpty) return;
+    // The server's points come first; what arrived while they loaded follows.
+    state = _capped([...kept, ...state]);
+  }
+
+  void add(GeoPoint p) {
+    final last = state.lastOrNull;
+    if (last != null && distanceMetres(last, p) < _minStepMetres) return;
+    state = _capped([...state, p]);
+  }
+
+  static List<GeoPoint> _capped(List<GeoPoint> points) => points.length <= maxPoints ? points : points.sublist(points.length - maxPoints);
+}
+
+final tripTrailProvider = NotifierProvider.autoDispose.family<TripTrail, List<GeoPoint>, ({String busId, String tripId})>(TripTrail.new);

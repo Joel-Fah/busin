@@ -13,6 +13,40 @@ Widget app(Widget child, {ThemeData? theme, Locale locale = const Locale('en')})
     );
 
 void main() {
+  // A button, card or tile stretched wider than its content reacts anywhere inside its shape, not only on the content.
+  group('the whole shape takes the tap', () {
+    Future<void> tapNearLeftEdge(WidgetTester tester, Finder shape) async {
+      final box = tester.getRect(shape);
+      await tester.tapAt(Offset(box.left + 12, box.center.dy));
+      await tester.pump(const Duration(milliseconds: 300));
+    }
+
+    Widget stretched(Widget child) => SizedBox(width: 360, child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize: MainAxisSize.min, children: [child]));
+
+    testWidgets('a stretched button', (tester) async {
+      var pressed = 0;
+      await tester.pumpWidget(app(stretched(BusinButton(label: 'Save', onPressed: () => pressed++))));
+      await tapNearLeftEdge(tester, find.byType(BusinButton));
+      expect(pressed, 1);
+    });
+
+    testWidgets('a stretched card', (tester) async {
+      var pressed = 0;
+      await tester.pumpWidget(app(stretched(BusinCard(onTap: () => pressed++, child: const Text('Short')))));
+      await tester.tapAt(tester.getRect(find.byType(BusinCard)).bottomRight - const Offset(16, 16));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(pressed, 1);
+    });
+
+    testWidgets('a stretched field tile', (tester) async {
+      var pressed = 0;
+      await tester.pumpWidget(app(stretched(FieldTile(label: 'Stop', icon: HugeIcons.strokeRoundedFlag02, placeholder: 'Choose', onTap: () => pressed++))));
+      await tester.tapAt(tester.getRect(find.byType(FieldTile)).centerRight - const Offset(16, 0));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(pressed, 1);
+    });
+  });
+
   group('BusinButton', () {
     testWidgets('labels are bold in both themes, in every variant', (tester) async {
       for (final theme in [BusinTheme.light(), BusinTheme.dark()]) {

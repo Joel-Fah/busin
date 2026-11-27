@@ -102,7 +102,7 @@ self.addEventListener("message", (event) => {
 // tap opens the page it is about.
 
 function routeFor(kind) {
-  if (kind === "bus_near_stop") return "/app/bus";
+  if (["bus_near_stop", "trip_started", "bus_at_stop", "bus_left_stop", "bus_at_campus"].includes(kind)) return "/app/bus";
   if (kind && kind.startsWith("subscription_")) return "/app/subscription";
   return "/app";
 }

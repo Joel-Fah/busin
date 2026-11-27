@@ -185,6 +185,24 @@ class NotificationsScreen extends ConsumerWidget {
                 ),
                 const Divider(),
                 toggle(
+                  title: l10n.notificationsTripStarted,
+                  hint: l10n.notificationsTripStartedHint,
+                  value: current.tripStartedOn,
+                  onChanged: (on) => on
+                      ? turnOn(current.copyWith(tripStartedOn: true), (title: l10n.sampleTripStartedTitle, body: l10n.sampleTripStartedBody))
+                      : save(current.copyWith(tripStartedOn: false)),
+                ),
+                const Divider(),
+                toggle(
+                  title: l10n.notificationsStopAlerts,
+                  hint: l10n.notificationsStopAlertsHint,
+                  value: current.stopAlertsOn,
+                  onChanged: (on) => on
+                      ? turnOn(current.copyWith(stopAlertsOn: true), (title: l10n.sampleAtStopTitle, body: l10n.sampleAtStopBody))
+                      : save(current.copyWith(stopAlertsOn: false)),
+                ),
+                const Divider(),
+                toggle(
                   title: l10n.notificationsBoarding,
                   hint: l10n.notificationsBoardingHint,
                   value: current.boardingMessagesOn,

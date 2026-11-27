@@ -441,14 +441,14 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "avatar_url": string | null,"created_at": string,"deleted_at": string | null,"deletion_by": string | null,"deletion_due_at": string | null,"deletion_requested_at": string | null,"department": string | null,"department_id": string | null,"email": string,"full_name": string,"id": string,"join_decline_note": string | null,"join_declined_at": string | null,"join_declined_school": string | null,"join_requested_at": string | null,"matricule": string | null,"payment_preference": string | null,"phone": string | null,"program": string | null,"program_id": string | null,"role": Database["public"]['Enums']["user_role"],"school_id": string | null,"staff_decline_note": string | null,"staff_declined_at": string | null,"staff_declined_school": string | null,"staff_request_count": number,"staff_request_school": string | null,"staff_requested_at": string | null,"status": Database["public"]['Enums']["account_status"],"streak_opt_in": boolean,"streak_opt_in_at": string | null,"updated_at": string
+                    "avatar_url": string | null,"created_at": string,"deleted_at": string | null,"deletion_by": string | null,"deletion_due_at": string | null,"deletion_requested_at": string | null,"department": string | null,"department_id": string | null,"email": string,"full_name": string,"gender": string | null,"id": string,"join_decline_note": string | null,"join_declined_at": string | null,"join_declined_school": string | null,"join_requested_at": string | null,"matricule": string | null,"payment_preference": string | null,"phone": string | null,"program": string | null,"program_id": string | null,"role": Database["public"]['Enums']["user_role"],"school_id": string | null,"staff_decline_note": string | null,"staff_declined_at": string | null,"staff_declined_school": string | null,"staff_request_count": number,"staff_request_school": string | null,"staff_requested_at": string | null,"status": Database["public"]['Enums']["account_status"],"streak_opt_in": boolean,"streak_opt_in_at": string | null,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "avatar_url"?: string | null,"created_at"?: string,"deleted_at"?: string | null,"deletion_by"?: string | null,"deletion_due_at"?: string | null,"deletion_requested_at"?: string | null,"department"?: string | null,"department_id"?: string | null,"email": string,"full_name"?: string,"id": string,"join_decline_note"?: string | null,"join_declined_at"?: string | null,"join_declined_school"?: string | null,"join_requested_at"?: string | null,"matricule"?: string | null,"payment_preference"?: string | null,"phone"?: string | null,"program"?: string | null,"program_id"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"school_id"?: string | null,"staff_decline_note"?: string | null,"staff_declined_at"?: string | null,"staff_declined_school"?: string | null,"staff_request_count"?: number,"staff_request_school"?: string | null,"staff_requested_at"?: string | null,"status"?: Database["public"]['Enums']["account_status"],"streak_opt_in"?: boolean,"streak_opt_in_at"?: string | null,"updated_at"?: string
+                    "avatar_url"?: string | null,"created_at"?: string,"deleted_at"?: string | null,"deletion_by"?: string | null,"deletion_due_at"?: string | null,"deletion_requested_at"?: string | null,"department"?: string | null,"department_id"?: string | null,"email": string,"full_name"?: string,"gender"?: string | null,"id": string,"join_decline_note"?: string | null,"join_declined_at"?: string | null,"join_declined_school"?: string | null,"join_requested_at"?: string | null,"matricule"?: string | null,"payment_preference"?: string | null,"phone"?: string | null,"program"?: string | null,"program_id"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"school_id"?: string | null,"staff_decline_note"?: string | null,"staff_declined_at"?: string | null,"staff_declined_school"?: string | null,"staff_request_count"?: number,"staff_request_school"?: string | null,"staff_requested_at"?: string | null,"status"?: Database["public"]['Enums']["account_status"],"streak_opt_in"?: boolean,"streak_opt_in_at"?: string | null,"updated_at"?: string
                   }
                   Update: {
-                    "avatar_url"?: string | null,"created_at"?: string,"deleted_at"?: string | null,"deletion_by"?: string | null,"deletion_due_at"?: string | null,"deletion_requested_at"?: string | null,"department"?: string | null,"department_id"?: string | null,"email"?: string,"full_name"?: string,"id"?: string,"join_decline_note"?: string | null,"join_declined_at"?: string | null,"join_declined_school"?: string | null,"join_requested_at"?: string | null,"matricule"?: string | null,"payment_preference"?: string | null,"phone"?: string | null,"program"?: string | null,"program_id"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"school_id"?: string | null,"staff_decline_note"?: string | null,"staff_declined_at"?: string | null,"staff_declined_school"?: string | null,"staff_request_count"?: number,"staff_request_school"?: string | null,"staff_requested_at"?: string | null,"status"?: Database["public"]['Enums']["account_status"],"streak_opt_in"?: boolean,"streak_opt_in_at"?: string | null,"updated_at"?: string
+                    "avatar_url"?: string | null,"created_at"?: string,"deleted_at"?: string | null,"deletion_by"?: string | null,"deletion_due_at"?: string | null,"deletion_requested_at"?: string | null,"department"?: string | null,"department_id"?: string | null,"email"?: string,"full_name"?: string,"gender"?: string | null,"id"?: string,"join_decline_note"?: string | null,"join_declined_at"?: string | null,"join_declined_school"?: string | null,"join_requested_at"?: string | null,"matricule"?: string | null,"payment_preference"?: string | null,"phone"?: string | null,"program"?: string | null,"program_id"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"school_id"?: string | null,"staff_decline_note"?: string | null,"staff_declined_at"?: string | null,"staff_declined_school"?: string | null,"staff_request_count"?: number,"staff_request_school"?: string | null,"staff_requested_at"?: string | null,"status"?: Database["public"]['Enums']["account_status"],"streak_opt_in"?: boolean,"streak_opt_in_at"?: string | null,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -1339,7 +1339,7 @@ isOneToOne: false
                            },
 "my_notification_preferences":
 { Args: Record<PropertyKey, never>; Returns: {
-              "boarding_messages_on": boolean,"bus_near_minutes": number,"bus_near_on": boolean,"evening_on": boolean,"evening_time": string,"morning_on": boolean,"morning_time": string,"riding_days": number
+              "boarding_messages_on": boolean,"bus_near_minutes": number,"bus_near_on": boolean,"evening_on": boolean,"evening_time": string,"morning_on": boolean,"morning_time": string,"riding_days": number,"stop_alerts_on": boolean,"trip_started_on": boolean
             }[]
                            },
 "my_ride_days":
@@ -1579,7 +1579,7 @@ isOneToOne: false
 { Args: { "p_label": string,"p_lat": number,"p_lng": number,"p_source": string }; Returns: undefined
                            },
 "set_notification_preferences":
-{ Args: { "p_boarding_messages_on": boolean,"p_bus_near_minutes": number,"p_bus_near_on": boolean,"p_evening_on": boolean,"p_evening_time": string,"p_morning_on": boolean,"p_morning_time": string,"p_riding_days": number }; Returns: undefined
+{ Args: { "p_boarding_messages_on": boolean,"p_bus_near_minutes": number,"p_bus_near_on": boolean,"p_evening_on": boolean,"p_evening_time": string,"p_morning_on": boolean,"p_morning_time": string,"p_riding_days": number,"p_stop_alerts_on"?: boolean,"p_trip_started_on"?: boolean }; Returns: undefined
                            },
 "set_payment_preference":
 { Args: { "p_preference": string }; Returns: undefined
@@ -1608,6 +1608,9 @@ isOneToOne: false
 { Args: { "p_phone": string,"p_provider": string,"p_purpose": string,"p_target": string }; Returns: {
               "amount_xaf": number,"currency": string,"fee_xaf": number,"id": string,"provider": string,"total_xaf": number
             }[]
+                           },
+"trip_trail":
+{ Args: { "p_trip_id": string }; Returns: Json
                            },
 "start_trip":
 { Args: { "p_trip_id": string }; Returns: undefined

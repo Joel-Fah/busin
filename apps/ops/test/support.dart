@@ -96,6 +96,9 @@ class FakeProfiles implements ProfileRepository {
   Future<void> setPaymentPreference(PaymentMode? preference) => throw UnimplementedError('staff have no payment preference');
 
   @override
+  Future<void> setGender(String userId, Gender? gender) async {}
+
+  @override
   Stream<Profile> watchProfile(String userId) => Stream.multi((controller) {
         // As the real stream: the profile as it is now first, then the changes.
         final now = byId[userId];
@@ -371,6 +374,12 @@ class FakeLive implements LivePositionsRepository {
 
   @override
   dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
+
+  @override
+  Future<RouteLine?> schoolRoute() async => null;
+
+  @override
+  Future<List<GeoPoint>> tripTrail(String tripId) async => const [];
 }
 
 class FakePositions implements LocationFeed {

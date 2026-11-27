@@ -1,7 +1,7 @@
 name: busin_student
 description: BusIn student app. Subscriptions, rotating QR code, scan history and the live bus. No staff or admin code.
 publish_to: none
-version: 0.1.0+2
+version: 0.1.0+3
 resolution: workspace
 
 environment:
@@ -49,7 +49,6 @@ flutter:
   uses-material-design: true
   assets:
     # 3D bus and pin for the map (thiings.co, free licence: attribution required, see docs/decisions/0011).
-    - assets/map/
     # Banners of the legal pages: Pexels photos (free licence, no attribution required): pexels.com/photo/5965930, 8771745 and 17121049.
     - assets/legal/
 

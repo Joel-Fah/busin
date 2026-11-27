@@ -8,6 +8,7 @@ import { UpdateNotice } from "@/components/student/UpdateNotice";
 import { getStudentCopy } from "@/lib/i18n/server";
 import { downloads } from "@/lib/landing/downloads";
 import { RoughFilter } from "@/components/ui/RoughFilter";
+import { APPLE_TOUCH_ICON_180 } from "@/lib/student/apple-icon";
 
 /**
  * The student web app (ADR 0021): a PWA at /app with its own manifest and service worker, scoped to /app/. Nothing here
@@ -24,11 +25,12 @@ export const metadata: Metadata = {
       { url: "/app-icons/icon-192.png", sizes: "192x192", type: "image/png" },
       { url: "/app-icons/icon-512.png", sizes: "512x512", type: "image/png" },
     ],
-    // iOS reads these, not the manifest: one per size it asks for (iPhone 180, iPad Pro 167, iPad 152). A copy also sits at
-    // /apple-touch-icon.png and /apple-touch-icon-precomposed.png, which some iOS versions fetch first; without an icon in
-    // time, iOS draws the first letter of the name instead.
+    // iOS reads these: one per size it asks for (iPhone 180, iPad Pro 167, iPad 152). The iPhone's is inline (issue #573):
+    // iOS fetches the icon in its own request, without the page's cookies, and draws the first letter of the name when
+    // that fails. Copies also sit at /apple-touch-icon.png, /apple-touch-icon-precomposed.png and the same under /app/,
+    // which some iOS versions fetch on their own.
     apple: [
-      { url: "/app-icons/apple-touch-180.png", sizes: "180x180", type: "image/png" },
+      { url: APPLE_TOUCH_ICON_180, sizes: "180x180", type: "image/png" },
       { url: "/app-icons/apple-touch-167.png", sizes: "167x167", type: "image/png" },
       { url: "/app-icons/apple-touch-152.png", sizes: "152x152", type: "image/png" },
     ],

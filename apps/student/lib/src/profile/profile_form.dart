@@ -50,6 +50,9 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
   String? _departmentId;
   String? _programId;
   bool _academicSeeded = false;
+
+  /// Optional (issue #564): null until the student picks one, and again if they tap their choice to clear it.
+  late Gender? _gender = widget.profile.gender;
   bool _tried = false;
   bool _saving = false;
   Object? _error;
@@ -93,6 +96,7 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
             // Only when the school has lists to choose from; otherwise whatever was saved stays as it is.
             academic: ref.read(academicUnitsProvider).value?.isEmpty ?? true ? null : AcademicChoice(departmentId: _departmentId, programId: _programId),
           );
+      if (_gender != widget.profile.gender) await ref.read(profileRepositoryProvider).setGender(widget.profile.id, _gender);
       // The access rules read the profile: reloading it is what lets a new student in.
       ref.invalidate(profileProvider);
       await ref.read(profileProvider.future);
@@ -228,6 +232,8 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
                   },
           ),
         ],
+        const SizedBox(height: BusinSpace.x4),
+        _GenderChoice(value: _gender, onChanged: (g) => setState(() => _gender = g)),
         if (_error != null) ...[
           const SizedBox(height: BusinSpace.x4),
           Notice(tone: StatusTone.bad, child: Text(_error is RepositoryException ? l10n.failure(_error as RepositoryException) : l10n.errorGeneric)),
@@ -235,6 +241,48 @@ class _ProfileFormState extends ConsumerState<ProfileForm> {
         const SizedBox(height: BusinSpace.x5),
         BusinButton(label: widget.submitLabel, expand: true, loading: _saving, onPressed: _saving ? null : _save),
       ],
+    );
+  }
+}
+
+/// Male or female, or nothing: two chips, none chosen at first; tapping the chosen one clears it.
+class _GenderChoice extends StatelessWidget {
+  const _GenderChoice({required this.value, required this.onChanged});
+
+  final Gender? value;
+  final ValueChanged<Gender?> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = BusinL10n.of(context);
+    final text = Theme.of(context).textTheme;
+    final p = BusinPalette.of(context);
+    return Semantics(
+      container: true,
+      label: l10n.fieldGender,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l10n.fieldGender, style: text.labelLarge),
+          const SizedBox(height: BusinSpace.x2),
+          Wrap(
+            spacing: BusinSpace.x2,
+            children: [
+              for (final (gender, label) in [(Gender.male, l10n.genderMale), (Gender.female, l10n.genderFemale)])
+                ChoiceChip(
+                  label: Text(label),
+                  selected: value == gender,
+                  onSelected: (_) {
+                    BusinHaptics.selection();
+                    onChanged(value == gender ? null : gender);
+                  },
+                ),
+            ],
+          ),
+          const SizedBox(height: BusinSpace.x1),
+          Text(l10n.fieldGenderHint, style: text.bodySmall?.copyWith(color: p.muted)),
+        ],
+      ),
     );
   }
 }

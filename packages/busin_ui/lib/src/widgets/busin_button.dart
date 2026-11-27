@@ -116,8 +116,10 @@ class _BusinButtonState extends State<BusinButton> {
               color: fill,
               shape: shape,
               clipBehavior: Clip.antiAlias,
+              // Passthrough: the tap area takes the button's whole size, also when a layout stretches it wider than its label.
               child: Stack(
                 alignment: Alignment.center,
+                fit: StackFit.passthrough,
                 children: [
                   InkWell(
                     customBorder: shape,

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../bus/bus_providers.dart';
 import '../payments/payment_providers.dart';
 import '../nav/tab_badges.dart';
 import '../providers.dart';
@@ -66,8 +67,18 @@ class _PushBinderState extends ConsumerState<PushBinder> {
     if (!mounted) return;
     ref.read(tabBadgesProvider.notifier).mark(tabsForPush(message.kind));
     final l10n = BusinL10n.of(context);
-    if (message.kind == 'bus_near_stop') {
-      _show(l10n.pushForegroundBusNear, message);
+    final bus = switch (message.kind) {
+      'bus_near_stop' => l10n.pushForegroundBusNear,
+      'trip_started' => l10n.pushForegroundTripStarted,
+      'bus_at_stop' => l10n.pushForegroundAtStop,
+      'bus_left_stop' => l10n.pushForegroundLeftStop,
+      'bus_at_campus' => l10n.pushForegroundAtCampus,
+      _ => null,
+    };
+    if (bus != null) {
+      // A trip started: the list of running buses is read again, so My bus shows it at once.
+      if (message.kind == 'trip_started') ref.invalidate(runningBusesProvider);
+      _show(bus, message);
       return;
     }
     ref.invalidate(subscriptionOverviewProvider);

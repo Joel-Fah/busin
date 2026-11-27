@@ -19,7 +19,13 @@ export type Kind =
   | "refund_completed"
   | "refund_failed"
   | "refund_declined"
-  | "trip_still_running";
+  | "trip_still_running"
+  | "trip_started"
+  | "bus_at_stop"
+  | "bus_left_stop"
+  | "bus_at_campus"
+  | "trip_at_campus"
+  | "trip_auto_ended";
 
 const KINDS: readonly Kind[] = [
   "subscription_approved",
@@ -38,6 +44,12 @@ const KINDS: readonly Kind[] = [
   "refund_failed",
   "refund_declined",
   "trip_still_running",
+  "trip_started",
+  "bus_at_stop",
+  "bus_left_stop",
+  "bus_at_campus",
+  "trip_at_campus",
+  "trip_auto_ended",
 ];
 
 /** One claimed notification, as claim_notifications returns it. */
@@ -120,10 +132,37 @@ const TEXT: Record<Kind, Record<Locale, { title: string; body: string }>> = {
   },
   // A trip the person runs looks forgotten (silent for 30 minutes, or 3 hours long). Sent to the ops app with an End
   // trip button (see ACTIONS).
+  // The trip ended by itself (issue #575): an hour after the second reminder, or 15 minutes at the campus.
+  trip_auto_ended: {
+    en: { title: "Your trip was ended", body: "BusIn ended your trip automatically, so the bus no longer shows as running. If you are still on the road, start a new trip." },
+    fr: { title: "Votre trajet a été terminé", body: "BusIn a terminé votre trajet automatiquement : le bus n'apparaît plus en route. Si vous êtes encore sur la route, commencez un nouveau trajet." },
+  },
   trip_still_running: {
     en: { title: "Is your trip over?", body: "Your trip is still running. If it is over, end it so students see the bus has stopped." },
     fr: { title: "Votre trajet est-il terminé ?", body: "Votre trajet est toujours en cours. S'il est terminé, arrêtez-le pour que les étudiants voient que le bus s'est arrêté." },
+  },  // Stop alerts (issue #557). Generic on purpose: no stop, bus or time goes through Firebase; the app shows them.
+  trip_started: {
+    en: { title: "Your bus is on its way", body: "A bus to school has started its trip. Open BusIn to follow it." },
+    fr: { title: "Votre bus est en route", body: "Un bus vers l'école a commencé son trajet. Ouvrez BusIn pour le suivre." },
   },
+  bus_at_stop: {
+    en: { title: "The bus is at your stop", body: "Your bus has reached your stop. Head there now if you are not on it yet." },
+    fr: { title: "Le bus est à votre arrêt", body: "Votre bus est arrivé à votre arrêt. Allez-y maintenant si vous n'y êtes pas encore." },
+  },
+  bus_left_stop: {
+    en: { title: "The bus has left your stop", body: "Your bus has left your stop. Open BusIn to see where it is." },
+    fr: { title: "Le bus a quitté votre arrêt", body: "Votre bus a quitté votre arrêt. Ouvrez BusIn pour voir où il est." },
+  },
+  bus_at_campus: {
+    en: { title: "Welcome to campus", body: "Your bus has arrived on campus. Have a good day." },
+    fr: { title: "Bienvenue sur le campus", body: "Votre bus est arrivé sur le campus. Bonne journée." },
+  },
+  // To the crew, with an End trip button (see ACTIONS).
+  trip_at_campus: {
+    en: { title: "You are at the campus", body: "Your trip has reached the campus. If everyone is off, end the trip." },
+    fr: { title: "Vous êtes au campus", body: "Votre trajet est arrivé au campus. Si tout le monde est descendu, terminez le trajet." },
+  },
+
 };
 
 /**
@@ -133,6 +172,7 @@ const TEXT: Record<Kind, Record<Locale, { title: string; body: string }>> = {
  */
 const ACTIONS: Partial<Record<Kind, Record<Locale, string>>> = {
   trip_still_running: { en: "End trip", fr: "Terminer le trajet" },
+  trip_at_campus: { en: "End trip", fr: "Terminer le trajet" },
 };
 
 export function isKind(value: string): value is Kind {
@@ -145,7 +185,7 @@ export function asLocale(value: string): Locale {
 
 /** Where a tapped web notification opens the student web app (ADR 0021), as the app's push routes. */
 export function webRoute(kind: Kind): string {
-  if (kind === "bus_near_stop") return "/app/bus";
+  if (kind === "bus_near_stop" || kind === "trip_started" || kind === "bus_at_stop" || kind === "bus_left_stop" || kind === "bus_at_campus") return "/app/bus";
   if (kind === "crew_assigned") return "/app";
   return "/app/subscription";
 }

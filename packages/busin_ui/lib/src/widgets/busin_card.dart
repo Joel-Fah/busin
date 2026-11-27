@@ -61,7 +61,9 @@ class _BusinCardState extends State<BusinCard> {
         color: surface,
         shape: shape,
         clipBehavior: Clip.antiAlias,
+        // Passthrough: a stretched card reacts anywhere inside it, not only on its content.
         child: Stack(
+          fit: StackFit.passthrough,
           children: [
             if (widget.grain) const Positioned.fill(child: Grain(opacity: 0.8)),
             // Under the content, so 3D art and text sit above the thread.
