@@ -31,6 +31,25 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: iPhone Home Screen icon (2026-11-27, #573)
+
+- The 180 px icon is now inline in every student web page and in the manifest, so iOS needs no separate request (it
+  fetches the icon without the page's cookies and drew a "B" when that failed); copies also at `/app/apple-touch-icon.png`
+  and `/app/apple-touch-icon-precomposed.png` (they returned a 404 page). The icon is 32 colours, 3.4 KB, same look.
+- Owner, after release, on the iPhone: delete the old BusIn tile; Settings, Apps, Safari, Advanced, Website Data, remove
+  the BusIn site (iOS keeps the letter it drew); open the site in Safari, Share, Add to Home Screen. The dialog should
+  show the BusIn icon before adding.
+
+## Handoff: student web My bus as in the app (2026-11-27, #570)
+
+- On `dev` once merged (not live yet): the student web app's My bus now matches the student app: the same map (grey
+  stops with names, own stop orange and pinging, the bus blue, pinging and gliding, Show me green, the campus teal, the
+  planned road route and the trip's dashed trail), the camera following the bus until the map is touched, the legend,
+  the bus card floating over the map with the updates folded in (newest showing), a dot on My bus for a trip not looked
+  at, the two new notification switches, and the bus notifications said while a page is open. Light and dark map.
+- Released 2026-11-27 (App Distribution): student 0.1.0 (3) and ops 0.1.0 (4) to `busin-inders`.
+- Next: release to `main` when the owner approves (web only, no migration).
+
 ## Handoff: optional gender, released (2026-11-27, #565, #566)
 
 - Live: students may give their gender (or not) at setup and in their profile; only they and their school's admins see

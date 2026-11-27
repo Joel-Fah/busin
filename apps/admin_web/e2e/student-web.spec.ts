@@ -78,13 +78,29 @@ test("a shared link to the app shows its own card, readable without signing in",
   expect(response.headers()["content-type"]).toContain("image/png");
 });
 
+test("an iPhone gets the BusIn icon inline in the page, with no request to fail", async ({ page }) => {
+  await page.goto("/app/sign-in");
+  const iphone = page.locator('head link[rel="apple-touch-icon"][sizes="180x180"]');
+  await expect(iphone).toHaveAttribute("href", /^data:image\/png;base64,iVBORw0KGgo/);
+});
+
 test("the app can be installed: a manifest scoped to /app and a service worker", async ({ request }) => {
   const manifest = await (await request.get("/app/manifest.webmanifest")).json();
   expect(manifest).toMatchObject({ start_url: "/app", scope: "/app/", display: "standalone" });
-  expect(manifest.icons.map((icon: { purpose: string }) => icon.purpose)).toEqual(["any", "any", "maskable"]);
-  for (const icon of manifest.icons) expect((await request.get(icon.src)).status()).toBe(200);
-  // iOS reads apple-touch icons, not the manifest; some versions fetch the root addresses first.
-  for (const path of ["/app-icons/apple-touch-180.png", "/app-icons/apple-touch-167.png", "/app-icons/apple-touch-152.png", "/apple-touch-icon.png", "/apple-touch-icon-precomposed.png"]) {
+  expect(manifest.icons.map((icon: { purpose: string }) => icon.purpose)).toEqual(["any", "any", "any", "maskable"]);
+  // The iPhone's size is inline (issue #573); the others are files.
+  expect(manifest.icons[0].src).toMatch(/^data:image\/png;base64,/);
+  for (const icon of manifest.icons.slice(1)) expect((await request.get(icon.src)).status()).toBe(200);
+  // iOS reads apple-touch icons; some versions fetch the root addresses, or the same under /app, on their own.
+  for (const path of [
+    "/app-icons/apple-touch-180.png",
+    "/app-icons/apple-touch-167.png",
+    "/app-icons/apple-touch-152.png",
+    "/apple-touch-icon.png",
+    "/apple-touch-icon-precomposed.png",
+    "/app/apple-touch-icon.png",
+    "/app/apple-touch-icon-precomposed.png",
+  ]) {
     const icon = await request.get(path);
     expect(icon.status(), path).toBe(200);
     expect(icon.headers()["content-type"], path).toContain("image/png");

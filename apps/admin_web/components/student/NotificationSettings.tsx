@@ -10,11 +10,14 @@ import type { StudentCopy } from "@/lib/i18n/student";
 import { saveNotifications, type SettingsState } from "@/lib/student/settings";
 import { Contour } from "@/components/ui/Contour";
 
-export type Preferences = { ridingDays: number; busNearOn: boolean; busNearMinutes: number; boardingOn: boolean };
+export type Preferences = { ridingDays: number; busNearOn: boolean; busNearMinutes: number; boardingOn: boolean; tripStartedOn: boolean; stopAlertsOn: boolean };
 
 const MINUTES = [2, 3, 5, 8, 10, 15];
 
-/** Bus days, bus near my stop, the word when boarding; school notices always on. As the app's notification screen, without the phone-only reminders. */
+/**
+ * Bus days, a bus leaving for school, bus near my stop, at my stop and on campus, the word when boarding; school notices
+ * always on. As the app's notification screen, without the phone-only reminders.
+ */
 export function NotificationSettings({ copy, initial }: { copy: StudentCopy["notifications"]; initial: Preferences }) {
   const [state, action, pending] = useActionState<SettingsState, FormData>(saveNotifications, { saved: false, error: false });
   const [busNear, setBusNear] = useState(initial.busNearOn);
@@ -40,6 +43,7 @@ export function NotificationSettings({ copy, initial }: { copy: StudentCopy["not
 
       <section className="flex flex-col gap-4 relative rounded-lg bg-surface p-5 shadow-soft">
         <Contour radius={28} inset={10} />
+        <Switch name="tripStarted" label={copy.tripStarted} hint={copy.tripStartedHint} defaultChecked={initial.tripStartedOn} />
         <Switch name="busNear" label={copy.busNear} hint={copy.busNearHint} checked={busNear} onChange={(event) => setBusNear(event.target.checked)} />
         {busNear ? (
           <div role="radiogroup" aria-label={copy.busNear} className="flex flex-wrap gap-2">
@@ -55,6 +59,7 @@ export function NotificationSettings({ copy, initial }: { copy: StudentCopy["not
         ) : (
           <input type="hidden" name="busNearMinutes" value={initial.busNearMinutes} />
         )}
+        <Switch name="stopAlerts" label={copy.stopAlerts} hint={copy.stopAlertsHint} defaultChecked={initial.stopAlertsOn} />
         <Switch name="boarding" label={copy.boarding} hint={copy.boardingHint} defaultChecked={initial.boardingOn} />
         <Switch label={copy.school} hint={copy.schoolHint} checked disabled readOnly />
       </section>
