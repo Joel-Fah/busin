@@ -56,6 +56,9 @@ abstract interface class ProfileRepository {
 
   /// Saves how the signed-in student prefers to pay (ADR 0022), or clears it with null. Students only.
   Future<void> setPaymentPreference(PaymentMode? preference);
+
+  /// Saves the person's own gender, or clears it with null (issue #564).
+  Future<void> setGender(String userId, Gender? gender);
 }
 
 abstract interface class AcademicRepository {

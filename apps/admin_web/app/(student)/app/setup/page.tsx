@@ -71,7 +71,7 @@ async function Setup() {
         copy={s.setup}
         fields={s.fields}
         academics={academics}
-        initial={{ fullName: profile.full_name ?? "", matricule: profile.matricule ?? "", phone: profile.phone ?? "", phoneCountry, faculty: "", department: "", program: "" }}
+        initial={{ fullName: profile.full_name ?? "", matricule: profile.matricule ?? "", phone: profile.phone ?? "", phoneCountry, faculty: "", department: "", program: "", gender: "" }}
         locale={locale}
       />
     </GatePage>

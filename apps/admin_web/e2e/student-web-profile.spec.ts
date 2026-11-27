@@ -52,6 +52,22 @@ test("edits the details and sees them saved", async ({ page, context }) => {
   expect(data?.phone).toBe("+237699001122");
 });
 
+test("sets the gender, sees it, and clears it (issue #564)", async ({ page, context }) => {
+  await signInBrowser(context, student);
+  await page.goto("/app/profile/edit");
+  await page.getByLabel("Male", { exact: true }).check();
+  await page.getByRole("button", { name: "Save" }).click();
+  await expect(page).toHaveURL(/\/app\/profile\?saved=1$/);
+  await expect(page.getByText("Male", { exact: true }).first()).toBeVisible();
+  expect((await serviceClient().from("profiles").select("gender").eq("id", student.id).single()).data?.gender).toBe("male");
+
+  await page.goto("/app/profile/edit");
+  await page.getByLabel("Not set").check();
+  await page.getByRole("button", { name: "Save" }).click();
+  await expect(page).toHaveURL(/\/app\/profile\?saved=1$/);
+  expect((await serviceClient().from("profiles").select("gender").eq("id", student.id).single()).data?.gender).toBeNull();
+});
+
 test("lists boardings by day, with this week's count", async ({ page, context }) => {
   await signInBrowser(context, student);
   await page.goto("/app/history");
@@ -64,6 +80,8 @@ test("changes bus days and bus near my stop", async ({ page, context }) => {
   await signInBrowser(context, student);
   await page.goto("/app/settings/notifications");
   await expect(page.getByText("Morning and evening reminders are only in the BusIn app for now.")).toBeVisible();
+  // The notifications card above settles after the page loads (here, blocked or on) and moves the days: wait for it.
+  await expect(page.getByText(/blocked for BusIn|are on in this browser|cannot show notifications|home screen first/)).toBeVisible();
   await page.getByText("Sat", { exact: true }).click();
   await page.getByText("10 min", { exact: true }).click();
   await page.getByRole("button", { name: "Save" }).click();

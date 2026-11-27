@@ -49,11 +49,11 @@ grant select on sent to public;
 update public.trips set status = 'active', started_at = now() where id = 'f1000000-0000-4000-8000-000000000001';
 select is((select who from sent where kind = 'trip_started'), '1,2,3,4', 'a trip to school starting tells the day''s riders, not those who turned it off');
 update public.trips set status = 'active', started_at = now() where id = 'f1000000-0000-4000-8000-000000000002';
-select is((select count(*)::int from private.notification_outbox where kind = 'trip_started'), 4, 'a second bus the same day says nothing more');
+select is((select count(*)::int from private.notification_outbox where school_id = '10000000-0000-4000-8000-000000000001' and kind = 'trip_started'), 4, 'a second bus the same day says nothing more');
 update public.trips set status = 'active', started_at = now() where id = 'f1000000-0000-4000-8000-000000000003';
-select is((select count(*)::int from private.notification_outbox where kind = 'trip_started'), 4, 'nor does a trip leaving school');
+select is((select count(*)::int from private.notification_outbox where school_id = '10000000-0000-4000-8000-000000000001' and kind = 'trip_started'), 4, 'nor does a trip leaving school');
 update public.trips set status = 'active' where id = 'f1000000-0000-4000-8000-000000000001';
-select is((select count(*)::int from private.notification_outbox where kind = 'trip_started'), 4, 'saving a running trip again is not a start');
+select is((select count(*)::int from private.notification_outbox where school_id = '10000000-0000-4000-8000-000000000001' and kind = 'trip_started'), 4, 'saving a running trip again is not a start');
 
 -- s4 boards at stop A before the bus is seen there.
 insert into public.scans (school_id, trip_id, student_id, subscription_id, stop_id, scanned_by)
@@ -65,13 +65,13 @@ insert into public.live_positions (bus_id, school_id, trip_id, location)
 values ('e1000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', 'f1000000-0000-4000-8000-000000000001', extensions.st_point(11.5003, 3.85)::extensions.geography);
 select is((select who from sent where kind = 'bus_at_stop'), '1,5', 'at stop A: its waiting students with stop alerts on, not one already on board');
 update public.live_positions set location = extensions.st_point(11.5004, 3.85)::extensions.geography where bus_id = 'e1000000-0000-4000-8000-000000000001';
-select is((select count(*)::int from private.notification_outbox where kind = 'bus_at_stop'), 2, 'said once per trip and stop');
-select is((select count(*)::int from private.notification_outbox where kind = 'bus_left_stop'), 0, 'still at the stop: not left');
+select is((select count(*)::int from private.notification_outbox where school_id = '10000000-0000-4000-8000-000000000001' and kind = 'bus_at_stop'), 2, 'said once per trip and stop');
+select is((select count(*)::int from private.notification_outbox where school_id = '10000000-0000-4000-8000-000000000001' and kind = 'bus_left_stop'), 0, 'still at the stop: not left');
 
 update public.live_positions set location = extensions.st_point(11.503, 3.85)::extensions.geography where bus_id = 'e1000000-0000-4000-8000-000000000001';
 select is((select who from sent where kind = 'bus_left_stop'), '1,5', 'over 150 m away: the stop''s waiting students hear it left');
 update public.live_positions set location = extensions.st_point(11.504, 3.85)::extensions.geography where bus_id = 'e1000000-0000-4000-8000-000000000001';
-select is((select count(*)::int from private.notification_outbox where kind = 'bus_left_stop'), 2, 'once');
+select is((select count(*)::int from private.notification_outbox where school_id = '10000000-0000-4000-8000-000000000001' and kind = 'bus_left_stop'), 2, 'once');
 
 update public.live_positions set location = extensions.st_point(11.5101, 3.85)::extensions.geography where bus_id = 'e1000000-0000-4000-8000-000000000001';
 select is((select who from sent where kind = 'bus_at_stop'), '1,3,5', 'then stop B''s student');
@@ -79,10 +79,10 @@ select is((select who from sent where kind = 'bus_at_stop'), '1,3,5', 'then stop
 -- ---------------------------------------------------------------- another bus, a trip leaving school
 insert into public.live_positions (bus_id, school_id, trip_id, location)
 values ('e1000000-0000-4000-8000-000000000003', '10000000-0000-4000-8000-000000000001', 'f1000000-0000-4000-8000-000000000003', extensions.st_point(11.50, 3.85)::extensions.geography);
-select is((select count(*)::int from private.notification_outbox where kind = 'bus_at_stop'), 3, 'a trip leaving school sends no stop alerts');
+select is((select count(*)::int from private.notification_outbox where school_id = '10000000-0000-4000-8000-000000000001' and kind = 'bus_at_stop'), 3, 'a trip leaving school sends no stop alerts');
 insert into public.live_positions (bus_id, school_id, trip_id, location)
 values ('e1000000-0000-4000-8000-000000000002', '10000000-0000-4000-8000-000000000001', 'f1000000-0000-4000-8000-000000000002', extensions.st_point(11.50, 3.85)::extensions.geography);
-select is((select count(*)::int from private.notification_outbox where kind = 'bus_at_stop' and ref_id = 'f1000000-0000-4000-8000-000000000002'), 2,
+select is((select count(*)::int from private.notification_outbox where school_id = '10000000-0000-4000-8000-000000000001' and kind = 'bus_at_stop' and ref_id = 'f1000000-0000-4000-8000-000000000002'), 2,
   'another bus going to school reaching stop A tells its waiting students too, not s4 who is on the first one');
 
 -- ---------------------------------------------------------------- the campus
@@ -90,7 +90,7 @@ update public.live_positions set location = extensions.st_point(11.6005, 3.90)::
 select is((select who from sent where kind = 'bus_at_campus'), '4', 'at the campus: a welcome to those on board');
 select is((select who from sent where kind = 'trip_at_campus'), '1', 'and the crew is offered to end the trip');
 update public.live_positions set location = extensions.st_point(11.6006, 3.90)::extensions.geography where bus_id = 'e1000000-0000-4000-8000-000000000001';
-select is((select count(*)::int from private.notification_outbox where kind in ('bus_at_campus', 'trip_at_campus')), 2, 'once per trip');
+select is((select count(*)::int from private.notification_outbox where school_id = '10000000-0000-4000-8000-000000000001' and kind in ('bus_at_campus', 'trip_at_campus')), 2, 'once per trip');
 
 -- ---------------------------------------------------------------- the settings
 set local role authenticated;

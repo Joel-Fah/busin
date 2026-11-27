@@ -76,6 +76,34 @@ void main() {
       expect(find.text('Save and continue'), findsNothing);
     });
 
+    testWidgets('gender is optional: skipped it sends nothing, chosen it is saved', (tester) async {
+      final profiles = FakeProfileRepository({'u1': profile(complete: false)});
+      await open(tester, FakeAuthService(signedInAs: 'u1'), profiles);
+      expect(find.text('Gender (optional)'), findsOneWidget);
+      final fields = find.byType(TextField);
+      await tester.enterText(fields.at(1), 'ICT2026-0457');
+      await tester.enterText(fields.at(2), '+237 677-123-456');
+      await tester.ensureVisible(find.text('Female'));
+      await tester.tap(find.text('Female'));
+      await tester.pump();
+      await tester.tap(find.text('Save and continue'));
+      await tester.pumpAndSettle();
+      expect(profiles.savedGenders, [Gender.female]);
+      expect(find.text('Subscription'), findsWidgets, reason: 'in the app now');
+    });
+
+    testWidgets('a student who skips gender gets in all the same', (tester) async {
+      final profiles = FakeProfileRepository({'u1': profile(complete: false)});
+      await open(tester, FakeAuthService(signedInAs: 'u1'), profiles);
+      final fields = find.byType(TextField);
+      await tester.enterText(fields.at(1), 'ICT2026-0457');
+      await tester.enterText(fields.at(2), '+237 677-123-456');
+      await tester.tap(find.text('Save and continue'));
+      await tester.pumpAndSettle();
+      expect(profiles.savedGenders, isEmpty, reason: 'nothing to send');
+      expect(find.text('Subscription'), findsWidgets);
+    });
+
     testWidgets('a server refusal is shown and the student can try again', (tester) async {
       final profiles = FakeProfileRepository({'u1': profile(complete: false)});
       await open(tester, FakeAuthService(signedInAs: 'u1'), profiles);
@@ -121,7 +149,7 @@ void main() {
       expect(find.text('u1@school.edu'), findsOneWidget);
       expect(find.text('ICT2026-0001'), findsOneWidget);
       expect(find.text(PhoneNumbers.display('+237677123456')), findsOneWidget, reason: 'shown with spaces (ADR 0024)');
-      expect(find.text('Not set'), findsNWidgets(2), reason: 'department and program');
+      expect(find.text('Not set'), findsNWidgets(3), reason: 'department, program and gender');
       handle.dispose();
     });
 
@@ -187,6 +215,23 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('the gender is shown in the details, and tapping the chosen one again clears it', (tester) async {
+      final profiles = FakeProfileRepository({'u1': Profile.fromJson({...profile().toJson(), 'gender': 'male'})});
+      await openProfile(tester, FakeAuthService(signedInAs: 'u1'), profiles);
+      expect(find.text('Male'), findsOneWidget);
+      await tester.tap(find.text('Edit details'));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('Male').last);
+      await tester.tap(find.text('Male').last);
+      await tester.pump();
+      await tester.tap(find.text('Save'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 600));
+      expect(profiles.savedGenders, [null]);
+      BusinToast.dismiss();
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+    });
+
     testWidgets('the department list depends on the faculty, and the choice is saved', (tester) async {
       final profiles = FakeProfileRepository({'u1': profile()});
       await openProfile(tester, FakeAuthService(signedInAs: 'u1'), profiles);
@@ -244,7 +289,10 @@ void main() {
       final handle = tester.ensureSemantics();
       final auth = FakeAuthService(signedInAs: 'u1');
       await openProfile(tester, auth, FakeProfileRepository({'u1': profile()}));
-      await tester.ensureVisible(find.text('Sign out'));
+      await tester.scrollUntilVisible(find.text('Sign out'), 300, scrollable: find.byType(Scrollable).first);
+      // Clear of the floating bottom bar before tapping.
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, -300));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Sign out'));
       await tester.pumpAndSettle();
       expect(find.text('Sign out of BusIn?'), findsOneWidget);
