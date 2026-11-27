@@ -810,6 +810,44 @@ class BusinL10nEn extends BusinL10n {
       'What the bus does appears here while you follow it.';
 
   @override
+  String get busLegendOpen => 'What the map shows';
+
+  @override
+  String get busLegendTitle => 'Reading the map';
+
+  @override
+  String get busLegendMyStop => 'Your stop. It pings so you spot it quickly.';
+
+  @override
+  String get busLegendStop => 'The other stops, with their names.';
+
+  @override
+  String get busLegendBus =>
+      'The bus, live. It moves smoothly between the positions it sends every few seconds.';
+
+  @override
+  String get busLegendMe =>
+      'You, while Show me is on. Your position stays on your phone.';
+
+  @override
+  String get busLegendCampus => 'The campus, where the route ends.';
+
+  @override
+  String get busLegendRoute => 'The planned route, along the roads.';
+
+  @override
+  String get busLegendTrail => 'Where the bus has driven on this trip.';
+
+  @override
+  String get busLegendHow =>
+      'The card at the bottom says when the bus should reach your stop. Open its updates to see what the bus did, stop by stop. A notification tells you when it is near your stop.';
+
+  @override
+  String busUpdatesToggle(int count) {
+    return 'Live updates, $count';
+  }
+
+  @override
   String get busMeShow => 'Show me';
 
   @override

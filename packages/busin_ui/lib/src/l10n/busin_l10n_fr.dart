@@ -830,6 +830,45 @@ class BusinL10nFr extends BusinL10n {
       'Ce que fait le bus s’affiche ici pendant que vous le suivez.';
 
   @override
+  String get busLegendOpen => 'Ce que montre la carte';
+
+  @override
+  String get busLegendTitle => 'Lire la carte';
+
+  @override
+  String get busLegendMyStop =>
+      'Votre arrêt. Il clignote pour que vous le repériez vite.';
+
+  @override
+  String get busLegendStop => 'Les autres arrêts, avec leur nom.';
+
+  @override
+  String get busLegendBus =>
+      'Le bus, en direct. Il se déplace en douceur entre les positions qu\'il envoie toutes les quelques secondes.';
+
+  @override
+  String get busLegendMe =>
+      'Vous, quand « Me montrer » est activé. Votre position reste sur votre téléphone.';
+
+  @override
+  String get busLegendCampus => 'Le campus, où le trajet se termine.';
+
+  @override
+  String get busLegendRoute => 'Le trajet prévu, le long des routes.';
+
+  @override
+  String get busLegendTrail => 'Là où le bus est passé pendant ce trajet.';
+
+  @override
+  String get busLegendHow =>
+      'La carte en bas indique quand le bus devrait arriver à votre arrêt. Ouvrez ses mises à jour pour voir ce que le bus a fait, arrêt par arrêt. Une notification vous prévient quand il approche de votre arrêt.';
+
+  @override
+  String busUpdatesToggle(int count) {
+    return 'Mises à jour en direct, $count';
+  }
+
+  @override
   String get busMeShow => 'Me montrer';
 
   @override

@@ -731,6 +731,18 @@ class SupabaseLivePositionsRepository implements LivePositionsRepository {
   Future<bool> canFollowBuses() => guarded(() async => (await _client.rpc<dynamic>('can_follow_buses')) == true);
 
   @override
+  Future<RouteLine?> schoolRoute() => guarded(() async {
+        final rows = await _client.rpc<List<dynamic>>('school_route');
+        if (rows.isEmpty) return null;
+        final route = RouteLine.fromRow(Map<String, dynamic>.from(rows.first as Map));
+        return route.isEmpty ? null : route;
+      });
+
+  @override
+  Future<List<GeoPoint>> tripTrail(String tripId) =>
+      guarded(() async => lineFromGeoJson(await _client.rpc<dynamic>('trip_trail', params: {'p_trip_id': tripId})));
+
+  @override
   Future<bool> publish({
     required String tripId,
     required GeoPoint position,
