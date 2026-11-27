@@ -31,6 +31,11 @@ Current phase: **Phase 5, insights** ([docs/phases/phase-5-insights.md](docs/pha
 
 H6 (release signing fails without `key.properties`), H7 (iOS Google sign-in config), L1 to L3. Not planned for fix in legacy unless the owner asks.
 
+## Handoff: whole button takes the tap (2026-11-27, #555)
+
+- A stretched button or card now reacts anywhere inside its contour, in every app (shared design system). Owner: tap
+  the edges of wide buttons (sign-in, Show the bus, sheets) on a phone.
+
 ## Handoff: released to `main` (2026-11-17, #554)
 
 - Live: the Next.js 16.4.6 patch, rich text notices, trip reminders with an End trip action, staff access asked at most
