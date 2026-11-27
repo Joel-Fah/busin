@@ -1,7 +1,7 @@
 name: busin_student
 description: BusIn student app. Subscriptions, rotating QR code, scan history and the live bus. No staff or admin code.
 publish_to: none
-version: 0.1.0+2
+version: 0.1.0+3
 resolution: workspace
 
 environment:
